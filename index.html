@@ -3,167 +3,496 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="AJOY — 3D Artist & Animator. Tools, scripts and 3D work.">
+<meta name="description" content="AJOY — 3D Artist & Animator creating animation work, Maya tools, and workflow experiments.">
 <title>AJOY — 3D Artist & Animator</title>
 <style>
 :root{
-  --bg:#090b0b;--panel:#111414;--panel2:#151919;--text:#f5f6f3;--muted:#9ba39f;
-  --line:#252a29;--accent:#b9ff60;--max:1160px;--radius:20px;
+  --bg:#0c0f0e;
+  --bg2:#101413;
+  --panel:#141817;
+  --panel2:#181d1b;
+  --text:#f3f5f2;
+  --muted:#98a19c;
+  --line:#272e2b;
+  --accent:#b8ef72;
+  --accent-soft:rgba(184,239,114,.10);
+  --max:1180px;
 }
-html.light{--bg:#f6f7f4;--panel:#fff;--panel2:#f1f3ef;--text:#111412;--muted:#65706b;--line:#dde2dd;--accent:#6ebd2d}
+html.light{
+  --bg:#f5f6f3;
+  --bg2:#eef1ed;
+  --panel:#ffffff;
+  --panel2:#f2f4f1;
+  --text:#101511;
+  --muted:#68736d;
+  --line:#dde3de;
+  --accent:#6cae36;
+  --accent-soft:rgba(108,174,54,.09);
+}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
-a{color:inherit;text-decoration:none}
-.container{width:min(calc(100% - 36px),var(--max));margin:auto}
-.nav{height:72px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-.logo{font-weight:850;letter-spacing:.08em;font-size:15px}
-.nav-right{display:flex;gap:18px;align-items:center}
-.nav-link{font-size:14px;color:var(--muted)}
-.nav-link:hover{color:var(--text)}
-.toggle{width:38px;height:38px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:11px;cursor:pointer}
-.hero{padding:92px 0 72px}
-.hero-inner{display:grid;grid-template-columns:1.35fr .65fr;gap:64px;align-items:end}
-.kicker{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:750}
-h1{font-size:clamp(48px,7vw,88px);line-height:.92;letter-spacing:-.065em;margin:16px 0 22px;max-width:850px}
-.lead{max-width:650px;font-size:18px;line-height:1.55;color:var(--muted);margin:0}
-.hero-links{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
-.btn{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:0 17px;border:1px solid var(--line);background:var(--panel);border-radius:12px;font-weight:750;font-size:14px;transition:.2s}
-.btn:hover{transform:translateY(-2px);border-color:#54605b}
-.btn.primary{background:var(--accent);border-color:var(--accent);color:#10160d}
-.quick-note{border-left:1px solid var(--line);padding-left:22px;color:var(--muted);font-size:14px;line-height:1.7}
-.quick-note strong{color:var(--text);display:block;margin-bottom:5px}
-section{padding:68px 0}
-.section-top{display:flex;align-items:end;justify-content:space-between;gap:24px;margin-bottom:24px}
-.section-top h2{font-size:34px;line-height:1;margin:7px 0 0;letter-spacing:-.04em}
-.section-top p{max-width:460px;margin:0;color:var(--muted);font-size:14px}
-.products{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
-.card{display:flex;flex-direction:column;background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;transition:.22s}
-.card:hover{transform:translateY(-5px);border-color:#44504b}
-.card-art{aspect-ratio:16/10;background:
-  radial-gradient(circle at 70% 25%,rgba(185,255,96,.14),transparent 25%),
-  linear-gradient(135deg,var(--panel2),var(--panel));
-  position:relative;overflow:hidden
+body{
+  margin:0;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 82% 0%,rgba(184,239,114,.055),transparent 22%),
+    radial-gradient(circle at 0% 24%,rgba(184,239,114,.025),transparent 24%),
+    var(--bg);
+  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+  line-height:1.5;
+  transition:background .25s ease,color .25s ease;
 }
-.card-art:before{content:"";position:absolute;inset:18px;border:1px solid var(--line);border-radius:13px}
-.card-art:after{content:"";position:absolute;width:72px;height:72px;border-radius:22px;right:25px;bottom:23px;background:rgba(185,255,96,.11);border:1px solid rgba(185,255,96,.25);transform:rotate(12deg)}
-.art-label{position:absolute;left:28px;top:27px;font-size:11px;color:var(--muted);letter-spacing:.13em;text-transform:uppercase;font-weight:800}
-.card-body{padding:20px}
-.card-num{font-size:11px;color:var(--accent);font-weight:800;letter-spacing:.13em}
-.card h3{font-size:21px;line-height:1.08;letter-spacing:-.025em;margin:10px 0 9px}
-.card p{font-size:14px;line-height:1.55;color:var(--muted);margin:0}
-.card-bottom{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:20px}
-.tag{font-size:10px;color:var(--muted);letter-spacing:.1em;font-weight:800}
-.view{font-size:13px;font-weight:800}
-.view span{color:var(--accent);padding-left:5px}
-.more{margin-top:18px;color:var(--muted);font-size:13px}
-.strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:48px 0}
-.strip-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-.strip-item{padding:20px 0}
-.strip-item:not(:first-child){border-left:1px solid var(--line);padding-left:22px}
-.strip-item small{color:var(--accent);font-weight:800;letter-spacing:.1em}
-.strip-item h3{margin:10px 0 5px;font-size:17px}
-.strip-item p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}
-.about{display:grid;grid-template-columns:.7fr 1.3fr;gap:70px}
-.about-copy{max-width:680px}
-.about-copy p{color:var(--muted);font-size:16px;line-height:1.7;margin:0 0 15px}
-.links{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
-.footer{padding:30px 0 42px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
-.footer-row{display:flex;align-items:center;justify-content:space-between;gap:20px}
-@media(max-width:900px){.hero-inner,.about{grid-template-columns:1fr}.quick-note{border-left:0;border-top:1px solid var(--line);padding:18px 0 0}.products{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){.container{width:min(calc(100% - 26px),var(--max))}.nav-link{display:none}.hero{padding:70px 0 55px}.hero-inner{gap:35px}.section-top{display:block}.section-top p{margin-top:14px}.products,.strip-grid{grid-template-columns:1fr}.strip-item:not(:first-child){border-left:0;border-top:1px solid var(--line);padding-left:0;padding-top:18px}.about{gap:35px}.footer-row{align-items:flex-start;flex-direction:column}}
+a{color:inherit;text-decoration:none}
+.container{width:min(calc(100% - 40px),var(--max));margin:0 auto}
+
+/* Header — kept close to the earlier layout the user liked */
+.site-header{
+  position:sticky;
+  top:0;
+  z-index:20;
+  background:rgba(12,15,14,.82);
+  backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+html.light .site-header{background:rgba(245,246,243,.84)}
+.nav{
+  height:72px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:11px;
+  font-size:15px;
+  font-weight:850;
+  letter-spacing:.07em;
+}
+.brand-mark{
+  width:34px;
+  height:34px;
+  display:grid;
+  place-items:center;
+  border:1px solid var(--line);
+  border-radius:11px;
+  background:var(--panel);
+  box-shadow:0 8px 28px rgba(0,0,0,.10);
+}
+.nav-right{display:flex;align-items:center;gap:22px}
+.nav-link{
+  color:var(--muted);
+  font-size:14px;
+  transition:color .2s ease;
+}
+.nav-link:hover{color:var(--text)}
+.toggle{
+  width:40px;
+  height:40px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  color:var(--text);
+  cursor:pointer;
+  transition:transform .2s ease,border-color .2s ease;
+}
+.toggle:hover{transform:translateY(-1px);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+
+/* Hero */
+.hero{padding:92px 0 76px}
+.hero-grid{
+  display:grid;
+  grid-template-columns:minmax(0,1.45fr) minmax(240px,.55fr);
+  gap:70px;
+  align-items:end;
+}
+.eyebrow{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+}
+.eyebrow .dot{color:var(--accent);padding:0 3px}
+h1{
+  margin:15px 0 21px;
+  font-size:clamp(4rem,8vw,7.2rem);
+  line-height:.88;
+  letter-spacing:-.075em;
+  max-width:900px;
+}
+.hero-copy{
+  max-width:650px;
+  color:var(--muted);
+  font-size:18px;
+  line-height:1.62;
+}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
+.btn{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:0 17px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:var(--panel);
+  font-size:14px;
+  font-weight:750;
+  transition:transform .25s ease,border-color .25s ease,background .25s ease;
+}
+.btn:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 32%,var(--line))}
+.btn.primary{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#11180e;
+}
+.hero-aside{
+  border-left:1px solid var(--line);
+  padding-left:23px;
+  color:var(--muted);
+  font-size:14px;
+  line-height:1.7;
+}
+.hero-aside strong{display:block;color:var(--text);margin-bottom:5px;font-size:15px}
+
+/* Work */
+.section{padding:76px 0}
+.section-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:end;
+  gap:25px;
+  margin-bottom:25px;
+}
+.kicker{
+  color:var(--accent);
+  font-size:11px;
+  font-weight:850;
+  letter-spacing:.15em;
+  text-transform:uppercase;
+}
+.section-head h2{
+  margin:7px 0 0;
+  font-size:34px;
+  line-height:1;
+  letter-spacing:-.045em;
+}
+.section-head p{
+  max-width:440px;
+  margin:0;
+  color:var(--muted);
+  font-size:14px;
+}
+
+/* Product cards */
+.products{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:16px;
+}
+.card{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+  min-height:390px;
+  background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);
+  border-radius:20px;
+  transition:transform .42s cubic-bezier(.2,.8,.2,1),border-color .25s ease,box-shadow .42s ease;
+}
+.card:hover{
+  transform:translateY(-7px);
+  border-color:color-mix(in srgb,var(--accent) 28%,var(--line));
+  box-shadow:0 28px 60px rgba(0,0,0,.16);
+}
+.card-media{
+  position:relative;
+  aspect-ratio:16/9;
+  overflow:hidden;
+  background:
+    radial-gradient(circle at 68% 28%,var(--accent-soft),transparent 24%),
+    linear-gradient(135deg,var(--panel2),var(--bg2));
+  border-bottom:1px solid var(--line);
+}
+.card-media:before{
+  content:"";
+  position:absolute;
+  inset:17px;
+  border:1px solid color-mix(in srgb,var(--line) 90%,transparent);
+  border-radius:13px;
+}
+.card-media:after{
+  content:"";
+  position:absolute;
+  width:78px;
+  height:78px;
+  right:25px;
+  bottom:20px;
+  border-radius:20px;
+  border:1px solid color-mix(in srgb,var(--accent) 25%,transparent);
+  background:linear-gradient(135deg,rgba(184,239,114,.12),transparent);
+  transform:rotate(12deg);
+}
+.media-grid{
+  position:absolute;
+  inset:30px 30px auto 30px;
+  display:grid;
+  gap:9px;
+  width:46%;
+}
+.media-line{
+  height:6px;
+  border-radius:99px;
+  background:var(--line);
+}
+.media-line.short{width:70%}
+.media-line.tiny{width:48%}
+.media-chip{
+  position:absolute;
+  top:26px;
+  right:27px;
+  color:var(--muted);
+  font-size:10px;
+  font-weight:800;
+  letter-spacing:.13em;
+  text-transform:uppercase;
+}
+.card-body{padding:20px;display:flex;flex-direction:column;flex:1}
+.card-number{color:var(--accent);font-size:11px;font-weight:850;letter-spacing:.14em}
+.card h3{
+  margin:9px 0 8px;
+  font-size:21px;
+  line-height:1.1;
+  letter-spacing:-.03em;
+}
+.card p{margin:0;color:var(--muted);font-size:14px;line-height:1.55}
+.card-foot{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-top:auto;
+  padding-top:22px;
+}
+.card-tag{
+  color:var(--muted);
+  font-size:10px;
+  font-weight:850;
+  letter-spacing:.1em;
+}
+.view-link{font-size:13px;font-weight:800}
+.view-link span{color:var(--accent);display:inline-block;transition:transform .2s ease}
+.card:hover .view-link span{transform:translateX(4px)}
+
+/* Divider statement */
+.divider{
+  border-top:1px solid var(--line);
+  border-bottom:1px solid var(--line);
+  padding:48px 0;
+}
+.statement{
+  max-width:880px;
+  font-size:clamp(1.7rem,3.5vw,3.15rem);
+  line-height:1.08;
+  letter-spacing:-.05em;
+}
+.statement em{font-style:normal;color:var(--accent)}
+
+/* About */
+.about{
+  display:grid;
+  grid-template-columns:.7fr 1.3fr;
+  gap:70px;
+}
+.about h2{
+  margin:7px 0 0;
+  font-size:34px;
+  line-height:1;
+  letter-spacing:-.045em;
+}
+.about-copy{
+  max-width:690px;
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.7;
+}
+.about-copy p{margin:0 0 14px}
+.about-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+
+/* Footer */
+.footer{
+  border-top:1px solid var(--line);
+  padding:29px 0 38px;
+  color:var(--muted);
+  font-size:13px;
+}
+.footer-row{display:flex;justify-content:space-between;gap:20px}
+.footer-links{display:flex;gap:17px}
+.footer-links a:hover{color:var(--text)}
+
+/* Smooth entrance */
+.reveal{
+  opacity:0;
+  transform:translateY(18px);
+  transition:opacity .7s ease,transform .7s cubic-bezier(.2,.75,.2,1);
+}
+.reveal.visible{opacity:1;transform:none}
+.delay1{transition-delay:.08s}
+.delay2{transition-delay:.16s}
+.delay3{transition-delay:.24s}
+
+@media(max-width:900px){
+  .hero-grid,.about{grid-template-columns:1fr}
+  .hero-grid{gap:38px}
+  .hero-aside{border-left:0;border-top:1px solid var(--line);padding:18px 0 0}
+  .products{grid-template-columns:1fr 1fr}
+}
+@media(max-width:640px){
+  .container{width:min(calc(100% - 26px),var(--max))}
+  .hero{padding:68px 0 58px}
+  .hero-grid{gap:32px}
+  h1{font-size:clamp(3.5rem,17vw,5rem)}
+  .nav-right{gap:12px}
+  .nav-link{display:none}
+  .section{padding:60px 0}
+  .section-head{display:block}
+  .section-head p{margin-top:13px}
+  .products{grid-template-columns:1fr}
+  .card{min-height:370px}
+  .footer-row{flex-direction:column}
+}
+@media(prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *,*:before,*:after{animation:none!important;transition:none!important}
+}
 </style>
 </head>
 <body>
-<div class="container">
-  <nav class="nav">
-    <a class="logo" href="#top">AJOY</a>
-    <div class="nav-right">
-      <a class="nav-link" href="#work">Tools</a>
-      <a class="nav-link" href="#about">About</a>
-      <a class="nav-link" href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub ↗</a>
-      <button class="toggle" id="theme" aria-label="Toggle theme">☼</button>
-    </div>
-  </nav>
-</div>
+
+<header class="site-header">
+  <div class="container">
+    <nav class="nav">
+      <a class="brand" href="#top" aria-label="AJOY home">
+        <span class="brand-mark">A</span>
+        <span>AJOY</span>
+      </a>
+      <div class="nav-right">
+        <a class="nav-link" href="#work">Tools</a>
+        <a class="nav-link" href="#about">About</a>
+        <a class="nav-link" href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub ↗</a>
+        <button class="toggle" id="theme" aria-label="Toggle light and dark mode">☼</button>
+      </div>
+    </nav>
+  </div>
+</header>
 
 <main id="top">
-  <section class="hero">
-    <div class="container hero-inner">
+  <section class="hero reveal">
+    <div class="container hero-grid">
       <div>
-        <div class="kicker">3D Artist & Animator</div>
+        <div class="eyebrow">3D Artist <span class="dot">×</span> Animator</div>
         <h1>I make 3D work<br>and useful tools.</h1>
-        <p class="lead">Animation, rigging, Maya tools, and experiments built to make production a little easier.</p>
-        <div class="hero-links">
-          <a class="btn primary" href="#work">View my tools ↓</a>
+        <p class="hero-copy">
+          I work across animation, rigging, and 3D workflows — and build small tools when I find a better way to do something.
+        </p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#work">Explore my tools ↓</a>
           <a class="btn" href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad ↗</a>
           <a class="btn" href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub ↗</a>
         </div>
       </div>
-      <div class="quick-note">
-        <strong>Currently building</strong>
-        Practical Maya utilities and other workflow tools for 3D artists.
-      </div>
+      <aside class="hero-aside reveal delay2">
+        <strong>Currently</strong>
+        Building practical Maya utilities and exploring new ideas around animation and 3D production.
+      </aside>
     </div>
   </section>
 
-  <section id="work">
+  <section class="section" id="work">
     <div class="container">
-      <div class="section-top">
-        <div><div class="kicker">Selected work</div><h2>Tools</h2></div>
-        <p>Three small tools I’ve released so far. Click any one to see the full product page.</p>
+      <div class="section-head reveal">
+        <div>
+          <div class="kicker">Selected work</div>
+          <h2>Tools I’ve built.</h2>
+        </div>
+        <p>Focused utilities for real production problems. Open a tool to see the full details.</p>
       </div>
 
       <div class="products">
-        <article class="card">
-          <div class="card-art"><div class="art-label">Maya · Textures</div></div>
-          <div class="card-body">
-            <div class="card-num">01</div>
-            <h3>UDIM Preview Generator</h3>
-            <p>One-click UDIM texture previews for Maya.</p>
-            <div class="card-bottom"><span class="tag">WORKFLOW UTILITY</span><a class="view" href="https://ajoyp.gumroad.com/l/zoqsmd" target="_blank" rel="noopener">View tool <span>↗</span></a></div>
-          </div>
+        <article class="card reveal delay1">
+          <a href="https://ajoyp.gumroad.com/l/zoqsmd" target="_blank" rel="noopener" aria-label="View UDIM Preview Generator on Gumroad">
+            <div class="card-media">
+              <div class="media-chip">Maya · Textures</div>
+              <div class="media-grid">
+                <div class="media-line"></div><div class="media-line short"></div><div class="media-line tiny"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-number">01</div>
+              <h3>UDIM Preview Generator</h3>
+              <p>One-click UDIM texture previews for Maya.</p>
+              <div class="card-foot"><span class="card-tag">WORKFLOW UTILITY</span><span class="view-link">View tool <span>↗</span></span></div>
+            </div>
+          </a>
         </article>
 
-        <article class="card">
-          <div class="card-art"><div class="art-label">Maya · Scene</div></div>
-          <div class="card-body">
-            <div class="card-num">02</div>
-            <h3>Revert to Last Saved</h3>
-            <p>Return to your last saved Maya scene in one click.</p>
-            <div class="card-bottom"><span class="tag">SCENE UTILITY</span><a class="view" href="https://ajoyp.gumroad.com/l/ckhvds" target="_blank" rel="noopener">View tool <span>↗</span></a></div>
-          </div>
+        <article class="card reveal delay2">
+          <a href="https://ajoyp.gumroad.com/l/ckhvds" target="_blank" rel="noopener" aria-label="View Revert to Last Saved on Gumroad">
+            <div class="card-media">
+              <div class="media-chip">Maya · Scene</div>
+              <div class="media-grid">
+                <div class="media-line"></div><div class="media-line short"></div><div class="media-line tiny"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-number">02</div>
+              <h3>Revert to Last Saved</h3>
+              <p>Return to your last saved Maya scene in one click.</p>
+              <div class="card-foot"><span class="card-tag">SCENE UTILITY</span><span class="view-link">View tool <span>↗</span></span></div>
+            </div>
+          </a>
         </article>
 
-        <article class="card">
-          <div class="card-art"><div class="art-label">Maya · Rigging</div></div>
-          <div class="card-body">
-            <div class="card-num">03</div>
-            <h3>Rivet</h3>
-            <p>Surface pinning for polygon and NURBS workflows in Maya.</p>
-            <div class="card-bottom"><span class="tag">SURFACE TOOL</span><a class="view" href="https://ajoyp.gumroad.com/l/cmljjj" target="_blank" rel="noopener">View tool <span>↗</span></a></div>
-          </div>
+        <article class="card reveal delay3">
+          <a href="https://ajoyp.gumroad.com/l/cmljjj" target="_blank" rel="noopener" aria-label="View Rivet on Gumroad">
+            <div class="card-media">
+              <div class="media-chip">Maya · Rigging</div>
+              <div class="media-grid">
+                <div class="media-line"></div><div class="media-line short"></div><div class="media-line tiny"></div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="card-number">03</div>
+              <h3>Rivet</h3>
+              <p>Surface pinning for polygon and NURBS workflows in Maya.</p>
+              <div class="card-foot"><span class="card-tag">SURFACE TOOL</span><span class="view-link">View tool <span>↗</span></span></div>
+            </div>
+          </a>
         </article>
       </div>
-      <div class="more">More tools and experiments coming.</div>
     </div>
   </section>
 
-  <div class="strip">
-    <div class="container strip-grid">
-      <div class="strip-item"><small>01</small><h3>Simple</h3><p>Small utilities that do one job well.</p></div>
-      <div class="strip-item"><small>02</small><h3>Practical</h3><p>Made around real production problems.</p></div>
-      <div class="strip-item"><small>03</small><h3>Artist-first</h3><p>Less friction, more time for the work.</p></div>
+  <section class="divider reveal">
+    <div class="container">
+      <div class="statement">
+        I like solving the small problems that interrupt the creative process — <em>then turning the solution into a tool.</em>
+      </div>
     </div>
-  </div>
+  </section>
 
-  <section id="about">
+  <section class="section" id="about">
     <div class="container about">
-      <div><div class="kicker">About me</div><h2 style="margin:8px 0 0;font-size:34px;line-height:1;letter-spacing:-.04em">A little about me.</h2></div>
-      <div class="about-copy">
-        <p>I’m AJOY, a 3D artist and animator. I work on animation and rigging, and I also enjoy building tools that remove annoying or repetitive parts of the workflow.</p>
-        <p>This site is where I collect my 3D work, tools, experiments, and things I’m currently exploring.</p>
-        <div class="links">
+      <div class="reveal">
+        <div class="kicker">About me</div>
+        <h2>A little about me.</h2>
+      </div>
+      <div class="about-copy reveal delay1">
+        <p>I’m AJOY, a 3D artist and animator working across animation, rigging, and technical workflows.</p>
+        <p>I also enjoy building small tools for the repetitive parts of production — the kind of things that should take seconds instead of becoming a task.</p>
+        <div class="about-links">
           <a class="btn" href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub ↗</a>
           <a class="btn" href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad ↗</a>
         </div>
@@ -175,19 +504,42 @@ section{padding:68px 0}
 <footer class="footer">
   <div class="container footer-row">
     <span>© <span id="year"></span> AJOY — 3D Artist & Animator</span>
-    <span>imajoy.github.io</span>
+    <div class="footer-links">
+      <a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub</a>
+      <a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad</a>
+    </div>
   </div>
 </footer>
 
 <script>
 const root=document.documentElement;
-const btn=document.getElementById("theme");
+const toggle=document.getElementById("theme");
 const saved=localStorage.getItem("ajoy-theme");
-if(saved==="light"){root.classList.add("light");}
-function icon(){btn.textContent=root.classList.contains("light")?"☾":"☼";}
-icon();
-btn.onclick=()=>{root.classList.toggle("light");localStorage.setItem("ajoy-theme",root.classList.contains("light")?"light":"dark");icon();};
+if(saved==="light") root.classList.add("light");
+
+function updateIcon(){
+  toggle.textContent=root.classList.contains("light")?"☾":"☼";
+}
+updateIcon();
+
+toggle.addEventListener("click",()=>{
+  root.classList.toggle("light");
+  localStorage.setItem("ajoy-theme",root.classList.contains("light")?"light":"dark");
+  updateIcon();
+});
+
 document.getElementById("year").textContent=new Date().getFullYear();
+
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(entry=>{
+    if(entry.isIntersecting){
+      entry.target.classList.add("visible");
+      observer.unobserve(entry.target);
+    }
+  });
+},{threshold:.12});
+
+document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
 </script>
 </body>
 </html>

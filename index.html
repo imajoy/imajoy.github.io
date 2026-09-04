@@ -3,451 +3,252 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="AJOY — 3D Artist & Animator creating animation work, tools and workflow experiments.">
-<title>AJOY — 3D Artist & Animator</title>
-
+<title>AJOY — 3D Artist & Tools</title>
 <style>
 :root{
-  --bg:#0b0d0c;
-  --bg-soft:#101311;
-  --surface:#141816;
-  --surface-2:#181c1a;
-  --text:#f3f5f1;
-  --muted:#98a09b;
-  --line:#262d29;
-  --accent:#b8f36b;
-  --accent-2:#d8ffa6;
-  --max:1180px;
-  --ease:cubic-bezier(.22,.75,.2,1);
+  --bg:#0b0b0d;--surface:#151518;--surface2:#1b1b20;--text:#f4f3f2;--muted:#a4a1a0;
+  --line:#2a2a2e;--accent:#b8ef72;--accent-soft:rgba(184,239,114,.10);--max:1180px;
 }
-html.light{
-  --bg:#f5f6f3;
-  --bg-soft:#eef1ed;
-  --surface:#ffffff;
-  --surface-2:#f1f4ef;
-  --text:#101310;
-  --muted:#68736d;
-  --line:#dce2dd;
-  --accent:#68aa34;
-  --accent-2:#467e1e;
-}
+html.light{--bg:#f5f5f2;--surface:#fff;--surface2:#f1f1ee;--text:#111214;--muted:#686a6b;--line:#dedfda;--accent:#70b43a;--accent-soft:rgba(112,180,58,.10)}
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
-body{
-  margin:0;
-  color:var(--text);
-  background:
-    radial-gradient(circle at 12% 0%,rgba(184,243,107,.055),transparent 24%),
-    radial-gradient(circle at 92% 18%,rgba(184,243,107,.035),transparent 23%),
-    var(--bg);
-  font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-  line-height:1.5;
-  overflow-x:hidden;
-  transition:background .3s ease,color .3s ease;
-}
-a{color:inherit;text-decoration:none}
+body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;line-height:1.5}
+a{text-decoration:none;color:inherit}
 .container{width:min(calc(100% - 40px),var(--max));margin:auto}
 
-.site-header{
-  position:sticky;
-  top:0;
-  z-index:50;
-  background:rgba(11,13,12,.80);
-  backdrop-filter:blur(16px);
-  border-bottom:1px solid var(--line);
-}
-html.light .site-header{background:rgba(245,246,243,.83)}
-.nav{
-  height:72px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-}
-.brand{display:flex;align-items:center;gap:11px;font-weight:850;letter-spacing:.07em;font-size:15px}
-.brand-mark{
-  width:34px;height:34px;border:1px solid var(--line);border-radius:11px;
-  display:grid;place-items:center;background:var(--surface)
-}
-.nav-links{display:flex;align-items:center;gap:26px}
-.nav-links a{font-size:14px;color:var(--muted);transition:color .2s ease}
-.nav-links a:hover{color:var(--text)}
-.nav-actions{display:flex;align-items:center;gap:10px}
-.icon-btn{
-  width:40px;height:40px;border:1px solid var(--line);border-radius:12px;
-  background:var(--surface);color:var(--text);cursor:pointer;
-  transition:transform .2s ease,border-color .2s ease
-}
-.icon-btn:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
-.menu{display:none}
+/* Header */
+header{position:sticky;top:0;z-index:20;background:rgba(11,11,13,.82);backdrop-filter:blur(15px);border-bottom:1px solid var(--line)}
+html.light header{background:rgba(245,245,242,.86)}
+.nav{height:72px;display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;gap:11px;align-items:center;font-size:15px;font-weight:900;letter-spacing:.07em}
+.brand-mark{width:34px;height:34px;border:1px solid var(--line);border-radius:11px;display:grid;place-items:center;background:var(--surface)}
+.nav-right{display:flex;align-items:center;gap:24px}
+.nav-right a{font-size:14px;color:var(--muted)}
+.nav-right a:hover{color:var(--text)}
+.toggle{width:40px;height:40px;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;cursor:pointer}
 
 /* Hero */
-.hero{padding:82px 0 60px}
-.hero-grid{
-  display:grid;
-  grid-template-columns:minmax(0,1.18fr) minmax(340px,.82fr);
-  gap:42px;
-  align-items:center;
-}
-.hero-copy{position:relative;padding:18px 0 26px}
-.hero-copy:before{
-  content:"";
-  position:absolute;
-  width:220px;height:220px;
-  left:-80px;top:-70px;
-  border-radius:50%;
-  border:1px solid color-mix(in srgb,var(--accent) 12%,transparent);
-  box-shadow:0 0 0 28px color-mix(in srgb,var(--accent) 3%,transparent),0 0 0 56px color-mix(in srgb,var(--accent) 2%,transparent);
-  pointer-events:none
-}
-.eyebrow{
-  display:flex;align-items:center;gap:9px;
-  text-transform:uppercase;letter-spacing:.16em;
-  color:var(--muted);font-size:11px;font-weight:850;
-}
-.eyebrow i{width:7px;height:7px;border-radius:50%;background:var(--accent);display:inline-block;box-shadow:0 0 16px color-mix(in srgb,var(--accent) 55%,transparent)}
-h1{
-  position:relative;
-  margin:17px 0 20px;
-  max-width:850px;
-  font-size:clamp(4rem,8vw,7.7rem);
-  line-height:.86;
-  letter-spacing:-.078em;
-}
-h1 .line-2{
-  display:block;
-  color:var(--accent-2);
-}
-.hero-lead{
-  max-width:620px;color:var(--muted);
-  font-size:17px;line-height:1.7;margin:0
-}
-.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:28px}
-.btn{
-  min-height:46px;padding:0 17px;border-radius:12px;border:1px solid var(--line);
-  background:var(--surface);display:inline-flex;align-items:center;justify-content:center;
-  font-size:14px;font-weight:800;
-  transition:transform .25s var(--ease),border-color .25s ease,background .25s ease;
-}
-.btn:hover{transform:translateY(-3px);border-color:color-mix(in srgb,var(--accent) 32%,var(--line))}
+.hero{padding:88px 0 62px}
+.hero-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:end}
+.eyebrow{font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);font-weight:850}
+h1{font-size:clamp(4rem,8vw,7rem);line-height:.86;letter-spacing:-.08em;margin:16px 0 22px}
+h1 span{color:var(--accent)}
+.lead{max-width:610px;color:var(--muted);font-size:17px;line-height:1.65;margin:0}
+.hero-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:27px}
+.btn{min-height:46px;padding:0 17px;border:1px solid var(--line);border-radius:12px;background:var(--surface);display:inline-flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;transition:.25s}
+.btn:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:#10150d}
+.hero-panel{padding:22px;border:1px solid var(--line);border-radius:22px;background:linear-gradient(135deg,var(--surface2),var(--surface));position:relative;overflow:hidden}
+.hero-panel:before{content:"";position:absolute;right:-70px;top:-80px;width:210px;height:210px;border:1px solid color-mix(in srgb,var(--accent) 16%,transparent);border-radius:50%;box-shadow:0 0 0 25px color-mix(in srgb,var(--accent) 4%,transparent),0 0 0 50px color-mix(in srgb,var(--accent) 2%,transparent)}
+.panel-label{font-size:10px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);font-weight:850}
+.panel-title{font-size:24px;line-height:1.1;letter-spacing:-.035em;margin:12px 0}
+.panel-copy{font-size:13px;color:var(--muted);max-width:330px}
+.panel-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px}
+.stat{padding:13px;border:1px solid var(--line);border-radius:13px;background:var(--bg);font-size:11px;color:var(--muted)}
+.stat strong{display:block;color:var(--text);font-size:13px;margin-bottom:2px}
 
-/* Hero visual */
-.hero-visual{
-  min-height:410px;position:relative;
-  border:1px solid var(--line);border-radius:28px;
-  background:
-    radial-gradient(circle at 64% 32%,rgba(184,243,107,.11),transparent 21%),
-    linear-gradient(135deg,var(--surface-2),var(--surface));
-  overflow:hidden;
-}
-.hero-visual:before{
-  content:"";position:absolute;inset:18px;border:1px solid var(--line);border-radius:20px
-}
-.orbit{position:absolute;inset:0;display:grid;place-items:center}
-.orbit-ring{position:absolute;border:1px solid color-mix(in srgb,var(--accent) 20%,transparent);border-radius:50%;animation:spin 18s linear infinite}
-.orbit-ring.r1{width:220px;height:220px}.orbit-ring.r2{width:300px;height:300px;animation-direction:reverse;animation-duration:24s}.orbit-ring.r3{width:360px;height:360px;animation-duration:34s}
-.core{
-  width:96px;height:96px;border-radius:28px;transform:rotate(12deg);
-  background:linear-gradient(135deg,var(--accent),var(--accent-2));
-  box-shadow:0 20px 55px color-mix(in srgb,var(--accent) 18%,transparent);
-  animation:float 5s ease-in-out infinite;
-}
-.core:after{content:"A";display:grid;place-items:center;height:100%;font-size:30px;font-weight:900;color:#11160e;transform:rotate(-12deg)}
-.visual-label{position:absolute;left:27px;top:25px;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:850}
-.visual-note{
-  position:absolute;right:25px;bottom:24px;
-  padding:10px 12px;border:1px solid var(--line);border-radius:11px;
-  background:color-mix(in srgb,var(--surface) 88%,transparent);
-  font-size:11px;color:var(--muted);backdrop-filter:blur(9px)
-}
-.visual-note strong{color:var(--text);display:block;margin-bottom:1px}
-@keyframes spin{to{transform:rotate(360deg)}} 
-@keyframes float{50%{transform:rotate(12deg) translateY(-10px)}}
+/* Product section */
+.section{padding:76px 0}
+.section-head{display:flex;justify-content:space-between;align-items:end;gap:30px;margin-bottom:26px}
+.kicker{font-size:11px;letter-spacing:.15em;text-transform:uppercase;color:var(--accent);font-weight:850}
+h2{font-size:38px;line-height:1;letter-spacing:-.05em;margin:7px 0 0}
+.section-head p{max-width:460px;color:var(--muted);font-size:14px;margin:0}
 
-/* little scrolling statement */
-.ticker{
-  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
-  overflow:hidden;white-space:nowrap
-}
-.ticker-track{
-  width:max-content;display:flex;gap:30px;padding:13px 0;
-  animation:marquee 26s linear infinite;
-  color:var(--muted);font-size:11px;letter-spacing:.13em;text-transform:uppercase;font-weight:800
-}
-.ticker .dot{color:var(--accent)}
-@keyframes marquee{to{transform:translateX(-50%)}}
-
-/* Products */
-.section{padding:82px 0}
-.section-head{display:grid;grid-template-columns:.82fr 1.18fr;gap:30px;align-items:end;margin-bottom:26px}
-.kicker{font-size:11px;color:var(--accent);font-weight:850;letter-spacing:.15em;text-transform:uppercase}
-h2{margin:8px 0 0;font-size:38px;line-height:1;letter-spacing:-.05em}
-.section-intro{margin:0;color:var(--muted);font-size:14px;line-height:1.65;max-width:500px;justify-self:end}
-
-/* Staggered / unique product layout */
-.product-list{display:grid;gap:14px}
+/* Product grid */
+.products{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
 .product{
-  display:grid;
-  grid-template-columns:72px minmax(210px,1fr) minmax(250px,.9fr) 112px;
-  gap:18px;align-items:center;
-  padding:18px;
-  border:1px solid var(--line);border-radius:18px;
-  background:linear-gradient(100deg,var(--surface),var(--surface-2));
-  transition:transform .35s var(--ease),border-color .25s ease,box-shadow .35s ease;
+  overflow:hidden;border:1px solid var(--line);border-radius:21px;background:var(--surface);
+  transition:transform .38s cubic-bezier(.22,.75,.2,1),border-color .25s,box-shadow .38s
 }
-.product:hover{transform:translateX(5px);border-color:color-mix(in srgb,var(--accent) 28%,var(--line));box-shadow:0 20px 50px rgba(0,0,0,.10)}
-.product-num{
-  width:54px;height:54px;border-radius:15px;border:1px solid var(--line);
-  display:grid;place-items:center;color:var(--accent);font-size:12px;font-weight:850;
-  background:var(--bg-soft)
-}
-.product h3{font-size:19px;line-height:1.12;letter-spacing:-.025em;margin:0 0 7px}
-.product-cat{font-size:10px;letter-spacing:.12em;text-transform:uppercase;font-weight:850;color:var(--muted)}
-.product-desc{color:var(--muted);font-size:13px;line-height:1.55;max-width:380px}
-.product-visual{
-  height:88px;border-radius:13px;border:1px solid var(--line);
-  position:relative;overflow:hidden;
-  background:
-    linear-gradient(135deg,color-mix(in srgb,var(--accent) 6%,var(--surface)),var(--surface));
-}
-.product-visual .mini-grid{
-  position:absolute;left:17px;top:18px;width:55%;display:grid;gap:7px
-}
-.product-visual .mini-line{height:5px;border-radius:99px;background:var(--line)}
-.product-visual .mini-line.w2{width:72%}.product-visual .mini-line.w3{width:48%}
-.product-visual .mini-shape{
-  position:absolute;width:45px;height:45px;right:20px;top:21px;border:1px solid color-mix(in srgb,var(--accent) 35%,var(--line));
-  border-radius:12px;transform:rotate(14deg);background:color-mix(in srgb,var(--accent) 8%,transparent)
-}
-.product-link{
-  justify-self:end;
-  display:inline-flex;align-items:center;justify-content:center;gap:5px;
-  height:40px;padding:0 12px;border:1px solid var(--line);border-radius:11px;font-size:12px;font-weight:800;
-  transition:background .2s ease,border-color .2s ease,transform .2s ease
-}
-.product-link:hover{background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 28%,var(--line));transform:translateY(-2px)}
-.product-link span{color:var(--accent)}
+.product:hover{transform:translateY(-6px);border-color:color-mix(in srgb,var(--accent) 33%,var(--line));box-shadow:0 24px 60px rgba(0,0,0,.18)}
+.product.featured{grid-column:span 2;display:grid;grid-template-columns:1.08fr .92fr}
+.product-image{position:relative;overflow:hidden;background:var(--bg);min-height:300px}
+.product:not(.featured) .product-image{aspect-ratio:16/9}
+.product-image img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.22,.75,.2,1),filter .3s}
+.product:hover .product-image img{transform:scale(1.045)}
+.udim{object-position:50% 30%}.revert{object-position:50% 36%}.rivet{object-position:50% 28%}
+.product-image:after{content:"";position:absolute;inset:0;background:linear-gradient(to bottom,transparent 45%,rgba(0,0,0,.38))}
+.product-badge{position:absolute;z-index:2;left:15px;top:15px;padding:7px 9px;border-radius:9px;border:1px solid rgba(255,255,255,.14);background:rgba(10,10,12,.70);backdrop-filter:blur(9px);font-size:10px;font-weight:850;letter-spacing:.11em;color:#fff;text-transform:uppercase}
+.product-copy{padding:24px;display:flex;flex-direction:column}
+.featured .product-copy{justify-content:center;padding:30px}
+.product-number{color:var(--accent);font-size:11px;font-weight:900;letter-spacing:.14em}
+.product h3{font-size:26px;line-height:1.06;letter-spacing:-.035em;margin:9px 0 10px}
+.product:not(.featured) h3{font-size:21px}
+.product p{color:var(--muted);font-size:14px;line-height:1.6;margin:0;max-width:520px}
+.product-meta{display:flex;align-items:center;justify-content:space-between;gap:15px;margin-top:24px}
+.price{font-weight:850;font-size:13px}
+.price small{color:var(--muted);font-weight:650;margin-left:4px}
+.view{display:inline-flex;align-items:center;gap:6px;color:var(--text);font-size:13px;font-weight:850}
+.view span{color:var(--accent);transition:transform .2s}
+.product:hover .view span{transform:translateX(4px)}
+.product-tags{display:flex;gap:7px;flex-wrap:wrap;margin-top:16px}
+.tag{border:1px solid var(--line);border-radius:999px;padding:5px 8px;color:var(--muted);font-size:9px;font-weight:850;letter-spacing:.1em}
 
-/* Statement */
-.feature{
-  display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center;
-  padding:62px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)
-}
-.feature-title{
-  font-size:clamp(2.2rem,4.5vw,4.2rem);
-  line-height:1;letter-spacing:-.06em;max-width:720px;margin:0
-}
-.feature-title em{font-style:normal;color:var(--accent)}
-.feature-copy{color:var(--muted);font-size:14px;line-height:1.75;max-width:490px}
-
-/* About */
-.about{padding-top:84px;padding-bottom:92px}
-.about-grid{display:grid;grid-template-columns:.75fr 1.25fr;gap:60px}
-.about h2{font-size:37px}
-.about-copy{max-width:690px;color:var(--muted);font-size:16px;line-height:1.75}
+/* Personal section */
+.statement{padding:72px 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.statement-grid{display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center}
+.statement h2{font-size:clamp(2.4rem,4.5vw,4.2rem);line-height:1;max-width:650px}
+.statement h2 span{color:var(--accent)}
+.statement p{color:var(--muted);font-size:15px;line-height:1.75;max-width:480px}
+.about{padding:80px 0}
+.about-grid{display:grid;grid-template-columns:.7fr 1.3fr;gap:60px}
+.about-copy{color:var(--muted);font-size:16px;line-height:1.75;max-width:680px}
 .about-copy p{margin:0 0 14px}
 .about-links{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
-
-/* Footer */
 footer{border-top:1px solid var(--line);padding:28px 0 38px;color:var(--muted);font-size:12px}
 .footer-row{display:flex;justify-content:space-between;gap:20px}
-.footer-links{display:flex;gap:17px}.footer-links a:hover{color:var(--text)}
+.footer-links{display:flex;gap:18px}.footer-links a:hover{color:var(--text)}
 
-/* Entrance animation */
-.reveal{opacity:0;transform:translateY(22px);transition:opacity .75s ease,transform .75s var(--ease)}
-.reveal.show{opacity:1;transform:none}
-.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .75s ease,transform .75s cubic-bezier(.22,.75,.2,1)}
+.reveal.show{opacity:1;transform:none}.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}
 
-@media(max-width:920px){
-  .hero-grid,.feature,.about-grid{grid-template-columns:1fr}
-  .hero-visual{min-height:360px}
-  .section-head{grid-template-columns:1fr}.section-intro{justify-self:start}
-  .product{grid-template-columns:58px 1fr}.product-visual{grid-column:2;order:3}.product-link{justify-self:start;grid-column:2}
+@media(max-width:900px){
+  .hero-grid,.statement-grid,.about-grid{grid-template-columns:1fr}
+  .products{grid-template-columns:1fr}
+  .product.featured{grid-column:auto;display:block}
+  .featured .product-image{min-height:310px}
 }
-@media(max-width:640px){
+@media(max-width:620px){
   .container{width:min(calc(100% - 26px),var(--max))}
-  .nav-links{display:none}.menu{display:block}
-  .hero{padding:62px 0 45px}
-  h1{font-size:clamp(3.45rem,17vw,5.1rem)}
-  .hero-visual{min-height:320px}.orbit-ring.r3{width:300px;height:300px}
-  .section{padding:64px 0}
-  .product{padding:15px;gap:13px}
-  .product-desc{font-size:12px}
-  .feature{padding:48px 0}
+  .nav-right{gap:11px}.nav-right a{display:none}
+  .hero{padding:65px 0 50px}
+  h1{font-size:clamp(3.5rem,17vw,5.2rem)}
+  .hero-grid{gap:30px}
+  .section{padding:60px 0}.section-head{display:block}.section-head p{margin-top:13px}
+  .product-copy,.featured .product-copy{padding:20px}.product h3{font-size:21px}
+  .statement{padding:56px 0}
   .footer-row{flex-direction:column}
 }
 @media(prefers-reduced-motion:reduce){
   html{scroll-behavior:auto}
   *,*:before,*:after{animation:none!important;transition:none!important}
 }
-
-.product-visual{background:#0c0f0e!important;overflow:hidden}
-.tool-shot{position:absolute;width:100%;height:auto;left:0;top:50%;transform:translateY(-50%);opacity:.94;filter:saturate(.88) contrast(1.03);transition:transform .45s cubic-bezier(.22,.75,.2,1),opacity .3s ease}
-.shot-rivet{width:118%;left:-8%;top:43%;}
-.shot-revert{width:118%;left:-9%;top:47%;}
-.shot-udim{width:118%;left:-9%;top:45%;}
-.product:hover .tool-shot{opacity:1;transform:translateY(-50%) scale(1.035)}
 </style>
 </head>
-
 <body>
-<header class="site-header">
-  <div class="container">
-    <nav class="nav">
-      <a class="brand" href="#top"><span class="brand-mark">A</span><span>AJOY</span></a>
-      <div class="nav-links">
-        <a href="#tools">Tools</a>
-        <a href="#about">About</a>
-        <a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub ↗</a>
-      </div>
-      <div class="nav-actions">
-        <button class="icon-btn" id="theme" aria-label="Toggle theme">☼</button>
-        <button class="icon-btn menu" aria-label="Menu">☰</button>
-      </div>
-    </nav>
+<header>
+<div class="container">
+<nav class="nav">
+  <a class="brand" href="#top"><span class="brand-mark">A</span><span>AJOY</span></a>
+  <div class="nav-right">
+    <a href="#tools">Tools</a>
+    <a href="#about">About</a>
+    <a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub ↗</a>
+    <button class="toggle" id="theme" aria-label="Toggle theme">☼</button>
   </div>
+</nav>
+</div>
 </header>
 
 <main id="top">
-  <section class="hero">
-    <div class="container hero-grid">
-      <div class="hero-copy reveal">
-        <div class="eyebrow"><i></i>3D Artist & Animator</div>
-        <h1>I make 3D work.<span class="line-2">I build useful things.</span></h1>
-        <p class="hero-lead">
-          Animation, rigging, tools, and experiments — built from the perspective of someone who actually uses them in production.
-        </p>
-        <div class="hero-actions">
-          <a class="btn primary" href="#tools">Explore tools ↓</a>
-          <a class="btn" href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad ↗</a>
-        </div>
-      </div>
-
-      <div class="hero-visual reveal d2" aria-hidden="true">
-        <div class="visual-label">AJOY / 3D + Tools</div>
-        <div class="orbit">
-          <div class="orbit-ring r3"></div>
-          <div class="orbit-ring r2"></div>
-          <div class="orbit-ring r1"></div>
-          <div class="core"></div>
-        </div>
-        <div class="visual-note"><strong>Currently</strong>Maya tools & workflow experiments</div>
-      </div>
-    </div>
-  </section>
-
-  <div class="ticker" aria-hidden="true">
-    <div class="ticker-track">
-      <span>3D ART</span><span class="dot">●</span><span>ANIMATION</span><span class="dot">●</span><span>RIGGING</span><span class="dot">●</span><span>MAYA TOOLS</span><span class="dot">●</span><span>WORKFLOW</span><span class="dot">●</span>
-      <span>3D ART</span><span class="dot">●</span><span>ANIMATION</span><span class="dot">●</span><span>RIGGING</span><span class="dot">●</span><span>MAYA TOOLS</span><span class="dot">●</span><span>WORKFLOW</span><span class="dot">●</span>
+<section class="hero">
+<div class="container hero-grid">
+  <div class="reveal">
+    <div class="eyebrow">3D Artist <span style="color:var(--accent)">×</span> Animator</div>
+    <h1>Making <span>3D.</span><br>Building tools.</h1>
+    <p class="lead">I’m AJOY — a 3D artist and animator who enjoys turning repetitive production problems into simple, useful tools.</p>
+    <div class="hero-actions">
+      <a class="btn primary" href="#tools">Browse tools ↓</a>
+      <a class="btn" href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Visit Gumroad ↗</a>
     </div>
   </div>
-
-  <section class="section" id="tools">
-    <div class="container">
-      <div class="section-head reveal">
-        <div>
-          <div class="kicker">Selected tools</div>
-          <h2>Things I’ve built.</h2>
-        </div>
-        <p class="section-intro">A few focused utilities for the small problems that can interrupt a good 3D workflow.</p>
-      </div>
-
-      <div class="product-list">
-        <article class="product reveal d1">
-          <div class="product-num">01</div>
-          <div>
-            <h3>UDIM Preview Generator</h3>
-            <div class="product-cat">Maya · Textures</div>
-          </div>
-          <div class="product-desc">Generate previews for every UDIM texture in a Maya scene with one click.</div>
-          <a class="product-link" href="https://ajoyp.gumroad.com/l/zoqsmd" target="_blank" rel="noopener">View tool <span>↗</span></a>
-          <div class="product-visual" aria-hidden="true"><img class="tool-shot shot-udim" src="assets/udim.png" alt=""></div>
-        </article>
-
-        <article class="product reveal d2">
-          <div class="product-num">02</div>
-          <div>
-            <h3>Revert to Last Saved</h3>
-            <div class="product-cat">Maya · Scene Utility</div>
-          </div>
-          <div class="product-desc">Return to your last saved Maya scene quickly, while restoring useful scene state.</div>
-          <a class="product-link" href="https://ajoyp.gumroad.com/l/ckhvds" target="_blank" rel="noopener">View tool <span>↗</span></a>
-          <div class="product-visual" aria-hidden="true"><img class="tool-shot shot-revert" src="assets/revert.png" alt=""></div>
-        </article>
-
-        <article class="product reveal d3">
-          <div class="product-num">03</div>
-          <div>
-            <h3>Rivet</h3>
-            <div class="product-cat">Maya · Rigging</div>
-          </div>
-          <div class="product-desc">Pin locators to polygon or NURBS surfaces for quick, stable surface attachments.</div>
-          <a class="product-link" href="https://ajoyp.gumroad.com/l/cmljjj" target="_blank" rel="noopener">View tool <span>↗</span></a>
-          <div class="product-visual" aria-hidden="true"><img class="tool-shot shot-rivet" src="assets/rivet.png" alt=""></div>
-        </article>
-      </div>
+  <div class="hero-panel reveal d2">
+    <div class="panel-label">A quick look</div>
+    <div class="panel-title">Tools built for the parts of 3D that should feel easier.</div>
+    <div class="panel-copy">Focused Maya utilities now. More animation, rigging and 3D experiments over time.</div>
+    <div class="panel-stats">
+      <div class="stat"><strong>03</strong>released tools</div>
+      <div class="stat"><strong>Maya</strong>current focus</div>
     </div>
-  </section>
+  </div>
+</div>
+</section>
 
-  <section class="feature reveal">
-    <div class="container" style="display:grid;grid-template-columns:1.05fr .95fr;gap:50px;align-items:center">
-      <p class="feature-title">I like turning <em>friction</em> into something you can solve in a few clicks.</p>
-      <p class="feature-copy">
-        The tools start with real production annoyances: repetitive setup, scene management, surface work, or anything that takes longer than it should. The goal is not more software — it is less interruption.
-      </p>
-    </div>
-  </section>
+<section class="section" id="tools">
+<div class="container">
+  <div class="section-head reveal">
+    <div><div class="kicker">Selected tools</div><h2>Pick a tool.</h2></div>
+    <p>No digging through menus or long explanations — each card tells you what it does and takes you straight to the product page.</p>
+  </div>
 
-  <section class="about" id="about">
-    <div class="container about-grid">
-      <div class="reveal">
-        <div class="kicker">About me</div>
-        <h2>A 3D artist who also likes making tools.</h2>
+  <div class="products">
+    <article class="product featured reveal d1">
+      <a href="https://ajoyp.gumroad.com/l/zoqsmd" target="_blank" rel="noopener" class="product-image">
+        <span class="product-badge">Maya · Textures</span>
+        <img class="udim" src="assets/udim.png" alt="UDIM Preview Generator">
+      </a>
+      <div class="product-copy">
+        <div class="product-number">01</div>
+        <h3>UDIM Preview Generator</h3>
+        <p>Generate previews for every UDIM texture in a Maya scene with one click. A small utility for a very common production annoyance.</p>
+        <div class="product-tags"><span class="tag">WORKFLOW</span><span class="tag">PYTHON</span><span class="tag">MAYA</span></div>
+        <div class="product-meta"><div class="price">$2+ <small>name your price</small></div><a class="view" href="https://ajoyp.gumroad.com/l/zoqsmd" target="_blank" rel="noopener">View product <span>↗</span></a></div>
       </div>
-      <div class="about-copy reveal d1">
-        <p>I’m AJOY, a 3D artist and animator interested in animation, rigging, and the technical side of production.</p>
-        <p>This site is where I share the work I make, the tools I release, and the experiments I’m exploring.</p>
-        <div class="about-links">
-          <a class="btn" href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub ↗</a>
-          <a class="btn" href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad ↗</a>
-        </div>
+    </article>
+
+    <article class="product reveal d2">
+      <a href="https://ajoyp.gumroad.com/l/ckhvds" target="_blank" rel="noopener" class="product-image">
+        <span class="product-badge">Maya · Scene</span>
+        <img class="revert" src="assets/revert.png" alt="Revert to Last Saved">
+      </a>
+      <div class="product-copy">
+        <div class="product-number">02</div>
+        <h3>Revert to Last Saved</h3>
+        <p>Return to your last saved Maya scene without losing useful scene state.</p>
+        <div class="product-tags"><span class="tag">UTILITY</span><span class="tag">WORKFLOW</span></div>
+        <div class="product-meta"><div class="price">$5+ <small>name your price</small></div><a class="view" href="https://ajoyp.gumroad.com/l/ckhvds" target="_blank" rel="noopener">View product <span>↗</span></a></div>
       </div>
-    </div>
-  </section>
+    </article>
+
+    <article class="product reveal d3">
+      <a href="https://ajoyp.gumroad.com/l/cmljjj" target="_blank" rel="noopener" class="product-image">
+        <span class="product-badge">Maya · Rigging</span>
+        <img class="rivet" src="assets/rivet.png" alt="Rivet">
+      </a>
+      <div class="product-copy">
+        <div class="product-number">03</div>
+        <h3>Rivet</h3>
+        <p>Pin locators to polygon or NURBS surfaces for quick, stable surface attachments.</p>
+        <div class="product-tags"><span class="tag">RIGGING</span><span class="tag">NURBS</span></div>
+        <div class="product-meta"><div class="price">$0+ <small>name your price</small></div><a class="view" href="https://ajoyp.gumroad.com/l/cmljjj" target="_blank" rel="noopener">View product <span>↗</span></a></div>
+      </div>
+    </article>
+  </div>
+</div>
+</section>
+
+<section class="statement reveal">
+<div class="container statement-grid">
+  <h2>Useful tools start with a <span>real problem.</span></h2>
+  <p>I’m not trying to build a giant toolbox. I’d rather make a small utility that saves a few clicks every day and actually earns its place in the workflow.</p>
+</div>
+</section>
+
+<section class="about" id="about">
+<div class="container about-grid">
+  <div class="reveal"><div class="kicker">About me</div><h2>A 3D artist who likes making things work better.</h2></div>
+  <div class="about-copy reveal d1">
+    <p>I’m AJOY, a 3D artist and animator interested in animation, rigging, and the technical side of production.</p>
+    <p>I share the tools I make here alongside my other 3D work and experiments. The site will grow as the projects do.</p>
+    <div class="about-links"><a class="btn" href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub ↗</a><a class="btn" href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad ↗</a></div>
+  </div>
+</div>
+</section>
 </main>
 
 <footer>
-  <div class="container footer-row">
-    <span>© <span id="year"></span> AJOY — 3D Artist & Animator</span>
-    <div class="footer-links"><a href="#tools">Tools</a><a href="#about">About</a><a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub</a></div>
-  </div>
+<div class="container footer-row"><span>© <span id="year"></span> AJOY</span><div class="footer-links"><a href="#tools">Tools</a><a href="#about">About</a><a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub</a></div></div>
 </footer>
 
 <script>
-const root=document.documentElement;
-const theme=document.getElementById("theme");
-const saved=localStorage.getItem("ajoy-theme");
-if(saved==="light") root.classList.add("light");
-const icon=()=>theme.textContent=root.classList.contains("light")?"☾":"☼";
-icon();
-theme.addEventListener("click",()=>{
-  root.classList.toggle("light");
-  localStorage.setItem("ajoy-theme",root.classList.contains("light")?"light":"dark");
-  icon();
-});
-
+const root=document.documentElement, theme=document.getElementById("theme");
+if(localStorage.getItem("ajoy-theme")==="light") root.classList.add("light");
+const setIcon=()=>theme.textContent=root.classList.contains("light")?"☾":"☼";
+setIcon();
+theme.onclick=()=>{root.classList.toggle("light");localStorage.setItem("ajoy-theme",root.classList.contains("light")?"light":"dark");setIcon()};
 document.getElementById("year").textContent=new Date().getFullYear();
-
-const observer=new IntersectionObserver((entries)=>{
-  entries.forEach(entry=>{
-    if(entry.isIntersecting){
-      entry.target.classList.add("show");
-      observer.unobserve(entry.target);
-    }
-  });
-},{threshold:.12});
-document.querySelectorAll(".reveal").forEach(el=>observer.observe(el));
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add("show");io.unobserve(e.target)}}),{threshold:.12});
+document.querySelectorAll(".reveal").forEach(e=>io.observe(e));
 </script>
 </body>
 </html>

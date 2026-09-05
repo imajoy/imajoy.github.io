@@ -146,7 +146,7 @@ filterBtns.forEach(btn=>{
 });
 
 /* subscribe — replace FORMSPREE_ENDPOINT below with your real Formspree form URL */
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/xbgjarnw";
 const subscribeForm = document.getElementById("subscribeForm");
 if (subscribeForm) {
   const subscribeBtn = document.getElementById("subscribeBtn");

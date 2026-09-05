@@ -144,3 +144,78 @@ filterBtns.forEach(btn=>{
     });
   });
 });
+
+/* subscribe — replace FORMSPREE_ENDPOINT below with your real Formspree form URL */
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+const subscribeForm = document.getElementById("subscribeForm");
+if (subscribeForm) {
+  const subscribeBtn = document.getElementById("subscribeBtn");
+  const subscribeEmail = document.getElementById("subscribeEmail");
+  const subscribeNote = document.getElementById("subscribeNote");
+  const subscribeError = document.getElementById("subscribeError");
+  const subscribeSuccess = document.getElementById("subscribeSuccess");
+  const subscribedEmailEl = document.getElementById("subscribedEmail");
+  const STORAGE_KEY = "ajoy-subscribed-email";
+
+  function burstParticles(originEl) {
+    if (reduceMotion) return;
+    const r = originEl.getBoundingClientRect();
+    const cx = r.left + r.width / 2;
+    const cy = r.top + r.height / 2;
+    const colors = ["var(--axis-x)", "var(--axis-y)", "var(--axis-z)", "var(--accent)"];
+    for (let i = 0; i < 14; i++) {
+      const p = document.createElement("span");
+      p.className = "subscribe-particle";
+      const angle = (Math.PI * 2 * i) / 14 + Math.random() * 0.4;
+      const dist = 60 + Math.random() * 50;
+      p.style.left = cx + "px";
+      p.style.top = cy + "px";
+      p.style.background = colors[i % colors.length];
+      p.style.setProperty("--px", Math.cos(angle) * dist + "px");
+      p.style.setProperty("--py", Math.sin(angle) * dist + "px");
+      document.body.appendChild(p);
+      p.addEventListener("animationend", () => p.remove());
+    }
+  }
+
+  function showSubscribedState(email) {
+    subscribeForm.hidden = true;
+    subscribeNote.hidden = true;
+    subscribeError.hidden = true;
+    subscribedEmailEl.textContent = email ? `(${email})` : "";
+    subscribeSuccess.hidden = false;
+  }
+
+  // returning visitor who already subscribed on this browser
+  const savedEmail = localStorage.getItem(STORAGE_KEY);
+  if (savedEmail) showSubscribedState(savedEmail);
+
+  subscribeForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const email = subscribeEmail.value.trim();
+    if (!email) return;
+
+    subscribeError.hidden = true;
+    subscribeBtn.classList.add("is-loading");
+    subscribeBtn.disabled = true;
+
+    try {
+      const res = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        headers: { Accept: "application/json" },
+        body: new FormData(subscribeForm),
+      });
+      if (!res.ok) throw new Error("request failed");
+
+      subscribeBtn.classList.remove("is-loading");
+      subscribeBtn.classList.add("is-done");
+      burstParticles(subscribeBtn);
+      localStorage.setItem(STORAGE_KEY, email);
+      setTimeout(() => showSubscribedState(email), 550);
+    } catch (err) {
+      subscribeBtn.classList.remove("is-loading");
+      subscribeBtn.disabled = false;
+      subscribeError.hidden = false;
+    }
+  });
+}

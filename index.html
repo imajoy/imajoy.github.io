@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="AJOY — 3D artist and animator building animation work and small Maya production tools.">
-<title>AJOY — 3D Artist &amp; Animator</title>
+<meta name="description" content="AJOY — 3D animator and rigger building animation work and small Maya production tools.">
+<title>AJOY — 3D Animator &amp; Rigger</title>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -248,9 +248,56 @@ h2{font-family:var(--font-display);margin:0 0 12px;font-size:clamp(1.9rem,3.4vw,
   background:linear-gradient(150deg,var(--bg-soft),var(--surface));
   display:grid;place-items:center;color:var(--muted);
 }
-.tool-visual img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}
+.tool-visual img,.tool-visual video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.92}
 .tool-visual .fallback{display:grid;place-items:center;width:100%;height:100%}
 .tool-visual svg{width:38px;height:38px}
+button.tool-visual{padding:0;margin:0;font:inherit;text-align:inherit;-webkit-appearance:none;appearance:none}
+.tool-visual.has-video{cursor:pointer}
+.video-badge{
+  position:absolute;right:9px;bottom:9px;width:32px;height:32px;border-radius:50%;
+  background:color-mix(in srgb,var(--bg) 65%,transparent);border:1px solid var(--line);
+  display:grid;place-items:center;z-index:2;transition:transform .25s var(--ease);
+}
+.video-badge svg{width:12px;height:12px;color:var(--text);margin-left:2px}
+.video-badge:after{
+  content:"";position:absolute;inset:-6px;border-radius:50%;border:1px solid var(--axis-z);
+  opacity:.55;animation:ringPulse 2.4s ease-out infinite;
+}
+.tool-visual.has-video:hover .video-badge{transform:scale(1.08)}
+@keyframes ringPulse{0%{transform:scale(.72);opacity:.55}100%{transform:scale(1.55);opacity:0}}
+.video-tag{
+  position:absolute;left:9px;bottom:9px;padding:4px 9px;border-radius:99px;z-index:2;
+  background:color-mix(in srgb,var(--bg) 65%,transparent);border:1px solid var(--line);
+  font-family:var(--font-mono);font-size:10.5px;color:var(--text);
+}
+
+/* video modal */
+.video-modal{
+  position:fixed;inset:0;z-index:80;display:grid;place-items:center;padding:28px;
+  opacity:0;pointer-events:none;transition:opacity .3s ease;
+}
+.video-modal.open{opacity:1;pointer-events:auto}
+.video-modal-backdrop{
+  position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 78%,transparent);backdrop-filter:blur(10px);
+}
+.video-modal-panel{
+  position:relative;z-index:1;width:min(92vw,380px);
+  transform:scale(.93) translateY(10px);opacity:0;transition:transform .35s var(--ease),opacity .35s ease;
+}
+.video-modal.open .video-modal-panel{transform:none;opacity:1}
+.video-modal-panel video{width:100%;display:block;border-radius:16px;border:1px solid var(--line);background:#000}
+.video-modal-close{
+  position:absolute;top:-46px;right:0;width:36px;height:36px;border-radius:10px;
+  border:1px solid var(--line);background:var(--surface);color:var(--text);cursor:pointer;display:grid;place-items:center;
+}
+.video-modal-close svg{width:15px;height:15px}
+.video-modal-caption{
+  margin:14px 2px 0;font-family:var(--font-mono);font-size:12px;color:var(--muted);
+}
+.video-modal-caption b{color:var(--accent);font-weight:400}
+@media(prefers-reduced-motion:reduce){
+  .video-badge:after{animation:none}
+}
 .tool-link{
   justify-self:end;display:inline-flex;align-items:center;justify-content:center;gap:6px;
   height:38px;padding:0 13px;border:1px solid var(--line);border-radius:10px;font-size:12.5px;font-weight:600;
@@ -363,8 +410,8 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
   <section class="hero">
     <div class="container hero-grid">
       <div>
-        <h1>Rigging, animation, and the small tools in between.</h1>
-        <p class="hero-lead">I'm AJOY — a 3D artist and animator. When production friction gets in the way of the work, I write a small Maya tool to get rid of it.</p>
+        <h1>Animation, rigging, and the small tools in between.</h1>
+        <p class="hero-lead">I'm AJOY — a 3D animator and rigger. When production friction gets in the way of the work, I write a small Maya tool to get rid of it.</p>
         <div class="hero-actions">
           <a class="btn primary magnetic" href="#tools">Explore tools</a>
           <a class="btn magnetic" href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">
@@ -471,17 +518,17 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
               <div class="tags"><span class="tag">Maya</span><span class="tag type">Rigging</span></div>
               <p class="tool-desc">Pin locators to polygon or NURBS surfaces for quick, stable surface attachments.</p>
             </div>
-            <div class="tool-visual">
-              <img src="assets/tool-rivet.svg" alt="Locator pinned to a vertex on a surface mesh" loading="lazy"
-                   onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
-              <div class="fallback" style="display:none">
-                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="1.6">
-                  <path d="M6 40 L58 40 M6 40 L20 14 M58 40 L44 14 M20 14 L44 14 M32 14 L32 40" stroke-opacity=".5"/>
-                  <circle cx="38" cy="30" r="3.4" fill="var(--axis-z)" stroke="none"/>
-                  <path d="M38 20v8M38 32v8M28 30h8M40 30h8" stroke="var(--axis-z)" stroke-width="2.2"/>
-                </svg>
-              </div>
-            </div>
+            <button type="button" class="tool-visual has-video" data-video-trigger
+                    data-video="assets/rivet-demo.mp4" data-poster="assets/rivet-poster.jpg"
+                    data-caption="Rivet — quick guide"
+                    aria-label="Play the Rivet tool guide, with sound">
+              <video src="assets/rivet-preview.mp4" poster="assets/rivet-poster.jpg"
+                     autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+              <span class="video-badge" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              </span>
+              <span class="video-tag">watch guide</span>
+            </button>
             <a class="tool-link" href="https://ajoyp.gumroad.com/l/cmljjj" target="_blank" rel="noopener">
               Open tool <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17 17 7M9 7h8v8"/></svg>
             </a>
@@ -501,16 +548,16 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
   <section class="section" id="about">
     <div class="container about-grid">
       <div>
-        <h2>A 3D artist who ended up writing scripts, too.</h2>
+        <h2>A 3D animator who ended up writing scripts, too.</h2>
       </div>
       <div class="about-copy">
-        <p>I'm AJOY, a 3D artist and animator interested in animation, rigging, and the technical side of production.</p>
+        <p>I'm AJOY, a 3D animator and rigger interested in animation, rigging, and the technical side of production.</p>
         <p>This site is where I share the work I make, the tools I release, and the experiments I'm exploring.</p>
         <div class="attrs">
-          <div class="attr-row"><div class="k">role</div><div class="v">3D Artist &amp; Animator</div></div>
+          <div class="attr-row"><div class="k">role</div><div class="v">3D Animator &amp; Rigger</div></div>
           <div class="attr-row"><div class="k">focus</div><div class="v">Animation, rigging, Maya tooling</div></div>
           <div class="attr-row"><div class="k">approach</div><div class="v">Small, focused tools instead of more software</div></div>
-          <div class="attr-row"><div class="k">elsewhere</div><div class="v"><a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub</a> · <a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad</a></div></div>
+          <div class="attr-row"><div class="k">elsewhere</div><div class="v"><a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub</a> · <a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad</a> · <a href="https://www.linkedin.com/in/palajoy" target="_blank" rel="noopener">LinkedIn</a></div></div>
         </div>
       </div>
     </div>
@@ -526,13 +573,24 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
         <line x1="16" y1="48" x2="16" y2="12" stroke="var(--axis-y)" stroke-width="4" stroke-linecap="round"/>
         <line x1="16" y1="48" x2="40" y2="26" stroke="var(--axis-z)" stroke-width="4" stroke-linecap="round"/>
       </svg>
-      <span>AJOY — 3D Artist &amp; Animator · © <span id="year"></span></span>
+      <span>AJOY — 3D Animator &amp; Rigger · © <span id="year"></span></span>
     </div>
     <div class="footer-links">
-      <a href="#tools">Tools</a><a href="#about">About</a><a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub</a>
+      <a href="#tools">Tools</a><a href="#about">About</a><a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/palajoy" target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </div>
 </footer>
+
+<div class="video-modal" id="videoModal" aria-hidden="true">
+  <div class="video-modal-backdrop" data-close></div>
+  <div class="video-modal-panel">
+    <button class="video-modal-close" id="videoModalClose" aria-label="Close video">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+    </button>
+    <video id="videoModalPlayer" controls playsinline></video>
+    <p class="video-modal-caption" id="videoModalCaption"></p>
+  </div>
+</div>
 
 <script>
 const root=document.documentElement;
@@ -621,6 +679,50 @@ if(!reduceMotion){
     btn.addEventListener("mouseleave",()=>{btn.style.transform="";});
   });
 }
+
+/* pause inline preview clips when off-screen, save bandwidth/battery */
+const previewVideos=document.querySelectorAll(".tool-visual video");
+if(previewVideos.length){
+  const vio=new IntersectionObserver((entries)=>{
+    entries.forEach(e=>{
+      const v=e.target;
+      if(e.isIntersecting) v.play().catch(()=>{});
+      else v.pause();
+    });
+  },{threshold:.25});
+  previewVideos.forEach(v=>vio.observe(v));
+}
+
+/* video guide modal — reusable for any future [data-video-trigger] */
+const videoModal=document.getElementById("videoModal");
+const modalPlayer=document.getElementById("videoModalPlayer");
+const modalCaption=document.getElementById("videoModalCaption");
+function openVideoModal(src,poster,caption){
+  modalPlayer.src=src;
+  if(poster) modalPlayer.poster=poster;
+  modalCaption.innerHTML=caption?`<b>▸</b> ${caption}`:"";
+  videoModal.classList.add("open");
+  videoModal.setAttribute("aria-hidden","false");
+  document.body.style.overflow="hidden";
+  modalPlayer.currentTime=0;
+  modalPlayer.play().catch(()=>{});
+}
+function closeVideoModal(){
+  videoModal.classList.remove("open");
+  videoModal.setAttribute("aria-hidden","true");
+  document.body.style.overflow="";
+  modalPlayer.pause();
+  modalPlayer.removeAttribute("src");
+  modalPlayer.load();
+}
+document.querySelectorAll("[data-video-trigger]").forEach(btn=>{
+  btn.addEventListener("click",()=>openVideoModal(btn.dataset.video,btn.dataset.poster,btn.dataset.caption));
+});
+videoModal.querySelectorAll("[data-close]").forEach(el=>el.addEventListener("click",closeVideoModal));
+document.getElementById("videoModalClose").addEventListener("click",closeVideoModal);
+document.addEventListener("keydown",(e)=>{
+  if(e.key==="Escape" && videoModal.classList.contains("open")) closeVideoModal();
+});
 </script>
 </body>
 </html>

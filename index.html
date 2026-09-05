@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="AJOY — 3D animator and rigger building animation work and small Maya production tools.">
 <title>AJOY — 3D Animator &amp; Rigger</title>
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -203,7 +205,16 @@ h1{
 /* sections */
 .section{padding:88px 0}
 .section-head{max-width:640px;margin-bottom:44px}
-.tool-group{margin-bottom:48px}
+.tool-filter{display:flex;gap:8px;margin-bottom:34px}
+.filter-btn{
+  height:36px;padding:0 16px;border-radius:99px;border:1px solid var(--line);background:var(--surface);
+  color:var(--muted);font-family:var(--font-body);font-size:13.5px;font-weight:600;cursor:pointer;
+  transition:border-color .2s ease,color .2s ease,background .2s ease;
+}
+.filter-btn:hover{color:var(--text);border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+.filter-btn.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.tool-group{margin-bottom:48px;max-height:2400px;opacity:1;overflow:hidden;transition:opacity .35s ease,max-height .45s ease,margin .45s ease}
+.tool-group.is-hidden{opacity:0;max-height:0;margin-bottom:0;pointer-events:none}
 .tool-group:last-child{margin-bottom:0}
 .group-label{display:flex;align-items:center;gap:9px;margin-bottom:20px;font-family:var(--font-mono);font-size:13px;color:var(--muted)}
 .group-label .sq{width:18px;height:18px;border-radius:5px;border:1px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:600;color:var(--text);background:var(--surface);flex-shrink:0}
@@ -389,7 +400,7 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
       <div class="nav-links">
         <a href="#tools">Tools</a>
         <a href="#about">About</a>
-        <a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub
+        <a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad
           <svg class="ext-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
         </a>
       </div>
@@ -408,7 +419,7 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
     <div class="container">
       <a href="#tools">Tools</a>
       <a href="#about">About</a>
-      <a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub ↗</a>
+      <a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad ↗</a>
     </div>
   </div>
 </header>
@@ -466,7 +477,13 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
         <p class="section-lead">Small, focused utilities for the everyday snags in a production pipeline, grouped by the app they run in.</p>
       </div>
 
-      <div class="tool-group">
+      <div class="tool-filter" role="tablist" aria-label="Filter tools by app">
+        <button type="button" class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All</button>
+        <button type="button" class="filter-btn" data-filter="maya" role="tab" aria-selected="false">Maya</button>
+        <button type="button" class="filter-btn" data-filter="blender" role="tab" aria-selected="false">Blender</button>
+      </div>
+
+      <div class="tool-group" data-platform="maya">
         <div class="group-label"><span class="sq">M</span>Maya</div>
         <div class="tool-list" id="toolList">
         <article class="tool">
@@ -546,7 +563,7 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
         </div>
       </div>
 
-      <div class="tool-group coming-soon">
+      <div class="tool-group coming-soon" data-platform="blender">
         <div class="group-label"><span class="sq">B</span>Blender <span class="soon-tag">coming soon</span></div>
         <div class="coming-card">A Blender add-on is in the works — same idea, different app. It'll land here once it's ready.</div>
       </div>
@@ -570,9 +587,9 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
         <p>This site is where I share the work I make, the tools I release, and the experiments I'm exploring.</p>
         <div class="attrs">
           <div class="attr-row"><div class="k">role</div><div class="v">3D Animator &amp; Rigger</div></div>
-          <div class="attr-row"><div class="k">focus</div><div class="v">Animation, rigging, Maya tooling</div></div>
+          <div class="attr-row"><div class="k">focus</div><div class="v">Animation, rigging, Maya tooling — Blender add-ons on the way</div></div>
           <div class="attr-row"><div class="k">approach</div><div class="v">Small, focused tools instead of more software</div></div>
-          <div class="attr-row"><div class="k">elsewhere</div><div class="v"><a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub</a> · <a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad</a> · <a href="https://www.linkedin.com/in/palajoy" target="_blank" rel="noopener">LinkedIn</a></div></div>
+          <div class="attr-row"><div class="k">elsewhere</div><div class="v"><a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad</a> · <a href="https://www.linkedin.com/in/palajoy" target="_blank" rel="noopener">LinkedIn</a></div></div>
         </div>
       </div>
     </div>
@@ -586,7 +603,7 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
       <span>AJOY — 3D Animator &amp; Rigger · © <span id="year"></span></span>
     </div>
     <div class="footer-links">
-      <a href="#tools">Tools</a><a href="#about">About</a><a href="https://github.com/imajoy" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/palajoy" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="#tools">Tools</a><a href="#about">About</a><a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad</a><a href="https://www.linkedin.com/in/palajoy" target="_blank" rel="noopener">LinkedIn</a>
     </div>
   </div>
 </footer>
@@ -732,6 +749,22 @@ videoModal.querySelectorAll("[data-close]").forEach(el=>el.addEventListener("cli
 document.getElementById("videoModalClose").addEventListener("click",closeVideoModal);
 document.addEventListener("keydown",(e)=>{
   if(e.key==="Escape" && videoModal.classList.contains("open")) closeVideoModal();
+});
+
+/* tool filter — switch between All / Maya / Blender without scrolling */
+const filterBtns=document.querySelectorAll(".filter-btn");
+const toolGroups=document.querySelectorAll(".tool-group[data-platform]");
+filterBtns.forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    filterBtns.forEach(b=>{b.classList.remove("active");b.setAttribute("aria-selected","false");});
+    btn.classList.add("active");
+    btn.setAttribute("aria-selected","true");
+    const choice=btn.dataset.filter;
+    toolGroups.forEach(group=>{
+      const show=choice==="all" || group.dataset.platform===choice;
+      group.classList.toggle("is-hidden",!show);
+    });
+  });
 });
 </script>
 </body>

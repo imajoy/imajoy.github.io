@@ -87,8 +87,8 @@ a{color:inherit;text-decoration:none}
 }
 .nav{height:var(--header-h);display:flex;align-items:center;justify-content:space-between}
 .brand{display:flex;align-items:center;gap:11px;font-family:var(--font-display);font-weight:700;font-size:16px}
-.brand-mark{width:36px;height:36px;border:1px solid var(--line);border-radius:10px;display:grid;place-items:center;background:var(--surface)}
-.brand-mark svg{width:20px;height:20px}
+.brand-mark{width:36px;height:36px;border:1px solid var(--line);border-radius:10px;overflow:hidden;background:var(--surface)}
+.brand-mark img{width:100%;height:100%;object-fit:cover;display:block}
 .nav-links{display:flex;align-items:center;gap:30px}
 .nav-links a{font-size:14.5px;color:var(--muted);transition:color .2s ease;display:inline-flex;align-items:center;gap:6px}
 .nav-links a:hover{color:var(--text)}
@@ -203,6 +203,13 @@ h1{
 /* sections */
 .section{padding:88px 0}
 .section-head{max-width:640px;margin-bottom:44px}
+.tool-group{margin-bottom:48px}
+.tool-group:last-child{margin-bottom:0}
+.group-label{display:flex;align-items:center;gap:9px;margin-bottom:20px;font-family:var(--font-mono);font-size:13px;color:var(--muted)}
+.group-label .sq{width:18px;height:18px;border-radius:5px;border:1px solid var(--line);display:grid;place-items:center;font-size:10px;font-weight:600;color:var(--text);background:var(--surface);flex-shrink:0}
+.tool-group.coming-soon .group-label .sq{color:var(--muted);border-style:dashed}
+.soon-tag{margin-left:2px;padding:3px 9px;border-radius:99px;border:1px solid var(--line);font-size:10px;color:var(--muted)}
+.coming-card{border:1px dashed var(--line);border-radius:16px;padding:22px;color:var(--muted);font-size:13.5px;line-height:1.6;background:var(--bg-soft)}
 h2{font-family:var(--font-display);margin:0 0 12px;font-size:clamp(1.9rem,3.4vw,2.7rem);letter-spacing:-.015em;line-height:1.12;font-weight:700}
 .section-lead{margin:0;color:var(--muted);font-size:15px;line-height:1.7;max-width:520px}
 
@@ -242,6 +249,10 @@ h2{font-family:var(--font-display);margin:0 0 12px;font-size:clamp(1.9rem,3.4vw,
   font-family:var(--font-mono);
 }
 .tag.type{border-color:color-mix(in srgb,var(--port-color) 40%,var(--line));color:color-mix(in srgb,var(--port-color) 75%,var(--text))}
+.tag.price{display:inline-flex;align-items:center;gap:5px;font-weight:500}
+.tag.price:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.tag.price.free{border-color:color-mix(in srgb,var(--axis-y) 45%,var(--line));color:color-mix(in srgb,var(--axis-y) 80%,var(--text))}
+.tag.price.paid{border-color:color-mix(in srgb,var(--accent) 45%,var(--line));color:color-mix(in srgb,var(--accent) 85%,var(--text))}
 .tool-desc{margin:0;color:var(--muted);font-size:13.5px;line-height:1.6;max-width:400px}
 .tool-visual{
   height:88px;border-radius:12px;border:1px solid var(--line);position:relative;overflow:hidden;
@@ -330,7 +341,8 @@ button.tool-visual{padding:0;margin:0;font:inherit;text-align:inherit;-webkit-ap
 footer{border-top:1px solid var(--line-soft);padding:30px 0}
 .footer-row{display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap}
 .footer-brand{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:13px}
-.footer-brand svg{width:18px;height:18px}
+.footer-mark{width:22px;height:22px;border-radius:7px;overflow:hidden;flex-shrink:0;border:1px solid var(--line)}
+.footer-mark img{width:100%;height:100%;object-fit:cover;display:block}
 .footer-links{display:flex;gap:20px;font-size:13px;color:var(--muted)}
 .footer-links a:hover{color:var(--text)}
 
@@ -370,12 +382,7 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
     <nav class="nav">
       <a class="brand" href="#top">
         <span class="brand-mark">
-          <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-            <circle cx="16" cy="48" r="3" fill="currentColor"/>
-            <line x1="16" y1="48" x2="50" y2="48" stroke="var(--axis-x)" stroke-width="4" stroke-linecap="round"/>
-            <line x1="16" y1="48" x2="16" y2="12" stroke="var(--axis-y)" stroke-width="4" stroke-linecap="round"/>
-            <line x1="16" y1="48" x2="40" y2="26" stroke="var(--axis-z)" stroke-width="4" stroke-linecap="round"/>
-          </svg>
+          <img src="assets/ajoy-photo.jpg" alt="AJOY" width="36" height="36">
         </span>
         <span>AJOY</span>
       </a>
@@ -456,16 +463,18 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
     <div class="container">
       <div class="section-head">
         <h2>Things I've built.</h2>
-        <p class="section-lead">Small, focused utilities for the everyday snags in a Maya pipeline — texturing, scene management, and rigging.</p>
+        <p class="section-lead">Small, focused utilities for the everyday snags in a production pipeline, grouped by the app they run in.</p>
       </div>
 
-      <div class="tool-list" id="toolList">
+      <div class="tool-group">
+        <div class="group-label"><span class="sq">M</span>Maya</div>
+        <div class="tool-list" id="toolList">
         <article class="tool">
           <div class="port"><i style="--port-color:var(--axis-x)"></i></div>
           <div class="tool-card" style="--port-color:var(--axis-x)">
             <div class="tool-text">
               <h3>UDIM Preview Generator</h3>
-              <div class="tags"><span class="tag">Maya</span><span class="tag type">Textures</span></div>
+              <div class="tags"><span class="tag price paid">Paid</span><span class="tag">Maya</span><span class="tag type">Textures</span></div>
               <p class="tool-desc">Generate previews for every UDIM texture in a Maya scene with one click.</p>
             </div>
             <div class="tool-visual">
@@ -491,7 +500,7 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
           <div class="tool-card" style="--port-color:var(--axis-y)">
             <div class="tool-text">
               <h3>Revert to Last Saved</h3>
-              <div class="tags"><span class="tag">Maya</span><span class="tag type">Scene Utility</span></div>
+              <div class="tags"><span class="tag price paid">Paid</span><span class="tag">Maya</span><span class="tag type">Scene Utility</span></div>
               <p class="tool-desc">Return to your last saved Maya scene quickly, while restoring useful scene state.</p>
             </div>
             <div class="tool-visual">
@@ -515,7 +524,7 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
           <div class="tool-card" style="--port-color:var(--axis-z)">
             <div class="tool-text">
               <h3>Rivet</h3>
-              <div class="tags"><span class="tag">Maya</span><span class="tag type">Rigging</span></div>
+              <div class="tags"><span class="tag price free">Free</span><span class="tag">Maya</span><span class="tag type">Rigging</span></div>
               <p class="tool-desc">Pin locators to polygon or NURBS surfaces for quick, stable surface attachments.</p>
             </div>
             <button type="button" class="tool-visual has-video" data-video-trigger
@@ -534,6 +543,12 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
             </a>
           </div>
         </article>
+        </div>
+      </div>
+
+      <div class="tool-group coming-soon">
+        <div class="group-label"><span class="sq">B</span>Blender <span class="soon-tag">coming soon</span></div>
+        <div class="coming-card">A Blender add-on is in the works — same idea, different app. It'll land here once it's ready.</div>
       </div>
     </div>
   </section>
@@ -567,12 +582,7 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
 <footer>
   <div class="container footer-row">
     <div class="footer-brand">
-      <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
-        <circle cx="16" cy="48" r="3" fill="currentColor"/>
-        <line x1="16" y1="48" x2="50" y2="48" stroke="var(--axis-x)" stroke-width="4" stroke-linecap="round"/>
-        <line x1="16" y1="48" x2="16" y2="12" stroke="var(--axis-y)" stroke-width="4" stroke-linecap="round"/>
-        <line x1="16" y1="48" x2="40" y2="26" stroke="var(--axis-z)" stroke-width="4" stroke-linecap="round"/>
-      </svg>
+      <span class="footer-mark"><img src="assets/ajoy-photo.jpg" alt="" width="22" height="22"></span>
       <span>AJOY — 3D Animator &amp; Rigger · © <span id="year"></span></span>
     </div>
     <div class="footer-links">

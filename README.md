@@ -1,4 +1,4 @@
-# AJOY — 3D Artist & Animator
+# AJOY — 3D Animator & Rigger
 
 Personal portfolio and tools website for AJOY.
 
@@ -20,7 +20,7 @@ https://imajoy.github.io/
 
 - [Website](https://imajoy.github.io/)
 - [Gumroad](https://ajoyp.gumroad.com/)
-- [GitHub](https://github.com/imajoy)
+- [LinkedIn](https://www.linkedin.com/in/palajoy)
 
 ## Built with
 

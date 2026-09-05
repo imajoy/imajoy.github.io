@@ -201,6 +201,41 @@
     </div>
   </section>
 
+  <section class="section subscribe-section" id="subscribe">
+    <div class="container">
+      <div class="subscribe-card">
+        <div class="subscribe-glow" aria-hidden="true"></div>
+        <div class="subscribe-text">
+          <div class="group-label"><span class="sq">+</span>notify me</div>
+          <h2>Know the moment a new tool ships.</h2>
+          <p class="section-lead">No spam, no schedule — just one email when something new lands, Maya or Blender.</p>
+        </div>
+
+        <form class="subscribe-form" id="subscribeForm" novalidate>
+          <label class="subscribe-input-wrap" for="subscribeEmail">
+            <span class="input-caret" aria-hidden="true"></span>
+            <input type="email" id="subscribeEmail" name="email" placeholder="you@studio.com" required autocomplete="email" inputmode="email">
+          </label>
+          <button type="submit" class="btn primary magnetic subscribe-btn" id="subscribeBtn">
+            <span class="btn-face btn-face-label">Subscribe</span>
+            <span class="btn-face btn-face-spinner" aria-hidden="true"><i></i><i></i><i></i></span>
+            <span class="btn-face btn-face-check" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
+            </span>
+          </button>
+        </form>
+
+        <p class="subscribe-note" id="subscribeNote">I'll only email you when a new tool ships. Unsubscribe anytime.</p>
+        <p class="subscribe-error" id="subscribeError" hidden>Something went wrong — mind trying again?</p>
+
+        <div class="subscribe-success" id="subscribeSuccess" hidden>
+          <span class="success-dot" aria-hidden="true"></span>
+          <span>You're subscribed <b id="subscribedEmail"></b> — watch your inbox for the next tool.</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <section class="statement">
     <div class="container">
       <p class="comment">// turn friction into something you can fix in a few clicks<span class="cursor"></span></p>

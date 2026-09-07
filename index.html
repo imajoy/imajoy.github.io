@@ -179,8 +179,19 @@
                     data-video="assets/products/rivet/rivet-demo.mp4" data-poster="assets/products/rivet/rivet-poster.jpg"
                     data-caption="Rivet — quick guide"
                     aria-label="Play the Rivet tool guide, with sound">
-              <video src="assets/products/rivet/rivet-preview.mp4" poster="assets/products/rivet/rivet-poster.jpg"
-                     autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
+              <video
+  src="assets/products/rivet/rivet-preview.mp4"
+  poster="assets/products/rivet/rivet-poster.jpg"
+  autoplay
+  muted
+  loop
+  playsinline
+  preload="auto"
+  aria-hidden="true"
+  disablepictureinpicture
+  disableremoteplayback
+  controlslist="nodownload noplaybackrate"
+></video>
               <span class="video-badge" aria-hidden="true">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
               </span>
@@ -280,7 +291,7 @@
     <button class="video-modal-close" id="videoModalClose" aria-label="Close video">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg>
     </button>
-    <video id="videoModalPlayer" controls playsinline></video>
+    <video   id="videoModalPlayer"   controls   playsinline   disablepictureinpicture   controlslist="nodownload noplaybackrate"   disableremoteplayback ></video>
     <p class="video-modal-caption" id="videoModalCaption"></p>
   </div>
 </div>

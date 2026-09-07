@@ -501,30 +501,59 @@ filterButtons.forEach((button) => {
 const SUBSCRIBE_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbzq2ox5khIkCLkfKTYuZrc4zpoPPoE4KYyqvwfM5nkCQ40C0aoYB6A8BGQMZ_nxKmgQTg/exec";
 
+const SUBSCRIBE_CALLBACK_PAGE =
+  "https://imajoy.github.io/subscribe-callback.html";
+
 const subscribeForm =
-  document.getElementById("subscribeForm");
+  document.getElementById(
+    "subscribeForm"
+  );
 
 if (subscribeForm) {
+
   const subscribeBtn =
-    document.getElementById("subscribeBtn");
+    document.getElementById(
+      "subscribeBtn"
+    );
 
   const subscribeEmail =
-    document.getElementById("subscribeEmail");
+    document.getElementById(
+      "subscribeEmail"
+    );
 
   const subscribeNote =
-    document.getElementById("subscribeNote");
+    document.getElementById(
+      "subscribeNote"
+    );
 
   const subscribeError =
-    document.getElementById("subscribeError");
+    document.getElementById(
+      "subscribeError"
+    );
 
   const subscribeSuccess =
-    document.getElementById("subscribeSuccess");
+    document.getElementById(
+      "subscribeSuccess"
+    );
 
   const subscribedEmailEl =
-    document.getElementById("subscribedEmail");
+    document.getElementById(
+      "subscribedEmail"
+    );
 
-  const STORAGE_KEY =
-    "ajoy-subscribed-email";
+
+  /* =======================================================
+     STATE
+     ======================================================= */
+
+  let submissionInProgress =
+    false;
+
+  let submissionTimeout =
+    null;
+
+  let submissionEmail =
+    "";
 
 
   /* =======================================================
@@ -532,7 +561,9 @@ if (subscribeForm) {
      ======================================================= */
 
   const subscribeFrame =
-    document.createElement("iframe");
+    document.createElement(
+      "iframe"
+    );
 
   subscribeFrame.name =
     "ajoySubscribeFrame";
@@ -574,13 +605,21 @@ if (subscribeForm) {
     );
 
   if (!honeypot) {
+
     honeypot =
-      document.createElement("input");
+      document.createElement(
+        "input"
+      );
 
     honeypot.type = "text";
-    honeypot.name = "website";
+
+    honeypot.name =
+      "website";
+
     honeypot.tabIndex = -1;
-    honeypot.autocomplete = "off";
+
+    honeypot.autocomplete =
+      "off";
 
     honeypot.setAttribute(
       "aria-hidden",
@@ -606,21 +645,13 @@ if (subscribeForm) {
 
 
   /* =======================================================
-     STATE
-     ======================================================= */
-
-  let submissionInProgress =
-    false;
-
-  let submissionTimeout =
-    null;
-
-
-  /* =======================================================
      PARTICLE BURST
      ======================================================= */
 
-  function burstParticles(originElement) {
+  function burstParticles(
+    originElement
+  ) {
+
     if (
       reduceMotion ||
       !originElement
@@ -628,16 +659,20 @@ if (subscribeForm) {
       return;
     }
 
+
     const rect =
       originElement.getBoundingClientRect();
+
 
     const centerX =
       rect.left +
       rect.width / 2;
 
+
     const centerY =
       rect.top +
       rect.height / 2;
+
 
     const colors = [
       "var(--axis-x)",
@@ -646,47 +681,63 @@ if (subscribeForm) {
       "var(--accent)"
     ];
 
+
     for (
       let i = 0;
       i < 14;
       i++
     ) {
+
       const particle =
-        document.createElement("span");
+        document.createElement(
+          "span"
+        );
+
 
       particle.className =
         "subscribe-particle";
+
 
       const angle =
         (Math.PI * 2 * i) / 14 +
         Math.random() * 0.4;
 
+
       const distance =
         60 +
         Math.random() * 50;
 
+
       particle.style.left =
         `${centerX}px`;
+
 
       particle.style.top =
         `${centerY}px`;
 
+
       particle.style.background =
-        colors[i % colors.length];
+        colors[
+          i % colors.length
+        ];
+
 
       particle.style.setProperty(
         "--px",
         `${Math.cos(angle) * distance}px`
       );
 
+
       particle.style.setProperty(
         "--py",
         `${Math.sin(angle) * distance}px`
       );
 
+
       document.body.appendChild(
         particle
       );
+
 
       particle.addEventListener(
         "animationend",
@@ -705,290 +756,402 @@ if (subscribeForm) {
      UI HELPERS
      ======================================================= */
 
-  function setError(message) {
+  function clearSubmissionTimeout() {
+
+    if (submissionTimeout) {
+
+      clearTimeout(
+        submissionTimeout
+      );
+
+      submissionTimeout =
+        null;
+    }
+  }
+
+
+  function clearError() {
+
+    if (subscribeError) {
+      subscribeError.hidden =
+        true;
+    }
+  }
+
+
+  function setError(
+    message
+  ) {
+
     if (!subscribeError) {
       return;
     }
+
 
     subscribeError.textContent =
       message ||
       "Something went wrong — mind trying again?";
 
-    subscribeError.hidden = false;
+
+    subscribeError.hidden =
+      false;
   }
 
 
-  function clearError() {
-    if (!subscribeError) {
+  function resetButton() {
+
+    if (!subscribeBtn) {
       return;
     }
 
-    subscribeError.hidden = true;
+
+    subscribeBtn.disabled =
+      false;
+
+
+    subscribeBtn.classList.remove(
+      "is-loading",
+      "is-done"
+    );
   }
 
 
   function restoreForm() {
-    if (subscribeForm) {
-      subscribeForm.hidden = false;
-    }
+
+    subscribeForm.hidden =
+      false;
+
 
     if (subscribeNote) {
-      subscribeNote.hidden = false;
+      subscribeNote.hidden =
+        false;
     }
+
 
     if (subscribeSuccess) {
-      subscribeSuccess.hidden = true;
+      subscribeSuccess.hidden =
+        true;
     }
 
-    if (subscribeBtn) {
-      subscribeBtn.disabled = false;
 
-      subscribeBtn.classList.remove(
-        "is-loading",
-        "is-done"
-      );
-    }
+    resetButton();
   }
 
 
   function finishSubmission() {
+
     submissionInProgress =
       false;
 
-    if (submissionTimeout) {
-      clearTimeout(
-        submissionTimeout
-      );
 
-      submissionTimeout = null;
-    }
+    clearSubmissionTimeout();
   }
 
 
-  function showSubscribedState(email) {
+  function showSubscribedState(
+    email
+  ) {
+
     finishSubmission();
 
-    if (subscribeForm) {
-      subscribeForm.hidden = true;
-    }
+
+    subscribeForm.hidden =
+      true;
+
 
     if (subscribeNote) {
-      subscribeNote.hidden = true;
+      subscribeNote.hidden =
+        true;
     }
+
 
     if (subscribeError) {
-      subscribeError.hidden = true;
+      subscribeError.hidden =
+        true;
     }
 
+
     if (subscribedEmailEl) {
+
       subscribedEmailEl.textContent =
         email
           ? `(${email})`
           : "";
     }
 
+
     if (subscribeSuccess) {
-      subscribeSuccess.hidden = false;
+      subscribeSuccess.hidden =
+        false;
     }
   }
 
 
-  function showServerError(message) {
+  function showServerError(
+    message
+  ) {
+
     finishSubmission();
+
 
     restoreForm();
 
-    setError(message);
+
+    setError(
+      message
+    );
   }
 
 
   /* =======================================================
-     APPS SCRIPT RESPONSE
+     CALLBACK URL HANDLER
      ======================================================= */
 
-  window.addEventListener(
-    "message",
-    (event) => {
+  function handleCallbackURL(
+    urlString
+  ) {
 
-      /*
-       * IMPORTANT:
-       *
-       * Do NOT check:
-       *
-       * event.source === subscribeFrame.contentWindow
-       *
-       * Google Apps Script runs its response inside
-       * a sandboxed iframe and the browser may not
-       * report the source exactly as expected.
-       *
-       * We instead validate the message structure.
-       */
-
-      let data = event.data;
+    let url;
 
 
-      /* -----------------------------------------------
-         Parse JSON string if necessary
-         ----------------------------------------------- */
+    try {
 
-      if (
-        typeof data === "string"
-      ) {
-        try {
-          data = JSON.parse(data);
-        } catch {
-          return;
-        }
+      url =
+        new URL(
+          urlString
+        );
+
+    } catch {
+
+      return false;
+    }
+
+
+    /*
+     * Only accept our callback page.
+     */
+
+    if (
+      url.origin !==
+        window.location.origin ||
+
+      url.pathname !==
+        "/subscribe-callback.html"
+    ) {
+      return false;
+    }
+
+
+    const status =
+      url.searchParams.get(
+        "status"
+      ) || "";
+
+
+    const email =
+      url.searchParams.get(
+        "email"
+      ) ||
+      submissionEmail ||
+      "";
+
+
+    const message =
+      url.searchParams.get(
+        "message"
+      ) || "";
+
+
+    /*
+     * Ignore responses that arrive after
+     * the submission has already finished.
+     */
+
+    if (!submissionInProgress) {
+      return true;
+    }
+
+
+    /* -----------------------------------------------
+       SUCCESS
+       ----------------------------------------------- */
+
+    if (
+      status === "success"
+    ) {
+
+      if (email) {
+
+        localStorage.setItem(
+          "ajoy-subscribed-email",
+          email
+        );
       }
 
 
-      /* -----------------------------------------------
-         Validate AJOY response
-         ----------------------------------------------- */
+      if (subscribeBtn) {
 
-      if (
-        !data ||
-        data.type !==
-          "AJOY_SUBSCRIBE_RESULT"
-      ) {
-        return;
-      }
-
-
-      /* -----------------------------------------------
-         Ignore old / unexpected responses
-         ----------------------------------------------- */
-
-      if (!submissionInProgress) {
-        return;
-      }
-
-
-      /* -----------------------------------------------
-         SUCCESS
-         ----------------------------------------------- */
-
-      if (
-        data.status === "success"
-      ) {
-        const email =
-          data.email ||
-          subscribeEmail?.value.trim() ||
-          "";
-
-        if (subscribeBtn) {
-          subscribeBtn.classList.remove(
-            "is-loading"
-          );
-
-          subscribeBtn.classList.add(
-            "is-done"
-          );
-        }
-
-        burstParticles(
-          subscribeBtn
+        subscribeBtn.classList.remove(
+          "is-loading"
         );
 
 
-        /*
-         * Save only after the server confirms
-         * successful subscription.
-         */
+        subscribeBtn.classList.add(
+          "is-done"
+        );
+      }
 
-        if (email) {
-          localStorage.setItem(
-            STORAGE_KEY,
+
+      burstParticles(
+        subscribeBtn
+      );
+
+
+      window.setTimeout(
+        () => {
+
+          showSubscribedState(
             email
           );
-        }
+
+        },
+        550
+      );
 
 
-        /*
-         * Switch to success state.
-         */
-
-        window.setTimeout(
-          () => {
-            showSubscribedState(
-              email
-            );
-          },
-          550
-        );
-
-        return;
-      }
+      return true;
+    }
 
 
-      /* -----------------------------------------------
-         DUPLICATE
-         ----------------------------------------------- */
+    /* -----------------------------------------------
+       DUPLICATE
+       ----------------------------------------------- */
 
-      if (
-        data.status === "duplicate"
-      ) {
-        showServerError(
-          "This email is already subscribed."
-        );
-
-        return;
-      }
-
-
-      /* -----------------------------------------------
-         DISPOSABLE
-         ----------------------------------------------- */
-
-      if (
-        data.status === "disposable"
-      ) {
-        showServerError(
-          "Temporary or disposable email addresses are not accepted."
-        );
-
-        return;
-      }
-
-
-      /* -----------------------------------------------
-         INVALID
-         ----------------------------------------------- */
-
-      if (
-        data.status === "invalid"
-      ) {
-        showServerError(
-          "Please enter a valid email address."
-        );
-
-        return;
-      }
-
-
-      /* -----------------------------------------------
-         SPAM
-         ----------------------------------------------- */
-
-      if (
-        data.status === "spam"
-      ) {
-        showServerError(
-          "Submission rejected."
-        );
-
-        return;
-      }
-
-
-      /* -----------------------------------------------
-         GENERIC ERROR
-         ----------------------------------------------- */
+    if (
+      status === "duplicate"
+    ) {
 
       showServerError(
-        data.message ||
-        "Something went wrong — mind trying again?"
+        "This email is already subscribed."
       );
+
+
+      return true;
+    }
+
+
+    /* -----------------------------------------------
+       DISPOSABLE
+       ----------------------------------------------- */
+
+    if (
+      status === "disposable"
+    ) {
+
+      showServerError(
+        "Temporary or disposable email addresses are not accepted."
+      );
+
+
+      return true;
+    }
+
+
+    /* -----------------------------------------------
+       INVALID
+       ----------------------------------------------- */
+
+    if (
+      status === "invalid"
+    ) {
+
+      showServerError(
+        "Please enter a valid email address."
+      );
+
+
+      return true;
+    }
+
+
+    /* -----------------------------------------------
+       SPAM
+       ----------------------------------------------- */
+
+    if (
+      status === "spam"
+    ) {
+
+      showServerError(
+        "Submission rejected."
+      );
+
+
+      return true;
+    }
+
+
+    /* -----------------------------------------------
+       GENERIC ERROR
+       ----------------------------------------------- */
+
+    showServerError(
+      message ||
+      "Something went wrong — mind trying again?"
+    );
+
+
+    return true;
+  }
+
+
+  /* =======================================================
+     IFRAME LOAD HANDLER
+     ======================================================= */
+
+  subscribeFrame.addEventListener(
+    "load",
+    () => {
+
+      /*
+       * First load:
+       *
+       * Google Apps Script
+       *
+       * Cross-origin, so accessing the URL will
+       * throw a security exception.
+       *
+       * That is expected.
+       *
+       * Second load:
+       *
+       * subscribe-callback.html
+       *
+       * Same-origin with the portfolio.
+       *
+       * Now we can read the URL.
+       */
+
+      try {
+
+        const iframeURL =
+          subscribeFrame
+            .contentWindow
+            .location
+            .href;
+
+
+        handleCallbackURL(
+          iframeURL
+        );
+
+      } catch {
+
+        /*
+         * Expected for the first Apps Script
+         * cross-origin load.
+         */
+      }
     }
   );
 
@@ -1004,10 +1167,6 @@ if (subscribeForm) {
       event.preventDefault();
 
 
-      /* -----------------------------------------------
-         Get email
-         ----------------------------------------------- */
-
       const email =
         subscribeEmail?.value.trim() ||
         "";
@@ -1017,36 +1176,41 @@ if (subscribeForm) {
 
 
       /* -----------------------------------------------
-         Empty email
+         EMPTY
          ----------------------------------------------- */
 
       if (!email) {
+
         subscribeEmail?.focus();
+
         return;
       }
 
 
       /* -----------------------------------------------
-         Browser validation
+         CLIENT VALIDATION
          ----------------------------------------------- */
 
       if (
         subscribeEmail &&
         !subscribeEmail.checkValidity()
       ) {
+
         subscribeEmail.reportValidity();
+
         return;
       }
 
 
       /* -----------------------------------------------
-         Honeypot
+         HONEYPOT
          ----------------------------------------------- */
 
       if (
         honeypot &&
         honeypot.value.trim() !== ""
       ) {
+
         setError(
           "Submission rejected."
         );
@@ -1056,7 +1220,7 @@ if (subscribeForm) {
 
 
       /* -----------------------------------------------
-         Prevent double submissions
+         DOUBLE SUBMISSION
          ----------------------------------------------- */
 
       if (
@@ -1070,36 +1234,45 @@ if (subscribeForm) {
         true;
 
 
+      submissionEmail =
+        email;
+
+
       /* -----------------------------------------------
-         Clear previous UI state
+         RESET UI
          ----------------------------------------------- */
 
-      if (subscribeError) {
-        subscribeError.hidden =
-          true;
-      }
+      clearError();
+
 
       if (subscribeSuccess) {
+
         subscribeSuccess.hidden =
           true;
       }
 
+
       if (subscribeNote) {
+
         subscribeNote.hidden =
           false;
       }
 
 
       /* -----------------------------------------------
-         Loading state
+         BUTTON
          ----------------------------------------------- */
 
       if (subscribeBtn) {
-        subscribeBtn.disabled = true;
+
+        subscribeBtn.disabled =
+          true;
+
 
         subscribeBtn.classList.remove(
           "is-done"
         );
+
 
         subscribeBtn.classList.add(
           "is-loading"
@@ -1108,22 +1281,26 @@ if (subscribeForm) {
 
 
       /* -----------------------------------------------
-         Native form POST
+         FORM TARGET
          ----------------------------------------------- */
 
       subscribeForm.method =
         "POST";
 
+
       subscribeForm.action =
         SUBSCRIBE_ENDPOINT;
+
 
       subscribeForm.target =
         subscribeFrame.name;
 
 
       /*
-       * Native submit prevents this submit handler
-       * from recursively firing.
+       * Native form submission.
+       *
+       * This prevents our submit event from
+       * recursively firing.
        */
 
       HTMLFormElement.prototype.submit.call(
@@ -1132,8 +1309,11 @@ if (subscribeForm) {
 
 
       /* -----------------------------------------------
-         Safety timeout
+         TIMEOUT
          ----------------------------------------------- */
+
+      clearSubmissionTimeout();
+
 
       submissionTimeout =
         window.setTimeout(
@@ -1142,6 +1322,7 @@ if (subscribeForm) {
             if (
               submissionInProgress
             ) {
+
               showServerError(
                 "The subscription service did not respond. Please try again."
               );
@@ -1152,21 +1333,5 @@ if (subscribeForm) {
         );
     }
   );
-
-
-  /* =======================================================
-     RETURNING VISITOR
-     ======================================================= */
-
-  /*
-   * We intentionally do NOT automatically hide
-   * the form based on localStorage.
-   *
-   * The Google Sheet remains the source of truth.
-   *
-   * This also allows duplicate detection to work
-   * correctly from the server.
-   */
-
 }
 

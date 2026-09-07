@@ -1459,3 +1459,296 @@ if (subscribeForm) {
     }
   );
 }
+
+/* =========================================================
+   MEDIA PROTECTION
+   Discourage casual saving/downloading of portfolio media
+   ========================================================= */
+
+(function protectMedia() {
+
+  /* -------------------------------------------------------
+     Disable right-click on the page
+     ------------------------------------------------------- */
+
+  document.addEventListener(
+    "contextmenu",
+    (event) => {
+      event.preventDefault();
+    },
+    true
+  );
+
+
+  /* -------------------------------------------------------
+     Prevent drag/drop of images and videos
+     ------------------------------------------------------- */
+
+  document.addEventListener(
+    "dragstart",
+    (event) => {
+
+      const target = event.target;
+
+      if (
+        target instanceof HTMLImageElement ||
+        target instanceof HTMLVideoElement
+      ) {
+        event.preventDefault();
+      }
+    },
+    true
+  );
+
+
+  document.addEventListener(
+    "dragover",
+    (event) => {
+
+      if (
+        event.target instanceof HTMLImageElement ||
+        event.target instanceof HTMLVideoElement
+      ) {
+        event.preventDefault();
+      }
+    },
+    true
+  );
+
+
+  /* -------------------------------------------------------
+     Prevent common save / view-source shortcuts
+     ------------------------------------------------------- */
+
+  document.addEventListener(
+    "keydown",
+    (event) => {
+
+      const key =
+        String(event.key || "").toLowerCase();
+
+
+      /*
+       * Ctrl/Cmd + S
+       * Save page
+       */
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        key === "s"
+      ) {
+        event.preventDefault();
+        return;
+      }
+
+
+      /*
+       * Ctrl/Cmd + U
+       * View source
+       */
+
+      if (
+        (event.ctrlKey || event.metaKey) &&
+        key === "u"
+      ) {
+        event.preventDefault();
+        return;
+      }
+    },
+    true
+  );
+
+
+  /* -------------------------------------------------------
+     Protect all current and future media
+     ------------------------------------------------------- */
+
+  function protectMediaElement(
+    element
+  ) {
+
+    if (
+      !element ||
+      element.dataset.protected === "true"
+    ) {
+      return;
+    }
+
+
+    element.dataset.protected =
+      "true";
+
+
+    /*
+     * Prevent browser dragging.
+     */
+
+    element.setAttribute(
+      "draggable",
+      "false"
+    );
+
+
+    /*
+     * Prevent picture-in-picture on videos.
+     */
+
+    if (
+      element instanceof HTMLVideoElement
+    ) {
+
+      element.disablePictureInPicture =
+        true;
+
+      element.setAttribute(
+        "disablepictureinpicture",
+        ""
+      );
+
+
+      /*
+       * Tell compatible browsers not to show
+       * download controls.
+       */
+
+      element.setAttribute(
+        "controlsList",
+        "nodownload noplaybackrate"
+      );
+
+
+      /*
+       * Do not allow remote casting.
+       */
+
+      element.disableRemotePlayback =
+        true;
+
+
+      element.setAttribute(
+        "disableremoteplayback",
+        ""
+      );
+    }
+  }
+
+
+  function protectAllMedia() {
+
+    document
+      .querySelectorAll(
+        "img, video"
+      )
+      .forEach(
+        protectMediaElement
+      );
+  }
+
+
+  protectAllMedia();
+
+
+  /* -------------------------------------------------------
+     Watch for dynamically-added media
+     ------------------------------------------------------- */
+
+  if (
+    "MutationObserver" in window
+  ) {
+
+    const observer =
+      new MutationObserver(
+        (mutations) => {
+
+          for (
+            const mutation of mutations
+          ) {
+
+            mutation.addedNodes.forEach(
+              (node) => {
+
+                if (
+                  node.nodeType !== 1
+                ) {
+                  return;
+                }
+
+
+                if (
+                  node.matches?.(
+                    "img, video"
+                  )
+                ) {
+
+                  protectMediaElement(
+                    node
+                  );
+                }
+
+
+                node
+                  .querySelectorAll?.(
+                    "img, video"
+                  )
+                  .forEach(
+                    protectMediaElement
+                  );
+              }
+            );
+          }
+        }
+      );
+
+
+    observer.observe(
+      document.body,
+      {
+        childList: true,
+        subtree: true
+      }
+    );
+  }
+
+
+  /* -------------------------------------------------------
+     Extra video protection
+     ------------------------------------------------------- */
+
+  document
+    .querySelectorAll("video")
+    .forEach(
+      (video) => {
+
+        /*
+         * Prevent the browser PiP API if somebody
+         * attempts to invoke it programmatically.
+         */
+
+        video.addEventListener(
+          "enterpictureinpicture",
+          () => {
+
+            try {
+              document.exitPictureInPicture();
+            } catch {}
+          }
+        );
+
+
+        /*
+         * Some browsers expose a PiP button through
+         * their video UI. Explicitly disable it where
+         * supported.
+         */
+
+        if (
+          "disablePictureInPicture" in video
+        ) {
+
+          video.disablePictureInPicture =
+            true;
+        }
+      }
+    );
+
+})();

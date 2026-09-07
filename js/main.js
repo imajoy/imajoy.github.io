@@ -1,309 +1,679 @@
-const root=document.documentElement;
-const reduceMotion=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const root = document.documentElement;
+const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-/* theme */
-const themeBtn=document.getElementById("theme");
-const saved=localStorage.getItem("ajoy-theme");
-if(saved==="light") root.classList.add("light");
-themeBtn.addEventListener("click",()=>{
+/* =========================================================
+   THEME
+   ========================================================= */
+
+const themeBtn = document.getElementById("theme");
+const savedTheme = localStorage.getItem("ajoy-theme");
+
+if (savedTheme === "light") {
+  root.classList.add("light");
+}
+
+themeBtn?.addEventListener("click", () => {
   root.classList.toggle("light");
-  localStorage.setItem("ajoy-theme",root.classList.contains("light")?"light":"dark");
+
+  localStorage.setItem(
+    "ajoy-theme",
+    root.classList.contains("light") ? "light" : "dark"
+  );
 });
 
-/* mobile nav */
-const menuBtn=document.getElementById("menuBtn");
-const mobileNav=document.getElementById("mobileNav");
-menuBtn.addEventListener("click",()=>{
-  const open=mobileNav.classList.toggle("open");
-  menuBtn.setAttribute("aria-expanded",open);
-});
-mobileNav.querySelectorAll("a").forEach(a=>a.addEventListener("click",()=>{
-  mobileNav.classList.remove("open");
-  menuBtn.setAttribute("aria-expanded","false");
-}));
+/* =========================================================
+   MOBILE NAV
+   ========================================================= */
 
-/* year */
-document.getElementById("year").textContent=new Date().getFullYear();
+const menuBtn = document.getElementById("menuBtn");
+const mobileNav = document.getElementById("mobileNav");
 
-/* hero entrance */
-requestAnimationFrame(()=>document.body.classList.add("ready"));
+if (menuBtn && mobileNav) {
+  menuBtn.addEventListener("click", () => {
+    const open = mobileNav.classList.toggle("open");
 
-/* scroll progress */
-const bar=document.getElementById("progress");
-let ticking=false;
-window.addEventListener("scroll",()=>{
-  if(ticking)return;
-  ticking=true;
-  requestAnimationFrame(()=>{
-    const h=document.documentElement;
-    const pct=(h.scrollTop)/((h.scrollHeight-h.clientHeight)||1)*100;
-    bar.style.width=pct+"%";
-    ticking=false;
+    menuBtn.setAttribute(
+      "aria-expanded",
+      String(open)
+    );
   });
+
+  mobileNav.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", () => {
+      mobileNav.classList.remove("open");
+      menuBtn.setAttribute("aria-expanded", "false");
+    });
+  });
+}
+
+/* =========================================================
+   YEAR
+   ========================================================= */
+
+const yearElement = document.getElementById("year");
+
+if (yearElement) {
+  yearElement.textContent = new Date().getFullYear();
+}
+
+/* =========================================================
+   HERO ENTRANCE
+   ========================================================= */
+
+requestAnimationFrame(() => {
+  document.body.classList.add("ready");
 });
 
-/* tool graph line */
-const toolList=document.getElementById("toolList");
-if(toolList){
-  const io=new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      if(e.isIntersecting){
-        toolList.classList.add("show");
-        io.disconnect();
+/* =========================================================
+   SCROLL PROGRESS
+   ========================================================= */
+
+const progressBar = document.getElementById("progress");
+let scrollTicking = false;
+
+window.addEventListener(
+  "scroll",
+  () => {
+    if (scrollTicking) return;
+
+    scrollTicking = true;
+
+    requestAnimationFrame(() => {
+      const documentElement = document.documentElement;
+
+      const scrollableHeight =
+        documentElement.scrollHeight -
+        documentElement.clientHeight;
+
+      const progress =
+        scrollableHeight > 0
+          ? (documentElement.scrollTop / scrollableHeight) * 100
+          : 0;
+
+      if (progressBar) {
+        progressBar.style.width = `${progress}%`;
       }
+
+      scrollTicking = false;
     });
-  },{threshold:.2});
-  io.observe(toolList);
+  },
+  { passive: true }
+);
+
+/* =========================================================
+   TOOL GRAPH LINE
+   ========================================================= */
+
+const toolList = document.getElementById("toolList");
+
+if (toolList && "IntersectionObserver" in window) {
+  const toolObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          toolList.classList.add("show");
+          toolObserver.disconnect();
+        }
+      });
+    },
+    {
+      threshold: 0.2,
+    }
+  );
+
+  toolObserver.observe(toolList);
 }
 
-/* frame counter */
-if(!reduceMotion){
-  let frame=182;
-  const el=document.getElementById("frameCount");
-  setInterval(()=>{
-    frame=(frame+1)%2400;
-    if(el) el.textContent=String(frame).padStart(4,"0");
-  },1400);
+/* =========================================================
+   FRAME COUNTER
+   ========================================================= */
+
+if (!reduceMotion) {
+  let frame = 182;
+
+  const frameElement = document.getElementById("frameCount");
+
+  if (frameElement) {
+    setInterval(() => {
+      frame = (frame + 1) % 2400;
+
+      frameElement.textContent =
+        String(frame).padStart(4, "0");
+    }, 1400);
+  }
 }
 
-/* card cursor spotlight */
-if(!reduceMotion){
-  document.querySelectorAll(".tool-card").forEach(card=>{
-    card.addEventListener("mousemove",(e)=>{
-      const r=card.getBoundingClientRect();
-      card.style.setProperty("--mx",(e.clientX-r.left)+"px");
-      card.style.setProperty("--my",(e.clientY-r.top)+"px");
+/* =========================================================
+   TOOL CARD CURSOR SPOTLIGHT
+   ========================================================= */
+
+if (!reduceMotion) {
+  document.querySelectorAll(".tool-card").forEach((card) => {
+    card.addEventListener("mousemove", (event) => {
+      const rect = card.getBoundingClientRect();
+
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+
+      card.style.setProperty("--mx", `${x}px`);
+      card.style.setProperty("--my", `${y}px`);
     });
   });
 
-  /* magnetic buttons */
-  document.querySelectorAll(".magnetic").forEach(btn=>{
-    btn.addEventListener("mousemove",(e)=>{
-      const r=btn.getBoundingClientRect();
-      const x=(e.clientX-r.left-r.width/2)*.25;
-      const y=(e.clientY-r.top-r.height/2)*.4;
-      btn.style.transform=`translate(${x}px,${y}px)`;
+  /* =======================================================
+     MAGNETIC BUTTONS
+     ======================================================= */
+
+  document.querySelectorAll(".magnetic").forEach((button) => {
+    button.addEventListener("mousemove", (event) => {
+      const rect = button.getBoundingClientRect();
+
+      const x =
+        (event.clientX - rect.left - rect.width / 2) * 0.25;
+
+      const y =
+        (event.clientY - rect.top - rect.height / 2) * 0.4;
+
+      button.style.transform =
+        `translate(${x}px, ${y}px)`;
     });
 
-    btn.addEventListener("mouseleave",()=>{
-      btn.style.transform="";
+    button.addEventListener("mouseleave", () => {
+      button.style.transform = "";
     });
   });
 }
 
-/* pause inline preview clips when off-screen */
-const previewVideos=document.querySelectorAll(".tool-visual video");
-if(previewVideos.length){
-  const vio=new IntersectionObserver((entries)=>{
-    entries.forEach(e=>{
-      const v=e.target;
-      if(e.isIntersecting) v.play().catch(()=>{});
-      else v.pause();
-    });
-  },{threshold:.25});
+/* =========================================================
+   INLINE PREVIEW VIDEOS
+   ========================================================= */
 
-  previewVideos.forEach(v=>vio.observe(v));
+const previewVideos =
+  document.querySelectorAll(".tool-visual video");
+
+if (
+  previewVideos.length &&
+  "IntersectionObserver" in window
+) {
+  const videoObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        const video = entry.target;
+
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      });
+    },
+    {
+      threshold: 0.25,
+    }
+  );
+
+  previewVideos.forEach((video) => {
+    videoObserver.observe(video);
+  });
 }
 
-/* video guide modal */
-const videoModal=document.getElementById("videoModal");
-const modalPlayer=document.getElementById("videoModalPlayer");
-const modalCaption=document.getElementById("videoModalCaption");
+/* =========================================================
+   VIDEO GUIDE MODAL
+   ========================================================= */
 
-function openVideoModal(src,poster,caption){
-  modalPlayer.src=src;
+const videoModal =
+  document.getElementById("videoModal");
 
-  if(poster){
-    modalPlayer.poster=poster;
+const modalPlayer =
+  document.getElementById("videoModalPlayer");
+
+const modalCaption =
+  document.getElementById("videoModalCaption");
+
+function openVideoModal(
+  source,
+  poster,
+  caption
+) {
+  if (!videoModal || !modalPlayer) return;
+
+  modalPlayer.src = source;
+
+  if (poster) {
+    modalPlayer.poster = poster;
   }
 
-  modalCaption.innerHTML=caption ? `<b>▸</b> ${caption}` : "";
+  if (modalCaption) {
+    modalCaption.innerHTML =
+      caption
+        ? `<b>▸</b> ${caption}`
+        : "";
+  }
 
   videoModal.classList.add("open");
-  videoModal.setAttribute("aria-hidden","false");
-  document.body.style.overflow="hidden";
+  videoModal.setAttribute(
+    "aria-hidden",
+    "false"
+  );
 
-  modalPlayer.currentTime=0;
-  modalPlayer.play().catch(()=>{});
+  document.body.style.overflow = "hidden";
+
+  modalPlayer.currentTime = 0;
+
+  modalPlayer.play().catch(() => {});
 }
 
-function closeVideoModal(){
+function closeVideoModal() {
+  if (!videoModal || !modalPlayer) return;
+
   videoModal.classList.remove("open");
-  videoModal.setAttribute("aria-hidden","true");
-  document.body.style.overflow="";
+
+  videoModal.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  document.body.style.overflow = "";
 
   modalPlayer.pause();
+
   modalPlayer.removeAttribute("src");
+
   modalPlayer.load();
 }
 
-document.querySelectorAll("[data-video-trigger]").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    openVideoModal(
-      btn.dataset.video,
-      btn.dataset.poster,
-      btn.dataset.caption
+/* Open video buttons */
+
+document
+  .querySelectorAll("[data-video-trigger]")
+  .forEach((button) => {
+    button.addEventListener("click", () => {
+      openVideoModal(
+        button.dataset.video,
+        button.dataset.poster,
+        button.dataset.caption
+      );
+    });
+  });
+
+/* Backdrop */
+
+videoModal
+  ?.querySelectorAll("[data-close]")
+  .forEach((element) => {
+    element.addEventListener(
+      "click",
+      closeVideoModal
     );
   });
-});
 
-videoModal.querySelectorAll("[data-close]").forEach(el=>{
-  el.addEventListener("click",closeVideoModal);
-});
+/* Close button */
 
-document.getElementById("videoModalClose").addEventListener(
-  "click",
-  closeVideoModal
-);
+document
+  .getElementById("videoModalClose")
+  ?.addEventListener(
+    "click",
+    closeVideoModal
+  );
 
-document.addEventListener("keydown",(e)=>{
-  if(e.key==="Escape" && videoModal.classList.contains("open")){
+/* Escape key */
+
+document.addEventListener("keydown", (event) => {
+  if (
+    event.key === "Escape" &&
+    videoModal?.classList.contains("open")
+  ) {
     closeVideoModal();
   }
 });
 
-/* tool filter */
-const filterBtns=document.querySelectorAll(".filter-btn");
-const toolGroups=document.querySelectorAll(".tool-group[data-platform]");
+/* =========================================================
+   TOOL FILTER
+   ========================================================= */
 
-filterBtns.forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    filterBtns.forEach(b=>{
-      b.classList.remove("active");
-      b.setAttribute("aria-selected","false");
+const filterButtons =
+  document.querySelectorAll(".filter-btn");
+
+const toolGroups =
+  document.querySelectorAll(
+    ".tool-group[data-platform]"
+  );
+
+filterButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    filterButtons.forEach((item) => {
+      item.classList.remove("active");
+
+      item.setAttribute(
+        "aria-selected",
+        "false"
+      );
     });
 
-    btn.classList.add("active");
-    btn.setAttribute("aria-selected","true");
+    button.classList.add("active");
 
-    const choice=btn.dataset.filter;
+    button.setAttribute(
+      "aria-selected",
+      "true"
+    );
 
-    toolGroups.forEach(group=>{
-      const show=
-        choice==="all" ||
-        group.dataset.platform===choice;
+    const selectedPlatform =
+      button.dataset.filter;
 
-      group.classList.toggle("is-hidden",!show);
+    toolGroups.forEach((group) => {
+      const shouldShow =
+        selectedPlatform === "all" ||
+        group.dataset.platform ===
+          selectedPlatform;
+
+      group.classList.toggle(
+        "is-hidden",
+        !shouldShow
+      );
     });
   });
 });
 
-/* subscribe — Google Apps Script */
+/* =========================================================
+   SUBSCRIBE
+   Google Apps Script Web App
+   ========================================================= */
+
+/*
+ * Your deployed Google Apps Script Web App.
+ */
 const SUBSCRIBE_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbzq2ox5khIkCLkfKTYuZrc4zpoPPoE4KYyqvwfM5nkCQ40C0aoYB6A8BGQMZ_nxKmgQTg/exec";
 
-const subscribeForm=document.getElementById("subscribeForm");
+const subscribeForm =
+  document.getElementById(
+    "subscribeForm"
+  );
 
-if(subscribeForm){
+if (subscribeForm) {
+  const subscribeBtn =
+    document.getElementById(
+      "subscribeBtn"
+    );
 
-  const subscribeBtn=document.getElementById("subscribeBtn");
-  const subscribeEmail=document.getElementById("subscribeEmail");
-  const subscribeNote=document.getElementById("subscribeNote");
-  const subscribeError=document.getElementById("subscribeError");
-  const subscribeSuccess=document.getElementById("subscribeSuccess");
-  const subscribedEmailEl=document.getElementById("subscribedEmail");
+  const subscribeEmail =
+    document.getElementById(
+      "subscribeEmail"
+    );
 
-  const STORAGE_KEY="ajoy-subscribed-email";
+  const subscribeNote =
+    document.getElementById(
+      "subscribeNote"
+    );
 
-  function burstParticles(originEl){
+  const subscribeError =
+    document.getElementById(
+      "subscribeError"
+    );
 
-    if(reduceMotion)return;
+  const subscribeSuccess =
+    document.getElementById(
+      "subscribeSuccess"
+    );
 
-    const r=originEl.getBoundingClientRect();
-    const cx=r.left+r.width/2;
-    const cy=r.top+r.height/2;
+  const subscribedEmailEl =
+    document.getElementById(
+      "subscribedEmail"
+    );
 
-    const colors=[
+  const STORAGE_KEY =
+    "ajoy-subscribed-email";
+
+  /*
+   * Hidden iframe used as the target of the normal
+   * HTML POST request.
+   *
+   * This avoids JavaScript CORS response handling.
+   */
+  const subscribeFrame =
+    document.createElement("iframe");
+
+  subscribeFrame.name =
+    "ajoySubscribeFrame";
+
+  subscribeFrame.title =
+    "Subscription submission";
+
+  subscribeFrame.setAttribute(
+    "aria-hidden",
+    "true"
+  );
+
+  subscribeFrame.style.position =
+    "absolute";
+
+  subscribeFrame.style.width = "1px";
+  subscribeFrame.style.height = "1px";
+  subscribeFrame.style.border = "0";
+  subscribeFrame.style.opacity = "0";
+  subscribeFrame.style.pointerEvents =
+    "none";
+
+  document.body.appendChild(
+    subscribeFrame
+  );
+
+  /*
+   * Particle burst after successful submission.
+   */
+
+  function burstParticles(originElement) {
+    if (reduceMotion || !originElement) {
+      return;
+    }
+
+    const rect =
+      originElement.getBoundingClientRect();
+
+    const centerX =
+      rect.left + rect.width / 2;
+
+    const centerY =
+      rect.top + rect.height / 2;
+
+    const colors = [
       "var(--axis-x)",
       "var(--axis-y)",
       "var(--axis-z)",
-      "var(--accent)"
+      "var(--accent)",
     ];
 
-    for(let i=0;i<14;i++){
+    for (let i = 0; i < 14; i++) {
+      const particle =
+        document.createElement("span");
 
-      const p=document.createElement("span");
-      p.className="subscribe-particle";
+      particle.className =
+        "subscribe-particle";
 
-      const angle=(Math.PI*2*i)/14 + Math.random()*0.4;
-      const dist=60 + Math.random()*50;
+      const angle =
+        (Math.PI * 2 * i) / 14 +
+        Math.random() * 0.4;
 
-      p.style.left=cx+"px";
-      p.style.top=cy+"px";
-      p.style.background=colors[i%colors.length];
+      const distance =
+        60 + Math.random() * 50;
 
-      p.style.setProperty(
+      particle.style.left =
+        `${centerX}px`;
+
+      particle.style.top =
+        `${centerY}px`;
+
+      particle.style.background =
+        colors[i % colors.length];
+
+      particle.style.setProperty(
         "--px",
-        Math.cos(angle)*dist+"px"
+        `${Math.cos(angle) * distance}px`
       );
 
-      p.style.setProperty(
+      particle.style.setProperty(
         "--py",
-        Math.sin(angle)*dist+"px"
+        `${Math.sin(angle) * distance}px`
       );
 
-      document.body.appendChild(p);
+      document.body.appendChild(
+        particle
+      );
 
-      p.addEventListener(
+      particle.addEventListener(
         "animationend",
-        ()=>p.remove()
+        () => particle.remove()
       );
     }
   }
 
-  function showSubscribedState(email){
+  /*
+   * Show the successful state.
+   */
 
-    subscribeForm.hidden=true;
-    subscribeNote.hidden=true;
-    subscribeError.hidden=true;
+  function showSubscribedState(email) {
+    subscribeForm.hidden = true;
 
-    subscribedEmailEl.textContent=
-      email ? `(${email})` : "";
+    if (subscribeNote) {
+      subscribeNote.hidden = true;
+    }
 
-    subscribeSuccess.hidden=false;
+    if (subscribeError) {
+      subscribeError.hidden = true;
+    }
+
+    if (subscribedEmailEl) {
+      subscribedEmailEl.textContent =
+        email
+          ? `(${email})`
+          : "";
+    }
+
+    if (subscribeSuccess) {
+      subscribeSuccess.hidden = false;
+    }
   }
 
-  /* returning visitor */
-  const savedEmail=
-    localStorage.getItem(STORAGE_KEY);
+  /*
+   * Show normal form state.
+   */
 
-  if(savedEmail){
-    showSubscribedState(savedEmail);
+  function resetSubscribeState() {
+    subscribeForm.hidden = false;
+
+    if (subscribeNote) {
+      subscribeNote.hidden = false;
+    }
+
+    if (subscribeSuccess) {
+      subscribeSuccess.hidden = true;
+    }
+
+    if (subscribeError) {
+      subscribeError.hidden = true;
+    }
+
+    if (subscribeBtn) {
+      subscribeBtn.disabled = false;
+
+      subscribeBtn.classList.remove(
+        "is-loading",
+        "is-done"
+      );
+    }
   }
+
+  /*
+   * IMPORTANT:
+   *
+   * We do NOT automatically show the subscribed state
+   * just because localStorage exists.
+   *
+   * localStorage alone does not prove that Google received
+   * the email. It is only used as a convenience after the
+   * current page session has successfully submitted.
+   */
+
+  /*
+   * Prepare the form for a real browser POST.
+   */
+
+  subscribeForm.method = "POST";
+
+  subscribeForm.action =
+    SUBSCRIBE_ENDPOINT;
+
+  subscribeForm.target =
+    subscribeFrame.name;
+
+  /*
+   * Submit
+   */
 
   subscribeForm.addEventListener(
     "submit",
-    async(e)=>{
+    (event) => {
+      event.preventDefault();
 
-      e.preventDefault();
+      const email =
+        subscribeEmail?.value
+          .trim();
 
-      const email=
-        subscribeEmail.value.trim();
+      if (!email) {
+        return;
+      }
 
-      if(!email)return;
+      /*
+       * Browser-side email validation.
+       */
 
-      subscribeError.hidden=true;
+      if (
+        subscribeEmail &&
+        !subscribeEmail.checkValidity()
+      ) {
+        subscribeEmail.reportValidity();
+        return;
+      }
 
-      subscribeBtn.classList.add("is-loading");
-      subscribeBtn.disabled=true;
+      if (subscribeError) {
+        subscribeError.hidden = true;
+      }
 
-      try{
-
-        /*
-         * Google Apps Script is a cross-origin endpoint.
-         * no-cors prevents the browser from blocking the POST.
-         */
-        await fetch(
-          SUBSCRIBE_ENDPOINT,
-          {
-            method:"POST",
-            mode:"no-cors",
-            body:new FormData(subscribeForm)
-          }
+      if (subscribeBtn) {
+        subscribeBtn.classList.add(
+          "is-loading"
         );
 
-        subscribeBtn.classList.remove("is-loading");
-        subscribeBtn.classList.add("is-done");
+        subscribeBtn.disabled = true;
+      }
+
+      /*
+       * We submit the existing form normally,
+       * but the response is loaded invisibly
+       * inside the iframe.
+       */
+
+      subscribeForm.submit();
+
+      /*
+       * Apps Script may take a moment to process
+       * the request. Give it enough time before
+       * showing the success state.
+       *
+       * This does not rely on reading the cross-origin
+       * response.
+       */
+
+      window.setTimeout(() => {
+        if (subscribeBtn) {
+          subscribeBtn.classList.remove(
+            "is-loading"
+          );
+
+          subscribeBtn.classList.add(
+            "is-done"
+          );
+        }
 
         burstParticles(subscribeBtn);
 
@@ -312,21 +682,11 @@ if(subscribeForm){
           email
         );
 
-        setTimeout(
-          ()=>showSubscribedState(email),
-          550
-        );
+        window.setTimeout(() => {
+          showSubscribedState(email);
+        }, 550);
 
-      }catch(err){
-
-        subscribeBtn.classList.remove(
-          "is-loading"
-        );
-
-        subscribeBtn.disabled=false;
-
-        subscribeError.hidden=false;
-      }
+      }, 900);
     }
   );
 }

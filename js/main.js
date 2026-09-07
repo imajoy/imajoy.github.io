@@ -20,7 +20,9 @@ if (themeBtn) {
 
     localStorage.setItem(
       "ajoy-theme",
-      root.classList.contains("light") ? "light" : "dark"
+      root.classList.contains("light")
+        ? "light"
+        : "dark"
     );
   });
 }
@@ -29,12 +31,16 @@ if (themeBtn) {
    MOBILE NAV
    ========================================================= */
 
-const menuBtn = document.getElementById("menuBtn");
-const mobileNav = document.getElementById("mobileNav");
+const menuBtn =
+  document.getElementById("menuBtn");
+
+const mobileNav =
+  document.getElementById("mobileNav");
 
 if (menuBtn && mobileNav) {
   menuBtn.addEventListener("click", () => {
-    const open = mobileNav.classList.toggle("open");
+    const open =
+      mobileNav.classList.toggle("open");
 
     menuBtn.setAttribute(
       "aria-expanded",
@@ -42,22 +48,30 @@ if (menuBtn && mobileNav) {
     );
   });
 
-  mobileNav.querySelectorAll("a").forEach((link) => {
-    link.addEventListener("click", () => {
-      mobileNav.classList.remove("open");
-      menuBtn.setAttribute("aria-expanded", "false");
+  mobileNav
+    .querySelectorAll("a")
+    .forEach((link) => {
+      link.addEventListener("click", () => {
+        mobileNav.classList.remove("open");
+
+        menuBtn.setAttribute(
+          "aria-expanded",
+          "false"
+        );
+      });
     });
-  });
 }
 
 /* =========================================================
    YEAR
    ========================================================= */
 
-const yearElement = document.getElementById("year");
+const yearElement =
+  document.getElementById("year");
 
 if (yearElement) {
-  yearElement.textContent = new Date().getFullYear();
+  yearElement.textContent =
+    new Date().getFullYear();
 }
 
 /* =========================================================
@@ -80,7 +94,9 @@ let scrollTicking = false;
 window.addEventListener(
   "scroll",
   () => {
-    if (scrollTicking) return;
+    if (scrollTicking) {
+      return;
+    }
 
     scrollTicking = true;
 
@@ -128,6 +144,7 @@ if (
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             toolList.classList.add("show");
+
             toolObserver.disconnect();
           }
         });
@@ -174,20 +191,14 @@ if (!reduceMotion) {
           const rect =
             card.getBoundingClientRect();
 
-          const x =
-            event.clientX - rect.left;
-
-          const y =
-            event.clientY - rect.top;
-
           card.style.setProperty(
             "--mx",
-            `${x}px`
+            `${event.clientX - rect.left}px`
           );
 
           card.style.setProperty(
             "--my",
-            `${y}px`
+            `${event.clientY - rect.top}px`
           );
         }
       );
@@ -251,10 +262,13 @@ if (
     new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          const video = entry.target;
+          const video =
+            entry.target;
 
           if (entry.isIntersecting) {
-            video.play().catch(() => {});
+            video
+              .play()
+              .catch(() => {});
           } else {
             video.pause();
           }
@@ -323,7 +337,9 @@ function openVideoModal(
 
   modalPlayer.currentTime = 0;
 
-  modalPlayer.play().catch(() => {});
+  modalPlayer
+    .play()
+    .catch(() => {});
 }
 
 function closeVideoModal() {
@@ -331,7 +347,9 @@ function closeVideoModal() {
     return;
   }
 
-  videoModal.classList.remove("open");
+  videoModal.classList.remove(
+    "open"
+  );
 
   videoModal.setAttribute(
     "aria-hidden",
@@ -342,7 +360,9 @@ function closeVideoModal() {
 
   modalPlayer.pause();
 
-  modalPlayer.removeAttribute("src");
+  modalPlayer.removeAttribute(
+    "src"
+  );
 
   modalPlayer.load();
 }
@@ -370,7 +390,9 @@ document
 
 if (videoModal) {
   videoModal
-    .querySelectorAll("[data-close]")
+    .querySelectorAll(
+      "[data-close]"
+    )
     .forEach((element) => {
       element.addEventListener(
         "click",
@@ -401,7 +423,9 @@ document.addEventListener(
     if (
       event.key === "Escape" &&
       videoModal &&
-      videoModal.classList.contains("open")
+      videoModal.classList.contains(
+        "open"
+      )
     ) {
       closeVideoModal();
     }
@@ -426,18 +450,22 @@ filterButtons.forEach((button) => {
   button.addEventListener(
     "click",
     () => {
-      filterButtons.forEach((item) => {
-        item.classList.remove(
-          "active"
-        );
+      filterButtons.forEach(
+        (item) => {
+          item.classList.remove(
+            "active"
+          );
 
-        item.setAttribute(
-          "aria-selected",
-          "false"
-        );
-      });
+          item.setAttribute(
+            "aria-selected",
+            "false"
+          );
+        }
+      );
 
-      button.classList.add("active");
+      button.classList.add(
+        "active"
+      );
 
       button.setAttribute(
         "aria-selected",
@@ -447,17 +475,20 @@ filterButtons.forEach((button) => {
       const selectedPlatform =
         button.dataset.filter;
 
-      toolGroups.forEach((group) => {
-        const shouldShow =
-          selectedPlatform === "all" ||
-          group.dataset.platform ===
-            selectedPlatform;
+      toolGroups.forEach(
+        (group) => {
+          const shouldShow =
+            selectedPlatform ===
+              "all" ||
+            group.dataset.platform ===
+              selectedPlatform;
 
-        group.classList.toggle(
-          "is-hidden",
-          !shouldShow
-        );
-      });
+          group.classList.toggle(
+            "is-hidden",
+            !shouldShow
+          );
+        }
+      );
     }
   );
 });
@@ -507,15 +538,15 @@ if (subscribeForm) {
     );
 
   /*
-   * Hidden iframe used as the target for
-   * the normal HTML POST.
+   * Hidden iframe.
    *
-   * This avoids CORS problems between
-   * GitHub Pages and Google Apps Script.
+   * The Google Apps Script HTML response sends a
+   * window.postMessage() back to the parent page.
    */
-
   const subscribeFrame =
-    document.createElement("iframe");
+    document.createElement(
+      "iframe"
+    );
 
   subscribeFrame.name =
     "ajoySubscribeFrame";
@@ -546,15 +577,57 @@ if (subscribeForm) {
     subscribeFrame
   );
 
+  /*
+   * Honeypot.
+   *
+   * Normal visitors never see or fill this.
+   * Simple automated bots may fill it.
+   */
+  let honeypot =
+    subscribeForm.querySelector(
+      'input[name="website"]'
+    );
+
+  if (!honeypot) {
+    honeypot =
+      document.createElement("input");
+
+    honeypot.type = "text";
+    honeypot.name = "website";
+    honeypot.tabIndex = -1;
+    honeypot.autocomplete =
+      "off";
+    honeypot.setAttribute(
+      "aria-hidden",
+      "true"
+    );
+
+    Object.assign(
+      honeypot.style,
+      {
+        position: "absolute",
+        left: "-9999px",
+        width: "1px",
+        height: "1px",
+        opacity: "0",
+        pointerEvents: "none",
+      }
+    );
+
+    subscribeForm.appendChild(
+      honeypot
+    );
+  }
+
   let submissionInProgress =
     false;
 
   let submissionTimeout =
     null;
 
-  /*
-   * Particle animation
-   */
+  /* =======================================================
+     PARTICLE BURST
+     ======================================================= */
 
   function burstParticles(
     originElement
@@ -584,7 +657,11 @@ if (subscribeForm) {
       "var(--accent)",
     ];
 
-    for (let i = 0; i < 14; i++) {
+    for (
+      let i = 0;
+      i < 14;
+      i++
+    ) {
       const particle =
         document.createElement(
           "span"
@@ -631,14 +708,66 @@ if (subscribeForm) {
         () => {
           particle.remove();
         },
-        { once: true }
+        {
+          once: true,
+        }
       );
     }
   }
 
-  /*
-   * Successful subscription state
-   */
+  /* =======================================================
+     UI HELPERS
+     ======================================================= */
+
+  function setError(message) {
+    if (!subscribeError) {
+      return;
+    }
+
+    subscribeError.textContent =
+      message ||
+      "Something went wrong — mind trying again?";
+
+    subscribeError.hidden = false;
+  }
+
+  function clearError() {
+    if (!subscribeError) {
+      return;
+    }
+
+    subscribeError.textContent =
+      "Something went wrong — mind trying again?";
+
+    subscribeError.hidden = true;
+  }
+
+  function restoreForm() {
+    if (subscribeForm) {
+      subscribeForm.hidden =
+        false;
+    }
+
+    if (subscribeNote) {
+      subscribeNote.hidden =
+        false;
+    }
+
+    if (subscribeSuccess) {
+      subscribeSuccess.hidden =
+        true;
+    }
+
+    if (subscribeBtn) {
+      subscribeBtn.disabled =
+        false;
+
+      subscribeBtn.classList.remove(
+        "is-loading",
+        "is-done"
+      );
+    }
+  }
 
   function showSubscribedState(
     email
@@ -682,11 +811,9 @@ if (subscribeForm) {
     }
   }
 
-  /*
-   * Error state
-   */
-
-  function showSubscribeError() {
+  function showServerError(
+    message
+  ) {
     submissionInProgress =
       false;
 
@@ -698,88 +825,142 @@ if (subscribeForm) {
       submissionTimeout = null;
     }
 
-    if (subscribeBtn) {
-      subscribeBtn.disabled =
-        false;
-
-      subscribeBtn.classList.remove(
-        "is-loading",
-        "is-done"
-      );
-    }
-
-    if (subscribeError) {
-      subscribeError.hidden =
-        false;
-    }
+    restoreForm();
+    setError(message);
   }
 
-  /*
-   * The iframe receives the response
-   * from Google Apps Script.
-   *
-   * Because the iframe is cross-origin,
-   * we intentionally do not try to read
-   * its contents.
-   */
+  /* =======================================================
+     SERVER RESPONSE
+     ======================================================= */
 
-  subscribeFrame.addEventListener(
-    "load",
-    () => {
+  window.addEventListener(
+    "message",
+    (event) => {
+      /*
+       * Only accept messages originating from
+       * the hidden Apps Script iframe.
+       */
       if (
-        !submissionInProgress
+        !subscribeFrame.contentWindow ||
+        event.source !==
+          subscribeFrame.contentWindow
       ) {
         return;
       }
 
-      const email =
-        subscribeEmail?.value.trim() ||
-        "";
+      let data = event.data;
 
-      if (!email) {
-        showSubscribeError();
+      /*
+       * Apps Script sends structured data.
+       * If a browser returns it as a string,
+       * try to parse it.
+       */
+      if (typeof data === "string") {
+        try {
+          data = JSON.parse(data);
+        } catch {
+          return;
+        }
+      }
+
+      if (
+        !data ||
+        data.type !==
+          "AJOY_SUBSCRIBE_RESULT"
+      ) {
         return;
       }
 
-      if (subscribeBtn) {
-        subscribeBtn.classList.remove(
-          "is-loading"
-        );
-
-        subscribeBtn.classList.add(
-          "is-done"
-        );
+      /*
+       * Ignore old responses after a submission
+       * has already been completed.
+       */
+      if (!submissionInProgress) {
+        return;
       }
 
-      burstParticles(
-        subscribeBtn
-      );
+      switch (data.status) {
 
-      /*
-       * Save locally only after the
-       * Google Apps Script POST has
-       * completed its navigation.
-       */
+        case "success": {
+          const email =
+            data.email ||
+            subscribeEmail?.value.trim() ||
+            "";
 
-      localStorage.setItem(
-        "ajoy-subscribed-email",
-        email
-      );
+          if (subscribeBtn) {
+            subscribeBtn.classList.remove(
+              "is-loading"
+            );
 
-      window.setTimeout(
-        () => {
-          showSubscribedState(
-            email
+            subscribeBtn.classList.add(
+              "is-done"
+            );
+          }
+
+          burstParticles(
+            subscribeBtn
           );
-        },
-        550
-      );
+
+          /*
+           * Only remember the email after
+           * the server explicitly returned success.
+           */
+          if (email) {
+            localStorage.setItem(
+              "ajoy-subscribed-email",
+              email
+            );
+          }
+
+          window.setTimeout(
+            () => {
+              showSubscribedState(
+                email
+              );
+            },
+            550
+          );
+
+          break;
+        }
+
+        case "duplicate":
+          showServerError(
+            "This email is already subscribed."
+          );
+          break;
+
+        case "disposable":
+          showServerError(
+            "Temporary or disposable email addresses are not accepted."
+          );
+          break;
+
+        case "invalid":
+          showServerError(
+            "Please enter a valid email address."
+          );
+          break;
+
+        case "spam":
+          showServerError(
+            "Submission rejected."
+          );
+          break;
+
+        default:
+          showServerError(
+            data.message ||
+              "Something went wrong — mind trying again?"
+          );
+          break;
+      }
     }
   );
 
-  /*
-   * Submit subscription
-   */
+  /* =======================================================
+     FORM SUBMISSION
+     ======================================================= */
 
   subscribeForm.addEventListener(
     "submit",
@@ -790,6 +971,11 @@ if (subscribeForm) {
         subscribeEmail?.value.trim() ||
         "";
 
+      clearError();
+
+      /*
+       * Basic client-side validation.
+       */
       if (!email) {
         subscribeEmail?.focus();
         return;
@@ -804,12 +990,26 @@ if (subscribeForm) {
       }
 
       /*
+       * Honeypot check.
+       *
+       * This is primarily checked server-side,
+       * but don't send an obviously automated
+       * submission from the browser.
+       */
+      if (
+        honeypot &&
+        honeypot.value.trim() !== ""
+      ) {
+        setError(
+          "Submission rejected."
+        );
+        return;
+      }
+
+      /*
        * Prevent double-click submissions.
        */
-
-      if (
-        submissionInProgress
-      ) {
+      if (submissionInProgress) {
         return;
       }
 
@@ -845,9 +1045,8 @@ if (subscribeForm) {
       }
 
       /*
-       * Configure a native HTML POST.
+       * Configure the native form POST.
        */
-
       subscribeForm.method =
         "POST";
 
@@ -858,11 +1057,9 @@ if (subscribeForm) {
         subscribeFrame.name;
 
       /*
-       * Use the native submit method so
-       * this does not recursively trigger
-       * our submit event listener.
+       * Native submit avoids recursively
+       * triggering our submit listener.
        */
-
       HTMLFormElement.prototype.submit.call(
         subscribeForm
       );
@@ -870,20 +1067,21 @@ if (subscribeForm) {
       /*
        * Safety timeout.
        *
-       * If Google never returns a response,
-       * don't leave the button spinning forever.
+       * If Apps Script never responds, show an
+       * error rather than claiming success.
        */
-
       submissionTimeout =
         window.setTimeout(
           () => {
             if (
               submissionInProgress
             ) {
-              showSubscribeError();
+              showServerError(
+                "The subscription service did not respond. Please try again."
+              );
             }
           },
-          12000
+          15000
         );
     }
   );

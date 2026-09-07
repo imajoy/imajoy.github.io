@@ -496,11 +496,67 @@ filterButtons.forEach((button) => {
 /* =========================================================
    SUBSCRIBE
    Google Apps Script JSONP
+   Supported email providers only
    ========================================================= */
 
 const SUBSCRIBE_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbzq2ox5khIkCLkfKTYuZrc4zpoPPoE4KYyqvwfM5nkCQ40C0aoYB6A8BGQMZ_nxKmgQTg/exec";
 
+
+/* =========================================================
+   SUPPORTED EMAIL DOMAINS
+   ========================================================= */
+
+const SUPPORTED_EMAIL_DOMAINS = new Set([
+  "gmail.com",
+  "googlemail.com",
+
+  "yahoo.com",
+  "yahoo.in",
+  "yahoo.co.uk",
+  "ymail.com",
+  "rocketmail.com",
+
+  "outlook.com",
+  "outlook.in",
+  "hotmail.com",
+  "hotmail.co.uk",
+  "hotmail.in",
+  "live.com",
+  "live.in",
+  "msn.com",
+
+  "icloud.com",
+  "me.com",
+  "mac.com",
+
+  "proton.me",
+  "protonmail.com",
+
+  "aol.com",
+
+  "gmx.com",
+  "gmx.de",
+
+  "mail.com",
+
+  "zoho.com",
+  "zohomail.com",
+
+  "rediffmail.com",
+
+  "yandex.com",
+  "yandex.ru",
+
+  "mail.ru",
+
+  "qq.com"
+]);
+
+
+/* =========================================================
+   FORM ELEMENTS
+   ========================================================= */
 
 const subscribeForm =
   document.getElementById(
@@ -515,25 +571,30 @@ if (subscribeForm) {
       "subscribeBtn"
     );
 
+
   const subscribeEmail =
     document.getElementById(
       "subscribeEmail"
     );
+
 
   const subscribeNote =
     document.getElementById(
       "subscribeNote"
     );
 
+
   const subscribeError =
     document.getElementById(
       "subscribeError"
     );
 
+
   const subscribeSuccess =
     document.getElementById(
       "subscribeSuccess"
     );
+
 
   const subscribedEmailEl =
     document.getElementById(
@@ -548,12 +609,115 @@ if (subscribeForm) {
   let submissionInProgress =
     false;
 
+
   let submissionTimer =
     null;
 
 
+  let activeScript =
+    null;
+
+
   /* =======================================================
-     PARTICLE BURST
+     EMAIL HELPERS
+     ======================================================= */
+
+  function normalizeEmail(
+    email
+  ) {
+
+    email =
+      String(
+        email || ""
+      )
+      .trim()
+      .toLowerCase();
+
+
+    const parts =
+      email.split("@");
+
+
+    if (
+      parts.length !== 2
+    ) {
+      return email;
+    }
+
+
+    let local =
+      parts[0];
+
+
+    const domain =
+      parts[1];
+
+
+    if (
+      domain === "gmail.com" ||
+      domain === "googlemail.com"
+    ) {
+
+      local =
+        local
+          .split("+")[0]
+          .replace(/\./g, "");
+
+
+      return (
+        local +
+        "@gmail.com"
+      );
+    }
+
+
+    return (
+      local +
+      "@" +
+      domain
+    );
+  }
+
+
+  function getDomain(
+    email
+  ) {
+
+    const parts =
+      email.split("@");
+
+
+    if (
+      parts.length !== 2
+    ) {
+      return "";
+    }
+
+
+    return parts[1];
+  }
+
+
+  function isSupportedDomain(
+    email
+  ) {
+
+    const domain =
+      getDomain(
+        normalizeEmail(
+          email
+        )
+      );
+
+
+    return SUPPORTED_EMAIL_DOMAINS.has(
+      domain
+    );
+  }
+
+
+  /* =======================================================
+     PARTICLES
      ======================================================= */
 
   function burstParticles(
@@ -607,7 +771,9 @@ if (subscribeForm) {
 
 
       const angle =
-        (Math.PI * 2 * i) / 14 +
+        (
+          Math.PI * 2 * i
+        ) / 14 +
         Math.random() * 0.4;
 
 
@@ -678,6 +844,20 @@ if (subscribeForm) {
   }
 
 
+  function removeActiveScript() {
+
+    if (
+      activeScript
+    ) {
+
+      activeScript.remove();
+
+      activeScript =
+        null;
+    }
+  }
+
+
   function clearError() {
 
     if (subscribeError) {
@@ -732,6 +912,9 @@ if (subscribeForm) {
 
 
     clearTimer();
+
+
+    removeActiveScript();
   }
 
 
@@ -742,12 +925,14 @@ if (subscribeForm) {
 
 
     if (subscribeNote) {
+
       subscribeNote.hidden =
         false;
     }
 
 
     if (subscribeSuccess) {
+
       subscribeSuccess.hidden =
         true;
     }
@@ -769,18 +954,22 @@ if (subscribeForm) {
 
 
     if (subscribeNote) {
+
       subscribeNote.hidden =
         true;
     }
 
 
     if (subscribeError) {
+
       subscribeError.hidden =
         true;
     }
 
 
-    if (subscribedEmailEl) {
+    if (
+      subscribedEmailEl
+    ) {
 
       subscribedEmailEl.textContent =
         email
@@ -789,7 +978,9 @@ if (subscribeForm) {
     }
 
 
-    if (subscribeSuccess) {
+    if (
+      subscribeSuccess
+    ) {
 
       subscribeSuccess.hidden =
         false;
@@ -803,7 +994,9 @@ if (subscribeForm) {
 
     finishSubmission();
 
+
     restoreForm();
+
 
     showError(
       message
@@ -819,8 +1012,7 @@ if (subscribeForm) {
     function (data) {
 
       /*
-       * Only process a response while a request
-       * is currently running.
+       * Ignore late callbacks.
        */
 
       if (
@@ -831,8 +1023,7 @@ if (subscribeForm) {
 
 
       /*
-       * Make sure the response really belongs
-       * to our subscription endpoint.
+       * Validate response.
        */
 
       if (
@@ -854,10 +1045,13 @@ if (subscribeForm) {
          ----------------------------------------------- */
 
       if (
-        data.status === "success"
+        data.status ===
+        "success"
       ) {
 
-        if (subscribeBtn) {
+        if (
+          subscribeBtn
+        ) {
 
           subscribeBtn.classList.remove(
             "is-loading"
@@ -875,6 +1069,10 @@ if (subscribeForm) {
         );
 
 
+        /*
+         * Store only after the server confirms.
+         */
+
         if (
           data.email
         ) {
@@ -887,10 +1085,7 @@ if (subscribeForm) {
 
 
         /*
-         * No artificial 550ms delay.
-         *
-         * Show success immediately after
-         * the server confirms it.
+         * No artificial delay.
          */
 
         showSuccess(
@@ -909,7 +1104,8 @@ if (subscribeForm) {
          ----------------------------------------------- */
 
       if (
-        data.status === "duplicate"
+        data.status ===
+        "duplicate"
       ) {
 
         showFailure(
@@ -921,15 +1117,16 @@ if (subscribeForm) {
 
 
       /* -----------------------------------------------
-         DISPOSABLE
+         UNSUPPORTED PROVIDER
          ----------------------------------------------- */
 
       if (
-        data.status === "disposable"
+        data.status ===
+        "unsupported"
       ) {
 
         showFailure(
-          "Temporary or disposable email addresses are not accepted."
+          "Please use a supported email address such as Gmail, Yahoo, Outlook, or iCloud."
         );
 
         return;
@@ -941,7 +1138,8 @@ if (subscribeForm) {
          ----------------------------------------------- */
 
       if (
-        data.status === "invalid"
+        data.status ===
+        "invalid"
       ) {
 
         showFailure(
@@ -957,7 +1155,8 @@ if (subscribeForm) {
          ----------------------------------------------- */
 
       if (
-        data.status === "spam"
+        data.status ===
+        "spam"
       ) {
 
         showFailure(
@@ -991,7 +1190,7 @@ if (subscribeForm) {
 
 
       /*
-       * Prevent double-click submissions.
+       * Prevent double click.
        */
 
       if (
@@ -1001,7 +1200,7 @@ if (subscribeForm) {
       }
 
 
-      const email =
+      const rawEmail =
         subscribeEmail?.value.trim() ||
         "";
 
@@ -1013,7 +1212,9 @@ if (subscribeForm) {
          EMPTY
          ----------------------------------------------- */
 
-      if (!email) {
+      if (
+        !rawEmail
+      ) {
 
         subscribeEmail?.focus();
 
@@ -1022,7 +1223,7 @@ if (subscribeForm) {
 
 
       /* -----------------------------------------------
-         BROWSER VALIDATION
+         HTML EMAIL VALIDATION
          ----------------------------------------------- */
 
       if (
@@ -1031,6 +1232,34 @@ if (subscribeForm) {
       ) {
 
         subscribeEmail.reportValidity();
+
+        return;
+      }
+
+
+      /* -----------------------------------------------
+         NORMALIZE
+         ----------------------------------------------- */
+
+      const email =
+        normalizeEmail(
+          rawEmail
+        );
+
+
+      /* -----------------------------------------------
+         SUPPORTED DOMAIN CHECK
+         ----------------------------------------------- */
+
+      if (
+        !isSupportedDomain(
+          email
+        )
+      ) {
+
+        showError(
+          "Please use a supported email address such as Gmail, Yahoo, Outlook, or iCloud."
+        );
 
         return;
       }
@@ -1067,28 +1296,36 @@ if (subscribeForm) {
         true;
 
 
-      if (subscribeError) {
+      if (
+        subscribeError
+      ) {
 
         subscribeError.hidden =
           true;
       }
 
 
-      if (subscribeSuccess) {
+      if (
+        subscribeSuccess
+      ) {
 
         subscribeSuccess.hidden =
           true;
       }
 
 
-      if (subscribeNote) {
+      if (
+        subscribeNote
+      ) {
 
         subscribeNote.hidden =
           false;
       }
 
 
-      if (subscribeBtn) {
+      if (
+        subscribeBtn
+      ) {
 
         subscribeBtn.disabled =
           true;
@@ -1106,17 +1343,13 @@ if (subscribeForm) {
 
 
       /* =================================================
-         CREATE JSONP SCRIPT
+         CREATE JSONP REQUEST
          ================================================= */
 
       const script =
         document.createElement(
           "script"
         );
-
-
-      const cacheBust =
-        Date.now();
 
 
       const requestURL =
@@ -1127,7 +1360,7 @@ if (subscribeForm) {
         ) +
         "&callback=ajoySubscriptionCallback" +
         "&_=" +
-        cacheBust;
+        Date.now();
 
 
       script.src =
@@ -1138,10 +1371,13 @@ if (subscribeForm) {
         true;
 
 
-      /*
-       * If Google Apps Script cannot be reached,
-       * this fires.
-       */
+      activeScript =
+        script;
+
+
+      /* -----------------------------------------------
+         NETWORK ERROR
+         ----------------------------------------------- */
 
       script.onerror =
         () => {
@@ -1159,9 +1395,9 @@ if (subscribeForm) {
         };
 
 
-      /*
-       * Remove script element after loading.
-       */
+      /* -----------------------------------------------
+         CLEAN UP
+         ----------------------------------------------- */
 
       script.onload =
         () => {
@@ -1169,7 +1405,22 @@ if (subscribeForm) {
           window.setTimeout(
             () => {
 
-              script.remove();
+              if (
+                script.parentNode
+              ) {
+
+                script.remove();
+              }
+
+
+              if (
+                activeScript ===
+                script
+              ) {
+
+                activeScript =
+                  null;
+              }
 
             },
             100
@@ -1183,7 +1434,7 @@ if (subscribeForm) {
 
 
       /* =================================================
-         TIMEOUT
+         SAFETY TIMEOUT
          ================================================= */
 
       clearTimer();

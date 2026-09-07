@@ -200,7 +200,7 @@ if (subscribeForm) {
     subscribeBtn.disabled = true;
 
     try {
-      const res = await fetch(FORMSPREE_ENDPOINT, {
+      const res = await fetch(SUBSCRIBE_ENDPOINT, {
         method: "POST",
         headers: { Accept: "application/json" },
         body: new FormData(subscribeForm),

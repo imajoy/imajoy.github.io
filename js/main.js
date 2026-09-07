@@ -502,51 +502,37 @@ const SUBSCRIBE_ENDPOINT =
   "https://script.google.com/macros/s/AKfycbzq2ox5khIkCLkfKTYuZrc4zpoPPoE4KYyqvwfM5nkCQ40C0aoYB6A8BGQMZ_nxKmgQTg/exec";
 
 const subscribeForm =
-  document.getElementById(
-    "subscribeForm"
-  );
+  document.getElementById("subscribeForm");
 
 if (subscribeForm) {
   const subscribeBtn =
-    document.getElementById(
-      "subscribeBtn"
-    );
+    document.getElementById("subscribeBtn");
 
   const subscribeEmail =
-    document.getElementById(
-      "subscribeEmail"
-    );
+    document.getElementById("subscribeEmail");
 
   const subscribeNote =
-    document.getElementById(
-      "subscribeNote"
-    );
+    document.getElementById("subscribeNote");
 
   const subscribeError =
-    document.getElementById(
-      "subscribeError"
-    );
+    document.getElementById("subscribeError");
 
   const subscribeSuccess =
-    document.getElementById(
-      "subscribeSuccess"
-    );
+    document.getElementById("subscribeSuccess");
 
   const subscribedEmailEl =
-    document.getElementById(
-      "subscribedEmail"
-    );
+    document.getElementById("subscribedEmail");
 
-  /*
-   * Hidden iframe.
-   *
-   * The Google Apps Script HTML response sends a
-   * window.postMessage() back to the parent page.
-   */
+  const STORAGE_KEY =
+    "ajoy-subscribed-email";
+
+
+  /* =======================================================
+     HIDDEN RESPONSE IFRAME
+     ======================================================= */
+
   const subscribeFrame =
-    document.createElement(
-      "iframe"
-    );
+    document.createElement("iframe");
 
   subscribeFrame.name =
     "ajoySubscribeFrame";
@@ -569,7 +555,7 @@ if (subscribeForm) {
       opacity: "0",
       pointerEvents: "none",
       left: "-9999px",
-      top: "-9999px",
+      top: "-9999px"
     }
   );
 
@@ -577,12 +563,11 @@ if (subscribeForm) {
     subscribeFrame
   );
 
-  /*
-   * Honeypot.
-   *
-   * Normal visitors never see or fill this.
-   * Simple automated bots may fill it.
-   */
+
+  /* =======================================================
+     HONEYPOT
+     ======================================================= */
+
   let honeypot =
     subscribeForm.querySelector(
       'input[name="website"]'
@@ -595,8 +580,8 @@ if (subscribeForm) {
     honeypot.type = "text";
     honeypot.name = "website";
     honeypot.tabIndex = -1;
-    honeypot.autocomplete =
-      "off";
+    honeypot.autocomplete = "off";
+
     honeypot.setAttribute(
       "aria-hidden",
       "true"
@@ -610,7 +595,7 @@ if (subscribeForm) {
         width: "1px",
         height: "1px",
         opacity: "0",
-        pointerEvents: "none",
+        pointerEvents: "none"
       }
     );
 
@@ -619,19 +604,23 @@ if (subscribeForm) {
     );
   }
 
+
+  /* =======================================================
+     STATE
+     ======================================================= */
+
   let submissionInProgress =
     false;
 
   let submissionTimeout =
     null;
 
+
   /* =======================================================
      PARTICLE BURST
      ======================================================= */
 
-  function burstParticles(
-    originElement
-  ) {
+  function burstParticles(originElement) {
     if (
       reduceMotion ||
       !originElement
@@ -654,7 +643,7 @@ if (subscribeForm) {
       "var(--axis-x)",
       "var(--axis-y)",
       "var(--axis-z)",
-      "var(--accent)",
+      "var(--accent)"
     ];
 
     for (
@@ -663,9 +652,7 @@ if (subscribeForm) {
       i++
     ) {
       const particle =
-        document.createElement(
-          "span"
-        );
+        document.createElement("span");
 
       particle.className =
         "subscribe-particle";
@@ -685,9 +672,7 @@ if (subscribeForm) {
         `${centerY}px`;
 
       particle.style.background =
-        colors[
-          i % colors.length
-        ];
+        colors[i % colors.length];
 
       particle.style.setProperty(
         "--px",
@@ -709,11 +694,12 @@ if (subscribeForm) {
           particle.remove();
         },
         {
-          once: true,
+          once: true
         }
       );
     }
   }
+
 
   /* =======================================================
      UI HELPERS
@@ -731,36 +717,31 @@ if (subscribeForm) {
     subscribeError.hidden = false;
   }
 
+
   function clearError() {
     if (!subscribeError) {
       return;
     }
 
-    subscribeError.textContent =
-      "Something went wrong — mind trying again?";
-
     subscribeError.hidden = true;
   }
 
+
   function restoreForm() {
     if (subscribeForm) {
-      subscribeForm.hidden =
-        false;
+      subscribeForm.hidden = false;
     }
 
     if (subscribeNote) {
-      subscribeNote.hidden =
-        false;
+      subscribeNote.hidden = false;
     }
 
     if (subscribeSuccess) {
-      subscribeSuccess.hidden =
-        true;
+      subscribeSuccess.hidden = true;
     }
 
     if (subscribeBtn) {
-      subscribeBtn.disabled =
-        false;
+      subscribeBtn.disabled = false;
 
       subscribeBtn.classList.remove(
         "is-loading",
@@ -769,9 +750,8 @@ if (subscribeForm) {
     }
   }
 
-  function showSubscribedState(
-    email
-  ) {
+
+  function finishSubmission() {
     submissionInProgress =
       false;
 
@@ -782,23 +762,25 @@ if (subscribeForm) {
 
       submissionTimeout = null;
     }
+  }
 
-    subscribeForm.hidden =
-      true;
+
+  function showSubscribedState(email) {
+    finishSubmission();
+
+    if (subscribeForm) {
+      subscribeForm.hidden = true;
+    }
 
     if (subscribeNote) {
-      subscribeNote.hidden =
-        true;
+      subscribeNote.hidden = true;
     }
 
     if (subscribeError) {
-      subscribeError.hidden =
-        true;
+      subscribeError.hidden = true;
     }
 
-    if (
-      subscribedEmailEl
-    ) {
+    if (subscribedEmailEl) {
       subscribedEmailEl.textContent =
         email
           ? `(${email})`
@@ -806,62 +788,63 @@ if (subscribeForm) {
     }
 
     if (subscribeSuccess) {
-      subscribeSuccess.hidden =
-        false;
+      subscribeSuccess.hidden = false;
     }
   }
 
-  function showServerError(
-    message
-  ) {
-    submissionInProgress =
-      false;
 
-    if (submissionTimeout) {
-      clearTimeout(
-        submissionTimeout
-      );
-
-      submissionTimeout = null;
-    }
+  function showServerError(message) {
+    finishSubmission();
 
     restoreForm();
+
     setError(message);
   }
 
+
   /* =======================================================
-     SERVER RESPONSE
+     APPS SCRIPT RESPONSE
      ======================================================= */
 
   window.addEventListener(
     "message",
     (event) => {
+
       /*
-       * Only accept messages originating from
-       * the hidden Apps Script iframe.
+       * IMPORTANT:
+       *
+       * Do NOT check:
+       *
+       * event.source === subscribeFrame.contentWindow
+       *
+       * Google Apps Script runs its response inside
+       * a sandboxed iframe and the browser may not
+       * report the source exactly as expected.
+       *
+       * We instead validate the message structure.
        */
-      if (
-        !subscribeFrame.contentWindow ||
-        event.source !==
-          subscribeFrame.contentWindow
-      ) {
-        return;
-      }
 
       let data = event.data;
 
-      /*
-       * Apps Script sends structured data.
-       * If a browser returns it as a string,
-       * try to parse it.
-       */
-      if (typeof data === "string") {
+
+      /* -----------------------------------------------
+         Parse JSON string if necessary
+         ----------------------------------------------- */
+
+      if (
+        typeof data === "string"
+      ) {
         try {
           data = JSON.parse(data);
         } catch {
           return;
         }
       }
+
+
+      /* -----------------------------------------------
+         Validate AJOY response
+         ----------------------------------------------- */
 
       if (
         !data ||
@@ -871,92 +854,144 @@ if (subscribeForm) {
         return;
       }
 
-      /*
-       * Ignore old responses after a submission
-       * has already been completed.
-       */
+
+      /* -----------------------------------------------
+         Ignore old / unexpected responses
+         ----------------------------------------------- */
+
       if (!submissionInProgress) {
         return;
       }
 
-      switch (data.status) {
 
-        case "success": {
-          const email =
-            data.email ||
-            subscribeEmail?.value.trim() ||
-            "";
+      /* -----------------------------------------------
+         SUCCESS
+         ----------------------------------------------- */
 
-          if (subscribeBtn) {
-            subscribeBtn.classList.remove(
-              "is-loading"
-            );
+      if (
+        data.status === "success"
+      ) {
+        const email =
+          data.email ||
+          subscribeEmail?.value.trim() ||
+          "";
 
-            subscribeBtn.classList.add(
-              "is-done"
-            );
-          }
-
-          burstParticles(
-            subscribeBtn
+        if (subscribeBtn) {
+          subscribeBtn.classList.remove(
+            "is-loading"
           );
 
-          /*
-           * Only remember the email after
-           * the server explicitly returned success.
-           */
-          if (email) {
-            localStorage.setItem(
-              "ajoy-subscribed-email",
-              email
-            );
-          }
-
-          window.setTimeout(
-            () => {
-              showSubscribedState(
-                email
-              );
-            },
-            550
+          subscribeBtn.classList.add(
+            "is-done"
           );
-
-          break;
         }
 
-        case "duplicate":
-          showServerError(
-            "This email is already subscribed."
-          );
-          break;
+        burstParticles(
+          subscribeBtn
+        );
 
-        case "disposable":
-          showServerError(
-            "Temporary or disposable email addresses are not accepted."
-          );
-          break;
 
-        case "invalid":
-          showServerError(
-            "Please enter a valid email address."
-          );
-          break;
+        /*
+         * Save only after the server confirms
+         * successful subscription.
+         */
 
-        case "spam":
-          showServerError(
-            "Submission rejected."
+        if (email) {
+          localStorage.setItem(
+            STORAGE_KEY,
+            email
           );
-          break;
+        }
 
-        default:
-          showServerError(
-            data.message ||
-              "Something went wrong — mind trying again?"
-          );
-          break;
+
+        /*
+         * Switch to success state.
+         */
+
+        window.setTimeout(
+          () => {
+            showSubscribedState(
+              email
+            );
+          },
+          550
+        );
+
+        return;
       }
+
+
+      /* -----------------------------------------------
+         DUPLICATE
+         ----------------------------------------------- */
+
+      if (
+        data.status === "duplicate"
+      ) {
+        showServerError(
+          "This email is already subscribed."
+        );
+
+        return;
+      }
+
+
+      /* -----------------------------------------------
+         DISPOSABLE
+         ----------------------------------------------- */
+
+      if (
+        data.status === "disposable"
+      ) {
+        showServerError(
+          "Temporary or disposable email addresses are not accepted."
+        );
+
+        return;
+      }
+
+
+      /* -----------------------------------------------
+         INVALID
+         ----------------------------------------------- */
+
+      if (
+        data.status === "invalid"
+      ) {
+        showServerError(
+          "Please enter a valid email address."
+        );
+
+        return;
+      }
+
+
+      /* -----------------------------------------------
+         SPAM
+         ----------------------------------------------- */
+
+      if (
+        data.status === "spam"
+      ) {
+        showServerError(
+          "Submission rejected."
+        );
+
+        return;
+      }
+
+
+      /* -----------------------------------------------
+         GENERIC ERROR
+         ----------------------------------------------- */
+
+      showServerError(
+        data.message ||
+        "Something went wrong — mind trying again?"
+      );
     }
   );
+
 
   /* =======================================================
      FORM SUBMISSION
@@ -965,21 +1000,35 @@ if (subscribeForm) {
   subscribeForm.addEventListener(
     "submit",
     (event) => {
+
       event.preventDefault();
+
+
+      /* -----------------------------------------------
+         Get email
+         ----------------------------------------------- */
 
       const email =
         subscribeEmail?.value.trim() ||
         "";
 
+
       clearError();
 
-      /*
-       * Basic client-side validation.
-       */
+
+      /* -----------------------------------------------
+         Empty email
+         ----------------------------------------------- */
+
       if (!email) {
         subscribeEmail?.focus();
         return;
       }
+
+
+      /* -----------------------------------------------
+         Browser validation
+         ----------------------------------------------- */
 
       if (
         subscribeEmail &&
@@ -989,13 +1038,11 @@ if (subscribeForm) {
         return;
       }
 
-      /*
-       * Honeypot check.
-       *
-       * This is primarily checked server-side,
-       * but don't send an obviously automated
-       * submission from the browser.
-       */
+
+      /* -----------------------------------------------
+         Honeypot
+         ----------------------------------------------- */
+
       if (
         honeypot &&
         honeypot.value.trim() !== ""
@@ -1003,18 +1050,29 @@ if (subscribeForm) {
         setError(
           "Submission rejected."
         );
+
         return;
       }
 
-      /*
-       * Prevent double-click submissions.
-       */
-      if (submissionInProgress) {
+
+      /* -----------------------------------------------
+         Prevent double submissions
+         ----------------------------------------------- */
+
+      if (
+        submissionInProgress
+      ) {
         return;
       }
+
 
       submissionInProgress =
         true;
+
+
+      /* -----------------------------------------------
+         Clear previous UI state
+         ----------------------------------------------- */
 
       if (subscribeError) {
         subscribeError.hidden =
@@ -1031,9 +1089,13 @@ if (subscribeForm) {
           false;
       }
 
+
+      /* -----------------------------------------------
+         Loading state
+         ----------------------------------------------- */
+
       if (subscribeBtn) {
-        subscribeBtn.disabled =
-          true;
+        subscribeBtn.disabled = true;
 
         subscribeBtn.classList.remove(
           "is-done"
@@ -1044,9 +1106,11 @@ if (subscribeForm) {
         );
       }
 
-      /*
-       * Configure the native form POST.
-       */
+
+      /* -----------------------------------------------
+         Native form POST
+         ----------------------------------------------- */
+
       subscribeForm.method =
         "POST";
 
@@ -1056,23 +1120,25 @@ if (subscribeForm) {
       subscribeForm.target =
         subscribeFrame.name;
 
+
       /*
-       * Native submit avoids recursively
-       * triggering our submit listener.
+       * Native submit prevents this submit handler
+       * from recursively firing.
        */
+
       HTMLFormElement.prototype.submit.call(
         subscribeForm
       );
 
-      /*
-       * Safety timeout.
-       *
-       * If Apps Script never responds, show an
-       * error rather than claiming success.
-       */
+
+      /* -----------------------------------------------
+         Safety timeout
+         ----------------------------------------------- */
+
       submissionTimeout =
         window.setTimeout(
           () => {
+
             if (
               submissionInProgress
             ) {
@@ -1080,9 +1146,27 @@ if (subscribeForm) {
                 "The subscription service did not respond. Please try again."
               );
             }
+
           },
-          15000
+          20000
         );
     }
   );
+
+
+  /* =======================================================
+     RETURNING VISITOR
+     ======================================================= */
+
+  /*
+   * We intentionally do NOT automatically hide
+   * the form based on localStorage.
+   *
+   * The Google Sheet remains the source of truth.
+   *
+   * This also allows duplicate detection to work
+   * correctly from the server.
+   */
+
 }
+

@@ -515,30 +515,25 @@ if (subscribeForm) {
       "subscribeBtn"
     );
 
-
   const subscribeEmail =
     document.getElementById(
       "subscribeEmail"
     );
-
 
   const subscribeNote =
     document.getElementById(
       "subscribeNote"
     );
 
-
   const subscribeError =
     document.getElementById(
       "subscribeError"
     );
 
-
   const subscribeSuccess =
     document.getElementById(
       "subscribeSuccess"
     );
-
 
   const subscribedEmailEl =
     document.getElementById(
@@ -546,16 +541,19 @@ if (subscribeForm) {
     );
 
 
+  /* =======================================================
+     STATE
+     ======================================================= */
+
   let submissionInProgress =
     false;
-
 
   let submissionTimer =
     null;
 
 
   /* =======================================================
-     PARTICLES
+     PARTICLE BURST
      ======================================================= */
 
   function burstParticles(
@@ -663,7 +661,7 @@ if (subscribeForm) {
 
 
   /* =======================================================
-     UI
+     UI HELPERS
      ======================================================= */
 
   function clearTimer() {
@@ -683,6 +681,7 @@ if (subscribeForm) {
   function clearError() {
 
     if (subscribeError) {
+
       subscribeError.hidden =
         true;
     }
@@ -693,15 +692,18 @@ if (subscribeForm) {
     message
   ) {
 
-    if (subscribeError) {
-
-      subscribeError.textContent =
-        message ||
-        "Something went wrong — mind trying again?";
-
-      subscribeError.hidden =
-        false;
+    if (!subscribeError) {
+      return;
     }
+
+
+    subscribeError.textContent =
+      message ||
+      "Something went wrong — mind trying again?";
+
+
+    subscribeError.hidden =
+      false;
   }
 
 
@@ -711,8 +713,10 @@ if (subscribeForm) {
       return;
     }
 
+
     subscribeBtn.disabled =
       false;
+
 
     subscribeBtn.classList.remove(
       "is-loading",
@@ -725,6 +729,7 @@ if (subscribeForm) {
 
     submissionInProgress =
       false;
+
 
     clearTimer();
   }
@@ -814,20 +819,28 @@ if (subscribeForm) {
     function (data) {
 
       /*
-       * Ignore callbacks arriving when there
-       * is no active request.
+       * Only process a response while a request
+       * is currently running.
        */
 
-      if (!submissionInProgress) {
+      if (
+        !submissionInProgress
+      ) {
         return;
       }
 
+
+      /*
+       * Make sure the response really belongs
+       * to our subscription endpoint.
+       */
 
       if (
         !data ||
         data.type !==
           "AJOY_SUBSCRIBE_RESULT"
       ) {
+
         showFailure(
           "Invalid subscription response."
         );
@@ -850,6 +863,7 @@ if (subscribeForm) {
             "is-loading"
           );
 
+
           subscribeBtn.classList.add(
             "is-done"
           );
@@ -861,12 +875,9 @@ if (subscribeForm) {
         );
 
 
-        /*
-         * Do not treat localStorage as proof
-         * of subscription. It is only a convenience.
-         */
-
-        if (data.email) {
+        if (
+          data.email
+        ) {
 
           localStorage.setItem(
             "ajoy-subscribed-email",
@@ -876,21 +887,16 @@ if (subscribeForm) {
 
 
         /*
-         * Give the button animation a moment,
-         * then show the final state.
+         * No artificial 550ms delay.
+         *
+         * Show success immediately after
+         * the server confirms it.
          */
 
-        window.setTimeout(
-          () => {
-
-            showSuccess(
-              data.email ||
-              subscribeEmail?.value.trim() ||
-              ""
-            );
-
-          },
-          550
+        showSuccess(
+          data.email ||
+          subscribeEmail?.value.trim() ||
+          ""
         );
 
 
@@ -963,7 +969,7 @@ if (subscribeForm) {
 
 
       /* -----------------------------------------------
-         OTHER ERROR
+         GENERIC ERROR
          ----------------------------------------------- */
 
       showFailure(
@@ -974,7 +980,7 @@ if (subscribeForm) {
 
 
   /* =======================================================
-     FORM SUBMIT
+     FORM SUBMISSION
      ======================================================= */
 
   subscribeForm.addEventListener(
@@ -983,6 +989,10 @@ if (subscribeForm) {
 
       event.preventDefault();
 
+
+      /*
+       * Prevent double-click submissions.
+       */
 
       if (
         submissionInProgress
@@ -1012,7 +1022,7 @@ if (subscribeForm) {
 
 
       /* -----------------------------------------------
-         HTML VALIDATION
+         BROWSER VALIDATION
          ----------------------------------------------- */
 
       if (
@@ -1057,16 +1067,16 @@ if (subscribeForm) {
         true;
 
 
-      if (subscribeSuccess) {
+      if (subscribeError) {
 
-        subscribeSuccess.hidden =
+        subscribeError.hidden =
           true;
       }
 
 
-      if (subscribeError) {
+      if (subscribeSuccess) {
 
-        subscribeError.hidden =
+        subscribeSuccess.hidden =
           true;
       }
 
@@ -1083,9 +1093,11 @@ if (subscribeForm) {
         subscribeBtn.disabled =
           true;
 
+
         subscribeBtn.classList.remove(
           "is-done"
         );
+
 
         subscribeBtn.classList.add(
           "is-loading"
@@ -1103,39 +1115,33 @@ if (subscribeForm) {
         );
 
 
-      const separator =
-        SUBSCRIBE_ENDPOINT.includes("?")
-          ? "&"
-          : "?";
-
-
-      const url =
-        SUBSCRIBE_ENDPOINT +
-        separator +
-        "email=" +
-        encodeURIComponent(
-          email
-        ) +
-        "&callback=ajoySubscriptionCallback";
-
-
-      /*
-       * Add a simple cache-busting value.
-       */
-
       const cacheBust =
-        "&_=" +
         Date.now();
 
 
-      script.src =
-        url +
+      const requestURL =
+        SUBSCRIBE_ENDPOINT +
+        "?email=" +
+        encodeURIComponent(
+          email
+        ) +
+        "&callback=ajoySubscriptionCallback" +
+        "&_=" +
         cacheBust;
+
+
+      script.src =
+        requestURL;
 
 
       script.async =
         true;
 
+
+      /*
+       * If Google Apps Script cannot be reached,
+       * this fires.
+       */
 
       script.onerror =
         () => {
@@ -1153,13 +1159,8 @@ if (subscribeForm) {
         };
 
 
-      document.head.appendChild(
-        script
-      );
-
-
       /*
-       * Remove script after it has loaded.
+       * Remove script element after loading.
        */
 
       script.onload =
@@ -1176,8 +1177,13 @@ if (subscribeForm) {
         };
 
 
+      document.head.appendChild(
+        script
+      );
+
+
       /* =================================================
-         SAFETY TIMEOUT
+         TIMEOUT
          ================================================= */
 
       clearTimer();
@@ -1202,5 +1208,3 @@ if (subscribeForm) {
     }
   );
 }
-
-

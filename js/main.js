@@ -146,7 +146,7 @@ filterBtns.forEach(btn=>{
 });
 
 /* subscribe — replace FORMSPREE_ENDPOINT below with your real Formspree form URL */
-const FORMSPREE_ENDPOINT = "https://formspree.io/f/xbgjarnw";
+const FORMSPREE_ENDPOINT = "https://script.google.com/macros/s/AKfycbzq2ox5khIkCLkfKTYuZrc4zpoPPoE4KYyqvwfM5nkCQ40C0aoYB6A8BGQMZ_nxKmgQTg/exec";
 const subscribeForm = document.getElementById("subscribeForm");
 if (subscribeForm) {
   const subscribeBtn = document.getElementById("subscribeBtn");

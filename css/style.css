@@ -440,3 +440,605 @@ footer{border-top:1px solid var(--line-soft);padding:30px 0}
   h1,.hero-lead,.hero-actions,.viewport{opacity:1!important;transform:none!important;filter:none!important}
 }
 #tools,#about{scroll-margin-top:96px}
+
+/* =========================================================
+   MOBILE EXPERIENCE — AJOY
+   Dedicated mobile layout
+   ========================================================= */
+
+@media (max-width: 640px) {
+
+  /* -------------------------------------------------------
+     BASE
+     ------------------------------------------------------- */
+
+  html {
+    overflow-x: hidden;
+  }
+
+  body {
+    overflow-x: hidden;
+  }
+
+  .container {
+    width: calc(100% - 28px);
+    max-width: none;
+  }
+
+
+  /* -------------------------------------------------------
+     HEADER
+     ------------------------------------------------------- */
+
+  .site-header {
+    height: auto;
+  }
+
+  .nav {
+    min-height: 82px;
+    padding: 14px 0;
+  }
+
+  .brand {
+    gap: 10px;
+    font-size: 20px;
+  }
+
+  .brand-mark {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+  }
+
+  .brand-mark img {
+    width: 100%;
+    height: 100%;
+  }
+
+  .nav-actions {
+    gap: 8px;
+  }
+
+  .icon-btn {
+    width: 56px;
+    height: 56px;
+    border-radius: 17px;
+  }
+
+  .icon-btn svg {
+    width: 24px;
+    height: 24px;
+  }
+
+
+  /* -------------------------------------------------------
+     MOBILE NAV
+     ------------------------------------------------------- */
+
+  .mobile-nav {
+    padding-bottom: 12px;
+  }
+
+  .mobile-nav .container {
+    padding-top: 4px;
+    padding-bottom: 8px;
+  }
+
+  .mobile-nav a {
+    padding: 13px 0;
+    font-size: 14px;
+  }
+
+
+  /* -------------------------------------------------------
+     HERO
+     ------------------------------------------------------- */
+
+  .hero {
+    padding: 46px 0 34px;
+  }
+
+  .hero-grid {
+    gap: 28px;
+  }
+
+  h1 {
+    font-size: clamp(
+      2.35rem,
+      11vw,
+      3.2rem
+    );
+
+    line-height: 0.98;
+    letter-spacing: -0.045em;
+  }
+
+  .hero-lead {
+    margin-top: 18px;
+    font-size: 15px;
+    line-height: 1.7;
+  }
+
+  .hero-actions {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    min-height: 50px;
+    justify-content: center;
+  }
+
+
+  /* -------------------------------------------------------
+     HERO VIEWPORT
+     ------------------------------------------------------- */
+
+  .viewport {
+    min-height: 250px;
+    height: 250px;
+    border-radius: 18px;
+  }
+
+  .viewport-floor {
+    opacity: .8;
+  }
+
+
+  /* -------------------------------------------------------
+     SECTIONS
+     ------------------------------------------------------- */
+
+  .section {
+    padding: 52px 0;
+  }
+
+  .statement {
+    padding: 46px 0;
+  }
+
+  h2 {
+    font-size: clamp(
+      1.95rem,
+      8.5vw,
+      2.45rem
+    );
+
+    line-height: 1.06;
+    letter-spacing: -0.035em;
+  }
+
+  .section-lead {
+    font-size: 14.5px;
+    line-height: 1.65;
+  }
+
+
+  /* -------------------------------------------------------
+     TOOLS
+     ------------------------------------------------------- */
+
+  .tool-list {
+    gap: 14px;
+  }
+
+  .tool {
+    margin: 0;
+  }
+
+  .tool-card {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+
+    padding: 20px;
+
+    border-radius: 17px;
+  }
+
+  .tool-meta {
+    gap: 8px;
+  }
+
+  .tool-name {
+    font-size: 21px;
+    line-height: 1.15;
+  }
+
+  .tool-desc {
+    font-size: 13.5px;
+    line-height: 1.65;
+  }
+
+  .tool-visual {
+    width: 100%;
+    min-height: 180px;
+    max-height: 260px;
+    border-radius: 13px;
+    overflow: hidden;
+  }
+
+  .tool-visual img,
+  .tool-visual video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .tool-link {
+    justify-self: stretch;
+    width: 100%;
+    min-height: 44px;
+    border-radius: 11px;
+  }
+
+
+  /* -------------------------------------------------------
+     TOOL FILTER
+     ------------------------------------------------------- */
+
+  .tool-filters {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .tool-filters::-webkit-scrollbar {
+    display: none;
+  }
+
+  .filter-btn {
+    flex: 0 0 auto;
+    min-height: 40px;
+    padding: 0 14px;
+    border-radius: 10px;
+  }
+
+
+  /* -------------------------------------------------------
+     SUBSCRIBE CARD
+     ------------------------------------------------------- */
+
+  .subscribe-section {
+    padding: 0 0 52px;
+  }
+
+  .subscribe-card {
+
+    /*
+     * Important:
+     * Remove the oversized desktop feeling.
+     */
+
+    padding: 30px 20px 26px;
+
+    border-radius: 19px;
+
+    /*
+     * Keep the background subtle on mobile.
+     */
+
+    background:
+      linear-gradient(
+        145deg,
+        var(--surface),
+        var(--surface)
+      );
+  }
+
+
+  /*
+   * The glow is currently very large on desktop.
+   * On mobile it becomes visually distracting,
+   * so make it smaller and softer.
+   */
+
+  .subscribe-glow {
+    right: -35%;
+    top: -15%;
+    width: 85%;
+    height: 130%;
+    opacity: .5;
+  }
+
+
+  .subscribe-text {
+    max-width: none;
+    margin-bottom: 24px;
+  }
+
+  .subscribe-text .group-label {
+    margin-bottom: 16px;
+  }
+
+
+  .subscribe-text h2 {
+    font-size: clamp(
+      2rem,
+      9vw,
+      2.6rem
+    );
+
+    line-height: 1.02;
+    max-width: 12ch;
+  }
+
+
+  .subscribe-text .section-lead {
+    max-width: 31ch;
+    font-size: 14px;
+  }
+
+
+  /* -------------------------------------------------------
+     SUBSCRIBE FORM
+     ------------------------------------------------------- */
+
+  .subscribe-form {
+
+    /*
+     * Explicitly reset desktop flex sizing.
+     */
+
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+
+    gap: 10px;
+
+    width: 100%;
+    max-width: none;
+
+    height: auto;
+    min-height: 0;
+
+    align-items: stretch;
+  }
+
+
+  /*
+   * This is the important fix for the
+   * giant input seen in your screenshot.
+   */
+
+  .subscribe-input-wrap {
+
+    display: flex;
+
+    flex: none;
+
+    width: 100%;
+    height: 52px;
+    min-height: 52px;
+    max-height: 52px;
+
+    box-sizing: border-box;
+
+    padding: 0 14px;
+
+    border-radius: 12px;
+  }
+
+
+  .subscribe-input-wrap input {
+    width: 100%;
+    min-width: 0;
+    height: 100%;
+
+    font-size: 14px;
+  }
+
+
+  .input-caret {
+    height: 18px;
+  }
+
+
+  /* -------------------------------------------------------
+     SUBSCRIBE BUTTON
+     ------------------------------------------------------- */
+
+  .subscribe-btn {
+
+    width: 100%;
+
+    min-width: 0;
+
+    height: 52px;
+    min-height: 52px;
+
+    border-radius: 12px;
+
+    font-size: 14px;
+  }
+
+
+  .subscribe-note {
+    max-width: 32ch;
+    margin-top: 13px;
+
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+
+  .subscribe-error {
+    margin-top: 12px;
+
+    font-size: 12px;
+    line-height: 1.55;
+  }
+
+
+  .subscribe-success {
+    margin-top: 12px;
+
+    align-items: flex-start;
+
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
+
+  /* -------------------------------------------------------
+     STATEMENT
+     ------------------------------------------------------- */
+
+  .statement .container {
+    display: block;
+  }
+
+  .comment {
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  .statement-copy {
+    margin-top: 18px;
+    font-size: 14px;
+    line-height: 1.7;
+  }
+
+
+  /* -------------------------------------------------------
+     ABOUT
+     ------------------------------------------------------- */
+
+  .about-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .about-copy p {
+    font-size: 14.5px;
+    line-height: 1.7;
+  }
+
+  .attrs {
+    margin-top: 22px;
+  }
+
+  .attr-row {
+    grid-template-columns: 1fr;
+    gap: 5px;
+    padding: 13px 0;
+  }
+
+  .attr-row .k {
+    font-size: 11px;
+  }
+
+  .attr-row .v {
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+
+
+  /* -------------------------------------------------------
+     FOOTER
+     ------------------------------------------------------- */
+
+  footer {
+    padding: 24px 0;
+  }
+
+  .footer-row {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .footer-links {
+    gap: 15px;
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+
+
+  /* -------------------------------------------------------
+     VIDEO MODAL
+     ------------------------------------------------------- */
+
+  .video-modal-panel {
+    width: calc(100% - 24px);
+    max-width: none;
+    border-radius: 16px;
+  }
+
+  .video-modal-close {
+    width: 42px;
+    height: 42px;
+  }
+
+
+  /* -------------------------------------------------------
+     TOUCH DEVICES
+     ------------------------------------------------------- */
+
+  .magnetic {
+    transform: none !important;
+  }
+
+  .tool-card:hover {
+    transform: none;
+  }
+}
+
+
+/* =========================================================
+   SMALL PHONES
+   ========================================================= */
+
+@media (max-width: 390px) {
+
+  .container {
+    width: calc(100% - 24px);
+  }
+
+  .nav {
+    min-height: 74px;
+  }
+
+  .brand {
+    font-size: 18px;
+  }
+
+  .brand-mark {
+    width: 40px;
+    height: 40px;
+    border-radius: 11px;
+  }
+
+  .icon-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 15px;
+  }
+
+  .hero {
+    padding-top: 38px;
+  }
+
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  .subscribe-card {
+    padding: 26px 17px 23px;
+  }
+
+  .subscribe-text h2 {
+    font-size: 2rem;
+  }
+
+  .tool-card {
+    padding: 17px;
+  }
+}

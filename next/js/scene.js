@@ -242,8 +242,10 @@
     var aspect = w / h;
     camera.aspect = aspect;
     narrow = aspect < 1.1;
-    var halfW = narrow ? 3.4 : 5.6;
-    var dist = Math.max(11, halfW / (tanH * aspect));
+    var split = !narrow && w > 980;
+    var halfW = narrow ? 3.4 : (split ? 5.2 : 5.6);
+    var dist = Math.max(11, halfW / (tanH * aspect * (split ? 0.56 : 1)));
+    if (split) camera.setViewOffset(w, h, -w * 0.22, 0, w, h); else camera.clearViewOffset();
     var visH = 2 * dist * tanH;
     var feet = 0.36;
     var centerY = feet + (narrow ? 0.40 : 0.42) * visH;

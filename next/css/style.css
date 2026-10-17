@@ -64,6 +64,15 @@ em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.0
 .actions{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 .hero-fine{position:absolute;z-index:2;bottom:22px;left:0;right:0;text-align:center;font-size:14px;color:var(--mute)}
 
+@media(min-width:981px){
+  .hero{display:flex;align-items:center;min-height:max(100svh,700px)}
+  .hero-copy{text-align:left;padding:90px 0 40px;margin:0 0 0 max(5vw,calc((100vw - 1240px)/2));max-width:600px}
+  .hero h1{font-size:clamp(44px,5.2vw,80px)}
+  .lead{margin-left:0}
+  .actions{justify-content:flex-start}
+  .hero-fine{text-align:left;left:max(5vw,calc((100vw - 1240px)/2))}
+}
+
 /* the one orchestrated moment: page load */
 @media (prefers-reduced-motion:no-preference){
   .js .intro .ln>span{transform:translateY(110%);animation:rise 1s var(--out) forwards}

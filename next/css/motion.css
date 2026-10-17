@@ -1,0 +1,33 @@
+/* Shared motion for every page */
+@view-transition{navigation:auto}
+@media (prefers-reduced-motion:no-preference){
+ ::view-transition-old(root){animation:vt-out .22s ease both}
+ ::view-transition-new(root){animation:vt-in .5s cubic-bezier(.16,1,.3,1) both}
+ @keyframes vt-out{to{opacity:0;transform:translateY(-8px)}}
+ @keyframes vt-in{from{opacity:0;transform:translateY(14px)}}
+}
+/* Tool links in the tool cards: underline draws, arrow slides in */
+.tl-link{color:inherit;text-decoration:none;background:linear-gradient(currentColor,currentColor) 0 100%/0 1.5px no-repeat;transition:background-size .45s cubic-bezier(.16,1,.3,1)}
+.tl-link::after{content:"\2192";display:inline-block;margin-left:0;opacity:0;transform:translateX(-6px);transition:opacity .3s,transform .4s cubic-bezier(.16,1,.3,1),margin .4s}
+.tl li:hover .tl-link{background-size:100% 1.5px}
+.tl li:hover .tl-link::after,.tl-link:focus-visible::after{opacity:1;transform:none;margin-left:8px}
+/* Underline that draws under the italic word of each heading */
+.block h2 em,.tool-more h2 em{position:relative;display:inline-block}
+.block h2 em::after{content:"";position:absolute;left:2%;right:2%;bottom:.04em;height:.07em;border-radius:99px;background:linear-gradient(90deg,var(--blue),var(--coral));transform:scaleX(0);transform-origin:0 50%;transition:transform 1.1s .5s cubic-bezier(.16,1,.3,1)}
+.block h2.in em::after{transform:scaleX(1)}
+html:not(.js) .block h2 em::after{transform:scaleX(1)}
+/* Links everywhere: slide underline */
+.foot-links a,.legal a,.fine a{background:linear-gradient(currentColor,currentColor) 0 100%/0 1px no-repeat;transition:background-size .4s cubic-bezier(.16,1,.3,1),color .2s}
+.foot-links a:hover,.legal a:hover,.fine a:hover{background-size:100% 1px}
+/* Soft idle life */
+.ic{animation:icbreath 5s ease-in-out infinite}
+.tl li:nth-child(2) .ic{animation-delay:-1.2s}.tl li:nth-child(3) .ic{animation-delay:-2.4s}.tl li:nth-child(4) .ic{animation-delay:-3.6s}
+@keyframes icbreath{50%{translate:0 -2px}}
+.faq summary::after{transition:transform .4s cubic-bezier(.16,1,.3,1),background-color .25s}
+.faq details{transition:box-shadow .4s,border-color .3s}.faq details:hover{border-color:var(--blue)}
+/* Forms and cards on checkout, download and policy pages */
+input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0 4px rgba(61,139,255,.22);transition:box-shadow .25s}
+.download-card,.order-summary,.policy-section{transition:transform .5s cubic-bezier(.16,1,.3,1),box-shadow .5s}
+.download-card:hover,.order-summary:hover{transform:translateY(-4px)}
+.policy-section:hover{transform:translateX(3px)}
+@media (prefers-reduced-motion:reduce){.ic,.art-tile,.orbit-chip,.art-ring,.tool-glow{animation:none!important}}

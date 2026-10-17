@@ -8,11 +8,14 @@ import * as THREE from './vendor/three.module.min.js';
   if (!canvas) return;
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
+  /* Keep the original glossy look: the newer three.js defaults to physical lights and sRGB output. */
+  THREE.ColorManagement.enabled = false;
   var renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   } catch (e) { canvas.style.display = 'none'; return; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 600 ? 1.25 : 1.5));
+  renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -20,15 +23,15 @@ import * as THREE from './vendor/three.module.min.js';
   var camera = new THREE.PerspectiveCamera(30, 1, 0.1, 120);
 
   /* ---------- light ---------- */
-  scene.add(new THREE.HemisphereLight(0xffffff, 0xb4c2e6, 0.95));
-  var sun = new THREE.DirectionalLight(0xffffff, 0.85);
+  scene.add(new THREE.HemisphereLight(0xffffff, 0xb4c2e6, 0.95 * Math.PI));
+  var sun = new THREE.DirectionalLight(0xffffff, 0.85 * Math.PI);
   sun.position.set(4, 9, 7);
   sun.castShadow = true;
   sun.shadow.mapSize.set(window.innerWidth < 600 ? 512 : 1024, window.innerWidth < 600 ? 512 : 1024);
   var sc = sun.shadow.camera; sc.left = -9; sc.right = 9; sc.top = 9; sc.bottom = -9; sc.near = 1; sc.far = 30;
   sun.shadow.bias = -0.0004;
   scene.add(sun);
-  var fill = new THREE.PointLight(0x9fc0ff, 0.5, 40); fill.position.set(-7, 4, 6); scene.add(fill);
+  var fill = new THREE.PointLight(0x9fc0ff, 0.5 * Math.PI, 40, 1); fill.position.set(-7, 4, 6); scene.add(fill);
 
   function mat(c, r, m) { return new THREE.MeshStandardMaterial({ color: c, roughness: r == null ? 0.55 : r, metalness: m || 0.04 }); }
   function shadowed(o) { o.traverse(function (n) { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } }); return o; }

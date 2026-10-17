@@ -1,13 +1,20 @@
 import {api,apiBase,mountTurnstile} from './commerce.js';
 const status=document.querySelector('#download-status'),retry=document.querySelector('#retry'),again=document.querySelector('#download-again'),close=document.querySelector('#close-tab');
 const verification=document.querySelector('#verification'),support=document.querySelector('#download-support');
-let widget,blobURL,working=false,connecting=false,closeTimer;
+let direct=false,widget,blobURL,working=false,connecting=false,closeTimer;
 function unavailable(){
- verification.hidden=true;retry.hidden=true;again.hidden=true;support.hidden=false;
- document.querySelector('.download-main h1').textContent='Setup downloads are not ready yet.';
- document.querySelector('.download-main .sub').textContent='Contact Ajoy for help getting the installer.';
- document.querySelector('.download-fine').textContent='The installer is free. Installing the tools requires an active license.';
- message('Download verification has not been activated. Retrying will not start a download.',true);
+ /* No verification service is configured: hand over the public installer directly. */
+ verification.hidden=true;retry.hidden=true;support.hidden=true;direct=true;
+ document.querySelector('.download-main h1').textContent='Your download is starting.';
+ document.querySelector('.download-main .sub').textContent='If nothing happens, use the button below.';
+ document.querySelector('.download-step').textContent='01 / DOWNLOAD · 02 / DRAG INTO MAYA · 03 / CREATE';
+ document.querySelector('.download-fine').textContent='The installer is free to download. Installing the tools requires an active license.';
+ again.hidden=false;again.textContent='Download again';close.hidden=true;
+ message('Starting your download…');
+ setTimeout(()=>{directDownload();message('Done. Check your Downloads folder, then drag AjoyTools_Setup.py into the Maya viewport.');},700);
+}
+function directDownload(){
+ const link=document.createElement('a');link.href='downloads/AjoyTools_Setup.py';link.download='AjoyTools_Setup.py';document.body.append(link);link.click();link.remove();
 }
 function message(text,error=false){status.textContent=text;status.dataset.error=String(error);}
 function handoff(){
@@ -46,5 +53,5 @@ async function init(){
   widget=await mountTurnstile('#verification',config.turnstileSiteKey,verified,text=>{message(text,true);retry.hidden=false;},'download');
  }catch(e){message(e.message,true);retry.hidden=false;}finally{connecting=false;retry.disabled=false;}
 }
-retry.addEventListener('click',init);again.addEventListener('click',()=>{clearTimeout(closeTimer);if(blobURL)handoff();else init();});close.addEventListener('click',()=>window.close());
+retry.addEventListener('click',init);again.addEventListener('click',()=>{if(direct){directDownload();return;}clearTimeout(closeTimer);if(blobURL)handoff();else init();});close.addEventListener('click',()=>window.close());
 init();

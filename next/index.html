@@ -13,7 +13,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css?v=20261017-r14">
-<link rel="stylesheet" href="css/polish.css?v=20261017-r13"><link rel="stylesheet" href="css/pricing-cards.css?v=20261018-r20"><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin></head>
+<link rel="stylesheet" href="css/polish.css?v=20261017-r13"><link rel="stylesheet" href="css/motion.css?v=20261018-t1"><link rel="stylesheet" href="css/pricing-cards.css?v=20261018-r20"><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin></head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
 
@@ -89,10 +89,10 @@
           <h3>Export</h3>
           <p class="t-sub">Get shots, assets and previews out of Maya cleanly.</p>
           <ul class="tl">
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-fbx"/></svg></span><div><b>FBX Exporter</b><span>Export rig assets, deformation joints and cameras by shot.</span></div></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-abc"/></svg></span><div><b>Alembic Exporter</b><span>Export geometry and cameras with UVs, visibility and face sets.</span></div></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></span><div><b>Playblast</b><span>Capture camera previews with resolution presets and audio.</span></div></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-audio"/></svg></span><div><b>Audio Exporter</b><span>Extract WAV audio from video shots and optionally import it into Maya.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-fbx"/></svg></span><div><b><a class="tl-link" href="tool-fbx-exporter.html">FBX Exporter</a></b><span>Export rig assets, deformation joints and cameras by shot.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-abc"/></svg></span><div><b><a class="tl-link" href="tool-alembic-exporter.html">Alembic Exporter</a></b><span>Export geometry and cameras with UVs, visibility and face sets.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></span><div><b><a class="tl-link" href="tool-playblast.html">Playblast</a></b><span>Capture camera previews with resolution presets and audio.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-audio"/></svg></span><div><b><a class="tl-link" href="tool-audio-exporter.html">Audio Exporter</a></b><span>Extract WAV audio from video shots and optionally import it into Maya.</span></div></li>
           </ul>
         </article>
 
@@ -100,10 +100,10 @@
           <h3>Animation</h3>
           <p class="t-sub">Move between controls and spaces without losing the pose.</p>
           <ul class="tl">
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-ik"/></svg></span><div><b>IK / FK Snap</b><span>Match arm IK and FK controls with saved rig presets.</span></div></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-switch"/></svg></span><div><b>Advanced IK FK Switch</b><span>Switch between IK and FK controls without losing the pose.</span></div></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-rebake"/></svg></span><div><b>Rebake IK Space</b><span>Move an IK control into a new space and keep its animation.</span></div></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-swap"/></svg></span><div><b>Multi Swapper</b><span>Moves animation onto locators and back, keying only the frames you already keyed.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-ik"/></svg></span><div><b><a class="tl-link" href="tool-ik-fk-snap.html">IK / FK Snap</a></b><span>Match arm IK and FK controls with saved rig presets.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-switch"/></svg></span><div><b><a class="tl-link" href="tool-advanced-ik-fk-switch.html">Advanced IK FK Switch</a></b><span>Switch between IK and FK controls without losing the pose.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-rebake"/></svg></span><div><b><a class="tl-link" href="tool-rebake-ik-space.html">Rebake IK Space</a></b><span>Move an IK control into a new space and keep its animation.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-swap"/></svg></span><div><b><a class="tl-link" href="tool-multi-swapper.html">Multi Swapper</a></b><span>Moves animation onto locators and back, keying only the frames you already keyed.</span></div></li>
           </ul>
         </article>
 
@@ -111,7 +111,7 @@
           <h3>Rigging</h3>
           <p class="t-sub">Stable attachments in one click.</p>
           <ul class="tl">
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-rivet"/></svg></span><div><b>Rivet</b><span>Attach a locator to a polygon or NURBS surface.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-rivet"/></svg></span><div><b><a class="tl-link" href="tool-rivet.html">Rivet</a></b><span>Attach a locator to a polygon or NURBS surface.</span></div></li>
           </ul>
           <div class="keycaps" aria-hidden="true"><kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>R</kbd></div>
           <p class="t-note">Right-click any tool and choose Assign Hotkey.</p>
@@ -121,10 +121,10 @@
           <h3>Scene</h3>
           <p class="t-sub">Keep scenes tidy and recover from mistakes.</p>
           <ul class="tl tl-2">
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-udim"/></svg></span><div><b>UDIM Preview</b><span>Generate texture tile previews at your chosen quality.</span></div></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg></span><div><b>Layer Prefix Remover</b><span>Remove or replace a prefix on display and legacy render layers.</span></div></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-keys"/></svg></span><div><b>Hotkey Manager</b><span>Inspect, export, import and apply custom Maya hotkeys.</span></div></li>
-            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-revert"/></svg></span><div><b>Revert to Last Saved</b><span>Reload the last saved scene with a backup of unsaved work.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-udim"/></svg></span><div><b><a class="tl-link" href="tool-udim-preview.html">UDIM Preview</a></b><span>Generate texture tile previews at your chosen quality.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg></span><div><b><a class="tl-link" href="tool-layer-prefix-remover.html">Layer Prefix Remover</a></b><span>Remove or replace a prefix on display and legacy render layers.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-keys"/></svg></span><div><b><a class="tl-link" href="tool-hotkey-manager.html">Hotkey Manager</a></b><span>Inspect, export, import and apply custom Maya hotkeys.</span></div></li>
+            <li><span class="ic"><svg viewBox="0 0 24 24"><use href="#i-revert"/></svg></span><div><b><a class="tl-link" href="tool-revert-to-last-saved.html">Revert to Last Saved</a></b><span>Reload the last saved scene with a backup of unsaved work.</span></div></li>
           </ul>
         </article>
       </div>
@@ -300,6 +300,6 @@
 <script src="js/site-config.js?v=20261017-r7"></script>
 <script src="js/main.js?v=20261017-r12"></script>
 <script type="module" src="js/pricing.js?v=20261018-r19"></script>
-<script type="module" src="js/scene.js?v=20261017-r7"></script>
+<script type="module" src="js/scene.js?v=20261018-t2"></script>
 <script type="module" src="js/ui-motion.js?v=20261017-r12"></script></body>
 </html>

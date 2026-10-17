@@ -20,13 +20,15 @@
 .plans .plan h3{font-size:2rem;line-height:1.15;letter-spacing:-.045em;margin:0}
 .plan-discount{display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-align:right;flex:none;color:var(--plan-gold);padding-top:3px}
 .plan-discount b{font-size:.6875rem;font-weight:600;letter-spacing:.12em}.plan-discount small{font-size:.5625rem;font-weight:400;letter-spacing:.025em}
-/* Keep the offer readable throughout the loop; animate only the headline. */
+.discount-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.discount-typing{white-space:pre}.discount-typing>span{display:inline-block}
+/* All characters share a clock: type in, hold, fade out, then replay. */
 @media(prefers-reduced-motion:no-preference){
- .plan-discount b{display:inline-block;position:relative;transform-origin:right center;animation:plan-discount-pulse 3.8s ease-in-out infinite}
- .plan-discount b::after{content:'';position:absolute;inset:auto 0 -4px;height:1px;border-radius:1px;background:currentColor;transform-origin:left center;animation:plan-discount-glint 3.8s ease-in-out infinite}
+ @supports(animation-timing-function:linear(0,1)){
+  .discount-typing>span{animation:plan-discount-type 5.2s infinite;animation-timing-function:linear(0,0 var(--type-at),1 calc(var(--type-at) + 4%),1 80%,0 90%,0)}
+ }
 }
-@keyframes plan-discount-pulse{0%,65%,100%{transform:translateY(0) scale(1);opacity:.88}28%,38%{transform:translateY(-2px) scale(1.08);opacity:1}}
-@keyframes plan-discount-glint{0%,12%,75%,100%{transform:scaleX(0);opacity:0}32%,42%{transform:scaleX(1);opacity:.5}62%{transform:scaleX(1);opacity:0}}
+@keyframes plan-discount-type{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
 .plans .plan .for{color:var(--plan-copy);font-size:.875rem;line-height:1.8;min-height:3.6em;margin:0;max-width:31em}
 .price-stack{position:relative;margin-top:30px}
 .plan-lead .price-stack::before{content:'';position:absolute;inset:-35px -12px -30px;background:radial-gradient(ellipse at 40% 55%,#3b7eff1c,transparent 70%);z-index:-1;pointer-events:none}

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>document.documentElement.classList.add("js")</script>
-<script>(function(){var t;try{t=localStorage.getItem("ajoy-theme")}catch(e){}if(t!=="dark"&&t!=="light")t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";document.documentElement.setAttribute("data-theme",t)})()</script>
+<script>(function(){var t;try{t=localStorage.getItem("ajoy-theme")}catch(e){}if(t!=="dark"&&t!=="light")t="light";document.documentElement.setAttribute("data-theme",t)})()</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ajoy Tools: production tools for Maya</title>
@@ -67,8 +67,8 @@
       <p class="lead intro-fade">Export by shot, snap IK to FK, rebake spaces and clean up scenes. Thirteen production tools in one menu, licensed per computer for studios.</p>
       <div class="actions intro-fade">
         <a class="btn btn-dark" href="#pricing">View plans</a>
-        <a class="btn btn-light" href="download.html" target="_blank">
-          <svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download setup
+        <a class="btn btn-light" href="#install">
+          <svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download Setup
         </a>
       </div>
     </div>
@@ -145,7 +145,7 @@
           <li data-go="3"><h4><span class="n">04</span>Click Install</h4></li>
         </ol>
         <div class="dl">
-          <a class="btn btn-dark" href="download.html" target="_blank"><svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download AjoyTools_Setup.py</a>
+          <a class="btn btn-dark" id="download-setup" href="download.html" target="_blank"><svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download Setup</a>
           <p class="fine">44 KB. Free to download. Installing needs a code from an active subscription.</p>
         </div>
       </div>
@@ -268,7 +268,7 @@
         <p>Download the setup now, and get your access code when you are ready.</p>
         <div class="actions">
           <a class="btn btn-blue" href="#pricing">View plans</a>
-          <a class="btn btn-ghost-dark" href="download.html" target="_blank">Download setup</a>
+          <a class="btn btn-ghost-dark" href="#install">Download Setup</a>
         </div>
       </div>
     </div>
@@ -283,7 +283,7 @@
     </div>
     <nav class="foot-links" aria-label="Footer">
       <a href="#tools">Tools</a>
-      <a href="download.html" target="_blank">Download</a>
+      <a href="#install">Download</a>
       <a href="#pricing">Pricing</a>
       <a href="license.html">License</a>
       <a href="privacy.html">Privacy</a>
@@ -294,7 +294,7 @@
 
 <script src="js/site-config.js?v=2"></script>
 <script src="js/main.js?v=4"></script>
-<script type="module" src="js/pricing.js?v=3"></script>
+<script type="module" src="js/pricing.js?v=4"></script>
 <script type="module" src="js/scene.js?v=4"></script>
 <script type="module" src="js/ui-motion.js?v=2"></script></body>
 </html>

@@ -30,7 +30,7 @@ for(const button of toggle.querySelectorAll('button'))button.addEventListener('c
 });
 render();
 /* Script-opened tabs can close themselves after a verified download. */
-for(const link of document.querySelectorAll('a[href="download.html"]'))link.addEventListener('click',event=>{
+for(const link of document.querySelectorAll('#download-setup'))link.addEventListener('click',event=>{
  if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||event.button!==0)return;
  const popup=window.open(link.href,'ajoy-download');
  if(popup){popup.opener=null;event.preventDefault();}

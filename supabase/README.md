@@ -4,7 +4,7 @@ The public homepage is unchanged. This prepares `/next/` and a **new** Supabase 
 
 ## Current status
 
-- The 3D motion lab, video, billing page, automatic display pricing, and download page run as static files.
+- The starting website layout and original 3D hero are restored. The billing page, automatic display pricing, and download page run as static files; the experimental motion video files are retained for future use.
 - No merchant account exists. Payments are deliberately disabled. Billing details are not submitted, stored, logged, or placed in URLs. `/checkout` returns 503 and creates no order or charge.
 - `next/js/site-config.js` has an empty `apiBase` until the new function is deployed. Static prices are estimates, not charge authorization. The full regional catalog is server-side; browser estimates are limited fallbacks.
 - Human verification fails closed until Turnstile and private installer storage are configured. There is no fake checkbox, timeout-based pass, or unverified download fallback.

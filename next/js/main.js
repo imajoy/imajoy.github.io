@@ -12,7 +12,7 @@
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
     if (themeBtn) themeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
+    if (meta) meta.setAttribute('content', dark ? '#080C18' : '#E9EDF3');
   }
   syncTheme();
   if (themeBtn) themeBtn.addEventListener('click', function () {
@@ -111,7 +111,7 @@
   }
 
   /* ---------- install sequence ---------- */
-  var ist = $('#stage-install'), motionPaused = reduce;
+  var ist = $('#stage-install');
   if (ist) {
     var steps = $$('#steps li'), codeEl = $('#code'), ph = $('#ph'), wcOn = $('#wc-on'), wcOff = $('#wc-off');
     var goEl = $('#go'), fc1 = $('#fc1'), fc2 = $('#fc2'), conf = $('#confetti');
@@ -155,16 +155,7 @@
             codeEl.textContent = CODE.slice(0, ++i);
             if (i < CODE.length) timers.push(setTimeout(type, 70));
             else later(function () { fc1.classList.add('show'); }, 250);
-            /* Muted film plays only when visible, with motion preferences respected. */
-  var film = document.getElementById('motion-video');
-  if (film && 'IntersectionObserver' in window) {
-    new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !document.documentElement.hasAttribute('data-motion-paused')) film.play().catch(function () {});
-      else film.pause();
-    }, { threshold: 0.45 }).observe(film);
-    document.addEventListener('visibilitychange', function () { if (document.hidden) film.pause(); });
-  }
-})();
+          })();
         }, 1500);
         later(function () { play(3); }, 4600);
       } else {
@@ -185,14 +176,9 @@
     if (reduce || !('IntersectionObserver' in window)) finalState();
     else new IntersectionObserver(function (es) {
       var on = es[0].isIntersecting;
-      if (on && !running && !motionPaused) { running = true; play(seen ? cur : 0); seen = true; }
+      if (on && !running) { running = true; play(seen ? cur : 0); seen = true; }
       else if (!on && running) { running = false; clearAll(); }
     }, { threshold: 0.35 }).observe(ist);
-    document.addEventListener('ajoy:motionchange', function (event) {
-      motionPaused = event.detail.paused;
-      if (motionPaused) { clearAll(); running = false; finalState(); }
-      else if (!reduce && ist.getBoundingClientRect().top < window.innerHeight && ist.getBoundingClientRect().bottom > 0) { running = true; play(0); }
-    });
   }
 
   /* ---------- gentle 3D tilt (smoothed, no CSS transitions) ---------- */
@@ -221,25 +207,7 @@
         s.el.style.transform = 'perspective(1400px) rotateY(' + (s.base[0] + s.cx * s.max) + 'deg) rotateX(' + (s.base[1] - s.cy * s.max * 0.7) + 'deg)';
         if (Math.abs(s.cx - s.tx) < 0.001 && Math.abs(s.cy - s.ty) < 0.001 && s.tx === 0 && s.ty === 0) s.active = false;
       });
-      /* Muted film plays only when visible, with motion preferences respected. */
-  var film = document.getElementById('motion-video');
-  if (film && 'IntersectionObserver' in window) {
-    new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !document.documentElement.hasAttribute('data-motion-paused')) film.play().catch(function () {});
-      else film.pause();
-    }, { threshold: 0.45 }).observe(film);
-    document.addEventListener('visibilitychange', function () { if (document.hidden) film.pause(); });
-  }
-})();
+    })();
   }
 
-  /* Muted film plays only when visible, with motion preferences respected. */
-  var film = document.getElementById('motion-video');
-  if (film && 'IntersectionObserver' in window) {
-    new IntersectionObserver(function (entries) {
-      if (entries[0].isIntersecting && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !document.documentElement.hasAttribute('data-motion-paused')) film.play().catch(function () {});
-      else film.pause();
-    }, { threshold: 0.45 }).observe(film);
-    document.addEventListener('visibilitychange', function () { if (document.hidden) film.pause(); });
-  }
 })();

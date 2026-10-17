@@ -9,25 +9,45 @@ const countries=codes.map(code=>[code,names.of(code)]).sort((a,b)=>a[1].localeCo
 for(const [code,name] of countries){const o=new Option(name,code);form.elements.country.add(o);}
 form.elements.country.value=suggestedCountry();
 let config={paymentsEnabled:false},quote=null,turnstileToken='',quoteRevision=0;
+const quantity=form.elements.seats,less=document.querySelector('#quantity-less'),more=document.querySelector('#quantity-more');
+let quantityTimer;
+function syncQuantity(){
+ const value=Number(quantity.value),valid=quantity.value!==''&&quantity.validity.valid;
+ less.disabled=valid&&value<=1;more.disabled=valid&&value>=100;
+}
+function clearAmounts(){for(const id of ['summary-total','summary-subtotal','summary-unit'])document.getElementById(id).textContent='—';}
+for(const [button,step] of [[less,-1],[more,1]])button.addEventListener('click',()=>{
+ const current=Number(quantity.value);
+ quantity.value=String(quantity.value!==''&&quantity.validity.valid?Math.min(100,Math.max(1,current+step)):1);
+ quantity.dispatchEvent(new Event('input',{bubbles:true}));
+ quantity.dispatchEvent(new Event('change',{bubbles:true}));
+});
 function selection(){return {plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value};}
 function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!turnstileToken;pay.textContent=!config.paymentsEnabled?'Payments opening soon':'Continue to secure payment';}
 async function render(){
- const r=++quoteRevision,s=selection();quote=null;updateButton();
+ clearTimeout(quantityTimer);
+ const r=++quoteRevision,s=selection();quote=null;updateButton();syncQuantity();
  document.querySelector('#summary-plan').textContent=s.plan==='online'?'Online':'Offline';
  document.querySelector('#summary-billing').textContent=s.billing==='yearly'?'Yearly':'Monthly';
- document.querySelector('#summary-seats').textContent=String(s.seats);
- if(!Number.isInteger(s.seats)||s.seats<1||s.seats>100||!s.country){document.querySelector('#summary-total').textContent='—';document.querySelector('#summary-subtotal').textContent='—';return;}
+ document.querySelector('#summary-seats').textContent=quantity.value!==''?String(s.seats):'—';
+ if(!Number.isInteger(s.seats)||s.seats<1||s.seats>100||!s.country){clearAmounts();return;}
  try{
   const data=apiBase?await getQuote(s.plan,s.billing,s.seats,s.country):previewPrice(s.plan,s.billing,s.seats,s.country);
   if(r!==quoteRevision)return;quote=data;
+  document.querySelector('#summary-unit').textContent=money(data.unitAmount,data.currency);
   document.querySelector('#summary-subtotal').textContent=money(data.subtotal,data.currency);
   document.querySelector('#summary-total').textContent=money(data.subtotal,data.currency);
   document.querySelector('#quote-note').textContent=data.preview?'Estimated subtotal. The final total and applicable tax will be shown before payment.':'Price confirmed for your billing country. Any applicable tax will be shown before payment.';
   updateButton();
- }catch(e){if(r!==quoteRevision)return;document.querySelector('#summary-total').textContent='—';document.querySelector('#summary-subtotal').textContent='—';status.textContent=e.message;}
+ }catch(e){if(r!==quoteRevision)return;clearAmounts();status.textContent=e.message;}
 }
-for(const name of ['plan','billing','country','seats'])form.elements[name].addEventListener('change',render);
-form.elements.seats.addEventListener('input',()=>{quote=null;updateButton();});
+for(const name of ['plan','billing','country'])form.elements[name].addEventListener('change',render);
+quantity.addEventListener('input',()=>{
+ clearTimeout(quantityTimer);quoteRevision++;quote=null;updateButton();syncQuantity();clearAmounts();
+ document.querySelector('#summary-seats').textContent=quantity.value||'—';
+ quantityTimer=setTimeout(render,180);
+});
+quantity.addEventListener('change',()=>{clearTimeout(quantityTimer);render();});
 async function init(){
  if(apiBase){try{config=await api('/config');}catch{document.querySelector('#availability').textContent='Subscriptions are temporarily unavailable. Your billing details stay in this browser.';}}
  if(!config.paymentsEnabled){document.querySelector('#availability').textContent='Payments are opening soon. You can review your plan here; billing details will not be sent while checkout is unavailable.';}

@@ -3,6 +3,10 @@
 html[data-theme=dark]{--soft-shadow:0 4px 12px #0002,0 20px 55px #0003}
 body{background-image:radial-gradient(ellipse at 0% 35%,#b7cfff12,transparent 45%)}
 .pillbar{box-shadow:0 5px 10px #23314e04,0 18px 46px #23314e0d;border-color:var(--pillbd);transition:box-shadow .5s var(--ease-soft)}
+.site-header{transition:transform .65s var(--ease-soft),opacity .55s ease}
+.site-header[data-scroll-hidden]{transform:translateY(calc(-100% - 32px));opacity:0}
+.site-header[data-scroll-hidden] .pillbar{pointer-events:none}
+.site-header:has(:focus-visible){transform:none;opacity:1}
 /* Open the shell from its centre, then reveal controls without stretching text. */
 @media(prefers-reduced-motion:no-preference){
   html.pill-pending .pillbar{clip-path:inset(0 calc(50% - 28px) round 999px)}
@@ -96,14 +100,9 @@ html[data-ui-paused] :is(.commerce-main h1,.commerce-intro,.checkout-progress,.c
 .js .reveal{opacity:1;transform:none}
 .scroll-soft{opacity:1;filter:none;translate:none}
 @media(prefers-reduced-motion:no-preference){
- @supports((animation-timeline:view()) and (animation-range:entry)){
-  html[data-ui-motion] .scroll-soft{animation:scroll-soft-in auto linear both;animation-timeline:view();animation-range:entry 0% entry 85%}
-  @keyframes scroll-soft-in{from{opacity:.1;filter:blur(4px);translate:0 20px}to{opacity:1;filter:blur(0);translate:0 0}}
- }
- @supports not ((animation-timeline:view()) and (animation-range:entry)){
-  .scroll-soft{transition:opacity .85s var(--ease-soft),filter .85s var(--ease-soft),translate .85s var(--ease-soft);transition-delay:var(--reveal-delay,0ms)}
-  .scroll-soft[data-soft-pending]{opacity:.1;filter:blur(4px);translate:0 20px}
- }
+ /* A timed reveal completes even when the visitor stops scrolling. */
+ .scroll-soft,.js .scroll-soft,.js .tile.reveal.in.scroll-soft{transition:opacity .6s var(--ease-soft),filter .48s var(--ease-soft),translate .65s var(--ease-soft),transform .65s var(--ease-soft),box-shadow .65s var(--ease-soft);transition-delay:var(--reveal-delay,0ms)}
+ .scroll-soft[data-soft-pending]{opacity:.1;filter:blur(3px);translate:0 16px}
 }
 .scroll-soft:focus-within,html[data-ui-paused] .scroll-soft{opacity:1!important;filter:none!important;translate:none!important;animation:none!important;transition:none!important}
 /* Decorative loops are independent of payment and human-verification status. */

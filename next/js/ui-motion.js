@@ -14,6 +14,29 @@ function syncMotionPreference(){
 }
 media.addEventListener('change',syncMotionPreference);
 syncMotionPreference();
+/* Accumulated travel ignores trackpad jitter; focus always restores navigation. */
+const header=document.querySelector('.site-header');
+if(header){
+ let previousY=Math.max(0,scrollY),travel=0,framePending=false;
+ const updateHeader=()=>{
+  framePending=false;
+  const y=Math.max(0,Math.min(scrollY,document.documentElement.scrollHeight-innerHeight));
+  const delta=y-previousY;
+  previousY=y;
+  if(y<100||header.querySelector(':focus-visible')){
+   header.removeAttribute('data-scroll-hidden');travel=0;return;
+  }
+  if(!delta)return;
+  if(Math.sign(delta)!==Math.sign(travel))travel=0;
+  travel+=delta;
+  if(travel>32){header.setAttribute('data-scroll-hidden','');travel=0;}
+  else if(travel< -18){header.removeAttribute('data-scroll-hidden');travel=0;}
+ };
+ window.addEventListener('scroll',()=>{
+  if(!framePending){framePending=true;requestAnimationFrame(updateHeader);}
+ },{passive:true});
+ header.addEventListener('focusin',()=>{header.removeAttribute('data-scroll-hidden');travel=0;});
+}
 const form=document.querySelector('#billing-form');
 if(form){
  const preview=document.querySelector('.license-preview');
@@ -44,19 +67,18 @@ if(form){
  new MutationObserver(update).observe(form.elements.country,{childList:true});update();
 }
 
-/* Native view timelines where supported, one-shot observation elsewhere. */
-const supportsViewTimeline=CSS.supports('(animation-timeline: view()) and (animation-range: entry)');
+/* Reveal once on entry, then finish on a clock instead of scroll distance. */
 const candidates=[...document.querySelectorAll('.reveal,main .head,.inst-copy,.checkout-form fieldset,.faq details')];
 let revealObserver;
 if('IntersectionObserver' in window){
- if(!supportsViewTimeline)revealObserver=new IntersectionObserver(entries=>{
+ revealObserver=new IntersectionObserver(entries=>{
   for(const entry of entries)if(entry.isIntersecting){entry.target.removeAttribute('data-soft-pending');revealObserver.unobserve(entry.target);}
- },{threshold:.04,rootMargin:'0px 0px -20px 0px'});
+ },{threshold:0,rootMargin:'0px 0px 24px 0px'});
  if(!paused&&!media.matches){
   candidates.forEach((element,index)=>{
    if(element.getBoundingClientRect().top<innerHeight*.92)return;
    element.classList.add('scroll-soft');
-   if(!supportsViewTimeline){element.setAttribute('data-soft-pending','');element.style.setProperty('--reveal-delay',`${index%2*60}ms`);revealObserver.observe(element);}
+   element.setAttribute('data-soft-pending','');element.style.setProperty('--reveal-delay',`${index%2*40}ms`);revealObserver.observe(element);
   });
  }
  document.addEventListener('focusin',event=>{

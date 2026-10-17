@@ -5,5 +5,8 @@ window.AJOY_CONFIG = Object.freeze({
   /* Download-page email list (Google Sheet). Paste the Apps Script web app URL here.
      Leave it empty to store nothing. It is a public address, not a secret. */
   sheetUrl: 'https://script.google.com/macros/s/AKfycbxAyrQQpvgXTD7WYS_5I1EVSfojM07O4oy3g6otATWgZzuwZ2e_YQ9qrcrVxW3r-vAjjQ/exec',
+  /* PayPal settings (Client ID, plan IDs, mode) are not stored here. They are served by the paypal-config
+     Supabase function from private secrets. Never put the PayPal Secret anywhere in this repo. */
+  paypalConfigUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/paypal-config',
   // Example: https://YOUR_PROJECT.supabase.co/functions/v1/storefront
 });

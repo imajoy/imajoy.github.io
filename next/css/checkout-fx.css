@@ -58,3 +58,11 @@
 .coupon-entry .btn:active,#coupon-apply:active{transform:scale(.96)}
 html[data-ui-paused] .customer-verification::before,html[data-ui-paused] .reward-steps li,html[data-ui-paused] .rs-pct,html[data-ui-paused] #pay::after,html[data-ui-paused] .billing-upsell::after,html[data-ui-paused] .upsell-badge{animation:none!important}
 @media (prefers-reduced-motion:reduce){.customer-verification::before,.reward-steps li,.rs-pct,#pay::after,.billing-upsell::after,.upsell-badge,.form-field::after,.checkout-progress [aria-current=step]::after{animation:none!important}.license-preview .license-pass{transform:none}}
+/* --- PayPal block --- */
+.paypal-box{margin-top:14px;display:grid;gap:10px}
+.paypal-test{margin:0;padding:10px 14px;border-radius:14px;background:rgba(255,122,92,.1);border:1px solid rgba(255,122,92,.35);font-size:.8125rem;line-height:1.5}
+.paypal-note{margin:0;min-height:1.2em;font-size:.8125rem;color:var(--mute)}
+.paypal-note[data-bad="1"]{color:#C0392B}
+.paypal-done #paypal-buttons{opacity:.4;pointer-events:none}
+.paypal-done .paypal-note{color:#1E8E6E;font-weight:600}
+@media (prefers-reduced-motion:no-preference){.paypal-box{animation:cv-in .7s cubic-bezier(.22,1,.36,1) backwards}}

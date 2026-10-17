@@ -3,347 +3,229 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ajoy Tools — Animation tools for Maya</title>
-<meta name="description" content="Ajoy Tools: 13 animation and pipeline tools for Autodesk Maya 2023 and newer. Exporters, IK/FK snapping, rigging helpers and more, in one menu.">
-<meta name="theme-color" content="#0B0C0E">
-<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<title>Ajoy Tools: production tools for Maya</title>
+<meta name="description" content="Thirteen production tools for Autodesk Maya 2023 and newer: exporters, IK/FK snapping, rig and scene utilities. Licensed per computer for studios.">
+<meta name="theme-color" content="#101114">
+<link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<script>document.documentElement.classList.add("js")</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=3">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,500..900&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=4">
 </head>
 <body>
-<div class="progress" id="progress" aria-hidden="true"></div>
-<div class="glow-cursor" id="glow" aria-hidden="true"></div>
 
-<header class="nav-wrap" id="nav">
-  <nav class="nav">
-    <a class="brand" href="#top" aria-label="Ajoy Tools home">
-      <span class="logo" aria-hidden="true">
-        <svg viewBox="0 0 32 32" fill="none"><path d="M9 11h12l-3.5-3.5M23 21H11l3.5 3.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </span>
-      <span>Ajoy Tools</span>
+<header class="site-header" id="header">
+  <div class="wrap bar">
+    <a class="brand" href="#top" aria-label="Ajoy Tools, home">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3D8BFF"/><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg>
+      <span class="word"><b>AJOY</b> TOOLS</span>
     </a>
-    <div class="links">
+    <nav class="nav" aria-label="Main">
       <a href="#tools">Tools</a>
-      <a href="#download">Download</a>
-      <a href="#plans">Plans</a>
-      <a href="#faq">Details</a>
-    </div>
-    <a class="btn small" href="#plans">Get access</a>
-  </nav>
+      <a href="#install">Install</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+      <a href="license.html">License</a>
+    </nav>
+    <a class="btn btn-sm" href="#pricing">View plans</a>
+  </div>
 </header>
 
 <main id="top">
-  <!-- HERO -->
+
   <section class="hero">
-    <canvas id="scene" aria-hidden="true"></canvas>
-    <div class="hero-fade" aria-hidden="true"></div>
-    <div class="wrap hero-inner">
+    <canvas id="rig" aria-hidden="true"></canvas>
+    <div class="wrap hero-grid">
       <div class="hero-copy">
-        <p class="eyebrow reveal"><span class="dot"></span> Autodesk Maya 2023 and newer · Windows</p>
-        <h1 class="reveal d1">Animate faster.<br><span class="grad">Skip the grunt work.</span></h1>
-        <p class="lead reveal d2">Thirteen production-ready Maya tools in one menu: exporters, IK/FK snapping, rigging helpers and scene utilities. Download the setup, enter your code, and you're working in minutes.</p>
-        <div class="cta reveal d3">
-          <a class="btn magnetic" href="downloads/AjoyTools_Setup.py" download>
-            <svg class="bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 20h14"/></svg>
-            Download setup
-          </a>
-          <a class="btn ghost magnetic" href="#plans">Get an access code</a>
+        <h1 class="intro">
+          <span class="ln"><span>Production tools</span></span>
+          <span class="ln"><span>for Maya, built</span></span>
+          <span class="ln"><span>by an animator.</span></span>
+        </h1>
+        <p class="lead intro-fade">Export by shot, snap IK to FK, rebake spaces and clean up scenes. Thirteen tools live in one Maya menu, licensed per computer for studios.</p>
+        <div class="actions intro-fade">
+          <a class="btn" href="#pricing">View plans</a>
+          <a class="btn btn-ghost" href="downloads/AjoyTools_Setup.py" download>Download setup</a>
         </div>
-        <ul class="stats reveal d4">
-          <li><b data-count="13">13</b><span>tools</span></li>
-          <li><b data-count="2">2</b><span>ways to install</span></li>
-          <li><b>3 min</b><span>to set up</span></li>
-        </ul>
-      </div>
-
-      <div class="mock-wrap reveal d2" aria-hidden="true">
-        <div class="chip-float c1"><i></i>Code verified</div>
-        <div class="chip-float c2">13 tools ready</div>
-        <div class="mock" id="mock">
-          <div class="mock-head">
-            <span class="mock-logo">AJ<i></i></span>
-            <div><b>AJOY TOOLS</b><small>Setup for Autodesk Maya 2023 and newer</small></div>
-          </div>
-          <div class="mock-choices">
-            <div class="mc"><b>Online · free code</b><span>Always the newest version.</span></div>
-            <div class="mc on"><b>Offline · access code</b><span>Works without internet.</span></div>
-          </div>
-          <div class="mock-card">
-            <small>Enter your access code</small>
-            <div class="mock-field"><span id="typed"></span><i class="caret"></i></div>
-          </div>
-          <div class="mock-prog"><i></i></div>
-          <div class="mock-foot"><span class="mock-btn ghost">Cancel</span><span class="mock-btn">Install</span></div>
-        </div>
+        <p class="fine intro-fade">For Autodesk Maya 2023 and newer on Windows.</p>
       </div>
     </div>
-    <a class="scroll-hint" href="#tools" aria-label="Scroll to tools"><i></i></a>
+    <svg class="curve" viewBox="0 0 1440 140" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+      <path id="curvePath" d="M0 112 C 220 112, 300 40, 520 40 S 820 112, 1000 96 S 1240 30, 1440 30" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke"/>
+      <g class="keys" fill="currentColor">
+        <path d="M520 34l6 6-6 6-6-6z"/><path d="M1000 90l6 6-6 6-6-6z"/><path d="M1440 24l6 6-6 6-6-6z" transform="translate(-14 0)"/>
+      </g>
+    </svg>
   </section>
-
-  <!-- MARQUEE -->
-  <div class="marquee" aria-hidden="true">
-    <div class="track">
-      <span>FBX Exporter</span><span>Alembic Exporter</span><span>Playblast</span><span>Audio Exporter</span><span>IK / FK Snap</span><span>Rebake IK Space</span><span>Rivet</span><span>UDIM Preview</span><span>Layer Prefix Remover</span><span>Hotkey Manager</span><span>Revert to Last Saved</span><span>Advanced IK FK Switch</span><span>Multi Swapper</span>
-      <span>FBX Exporter</span><span>Alembic Exporter</span><span>Playblast</span><span>Audio Exporter</span><span>IK / FK Snap</span><span>Rebake IK Space</span><span>Rivet</span><span>UDIM Preview</span><span>Layer Prefix Remover</span><span>Hotkey Manager</span><span>Revert to Last Saved</span><span>Advanced IK FK Switch</span><span>Multi Swapper</span>
-    </div>
-  </div>
 
   <!-- TOOLS -->
-  <section class="section" id="tools">
-    <div class="wrap">
-      <div class="head reveal">
-        <p class="kicker">The toolkit</p>
-        <h2>Everything in one Maya menu.</h2>
-        <p class="sub">Each tool solves one production snag well. Hover a card to tilt it.</p>
+  <section class="block" id="tools">
+    <div class="wrap split">
+      <div class="side">
+        <h2>Thirteen tools in one Maya menu.</h2>
+        <p class="sub">Each tool does one job well, and every one can be given its own hotkey. The Ajoy Tools menu and shelf appear in Maya after you install.</p>
       </div>
-
-      <div class="filters reveal" role="tablist" aria-label="Filter tools">
-        <button class="chip active" data-f="all" role="tab" aria-selected="true">All</button>
-        <button class="chip" data-f="export" role="tab" aria-selected="false">Export</button>
-        <button class="chip" data-f="anim" role="tab" aria-selected="false">Animation</button>
-        <button class="chip" data-f="rig" role="tab" aria-selected="false">Rigging</button>
-        <button class="chip" data-f="scene" role="tab" aria-selected="false">Scene</button>
-      </div>
-
-      <div class="grid" id="grid">
-        <article class="card" data-c="export">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg></div>
-          <h3>FBX Exporter</h3>
-          <p>Export rig assets, deformation joints and cameras by shot.</p>
-          <span class="tag">Export</span>
-        </article>
-        <article class="card" data-c="export">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zm0 9l8-4.5M12 12v9M12 12L4 7.5"/></svg></div>
-          <h3>Alembic Exporter</h3>
-          <p>Export geometry and cameras with UVs, visibility and face sets.</p>
-          <span class="tag">Export</span>
-        </article>
-        <article class="card" data-c="export">
-          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 9l5 3-5 3V9zM8 21h8"/></svg></div>
-          <h3>Playblast</h3>
-          <p>Capture camera previews with resolution presets and audio.</p>
-          <span class="tag">Export</span>
-        </article>
-        <article class="card" data-c="export">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h2m3-5v10m4-13v16m4-12v8m4-5v2"/></svg></div>
-          <h3>Audio Exporter</h3>
-          <p>Extract WAV audio from video shots and optionally import it into Maya.</p>
-          <span class="tag">Export</span>
-        </article>
-        <article class="card" data-c="anim rig">
-          <div class="ico"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 7.5c5 0 3 9 8 9"/></svg></div>
-          <h3>IK / FK Snap</h3>
-          <p>Match arm IK and FK controls with saved rig presets.</p>
-          <span class="tag">Animation</span>
-        </article>
-        <article class="card" data-c="anim rig">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M7 8h11l-3-3M17 16H6l3 3"/></svg></div>
-          <h3>Advanced IK FK Switch</h3>
-          <p>Switch between IK and FK controls without breaking the pose.</p>
-          <span class="tag">Animation</span>
-        </article>
-        <article class="card" data-c="anim rig">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2.3-2.3A5 5 0 1 0 17 14"/></svg></div>
-          <h3>Rebake IK Space</h3>
-          <p>Move an IK control into a new space, follow a parent, finalize or bake to world, and keep its animation.</p>
-          <span class="tag">Animation</span>
-        </article>
-        <article class="card" data-c="anim">
-          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M9 6h4a3 3 0 0 1 3 3v6"/></svg></div>
-          <h3>Multi Swapper</h3>
-          <p>Moves your animation onto locators and back, keying only the frames you already keyed.</p>
-          <span class="tag">Animation</span>
-        </article>
-        <article class="card" data-c="rig">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="3.5"/></svg></div>
-          <h3>Rivet</h3>
-          <p>Attach a locator to a polygon or NURBS surface.</p>
-          <span class="tag">Rigging</span>
-        </article>
-        <article class="card" data-c="scene">
-          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg></div>
-          <h3>UDIM Preview</h3>
-          <p>Generate texture tile previews at your chosen quality.</p>
-          <span class="tag">Scene</span>
-        </article>
-        <article class="card" data-c="scene">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h6M17 14l4 4m0-4l-4 4"/></svg></div>
-          <h3>Layer Prefix Remover</h3>
-          <p>Remove or replace a prefix on display and legacy render layers.</p>
-          <span class="tag">Scene</span>
-        </article>
-        <article class="card" data-c="scene">
-          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/></svg></div>
-          <h3>Hotkey Manager</h3>
-          <p>Inspect, export, import and apply custom Maya hotkeys.</p>
-          <span class="tag">Scene</span>
-        </article>
-        <article class="card" data-c="scene">
-          <div class="ico"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3"/></svg></div>
-          <h3>Revert to Last Saved</h3>
-          <p>Reload the last saved scene with a backup of unsaved work.</p>
-          <span class="tag">Scene</span>
-        </article>
+      <div class="index">
+        <h3 class="grp">Export</h3>
+        <ul class="rows">
+          <li><h4>FBX Exporter</h4><p>Export rig assets, deformation joints and cameras by shot.</p></li>
+          <li><h4>Alembic Exporter</h4><p>Export geometry and cameras with UVs, visibility and face sets.</p></li>
+          <li><h4>Playblast</h4><p>Capture camera previews with resolution presets and audio.</p></li>
+          <li><h4>Audio Exporter</h4><p>Extract WAV audio from video shots and optionally import it into Maya.</p></li>
+        </ul>
+        <h3 class="grp">Animation</h3>
+        <ul class="rows">
+          <li><h4>IK / FK Snap</h4><p>Match arm IK and FK controls with saved rig presets.</p></li>
+          <li><h4>Advanced IK FK Switch</h4><p>Switch between IK and FK controls without losing the pose.</p></li>
+          <li><h4>Rebake IK Space</h4><p>Move an IK control into a new space (follow a parent, finalize, or bake to world) and keep its animation.</p></li>
+          <li><h4>Multi Swapper</h4><p>Moves your animation onto locators and back, keying only the frames you already keyed.</p></li>
+        </ul>
+        <h3 class="grp">Rigging</h3>
+        <ul class="rows">
+          <li><h4>Rivet</h4><p>Attach a locator to a polygon or NURBS surface.</p></li>
+        </ul>
+        <h3 class="grp">Scene</h3>
+        <ul class="rows">
+          <li><h4>UDIM Preview</h4><p>Generate texture tile previews at your chosen quality.</p></li>
+          <li><h4>Layer Prefix Remover</h4><p>Remove or replace a prefix on display and legacy render layers.</p></li>
+          <li><h4>Hotkey Manager</h4><p>Inspect, export, import and apply custom Maya hotkeys.</p></li>
+          <li><h4>Revert to Last Saved</h4><p>Reload the last saved scene with a backup of unsaved work.</p></li>
+        </ul>
       </div>
     </div>
   </section>
 
-  <!-- TRUST -->
-  <section class="trust">
-    <div class="wrap trust-grid">
-      <div class="tr reveal"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg><b>Protected scripts</b><span>Tools ship compiled, not as readable source.</span></div>
-      <div class="tr reveal d1"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b>Live in minutes</b><span>Drag one file into Maya and enter your code.</span></div>
-      <div class="tr reveal d2"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2.3-2.3A5 5 0 1 0 17 14"/></svg><b>Always up to date</b><span>Check for updates from the Ajoy Tools menu.</span></div>
-      <div class="tr reveal d3"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><b>Maya 2023 and newer</b><span>Built for Windows.</span></div>
-    </div>
-  </section>
+  <!-- INSTALL -->
+  <section class="block block-raised" id="install">
+    <div class="wrap split">
+      <div class="side">
+        <h2>From download to menu in four steps.</h2>
+        <p class="sub">The setup file contains no tools. It only signs you in, and downloads and installs Ajoy Tools after your code is accepted.</p>
 
-  <!-- DOWNLOAD -->
-  <section class="section" id="download">
-    <div class="wrap">
-      <div class="dl tilt reveal">
-        <div class="dl-glow" aria-hidden="true"></div>
-        <div class="dl-text">
-          <p class="kicker">Free download</p>
-          <h2>Get the setup file.</h2>
-          <p class="sub">Anyone can download it. The tools are downloaded and installed only after your access code is accepted.</p>
-          <div class="dl-actions">
-            <a class="btn magnetic" href="downloads/AjoyTools_Setup.py" download>
-              <svg class="bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 20h14"/></svg>
-              Download AjoyTools_Setup.py
-            </a>
-            <span class="file-meta">44 KB · Python file · Windows</span>
-          </div>
-        </div>
-        <ol class="dl-steps">
-          <li><b>1</b><span>Download the file above.</span></li>
-          <li><b>2</b><span>Drag it into the Maya viewport.</span></li>
-          <li><b>3</b><span>Choose Online or Offline and enter your code.</span></li>
-          <li><b>4</b><span>Click <em>Install</em>. Maya restarts by itself.</span></li>
+        <ol class="steps">
+          <li><h4>Download the setup file</h4><p>It is free for anyone to download.</p></li>
+          <li><h4>Drag it into the Maya viewport</h4><p>Close other Maya sessions first.</p></li>
+          <li><h4>Choose Online or Offline, enter your code</h4><p>The code is checked online before anything is installed.</p></li>
+          <li><h4>Click Install</h4><p>Maya restarts by itself and the Ajoy Tools menu and shelf are ready.</p></li>
         </ol>
-      </div>
-    </div>
-  </section>
 
-  <!-- HOW -->
-  <section class="section alt" id="how">
-    <div class="wrap">
-      <div class="head reveal">
-        <p class="kicker">Install</p>
-        <h2>Three steps. No command line.</h2>
-        <p class="sub">The window closes by itself when it is done.</p>
-      </div>
-      <ol class="steps">
-        <li class="step reveal">
-          <span class="num">01</span>
-          <h3>Drag in the setup file</h3>
-          <p>Drag <code>AjoyTools_Setup.py</code> into the Maya viewport.</p>
-        </li>
-        <li class="step reveal d1">
-          <span class="num">02</span>
-          <h3>Enter your code</h3>
-          <p>Choose Online or Offline, type your code and click <b>Install</b>.</p>
-        </li>
-        <li class="step reveal d2">
-          <span class="num">03</span>
-          <h3>Restart Maya once</h3>
-          <p>The <b>Ajoy Tools</b> menu and the <b>Ajoy_Tools</b> shelf appear automatically.</p>
-        </li>
-      </ol>
-    </div>
-  </section>
-
-  <!-- EDITIONS -->
-  <section class="section" id="plans">
-    <div class="wrap">
-      <div class="head center reveal">
-        <p class="kicker">Plans</p>
-        <h2>Pick how you work.</h2>
-        <p class="sub">All 13 tools are included in both. Email me and I'll send your code.</p>
-      </div>
-      <div class="editions">
-        <div class="ed tilt reveal">
-          <span class="badge">Free code</span>
-          <h3>Online</h3>
-          <p class="ed-sub">Try Ajoy Tools with a free code that I issue to you.</p>
-          <ul>
-            <li>All 13 tools</li>
-            <li>Always the newest version</li>
-            <li>Needs internet each time Maya starts</li>
-          </ul>
-          <a class="btn ghost full" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20free%20code">Request a free code</a>
+        <div class="dl">
+          <a class="btn" href="downloads/AjoyTools_Setup.py" download>Download AjoyTools_Setup.py</a>
+          <p class="fine">44 KB. Installing needs a code from an active subscription.</p>
         </div>
-        <div class="ed tilt feature reveal d1">
-          <span class="ribbon">Best for studios</span>
-          <span class="badge hot">Paid access code</span>
+      </div>
+
+      <div class="shot" aria-hidden="true">
+        <div class="win">
+          <div class="win-head">
+            <span class="win-logo">AJ</span>
+            <div><b>AJOY TOOLS</b><small>Setup for Autodesk Maya 2023 and newer</small></div>
+          </div>
+          <div class="win-choices">
+            <div class="wc"><b>Online</b><span>Needs internet each time Maya starts. Always the newest version.</span></div>
+            <div class="wc on"><b>Offline</b><span>Works without internet. Update when you choose.</span></div>
+          </div>
+          <div class="win-field"><small>Enter your access code</small><div class="field"><span>NAME-XXXX-XXXX-XXXX-XXXX</span></div></div>
+          <div class="win-bar"><i></i></div>
+          <div class="win-foot"><span>Cancel</span><span class="go">Install</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING -->
+  <section class="block paper" id="pricing">
+    <div class="wrap">
+      <div class="pricing-head">
+        <h2>Licensing for studios.</h2>
+        <p class="sub">Both plans include all thirteen tools and after-sale support. Pick the one that fits how your team works, then choose monthly or yearly billing.</p>
+        <div class="toggle" role="group" aria-label="Billing period">
+          <button type="button" class="on" data-bill="monthly" aria-pressed="true">Monthly</button>
+          <button type="button" data-bill="yearly" aria-pressed="false">Yearly <em>Save 20%</em></button>
+          <i class="thumb" aria-hidden="true"></i>
+        </div>
+      </div>
+
+      <div class="plans">
+        <article class="plan">
+          <h3>Online</h3>
+          <p class="for">For freelancers and small teams that always want the newest build.</p>
+          <p class="price"><span class="amt" data-amt="online">$39</span><span class="per" data-per>per computer, per month</span></p>
+          <p class="note" data-note="online">Billed monthly. Cancel any time.</p>
+          <ul class="ticks">
+            <li>All 13 tools</li>
+            <li>Always the newest version, updated for you</li>
+            <li>Needs internet each time Maya starts</li>
+            <li>After-sale support by email</li>
+          </ul>
+          <a class="btn btn-block" data-buy="online" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20Online%20subscription">Subscribe to Online</a>
+        </article>
+
+        <article class="plan plan-lead">
           <h3>Offline</h3>
-          <p class="ed-sub">For daily production work, with no internet needed while you animate.</p>
-          <ul>
+          <p class="for">For studios that need Maya to run with no internet connection.</p>
+          <p class="price"><span class="amt" data-amt="offline">$79</span><span class="per" data-per>per computer, per month</span></p>
+          <p class="note" data-note="offline">Billed monthly. Cancel any time.</p>
+          <ul class="ticks">
             <li>All 13 tools</li>
             <li>Runs without internet after install</li>
-            <li>You choose when to update</li>
-            <li>Code works on a set number of computers</li>
+            <li>You decide when to update</li>
+            <li>Priority after-sale support</li>
+            <li>Built for studio-wide rollouts</li>
           </ul>
-          <a class="btn full magnetic" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20access%20code">Get an access code</a>
-        </div>
+          <a class="btn btn-block" data-buy="offline" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20Offline%20subscription">Subscribe to Offline</a>
+        </article>
       </div>
+
+      <div class="terms">
+        <div><h4>Support after the sale</h4><p>Installation help, updates and bug fixes are part of every subscription. Offline subscribers are answered first.</p></div>
+        <div><h4>Per computer</h4><p>Each code covers the number of computers you license. Add computers any time.</p></div>
+        <div><h4>Ten computers or more</h4><p>Studios licensing ten or more computers get a custom quote. <a href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20studio%20quote">Ask for a quote</a>.</p></div>
+      </div>
+      <p class="fine legal">Ajoy Tools is licensed, not sold. Use is governed by the <a href="license.html">Ajoy Tools License Agreement</a>. Prices are in US dollars and exclude any taxes.</p>
     </div>
   </section>
 
-  <!-- DETAILS -->
-  <section class="section alt" id="faq">
-    <div class="wrap two">
-      <div class="head reveal">
-        <p class="kicker">Details</p>
-        <h2>Good to know.</h2>
+  <!-- FAQ -->
+  <section class="block" id="faq">
+    <div class="wrap split">
+      <div class="side">
+        <h2>Questions studios ask.</h2>
       </div>
-      <div class="acc reveal d1">
-        <details open>
-          <summary>Which Maya versions work?</summary>
-          <p>Autodesk Maya 2023 and newer, on Windows.</p>
-        </details>
-        <details>
-          <summary>Can I assign hotkeys?</summary>
-          <p>Yes. Right-click any tool in the Ajoy Tools menu or shelf and choose <b>Assign Hotkey</b>. Maya tells you if the combination is already in use.</p>
-        </details>
-        <details>
-          <summary>What else do I need?</summary>
-          <p>The fbxmaya plug-in for FBX export and AbcExport for Alembic export. The Audio Exporter needs FFmpeg, which is not bundled.</p>
-        </details>
-        <details>
-          <summary>How do I remove it?</summary>
-          <p>Choose <b>Ajoy Tools &gt; Uninstall</b> and confirm. Your settings, presets and exported files are kept.</p>
-        </details>
-      </div>
-    </div>
-  </section>
-
-  <!-- CONTACT -->
-  <section class="section" id="contact">
-    <div class="wrap">
-      <div class="final tilt reveal">
-        <h2>Ready to speed up your <span class="grad">Maya workflow?</span></h2>
-        <p>Download the setup now, and email me when you want your access code.</p>
-        <div class="final-cta">
-          <a class="btn magnetic" href="downloads/AjoyTools_Setup.py" download>Download setup</a>
-          <a class="btn ghost magnetic" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20access%20code">contactmy3dart@gmail.com</a>
-        </div>
+      <div class="faq">
+        <details open><summary>Which versions of Maya does it support?</summary><p>Autodesk Maya 2023 and newer, on Windows.</p></details>
+        <details><summary>What is the difference between Online and Offline?</summary><p>Online checks your subscription each time Maya starts and always runs the newest version. Offline works without an internet connection once installed, and you choose when to update from the Ajoy Tools menu.</p></details>
+        <details><summary>What happens if I stop paying?</summary><p>Access is tied to an active subscription. When it ends, your code is turned off and the tools stop working. See the license for the full terms.</p></details>
+        <details><summary>Can I assign hotkeys to the tools?</summary><p>Yes. Right-click any tool in the Ajoy Tools menu or on the shelf and choose Assign Hotkey. Maya tells you if the combination is already in use.</p></details>
+        <details><summary>What else do I need installed?</summary><p>The fbxmaya plug-in for FBX export and AbcExport for Alembic export. The Audio Exporter also needs FFmpeg, which is not bundled.</p></details>
+        <details><summary>How do I remove it?</summary><p>Choose Ajoy Tools, then Uninstall, and confirm. Your settings, presets and exported files are kept.</p></details>
+        <details><summary>Is the setup file safe to share?</summary><p>Yes, it contains no tools and no secrets. It cannot install anything without a valid code.</p></details>
       </div>
     </div>
   </section>
 </main>
 
-<footer>
+<footer class="site-footer">
   <div class="wrap foot">
-    <span>© <span id="year">2026</span> AJOY. All rights reserved.</span>
-    <a href="#top">Back to top ↑</a>
+    <div class="foot-brand">
+      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3D8BFF"/><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg>
+      <p>Ajoy Tools is made by AJOY.<br>© <span id="year">2026</span> AJOY. All rights reserved.</p>
+    </div>
+    <nav class="foot-links" aria-label="Footer">
+      <a href="#tools">Tools</a>
+      <a href="downloads/AjoyTools_Setup.py" download>Download</a>
+      <a href="#pricing">Pricing</a>
+      <a href="license.html">License</a>
+      <a href="mailto:contactmy3dart@gmail.com">Contact</a>
+    </nav>
   </div>
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="js/main.js?v=2"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script src="js/main.js?v=4"></script>
 </body>
 </html>

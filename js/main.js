@@ -1,232 +1,207 @@
 (function () {
   'use strict';
+
+  /* ------------------------------------------------------------------
+     CHECKOUT LINKS
+     Paste your payment links between the quotes. While a link is empty,
+     the button opens an email to you instead.
+     ------------------------------------------------------------------ */
+  var CHECKOUT = {
+    online:  { monthly: '', yearly: '' },
+    offline: { monthly: '', yearly: '' }
+  };
+  var CONTACT = 'contactmy3dart@gmail.com';
+
+  /* Prices in US dollars, per computer. Yearly is 20% off 12 months. */
+  var PRICES = {
+    online:  { monthly: 39, yearly: 374 },
+    offline: { monthly: 79, yearly: 758 }
+  };
+
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
 
-  $('#year').textContent = new Date().getFullYear();
+  var year = $('#year');
+  if (year) year.textContent = new Date().getFullYear();
 
-  /* scroll progress + nav state */
-  var bar = $('#progress'), nav = $('#nav');
-  function onScroll() {
-    var h = document.documentElement;
-    var p = h.scrollTop / Math.max(1, h.scrollHeight - h.clientHeight);
-    bar.style.width = (p * 100) + '%';
-    nav.classList.toggle('scrolled', h.scrollTop > 30);
+  /* ---------- header ---------- */
+  var header = $('#header');
+  function onScroll(y) { if (header) header.classList.toggle('stuck', y > 24); }
+
+  /* ---------- smooth scrolling ---------- */
+  var lenis = null;
+  if (window.Lenis && !reduce) {
+    try {
+      lenis = new window.Lenis({ duration: 1.1, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, smoothWheel: true });
+      lenis.on('scroll', function (e) { onScroll(e.scroll); });
+      (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(performance.now());
+    } catch (err) { lenis = null; }
   }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
-
-  /* reveal on scroll */
-  var revs = $$('.reveal');
-  if ('IntersectionObserver' in window && !reduce) {
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
-      });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    revs.forEach(function (el) { io.observe(el); });
-  } else {
-    revs.forEach(function (el) { el.classList.add('in'); });
+  if (!lenis) {
+    window.addEventListener('scroll', function () { onScroll(window.scrollY); }, { passive: true });
+    document.documentElement.style.scrollBehavior = reduce ? 'auto' : 'smooth';
   }
+  onScroll(window.scrollY);
 
-  /* count up */
-  $$('[data-count]').forEach(function (el) {
-    var to = +el.dataset.count;
-    if (reduce) { el.textContent = to; return; }
-    var t0 = null;
-    function step(t) {
-      if (t0 === null) t0 = t;
-      var p = Math.min(1, (t - t0) / 1400);
-      el.textContent = Math.round(to * (1 - Math.pow(1 - p, 3)));
-      if (p < 1) requestAnimationFrame(step);
-    }
-    setTimeout(function () { requestAnimationFrame(step); }, 500);
+  $$('a[href^="#"]').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var id = a.getAttribute('href');
+      var target = id.length > 1 ? $(id) : null;
+      if (!target) return;
+      e.preventDefault();
+      if (lenis) lenis.scrollTo(target, { offset: -72, duration: 1.4 });
+      else window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 72, behavior: reduce ? 'auto' : 'smooth' });
+      history.replaceState(null, '', id);
+    });
   });
 
-  /* filters */
-  var cards = $$('.card');
-  $$('.chip').forEach(function (chip) {
-    chip.addEventListener('click', function () {
-      $$('.chip').forEach(function (c) { c.classList.remove('active'); c.setAttribute('aria-selected', 'false'); });
-      chip.classList.add('active'); chip.setAttribute('aria-selected', 'true');
-      var f = chip.dataset.f, i = 0;
-      cards.forEach(function (card) {
-        var show = f === 'all' || card.dataset.c.split(' ').indexOf(f) > -1;
-        card.classList.toggle('hide', !show);
-        card.classList.remove('pop');
-        if (show) {
-          void card.offsetWidth;
-          card.style.animationDelay = (i++ * 45) + 'ms';
-          card.classList.add('pop');
+  /* ---------- pricing toggle ---------- */
+  var toggle = $('.toggle');
+  if (toggle) {
+    var billing = 'monthly';
+    var plansEl = $('.plans');
+
+    function money(n) { return '$' + n.toLocaleString('en-US'); }
+
+    function render() {
+      ['online', 'offline'].forEach(function (plan) {
+        var p = PRICES[plan];
+        var yearly = billing === 'yearly';
+        var amt = $('[data-amt="' + plan + '"]');
+        var note = $('[data-note="' + plan + '"]');
+        var per = amt.parentNode.querySelector('[data-per]');
+        amt.textContent = money(yearly ? p.yearly : p.monthly);
+        per.textContent = yearly ? 'per computer, per year' : 'per computer, per month';
+        note.textContent = yearly
+          ? 'About ' + money(Math.round(p.yearly / 12)) + ' a month. You save ' + money(p.monthly * 12 - p.yearly) + ' a year.'
+          : 'Billed monthly. Cancel any time.';
+        var buy = $('[data-buy="' + plan + '"]');
+        var link = CHECKOUT[plan][billing];
+        var label = plan === 'online' ? 'Online' : 'Offline';
+        if (link) {
+          buy.href = link;
+          buy.target = '_blank';
+          buy.rel = 'noopener';
+        } else {
+          buy.removeAttribute('target');
+          buy.href = 'mailto:' + CONTACT + '?subject=' +
+            encodeURIComponent('Ajoy Tools ' + label + ' subscription (' + billing + ')');
         }
       });
-    });
-  });
+    }
 
-  /* 3D tilt + spotlight */
-  function tilt(el, max) {
-    var raf = 0;
-    el.addEventListener('pointermove', function (e) {
-      if (e.pointerType === 'touch') return;
-      var r = el.getBoundingClientRect();
-      var x = (e.clientX - r.left) / r.width, y = (e.clientY - r.top) / r.height;
-      cancelAnimationFrame(raf);
-      raf = requestAnimationFrame(function () {
-        el.style.transform = 'rotateX(' + ((0.5 - y) * max) + 'deg) rotateY(' + ((x - 0.5) * max) + 'deg) translateZ(10px)';
-        el.style.setProperty('--mx', (x * 100) + '%');
-        el.style.setProperty('--my', (y * 100) + '%');
+    $$('button', toggle).forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var next = btn.getAttribute('data-bill');
+        if (next === billing) return;
+        billing = next;
+        toggle.setAttribute('data-state', billing);
+        $$('button', toggle).forEach(function (b) {
+          var on = b === btn;
+          b.classList.toggle('on', on);
+          b.setAttribute('aria-pressed', on ? 'true' : 'false');
+        });
+        if (reduce) { render(); return; }
+        plansEl.classList.add('swap');
+        setTimeout(function () { render(); plansEl.classList.remove('swap'); }, 180);
       });
     });
-    el.addEventListener('pointerleave', function () {
-      cancelAnimationFrame(raf);
-      el.style.transform = '';
-    });
-  }
-  if (!reduce && fine) {
-    $$('.card').forEach(function (c) { tilt(c, 14); });
-    $$('.ed').forEach(function (c) { tilt(c, 8); });
-    $$('.final').forEach(function (c) { tilt(c, 3); });
-
-    /* magnetic buttons */
-    $$('.magnetic').forEach(function (b) {
-      b.addEventListener('pointermove', function (e) {
-        var r = b.getBoundingClientRect();
-        b.style.transform = 'translate(' + ((e.clientX - r.left - r.width / 2) * 0.18) + 'px,' + ((e.clientY - r.top - r.height / 2) * 0.3) + 'px)';
-      });
-      b.addEventListener('pointerleave', function () { b.style.transform = ''; });
-    });
-
-    /* cursor glow */
-    var glow = $('#glow'), gx = 0, gy = 0;
-    window.addEventListener('pointermove', function (e) {
-      gx = e.clientX; gy = e.clientY;
-      glow.style.opacity = 1;
-      glow.style.transform = 'translate(' + gx + 'px,' + gy + 'px)';
-    }, { passive: true });
+    render();
   }
 
-
-  /* typing animation in the mock setup window */
-  (function(){
-    var el=document.getElementById('typed'); if(!el) return;
-    var code='AJOY-7K2Q-9XMD-4TFA-82LP', i=0, dir=1;
-    if(reduce){ el.textContent='\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022'; return; }
-    (function tick(){
-      i+=dir; el.textContent=new Array(i+1).join('\u2022');
-      var wait=90;
-      if(i>=code.length){dir=-1; wait=3200}
-      else if(i<=0){dir=1; wait=900}
-      setTimeout(tick, dir===-1&&i<code.length?22:wait);
-    })();
-  })();
-
-  /* tilt the mock window with the mouse */
-  (function(){
-    var m=document.getElementById('mock'); if(!m||reduce||!fine) return;
-    document.querySelector('.hero').addEventListener('pointermove',function(e){
-      var x=e.clientX/innerWidth-0.5, y=e.clientY/innerHeight-0.5;
-      m.style.transform='rotateY('+(-14+x*14)+'deg) rotateX('+(6-y*10)+'deg)';
-    });
-  })();
-
-  /* hero 3D scene */
-  var canvas = $('#scene');
-  if (!window.THREE || reduce) { canvas.style.display = 'none'; return; }
-  var renderer;
+  /* ---------- 3D rotate gizmo ---------- */
+  var canvas = $('#rig');
+  if (!canvas || !window.THREE) return;
+  var THREE = window.THREE, renderer;
   try {
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
   } catch (err) { canvas.style.display = 'none'; return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
 
   var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(45, 1, 0.1, 100);
-  camera.position.set(0, 0, 11);
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  var camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
+  camera.position.set(0, 1.5, 10.5);
+  camera.lookAt(0, 0.1, 0);
 
-  scene.add(new THREE.AmbientLight(0x6b7a99, 0.9));
-  var l1 = new THREE.PointLight(0x3d8bff, 2.2, 40); l1.position.set(6, 5, 8); scene.add(l1);
-  var l2 = new THREE.PointLight(0x48d1c9, 2.0, 40); l2.position.set(-7, -4, 6); scene.add(l2);
+  var RED = 0xE5636F, GREEN = 0x5BC98A, BLUE = 0x3D8BFF;
+  var rig = new THREE.Group();
+  scene.add(rig);
 
-  var group = new THREE.Group();
-  scene.add(group);
-
-  var core = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(1.7, 1),
-    new THREE.MeshStandardMaterial({ color: 0x1f2a44, metalness: 0.75, roughness: 0.22, flatShading: true })
-  );
-  group.add(core);
-  var wire = new THREE.Mesh(
-    new THREE.IcosahedronGeometry(2.05, 1),
-    new THREE.MeshBasicMaterial({ color: 0x48d1c9, wireframe: true, transparent: true, opacity: 0.35 })
-  );
-  group.add(wire);
-
-  var rings = [];
-  [[3.2, 0x3d8bff, 0.5], [4.1, 0x48d1c9, -0.8], [5.0, 0x3d8bff, 1.2]].forEach(function (c, i) {
-    var m = new THREE.Mesh(
-      new THREE.TorusGeometry(c[0], 0.028, 12, 160),
-      new THREE.MeshBasicMaterial({ color: c[1], transparent: true, opacity: 0.55 - i * 0.12 })
-    );
-    m.rotation.x = Math.PI / 2 + c[2] * 0.4;
-    m.rotation.y = c[2] * 0.3;
-    m.userData.s = 0.002 + i * 0.0012;
-    group.add(m); rings.push(m);
-  });
-
-  var shapes = [];
-  var geos = [new THREE.OctahedronGeometry(0.34), new THREE.TetrahedronGeometry(0.4), new THREE.BoxGeometry(0.42, 0.42, 0.42)];
-  for (var i = 0; i < 16; i++) {
-    var a = (i / 16) * Math.PI * 2, rad = 3.4 + Math.random() * 2.4;
-    var s = new THREE.Mesh(geos[i % 3], new THREE.MeshStandardMaterial({
-      color: i % 2 ? 0x3d8bff : 0x48d1c9, metalness: 0.6, roughness: 0.25, flatShading: true
-    }));
-    s.position.set(Math.cos(a) * rad, (Math.random() - 0.5) * 4.6, Math.sin(a) * rad * 0.7);
-    s.userData = { a: a, rad: rad, y: s.position.y, sp: 0.1 + Math.random() * 0.25, rot: 0.01 + Math.random() * 0.02, ph: Math.random() * 6 };
-    group.add(s); shapes.push(s);
+  function ring(radius, color, rx, ry) {
+    var m = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.017, 8, 160), new THREE.MeshBasicMaterial({ color: color }));
+    m.rotation.x = rx; m.rotation.y = ry;
+    return m;
   }
+  rig.add(ring(2, RED, 0, Math.PI / 2));    /* X: ring in the YZ plane */
+  rig.add(ring(2, GREEN, Math.PI / 2, 0));  /* Y: ring in the XZ plane */
+  rig.add(ring(2, BLUE, 0, 0));             /* Z: ring in the XY plane */
 
-  var mouse = { x: 0, y: 0 }, cur = { x: 0, y: 0 }, scrollY = 0, visible = true;
+  /* soft sphere: hides the back half of the rings, which gives real depth */
+  rig.add(new THREE.Mesh(
+    new THREE.SphereGeometry(1.96, 40, 28),
+    new THREE.MeshBasicMaterial({ color: 0x101114, transparent: true, opacity: 0.86 })
+  ));
+
+  /* translate arrows along each axis */
+  function arrow(color, axis) {
+    var g = new THREE.Group();
+    var mat = new THREE.MeshBasicMaterial({ color: color });
+    var shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 1.3, 8), mat);
+    shaft.position.y = 2.65;
+    var tip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.24, 14), mat);
+    tip.position.y = 3.42;
+    g.add(shaft); g.add(tip);
+    if (axis === 'x') g.rotation.z = -Math.PI / 2;
+    if (axis === 'z') g.rotation.x = Math.PI / 2;
+    return g;
+  }
+  rig.add(arrow(RED, 'x'), arrow(GREEN, 'y'), arrow(BLUE, 'z'));
+
+  var dot = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 12), new THREE.MeshBasicMaterial({ color: 0xE7E9ED }));
+  rig.add(dot);
+
+  /* viewport floor */
+  var grid = new THREE.GridHelper(18, 36, 0x2A2C32, 0x1C1E23);
+  grid.position.y = -3.4;
+  scene.add(grid);
+
+  var tx = 0, ty = 0, cx = 0, cy = 0, visible = true, wide = true;
   window.addEventListener('pointermove', function (e) {
-    mouse.x = (e.clientX / innerWidth - 0.5) * 2;
-    mouse.y = (e.clientY / innerHeight - 0.5) * 2;
+    tx = (e.clientX / window.innerWidth - 0.5);
+    ty = (e.clientY / window.innerHeight - 0.5);
   }, { passive: true });
-  window.addEventListener('scroll', function () { scrollY = window.scrollY; }, { passive: true });
-  new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe($('.hero'));
 
   function resize() {
     var w = canvas.clientWidth, h = canvas.clientHeight;
+    if (!w || !h) return;
     renderer.setSize(w, h, false);
-    camera.aspect = w / h; camera.updateProjectionMatrix();
-    var wide = w > 820;
-    group.position.x = wide ? 4.4 : 0;
-    group.position.y = wide ? 0 : 3.2;
-    group.scale.setScalar(wide ? 1 : 0.62);
+    camera.aspect = w / h;
+    wide = w > 960;
+    camera.updateProjectionMatrix();
+    rig.position.set(wide ? 3.6 : 0, wide ? 0.2 : 1.1, 0);
+    rig.scale.setScalar(wide ? 1 : 0.7);
+    grid.position.x = rig.position.x * 0.6;
   }
   window.addEventListener('resize', resize);
   resize();
 
-  var clock = new THREE.Clock();
-  (function loop() {
-    requestAnimationFrame(loop);
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(canvas);
+  }
+
+  var spin = 0.5, last = performance.now();
+  function frame(now) {
+    requestAnimationFrame(frame);
+    var dt = Math.min(0.05, (now - last) / 1000);
+    last = now;
     if (!visible || document.hidden) return;
-    var t = clock.getElapsedTime();
-    cur.x += (mouse.x - cur.x) * 0.05;
-    cur.y += (mouse.y - cur.y) * 0.05;
-    core.rotation.x = t * 0.25; core.rotation.y = t * 0.35;
-    wire.rotation.x = -t * 0.15; wire.rotation.y = -t * 0.2;
-    rings.forEach(function (r, i) { r.rotation.z += r.userData.s * (i % 2 ? -1 : 1); });
-    shapes.forEach(function (s) {
-      var d = s.userData;
-      d.a += d.sp * 0.004;
-      s.position.x = Math.cos(d.a) * d.rad;
-      s.position.z = Math.sin(d.a) * d.rad * 0.7;
-      s.position.y = d.y + Math.sin(t * 0.8 + d.ph) * 0.25;
-      s.rotation.x += d.rot; s.rotation.y += d.rot * 1.3;
-    });
-    group.rotation.y = cur.x * 0.45 + t * 0.05;
-    group.rotation.x = cur.y * 0.25 + scrollY * 0.0006;
-    group.position.z = -scrollY * 0.004;
+    if (!reduce) spin += dt * 0.22;
+    cx += (tx - cx) * Math.min(1, dt * 4);
+    cy += (ty - cy) * Math.min(1, dt * 4);
+    rig.rotation.y = spin + cx * 0.9;
+    rig.rotation.x = 0.42 + cy * 0.5;
     renderer.render(scene, camera);
-  })();
+  }
+  requestAnimationFrame(frame);
 })();

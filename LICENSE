@@ -1,0 +1,99 @@
+Ajoy Tools License Agreement
+
+Effective 17 October 2026
+
+In short: Ajoy Tools belongs to AJOY. You are licensed to use it, not to own it. You may not crack it, bypass its access-code checks, share your code, copy it, or build a similar tool from it. Doing so ends your license and may lead to civil and criminal action.
+
+This agreement is between you (the person or company that holds an Ajoy Tools subscription) and AJOY (“AJOY”, “we”). By downloading, installing or using Ajoy Tools or its setup file, you accept it. If you do not accept it, do not install or use Ajoy Tools.
+
+1. What this covers
+
+“Ajoy Tools” means everything we provide under that name: the tools and scripts (in source and compiled form), the setup file AjoyTools_Setup.py, the menus, windows, icons and interface designs, the logo and name, the licensing and update servers, and all documentation and updates.
+
+2. Ownership
+
+Ajoy Tools, including its code, logic, structure, interface design, icons, name and logo, is the exclusive property of AJOY and is protected by copyright and other intellectual property laws. All rights are reserved. Ajoy Tools is licensed, not sold. This agreement gives you no ownership of it and no rights other than those stated here.
+
+3. Your license
+
+While your subscription is active and paid, we grant you a limited, non-exclusive, non-transferable, revocable license to install and use Ajoy Tools in Autodesk Maya, for your own internal production work, on the number of computers your subscription covers.
+
+  - Online checks your subscription each time Maya starts and runs the newest version.
+
+  - Offline runs without an internet connection after installation, and you choose when to update.
+
+  - An access code belongs to the subscriber named when it was issued and works only on the number of computers it was issued for.
+
+4. What you must not do
+
+You must not, and must not allow or help anyone else to:
+
+  - Crack or bypass. Crack, patch, emulate, keygen, or otherwise disable, bypass or work around the access-code check, activation, expiry, computer limit, update check, or any protection built into Ajoy Tools or the setup file.
+
+  - Reverse engineer. Decompile, disassemble, decrypt, deobfuscate, unpack or otherwise try to extract the source code, algorithms or protected contents of Ajoy Tools, except where the law expressly allows it despite this clause.
+
+  - Copy or redistribute. Copy, share, upload, publish, host, rent, lease, lend, resell or sublicense Ajoy Tools, its files, or the downloaded package, in whole or in part. The setup file may be shared freely, and only that file.
+
+  - Share access. Share, post, sell or publish an access code, or use a code on more computers than it was issued for.
+
+  - Build a copy. Create, or help create, a similar, competing or derivative tool, script or product by using Ajoy Tools’ code, logic, structure, interface design, icons, documentation, or any material obtained from it, including by recreating it from observation of how it works internally.
+
+  - Tamper. Modify Ajoy Tools or intercept, alter, replay or imitate its communication with our servers.
+
+  - Misuse the service. Attempt to guess or generate access codes, overload or probe our servers, or use automated means to download the protected package.
+
+  - Remove notices. Remove or change copyright, ownership or licensing notices.
+
+  - Use after expiry. Use Ajoy Tools after your subscription has ended or your code has been revoked.
+
+5. Cracking and copying are punishable
+
+Breaking this agreement, and in particular cracking Ajoy Tools, bypassing its licensing, sharing access codes, or copying or imitating its code, is not only a breach of contract. It can be copyright infringement and unauthorised access to a computer resource, which are offences in many countries.
+
+If we find or reasonably suspect a breach, we may, without notice and without refund:
+
+  - revoke your access code and end your license immediately;
+
+  - seek injunctions to stop the use, distribution or publication of a cracked, copied or imitated version;
+
+  - claim damages or an account of profits, and recover our legal costs;
+
+  - report the matter to the police and other authorities and pursue criminal prosecution where the law allows, which can include fines and imprisonment;
+
+  - notify platforms, hosts and payment providers to have infringing copies taken down.
+
+The laws we may rely on include, where they apply, India’s Copyright Act, 1957 (including its provisions on infringement and on the knowing use of infringing copies of computer programs) and the Information Technology Act, 2000, as well as equivalent laws in other countries, such as the anti-circumvention provisions of the US Digital Millennium Copyright Act and the EU Software Directive.
+
+6. Subscription and payment
+
+Ajoy Tools is available by paid subscription, billed monthly or yearly per computer, at the price shown when you subscribe. Your access lasts for the period you have paid for. If a subscription ends or is not renewed, your code is deactivated and you must stop using Ajoy Tools and uninstall it. Prices exclude any applicable taxes. Refunds are handled as stated at the time of purchase, or as the law requires.
+
+7. Support and updates
+
+Your subscription includes after-sale support while it is active: help with installation, updates and bug fixes. Offline subscriptions receive priority support. We may change, improve or remove features, and we may release updates that you need in order to keep Ajoy Tools working with newer versions of Maya.
+
+8. Information we collect
+
+To check your license and enforce the computer limit, the setup file and the tools send the following to our licensing server: your access code, an anonymous identifier for your computer, the computer’s name, the Windows user name, the computer’s local network address, and your Maya version. We use this only to run, secure and support the licensing service, and to detect misuse such as shared codes. We do not receive your scenes, textures or other project files.
+
+9. Termination
+
+This agreement lasts until it ends. It ends automatically when your subscription ends, and we may end it immediately if you break any part of it, in particular section 4. When it ends you must stop using Ajoy Tools and delete all copies. Sections 2, 4, 5, 10, 11 and 12 continue after termination.
+
+10. No warranty
+
+Ajoy Tools is provided “as is”. We work hard to make it reliable, but we do not promise that it is error-free or will suit every pipeline. Test exports in a separate destination first, as existing output files may be overwritten, and keep backups of your work.
+
+11. Limit of liability
+
+To the fullest extent the law allows, AJOY is not liable for lost data, lost work, lost profits or indirect or consequential loss arising from the use of, or inability to use, Ajoy Tools. Our total liability for any claim is limited to the fees you paid for the subscription in the twelve months before the claim arose. Nothing here limits liability that cannot be limited by law.
+
+12. Governing law
+
+This agreement is governed by the laws of India, and the competent courts in India have jurisdiction over any dispute, without limiting our right to seek urgent relief to protect our intellectual property in any country.
+
+13. Changes and contact
+
+We may update this agreement. The version published on this page applies from the date shown at the top, and continued use of Ajoy Tools after a change means you accept it. For licensing questions, quotes or to report misuse, email contactmy3dart@gmail.com.
+
+Copyright © 2026 AJOY. All rights reserved.

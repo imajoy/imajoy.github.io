@@ -11,7 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/style.css?v=3">
 </head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
@@ -27,11 +27,11 @@
     </a>
     <div class="links">
       <a href="#tools">Tools</a>
-      <a href="#how">Install</a>
-      <a href="#editions">Editions</a>
+      <a href="#download">Download</a>
+      <a href="#plans">Plans</a>
       <a href="#faq">Details</a>
     </div>
-    <a class="btn small" href="#contact">Get access</a>
+    <a class="btn small" href="#plans">Get access</a>
   </nav>
 </header>
 
@@ -41,18 +41,44 @@
     <canvas id="scene" aria-hidden="true"></canvas>
     <div class="hero-fade" aria-hidden="true"></div>
     <div class="wrap hero-inner">
-      <p class="eyebrow reveal"><span class="dot"></span> For Autodesk Maya 2023 and newer</p>
-      <h1 class="reveal d1">Animation tools,<br><span class="grad">built for Maya.</span></h1>
-      <p class="lead reveal d2">Thirteen focused tools in one menu: exporters, IK/FK snapping, rigging helpers and scene utilities. Install once, and everything stays up to date.</p>
-      <div class="cta reveal d3">
-        <a class="btn magnetic" href="#contact">Get your access code</a>
-        <a class="btn ghost magnetic" href="#tools">Explore the tools</a>
+      <div class="hero-copy">
+        <p class="eyebrow reveal"><span class="dot"></span> Autodesk Maya 2023 and newer · Windows</p>
+        <h1 class="reveal d1">Animate faster.<br><span class="grad">Skip the grunt work.</span></h1>
+        <p class="lead reveal d2">Thirteen production-ready Maya tools in one menu: exporters, IK/FK snapping, rigging helpers and scene utilities. Download the setup, enter your code, and you're working in minutes.</p>
+        <div class="cta reveal d3">
+          <a class="btn magnetic" href="downloads/AjoyTools_Setup.py" download>
+            <svg class="bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 20h14"/></svg>
+            Download setup
+          </a>
+          <a class="btn ghost magnetic" href="#plans">Get an access code</a>
+        </div>
+        <ul class="stats reveal d4">
+          <li><b data-count="13">13</b><span>tools</span></li>
+          <li><b data-count="2">2</b><span>ways to install</span></li>
+          <li><b>3 min</b><span>to set up</span></li>
+        </ul>
       </div>
-      <ul class="stats reveal d4">
-        <li><b data-count="13">0</b><span>tools</span></li>
-        <li><b data-count="2">0</b><span>editions</span></li>
-        <li><b>2023+</b><span>Maya versions</span></li>
-      </ul>
+
+      <div class="mock-wrap reveal d2" aria-hidden="true">
+        <div class="chip-float c1"><i></i>Code verified</div>
+        <div class="chip-float c2">13 tools ready</div>
+        <div class="mock" id="mock">
+          <div class="mock-head">
+            <span class="mock-logo">AJ<i></i></span>
+            <div><b>AJOY TOOLS</b><small>Setup for Autodesk Maya 2023 and newer</small></div>
+          </div>
+          <div class="mock-choices">
+            <div class="mc"><b>Online · free code</b><span>Always the newest version.</span></div>
+            <div class="mc on"><b>Offline · access code</b><span>Works without internet.</span></div>
+          </div>
+          <div class="mock-card">
+            <small>Enter your access code</small>
+            <div class="mock-field"><span id="typed"></span><i class="caret"></i></div>
+          </div>
+          <div class="mock-prog"><i></i></div>
+          <div class="mock-foot"><span class="mock-btn ghost">Cancel</span><span class="mock-btn">Install</span></div>
+        </div>
+      </div>
     </div>
     <a class="scroll-hint" href="#tools" aria-label="Scroll to tools"><i></i></a>
   </section>
@@ -165,6 +191,43 @@
     </div>
   </section>
 
+  <!-- TRUST -->
+  <section class="trust">
+    <div class="wrap trust-grid">
+      <div class="tr reveal"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg><b>Protected scripts</b><span>Tools ship compiled, not as readable source.</span></div>
+      <div class="tr reveal d1"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><b>Live in minutes</b><span>Drag one file into Maya and enter your code.</span></div>
+      <div class="tr reveal d2"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2.3-2.3A5 5 0 1 0 17 14"/></svg><b>Always up to date</b><span>Check for updates from the Ajoy Tools menu.</span></div>
+      <div class="tr reveal d3"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/></svg><b>Maya 2023 and newer</b><span>Built for Windows.</span></div>
+    </div>
+  </section>
+
+  <!-- DOWNLOAD -->
+  <section class="section" id="download">
+    <div class="wrap">
+      <div class="dl tilt reveal">
+        <div class="dl-glow" aria-hidden="true"></div>
+        <div class="dl-text">
+          <p class="kicker">Free download</p>
+          <h2>Get the setup file.</h2>
+          <p class="sub">Anyone can download it. The tools are downloaded and installed only after your access code is accepted.</p>
+          <div class="dl-actions">
+            <a class="btn magnetic" href="downloads/AjoyTools_Setup.py" download>
+              <svg class="bi" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 20h14"/></svg>
+              Download AjoyTools_Setup.py
+            </a>
+            <span class="file-meta">44 KB · Python file · Windows</span>
+          </div>
+        </div>
+        <ol class="dl-steps">
+          <li><b>1</b><span>Download the file above.</span></li>
+          <li><b>2</b><span>Drag it into the Maya viewport.</span></li>
+          <li><b>3</b><span>Choose Online or Offline and enter your code.</span></li>
+          <li><b>4</b><span>Click <em>Install</em>. Maya restarts by itself.</span></li>
+        </ol>
+      </div>
+    </div>
+  </section>
+
   <!-- HOW -->
   <section class="section alt" id="how">
     <div class="wrap">
@@ -194,31 +257,37 @@
   </section>
 
   <!-- EDITIONS -->
-  <section class="section" id="editions">
+  <section class="section" id="plans">
     <div class="wrap">
-      <div class="head reveal">
-        <p class="kicker">Editions</p>
+      <div class="head center reveal">
+        <p class="kicker">Plans</p>
         <h2>Pick how you work.</h2>
-        <p class="sub">All 13 tools are included in both.</p>
+        <p class="sub">All 13 tools are included in both. Email me and I'll send your code.</p>
       </div>
       <div class="editions">
         <div class="ed tilt reveal">
           <span class="badge">Free code</span>
           <h3>Online</h3>
+          <p class="ed-sub">Try Ajoy Tools with a free code that I issue to you.</p>
           <ul>
+            <li>All 13 tools</li>
             <li>Always the newest version</li>
             <li>Needs internet each time Maya starts</li>
-            <li>Updates automatically</li>
           </ul>
+          <a class="btn ghost full" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20free%20code">Request a free code</a>
         </div>
         <div class="ed tilt feature reveal d1">
-          <span class="badge hot">Access code</span>
+          <span class="ribbon">Best for studios</span>
+          <span class="badge hot">Paid access code</span>
           <h3>Offline</h3>
+          <p class="ed-sub">For daily production work, with no internet needed while you animate.</p>
           <ul>
+            <li>All 13 tools</li>
             <li>Runs without internet after install</li>
             <li>You choose when to update</li>
-            <li>Ajoy Tools &gt; Check for Update</li>
+            <li>Code works on a set number of computers</li>
           </ul>
+          <a class="btn full magnetic" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20access%20code">Get an access code</a>
         </div>
       </div>
     </div>
@@ -257,8 +326,11 @@
     <div class="wrap">
       <div class="final tilt reveal">
         <h2>Ready to speed up your <span class="grad">Maya workflow?</span></h2>
-        <p>Email me to get your access code and start installing.</p>
-        <a class="btn magnetic" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20access%20code">contactmy3dart@gmail.com</a>
+        <p>Download the setup now, and email me when you want your access code.</p>
+        <div class="final-cta">
+          <a class="btn magnetic" href="downloads/AjoyTools_Setup.py" download>Download setup</a>
+          <a class="btn ghost magnetic" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20access%20code">contactmy3dart@gmail.com</a>
+        </div>
       </div>
     </div>
   </section>
@@ -272,6 +344,6 @@
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="js/main.js"></script>
+<script src="js/main.js?v=2"></script>
 </body>
 </html>

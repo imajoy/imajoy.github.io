@@ -107,6 +107,30 @@
     }, { passive: true });
   }
 
+
+  /* typing animation in the mock setup window */
+  (function(){
+    var el=document.getElementById('typed'); if(!el) return;
+    var code='AJOY-7K2Q-9XMD-4TFA-82LP', i=0, dir=1;
+    if(reduce){ el.textContent='\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022-\u2022\u2022\u2022\u2022'; return; }
+    (function tick(){
+      i+=dir; el.textContent=new Array(i+1).join('\u2022');
+      var wait=90;
+      if(i>=code.length){dir=-1; wait=3200}
+      else if(i<=0){dir=1; wait=900}
+      setTimeout(tick, dir===-1&&i<code.length?22:wait);
+    })();
+  })();
+
+  /* tilt the mock window with the mouse */
+  (function(){
+    var m=document.getElementById('mock'); if(!m||reduce||!fine) return;
+    document.querySelector('.hero').addEventListener('pointermove',function(e){
+      var x=e.clientX/innerWidth-0.5, y=e.clientY/innerHeight-0.5;
+      m.style.transform='rotateY('+(-14+x*14)+'deg) rotateX('+(6-y*10)+'deg)';
+    });
+  })();
+
   /* hero 3D scene */
   var canvas = $('#scene');
   if (!window.THREE || reduce) { canvas.style.display = 'none'; return; }
@@ -175,7 +199,7 @@
     renderer.setSize(w, h, false);
     camera.aspect = w / h; camera.updateProjectionMatrix();
     var wide = w > 820;
-    group.position.x = wide ? 3.6 : 0;
+    group.position.x = wide ? 4.4 : 0;
     group.position.y = wide ? 0 : 3.2;
     group.scale.setScalar(wide ? 1 : 0.62);
   }

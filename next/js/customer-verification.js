@@ -28,9 +28,17 @@ export function initializeCustomerVerification(config,onChange){
   message(text||'Use the email from your previous subscription to check your rewards.');onChange();
  };
  resetUI=reset;
- // Optional verification stays out of checkout until the server enables it.
- panel.hidden=!config?.enabled;
- if(panel.hidden){setBusy(false);message('');return;}
+ // The reward offer is always shown. The email-verification controls only appear once the server enables them.
+ panel.hidden=false;
+ const live=!!config?.enabled;
+ panel.toggleAttribute('data-preview',!live);
+ const fineText=panel.querySelector('.loyalty-fine');
+ if(!live){
+  send.hidden=true;change.hidden=true;codePanel.hidden=true;challenge.hidden=true;setBusy(false);message('');
+  if(fineText)fineText.textContent='Your reward is applied automatically when you subscribe again with the same email. Monthly rewards do not accumulate. Multiple licenses do not advance a reward.';
+  return;
+ }
+ send.hidden=false;
  let authBase;
  try{const url=new URL(config.authUrl);if(url.protocol!=='https:'||!url.pathname.endsWith('/auth/v1'))throw Error();authBase=url.href.replace(/\/$/,'');}catch{setBusy(true);message('Email verification is temporarily unavailable.',true);return;}
  async function authRequest(path,body){

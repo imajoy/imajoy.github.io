@@ -1,0 +1,60 @@
+/* Checkout: extra smooth motion. Everything here pauses with reduced motion. */
+/* --- returning-subscriber reward card --- */
+.customer-verification{position:relative;overflow:hidden;background:linear-gradient(160deg,var(--card),var(--bg2));border-color:color-mix(in srgb,var(--blue) 28%,var(--line))}
+.customer-verification::before{content:"";position:absolute;inset:-60% -30% auto auto;width:300px;height:300px;border-radius:50%;background:radial-gradient(closest-side,rgba(61,139,255,.22),transparent);animation:cv-glow 9s ease-in-out infinite alternate;pointer-events:none}
+@keyframes cv-glow{to{transform:translate(-50px,40px) scale(1.15)}}
+.customer-verification>*{position:relative}
+.loyalty-eyebrow{display:inline-block;padding:5px 12px;border-radius:999px;background:var(--t05);font-size:.6875rem;letter-spacing:.01em}
+.reward-steps{list-style:none;margin:6px 0 16px;padding:0;display:grid;gap:10px;counter-reset:rs}
+.reward-steps li{display:flex;align-items:center;gap:14px;padding:12px 14px;border:1px solid var(--line);border-radius:18px;background:var(--card);transition:transform .45s cubic-bezier(.22,1,.36,1),border-color .3s,box-shadow .45s}
+.reward-steps li:hover{transform:translateX(5px);border-color:var(--blue);box-shadow:0 10px 24px rgba(61,139,255,.14)}
+.rs-pct{flex:none;min-width:62px;text-align:center;padding:9px 0;border-radius:14px;background:linear-gradient(145deg,#6DAAFF,#2A64E8);color:#fff;font:700 1.0625rem var(--sans);letter-spacing:-.02em;box-shadow:0 8px 16px rgba(61,139,255,.3)}
+.reward-steps li:nth-child(3) .rs-pct{background:linear-gradient(145deg,#FF9F82,#FF7A5C);box-shadow:0 8px 16px rgba(255,122,92,.3)}
+.rs-text b{display:block;font-size:.875rem;letter-spacing:-.01em}.rs-text small{color:var(--mute);font-size:.75rem}
+@media (prefers-reduced-motion:no-preference){
+ .reward-steps li{animation:rs-glow 6s ease-in-out infinite;animation-delay:calc(var(--i)*2s)}
+ @keyframes rs-glow{0%,22%,100%{box-shadow:0 0 0 0 rgba(61,139,255,0)}8%{box-shadow:0 0 0 4px rgba(61,139,255,.22);border-color:var(--blue)}}
+ .reward-steps li .rs-pct{animation:rs-pop 6s ease-in-out infinite;animation-delay:calc(var(--i)*2s)}
+ @keyframes rs-pop{0%,22%,100%{transform:none}8%{transform:scale(1.1) rotate(-2deg)}}
+ .customer-verification{animation:cv-in .9s cubic-bezier(.22,1,.36,1) .3s backwards}
+ @keyframes cv-in{from{opacity:0;transform:translateY(18px) scale(.98)}}
+}
+/* --- fields: soft tick when valid, label colour on focus --- */
+.form-field{position:relative}
+.form-field:has(> input:user-valid:not([type=number])):not(:has(.quantity-control))::after,.form-field:has(> textarea:user-valid)::after{content:"";position:absolute;right:16px;bottom:19px;width:12px;height:7px;border-left:2.5px solid #2FB5AE;border-bottom:2.5px solid #2FB5AE;transform:rotate(-45deg);pointer-events:none;animation:ck-pop .45s cubic-bezier(.22,1,.36,1)}
+@keyframes ck-pop{from{opacity:0;transform:rotate(-45deg) scale(.2)}}
+.form-field:focus-within>label{color:var(--blue-d);transition:color .25s}
+.form-field>label{transition:color .25s,transform .35s cubic-bezier(.22,1,.36,1)}
+.form-field:focus-within>label{transform:translateX(3px)}
+/* --- panels: left accent grows when you are inside --- */
+.checkout-form fieldset{position:relative}
+.checkout-form fieldset::before{content:"";position:absolute;left:0;top:26px;bottom:26px;width:3px;border-radius:3px;background:linear-gradient(var(--blue),var(--coral));transform:scaleY(0);transform-origin:50% 0;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.checkout-form fieldset:focus-within::before{transform:scaleY(1)}
+/* --- quantity buttons and selects feel physical --- */
+.quantity-control button{transition:transform .25s cubic-bezier(.22,1,.36,1),background-color .2s}
+.quantity-control button:hover{transform:scale(1.08)}.quantity-control button:active{transform:scale(.92)}
+.billing-upsell{position:relative;overflow:hidden}
+@media (prefers-reduced-motion:no-preference){
+ .billing-upsell .upsell-badge{animation:ub 2.6s ease-in-out infinite}
+ @keyframes ub{50%{transform:translateY(-2px) scale(1.06)}}
+ .billing-upsell::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-18deg);animation:sheen2 5.5s ease-in-out infinite;pointer-events:none}
+ @keyframes sheen2{0%,55%{left:-40%}100%{left:140%}}
+}
+/* --- progress steps: the active step draws its underline --- */
+.checkout-progress [aria-current=step]{position:relative}
+.checkout-progress [aria-current=step]::after{content:"";position:absolute;left:14px;right:14px;bottom:4px;height:2px;border-radius:2px;background:var(--blue);transform-origin:0 50%;animation:cp 1.1s .4s cubic-bezier(.22,1,.36,1) backwards}
+@keyframes cp{from{transform:scaleX(0)}}
+/* --- summary: the license pass tilts toward the pointer, total rolls in --- */
+.license-preview{perspective:900px}
+.license-preview .license-pass{transition:transform .25s ease-out;transform:rotateX(var(--ry,0deg)) rotateY(var(--rx,0deg))}
+.order-lines>div{transition:background-color .3s,padding .3s cubic-bezier(.22,1,.36,1)}
+.order-lines>div:hover{padding-left:6px}
+.order-total strong{display:inline-block;transition:transform .4s cubic-bezier(.22,1,.36,1)}
+.order-total strong.tick{animation:total-roll .5s cubic-bezier(.22,1,.36,1)}
+@keyframes total-roll{from{opacity:0;transform:translateY(60%)}}
+/* --- pay button: calm shimmer while payments are closed --- */
+#pay{position:relative;overflow:hidden}
+#pay[disabled]::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);transform:skewX(-18deg);animation:sheen2 4.5s ease-in-out infinite}
+.coupon-entry .btn:active,#coupon-apply:active{transform:scale(.96)}
+html[data-ui-paused] .customer-verification::before,html[data-ui-paused] .reward-steps li,html[data-ui-paused] .rs-pct,html[data-ui-paused] #pay::after,html[data-ui-paused] .billing-upsell::after,html[data-ui-paused] .upsell-badge{animation:none!important}
+@media (prefers-reduced-motion:reduce){.customer-verification::before,.reward-steps li,.rs-pct,#pay::after,.billing-upsell::after,.upsell-badge,.form-field::after,.checkout-progress [aria-current=step]::after{animation:none!important}.license-preview .license-pass{transform:none}}

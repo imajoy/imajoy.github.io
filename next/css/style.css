@@ -10,7 +10,6 @@
   --blue-d:#2A64E8;
   --navy:#0B1126;
   --coral:#FF7A5C;
-  --white:#fff;
   --card:#fff;--card2:#fff;--pill:rgba(255,255,255,.88);--pillbd:rgba(255,255,255,.9);
   --t05:rgba(14,18,32,.05);--t07:rgba(14,18,32,.07);--t09:rgba(14,18,32,.09);--t62:rgba(14,18,32,.66);
   --btnbg:#0E1220;--btnfg:#fff;--btnhov:#1B2136;--em:#2A64E8;--doc:#323A4E;--key:#fff;--thumb:#fff;
@@ -35,9 +34,6 @@ html[data-theme=dark]{
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 [hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
-html.lenis,html.lenis body{height:auto}
-.lenis.lenis-smooth{scroll-behavior:auto!important}
-.lenis.lenis-stopped{overflow:hidden}
 body{background:var(--bg);color:var(--ink);font:400 17px/1.6 var(--sans);-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;overflow-x:hidden}
 a{color:inherit}
 ul,ol{list-style:none}
@@ -169,22 +165,20 @@ em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.0
 .win-field small{display:block;color:#fff;font-weight:600;font-size:13.5px;margin-bottom:10px}
 .field{padding:13px 15px;border-radius:12px;background:#0a1122;border:2px solid #2d6fe8;color:#5c6f99;font-size:15px;letter-spacing:.06em;box-shadow:0 0 22px rgba(47,120,255,.3)}
 .win-bar{height:6px;border-radius:3px;background:#151c2e;margin-bottom:18px;overflow:hidden}
-.win-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2f6fe4,#5aa2ff);border-radius:3px;animation:bar 5s ease-in-out infinite}
-@keyframes bar{0%,25%{width:0}80%,100%{width:100%}}
+.win-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2f6fe4,#5aa2ff);border-radius:3px}
 .win-foot{display:flex;justify-content:flex-end;gap:8px}
 .win-foot span{padding:10px 24px;border-radius:10px;background:#151c2e;border:1px solid #323c58;color:#eef2ff;font-size:13.5px}
 .win-foot .go{background:linear-gradient(#3a8bff,#1b64e6);border-color:#5aa2ff;font-weight:700;color:#fff;box-shadow:0 0 22px rgba(47,111,228,.6)}
 .float-chip{position:absolute;z-index:3;display:flex;align-items:center;gap:8px;padding:10px 18px;border-radius:999px;background:#fff;box-shadow:var(--shadow);font-size:14px;font-weight:600}
 .float-chip i{width:9px;height:9px;border-radius:50%;background:#2FB5AE;box-shadow:0 0 0 4px rgba(47,181,174,.2)}
-.fc1{left:-8px;top:12%;animation:bob 6s ease-in-out infinite}
-.fc2{right:-6px;bottom:10%;animation:bob 7s -2s ease-in-out infinite}
+.fc1{left:-8px;top:12%}
+.fc2{right:-6px;bottom:10%}
 @keyframes bob{50%{transform:translateY(-12px)}}
 
 /* ---------- pricing ---------- */
 .toggle{position:relative;display:inline-grid;grid-template-columns:1fr 1fr;margin-top:30px;padding:5px;border-radius:999px;background:var(--t07)}
 .toggle button{position:relative;z-index:1;height:44px;padding:0 24px;border:0;background:none;border-radius:999px;font:600 15px var(--sans);color:var(--mute);cursor:pointer;transition:color .2s}
 .toggle button.on{color:var(--ink)}
-.toggle em{font:600 12.5px var(--sans);letter-spacing:0;color:#fff;background:var(--blue);padding:3px 9px;border-radius:999px;margin-left:8px;font-style:normal}
 .thumb{position:absolute;z-index:0;top:5px;left:5px;bottom:5px;width:calc(50% - 5px);border-radius:999px;background:var(--thumb);box-shadow:0 2px 8px rgba(14,18,32,.14);transition:transform .4s var(--out)}
 .toggle[data-state="yearly"] .thumb{transform:translateX(100%)}
 
@@ -205,7 +199,6 @@ em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.0
 .plan-lead .ticks li{border-color:rgba(255,255,255,.13)}
 .ribbon{position:absolute;top:26px;right:26px;padding:6px 14px;border-radius:999px;background:var(--coral);color:#fff;font:600 13px var(--sans)}
 .amt,.note,[data-per]{transition:opacity .18s}
-.swap .amt,.swap .note,.swap [data-per]{opacity:0}
 
 .licensebox{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center;max-width:980px;margin:20px auto 0;padding:52px;border-radius:36px;background:var(--card);box-shadow:var(--shadow)}
 .licensebox h3{font-size:clamp(26px,3vw,36px);margin-bottom:16px}
@@ -324,8 +317,6 @@ html[data-theme=dark] .theme .moon{opacity:1;transform:none}
 .btn:hover::after{transform:translateX(520%) skewX(-18deg)}
 .btn-light::after{background:linear-gradient(100deg,transparent,rgba(61,139,255,.16),transparent)}
 .btn .ico{transition:transform .3s var(--out)}
-.btn:hover .ico{animation:dl .9s var(--out) infinite}
-@keyframes dl{0%{transform:translateY(-3px)}60%{transform:translateY(3px)}100%{transform:translateY(0)}}
 
 /* marquee */
 .marquee{position:relative;overflow:hidden;padding:22px 0;border-block:1px solid var(--line);-webkit-mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent);mask-image:linear-gradient(90deg,transparent,#000 9%,#000 91%,transparent)}
@@ -349,8 +340,6 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .tl li{transition:padding .35s var(--out)}
 .tl li>div{transition:transform .35s var(--out)}
 .tl li:hover>div{transform:translateX(5px)}
-.tl li:hover .ic{transform:none;animation:wig .6s var(--out)}
-@keyframes wig{0%{transform:rotate(0)}30%{transform:translateY(-4px) rotate(-9deg)}60%{transform:translateY(-2px) rotate(6deg)}100%{transform:none}}
 .keycaps kbd{animation:press 3.8s ease-in-out infinite}
 .keycaps kbd:nth-child(2){animation-delay:.22s}.keycaps kbd:nth-child(3){animation-delay:.44s}
 @keyframes press{0%,16%,100%{transform:none}7%{transform:translateY(4px);box-shadow:0 0 0 rgba(14,18,32,.18),0 4px 8px rgba(14,18,32,.1)}}
@@ -363,17 +352,9 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .js .plans.in .ticks li::before{transform:rotate(-45deg) scale(1)}
 .ticks li:nth-child(1)::before{transition-delay:.35s}.ticks li:nth-child(2)::before{transition-delay:.45s}.ticks li:nth-child(3)::before{transition-delay:.55s}.ticks li:nth-child(4)::before{transition-delay:.65s}.ticks li:nth-child(5)::before{transition-delay:.75s}
 .amt,.note,[data-per]{transition:opacity .18s,transform .3s var(--out)}
-.swap .amt{transform:translateY(10px)}
-.swap .note,.swap [data-per]{transform:translateY(6px)}
 .ribbon{animation:ribbon 3.4s ease-in-out infinite}
 @keyframes ribbon{50%{transform:translateY(-3px) rotate(1.5deg)}}
-.cur{display:inline-flex;align-items:center;gap:10px;margin-top:18px;font-size:14.5px;color:var(--mute)}
-.cur select{font:600 14.5px var(--sans);color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;transition:border-color .2s}
-.cur select:hover{border-color:var(--blue)}
-.curnote{display:block;margin-top:8px;font-size:13.5px;color:var(--mute);min-height:1.4em}
 .paynote{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:26px;font-size:14.5px;color:var(--mute)}
-.paynote b{font-weight:700;color:var(--ink);letter-spacing:-.02em}
-.paynote b i{font-style:italic;color:#2A6DF5}
 
 /* faq open */
 .faq details[open] p{animation:faqin .5s var(--out)}
@@ -419,7 +400,6 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .field:empty::before,.field .ph{color:#5c6f99;font-weight:400}
 .caret{display:inline-block;width:2px;height:18px;margin-left:2px;background:#6aa8ff;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
-.win-bar i{animation:none;width:0}
 .inst-stage[data-step="3"] .win-bar i{width:100%;transition:width 2.6s .2s ease-in-out}
 .win-foot .go{transition:transform .3s var(--out)}
 .inst-stage[data-step="3"] .win-foot .go{animation:pulse 1.2s ease-in-out infinite}

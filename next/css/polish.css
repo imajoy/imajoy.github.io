@@ -41,15 +41,15 @@ html[data-ui-paused] .pillbar>:is(.brand,.theme,.btn),html[data-ui-paused] .pill
 .btn{transition:background-color .3s,box-shadow .45s var(--ease-soft),transform .45s var(--ease-soft),border-color .3s}
 .btn:hover{transform:translateY(-3px)}.btn:active{transform:translateY(0) scale(.98)}
 .btn-dark{box-shadow:0 8px 20px #0e122018}.btn-blue{box-shadow:0 8px 26px #3d8bff30}
-.btn:hover .ico{animation:none;transform:translateY(2px)}
+.btn:hover .ico{transform:translateY(2px)}
 .tile,.plan,.licensebox{border:1px solid var(--t09);box-shadow:var(--soft-shadow)}
 .tile{border-radius:36px}.plan{border-radius:32px}.licensebox{border-radius:36px}
 .js .tile.reveal.in{transition:opacity .9s var(--out),transform .65s var(--ease-soft),box-shadow .65s var(--ease-soft)}
 .js .tile.reveal.in:hover{transform:translateY(-5px);box-shadow:0 24px 60px #23314e13}
-.tl li>div{transition:transform .45s var(--ease-soft)}.tl li:hover>div{transform:translateX(3px)}.tl li:hover .ic{animation:none;transform:translateY(-2px) rotate(-3deg)}
+.tl li>div{transition:transform .45s var(--ease-soft)}.tl li:hover>div{transform:translateX(3px)}.tl li:hover .ic{transform:translateY(-2px) rotate(-3deg)}
 .faq details{border:1px solid var(--line);border-radius:24px;background:var(--card);margin-bottom:12px;box-shadow:0 4px 12px #182a4503;overflow:hidden}
 .faq details:first-child{border-top:1px solid var(--line)}.faq summary{padding:22px 24px;align-items:center;font-size:1.0625rem;line-height:1.5}.faq p{padding:0 24px 24px}.faq details[open]{box-shadow:var(--soft-shadow)}
-.cur select,.toggle{box-shadow:0 2px 5px #23314e08}.plan:hover{transform:translateY(-5px)}
+.toggle{box-shadow:0 2px 5px #23314e08}.plan:hover{transform:translateY(-5px)}
 /* Device motion preferences apply to the character and decorative animations. */
 
 

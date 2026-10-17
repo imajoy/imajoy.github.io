@@ -4,7 +4,7 @@ The public homepage is unchanged. This prepares `/next/` and a **new** Supabase 
 
 ## Current status
 
-- The starting website layout and original 3D hero are restored. The billing page, automatic display pricing, and download page run as static files; the experimental motion video files are retained for future use.
+- The starting website layout and original 3D hero are restored. The billing page, automatic display pricing, and download page run as static files. Decorative graphics and form entrances use CSS and JavaScript animations.
 - No merchant account exists. Payments are deliberately disabled. Billing details are not submitted, stored, logged, or placed in URLs. `/checkout` returns 503 and creates no order or charge.
 - `next/js/site-config.js` has an empty `apiBase` until the new function is deployed. Static prices are estimates, not charge authorization. The full regional catalog is server-side; browser estimates are limited fallbacks.
 - Human verification fails closed until Turnstile and private installer storage are configured. There is no fake checkbox, timeout-based pass, or unverified download fallback.
@@ -28,7 +28,7 @@ The public homepage is unchanged. This prepares `/next/` and a **new** Supabase 
 
 ### Existing public installer URLs
 
-Normal `/next/` download links now open verification. **The installer remains publicly accessible at its existing GitHub Pages URLs and in Git history.** The public homepage also links to it. A private copy and signed link do not retroactively protect those public files. Enforcing exclusive download access requires a separate migration of public-build links and removal of publicly served copies; it cannot undo existing public distribution. This change deliberately leaves the public build and installer bytes unchanged.
+The `/next/` Install section's Download Setup button opens verification; the other download links lead to that section. **The installer remains publicly accessible at its existing GitHub Pages URLs and in Git history.** The public homepage also links to it. A private copy and signed link do not retroactively protect those public files. Enforcing exclusive download access requires a separate migration of public-build links and removal of publicly served copies; it cannot undo existing public distribution. This change deliberately leaves the public build and installer bytes unchanged.
 
 ## Pricing
 

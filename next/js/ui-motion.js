@@ -1,7 +1,5 @@
 /* Shared decorative motion. Billing data never leaves this module. */
 const root=document.documentElement;
-// Remove controls left by an older in-document render; motion now follows the device preference only.
-document.querySelectorAll('.ui-motion-toggle, #motion-toggle').forEach(control=>control.remove());
 const themeMeta=document.querySelector('meta[name="theme-color"]');
 if(themeMeta)themeMeta.content=getComputedStyle(root).getPropertyValue('--bg').trim();
 const media=matchMedia('(prefers-reduced-motion: reduce)');

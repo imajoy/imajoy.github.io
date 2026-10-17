@@ -26,14 +26,7 @@
   if (year) year.textContent = new Date().getFullYear();
 
   /* ---------- smooth scrolling ---------- */
-  var lenis = null;
-  if (window.Lenis && !reduce) {
-    try {
-      lenis = new window.Lenis({ duration: 1.1, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, smoothWheel: true });
-      (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(performance.now());
-    } catch (err) { lenis = null; }
-  }
-  if (!lenis) document.documentElement.style.scrollBehavior = reduce ? 'auto' : 'smooth';
+  document.documentElement.style.scrollBehavior = reduce ? 'auto' : 'smooth';
 
   $$('a[href^="#"]').forEach(function (a) {
     a.addEventListener('click', function (e) {
@@ -41,8 +34,7 @@
       var target = id.length > 1 ? $(id) : null;
       if (!target) return;
       e.preventDefault();
-      if (lenis) lenis.scrollTo(target, { offset: id === '#top' ? 0 : -20, duration: 1.4 });
-      else window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 20, behavior: reduce ? 'auto' : 'smooth' });
+      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 20, behavior: reduce ? 'auto' : 'smooth' });
       history.replaceState(null, '', id);
     });
   });
@@ -190,7 +182,6 @@
   var tilts = [];
   if (fine && !reduce) {
     $$('.tilt').forEach(function (el) {
-      var base = getComputedStyle(el).transform;
       var max = parseFloat(el.getAttribute('data-tilt')) || 10;
       var host = el.parentNode;
       var st = { el: el, max: max, tx: 0, ty: 0, cx: 0, cy: 0, active: false, base: el.classList.contains('lcard') ? [-14, 8] : [-10, 4] };

@@ -1,5 +1,5 @@
 /* Download flow: Download -> email (Gmail, Yahoo, Hotmail) -> automatic download -> plans in 3 seconds.
-   The email is validated here. It is only sent to the owner's list when leadsUrl is set in site-config.js. */
+   The email is checked here, then saved to the owner's Google Sheet when sheetUrl is set in site-config.js. A failed save never stops the download. */
 const root = document.querySelector('#dl');
 const form = document.querySelector('#dl-form');
 const input = document.querySelector('#dl-email');
@@ -8,9 +8,13 @@ const countEl = document.querySelector('#dl-count');
 const statusEl = document.querySelector('#dl-status');
 const title = document.querySelector('#dl-title');
 const sub = document.querySelector('#dl-sub');
+const HINT = 'Gmail, Yahoo, Hotmail or any .com or .in address.';
 const FILE = 'downloads/AjoyTools_Setup.py';
 const NEXT = 'index.html#pricing';
-const ALLOWED = ['gmail.com', 'yahoo.com', 'hotmail.com'];
+const allowedDomain = domain => /(^|\.)(com|in)$/.test(domain);
+const saved = !!(window.AJOY_CONFIG || {}).sheetUrl;
+const fine = document.querySelector('.download-fine');
+if (fine) fine.textContent = saved ? 'Your email address is saved to Ajoy\u2019s contact list so Ajoy can follow up about Ajoy Tools. See the privacy notice.' : 'Your email address is only checked in your browser. It is not sent anywhere or stored.';
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
 let timers = [], busy = false;
 
@@ -21,7 +25,7 @@ function check(value) {
   const v = value.trim().toLowerCase();
   if (!v) return 'Enter your email address.';
   if (v.length > 120 || !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(v)) return 'That does not look like an email address.';
-  if (!ALLOWED.includes(v.split('@')[1])) return 'Use a Gmail, Yahoo or Hotmail address.';
+  if (!allowedDomain(v.split('@')[1])) return 'Use an email address ending in .com or .in, such as Gmail, Yahoo or Hotmail.';
   return '';
 }
 function fail(text) {
@@ -33,19 +37,15 @@ function fail(text) {
 function clearFail() {
   root.removeAttribute('data-invalid');
   input.removeAttribute('aria-invalid');
-  hint.textContent = 'Use a Gmail, Yahoo or Hotmail address.';
+  hint.textContent = HINT;
 }
-/* Optional: add the email to the owner's list. Never blocks the download. */
+/* Adds (or refreshes) the email in the owner's Google Sheet. Never blocks the download. */
 function saveLead(email) {
-  const c = window.AJOY_CONFIG || {};
-  if (!c.leadsUrl || !c.leadsKey) return;
+  const url = (window.AJOY_CONFIG || {}).sheetUrl;
+  if (!url) return;
   try {
-    fetch(c.leadsUrl.replace(/\/$/, '') + '/rest/v1/download_leads?on_conflict=email', {
-      method: 'POST', keepalive: true, signal: AbortSignal.timeout(8000),
-      headers: { apikey: c.leadsKey, Authorization: 'Bearer ' + c.leadsKey, 'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates,return=minimal' },
-      body: JSON.stringify({ email: email.trim().toLowerCase(), source: 'download-page' })
-    }).catch(() => {});
-  } catch (e) { /* ignore */ }
+    fetch(url, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ email: email.trim().toLowerCase() }) }).catch(() => {});
+  } catch (e) { /* the download goes ahead either way */ }
 }
 function saveFile() {
   const a = document.createElement('a');

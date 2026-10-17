@@ -1,11 +1,11 @@
 /* One-time renewal rewards, computed only from the server's private paid ledger. */
-export const LOYALTY_VERSION='2026-10-17-v1';
+export const LOYALTY_VERSION='2026-10-17-v2';
 export function applyLoyalty(quote,customer,history){
  if(quote.loyalty||quote.coupon)throw new Error('Start loyalty pricing from the current catalog quote.');
  let reward=null,percent=0;
  const nextPayment=(quote.billing==='yearly'?history.yearlyPaidPeriods:history.monthlyPaidPeriods)+1;
  if(quote.billing==='monthly'&&nextPayment===2){reward='monthly_second';percent=5;}
- if(quote.billing==='monthly'&&nextPayment===3){reward='monthly_third';percent=10;}
+ if(quote.billing==='monthly'&&nextPayment===3){reward='monthly_third';percent=5;}
  if(quote.billing==='yearly'&&nextPayment===2){reward='yearly_return';percent=10;}
  const alreadyUsed=Boolean(reward&&history.usedRewards.includes(reward));
  const eligible=Boolean(reward&&!alreadyUsed);

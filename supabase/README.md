@@ -68,7 +68,7 @@ Rules live in `functions/_shared/loyalty.js`; private storage is in `migrations/
 | --- | --- | --- |
 | Monthly | 0 | None |
 | Monthly | 1 | 5%, once |
-| Monthly | 2 | 10% total, once |
+| Monthly | 2 | 5%, once |
 | Monthly | 3 or more | None |
 | Yearly | 0 | Standard 20% yearly saving only |
 | Yearly | 1 | Extra 10% after the standard yearly saving, once (28% total versus twelve monthly payments) |

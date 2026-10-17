@@ -23,7 +23,7 @@ function upstream(trustedHistory=history(1),overrides={}){
 test('Monthly rewards apply on payments 2 and 3 only, across countries, plans and quantities',()=>{
  for(const country of ['IN','US','GB','PK','ID'])for(const plan of ['online','offline'])for(const seats of [1,3,100])for(const previous of [0,1,2,3,9]){
   const base=priceFor(country,plan,'monthly',seats),quote=applyLoyalty(base,customer,history(previous));
-  const percent=previous===1?5:previous===2?10:0;
+  const percent=(previous===1||previous===2)?5:0;
   assert.equal(quote.loyalty.percent,percent);assert.equal(quote.subtotal,base.subtotal-Math.round(base.subtotal*percent/100));
   assert.equal(quote.customerId,id);assert.equal(quote.unitAmount,base.unitAmount);
  }

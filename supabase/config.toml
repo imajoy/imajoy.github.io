@@ -1,0 +1,4 @@
+# The storefront is public. Turnstile and strict origin checks protect mutations.
+# Merge this function section into your existing project's config when deploying.
+[functions.storefront]
+verify_jwt = false

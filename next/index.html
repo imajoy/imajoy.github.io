@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>document.documentElement.classList.add("js")</script>
-<script>(function(){var t;try{t=localStorage.getItem("ajoy-theme")}catch(e){}if(t!=="dark"&&t!=="light")t=(window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches)?"dark":"light";document.documentElement.setAttribute("data-theme",t)})()</script>
+<script>(function(){var t;try{t=localStorage.getItem("ajoy-theme")}catch(e){}if(t!=="dark"&&t!=="light")t="dark";document.documentElement.setAttribute("data-theme",t)})()</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ajoy Tools: production tools for Maya</title>
@@ -13,9 +13,9 @@
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=11">
-<link rel="stylesheet" href="css/studio.css?v=1">
+<link rel="stylesheet" href="css/premium.css?v=2">
 </head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
@@ -57,66 +57,55 @@
 
 <main id="top">
 
-  <!-- HERO -->
-  <section class="hero">
-    <div class="viewport" aria-label="Illustrative animation rig study">
-      <div class="viewport-bar"><span><i></i> Rig study</span><span>Perspective / 01</span></div>
-      <svg class="rig-study" viewBox="0 0 600 520" aria-hidden="true">
-        <g fill="none" stroke="#62767c" stroke-width="1" opacity=".4">
-          <path d="M0 420h600M0 380h600M0 350h600M0 330h600M300 300L0 520M300 300L100 520M300 300L220 520M300 300L380 520M300 300L500 520M300 300L600 520"/>
-          <ellipse cx="300" cy="416" rx="150" ry="33"/>
-        </g>
-        <g fill="none" stroke="#e7e9df" stroke-width="19" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M293 199L287 290L247 349L228 410M287 290L346 337L378 406M293 218L235 251L196 215M293 218L357 235L396 173"/>
-          <path d="M293 194L300 164" stroke-width="15"/>
-          <ellipse cx="302" cy="141" rx="25" ry="30" fill="#c7d4d0" stroke="none"/>
-        </g>
-        <g fill="#172c2b" stroke="#bdeca7" stroke-width="2">
-          <circle cx="293" cy="218" r="8"/><circle cx="235" cy="251" r="8"/><circle cx="196" cy="215" r="8"/>
-          <circle cx="357" cy="235" r="8"/><circle cx="396" cy="173" r="8"/><circle cx="287" cy="290" r="8"/>
-          <circle cx="247" cy="349" r="8"/><circle cx="346" cy="337" r="8"/>
-          <ellipse cx="228" cy="414" rx="29" ry="9"/><ellipse cx="378" cy="410" rx="29" ry="9"/>
-          <path d="M379 155h34v34h-34zM179 198h34v34h-34z" fill="none"/>
-          <ellipse cx="289" cy="287" rx="43" ry="12" fill="none"/>
-        </g>
-        <g fill="none" stroke="#bdeca7" stroke-width="1" opacity=".6"><path d="M413 173h54v-36h27M196 215h-55v36h-30" stroke-dasharray="4 5"/></g>
-        <g fill="#bdeca7" font-family="monospace" font-size="11"><text x="453" y="125">IK / FK</text><text x="72" y="269">CTRL_L</text></g>
-      </svg>
-      <canvas id="stage" aria-hidden="true"></canvas>
-      <div class="viewport-caption"><span class="live-dot"></span> <span class="rig-label">Animation rig study</span> <span class="viewport-hint">Move your cursor ↗</span></div>
-      <div class="timeline" aria-hidden="true"><span>01</span><div class="timeline-track"><i></i><i></i><i></i><i></i><i></i><b></b></div><span>120</span><span class="timeline-fps">24 fps</span></div>
-    </div>
+  <!-- HERO: original, real-time procedural animation -->
+  <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
-      <p class="eyebrow intro-fade"><span></span> Ajoy Tools / Built for Maya</p>
-      <h1 class="intro">
-        <span class="ln"><span>Less repetition.</span></span>
-        <span class="ln"><span>More <em>animation.</em></span></span>
-      </h1>
-      <p class="lead intro-fade">Export by shot, snap IK to FK, rebake spaces and clean up scenes. Thirteen focused tools, right inside Maya.</p>
-      <div class="actions intro-fade">
-        <a class="btn btn-dark" href="#tools">Explore the tools <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
-        <a class="btn btn-light" href="downloads/AjoyTools_Setup.py" download>
-          <svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download setup
-        </a>
+      <p class="eyebrow"><span></span> Ajoy Tools · Autodesk Maya 2023+</p>
+      <h1 id="hero-title">Stay in the <em>flow.</em><br>Leave the busywork behind.</h1>
+      <p class="lead">Your next great shot needs your attention.<br>Not another round of exports, rig fixes and repetitive clicks.</p>
+      <div class="actions">
+        <a class="btn btn-blue" href="#pricing">Find your plan <span aria-hidden="true">→</span></a>
+        <a class="btn btn-light" href="download.html" target="_blank">Download setup</a>
+      </div>
+      <p class="hero-compat">13 focused tools. One Maya menu. More room to create.</p>
+    </div>
+    <div class="motion-stage" id="motion-stage">
+      <div class="stage-top"><span class="stage-brand"><i></i> AJOY / MOTION LAB</span><span class="stage-meta">Real-time 3D · Procedural study</span></div>
+      <canvas id="stage" aria-label="Animated articulated robot character with rig controls and motion trails"></canvas>
+      <div class="scene-fallback"><div class="fallback-orbit"><span>AJ</span></div><p>A little less friction.<br>A lot more possibility.</p></div>
+      <div class="stage-callout callout-a"><span>01 / CHARACTER</span><b>Every pose, connected.</b><small>Articulated motion. Frame by frame.</small></div>
+      <div class="stage-callout callout-b"><span>02 / PIPELINE</span><b>Made to keep you moving.</b><small>From the first key to the final export.</small></div>
+      <div class="scene-controls">
+        <div class="scene-modes" role="group" aria-label="Animation study">
+          <button type="button" data-scene="flow" aria-pressed="true">01 <span>Flow</span></button>
+          <button type="button" data-scene="pose" aria-pressed="false">02 <span>Pose</span></button>
+          <button type="button" data-scene="orbit" aria-pressed="false">03 <span>Orbit</span></button>
+        </div>
+        <div class="playback"><button type="button" id="motion-toggle" aria-pressed="false">Pause motion</button><label for="scrub" class="sr-only">Animation timeline</label><input id="scrub" type="range" min="0" max="120" value="0" step="1"><output id="frame-number" for="scrub">001</output></div>
       </div>
     </div>
-    <div class="hero-specs"><span><b>13</b> focused tools</span><span><b>01</b> Maya menu</span><span>Maya <b>2023+</b> / Windows</span></div>
+    <div class="hero-specs"><span>Built for the work <b>between the keyframes.</b></span><span>Animation / Export / Rigging / Scene</span><a href="#motion-film">Watch the motion study <span aria-hidden="true">↓</span></a></div>
   </section>
 
-  <div class="marquee" aria-hidden="true"><div class="mq-track"><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-fbx"/></svg>FBX Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-abc"/></svg>Alembic Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg>Playblast</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-audio"/></svg>Audio Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-ik"/></svg>IK / FK Snap</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-switch"/></svg>Advanced IK FK Switch</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-rebake"/></svg>Rebake IK Space</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-swap"/></svg>Multi Swapper</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-rivet"/></svg>Rivet</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-udim"/></svg>UDIM Preview</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg>Layer Prefix Remover</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-keys"/></svg>Hotkey Manager</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-revert"/></svg>Revert to Last Saved</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-fbx"/></svg>FBX Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-abc"/></svg>Alembic Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg>Playblast</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-audio"/></svg>Audio Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-ik"/></svg>IK / FK Snap</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-switch"/></svg>Advanced IK FK Switch</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-rebake"/></svg>Rebake IK Space</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-swap"/></svg>Multi Swapper</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-rivet"/></svg>Rivet</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-udim"/></svg>UDIM Preview</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg>Layer Prefix Remover</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-keys"/></svg>Hotkey Manager</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-revert"/></svg>Revert to Last Saved</span></div></div>
+  <section class="motion-film block" id="motion-film">
+    <div class="wrap film-grid">
+      <div class="film-copy"><p class="eyebrow">01 / A little more possibility</p><h2>Less friction.<br><em>More feeling.</em></h2><p class="sub">Animation is a thousand small decisions. Keep your energy for the ones that make a shot feel alive.</p><a class="text-link" href="#tools">Meet your new toolkit <span aria-hidden="true">↗</span></a><p class="film-caption">An original procedural character study.<br>Illustrative animation, not a recording of the Maya tools.</p></div>
+      <div class="film-player"><video id="motion-video" controls playsinline loop muted preload="none" poster="assets/motion-poster.webp" aria-label="Original animated character motion study"><source src="assets/motion-study.webm" type="video/webm"><source src="assets/motion-study.mp4" type="video/mp4">Your browser does not support this video.</video><div class="film-label"><span>THE MOTION STUDY</span><span>00:08 / AJOY</span></div></div>
+    </div>
+  </section>
 
   <!-- TOOLS -->
   <section class="block" id="tools">
     <div class="wrap">
       <div class="head tools-head">
-        <p class="eyebrow">01 / The toolkit</p>
+        <p class="eyebrow">02 / Your everyday advantage</p>
         <h2>Thirteen tools, <em>one</em> Maya menu.</h2>
         <p class="sub">Every tool does one job well, and each one can have its own hotkey.</p>
       </div>
 
       <div class="bento">
         <article class="tile t-export reveal">
-          <span class="tile-index">01 / Output</span>
+          <div class="tool-visual export-visual" aria-hidden="true"><div class="export-object"><i></i><i></i><i></i></div><div class="file-stack"><span>SHOT_010 <b>.fbx</b></span><span>SHOT_020 <b>.abc</b></span><span>SHOT_030 <b>.mov</b></span></div><small>SCENE → SHOT → DELIVERY</small></div><span class="tile-index">01 / Output</span>
           <h3>Export</h3>
           <p class="t-sub">Get shots, assets and previews out of Maya cleanly.</p>
           <ul class="tl">
@@ -128,7 +117,7 @@
         </article>
 
         <article class="tile t-anim reveal">
-          <span class="tile-index">02 / Motion</span>
+          <div class="tool-visual curve-visual" aria-hidden="true"><svg viewBox="0 0 500 160"><path class="curve-grid" d="M0 40h500M0 80h500M0 120h500M100 0v160M200 0v160M300 0v160M400 0v160"/><path class="motion-curve" d="M20 135C100 135 100 25 180 25S260 135 340 135 400 30 480 30"/><circle class="curve-node" r="6" cx="180" cy="25"/><circle r="6" cx="340" cy="135"/></svg><small>YOUR POSE. YOUR TIMING. YOUR CALL.</small></div><span class="tile-index">02 / Motion</span>
           <h3>Animation</h3>
           <p class="t-sub">Move between controls and spaces without losing the pose.</p>
           <ul class="tl">
@@ -140,7 +129,7 @@
         </article>
 
         <article class="tile t-rig reveal">
-          <span class="tile-index">03 / Rigging</span>
+          <div class="tool-visual rig-visual" aria-hidden="true"><div class="target-ring"><i></i><i></i><b></b></div><span>Surface attached.</span></div><span class="tile-index">03 / Rigging</span>
           <h3>Rigging</h3>
           <p class="t-sub">Stable attachments in one click.</p>
           <ul class="tl">
@@ -151,7 +140,7 @@
         </article>
 
         <article class="tile t-scene reveal">
-          <span class="tile-index">04 / Housekeeping</span>
+          <div class="tool-visual scene-visual" aria-hidden="true"><span><i></i> character_GEO</span><span><i></i> lighting_GRP</span><span><i></i> camera_SH010</span><b>Everything in its place.</b></div><span class="tile-index">04 / Housekeeping</span>
           <h3>Scene</h3>
           <p class="t-sub">Keep scenes tidy and recover from mistakes.</p>
           <ul class="tl tl-2">
@@ -178,7 +167,7 @@
           <li data-go="3"><h4><span class="n">04</span>Click Install</h4></li>
         </ol>
         <div class="dl">
-          <a class="btn btn-dark" href="downloads/AjoyTools_Setup.py" download><svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download AjoyTools_Setup.py</a>
+          <a class="btn btn-dark" href="download.html" target="_blank"><svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download AjoyTools_Setup.py</a>
           <p class="fine">44 KB. Free to download. Installing needs a code from an active subscription.</p>
         </div>
       </div>
@@ -215,17 +204,17 @@
         <p class="sub">Both plans include all thirteen tools and after-sale support. Choose the one that fits how your team works.</p>
         <div class="toggle" role="group" aria-label="Billing period">
           <button type="button" class="on" data-bill="monthly" aria-pressed="true">Monthly</button>
-          <button type="button" data-bill="yearly" aria-pressed="false">Yearly <em>Save 20%</em></button>
+          <button type="button" data-bill="yearly" aria-pressed="false">Yearly</button>
           <i class="thumb" aria-hidden="true"></i>
         </div>
-        <div><label class="cur">Prices in <select id="cur" aria-label="Currency"></select></label><span class="curnote" id="curnote"></span></div>
+        <p class="pricing-status fine" id="pricing-status" role="status"></p>
       </div>
 
       <div class="plans reveal">
         <article class="plan">
           <h3>Online</h3>
           <p class="for">For freelancers and small teams that always want the newest build.</p>
-          <p class="price"><span class="amt" data-amt="online">$39</span><span class="per" data-per>per computer, per month</span></p>
+          <p class="price"><span class="amt" data-amt="online">—</span><span class="per" data-per>per computer, per month</span></p>
           <p class="note" data-note="online">Billed monthly. Cancel any time.</p>
           <ul class="ticks">
             <li>All 13 tools</li>
@@ -233,14 +222,14 @@
             <li>Needs internet each time Maya starts</li>
             <li>After-sale support by email</li>
           </ul>
-          <a class="btn btn-dark btn-block" data-buy="online" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20Online%20subscription">Subscribe to Online</a>
+          <a class="btn btn-dark btn-block" data-buy="online" href="checkout.html?plan=online&billing=monthly">Subscribe to Online</a>
         </article>
 
         <article class="plan plan-lead">
           <span class="ribbon">Best for studios</span>
           <h3>Offline</h3>
           <p class="for">For studios that need Maya to run with no internet connection.</p>
-          <p class="price"><span class="amt" data-amt="offline">$79</span><span class="per" data-per>per computer, per month</span></p>
+          <p class="price"><span class="amt" data-amt="offline">—</span><span class="per" data-per>per computer, per month</span></p>
           <p class="note" data-note="offline">Billed monthly. Cancel any time.</p>
           <ul class="ticks">
             <li>All 13 tools</li>
@@ -249,7 +238,7 @@
             <li>Priority after-sale support</li>
             <li>Built for studio-wide rollouts</li>
           </ul>
-          <a class="btn btn-blue btn-block" data-buy="offline" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20Offline%20subscription">Subscribe to Offline</a>
+          <a class="btn btn-blue btn-block" data-buy="offline" href="checkout.html?plan=offline&billing=monthly">Subscribe to Offline</a>
         </article>
       </div>
 
@@ -268,7 +257,7 @@
           </div>
         </div>
       </div>
-      <p class="paynote"><span>Secure payment with</span><b><i>Pay</i>Pal</b></p>
+      <p class="paynote">Your total, including any applicable tax, is shown before payment.</p>
       <p class="fine legal">Ajoy Tools is licensed, not sold, under the <a href="license.html">Ajoy Tools License Agreement</a>. Prices exclude any taxes.</p>
     </div>
   </section>
@@ -301,7 +290,7 @@
         <p>Download the setup now, and get your access code when you are ready.</p>
         <div class="actions">
           <a class="btn btn-blue" href="#pricing">View plans</a>
-          <a class="btn btn-ghost-dark" href="downloads/AjoyTools_Setup.py" download>Download setup</a>
+          <a class="btn btn-ghost-dark" href="download.html" target="_blank">Download setup</a>
         </div>
       </div>
     </div>
@@ -316,17 +305,18 @@
     </div>
     <nav class="foot-links" aria-label="Footer">
       <a href="#tools">Tools</a>
-      <a href="downloads/AjoyTools_Setup.py" download>Download</a>
+      <a href="download.html" target="_blank">Download</a>
       <a href="#pricing">Pricing</a>
       <a href="license.html">License</a>
+      <a href="privacy.html">Privacy</a>
       <a href="mailto:contactmy3dart@gmail.com">Contact</a>
     </nav>
   </div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
-<script src="js/main.js?v=11"></script>
-<script src="js/scene.js?v=11"></script>
+<script src="js/site-config.js?v=2"></script>
+<script src="js/main.js?v=2"></script>
+<script type="module" src="js/pricing.js?v=2"></script>
+<script type="module" src="js/scene.js?v=2"></script>
 </body>
 </html>

@@ -1,44 +1,6 @@
 (function () {
   'use strict';
 
-  /* ------------------------------------------------------------------
-     CHECKOUT LINKS
-     Paste your payment links between the quotes. While a link is empty,
-     the button opens an email to you instead.
-     ------------------------------------------------------------------ */
-  var CHECKOUT = {
-    online:  { monthly: '', yearly: '' },
-    offline: { monthly: '', yearly: '' }
-  };
-  var CONTACT = 'contactmy3dart@gmail.com';
-
-  /* Monthly prices per computer. Yearly is 20% off (12 months x 0.8 = 9.6).
-     USD is the real price; the others are friendly local estimates. */
-  var MONTHLY = {
-    USD: [39, 79], EUR: [36, 73], GBP: [31, 62], INR: [3499, 6999], CAD: [52, 105],
-    AUD: [59, 119], SGD: [52, 105], AED: [143, 290], CHF: [35, 71], JPY: [5900, 11900],
-    BRL: [199, 399], CNY: [279, 569]
-  };
-  var EURO = 'Europe/Paris Europe/Berlin Europe/Madrid Europe/Rome Europe/Amsterdam Europe/Brussels Europe/Vienna Europe/Dublin Europe/Lisbon Europe/Helsinki Europe/Athens Europe/Luxembourg Europe/Tallinn Europe/Riga Europe/Vilnius Europe/Bratislava Europe/Ljubljana Europe/Zagreb Europe/Malta'.split(' ');
-  var TZCUR = {
-    'Asia/Calcutta': 'INR', 'Asia/Kolkata': 'INR', 'Europe/London': 'GBP', 'Europe/Zurich': 'CHF',
-    'America/Toronto': 'CAD', 'America/Vancouver': 'CAD', 'America/Edmonton': 'CAD', 'America/Winnipeg': 'CAD', 'America/Halifax': 'CAD',
-    'Australia/Sydney': 'AUD', 'Australia/Melbourne': 'AUD', 'Australia/Brisbane': 'AUD', 'Australia/Perth': 'AUD', 'Australia/Adelaide': 'AUD',
-    'Asia/Singapore': 'SGD', 'Asia/Dubai': 'AED', 'Asia/Tokyo': 'JPY', 'America/Sao_Paulo': 'BRL', 'Asia/Shanghai': 'CNY'
-  };
-  var REGCUR = { IN: 'INR', GB: 'GBP', CH: 'CHF', CA: 'CAD', AU: 'AUD', SG: 'SGD', AE: 'AED', JP: 'JPY', BR: 'BRL', CN: 'CNY',
-    DE: 'EUR', FR: 'EUR', ES: 'EUR', IT: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', IE: 'EUR', PT: 'EUR', FI: 'EUR', GR: 'EUR', US: 'USD' };
-  function detectCurrency() {
-    var tz = '';
-    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
-    if (TZCUR[tz]) return TZCUR[tz];
-    if (EURO.indexOf(tz) > -1) return 'EUR';
-    var loc = (navigator.languages && navigator.languages[0]) || navigator.language || '';
-    var m = loc.match(/[-_]([A-Za-z]{2})$/);
-    if (m && REGCUR[m[1].toUpperCase()]) return REGCUR[m[1].toUpperCase()];
-    return 'USD';
-  }
-
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -149,7 +111,7 @@
   }
 
   /* ---------- install sequence ---------- */
-  var ist = $('#stage-install');
+  var ist = $('#stage-install'), motionPaused = reduce;
   if (ist) {
     var steps = $$('#steps li'), codeEl = $('#code'), ph = $('#ph'), wcOn = $('#wc-on'), wcOff = $('#wc-off');
     var goEl = $('#go'), fc1 = $('#fc1'), fc2 = $('#fc2'), conf = $('#confetti');
@@ -193,7 +155,16 @@
             codeEl.textContent = CODE.slice(0, ++i);
             if (i < CODE.length) timers.push(setTimeout(type, 70));
             else later(function () { fc1.classList.add('show'); }, 250);
-          })();
+            /* Muted film plays only when visible, with motion preferences respected. */
+  var film = document.getElementById('motion-video');
+  if (film && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !document.documentElement.hasAttribute('data-motion-paused')) film.play().catch(function () {});
+      else film.pause();
+    }, { threshold: 0.45 }).observe(film);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) film.pause(); });
+  }
+})();
         }, 1500);
         later(function () { play(3); }, 4600);
       } else {
@@ -214,9 +185,14 @@
     if (reduce || !('IntersectionObserver' in window)) finalState();
     else new IntersectionObserver(function (es) {
       var on = es[0].isIntersecting;
-      if (on && !running) { running = true; play(seen ? cur : 0); seen = true; }
+      if (on && !running && !motionPaused) { running = true; play(seen ? cur : 0); seen = true; }
       else if (!on && running) { running = false; clearAll(); }
     }, { threshold: 0.35 }).observe(ist);
+    document.addEventListener('ajoy:motionchange', function (event) {
+      motionPaused = event.detail.paused;
+      if (motionPaused) { clearAll(); running = false; finalState(); }
+      else if (!reduce && ist.getBoundingClientRect().top < window.innerHeight && ist.getBoundingClientRect().bottom > 0) { running = true; play(0); }
+    });
   }
 
   /* ---------- gentle 3D tilt (smoothed, no CSS transitions) ---------- */
@@ -245,75 +221,25 @@
         s.el.style.transform = 'perspective(1400px) rotateY(' + (s.base[0] + s.cx * s.max) + 'deg) rotateX(' + (s.base[1] - s.cy * s.max * 0.7) + 'deg)';
         if (Math.abs(s.cx - s.tx) < 0.001 && Math.abs(s.cy - s.ty) < 0.001 && s.tx === 0 && s.ty === 0) s.active = false;
       });
-    })();
+      /* Muted film plays only when visible, with motion preferences respected. */
+  var film = document.getElementById('motion-video');
+  if (film && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !document.documentElement.hasAttribute('data-motion-paused')) film.play().catch(function () {});
+      else film.pause();
+    }, { threshold: 0.45 }).observe(film);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) film.pause(); });
+  }
+})();
   }
 
-  /* ---------- pricing toggle + currency ---------- */
-  var toggle = $('.toggle');
-  if (toggle) {
-    var billing = 'monthly';
-    var plansEl = $('.plans');
-    var curSel = $('#cur'), curNote = $('#curnote');
-    var currency = detectCurrency();
-    var fmt = function (c) {
-      try { return new Intl.NumberFormat('en', { style: 'currency', currency: c, maximumFractionDigits: 0 }); }
-      catch (e) { return { format: function (n) { return c + ' ' + n; } }; }
-    };
-    var money = function (n) { return fmt(currency).format(n); };
-    function amountsFor(plan) {
-      var m = MONTHLY[currency][plan === 'online' ? 0 : 1];
-      return { monthly: m, yearly: Math.round(m * 9.6) };
-    }
-
-    Object.keys(MONTHLY).forEach(function (c) {
-      var o = document.createElement('option'); o.value = c; o.textContent = c; if (c === currency) o.selected = true;
-      curSel.appendChild(o);
-    });
-    curSel.addEventListener('change', function () { currency = curSel.value; render(); });
-
-    function render() {
-      ['online', 'offline'].forEach(function (plan) {
-        var p = amountsFor(plan);
-        var yearly = billing === 'yearly';
-        var amt = $('[data-amt="' + plan + '"]');
-        var note = $('[data-note="' + plan + '"]');
-        var per = amt.parentNode.querySelector('[data-per]');
-        amt.textContent = money(yearly ? p.yearly : p.monthly);
-        per.textContent = yearly ? 'per computer, per year' : 'per computer, per month';
-        note.textContent = yearly
-          ? 'About ' + money(Math.round(p.yearly / 12)) + ' a month. You save ' + money(p.monthly * 12 - p.yearly) + ' a year.'
-          : 'Billed monthly. Cancel any time.';
-        var buy = $('[data-buy="' + plan + '"]');
-        var link = CHECKOUT[plan][billing];
-        var label = plan === 'online' ? 'Online' : 'Offline';
-        if (link) {
-          buy.href = link; buy.target = '_blank'; buy.rel = 'noopener';
-          buy.textContent = 'Subscribe with PayPal';
-        } else {
-          buy.removeAttribute('target');
-          buy.textContent = 'Subscribe to ' + label;
-          buy.href = 'mailto:' + CONTACT + '?subject=' + encodeURIComponent('Ajoy Tools ' + label + ' subscription (' + billing + ')');
-        }
-      });
-      curNote.textContent = currency === 'USD' ? '' : 'Local prices are estimates. PayPal checkout is in US dollars.';
-    }
-
-    $$('button', toggle).forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var next = btn.getAttribute('data-bill');
-        if (next === billing) return;
-        billing = next;
-        toggle.setAttribute('data-state', billing);
-        $$('button', toggle).forEach(function (b) {
-          var on = b === btn;
-          b.classList.toggle('on', on);
-          b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
-        if (reduce) { render(); return; }
-        plansEl.classList.add('swap');
-        setTimeout(function () { render(); plansEl.classList.remove('swap'); }, 180);
-      });
-    });
-    render();
+  /* Muted film plays only when visible, with motion preferences respected. */
+  var film = document.getElementById('motion-video');
+  if (film && 'IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      if (entries[0].isIntersecting && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && !document.documentElement.hasAttribute('data-motion-paused')) film.play().catch(function () {});
+      else film.pause();
+    }, { threshold: 0.45 }).observe(film);
+    document.addEventListener('visibilitychange', function () { if (document.hidden) film.pause(); });
   }
 })();

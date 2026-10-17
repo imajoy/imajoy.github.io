@@ -80,6 +80,8 @@ Monthly and yearly histories are counted separately. Computers/seats do not adva
 
 This implementation is **not activated** by pushing GitHub Pages. `apiBase` remains empty, no merchant is configured, and no historical payments have been imported. Do not advertise that an actual discount has been awarded until a server quote confirms it.
 
+The checkout hides optional returning-subscriber verification until `/config` confirms `loyalty.enabled: true`. It stays hidden with no JavaScript, an unset API URL, a disabled service, or a failed configuration request. Hiding the controls does not activate verification: the server deployment and Auth setup below are still required.
+
 1. Review and apply the new migration in the existing Supabase project. It creates only `storefront_` objects, leaving the Maya activation service alone. The new ledger has row-level security and no grants to `anon` or `authenticated`; only the server service role can link/read/write it.
 2. Configure Supabase Auth email OTP, your email sender/SMTP and email rate limits. Configure **both signup and magic-link email templates** to include `{{ .Token }}` so the user receives a code. This flow can create a passwordless customer account on first verification. Set the OTP length to 6–10 digits and suitable expiry/attempt limits.
 3. Enable **Turnstile CAPTCHA protection in Supabase Auth**, with a widget permitted on your website domain. Auth verifies the token when `/auth/v1/otp` is requested; do not also consume the same token with the download-verification function. Set `AUTH_TURNSTILE_SITE_KEY` to that public widget key. Apply edge/WAF limits to the storefront, and Auth's CAPTCHA/SMTP limits before enabling this publicly.

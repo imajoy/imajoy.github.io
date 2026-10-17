@@ -28,7 +28,9 @@ export function initializeCustomerVerification(config,onChange){
   message(text||'Use the email from your previous subscription to check your rewards.');onChange();
  };
  resetUI=reset;
- if(!config?.enabled){setBusy(false);message('Returning subscriber verification is not available yet. No loyalty reward is applied.');return;}
+ // Optional verification stays out of checkout until the server enables it.
+ panel.hidden=!config?.enabled;
+ if(panel.hidden){setBusy(false);message('');return;}
  let authBase;
  try{const url=new URL(config.authUrl);if(url.protocol!=='https:'||!url.pathname.endsWith('/auth/v1'))throw Error();authBase=url.href.replace(/\/$/,'');}catch{setBusy(true);message('Email verification is temporarily unavailable.',true);return;}
  async function authRequest(path,body){

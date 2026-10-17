@@ -1,5 +1,5 @@
 import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry,mountTurnstile} from './commerce.js?v=20261017-r16';
-import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261017-r16';
+import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261018-r17';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
 const params=new URLSearchParams(location.search);
 form.elements.plan.value=['online','offline'].includes(params.get('plan'))?params.get('plan'):'online';
@@ -110,7 +110,7 @@ couponRemove.addEventListener('click',()=>{
 async function init(){
  let configFailed=false;
  if(apiBase){try{config=await api('/config');}catch{configFailed=true;document.querySelector('#availability').textContent='Subscriptions are temporarily unavailable. Your billing details stay in this browser.';}}
- if(!config.paymentsEnabled&&!configFailed)document.querySelector('#availability').textContent='Payments are opening soon. You can review your plan and available rewards; no order or charge will be created.';
+ if(!config.paymentsEnabled&&!configFailed)document.querySelector('#availability').textContent=config.loyalty?.enabled?'Payments are opening soon. You can review your plan and available rewards; no order or charge will be created.':'Payments are opening soon. You can review your plan; no order or charge will be created.';
  else if(config.paymentsEnabled){
   document.querySelector('#availability').textContent='Review your billing details, then continue to our payment partner to confirm tax and complete your subscription.';
   try{await mountTurnstile('#checkout-verification',config.turnstileSiteKey,token=>{turnstileToken=token;updateButton();},message=>{status.textContent=message;},'checkout');}catch(e){status.textContent=e.message;}

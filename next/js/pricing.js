@@ -1,6 +1,13 @@
 import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261017-r7';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0;
+function chooseBilling(value){
+ if(billing===value)return;
+ billing=value;toggle.dataset.state=billing;
+ for(const button of toggle.querySelectorAll('button')){const selected=button.dataset.bill===billing;button.classList.toggle('on',selected);button.setAttribute('aria-pressed',String(selected));}
+ for(const button of document.querySelectorAll('button[data-choose-yearly]')){button.disabled=billing==='yearly';button.textContent=billing==='yearly'?'Yearly savings selected ✓':'Choose yearly · save 20% ↗';}
+ render();
+}
 function animate(element){if(!matchMedia('(prefers-reduced-motion: reduce)').matches)element.animate([{opacity:.2,translate:'0 8px'},{opacity:1,translate:'0 0'}],{duration:550,easing:'cubic-bezier(.22,1,.36,1)'});}
 async function render(){
  const current=++revision,status=document.querySelector('#pricing-status');
@@ -23,10 +30,9 @@ async function render(){
  }));
 }
 for(const button of toggle.querySelectorAll('button'))button.addEventListener('click',()=>{
- if(billing===button.dataset.bill)return;
- billing=button.dataset.bill;toggle.dataset.state=billing;
- for(const b of toggle.querySelectorAll('button')){b.classList.toggle('on',b===button);b.setAttribute('aria-pressed',String(b===button));}render();
+ chooseBilling(button.dataset.bill);
 });
+for(const control of document.querySelectorAll('[data-choose-yearly]'))control.addEventListener('click',()=>chooseBilling('yearly'));
 render();
 /* Only the main Install-section CTA opens the verified download page. */
 for(const link of document.querySelectorAll('#download-setup'))link.addEventListener('click',event=>{

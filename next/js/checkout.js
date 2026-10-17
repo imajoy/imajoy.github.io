@@ -17,6 +17,7 @@ function syncQuantity(){const value=Number(quantity.value),valid=quantity.value!
 function clearAmounts(){
  for(const id of ['summary-total','summary-subtotal','summary-unit'])document.getElementById(id).textContent='—';
  for(const id of ['annual-summary-row','coupon-summary-row','annual-summary'])document.getElementById(id).hidden=true;
+ document.querySelector('#yearly-upsell').hidden=true;
 }
 for(const [button,step] of [[less,-1],[more,1]])button.addEventListener('click',()=>{
  const current=Number(quantity.value);quantity.value=String(quantity.value!==''&&quantity.validity.valid?Math.min(100,Math.max(1,current+step)):1);
@@ -26,6 +27,12 @@ function selection(){return {plan:form.elements.plan.value,billing:form.elements
 function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!quote.quoteToken||!turnstileToken||couponBusy;pay.textContent=!config.paymentsEnabled?'Payments opening soon':'Continue to secure payment';}
 function showQuote(data){
  quote=data;
+ const upsell=document.querySelector('#yearly-upsell');
+ upsell.hidden=data.billing!=='monthly';
+ if(!upsell.hidden){
+  const yearlySaving=(data.monthlyAmount*12-Math.round(data.monthlyAmount*12*.8))*data.seats;
+  document.querySelector('#yearly-upsell-copy').textContent='Save '+money(yearlySaving,data.currency)+' across '+data.seats+' license'+(data.seats===1?'':'s')+' over a year, compared with 12 standard monthly payments. Annual billing, before tax.';
+ }
  document.querySelector('#summary-unit').textContent=money(data.unitAmount,data.currency);
  document.querySelector('#summary-subtotal-label').textContent=data.billing==='yearly'?'12 months at monthly price':'Subtotal';
  document.querySelector('#summary-subtotal').textContent=money(data.billing==='yearly'?data.compareAtUnitAmount*data.seats:(data.baseSubtotal??data.subtotal),data.currency);
@@ -114,3 +121,7 @@ form.addEventListener('submit',async event=>{
  }catch(e){status.textContent=e.message;turnstileToken='';if(window.turnstile)window.turnstile.reset();updateButton();}
 });
 init();
+document.querySelector('#choose-yearly').addEventListener('click',()=>{
+ form.elements.billing.value='yearly';form.elements.billing.dispatchEvent(new Event('change',{bubbles:true}));
+ form.elements.billing.focus({preventScroll:true});
+});

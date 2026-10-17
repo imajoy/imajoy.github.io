@@ -104,7 +104,7 @@ html[data-theme=dark] .form-field input,html[data-theme=dark] .form-field select
 @keyframes orbit-breathe{0%,100%{opacity:.5;scale:1}50%{opacity:1;scale:1.04}}
 @keyframes download-sway{0%,100%{transform:translateY(0) rotate(-8deg)}50%{transform:translateY(-5px) rotate(-3deg)}}
 @media(prefers-reduced-motion:no-preference){.commerce-main h1,.commerce-intro,.checkout-progress,.commerce-main .status-box,.checkout-form,.order-summary,.download-icon,.download-main h1,.download-card{animation:soft-arrive .8s var(--ease-soft) both}.commerce-intro{animation-delay:.06s}.checkout-progress{animation-delay:.12s}.checkout-form{animation-delay:.16s}.order-summary{animation-delay:.24s}.download-card{animation-delay:.18s}.download-icon{animation:soft-arrive .8s var(--ease-soft) both,download-sway 8s .8s ease-in-out infinite}@keyframes soft-arrive{from{opacity:0;translate:0 14px}to{opacity:1;translate:0 0}}}
-@media(max-width:800px){.commerce-header .wrap{padding:11px 14px}.checkout-grid{gap:28px}.order-summary{padding:22px 24px;grid-row:auto}.license-preview{height:195px;margin-bottom:16px}.license-pass{width:280px}.checkout-form fieldset{padding:22px 24px 8px}.order-summary .summary-list{display:block}.commerce-main{padding-top:32px}.form-row{gap:0}.commerce-main h1{font-size:2.5rem}.billing-completion{margin-top:18px}.commerce-page .wrap{width:calc(100% - 36px)}}
+@media(max-width:800px){.commerce-header .wrap{padding:11px 14px}.checkout-grid{grid-template-columns:1fr;gap:28px}.order-summary{padding:22px 24px;grid-row:auto;min-width:0}.license-preview{height:195px;margin-bottom:16px}.license-pass{width:min(280px,100% - 25px)}.checkout-form fieldset{padding:22px 24px 8px}.order-summary .summary-list{display:block}.order-total{flex-wrap:wrap}.commerce-main{padding-top:32px}.form-row{gap:0}.commerce-main h1{font-size:2.5rem}.billing-completion{margin-top:18px}.commerce-page .wrap{width:calc(100% - 36px)}}
 @media(max-width:520px){.tile{border-radius:28px}.plan,.licensebox{border-radius:28px}.faq details{border-radius:20px}.faq summary{padding:18px 20px;font-size:1rem}.faq p{padding:0 20px 22px}.commerce-header{padding-top:14px}.commerce-header .brand{font-size:.875rem;gap:7px}.commerce-header .mark{width:25px;height:25px}.back-link{font-size:.625rem;padding-inline:5px}.commerce-main h1{font-size:2.25rem}.commerce-intro{font-size:.875rem}.eyebrow{font-size:.625rem}.checkout-progress{gap:0;max-width:100%}.checkout-progress span{font-size:.625rem;padding:10px 13px}.checkout-grid{margin-top:28px}.checkout-form fieldset{padding:20px 18px 6px;border-radius:24px}.form-field input,.form-field select,.form-field textarea{font-size:1rem;border-radius:13px}.order-summary{border-radius:28px!important;padding:22px}.order-total{padding:15px}.download-card{padding:24px;border-radius:28px!important}.download-main{margin-top:35px}.download-icon{width:80px;height:80px;border-radius:25px}.download-file{gap:10px}.download-file b{font-size:.8125rem}.file-tag{padding:12px}.commerce-footer{padding-bottom:28px}.checkout-progress{flex-wrap:wrap}}
 @media(prefers-reduced-motion:reduce){.license-pass,.license-pass::after,.pass-path,.license-orbit,.download-icon{animation:none}.license-pass{transform:rotate(-3deg)}.completion-ring,.form-field input,.form-field select,.form-field textarea{transition:none}}
 /* Pausing decoration must never freeze entrance animations with content hidden. */
@@ -150,6 +150,35 @@ html[data-ui-paused] :is(.commerce-main h1,.commerce-intro,.checkout-progress,.c
 .quantity-control input::-webkit-inner-spin-button,.quantity-control input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 html[data-theme=dark] .quantity-control button{border-color:#627393}
 .annual-badge{display:inline-flex;align-items:center;padding:4px 8px;margin-left:5px;border-radius:999px;background:#dcebe5;color:#22543c;font-size:.625rem;line-height:1.4;font-weight:600;white-space:nowrap}
+/* Yearly savings stay visible before a customer switches billing periods. */
+.yearly-link{display:inline-flex;align-items:center;flex-wrap:wrap;gap:9px;margin-top:22px;color:var(--blue-d);font-size:.75rem;text-decoration:none}
+.yearly-link>span:first-child{font-size:.5625rem;letter-spacing:.04em;font-weight:700;background:#dcebe5;color:#22543c;border-radius:999px;padding:5px 9px}
+#pricing .head.center{max-width:980px}
+.yearly-spotlight{display:grid;grid-template-columns:260px minmax(0,1fr);gap:36px;align-items:center;text-align:left;margin:38px 0 4px;padding:32px 42px;border:1px solid #92b4f03d;border-radius:34px;background:radial-gradient(ellipse at 15% 70%,#a8c8ff55,transparent 60%),#e1eafa;box-shadow:var(--soft-shadow);overflow:hidden}
+.saving-art{position:relative;height:250px;display:grid;place-items:center;isolation:isolate}
+.saving-ticket{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:17px;width:182px;height:218px;border-radius:26px;background:linear-gradient(140deg,#5a96ff,#2d60d6);color:white;rotate:-9deg;box-shadow:0 22px 36px -12px #3567ce66,inset 0 1px 0 #ffffff55;animation:saving-float 9s ease-in-out infinite}
+.saving-ticket small{font-size:.4375rem;letter-spacing:.12em;font-weight:600}.saving-ticket b{font-size:5rem;letter-spacing:-.07em;line-height:1;font-weight:600}.saving-ticket b span{font-size:2.75rem;vertical-align:top;line-height:1.2}
+.saving-orbit{position:absolute;width:250px;height:120px;border:1px solid #7ca3e750;border-radius:50%;rotate:-25deg;z-index:-1;animation:saving-orbit 12s ease-in-out infinite}
+.saving-orbit::after{content:'';position:absolute;top:12px;left:28px;width:10px;height:10px;background:#efb09a;border-radius:50%;box-shadow:0 0 0 7px #efb09a16}
+.saving-copy .saving-label{font-size:.5625rem;letter-spacing:.11em;color:#416293;font-weight:600;margin-bottom:13px}
+.saving-copy h3{font-size:clamp(1.9rem,3.4vw,2.75rem);line-height:1.02;letter-spacing:-.05em;margin-bottom:15px}
+.saving-copy>p:not(.saving-label){color:#4e6384;font-size:.875rem;line-height:1.7;max-width:32em}
+.saving-copy .btn{margin-top:23px;height:48px;font-size:.75rem;padding-inline:23px}.saving-copy .btn:disabled{background:#24583f;color:#e3f7eb;cursor:default;transform:none;box-shadow:none}
+.saving-copy>small{display:block;color:#526787;font-size:.625rem;line-height:1.7;margin-top:12px}
+.annual-offer{padding:17px 18px;background:var(--bg2);border:1px solid var(--line);border-radius:20px;gap:9px;margin-top:18px}
+.annual-saving{font-size:.75rem}.plan-lead .annual-offer{background:#ffffff09;border-color:#ffffff22}
+.billing-upsell{position:relative;margin:4px 0 15px;padding:22px;border-radius:22px;border:1px solid #8fb1e94d;background:linear-gradient(125deg,#dce9ff99,#e5eeeac4)}
+.upsell-badge{display:inline-flex;background:#2e69e8;color:#fff;padding:5px 10px;border-radius:999px;font-size:.5625rem;font-weight:600;letter-spacing:.04em;margin-bottom:13px}
+.billing-upsell h3{font-size:1.25rem;letter-spacing:-.035em;margin-bottom:11px}.billing-upsell p{font-size:.75rem;color:var(--mute);line-height:1.8}.billing-upsell .btn{font-size:.6875rem;height:44px;padding:0 17px;margin-top:17px;background:var(--card);border-color:var(--line)}
+html[data-theme=dark] .yearly-spotlight{background:radial-gradient(ellipse at 15% 70%,#31559455,transparent 60%),#14233e;border-color:#3e608a55}
+html[data-theme=dark] .saving-copy :is(.saving-label,small),html[data-theme=dark] .saving-copy>p:not(.saving-label){color:#b6c8e6}
+html[data-theme=dark] .billing-upsell{background:linear-gradient(125deg,#203a6355,#1d3d2e66);border-color:#52759d66}
+html[data-theme=dark] .yearly-link>span:first-child{background:#214438;color:#c8f0db}
+@keyframes saving-float{0%,100%{translate:0 0;rotate:-9deg}50%{translate:0 -7px;rotate:-5deg}}
+@keyframes saving-orbit{0%,100%{scale:1;opacity:.6}50%{scale:1.06;opacity:1}}
+@media(max-width:680px){.yearly-spotlight{grid-template-columns:1fr;padding:24px;gap:16px;border-radius:28px}.saving-art{height:155px}.saving-ticket{width:130px;height:150px;gap:10px;border-radius:21px}.saving-ticket b{font-size:3.6rem}.saving-ticket b span{font-size:2rem}.saving-ticket small{font-size:.35rem}.saving-orbit{width:215px;height:100px}.saving-copy h3 br{display:none}.saving-copy h3{font-size:1.85rem;line-height:1.1}.saving-copy .btn{width:100%}.yearly-link{max-width:310px;justify-content:center}.billing-upsell{padding:19px}.billing-upsell .btn{height:auto;min-height:44px;padding:10px 16px;text-align:center}}
+@media(prefers-reduced-motion:reduce){.saving-art *{animation:none!important}}
+@media(max-width:380px){.amt{font-size:2.3rem}.inst-stage .orb{max-width:100%}}
 html[data-theme=dark] .annual-badge{background:#214438;color:#c8f0db}
 .annual-offer{display:flex;flex-direction:column;align-items:flex-start;gap:7px;margin:8px 0 18px;font-size:.75rem;line-height:1.6}
 .annual-original{color:var(--mute);text-decoration:line-through;text-decoration-thickness:1px}.plan-lead .annual-original{color:#bac7e2}

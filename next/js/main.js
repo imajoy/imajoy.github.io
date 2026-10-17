@@ -12,16 +12,53 @@
   };
   var CONTACT = 'contactmy3dart@gmail.com';
 
-  /* Prices in US dollars, per computer. Yearly is 20% off 12 months. */
-  var PRICES = {
-    online:  { monthly: 39, yearly: 374 },
-    offline: { monthly: 79, yearly: 758 }
+  /* Monthly prices per computer. Yearly is 20% off (12 months x 0.8 = 9.6).
+     USD is the real price; the others are friendly local estimates. */
+  var MONTHLY = {
+    USD: [39, 79], EUR: [36, 73], GBP: [31, 62], INR: [3499, 6999], CAD: [52, 105],
+    AUD: [59, 119], SGD: [52, 105], AED: [143, 290], CHF: [35, 71], JPY: [5900, 11900],
+    BRL: [199, 399], CNY: [279, 569]
   };
+  var EURO = 'Europe/Paris Europe/Berlin Europe/Madrid Europe/Rome Europe/Amsterdam Europe/Brussels Europe/Vienna Europe/Dublin Europe/Lisbon Europe/Helsinki Europe/Athens Europe/Luxembourg Europe/Tallinn Europe/Riga Europe/Vilnius Europe/Bratislava Europe/Ljubljana Europe/Zagreb Europe/Malta'.split(' ');
+  var TZCUR = {
+    'Asia/Calcutta': 'INR', 'Asia/Kolkata': 'INR', 'Europe/London': 'GBP', 'Europe/Zurich': 'CHF',
+    'America/Toronto': 'CAD', 'America/Vancouver': 'CAD', 'America/Edmonton': 'CAD', 'America/Winnipeg': 'CAD', 'America/Halifax': 'CAD',
+    'Australia/Sydney': 'AUD', 'Australia/Melbourne': 'AUD', 'Australia/Brisbane': 'AUD', 'Australia/Perth': 'AUD', 'Australia/Adelaide': 'AUD',
+    'Asia/Singapore': 'SGD', 'Asia/Dubai': 'AED', 'Asia/Tokyo': 'JPY', 'America/Sao_Paulo': 'BRL', 'Asia/Shanghai': 'CNY'
+  };
+  var REGCUR = { IN: 'INR', GB: 'GBP', CH: 'CHF', CA: 'CAD', AU: 'AUD', SG: 'SGD', AE: 'AED', JP: 'JPY', BR: 'BRL', CN: 'CNY',
+    DE: 'EUR', FR: 'EUR', ES: 'EUR', IT: 'EUR', NL: 'EUR', BE: 'EUR', AT: 'EUR', IE: 'EUR', PT: 'EUR', FI: 'EUR', GR: 'EUR', US: 'USD' };
+  function detectCurrency() {
+    var tz = '';
+    try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch (e) {}
+    if (TZCUR[tz]) return TZCUR[tz];
+    if (EURO.indexOf(tz) > -1) return 'EUR';
+    var loc = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    var m = loc.match(/[-_]([A-Za-z]{2})$/);
+    if (m && REGCUR[m[1].toUpperCase()]) return REGCUR[m[1].toUpperCase()];
+    return 'USD';
+  }
 
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* ---------- theme ---------- */
+  var themeBtn = $('#theme');
+  function syncTheme() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (themeBtn) themeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', dark ? '#080C18' : '#E9EDF3');
+  }
+  syncTheme();
+  if (themeBtn) themeBtn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('ajoy-theme', next); } catch (e) {}
+    syncTheme();
+  });
 
   var year = $('#year');
   if (year) year.textContent = new Date().getFullYear();
@@ -56,9 +93,130 @@
         if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
       });
     }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
-    revs.forEach(function (el, i) { el.style.transitionDelay = (i % 2) * 90 + 'ms'; io.observe(el); });
+    revs.forEach(function (el, i) {
+      el.style.transitionDelay = (i % 2) * 90 + 'ms';
+      io.observe(el);
+      el.addEventListener('transitionend', function clr(e) { if (e.propertyName === 'opacity') { el.style.transitionDelay = ''; el.removeEventListener('transitionend', clr); } });
+    });
   } else {
     revs.forEach(function (el) { el.classList.add('in'); });
+  }
+
+  /* ---------- headings: words rise in ---------- */
+  if (!reduce && 'IntersectionObserver' in window) {
+    var hio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); hio.unobserve(e.target); } });
+    }, { threshold: 0.25 });
+    $$('.block h2, .frame-inner h2').forEach(function (h) {
+      var n = 0;
+      (function walk(node) {
+        Array.prototype.slice.call(node.childNodes).forEach(function (c) {
+          if (c.nodeType === 3) {
+            var frag = document.createDocumentFragment();
+            c.nodeValue.split(/(\s+)/).forEach(function (part) {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+              var w = document.createElement('span'); w.className = 'w';
+              var i = document.createElement('span'); i.style.setProperty('--i', n++); i.textContent = part;
+              w.appendChild(i); frag.appendChild(w);
+            });
+            node.replaceChild(frag, c);
+          } else if (c.nodeType === 1) walk(c);
+        });
+      })(h);
+      hio.observe(h);
+    });
+  }
+
+  /* ---------- scroll progress + active nav link ---------- */
+  var bar = $('#progress'), ticking = false;
+  function prog() {
+    ticking = false;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    if (bar) bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, window.scrollY / max) : 0) + ')';
+  }
+  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(prog); } }, { passive: true });
+  prog();
+  var navLinks = $$('.nav a');
+  if (navLinks.length && 'IntersectionObserver' in window) {
+    var nio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        navLinks.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id); });
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    ['tools', 'install', 'pricing', 'faq'].forEach(function (id) { var el = document.getElementById(id); if (el) nio.observe(el); });
+  }
+
+  /* ---------- install sequence ---------- */
+  var ist = $('#stage-install');
+  if (ist) {
+    var steps = $$('#steps li'), codeEl = $('#code'), ph = $('#ph'), wcOn = $('#wc-on'), wcOff = $('#wc-off');
+    var goEl = $('#go'), fc1 = $('#fc1'), fc2 = $('#fc2'), conf = $('#confetti');
+    var CODE = 'ACME-4821-7K2Q-9XMD-31PL', timers = [], cur = 0, running = false, seen = false;
+    for (var k = 0; k < 18; k++) {
+      var d = document.createElement('i');
+      var ang = (k / 18) * Math.PI * 2, dist = 90 + (k % 3) * 40;
+      d.style.setProperty('--x', Math.round(Math.cos(ang) * dist) + 'px');
+      d.style.setProperty('--y', Math.round(Math.sin(ang) * dist - 30) + 'px');
+      d.style.setProperty('--r', (k * 47) + 'deg');
+      d.style.background = ['#3D8BFF', '#FF7A5C', '#2FB5AE', '#8DBBFF'][k % 4];
+      conf.appendChild(d);
+    }
+    var later = function (fn, ms) { timers.push(setTimeout(fn, ms)); };
+    var clearAll = function () { timers.forEach(clearTimeout); timers = []; };
+    function mark(n) {
+      ist.setAttribute('data-step', n);
+      steps.forEach(function (li, i) { li.classList.toggle('active', i === n); li.classList.toggle('done', i < n); });
+    }
+    function resetWindow() {
+      codeEl.textContent = ''; ph.style.display = '';
+      wcOn.classList.remove('on'); wcOff.classList.remove('on');
+      goEl.textContent = 'Install';
+      fc1.classList.remove('show'); fc2.classList.remove('show'); conf.classList.remove('go');
+    }
+    function finalState() {
+      mark(3); codeEl.textContent = CODE; ph.style.display = 'none';
+      wcOff.classList.add('on'); fc1.classList.add('show'); fc2.classList.add('show'); goEl.textContent = 'Done';
+    }
+    function play(n) {
+      clearAll(); cur = n; mark(n);
+      if (n === 0) { resetWindow(); later(function () { play(1); }, 3400); }
+      else if (n === 1) { later(function () { play(2); }, 2600); }
+      else if (n === 2) {
+        resetWindow(); wcOn.classList.add('on');
+        later(function () { wcOn.classList.remove('on'); wcOff.classList.add('on'); }, 900);
+        later(function () {
+          ph.style.display = 'none';
+          var i = 0;
+          (function type() {
+            codeEl.textContent = CODE.slice(0, ++i);
+            if (i < CODE.length) timers.push(setTimeout(type, 70));
+            else later(function () { fc1.classList.add('show'); }, 250);
+          })();
+        }, 1500);
+        later(function () { play(3); }, 4600);
+      } else {
+        if (!codeEl.textContent) { codeEl.textContent = CODE; ph.style.display = 'none'; wcOff.classList.add('on'); }
+        fc1.classList.add('show');
+        goEl.textContent = 'Installing';
+        later(function () {
+          goEl.textContent = 'Done'; fc2.classList.add('show');
+          conf.classList.remove('go'); void conf.offsetWidth; conf.classList.add('go');
+        }, 2900);
+        later(function () { fc1.classList.remove('show'); fc2.classList.remove('show'); }, 6200);
+        later(function () { play(0); }, 6700);
+      }
+    }
+    steps.forEach(function (li) {
+      li.addEventListener('click', function () { if (reduce) { finalState(); return; } running = true; play(parseInt(li.getAttribute('data-go'), 10)); });
+    });
+    if (reduce || !('IntersectionObserver' in window)) finalState();
+    else new IntersectionObserver(function (es) {
+      var on = es[0].isIntersecting;
+      if (on && !running) { running = true; play(seen ? cur : 0); seen = true; }
+      else if (!on && running) { running = false; clearAll(); }
+    }, { threshold: 0.35 }).observe(ist);
   }
 
   /* ---------- gentle 3D tilt (smoothed, no CSS transitions) ---------- */
@@ -90,16 +248,32 @@
     })();
   }
 
-  /* ---------- pricing toggle ---------- */
+  /* ---------- pricing toggle + currency ---------- */
   var toggle = $('.toggle');
   if (toggle) {
     var billing = 'monthly';
     var plansEl = $('.plans');
-    var money = function (n) { return '$' + n.toLocaleString('en-US'); };
+    var curSel = $('#cur'), curNote = $('#curnote');
+    var currency = detectCurrency();
+    var fmt = function (c) {
+      try { return new Intl.NumberFormat('en', { style: 'currency', currency: c, maximumFractionDigits: 0 }); }
+      catch (e) { return { format: function (n) { return c + ' ' + n; } }; }
+    };
+    var money = function (n) { return fmt(currency).format(n); };
+    function amountsFor(plan) {
+      var m = MONTHLY[currency][plan === 'online' ? 0 : 1];
+      return { monthly: m, yearly: Math.round(m * 9.6) };
+    }
+
+    Object.keys(MONTHLY).forEach(function (c) {
+      var o = document.createElement('option'); o.value = c; o.textContent = c; if (c === currency) o.selected = true;
+      curSel.appendChild(o);
+    });
+    curSel.addEventListener('change', function () { currency = curSel.value; render(); });
 
     function render() {
       ['online', 'offline'].forEach(function (plan) {
-        var p = PRICES[plan];
+        var p = amountsFor(plan);
         var yearly = billing === 'yearly';
         var amt = $('[data-amt="' + plan + '"]');
         var note = $('[data-note="' + plan + '"]');
@@ -114,11 +288,14 @@
         var label = plan === 'online' ? 'Online' : 'Offline';
         if (link) {
           buy.href = link; buy.target = '_blank'; buy.rel = 'noopener';
+          buy.textContent = 'Subscribe with PayPal';
         } else {
           buy.removeAttribute('target');
+          buy.textContent = 'Subscribe to ' + label;
           buy.href = 'mailto:' + CONTACT + '?subject=' + encodeURIComponent('Ajoy Tools ' + label + ' subscription (' + billing + ')');
         }
       });
+      curNote.textContent = currency === 'USD' ? '' : 'Local prices are estimates. PayPal checkout is in US dollars.';
     }
 
     $$('button', toggle).forEach(function (btn) {

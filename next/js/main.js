@@ -111,7 +111,7 @@
   }
 
   /* ---------- install sequence ---------- */
-  var ist = $('#stage-install');
+  var ist = $('#stage-install'), motionPaused = reduce;
   if (ist) {
     var steps = $$('#steps li'), codeEl = $('#code'), ph = $('#ph'), wcOn = $('#wc-on'), wcOff = $('#wc-off');
     var goEl = $('#go'), fc1 = $('#fc1'), fc2 = $('#fc2'), conf = $('#confetti');
@@ -176,9 +176,14 @@
     if (reduce || !('IntersectionObserver' in window)) finalState();
     else new IntersectionObserver(function (es) {
       var on = es[0].isIntersecting;
-      if (on && !running) { running = true; play(seen ? cur : 0); seen = true; }
+      if (on && !running && !motionPaused) { running = true; play(seen ? cur : 0); seen = true; }
       else if (!on && running) { running = false; clearAll(); }
     }, { threshold: 0.35 }).observe(ist);
+    document.addEventListener('ajoy:motion', function (event) {
+      motionPaused = event.detail.paused;
+      if (motionPaused) { clearAll(); running = false; finalState(); }
+      else if (!reduce && ist.getBoundingClientRect().top < window.innerHeight && ist.getBoundingClientRect().bottom > 0) { running = true; play(0); }
+    });
   }
 
   /* ---------- gentle 3D tilt (smoothed, no CSS transitions) ---------- */

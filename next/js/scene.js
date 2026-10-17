@@ -322,10 +322,10 @@ import * as THREE from './vendor/three.module.min.js';
   function frame() {
     requestAnimationFrame(frame);
     var dt = Math.min(0.05, clock.getDelta());
-    if (!visible || document.hidden) return;
-    update(reduce ? 0 : dt);
+    if (!visible || document.hidden || document.documentElement.hasAttribute('data-ui-paused') || (reduce && !document.documentElement.hasAttribute('data-ui-motion'))) return;
+    update(dt);
     renderer.render(scene, camera);
   }
   update(0.016); renderer.render(scene, camera);
-  if (!reduce) frame();
+  frame();
 })();

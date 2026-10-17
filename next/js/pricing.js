@@ -1,37 +1,35 @@
-import {getQuote,previewPrice,money,apiBase} from './commerce.js';
+import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261017-r7';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0;
+function animate(element){if(!matchMedia('(prefers-reduced-motion: reduce)').matches)element.animate([{opacity:.2,translate:'0 8px'},{opacity:1,translate:'0 0'}],{duration:550,easing:'cubic-bezier(.22,1,.36,1)'});}
 async function render(){
- const current=++revision;
- const status=document.querySelector('#pricing-status');
- for(const plan of ['online','offline']){
-  const amount=document.querySelector(`[data-amt="${plan}"]`);
-  const buy=document.querySelector(`[data-buy="${plan}"]`);
-  buy.href=`checkout.html?${new URLSearchParams({plan,billing})}`;
-  amount.textContent='—';
-  const note=document.querySelector(`[data-note="${plan}"]`);
+ const current=++revision,status=document.querySelector('#pricing-status');
+ await Promise.all(['online','offline'].map(async plan=>{
+  const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`);
+  buy.href=`checkout.html?${new URLSearchParams({plan,billing})}`;amount.textContent='—';offer.hidden=true;
   try{
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;
-   amount.textContent=money(quote.unitAmount,quote.currency);
+   amount.textContent=money(quote.unitAmount,quote.currency);animate(amount);
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
-   note.textContent=billing==='yearly'?'Billed annually. Taxes calculated at checkout.':'Billed monthly. Prices exclude applicable taxes.';
+   note.textContent=billing==='yearly'?'Billed annually. Prices exclude applicable taxes.':'Billed monthly. Prices exclude applicable taxes.';
+   if(billing==='yearly'&&quote.annualSavings>0){
+    offer.hidden=false;offer.querySelector('.annual-original').textContent=money(quote.compareAtUnitAmount,quote.currency)+' billed monthly over a year';
+    offer.querySelector('.annual-saving').textContent='Save '+money(quote.annualSavings,quote.currency)+' per year';
+    offer.querySelector('.annual-equivalent').textContent=money(quote.unitAmount/12,quote.currency)+' per month, billed yearly';animate(offer);
+   }
    status.textContent=quote.preview?'Estimated price. Your billing details confirm the total at checkout.':'';
-  }catch{
-   if(current!==revision)return;
-   amount.textContent='See checkout';note.textContent='Confirm pricing on the billing page.';status.textContent='Pricing is temporarily unavailable.';
-  }
- }
+  }catch{if(current!==revision)return;amount.textContent='See checkout';offer.hidden=true;note.textContent='Confirm pricing on the billing page.';status.textContent='Pricing is temporarily unavailable.';}
+ }));
 }
 for(const button of toggle.querySelectorAll('button'))button.addEventListener('click',()=>{
+ if(billing===button.dataset.bill)return;
  billing=button.dataset.bill;toggle.dataset.state=billing;
- for(const b of toggle.querySelectorAll('button')){b.classList.toggle('on',b===button);b.setAttribute('aria-pressed',String(b===button));}
- render();
+ for(const b of toggle.querySelectorAll('button')){b.classList.toggle('on',b===button);b.setAttribute('aria-pressed',String(b===button));}render();
 });
 render();
-/* Script-opened tabs can close themselves after a verified download. */
+/* Only the main Install-section CTA opens the verified download page. */
 for(const link of document.querySelectorAll('#download-setup'))link.addEventListener('click',event=>{
  if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||event.button!==0)return;
- const popup=window.open(link.href,'ajoy-download');
- if(popup){popup.opener=null;event.preventDefault();}
+ const popup=window.open(link.href,'ajoy-download');if(popup){popup.opener=null;event.preventDefault();}
 });

@@ -1,4 +1,4 @@
-import {api,apiBase,getQuote,previewPrice,money,suggestedCountry,mountTurnstile} from './commerce.js';
+import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry,mountTurnstile} from './commerce.js?v=20261017-r7';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
 const params=new URLSearchParams(location.search);
 form.elements.plan.value=['online','offline'].includes(params.get('plan'))?params.get('plan'):'online';
@@ -10,62 +10,104 @@ for(const [code,name] of countries){const o=new Option(name,code);form.elements.
 form.elements.country.value=suggestedCountry();
 let config={paymentsEnabled:false},quote=null,turnstileToken='',quoteRevision=0;
 const quantity=form.elements.seats,less=document.querySelector('#quantity-less'),more=document.querySelector('#quantity-more');
-let quantityTimer;
-function syncQuantity(){
- const value=Number(quantity.value),valid=quantity.value!==''&&quantity.validity.valid;
- less.disabled=valid&&value<=1;more.disabled=valid&&value>=100;
+const couponInput=form.elements.couponCode,couponApply=document.querySelector('#coupon-apply'),couponRemove=document.querySelector('#coupon-remove'),couponStatus=document.querySelector('#coupon-status');
+let quantityTimer,appliedCoupon='',couponBusy=false,couponOperation=0;
+function couponMessage(text,error=false){couponStatus.textContent=text;couponStatus.dataset.error=String(error);}
+function syncQuantity(){const value=Number(quantity.value),valid=quantity.value!==''&&quantity.validity.valid;less.disabled=valid&&value<=1;more.disabled=valid&&value>=100;}
+function clearAmounts(){
+ for(const id of ['summary-total','summary-subtotal','summary-unit'])document.getElementById(id).textContent='—';
+ for(const id of ['annual-summary-row','coupon-summary-row','annual-summary'])document.getElementById(id).hidden=true;
 }
-function clearAmounts(){for(const id of ['summary-total','summary-subtotal','summary-unit'])document.getElementById(id).textContent='—';}
 for(const [button,step] of [[less,-1],[more,1]])button.addEventListener('click',()=>{
- const current=Number(quantity.value);
- quantity.value=String(quantity.value!==''&&quantity.validity.valid?Math.min(100,Math.max(1,current+step)):1);
- quantity.dispatchEvent(new Event('input',{bubbles:true}));
- quantity.dispatchEvent(new Event('change',{bubbles:true}));
+ const current=Number(quantity.value);quantity.value=String(quantity.value!==''&&quantity.validity.valid?Math.min(100,Math.max(1,current+step)):1);
+ quantity.dispatchEvent(new Event('input',{bubbles:true}));quantity.dispatchEvent(new Event('change',{bubbles:true}));
 });
-function selection(){return {plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value};}
-function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!turnstileToken;pay.textContent=!config.paymentsEnabled?'Payments opening soon':'Continue to secure payment';}
+function selection(){return {plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(quantity.value),country:form.elements.country.value};}
+function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!quote.quoteToken||!turnstileToken||couponBusy;pay.textContent=!config.paymentsEnabled?'Payments opening soon':'Continue to secure payment';}
+function showQuote(data){
+ quote=data;
+ document.querySelector('#summary-unit').textContent=money(data.unitAmount,data.currency);
+ document.querySelector('#summary-subtotal-label').textContent=data.billing==='yearly'?'12 months at monthly price':'Subtotal';
+ document.querySelector('#summary-subtotal').textContent=money(data.billing==='yearly'?data.compareAtUnitAmount*data.seats:(data.baseSubtotal??data.subtotal),data.currency);
+ document.querySelector('#summary-total').textContent=money(data.subtotal,data.currency);
+ const annual=document.querySelector('#annual-summary');
+ document.querySelector('#annual-summary-row').hidden=!(data.billing==='yearly'&&data.annualSavings>0);
+ annual.hidden=data.billing!=='yearly';
+ if(data.billing==='yearly'){
+  document.querySelector('#summary-annual').textContent='−'+money(data.annualSavings,data.currency);
+  annual.textContent='20% off yearly · '+money(data.unitAmount/12,data.currency)+' per license/month, billed annually.';
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches)annual.animate([{opacity:.2,translate:'0 6px'},{opacity:1,translate:'0 0'}],{duration:450,easing:'ease-out'});
+ }
+ document.querySelector('#coupon-summary-row').hidden=!data.coupon;
+ if(data.coupon)document.querySelector('#summary-coupon').textContent='−'+money(data.coupon.discountAmount,data.currency);
+ couponRemove.hidden=!appliedCoupon;
+ document.querySelector('#quote-note').textContent=data.preview?'Estimated subtotal. The final total and applicable tax will be shown before payment.':'Price confirmed for your billing country. Any applicable tax will be shown before payment.';
+ status.textContent='';updateButton();
+}
 async function render(){
  clearTimeout(quantityTimer);
  const r=++quoteRevision,s=selection();quote=null;updateButton();syncQuantity();
  document.querySelector('#summary-plan').textContent=s.plan==='online'?'Online':'Offline';
  document.querySelector('#summary-billing').textContent=s.billing==='yearly'?'Yearly':'Monthly';
  document.querySelector('#summary-seats').textContent=quantity.value!==''?String(s.seats):'—';
- if(!Number.isInteger(s.seats)||s.seats<1||s.seats>100||!s.country){clearAmounts();return;}
+ clearAmounts();
+ if(!Number.isInteger(s.seats)||s.seats<1||s.seats>100||!s.country)return;
  try{
-  const data=apiBase?await getQuote(s.plan,s.billing,s.seats,s.country):previewPrice(s.plan,s.billing,s.seats,s.country);
-  if(r!==quoteRevision)return;quote=data;
-  document.querySelector('#summary-unit').textContent=money(data.unitAmount,data.currency);
-  document.querySelector('#summary-subtotal').textContent=money(data.subtotal,data.currency);
-  document.querySelector('#summary-total').textContent=money(data.subtotal,data.currency);
-  document.querySelector('#quote-note').textContent=data.preview?'Estimated subtotal. The final total and applicable tax will be shown before payment.':'Price confirmed for your billing country. Any applicable tax will be shown before payment.';
-  updateButton();
+  let data;
+  if(appliedCoupon){
+   try{data=await getCouponQuote(s,appliedCoupon);}catch(e){
+    if(r!==quoteRevision)return;
+    if(e.status!==400)throw e;
+    appliedCoupon='';couponRemove.hidden=true;couponMessage(e.message+' No coupon discount is applied.',true);
+   }
+  }
+  if(!data)data=apiBase?await getQuote(s.plan,s.billing,s.seats,s.country):previewPrice(s.plan,s.billing,s.seats,s.country);
+  if(r!==quoteRevision)return;showQuote(data);
  }catch(e){if(r!==quoteRevision)return;clearAmounts();status.textContent=e.message;}
 }
 for(const name of ['plan','billing','country'])form.elements[name].addEventListener('change',render);
 quantity.addEventListener('input',()=>{
- clearTimeout(quantityTimer);quoteRevision++;quote=null;updateButton();syncQuantity();clearAmounts();
- document.querySelector('#summary-seats').textContent=quantity.value||'—';
- quantityTimer=setTimeout(render,180);
+ clearTimeout(quantityTimer);quoteRevision++;quote=null;updateButton();syncQuantity();clearAmounts();document.querySelector('#summary-seats').textContent=quantity.value||'—';quantityTimer=setTimeout(render,180);
 });
 quantity.addEventListener('change',()=>{clearTimeout(quantityTimer);render();});
+async function applyCode(){
+ const code=couponInput.value.trim().toUpperCase();couponInput.value=code;
+ if(!/^[A-Z0-9][A-Z0-9-]{5,31}$/.test(code)){couponMessage('Enter a valid coupon code (6–32 letters, numbers or hyphens).',true);couponInput.focus();return;}
+ if(!apiBase){couponMessage('Coupon validation is not available yet. No discount has been applied.',true);return;}
+ const s=selection(),key=JSON.stringify(s),operation=++couponOperation;
+ couponBusy=true;couponApply.disabled=true;couponApply.textContent='Checking…';couponMessage('Checking your coupon…');updateButton();
+ try{
+  const data=await getCouponQuote(s,code);
+  if(operation!==couponOperation)return;
+  if(JSON.stringify(selection())!==key){couponMessage('Your selection changed. Please apply the code again.',true);return;}
+  quoteRevision++;appliedCoupon=code;showQuote(data);couponMessage(code+' applied: '+data.coupon.percent+'% off the plan subtotal.');
+ }catch(e){if(operation===couponOperation)couponMessage(e.message+(appliedCoupon?' '+appliedCoupon+' remains applied.':' No coupon discount has been applied.'),true);}
+ finally{if(operation===couponOperation){couponBusy=false;couponApply.disabled=false;couponApply.textContent='Apply';updateButton();}}
+}
+couponApply.addEventListener('click',applyCode);
+couponInput.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();if(!couponBusy)applyCode();}});
+couponRemove.addEventListener('click',()=>{
+ couponOperation++;couponBusy=false;appliedCoupon='';couponInput.value='';couponApply.disabled=false;couponApply.textContent='Apply';couponRemove.hidden=true;couponMessage('Coupon removed.');render();
+});
 async function init(){
- if(apiBase){try{config=await api('/config');}catch{document.querySelector('#availability').textContent='Subscriptions are temporarily unavailable. Your billing details stay in this browser.';}}
- if(!config.paymentsEnabled){document.querySelector('#availability').textContent='Payments are opening soon. You can review your plan here; billing details will not be sent while checkout is unavailable.';}
- else{
+ let configFailed=false;
+ if(apiBase){try{config=await api('/config');}catch{configFailed=true;document.querySelector('#availability').textContent='Subscriptions are temporarily unavailable. Your billing details stay in this browser.';}}
+ if(!config.paymentsEnabled&&!configFailed)document.querySelector('#availability').textContent='Payments are opening soon. You can review your plan here; billing details will not be sent while checkout is unavailable.';
+ else if(config.paymentsEnabled){
   document.querySelector('#availability').textContent='Review your billing details, then continue to our payment partner to confirm tax and complete your subscription.';
   try{await mountTurnstile('#checkout-verification',config.turnstileSiteKey,token=>{turnstileToken=token;updateButton();},message=>{status.textContent=message;},'checkout');}catch(e){status.textContent=e.message;}
  }
  await render();
 }
 form.addEventListener('submit',async event=>{
- event.preventDefault();
- if(!form.reportValidity())return;
+ event.preventDefault();if(!form.reportValidity())return;
  if(!config.paymentsEnabled){status.textContent='Payments are not open yet. No billing details have been submitted.';return;}
- if(!quote||quote.preview||!turnstileToken){status.textContent='Please refresh your price and complete human verification.';return;}
+ if(!quote||quote.preview||!quote.quoteToken||!turnstileToken||couponBusy){status.textContent='Please refresh your price and complete human verification.';return;}
+ if(quote.expiresAt<=Date.now()){await render();status.textContent='Your price has been refreshed. Review the total, then continue.';return;}
  pay.disabled=true;status.textContent='Preparing secure checkout…';
  try{
   const data=Object.fromEntries(new FormData(form));
-  const result=await api('/checkout',{method:'POST',body:JSON.stringify({billing:data,quoteToken:quote.quoteToken,turnstileToken})});
+  const result=await api('/checkout',{method:'POST',body:JSON.stringify({billing:data,quoteToken:quote.quoteToken,couponCode:appliedCoupon||undefined,turnstileToken})});
   const destination=new URL(result.url);
   if(destination.protocol!=='https:'||!['checkout.stripe.com','www.paypal.com','api.razorpay.com','rzp.io'].includes(destination.hostname))throw new Error('Invalid payment destination. Please contact support.');
   location.assign(destination.href);

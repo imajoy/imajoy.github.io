@@ -1,11 +1,11 @@
 export const apiBase = (window.AJOY_CONFIG?.apiBase || '').replace(/\/$/, '');
-export const money = (amount,currency) => new Intl.NumberFormat(navigator.language || 'en', {style:'currency',currency,maximumFractionDigits:currency==='INR'?0:2}).format(amount/100);
+export const money = (amount,currency) => new Intl.NumberFormat(navigator.language || 'en', {style:'currency',currency,minimumFractionDigits:Number.isInteger(amount/100)?0:2,maximumFractionDigits:2}).format(amount/100);
 export async function api(path, options = {}) {
   if (!apiBase) throw new Error('Checkout is not open yet. Please contact Ajoy for subscription availability.');
-  const response = await fetch(apiBase+path, { ...options, headers:{'Content-Type':'application/json',...options.headers},signal:AbortSignal.timeout(15000)});
+  const response = await fetch(apiBase+path, { ...options, headers:{...(options.body?{'Content-Type':'application/json'}:{}),...options.headers},signal:AbortSignal.timeout(15000)});
   let data;
   try {data = await response.json();}catch{throw new Error('The service is unavailable. Please try again shortly.');}
-  if(!response.ok) throw new Error(data.error || 'The request could not be completed.');
+  if(!response.ok){const error=new Error(data.error || 'The request could not be completed.');error.status=response.status;throw error;}
   return data;
 }
 export function suggestedCountry() {
@@ -18,18 +18,19 @@ export function suggestedCountry() {
 }
 /* Display-only fallback while the server is unavailable. It cannot authorize a charge. */
 export function previewPrice(plan='online',billing='monthly',seats=1,country=suggestedCountry()) {
-  const low=['IN','PK'].includes(country),base=low?699:1999;
-  const c=country==='IN'?'INR':country==='PK'?'PKR':country==='GB'?'GBP':'USD';
-  const rate={INR:1,PKR:3.25,GBP:.0087,USD:.0116}[c];
-  const m=plan==='offline'?2:1;
-  const subtotal=Math.round((billing==='yearly'?Math.max(699,Math.round(base*.8))*12:base)*m*rate*100);
-  return {plan,billing,seats,country,currency:c,unitAmount:subtotal,subtotal:subtotal*seats,preview:true};
+  const low=['IN','PK','BD','NP','LK'].includes(country),middle=['ID','PH','VN','BR','MX','ZA'].includes(country),base=low?899:middle?1299:1999;
+  const local={IN:['INR',1],PK:['PKR',3.25],US:['USD',.0116],GB:['GBP',.0087],CA:['CAD',.0158],AU:['AUD',.0179],AE:['AED',.0426],DE:['EUR',.0106],FR:['EUR',.0106],ES:['EUR',.0106],IT:['EUR',.0106],NL:['EUR',.0106],IE:['EUR',.0106]};
+  const [currency,rate]=local[country]||['USD',.0116],m=plan==='offline'?2:1;
+  const monthlyAmount=Math.round(base*m*rate*100),compareAtUnitAmount=billing==='yearly'?monthlyAmount*12:monthlyAmount;
+  const unitAmount=billing==='yearly'?Math.round(compareAtUnitAmount*.8):monthlyAmount;
+  return {plan,billing,seats,country,currency,unitAmount,subtotal:unitAmount*seats,baseSubtotal:unitAmount*seats,monthlyAmount,compareAtUnitAmount,annualSavings:(compareAtUnitAmount-unitAmount)*seats,annualSavingsPercent:billing==='yearly'?20:0,preview:true};
 }
 export async function getQuote(plan,billing,seats=1,country) {
   const params=new URLSearchParams({plan,billing,seats:String(seats)});
   if(country)params.set('country',country);
   return api('/quote?'+params);
 }
+export function getCouponQuote(selection,code){return api('/coupon',{method:'POST',body:JSON.stringify({...selection,code})});}
 export function mountTurnstile(container,siteKey,onToken,onError,action) {
   return new Promise((resolve,reject)=>{
     let widget;

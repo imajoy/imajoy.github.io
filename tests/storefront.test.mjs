@@ -16,18 +16,18 @@ test('Online monthly tiers respect INR 699–1999; annual monthly equivalent nev
   assert(monthly.unitAmount/(100*rate)<=1999.5);
   assert(annual.unitAmount/(1200*rate)>=698.5);
  }
- assert.equal(priceFor('IN').unitAmount,69900);
- assert.equal(priceFor('IN','online','yearly').unitAmount,838800);
+ assert.equal(priceFor('IN').unitAmount,89900);
+ assert.equal(priceFor('IN','online','yearly').unitAmount,863040);
  assert.equal(priceFor('US').unitAmount,2319);
  assert.equal(priceFor('GB').unitAmount,1739);
 });
 test('Validate plan, interval, country and seat limits',()=>{
  for(const args of [['IN','free'],['IN','online','weekly'],['india'],['IN','online','monthly',0],['IN','online','monthly',101],['IN','online','monthly',1.5]])assert.throws(()=>priceFor(...args));
- assert.equal(priceFor('IN','online','monthly',3).subtotal,209700);
+ assert.equal(priceFor('IN','online','monthly',3).subtotal,269700);
 });
 test('Quote is calculated server-side and ignores a forged client amount',async()=>{
  const response=await handleRequest(req('/quote?country=IN&seats=2&amount=1&currency=USD'),env);
- const result=await response.json();assert.equal(response.status,200);assert.equal(result.subtotal,139800);assert.equal(result.currency,'INR');assert(result.quoteToken.includes('.'));assert(result.expiresAt>Date.now());
+ const result=await response.json();assert.equal(response.status,200);assert.equal(result.subtotal,179800);assert.equal(result.currency,'INR');assert(result.quoteToken.includes('.'));assert(result.expiresAt>Date.now());
 });
 test('Quote can use server-side approximate country lookup',async()=>{
  const request=new Request('https://example.supabase.co/functions/v1/storefront/quote',{headers:{Origin:origin,'x-forwarded-for':'203.0.113.1'}});

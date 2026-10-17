@@ -11,11 +11,8 @@
 <link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=12">
-<link rel="stylesheet" href="css/polish.css?v=4"></head>
+<link rel="stylesheet" href="css/style.css?v=20261017-r7">
+<link rel="stylesheet" href="css/polish.css?v=20261017-r7"><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin></head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
 
@@ -182,7 +179,7 @@
         <p class="sub">Both plans include all thirteen tools and after-sale support. Choose the one that fits how your team works.</p>
         <div class="toggle" role="group" aria-label="Billing period">
           <button type="button" class="on" data-bill="monthly" aria-pressed="true">Monthly</button>
-          <button type="button" data-bill="yearly" aria-pressed="false">Yearly</button>
+          <button type="button" data-bill="yearly" aria-pressed="false">Yearly <span class="annual-badge">Save 20%</span></button>
           <i class="thumb" aria-hidden="true"></i>
         </div>
         <p class="fine" id="pricing-status" role="status"></p>
@@ -193,6 +190,7 @@
           <h3>Online</h3>
           <p class="for">For freelancers and small teams that always want the newest build.</p>
           <p class="price"><span class="amt" data-amt="online">—</span><span class="per" data-per>per computer, per month</span></p>
+          <div class="annual-offer" data-annual="online" hidden><span class="annual-original"></span><b class="annual-saving"></b><small class="annual-equivalent"></small></div>
           <p class="note" data-note="online">Billed monthly. Cancel any time.</p>
           <ul class="ticks">
             <li>All 13 tools</li>
@@ -208,6 +206,7 @@
           <h3>Offline</h3>
           <p class="for">For studios that need Maya to run with no internet connection.</p>
           <p class="price"><span class="amt" data-amt="offline">—</span><span class="per" data-per>per computer, per month</span></p>
+          <div class="annual-offer" data-annual="offline" hidden><span class="annual-original"></span><b class="annual-saving"></b><small class="annual-equivalent"></small></div>
           <p class="note" data-note="offline">Billed monthly. Cancel any time.</p>
           <ul class="ticks">
             <li>All 13 tools</li>
@@ -292,9 +291,9 @@
   </div>
 </footer>
 
-<script src="js/site-config.js?v=2"></script>
-<script src="js/main.js?v=4"></script>
-<script type="module" src="js/pricing.js?v=4"></script>
-<script type="module" src="js/scene.js?v=4"></script>
-<script type="module" src="js/ui-motion.js?v=4"></script></body>
+<script src="js/site-config.js?v=20261017-r7"></script>
+<script src="js/main.js?v=20261017-r7"></script>
+<script type="module" src="js/pricing.js?v=20261017-r7"></script>
+<script type="module" src="js/scene.js?v=20261017-r7"></script>
+<script type="module" src="js/ui-motion.js?v=20261017-r7"></script></body>
 </html>

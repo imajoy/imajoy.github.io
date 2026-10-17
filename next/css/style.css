@@ -1,3 +1,5 @@
+@font-face{font-family:'Geist';font-style:normal;font-weight:100 900;font-display:swap;src:url('../assets/fonts/geist-latin-5.3.0.woff2') format('woff2')}
+@font-face{font-family:'Instrument Serif';font-style:italic;font-weight:400;font-display:swap;src:url('../assets/fonts/instrument-serif-italic-5.3.0.woff2') format('woff2')}
 :root{
   --bg:#E9EDF3;
   --bg2:#F5F7FB;
@@ -31,6 +33,7 @@ html[data-theme=dark]{
   color-scheme:dark;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
 html{-webkit-text-size-adjust:100%}
 html.lenis,html.lenis body{height:auto}
 .lenis.lenis-smooth{scroll-behavior:auto!important}

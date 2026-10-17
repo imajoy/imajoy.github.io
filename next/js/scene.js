@@ -12,7 +12,7 @@ import * as THREE from './vendor/three.module.min.js';
   try {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   } catch (e) { canvas.style.display = 'none'; return; }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 600 ? 1.25 : 1.5));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
@@ -24,7 +24,7 @@ import * as THREE from './vendor/three.module.min.js';
   var sun = new THREE.DirectionalLight(0xffffff, 0.85);
   sun.position.set(4, 9, 7);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(window.innerWidth < 600 ? 512 : 1024, window.innerWidth < 600 ? 512 : 1024);
   var sc = sun.shadow.camera; sc.left = -9; sc.right = 9; sc.top = 9; sc.bottom = -9; sc.near = 1; sc.far = 30;
   sun.shadow.bias = -0.0004;
   scene.add(sun);

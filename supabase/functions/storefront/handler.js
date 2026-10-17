@@ -1,4 +1,5 @@
 import {priceFor,validCountry} from '../_shared/catalog.js';
+import {applyCoupon} from '../_shared/coupons.js';
 const defaultEnv = name => globalThis.Deno?.env.get(name);
 const encode = bytes => btoa(String.fromCharCode(...bytes)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
 async function sign(data,secret){
@@ -46,6 +47,19 @@ export async function handleRequest(req,env=defaultEnv,request=fetch){
    // Until a merchant integration is explicitly configured, do not parse or
    // retain billing information, create orders, or claim that a payment worked.
    if(path==='/checkout')return json({error:'Payments are not open yet. No order or charge has been created.'},503);
+   if(path==='/coupon'){
+    const raw=await req.text();if(raw.length>2048)return json({error:'Request is too large.'},413);
+    let body;try{body=JSON.parse(raw);}catch{return json({error:'Invalid request.'},400);}
+    let registry;try{registry=JSON.parse(env('COUPONS_JSON')||'{}');}catch{return json({error:'Coupon validation is temporarily unavailable.'},503);}
+    if(!registry||Array.isArray(registry)||typeof registry!=='object')return json({error:'Coupon validation is temporarily unavailable.'},503);
+    let quote;
+    try{
+     quote=priceFor(body.country,body.plan,body.billing,body.seats);
+     quote=await applyCoupon(quote,body.code,registry);
+    }catch(e){return json({error:e.message||'This coupon could not be applied.'},400);}
+    if(env('QUOTE_SIGNING_SECRET'))quote.quoteToken=await sign(quote,env('QUOTE_SIGNING_SECRET'));
+    return json(quote);
+   }
    if(path!=='/download')return json({error:'Not found.'},404);
    const raw=await req.text();if(raw.length>8192)return json({error:'Request is too large.'},413);
    let body;try{body=JSON.parse(raw);}catch{return json({error:'Invalid request.'},400);}

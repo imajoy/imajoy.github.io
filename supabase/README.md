@@ -32,7 +32,7 @@ Normal `/next/` download links now open verification. **The installer remains pu
 
 ## Pricing
 
-Server catalog: `functions/_shared/catalog.js`. Prices are per computer. Online monthly tiers are INR 699 (IN/PK/BD/NP/LK), 1299 (selected middle markets), and 1999 (other markets). Annual discounts are capped so the monthly equivalent never drops below INR 699. Offline is provisionally 2× Online, matching the existing two-plan relationship; confirm this business rule before accepting money.
+Server catalog: `functions/_shared/catalog.js`. Prices are per computer. Online monthly tiers are INR 899 (IN/PK/BD/NP/LK), 1299 (selected middle markets), and 1999 (other markets). Annual billing gives 20% off twelve monthly charges; the lowest-region Online annual total is INR 8,630.40 (INR 719.20/month), above the INR 699 floor. Offline is provisionally 2× Online, matching the existing two-plan relationship; confirm this business rule before accepting money.
 
 Local currencies use explicit **reference conversion factors**, not live FX. Review the factors before merchant activation. Approximate IP country uses `api.country.is` (IP is disclosed to that geolocation service); billing country confirms the quote. IP location is an estimate and may be affected by VPNs. Do not trust a browser amount, a user-provided country, or forwarding headers as final payment authorization. All displayed subtotals exclude tax. Do not advertise a tax-inclusive total before the payment processor computes it.
 
@@ -50,4 +50,10 @@ Only after provider sandbox end-to-end validation should `/config` advertise `pa
 
 ## Validation
 
-`node --test tests/storefront.test.mjs` exercises regional price bounds, forged amounts, seats, CORS, disabled checkout, and successful/failed/expired/incorrect-host human checks with mocked external services. Browser tests must distinguish mocked success flows from a real Supabase/Turnstile deployment.
+`node --test tests/*.test.mjs` exercises regional price bounds, forged amounts, seats, CORS, disabled checkout, and successful/failed/expired/incorrect-host human checks with mocked external services. Browser tests must distinguish mocked success flows from a real Supabase/Turnstile deployment.
+
+## Coupon validation
+
+`POST /coupon` calculates the order on the server and checks a hashed coupon allowlist from the server-only `COUPONS_JSON` setting. It validates expiry, plan, billing, countries, optional computer count limit, and the minimum price. One coupon can apply to a new quote; it is revalidated when the selection changes. There is no public coupon-generation or administration endpoint, and no active codes or registry are bundled in the frontend. Invalid or unavailable validation never produces a pretend discount.
+
+The future merchant integration must revalidate the coupon and current pricing before creating checkout, and include verified discounts in payment/invoice data. Usage-count or one-time-use campaigns require an atomic database redemption ledger; the current allowlist does not promise usage caps. Deploy the updated storefront function before activating codes.

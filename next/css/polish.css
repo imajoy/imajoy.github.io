@@ -102,3 +102,15 @@ html[data-ui-paused] :is(.commerce-main h1,.commerce-intro,.checkout-progress,.c
 .quantity-control button:disabled{opacity:.4;cursor:not-allowed}.quantity-control input{text-align:center;font-weight:600;appearance:textfield}
 .quantity-control input::-webkit-inner-spin-button,.quantity-control input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
 html[data-theme=dark] .quantity-control button{border-color:#627393}
+.annual-badge{display:inline-flex;align-items:center;padding:4px 8px;margin-left:5px;border-radius:999px;background:#dcebe5;color:#22543c;font-size:.625rem;line-height:1.4;font-weight:600;white-space:nowrap}
+html[data-theme=dark] .annual-badge{background:#214438;color:#c8f0db}
+.annual-offer{display:flex;flex-direction:column;align-items:flex-start;gap:7px;margin:8px 0 18px;font-size:.75rem;line-height:1.6}
+.annual-original{color:var(--mute);text-decoration:line-through;text-decoration-thickness:1px}.plan-lead .annual-original{color:#bac7e2}
+.annual-saving{display:inline-block;padding:6px 12px;border:1px solid #65987a44;border-radius:999px;background:#e4f1e9;color:#24593d;font-weight:600;font-size:.6875rem}
+.plan-lead .annual-saving{background:#254b3b;color:#d9f5e2;border-color:#73a98666}.annual-equivalent{font-size:.6875rem;color:var(--mute)}.plan-lead .annual-equivalent{color:#bac7e2}
+.annual-summary{padding:13px 16px;border:1px solid #82ae9344;border-radius:16px;background:#e6f1e9;color:#24593d;font-size:.75rem;line-height:1.8;margin-bottom:14px}
+.discount-line dd{color:#24593d;font-weight:500}.discount-line dt span{display:inline-block;border-radius:999px;background:#e6f1e9;color:#24593d;padding:2px 7px;font-size:.625rem;margin-left:5px}
+html[data-theme=dark] .annual-summary,html[data-theme=dark] .discount-line dt span{background:#193d2c;color:#caf0da}html[data-theme=dark] .discount-line dd{color:#b4e3ca}
+.coupon-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}.coupon-entry .btn{height:52px;padding-inline:22px;font-size:.8125rem;border-radius:15px;box-shadow:none;border-color:#7c8ca4}.coupon-entry input{text-transform:uppercase}.coupon-panel .form-field{margin-bottom:10px}.coupon-panel .text-link{border:0;background:none;font:500 .75rem var(--sans);padding:0;color:var(--blue-d);cursor:pointer;margin-top:8px;text-decoration:underline;text-underline-offset:3px}
+#coupon-status[data-error=true]{color:var(--commerce-error)}.coupon-entry .btn:disabled{cursor:wait;opacity:.7}
+@media(max-width:520px){.annual-badge{font-size:.5625rem;margin-left:3px;padding:3px 6px}.coupon-entry{gap:8px}.coupon-entry .btn{padding-inline:16px}.annual-summary{font-size:.6875rem}}

@@ -68,7 +68,7 @@ if(form){
 }
 
 /* Reveal once on entry, then finish on a clock instead of scroll distance. */
-const candidates=[...document.querySelectorAll('.reveal,main .head,.inst-copy,.checkout-form fieldset,.faq details')];
+const candidates=[...document.querySelectorAll('.reveal,main .head,.inst-copy,.faq details')];
 let revealObserver;
 if('IntersectionObserver' in window){
  revealObserver=new IntersectionObserver(entries=>{

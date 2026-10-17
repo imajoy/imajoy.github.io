@@ -65,6 +65,24 @@ html[data-theme=dark] .commerce-page{background:radial-gradient(ellipse at 85% 1
 .checkout-grid{grid-template-columns:1.1fr .85fr;gap:34px;margin-top:38px;align-items:start}
 .checkout-form{max-width:none;min-width:0}.checkout-form fieldset{padding:26px 30px 12px;border:1px solid var(--t09);border-radius:28px;background:var(--card);box-shadow:var(--soft-shadow);margin-bottom:30px;min-width:0;transition:box-shadow .5s,border-color .5s}
 .checkout-form fieldset:focus-within{border-color:#86aff6;box-shadow:0 0 0 4px #3d8bff08,0 18px 50px #2432530c}
+/* Payment panels open downward; fields lift in separately as they enter view. */
+@media(prefers-reduced-motion:no-preference){
+ .checkout-motion .checkout-form{animation:none}
+ .checkout-motion .checkout-form fieldset:not([data-panel-revealed]){clip-path:inset(0 0 calc(100% - 50px) round 28px)}
+ .checkout-motion .checkout-form fieldset[data-panel-revealed]{animation:billing-unfold .8s var(--ease-soft) backwards}
+ .checkout-motion .checkout-form .form-field:not([data-field-revealed]){opacity:0;translate:0 12px}
+ .checkout-motion .checkout-form .form-field[data-field-revealed]{animation:billing-field-in .48s var(--ease-soft) var(--field-delay,180ms) backwards}
+ @keyframes billing-unfold{
+  from{clip-path:inset(0 0 calc(100% - 50px) round 28px)}
+  to{clip-path:inset(-8px -8px -12px round 28px)}
+ }
+ @keyframes billing-field-in{
+  from{opacity:0;translate:0 12px}
+  to{opacity:1;translate:0 0}
+ }
+}
+.checkout-motion .checkout-form fieldset:is(:focus-within,[data-motion-complete]){clip-path:none!important;animation:none!important}
+.checkout-motion .checkout-form fieldset:is(:focus-within,[data-motion-complete]) .form-field{opacity:1!important;translate:none!important;animation:none!important}
 .checkout-form legend{font-weight:600;padding:8px 15px;border:1px solid var(--t09);border-radius:999px;background:var(--card);font-size:.9375rem;margin:0 0 0 -7px;box-shadow:0 3px 7px #24325304}
 .form-field{margin-bottom:22px}.form-field label{font-weight:500;font-size:.8125rem;margin-bottom:8px}.form-field input,.form-field select,.form-field textarea{border-radius:15px;padding:13px 16px;border:1px solid #7c8ca4;background:var(--bg2);min-height:52px;transition:border-color .3s,background-color .3s,box-shadow .4s}
 .form-field input:focus,.form-field select:focus,.form-field textarea:focus{border-color:var(--blue);background:var(--card);box-shadow:0 0 0 4px #3d8bff12;outline:2px solid transparent}

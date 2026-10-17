@@ -66,8 +66,8 @@ em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.0
 
 @media(min-width:981px){
   .hero{display:flex;align-items:center;min-height:max(100svh,700px)}
-  .hero-copy{text-align:left;padding:90px 0 40px;margin:0 0 0 max(5vw,calc((100vw - 1240px)/2));max-width:600px}
-  .hero h1{font-size:clamp(44px,5.2vw,80px)}
+  .hero-copy{text-align:left;padding:90px 0 40px;margin:0 0 0 max(5vw,calc((100vw - 1240px)/2));max-width:660px}
+  .hero h1{font-size:clamp(42px,4.7vw,74px)}
   .lead{margin-left:0}
   .actions{justify-content:flex-start}
   .hero-fine{text-align:left;left:max(5vw,calc((100vw - 1240px)/2))}

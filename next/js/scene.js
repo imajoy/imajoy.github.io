@@ -34,7 +34,7 @@
   function shadowed(o) { o.traverse(function (n) { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } }); return o; }
 
   /* ---------- floor + platform ---------- */
-  var floor = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.ShadowMaterial({ opacity: 0.16 }));
+  var floor = new THREE.Mesh(new THREE.PlaneGeometry(60, 60), new THREE.ShadowMaterial({ opacity: 0.08 }));
   floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
 
   var stage = new THREE.Group(); scene.add(stage);
@@ -244,8 +244,8 @@
     narrow = aspect < 1.1;
     var split = !narrow && w > 980;
     var halfW = narrow ? 3.4 : (split ? 5.2 : 5.6);
-    var dist = Math.max(11, halfW / (tanH * aspect * (split ? 0.56 : 1)));
-    if (split) camera.setViewOffset(w, h, -w * 0.22, 0, w, h); else camera.clearViewOffset();
+    var dist = Math.max(11, halfW / (tanH * aspect * (split ? 0.66 : 1)));
+    if (split) camera.setViewOffset(w, h, -w * 0.17, 0, w, h); else camera.clearViewOffset();
     var visH = 2 * dist * tanH;
     var feet = 0.36;
     var centerY = feet + (narrow ? 0.40 : 0.42) * visH;

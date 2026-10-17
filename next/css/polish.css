@@ -5,17 +5,19 @@ body{background-image:radial-gradient(ellipse at 0% 35%,#b7cfff12,transparent 45
 .pillbar{box-shadow:0 5px 10px #23314e04,0 18px 46px #23314e0d;border-color:var(--pillbd);transition:box-shadow .5s var(--ease-soft)}
 /* Open the shell from its centre, then reveal controls without stretching text. */
 @media(prefers-reduced-motion:no-preference){
-  .pillbar{animation:pill-open .72s var(--ease-soft) backwards}
-  .pillbar>:is(.brand,.theme,.btn),.pillbar .nav a{animation:pill-content .42s var(--ease-soft) backwards;animation-delay:var(--pill-delay,.42s)}
-  .pillbar .nav a:nth-child(1){--pill-delay:.48s}
-  .pillbar .nav a:nth-child(2){--pill-delay:.53s}
-  .pillbar .nav a:nth-child(3){--pill-delay:.58s}
-  .pillbar .nav a:nth-child(4){--pill-delay:.63s}
-  .pillbar>.theme{--pill-delay:.68s}
-  .pillbar>.btn{--pill-delay:.73s}
+  html.pill-pending .pillbar{clip-path:inset(0 calc(50% - 28px) round 999px)}
+  html.pill-pending .pillbar>:is(.brand,.theme,.btn),html.pill-pending .pillbar .nav a{opacity:0}
+  html.pill-entering .pillbar{animation:pill-open 1.05s cubic-bezier(.65,0,.25,1) backwards}
+  html.pill-entering .pillbar>:is(.brand,.theme,.btn),html.pill-entering .pillbar .nav a{animation:pill-content .5s var(--ease-soft) backwards;animation-delay:var(--pill-delay,.82s)}
+  .pillbar .nav a:nth-child(1){--pill-delay:.88s}
+  .pillbar .nav a:nth-child(2){--pill-delay:.94s}
+  .pillbar .nav a:nth-child(3){--pill-delay:1s}
+  .pillbar .nav a:nth-child(4){--pill-delay:1.06s}
+  .pillbar>.theme{--pill-delay:1.12s}
+  .pillbar>.btn{--pill-delay:1.18s}
   @media(max-width:980px){
-    .pillbar>.theme{--pill-delay:.49s}
-    .pillbar>.btn{--pill-delay:.56s}
+    .pillbar>.theme{--pill-delay:.9s}
+    .pillbar>.btn{--pill-delay:.98s}
   }
 }
 @keyframes pill-open{
@@ -28,9 +30,9 @@ body{background-image:radial-gradient(ellipse at 0% 35%,#b7cfff12,transparent 45
   to{opacity:1;translate:0 0;filter:blur(0)}
 }
 /* Keyboard access and a changed device preference reveal everything immediately. */
-.pillbar:focus-within,html[data-ui-paused] .pillbar{animation:none!important;clip-path:none}
+.pillbar:focus-within,html[data-ui-paused] .pillbar{animation:none!important;clip-path:none!important}
 .pillbar:focus-within>:is(.brand,.theme,.btn),.pillbar:focus-within .nav a,
-html[data-ui-paused] .pillbar>:is(.brand,.theme,.btn),html[data-ui-paused] .pillbar .nav a{animation:none!important;opacity:1;translate:none;filter:none}
+html[data-ui-paused] .pillbar>:is(.brand,.theme,.btn),html[data-ui-paused] .pillbar .nav a{animation:none!important;opacity:1!important;translate:none;filter:none}
 .nav a{position:relative;transition:background-color .3s,color .3s}
 .btn{transition:background-color .3s,box-shadow .45s var(--ease-soft),transform .45s var(--ease-soft),border-color .3s}
 .btn:hover{transform:translateY(-3px)}.btn:active{transform:translateY(0) scale(.98)}

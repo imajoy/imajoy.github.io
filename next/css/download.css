@@ -1,0 +1,59 @@
+/* Download page: the file packs itself into a tile, then flips to a check. */
+.dl2{max-width:620px;margin:40px auto 70px;padding:0 24px;text-align:center}
+.dl2 h1{font-size:clamp(2.2rem,5vw,3.4rem);letter-spacing:-.05em;line-height:1.05;margin:6px 0 14px;transition:opacity .3s}
+.dl2 .sub{color:var(--mute);margin-bottom:30px;font-size:1.0625rem}
+.dl-stage{position:relative;width:260px;height:260px;margin:0 auto;display:grid;place-items:center}
+.dl-ring{position:absolute;inset:0;width:100%;height:100%;transform:rotate(-90deg)}
+.dl-track{fill:none;stroke:var(--line);stroke-width:2.5}
+.dl-prog{fill:none;stroke:var(--blue);stroke-width:4;stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset .4s}
+.dl-tile{position:relative;width:112px;height:112px;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.16,1,.3,1);animation:tileidle 5s ease-in-out infinite}
+@keyframes tileidle{50%{translate:0 -8px}}
+.dl-face{position:absolute;inset:0;border-radius:30px;display:grid;place-items:center;backface-visibility:hidden;-webkit-backface-visibility:hidden;box-shadow:0 26px 50px rgba(61,139,255,.35),inset 0 2px 0 rgba(255,255,255,.5),inset 0 -6px 14px rgba(0,0,0,.12)}
+.dl-front{background:linear-gradient(145deg,#6DAAFF,#2A64E8)}
+.dl-back{background:linear-gradient(145deg,#5BDCD4,#2FB5AE);transform:rotateY(180deg)}
+.dl-face svg{width:52px;height:52px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.dl-wave{position:absolute;left:50%;top:50%;width:112px;height:112px;margin:-56px 0 0 -56px;border-radius:30px;border:2px solid var(--blue);opacity:0;pointer-events:none}
+.dl-bits i,.dl-burst i{position:absolute;left:50%;top:50%;width:11px;height:11px;margin:-5px;border-radius:3px;background:var(--c);opacity:0;pointer-events:none}
+.dl-bits,.dl-burst{position:absolute;inset:0;pointer-events:none}
+
+/* working: pieces stream into the tile, tile squashes with each landing */
+[data-state=working] .dl-prog{animation:dlfill 2.6s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes dlfill{to{stroke-dashoffset:0}}
+[data-state=working] .dl-bits i{animation:dlbit 1s var(--d) cubic-bezier(.5,0,.8,.4) infinite}
+@keyframes dlbit{0%{opacity:0;transform:translate(var(--x),var(--y)) rotate(0) scale(1)}15%{opacity:1}85%{opacity:1}100%{opacity:0;transform:translate(0,0) rotate(240deg) scale(.3)}}
+[data-state=working] .dl-tile{animation:dlsquash .5s ease-in-out infinite}
+@keyframes dlsquash{0%,100%{transform:scale(1,1)}50%{transform:scale(1.06,.94)}}
+/* done: flip to the check, shockwave, confetti */
+[data-state=done] .dl-tile{animation:none;transform:rotateY(180deg)}
+[data-state=done] .dl-prog{stroke-dashoffset:0;stroke:#2FB5AE}
+[data-state=done] .dl-wave.w1{animation:dlwave 1.1s .1s ease-out}
+[data-state=done] .dl-wave.w2{animation:dlwave 1.1s .3s ease-out}
+@keyframes dlwave{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(3.2)}}
+[data-state=done] .dl-burst i{animation:dlburst 1.2s .15s cubic-bezier(.16,1,.3,1) forwards}
+@keyframes dlburst{0%{opacity:1;transform:translate(0,0) rotate(0) scale(1)}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(320deg) scale(.6)}}
+
+/* card + panels */
+.dl-card{text-align:left;padding:26px}
+.dl-panel{display:none;margin-top:20px}
+[data-state=idle] .p-idle,[data-state=email] .p-email,[data-state=working] .p-work,[data-state=done] .p-done{display:block;animation:dlin .55s cubic-bezier(.16,1,.3,1)}
+@keyframes dlin{from{opacity:0;transform:translateY(14px)}}
+.p-email label{display:block;font-weight:600;margin-bottom:8px}
+.p-email input{width:100%;height:54px;padding:0 20px;border-radius:999px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font:500 16px var(--sans);transition:border-color .25s,box-shadow .25s}
+.p-email input:focus{outline:0;border-color:var(--blue);box-shadow:0 0 0 4px rgba(61,139,255,.2)}
+.dl-hint{margin:10px 6px 18px;font-size:14px;color:var(--mute);transition:color .25s}
+[data-invalid] .dl-hint{color:var(--commerce-error,#a42e22)}
+[data-invalid] .p-email input{border-color:var(--commerce-error,#a42e22)}
+.shake{animation:dlshake .45s}
+@keyframes dlshake{20%{transform:translateX(-8px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(3px)}}
+.dl-row{display:flex;gap:12px;flex-wrap:wrap}.dl-row .btn{flex:1 1 150px}
+.p-work p,.p-done p{margin:0 0 14px;color:var(--mute)}
+.p-done code{font:600 .92em ui-monospace,Consolas,monospace;color:var(--ink);background:var(--bg);padding:2px 8px;border-radius:8px}
+.p-done .dl-count{color:var(--ink);font-weight:500}.dl-count b{display:inline-block;min-width:1ch;font-variant-numeric:tabular-nums;color:var(--blue-d)}
+.dl-bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-bottom:18px}
+.dl-bar i{display:block;height:100%;width:0;border-radius:3px;background:linear-gradient(90deg,var(--blue),#8DBBFF,var(--coral))}
+[data-state=working] .dl-bar i{animation:dlfillbar 2.6s cubic-bezier(.5,0,.3,1) forwards}
+@keyframes dlfillbar{to{width:100%}}
+.dl-bar-count i{width:100%;transform-origin:0 50%}
+[data-state=done] .dl-bar-count i{animation:dlcount 3s linear forwards}
+@keyframes dlcount{to{transform:scaleX(0)}}
+@media(prefers-reduced-motion:reduce){.dl-tile{animation:none}[data-state=working] .dl-bits i{animation:none}.dl-panel{animation:none!important}[data-state=working] .dl-prog{animation-duration:.6s}[data-state=working] .dl-bar i{animation-duration:.6s}}

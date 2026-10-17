@@ -38,8 +38,3 @@ for(const control of document.querySelectorAll('[data-card-yearly]'))control.add
  chooseBilling('yearly');toggle.querySelector('[data-bill="yearly"]').focus({preventScroll:true});
 });
 render();
-/* Only the main Install-section CTA opens the verified download page. */
-for(const link of document.querySelectorAll('#download-setup'))link.addEventListener('click',event=>{
- if(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||event.button!==0)return;
- const popup=window.open(link.href,'ajoy-download');if(popup){popup.opener=null;event.preventDefault();}
-});

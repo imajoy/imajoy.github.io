@@ -1,4 +1,4 @@
-import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261017-r7';
+import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261017-r16';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0;
 function chooseBilling(value){

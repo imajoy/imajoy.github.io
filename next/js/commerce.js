@@ -25,17 +25,17 @@ export function previewPrice(plan='online',billing='monthly',seats=1,country=sug
   const unitAmount=billing==='yearly'?Math.round(compareAtUnitAmount*.8):monthlyAmount;
   return {plan,billing,seats,country,currency,unitAmount,subtotal:unitAmount*seats,baseSubtotal:unitAmount*seats,monthlyAmount,compareAtUnitAmount,annualSavings:(compareAtUnitAmount-unitAmount)*seats,annualSavingsPercent:billing==='yearly'?20:0,preview:true};
 }
-export async function getQuote(plan,billing,seats=1,country) {
+export async function getQuote(plan,billing,seats=1,country,headers={}) {
   const params=new URLSearchParams({plan,billing,seats:String(seats)});
   if(country)params.set('country',country);
-  return api('/quote?'+params);
+  return api('/quote?'+params,{headers});
 }
-export function getCouponQuote(selection,code){return api('/coupon',{method:'POST',body:JSON.stringify({...selection,code})});}
-export function mountTurnstile(container,siteKey,onToken,onError,action) {
+export function getCouponQuote(selection,code,headers={}){return api('/coupon',{method:'POST',headers,body:JSON.stringify({...selection,code})});}
+export function mountTurnstile(container,siteKey,onToken,onError,action,size='normal') {
   return new Promise((resolve,reject)=>{
     let widget;
     const render=()=>{
-      try {widget=window.turnstile.render(container,{sitekey:siteKey,action,theme:'auto',callback:onToken,'expired-callback':()=>onToken(''),'error-callback':()=>{onToken('');onError('Verification could not load. Please retry.');}});resolve(widget);}catch(e){reject(e);}
+      try {widget=window.turnstile.render(container,{sitekey:siteKey,action,size,theme:'auto',callback:onToken,'expired-callback':()=>onToken(''),'error-callback':()=>{onToken('');onError('Verification could not load. Please retry.');}});resolve(widget);}catch(e){reject(e);}
     };
     if(window.turnstile){render();return;}
     const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.onload=render;script.onerror=()=>reject(new Error('Human verification could not load. Please check your connection.'));document.head.append(script);

@@ -4,6 +4,7 @@ export async function couponHash(code){
  return [...new Uint8Array(bytes)].map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 export async function applyCoupon(quote,rawCode,registry,now=Date.now()){
+ if(quote.loyalty?.discountAmount>0)throw new Error('Coupons and loyalty rewards do not stack.');
  if(quote.coupon)throw new Error('Only one coupon can be applied per order.');
  const code=normalizeCoupon(rawCode);
  if(!/^[A-Z0-9][A-Z0-9-]{5,31}$/.test(code))throw new Error('Enter a valid coupon code.');

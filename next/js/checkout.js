@@ -1,4 +1,5 @@
-import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry,mountTurnstile} from './commerce.js?v=20261017-r7';
+import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry,mountTurnstile} from './commerce.js?v=20261017-r16';
+import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261017-r16';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
 const params=new URLSearchParams(location.search);
 form.elements.plan.value=['online','offline'].includes(params.get('plan'))?params.get('plan'):'online';
@@ -18,13 +19,14 @@ function clearAmounts(){
  for(const id of ['summary-total','summary-subtotal','summary-unit'])document.getElementById(id).textContent='—';
  for(const id of ['annual-summary-row','coupon-summary-row','annual-summary'])document.getElementById(id).hidden=true;
  document.querySelector('#yearly-upsell').hidden=true;
+ document.querySelector('#loyalty-summary-row').hidden=true;document.querySelector('#loyalty-summary').hidden=true;
 }
 for(const [button,step] of [[less,-1],[more,1]])button.addEventListener('click',()=>{
  const current=Number(quantity.value);quantity.value=String(quantity.value!==''&&quantity.validity.valid?Math.min(100,Math.max(1,current+step)):1);
  quantity.dispatchEvent(new Event('input',{bubbles:true}));quantity.dispatchEvent(new Event('change',{bubbles:true}));
 });
 function selection(){return {plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(quantity.value),country:form.elements.country.value};}
-function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!quote.quoteToken||!turnstileToken||couponBusy;pay.textContent=!config.paymentsEnabled?'Payments opening soon':'Continue to secure payment';}
+function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!quote.quoteToken||!turnstileToken||couponBusy||Boolean(quote?.customerId&&!customerVerified());pay.textContent=!config.paymentsEnabled?'Payments opening soon':'Continue to secure payment';}
 function showQuote(data){
  quote=data;
  const upsell=document.querySelector('#yearly-upsell');
@@ -48,6 +50,15 @@ function showQuote(data){
  document.querySelector('#coupon-summary-row').hidden=!data.coupon;
  if(data.coupon)document.querySelector('#summary-coupon').textContent='−'+money(data.coupon.discountAmount,data.currency);
  couponRemove.hidden=!appliedCoupon;
+ const loyalty=data.loyalty;
+ document.querySelector('#loyalty-summary-row').hidden=!loyalty?.discountAmount;
+ document.querySelector('#loyalty-summary').hidden=!loyalty?.discountAmount;
+ if(loyalty?.discountAmount){
+  document.querySelector('#summary-loyalty').textContent='−'+money(loyalty.discountAmount,data.currency);
+  document.querySelector('#loyalty-percent').textContent=loyalty.percent+'%';
+  document.querySelector('#loyalty-summary').textContent='One-time '+loyalty.percent+'% loyalty reward applied to your '+(data.billing==='yearly'?'first yearly renewal':'monthly payment '+loyalty.nextPayment)+'. '+(data.billing==='yearly'?'This is additional to the 20% yearly saving. ':'')+'Rewards and coupons do not stack.';
+ }
+ showCustomerReward(data);
  document.querySelector('#quote-note').textContent=data.preview?'Estimated subtotal. The final total and applicable tax will be shown before payment.':'Price confirmed for your billing country. Any applicable tax will be shown before payment.';
  status.textContent='';updateButton();
 }
@@ -62,15 +73,15 @@ async function render(){
  try{
   let data;
   if(appliedCoupon){
-   try{data=await getCouponQuote(s,appliedCoupon);}catch(e){
+   try{data=await getCouponQuote(s,appliedCoupon,customerHeaders());}catch(e){
     if(r!==quoteRevision)return;
     if(e.status!==400)throw e;
     appliedCoupon='';couponRemove.hidden=true;couponMessage(e.message+' No coupon discount is applied.',true);
    }
   }
-  if(!data)data=apiBase?await getQuote(s.plan,s.billing,s.seats,s.country):previewPrice(s.plan,s.billing,s.seats,s.country);
+  if(!data)data=apiBase?await getQuote(s.plan,s.billing,s.seats,s.country,customerHeaders()):previewPrice(s.plan,s.billing,s.seats,s.country);
   if(r!==quoteRevision)return;showQuote(data);
- }catch(e){if(r!==quoteRevision)return;clearAmounts();status.textContent=e.message;}
+ }catch(e){if(r!==quoteRevision)return;if(e.status===401&&customerVerified()){clearCustomer('Your verification expired. Verify your email again.');return;}clearAmounts();showCustomerError();status.textContent=e.message;}
 }
 for(const name of ['plan','billing','country'])form.elements[name].addEventListener('change',render);
 quantity.addEventListener('input',()=>{
@@ -81,13 +92,13 @@ async function applyCode(){
  const code=couponInput.value.trim().toUpperCase();couponInput.value=code;
  if(!/^[A-Z0-9][A-Z0-9-]{5,31}$/.test(code)){couponMessage('Enter a valid coupon code (6–32 letters, numbers or hyphens).',true);couponInput.focus();return;}
  if(!apiBase){couponMessage('Coupon validation is not available yet. No discount has been applied.',true);return;}
- const s=selection(),key=JSON.stringify(s),operation=++couponOperation;
+ const s=selection(),key=JSON.stringify(s),identity=customerVersion(),operation=++couponOperation;
  couponBusy=true;couponApply.disabled=true;couponApply.textContent='Checking…';couponMessage('Checking your coupon…');updateButton();
  try{
-  const data=await getCouponQuote(s,code);
+  const data=await getCouponQuote(s,code,customerHeaders());
   if(operation!==couponOperation)return;
-  if(JSON.stringify(selection())!==key){couponMessage('Your selection changed. Please apply the code again.',true);return;}
-  quoteRevision++;appliedCoupon=code;showQuote(data);couponMessage(code+' applied: '+data.coupon.percent+'% off the plan subtotal.');
+  if(JSON.stringify(selection())!==key||identity!==customerVersion()){couponMessage('Your selection changed. Please apply the code again.',true);return;}
+  quoteRevision++;appliedCoupon=data.coupon?code:'';showQuote(data);couponMessage(data.promotionMessage||(code+' applied: '+data.coupon.percent+'% off the plan subtotal.'));
  }catch(e){if(operation===couponOperation)couponMessage(e.message+(appliedCoupon?' '+appliedCoupon+' remains applied.':' No coupon discount has been applied.'),true);}
  finally{if(operation===couponOperation){couponBusy=false;couponApply.disabled=false;couponApply.textContent='Apply';updateButton();}}
 }
@@ -99,11 +110,14 @@ couponRemove.addEventListener('click',()=>{
 async function init(){
  let configFailed=false;
  if(apiBase){try{config=await api('/config');}catch{configFailed=true;document.querySelector('#availability').textContent='Subscriptions are temporarily unavailable. Your billing details stay in this browser.';}}
- if(!config.paymentsEnabled&&!configFailed)document.querySelector('#availability').textContent='Payments are opening soon. You can review your plan here; billing details will not be sent while checkout is unavailable.';
+ if(!config.paymentsEnabled&&!configFailed)document.querySelector('#availability').textContent='Payments are opening soon. You can review your plan and available rewards; no order or charge will be created.';
  else if(config.paymentsEnabled){
   document.querySelector('#availability').textContent='Review your billing details, then continue to our payment partner to confirm tax and complete your subscription.';
   try{await mountTurnstile('#checkout-verification',config.turnstileSiteKey,token=>{turnstileToken=token;updateButton();},message=>{status.textContent=message;},'checkout');}catch(e){status.textContent=e.message;}
  }
+ initializeCustomerVerification(config.loyalty,()=>{
+  couponOperation++;couponBusy=false;appliedCoupon='';couponApply.disabled=false;couponApply.textContent='Apply';couponRemove.hidden=true;couponMessage('Enter your code to check eligibility.');render();
+ });
  await render();
 }
 form.addEventListener('submit',async event=>{
@@ -114,7 +128,7 @@ form.addEventListener('submit',async event=>{
  pay.disabled=true;status.textContent='Preparing secure checkout…';
  try{
   const data=Object.fromEntries(new FormData(form));
-  const result=await api('/checkout',{method:'POST',body:JSON.stringify({billing:data,quoteToken:quote.quoteToken,couponCode:appliedCoupon||undefined,turnstileToken})});
+  const result=await api('/checkout',{method:'POST',headers:customerHeaders(),body:JSON.stringify({billing:data,quoteToken:quote.quoteToken,couponCode:appliedCoupon||undefined,turnstileToken})});
   const destination=new URL(result.url);
   if(destination.protocol!=='https:'||!['checkout.stripe.com','www.paypal.com','api.razorpay.com','rzp.io'].includes(destination.hostname))throw new Error('Invalid payment destination. Please contact support.');
   location.assign(destination.href);

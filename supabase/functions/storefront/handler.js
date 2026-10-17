@@ -1,5 +1,7 @@
 import {priceFor,validCountry} from '../_shared/catalog.js';
 import {applyCoupon} from '../_shared/coupons.js';
+import {loyaltyEnabled,verifiedCustomer,customerHistory,linkCustomerHistory} from '../_shared/customer.js';
+import {applyLoyalty,betterPromotion} from '../_shared/loyalty.js';
 const defaultEnv = name => globalThis.Deno?.env.get(name);
 const encode = bytes => btoa(String.fromCharCode(...bytes)).replaceAll('+','-').replaceAll('/','_').replace(/=+$/,'');
 async function sign(data,secret){
@@ -24,19 +26,24 @@ async function countryFromRequest(req,env,request){
 export async function handleRequest(req,env=defaultEnv,request=fetch){
  const origins=(env('ALLOWED_ORIGINS')||'https://imajoy.github.io').split(',').map(s=>s.trim());
  const origin=req.headers.get('origin');
- const cors={'Access-Control-Allow-Origin':origin&&origins.includes(origin)?origin:origins[0],'Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'content-type','Access-Control-Max-Age':'600','Vary':'Origin','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
+ const cors={'Access-Control-Allow-Origin':origin&&origins.includes(origin)?origin:origins[0],'Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'content-type, authorization','Access-Control-Max-Age':'600','Vary':'Origin','Cache-Control':'no-store','X-Content-Type-Options':'nosniff'};
  const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{...cors,'Content-Type':'application/json'}});
  if(origin&&!origins.includes(origin))return json({error:'This origin is not allowed.'},403);
  if(req.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
  const path=new URL(req.url).pathname.replace(/^.*\/storefront/,'')||'/';
  try{
-  if(req.method==='GET'&&path==='/config')return json({paymentsEnabled:false,downloadsEnabled:Boolean(env('TURNSTILE_SECRET_KEY')&&env('TURNSTILE_SITE_KEY')&&env('SUPABASE_SERVICE_ROLE_KEY')&&env('SUPABASE_URL')),turnstileSiteKey:env('TURNSTILE_SITE_KEY')||null});
+  if(req.method==='GET'&&path==='/config')return json({paymentsEnabled:false,downloadsEnabled:Boolean(env('TURNSTILE_SECRET_KEY')&&env('TURNSTILE_SITE_KEY')&&env('SUPABASE_SERVICE_ROLE_KEY')&&env('SUPABASE_URL')),turnstileSiteKey:env('TURNSTILE_SITE_KEY')||null,
+   loyalty:loyaltyEnabled(env)?{enabled:true,authUrl:env('SUPABASE_URL').replace(/\/$/,'')+'/auth/v1',publicKey:env('SUPABASE_ANON_KEY'),turnstileSiteKey:env('AUTH_TURNSTILE_SITE_KEY')}:{enabled:false}});
   if(req.method==='GET'&&path==='/quote'){
    const params=new URL(req.url).searchParams;
    const requested=params.get('country');
    if(requested&&!validCountry(requested))return json({error:'Choose a valid billing country.'},400);
    const country=requested||await countryFromRequest(req,env,request);
    let quote;try{quote=priceFor(country,params.get('plan')||'online',params.get('billing')||'monthly',Number(params.get('seats')||1));}catch{return json({error:'Choose a valid license, billing period, and computer count.'},400);}
+   if(req.headers.has('authorization')){
+    const customer=await verifiedCustomer(req,env,request);
+    quote=applyLoyalty(quote,customer,await customerHistory(customer,env,request));
+   }
    if(env('QUOTE_SIGNING_SECRET'))quote.quoteToken=await sign(quote,env('QUOTE_SIGNING_SECRET'));
    return json(quote);
   }
@@ -47,15 +54,22 @@ export async function handleRequest(req,env=defaultEnv,request=fetch){
    // Until a merchant integration is explicitly configured, do not parse or
    // retain billing information, create orders, or claim that a payment worked.
    if(path==='/checkout')return json({error:'Payments are not open yet. No order or charge has been created.'},503);
+   if(path==='/customer'){
+    const customer=await verifiedCustomer(req,env,request);
+    await linkCustomerHistory(customer,env,request);
+    return json({verified:true});
+   }
    if(path==='/coupon'){
     const raw=await req.text();if(raw.length>2048)return json({error:'Request is too large.'},413);
     let body;try{body=JSON.parse(raw);}catch{return json({error:'Invalid request.'},400);}
     let registry;try{registry=JSON.parse(env('COUPONS_JSON')||'{}');}catch{return json({error:'Coupon validation is temporarily unavailable.'},503);}
     if(!registry||Array.isArray(registry)||typeof registry!=='object')return json({error:'Coupon validation is temporarily unavailable.'},503);
-    let quote;
+    let quote,customer,history;
+    if(req.headers.has('authorization')){customer=await verifiedCustomer(req,env,request);history=await customerHistory(customer,env,request);}
     try{
      quote=priceFor(body.country,body.plan,body.billing,body.seats);
-     quote=await applyCoupon(quote,body.code,registry);
+     const coupon=await applyCoupon(quote,body.code,registry);
+     quote=customer?betterPromotion(applyLoyalty(quote,customer,history),coupon):coupon;
     }catch(e){return json({error:e.message||'This coupon could not be applied.'},400);}
     if(env('QUOTE_SIGNING_SECRET'))quote.quoteToken=await sign(quote,env('QUOTE_SIGNING_SECRET'));
     return json(quote);
@@ -87,5 +101,5 @@ export async function handleRequest(req,env=defaultEnv,request=fetch){
    return json({url:signedURL.href,expiresIn:60});
   }
   return json({error:'Not found.'},404);
- }catch{return json({error:'The service is temporarily unavailable. Please try again.'},503);}
+ }catch(e){return json({error:e?.status===401?e.message:'The service is temporarily unavailable. Please try again.'},e?.status===401?401:503);}
 }

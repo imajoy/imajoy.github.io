@@ -3,299 +3,275 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="AJOY — 3D animator and rigger building animation work and small Maya production tools.">
-<title>AJOY — 3D Animator &amp; Rigger</title>
-<link rel="icon" type="image/png" href="assets/site/favicon-32.png">
-<link rel="apple-touch-icon" href="assets/site/apple-touch-icon.png">
-
+<title>Ajoy Tools — Animation tools for Maya</title>
+<meta name="description" content="Ajoy Tools: 13 animation and pipeline tools for Autodesk Maya 2023 and newer. Exporters, IK/FK snapping, rigging helpers and more, in one menu.">
+<meta name="theme-color" content="#0B0C0E">
+<link rel="icon" type="image/png" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
-
 <body>
-<div class="grain" aria-hidden="true"></div>
 <div class="progress" id="progress" aria-hidden="true"></div>
+<div class="glow-cursor" id="glow" aria-hidden="true"></div>
 
-<header class="site-header">
-  <div class="container">
-    <nav class="nav">
-      <a class="brand" href="#top">
-        <span class="brand-mark">
-          <img src="assets/site/ajoy-photo.jpg" alt="AJOY" width="36" height="36">
-        </span>
-        <span>AJOY</span>
-      </a>
-      <div class="nav-links">
-        <a href="#tools">Tools</a>
-        <a href="#about">About</a>
-        <a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad
-          <svg class="ext-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17 17 7M9 7h8v8"/></svg>
-        </a>
-      </div>
-      <div class="nav-actions">
-        <button class="icon-btn" id="theme" aria-label="Toggle color theme">
-          <svg class="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.6M12 18.9v2.6M4.6 4.6l1.8 1.8M17.6 17.6l1.8 1.8M2.5 12h2.6M18.9 12h2.6M4.6 19.4l1.8-1.8M17.6 6.4l1.8-1.8"/></svg>
-          <svg class="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a6.8 6.8 0 0 0 10.5 10.5Z"/></svg>
-        </button>
-        <button class="icon-btn menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-        </button>
-      </div>
-    </nav>
-  </div>
-  <div class="mobile-nav" id="mobileNav">
-    <div class="container">
+<header class="nav-wrap" id="nav">
+  <nav class="nav">
+    <a class="brand" href="#top" aria-label="Ajoy Tools home">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 32 32" fill="none"><path d="M9 11h12l-3.5-3.5M23 21H11l3.5 3.5" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </span>
+      <span>Ajoy Tools</span>
+    </a>
+    <div class="links">
       <a href="#tools">Tools</a>
-      <a href="#about">About</a>
-      <a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad ↗</a>
+      <a href="#how">Install</a>
+      <a href="#editions">Editions</a>
+      <a href="#faq">Details</a>
     </div>
-  </div>
+    <a class="btn small" href="#contact">Get access</a>
+  </nav>
 </header>
 
 <main id="top">
+  <!-- HERO -->
   <section class="hero">
-    <div class="container hero-grid">
-      <div>
-        <h1>Animation, rigging, and the small tools in between.</h1>
-        <p class="hero-lead">I'm AJOY — a 3D animator and rigger. When production friction gets in the way of the work, I write a small Maya tool to get rid of it.</p>
-        <div class="hero-actions">
-          <a class="btn primary magnetic" href="#tools">Explore tools</a>
-          <a class="btn magnetic" href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">
-            Support on Gumroad
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 17 17 7M9 7h8v8"/></svg>
-          </a>
-        </div>
+    <canvas id="scene" aria-hidden="true"></canvas>
+    <div class="hero-fade" aria-hidden="true"></div>
+    <div class="wrap hero-inner">
+      <p class="eyebrow reveal"><span class="dot"></span> For Autodesk Maya 2023 and newer</p>
+      <h1 class="reveal d1">Animation tools,<br><span class="grad">built for Maya.</span></h1>
+      <p class="lead reveal d2">Thirteen focused tools in one menu: exporters, IK/FK snapping, rigging helpers and scene utilities. Install once, and everything stays up to date.</p>
+      <div class="cta reveal d3">
+        <a class="btn magnetic" href="#contact">Get your access code</a>
+        <a class="btn ghost magnetic" href="#tools">Explore the tools</a>
       </div>
-
-      <div class="viewport" aria-hidden="true">
-        <div class="viewport-floor"><div class="grid"></div></div>
-        <svg class="gizmo-mark" viewBox="0 0 64 64" fill="none">
-          <circle cx="16" cy="48" r="3" fill="var(--text)"/>
-          <line x1="16" y1="48" x2="50" y2="48" stroke="var(--axis-x)" stroke-width="3" stroke-linecap="round"/>
-          <polygon points="50,48 42,44.5 42,51.5" fill="var(--axis-x)"/>
-          <line x1="16" y1="48" x2="16" y2="12" stroke="var(--axis-y)" stroke-width="3" stroke-linecap="round"/>
-          <polygon points="16,12 12.5,20 19.5,20" fill="var(--axis-y)"/>
-          <line x1="16" y1="48" x2="40" y2="26" stroke="var(--axis-z)" stroke-width="3" stroke-linecap="round"/>
-          <polygon points="40,26 38,33.5 45,30.5" fill="var(--axis-z)"/>
-        </svg>
-        <svg class="locator" viewBox="0 0 64 64" fill="none" stroke="var(--accent)" stroke-width="3" stroke-linecap="round">
-          <line x1="32" y1="6" x2="32" y2="58"/>
-          <line x1="6" y1="32" x2="58" y2="32"/>
-          <line x1="15" y1="15" x2="49" y2="49" stroke-opacity=".4"/>
-          <line x1="49" y1="15" x2="15" y2="49" stroke-opacity=".4"/>
-          <circle cx="32" cy="32" r="6" fill="var(--accent)" stroke="none"/>
-        </svg>
-        <div class="scene-label"><b>scene</b> — ajoy_site.ma</div>
-        <div class="hud"><span class="rec"></span>frame <b id="frameCount">0182</b></div>
-      </div>
+      <ul class="stats reveal d4">
+        <li><b data-count="13">0</b><span>tools</span></li>
+        <li><b data-count="2">0</b><span>editions</span></li>
+        <li><b>2023+</b><span>Maya versions</span></li>
+      </ul>
     </div>
+    <a class="scroll-hint" href="#tools" aria-label="Scroll to tools"><i></i></a>
   </section>
 
-  <div class="ticker" aria-hidden="true">
-    <div class="ticker-track">
-      <span>3d-art</span><span class="slash">/</span><span>animation</span><span class="slash">/</span><span>rigging</span><span class="slash">/</span><span>maya-tools</span><span class="slash">/</span><span>workflow</span><span class="slash">/</span>
-      <span>3d-art</span><span class="slash">/</span><span>animation</span><span class="slash">/</span><span>rigging</span><span class="slash">/</span><span>maya-tools</span><span class="slash">/</span><span>workflow</span><span class="slash">/</span>
+  <!-- MARQUEE -->
+  <div class="marquee" aria-hidden="true">
+    <div class="track">
+      <span>FBX Exporter</span><span>Alembic Exporter</span><span>Playblast</span><span>Audio Exporter</span><span>IK / FK Snap</span><span>Rebake IK Space</span><span>Rivet</span><span>UDIM Preview</span><span>Layer Prefix Remover</span><span>Hotkey Manager</span><span>Revert to Last Saved</span><span>Advanced IK FK Switch</span><span>Multi Swapper</span>
+      <span>FBX Exporter</span><span>Alembic Exporter</span><span>Playblast</span><span>Audio Exporter</span><span>IK / FK Snap</span><span>Rebake IK Space</span><span>Rivet</span><span>UDIM Preview</span><span>Layer Prefix Remover</span><span>Hotkey Manager</span><span>Revert to Last Saved</span><span>Advanced IK FK Switch</span><span>Multi Swapper</span>
     </div>
   </div>
 
+  <!-- TOOLS -->
   <section class="section" id="tools">
-    <div class="container">
-      <div class="section-head">
-        <h2>Things I've built.</h2>
-        <p class="section-lead">Small, focused utilities for the everyday snags in a production pipeline, grouped by the app they run in.</p>
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="kicker">The toolkit</p>
+        <h2>Everything in one Maya menu.</h2>
+        <p class="sub">Each tool solves one production snag well. Hover a card to tilt it.</p>
       </div>
 
-      <div class="tool-filter" role="tablist" aria-label="Filter tools by app">
-        <button type="button" class="filter-btn active" data-filter="all" role="tab" aria-selected="true">All</button>
-        <button type="button" class="filter-btn" data-filter="maya" role="tab" aria-selected="false">Maya</button>
-        <button type="button" class="filter-btn" data-filter="blender" role="tab" aria-selected="false">Blender</button>
+      <div class="filters reveal" role="tablist" aria-label="Filter tools">
+        <button class="chip active" data-f="all" role="tab" aria-selected="true">All</button>
+        <button class="chip" data-f="export" role="tab" aria-selected="false">Export</button>
+        <button class="chip" data-f="anim" role="tab" aria-selected="false">Animation</button>
+        <button class="chip" data-f="rig" role="tab" aria-selected="false">Rigging</button>
+        <button class="chip" data-f="scene" role="tab" aria-selected="false">Scene</button>
       </div>
 
-      <div class="tool-group" data-platform="maya">
-        <div class="group-label"><span class="sq">M</span>Maya</div>
-        <div class="tool-list" id="toolList">
-        <article class="tool">
-          <div class="port"><i style="--port-color:var(--axis-x)"></i></div>
-          <div class="tool-card" style="--port-color:var(--axis-x)">
-            <div class="tool-text">
-              <h3>UDIM Preview Generator</h3>
-              <div class="tags"><span class="tag price paid">Paid</span><span class="tag">Maya</span><span class="tag type">Textures</span></div>
-              <p class="tool-desc">Generate previews for every UDIM texture in a Maya scene with one click.</p>
-            </div>
-            <div class="tool-visual">
-              <img src="assets/products/udim-preview-generator/tool-udim-preview.svg" alt="UDIM tile grid with one active tile highlighted" loading="lazy"
-                   onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
-              <div class="fallback" style="display:none">
-                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2">
-                  <rect x="8" y="8" width="20" height="20" rx="3"/>
-                  <rect x="36" y="8" width="20" height="20" rx="3" stroke="var(--axis-x)"/>
-                  <rect x="8" y="36" width="20" height="20" rx="3"/>
-                  <rect x="36" y="36" width="20" height="20" rx="3"/>
-                </svg>
-              </div>
-            </div>
-            <a class="tool-link" href="https://ajoyp.gumroad.com/l/zoqsmd" target="_blank" rel="noopener">
-              Open tool <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17 17 7M9 7h8v8"/></svg>
-            </a>
-          </div>
+      <div class="grid" id="grid">
+        <article class="card" data-c="export">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v12m0 0l-4-4m4 4l4-4M5 19h14"/></svg></div>
+          <h3>FBX Exporter</h3>
+          <p>Export rig assets, deformation joints and cameras by shot.</p>
+          <span class="tag">Export</span>
         </article>
-
-        <article class="tool">
-          <div class="port"><i style="--port-color:var(--axis-y)"></i></div>
-          <div class="tool-card" style="--port-color:var(--axis-y)">
-            <div class="tool-text">
-              <h3>Revert to Last Saved</h3>
-              <div class="tags"><span class="tag price paid">Paid</span><span class="tag">Maya</span><span class="tag type">Scene Utility</span></div>
-              <p class="tool-desc">Return to your last saved Maya scene quickly, while restoring useful scene state.</p>
-            </div>
-            <div class="tool-visual">
-              <img src="assets/products/revert-to-last-saved/tool-revert.svg" alt="Undo arrow above a scene save-history timeline" loading="lazy"
-                   onerror="this.style.display='none';this.nextElementSibling.style.display='grid'">
-              <div class="fallback" style="display:none">
-                <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round">
-                  <path d="M46 20a18 18 0 1 0 4 15"/>
-                  <path d="M50 10v12h-12"/>
-                </svg>
-              </div>
-            </div>
-            <a class="tool-link" href="https://ajoyp.gumroad.com/l/ckhvds" target="_blank" rel="noopener">
-              Open tool <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17 17 7M9 7h8v8"/></svg>
-            </a>
-          </div>
+        <article class="card" data-c="export">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zm0 9l8-4.5M12 12v9M12 12L4 7.5"/></svg></div>
+          <h3>Alembic Exporter</h3>
+          <p>Export geometry and cameras with UVs, visibility and face sets.</p>
+          <span class="tag">Export</span>
         </article>
-
-        <article class="tool">
-          <div class="port"><i style="--port-color:var(--axis-z)"></i></div>
-          <div class="tool-card" style="--port-color:var(--axis-z)">
-            <div class="tool-text">
-              <h3>Rivet</h3>
-              <div class="tags"><span class="tag price free">Free</span><span class="tag">Maya</span><span class="tag type">Rigging</span></div>
-              <p class="tool-desc">Pin locators to polygon or NURBS surfaces for quick, stable surface attachments.</p>
-            </div>
-            <button type="button" class="tool-visual has-video" data-video-trigger
-                    data-video="assets/products/rivet/rivet-demo.mp4" data-poster="assets/products/rivet/rivet-poster.jpg"
-                    data-caption="Rivet — quick guide"
-                    aria-label="Play the Rivet tool guide, with sound">
-              <video
-  src="assets/products/rivet/rivet-preview.mp4"
-  poster="assets/products/rivet/rivet-poster.jpg"
-  autoplay
-  muted
-  loop
-  playsinline
-  preload="auto"
-  aria-hidden="true"
-  disablepictureinpicture
-  disableremoteplayback
-  controlslist="nodownload noplaybackrate"
-></video>
-              <span class="video-badge" aria-hidden="true">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
-              </span>
-              <span class="video-tag">watch guide</span>
-            </button>
-            <a class="tool-link" href="https://ajoyp.gumroad.com/l/cmljjj" target="_blank" rel="noopener">
-              Open tool <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M7 17 17 7M9 7h8v8"/></svg>
-            </a>
-          </div>
+        <article class="card" data-c="export">
+          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="12" rx="2"/><path d="M10 9l5 3-5 3V9zM8 21h8"/></svg></div>
+          <h3>Playblast</h3>
+          <p>Capture camera previews with resolution presets and audio.</p>
+          <span class="tag">Export</span>
         </article>
-        </div>
-      </div>
-
-      <div class="tool-group coming-soon" data-platform="blender">
-        <div class="group-label"><span class="sq">B</span>Blender <span class="soon-tag">coming soon</span></div>
-        <div class="coming-card">A Blender add-on is in the works — same idea, different app. It'll land here once it's ready.</div>
+        <article class="card" data-c="export">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M3 12h2m3-5v10m4-13v16m4-12v8m4-5v2"/></svg></div>
+          <h3>Audio Exporter</h3>
+          <p>Extract WAV audio from video shots and optionally import it into Maya.</p>
+          <span class="tag">Export</span>
+        </article>
+        <article class="card" data-c="anim rig">
+          <div class="ico"><svg viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="18" r="2.5"/><path d="M8 7.5c5 0 3 9 8 9"/></svg></div>
+          <h3>IK / FK Snap</h3>
+          <p>Match arm IK and FK controls with saved rig presets.</p>
+          <span class="tag">Animation</span>
+        </article>
+        <article class="card" data-c="anim rig">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M7 8h11l-3-3M17 16H6l3 3"/></svg></div>
+          <h3>Advanced IK FK Switch</h3>
+          <p>Switch between IK and FK controls without breaking the pose.</p>
+          <span class="tag">Animation</span>
+        </article>
+        <article class="card" data-c="anim rig">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6l2.3-2.3A5 5 0 1 0 17 14"/></svg></div>
+          <h3>Rebake IK Space</h3>
+          <p>Move an IK control into a new space, follow a parent, finalize or bake to world, and keep its animation.</p>
+          <span class="tag">Animation</span>
+        </article>
+        <article class="card" data-c="anim">
+          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="6" height="6" rx="1"/><rect x="15" y="15" width="6" height="6" rx="1"/><path d="M9 6h4a3 3 0 0 1 3 3v6"/></svg></div>
+          <h3>Multi Swapper</h3>
+          <p>Moves your animation onto locators and back, keying only the frames you already keyed.</p>
+          <span class="tag">Animation</span>
+        </article>
+        <article class="card" data-c="rig">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M12 3v18M3 12h18"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+          <h3>Rivet</h3>
+          <p>Attach a locator to a polygon or NURBS surface.</p>
+          <span class="tag">Rigging</span>
+        </article>
+        <article class="card" data-c="scene">
+          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="8" height="8" rx="1"/><rect x="13" y="3" width="8" height="8" rx="1"/><rect x="3" y="13" width="8" height="8" rx="1"/><rect x="13" y="13" width="8" height="8" rx="1"/></svg></div>
+          <h3>UDIM Preview</h3>
+          <p>Generate texture tile previews at your chosen quality.</p>
+          <span class="tag">Scene</span>
+        </article>
+        <article class="card" data-c="scene">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h10M4 17h6M17 14l4 4m0-4l-4 4"/></svg></div>
+          <h3>Layer Prefix Remover</h3>
+          <p>Remove or replace a prefix on display and legacy render layers.</p>
+          <span class="tag">Scene</span>
+        </article>
+        <article class="card" data-c="scene">
+          <div class="ico"><svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="12" rx="2"/><path d="M7 10h.01M11 10h.01M15 10h.01M8 14h8"/></svg></div>
+          <h3>Hotkey Manager</h3>
+          <p>Inspect, export, import and apply custom Maya hotkeys.</p>
+          <span class="tag">Scene</span>
+        </article>
+        <article class="card" data-c="scene">
+          <div class="ico"><svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3"/></svg></div>
+          <h3>Revert to Last Saved</h3>
+          <p>Reload the last saved scene with a backup of unsaved work.</p>
+          <span class="tag">Scene</span>
+        </article>
       </div>
     </div>
   </section>
 
-  <section class="section subscribe-section" id="subscribe">
-    <div class="container">
-      <div class="subscribe-card">
-        <div class="subscribe-glow" aria-hidden="true"></div>
-        <div class="subscribe-text">
-          <div class="group-label"><span class="sq">+</span>notify me</div>
-          <h2>Know the moment a new tool ships.</h2>
-          <p class="section-lead">No spam, no schedule — just one email when something new lands, Maya or Blender.</p>
+  <!-- HOW -->
+  <section class="section alt" id="how">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="kicker">Install</p>
+        <h2>Three steps. No command line.</h2>
+        <p class="sub">The window closes by itself when it is done.</p>
+      </div>
+      <ol class="steps">
+        <li class="step reveal">
+          <span class="num">01</span>
+          <h3>Drag in the setup file</h3>
+          <p>Drag <code>AjoyTools_Setup.py</code> into the Maya viewport.</p>
+        </li>
+        <li class="step reveal d1">
+          <span class="num">02</span>
+          <h3>Enter your code</h3>
+          <p>Choose Online or Offline, type your code and click <b>Install</b>.</p>
+        </li>
+        <li class="step reveal d2">
+          <span class="num">03</span>
+          <h3>Restart Maya once</h3>
+          <p>The <b>Ajoy Tools</b> menu and the <b>Ajoy_Tools</b> shelf appear automatically.</p>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- EDITIONS -->
+  <section class="section" id="editions">
+    <div class="wrap">
+      <div class="head reveal">
+        <p class="kicker">Editions</p>
+        <h2>Pick how you work.</h2>
+        <p class="sub">All 13 tools are included in both.</p>
+      </div>
+      <div class="editions">
+        <div class="ed tilt reveal">
+          <span class="badge">Free code</span>
+          <h3>Online</h3>
+          <ul>
+            <li>Always the newest version</li>
+            <li>Needs internet each time Maya starts</li>
+            <li>Updates automatically</li>
+          </ul>
         </div>
-
-        <form class="subscribe-form" id="subscribeForm" novalidate>
-          <label class="subscribe-input-wrap" for="subscribeEmail">
-            <span class="input-caret" aria-hidden="true"></span>
-            <input type="email" id="subscribeEmail" name="email" placeholder="you@studio.com" required autocomplete="email" inputmode="email">
-          </label>
-          <button type="submit" class="btn primary magnetic subscribe-btn" id="subscribeBtn">
-            <span class="btn-face btn-face-label">Subscribe</span>
-            <span class="btn-face btn-face-spinner" aria-hidden="true"><i></i><i></i><i></i></span>
-            <span class="btn-face btn-face-check" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12l5 5L20 6"/></svg>
-            </span>
-          </button>
-        </form>
-
-        <p class="subscribe-note" id="subscribeNote">I'll only email you when a new tool ships. Unsubscribe anytime.</p>
-        <p class="subscribe-error" id="subscribeError" hidden>Something went wrong — mind trying again?</p>
-
-        <div class="subscribe-success" id="subscribeSuccess" hidden>
-          <span class="success-dot" aria-hidden="true"></span>
-          <span>You're subscribed <b id="subscribedEmail"></b> — watch your inbox for the next tool.</span>
+        <div class="ed tilt feature reveal d1">
+          <span class="badge hot">Access code</span>
+          <h3>Offline</h3>
+          <ul>
+            <li>Runs without internet after install</li>
+            <li>You choose when to update</li>
+            <li>Ajoy Tools &gt; Check for Update</li>
+          </ul>
         </div>
       </div>
     </div>
   </section>
 
-  <section class="statement">
-    <div class="container">
-      <p class="comment">// turn friction into something you can fix in a few clicks<span class="cursor"></span></p>
-      <p class="statement-copy">Most of these start as a real production annoyance — repetitive setup, scene management, or surface work that takes longer than it should. The goal isn't more software. It's fewer interruptions.</p>
+  <!-- DETAILS -->
+  <section class="section alt" id="faq">
+    <div class="wrap two">
+      <div class="head reveal">
+        <p class="kicker">Details</p>
+        <h2>Good to know.</h2>
+      </div>
+      <div class="acc reveal d1">
+        <details open>
+          <summary>Which Maya versions work?</summary>
+          <p>Autodesk Maya 2023 and newer, on Windows.</p>
+        </details>
+        <details>
+          <summary>Can I assign hotkeys?</summary>
+          <p>Yes. Right-click any tool in the Ajoy Tools menu or shelf and choose <b>Assign Hotkey</b>. Maya tells you if the combination is already in use.</p>
+        </details>
+        <details>
+          <summary>What else do I need?</summary>
+          <p>The fbxmaya plug-in for FBX export and AbcExport for Alembic export. The Audio Exporter needs FFmpeg, which is not bundled.</p>
+        </details>
+        <details>
+          <summary>How do I remove it?</summary>
+          <p>Choose <b>Ajoy Tools &gt; Uninstall</b> and confirm. Your settings, presets and exported files are kept.</p>
+        </details>
+      </div>
     </div>
   </section>
 
-  <section class="section" id="about">
-    <div class="container about-grid">
-      <div>
-        <h2>A 3D animator who ended up writing scripts, too.</h2>
-      </div>
-      <div class="about-copy">
-        <p>I'm AJOY, a 3D animator and rigger interested in animation, rigging, and the technical side of production.</p>
-        <p>This site is where I share the work I make, the tools I release, and the experiments I'm exploring.</p>
-        <div class="attrs">
-          <div class="attr-row"><div class="k">role</div><div class="v">3D Animator &amp; Rigger</div></div>
-          <div class="attr-row"><div class="k">focus</div><div class="v">Animation, rigging, Maya tooling — Blender add-ons on the way</div></div>
-          <div class="attr-row"><div class="k">approach</div><div class="v">Small, focused tools instead of more software</div></div>
-          <div class="attr-row"><div class="k">elsewhere</div><div class="v"><a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad</a> · <a href="https://www.linkedin.com/in/palajoy" target="_blank" rel="noopener">LinkedIn</a></div></div>
-        </div>
+  <!-- CONTACT -->
+  <section class="section" id="contact">
+    <div class="wrap">
+      <div class="final tilt reveal">
+        <h2>Ready to speed up your <span class="grad">Maya workflow?</span></h2>
+        <p>Email me to get your access code and start installing.</p>
+        <a class="btn magnetic" href="mailto:contactmy3dart@gmail.com?subject=Ajoy%20Tools%20access%20code">contactmy3dart@gmail.com</a>
       </div>
     </div>
   </section>
 </main>
 
 <footer>
-  <div class="container footer-row">
-    <div class="footer-brand">
-      <span class="footer-mark"><img src="assets/site/ajoy-photo.jpg" alt="" width="22" height="22"></span>
-      <span>AJOY — 3D Animator &amp; Rigger · © <span id="year"></span></span>
-    </div>
-    <div class="footer-links">
-      <a href="#tools">Tools</a><a href="#about">About</a><a href="https://ajoyp.gumroad.com/" target="_blank" rel="noopener">Gumroad</a><a href="https://www.linkedin.com/in/palajoy" target="_blank" rel="noopener">LinkedIn</a>
-    </div>
+  <div class="wrap foot">
+    <span>© <span id="year">2026</span> AJOY. All rights reserved.</span>
+    <a href="#top">Back to top ↑</a>
   </div>
 </footer>
 
-<div class="video-modal" id="videoModal" aria-hidden="true">
-  <div class="video-modal-backdrop" data-close></div>
-  <div class="video-modal-panel">
-    <button class="video-modal-close" id="videoModalClose" aria-label="Close video">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M6 6l12 12M18 6L6 18"/></svg>
-    </button>
-    <video   id="videoModalPlayer"   controls   playsinline   disablepictureinpicture   controlslist="nodownload noplaybackrate"   disableremoteplayback ></video>
-    <p class="video-modal-caption" id="videoModalCaption"></p>
-  </div>
-</div>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>

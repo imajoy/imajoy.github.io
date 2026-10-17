@@ -197,7 +197,6 @@ em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.0
 .plan-lead h3{color:#fff}
 .plan-lead .for,.plan-lead .per,.plan-lead .note{color:#AEB8D6}
 .plan-lead .ticks li{border-color:rgba(255,255,255,.13)}
-.ribbon{position:absolute;top:26px;right:26px;padding:6px 14px;border-radius:999px;background:var(--coral);color:#fff;font:600 13px var(--sans)}
 .amt,.note,[data-per]{transition:opacity .18s}
 
 .licensebox{display:grid;grid-template-columns:1.05fr 1fr;gap:40px;align-items:center;max-width:980px;margin:20px auto 0;padding:52px;border-radius:36px;background:var(--card);box-shadow:var(--shadow)}
@@ -265,7 +264,6 @@ em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.0
 @media(max-width:520px){
   .plan{padding:32px 24px}
   .amt{font-size:54px}
-  .ribbon{top:20px;right:20px}
   .frame{padding:8px;border-radius:30px}
   .frame-inner{padding:72px 20px;border-radius:24px}
   .float-chip{display:none}
@@ -332,12 +330,7 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .plan{transition:transform .5s var(--out),box-shadow .5s var(--out)}
 .plan:hover{transform:translateY(-8px);box-shadow:0 30px 60px rgba(14,18,32,.16)}
 .plan-lead:hover{box-shadow:0 38px 80px rgba(11,17,38,.55)}
-.js .ticks li::before{transform:rotate(-45deg) scale(0);transition:transform .5s var(--out)}
-.js .plans.in .ticks li::before{transform:rotate(-45deg) scale(1)}
-.ticks li:nth-child(1)::before{transition-delay:.35s}.ticks li:nth-child(2)::before{transition-delay:.45s}.ticks li:nth-child(3)::before{transition-delay:.55s}.ticks li:nth-child(4)::before{transition-delay:.65s}.ticks li:nth-child(5)::before{transition-delay:.75s}
 .amt,.note,[data-per]{transition:opacity .18s,transform .3s var(--out)}
-.ribbon{animation:ribbon 3.4s ease-in-out infinite}
-@keyframes ribbon{50%{transform:translateY(-3px) rotate(1.5deg)}}
 .paynote{display:flex;justify-content:center;align-items:center;gap:10px;margin-top:26px;font-size:14.5px;color:var(--mute)}
 
 /* faq open */

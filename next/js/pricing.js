@@ -12,16 +12,17 @@ function animate(element){if(!matchMedia('(prefers-reduced-motion: reduce)').mat
 async function render(){
  const current=++revision,status=document.querySelector('#pricing-status');
  await Promise.all(['online','offline'].map(async plan=>{
-  const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`);
-  buy.href=`checkout.html?${new URLSearchParams({plan,billing})}`;amount.textContent='—';offer.hidden=true;
+  const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`),yearlyLink=document.querySelector(`[data-card-yearly="${plan}"]`);
+  buy.href=`checkout.html?${new URLSearchParams({plan,billing})}`;amount.textContent='—';offer.hidden=true;comparison.hidden=true;yearlyLink.hidden=true;
   try{
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;
    amount.textContent=money(quote.unitAmount,quote.currency);animate(amount);
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
    note.textContent=billing==='yearly'?'Billed annually. Prices exclude applicable taxes.':'Billed monthly. Prices exclude applicable taxes.';
+   yearlyLink.hidden=billing!=='monthly';
    if(billing==='yearly'&&quote.annualSavings>0){
-    offer.hidden=false;offer.querySelector('.annual-original').textContent=money(quote.compareAtUnitAmount,quote.currency)+' billed monthly over a year';
+    offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=money(quote.compareAtUnitAmount,quote.currency);
     offer.querySelector('.annual-saving').textContent='Save '+money(quote.annualSavings,quote.currency)+' per year';
     offer.querySelector('.annual-equivalent').textContent=money(quote.unitAmount/12,quote.currency)+' per month, billed yearly';animate(offer);
    }
@@ -33,6 +34,9 @@ for(const button of toggle.querySelectorAll('button'))button.addEventListener('c
  chooseBilling(button.dataset.bill);
 });
 for(const control of document.querySelectorAll('[data-choose-yearly]'))control.addEventListener('click',()=>chooseBilling('yearly'));
+for(const control of document.querySelectorAll('[data-card-yearly]'))control.addEventListener('click',()=>{
+ chooseBilling('yearly');toggle.querySelector('[data-bill="yearly"]').focus({preventScroll:true});
+});
 render();
 /* Only the main Install-section CTA opens the verified download page. */
 for(const link of document.querySelectorAll('#download-setup'))link.addEventListener('click',event=>{

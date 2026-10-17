@@ -1,0 +1,48 @@
+/* Pricing-card surfaces, isolated from the rest of the storefront. */
+.plans .plan{
+ --plan-copy:#5b6579;--plan-gold:#866020;--plan-saving:#285d46;
+ container-type:inline-size;isolation:isolate;overflow:hidden;min-width:0;
+ padding:38px;border-radius:34px;border:1px solid #ffffffb3;
+ background:radial-gradient(ellipse at 85% 0%,#dce8fc70,transparent 60%),linear-gradient(145deg,#fff,#f8faff);
+ box-shadow:0 4px 10px #172e5005,0 22px 60px -22px #243b6830,inset 0 1px 0 #fff;
+ transition:transform .5s var(--ease-soft),box-shadow .5s var(--ease-soft);
+}
+.plans .plan::before{content:'';position:absolute;inset:0;border-radius:inherit;background:linear-gradient(120deg,#ffffff20,transparent 35%,#ffffff05 72%,#8ab5ff08);pointer-events:none;z-index:-1}
+.plans .plan:hover{transform:translateY(-4px);box-shadow:0 28px 65px -20px #1c39613b,inset 0 1px 0 #fff}
+.plans .plan-lead{
+ --plan-copy:#b8c4de;--plan-gold:#e2c58c;--plan-saving:#e2c58c;
+ color:#f7f9ff;border-color:#6b9ff647;
+ background:radial-gradient(ellipse at 95% 0%,#315fa45c,transparent 55%),radial-gradient(ellipse at 50% 39%,#1d3f822e,transparent 58%),linear-gradient(155deg,#101a33,#080e20 75%);
+ box-shadow:0 3px 5px #09142e12,0 26px 70px -22px #0d1a4159,inset 0 1px 0 #afceff26,inset 0 0 25px #5594ff06;
+}
+.plans .plan-lead:hover{box-shadow:0 30px 80px -20px #0d1a4166,0 0 0 1px #659dff25,inset 0 1px 0 #afceff33}
+.plan-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
+.plans .plan h3{font-size:2rem;line-height:1.15;letter-spacing:-.045em;margin:0}
+.plan-discount{display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-align:right;flex:none;color:var(--plan-gold);padding-top:3px}
+.plan-discount b{font-size:.6875rem;font-weight:600;letter-spacing:.12em}.plan-discount small{font-size:.5625rem;font-weight:400;letter-spacing:.025em}
+.plans .plan .for{color:var(--plan-copy);font-size:.875rem;line-height:1.8;min-height:3.6em;margin:0;max-width:31em}
+.price-stack{position:relative;margin-top:30px}
+.plan-lead .price-stack::before{content:'';position:absolute;inset:-35px -12px -30px;background:radial-gradient(ellipse at 40% 55%,#3b7eff1c,transparent 70%);z-index:-1;pointer-events:none}
+.plan-comparison{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 10px;margin-bottom:9px;line-height:1.5}
+.plans .plan .annual-original{color:var(--plan-copy);font-size:1rem;font-weight:400;text-decoration-thickness:1px;text-decoration-color:currentColor}
+.plan-comparison>span{font-size:.5625rem;letter-spacing:.01em;color:var(--plan-copy)}
+.plans .price{display:flex;flex-direction:column;gap:9px;align-items:flex-start}
+.plans .amt{font-size:clamp(2rem,12vw,4.25rem);font-weight:650;letter-spacing:-.06em;line-height:1.06;max-width:100%}
+@supports(font-size:1cqi){.plans .amt{font-size:clamp(2rem,17cqi,4.25rem)}}
+.plans .plan .per{font-size:.75rem;line-height:1.5;color:var(--plan-copy)}
+.plans .plan .annual-offer{border:0;background:none;padding:0;margin:17px 0 0;gap:6px;border-radius:0;line-height:1.7}
+.plans .plan .annual-saving{border:0;background:none;padding:0;border-radius:0;font-size:.8125rem;color:var(--plan-saving);font-weight:600}
+.plans .plan .annual-equivalent{color:var(--plan-copy);font-size:.6875rem}
+.plan-yearly-link{display:flex;align-items:center;gap:8px;align-self:flex-start;margin-top:17px;padding:6px 0;background:none;border:0;font:500 .6875rem/1.6 var(--sans);color:var(--plan-gold);cursor:pointer;text-align:left;text-underline-offset:4px}
+.plan-yearly-link:hover{text-decoration:underline}.plan-yearly-link span{transition:translate .25s}.plan-yearly-link:hover span{translate:2px -2px}
+.plans .plan .note{font-size:.6875rem;color:var(--plan-copy);margin:15px 0 17px;min-height:0;line-height:1.8}
+.plans .plan .ticks{margin:0 0 30px;flex:1}
+.plans .plan .ticks li{border:0;padding:11px 0 11px 33px;font-size:.8125rem;line-height:1.6;color:inherit}
+.plans .plan .ticks li::before{content:'✓';position:absolute;left:0;top:12px;width:20px;height:20px;border:0;border-radius:50%;display:grid;place-items:center;transform:none;background:#2e69e810;color:#326fe7;font-size:.6875rem;font-weight:600;line-height:1}
+.plans .plan-lead .ticks li::before{background:#6fa7ff13;color:#9cc2ff;box-shadow:inset 0 0 0 1px #80b3ff16}
+.plans .plan .btn{height:54px;font-size:.875rem;letter-spacing:-.015em;border:1px solid #77a6ff73;border-radius:18px;color:#fff;background:linear-gradient(180deg,#3a82ff,#2c65e8);box-shadow:0 9px 22px -10px #266bf58c,inset 0 1px 0 #ffffff2b}
+.plans .plan .btn:hover{transform:translateY(-2px);background:linear-gradient(180deg,#5291ff,#3273fa);box-shadow:0 14px 29px -10px #266bf5a6,inset 0 1px 0 #ffffff3b}
+html[data-theme=dark] .plans .plan:not(.plan-lead){--plan-copy:#aebdd7;--plan-gold:#e2c58c;--plan-saving:#b0d9c2;color:#f0f5ff;border-color:#7294c62e;background:radial-gradient(ellipse at 90% 0%,#344c783b,transparent 65%),#142037;box-shadow:0 22px 60px -22px #0006,inset 0 1px 0 #b4cdff13}
+@media(max-width:980px){.plans{max-width:560px}.plans .plan{padding:34px}}
+@media(max-width:520px){.plans .plan{padding:30px 28px;border-radius:30px}.plans .plan h3{font-size:1.875rem}.price-stack{margin-top:25px}.plans .plan .for{min-height:0}.plans .plan .ticks{margin-bottom:25px}}
+@media(max-width:360px){.plans .plan{padding:27px 23px}.plans .plan h3{font-size:1.75rem}.plan-heading{gap:10px}.plan-discount b{font-size:.625rem}.plan-discount small{font-size:.5rem}}

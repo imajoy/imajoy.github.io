@@ -12,8 +12,8 @@
 <link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<link rel="stylesheet" href="css/style.css?v=20261017-r13">
-<link rel="stylesheet" href="css/polish.css?v=20261017-r13"><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin></head>
+<link rel="stylesheet" href="css/style.css?v=20261017-r14">
+<link rel="stylesheet" href="css/polish.css?v=20261017-r13"><link rel="stylesheet" href="css/pricing-cards.css?v=20261017-r14"><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin></head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
 
@@ -193,26 +193,26 @@
 
       <div class="plans reveal">
         <article class="plan">
-          <h3>Online</h3>
+          <div class="plan-heading"><h3>Online</h3><span class="plan-discount"><b>20% OFF</b><small>yearly billing</small></span></div>
           <p class="for">For freelancers and small teams that always want the newest build.</p>
-          <p class="price"><span class="amt" data-amt="online">—</span><span class="per" data-per>per computer, per month</span></p>
-          <div class="annual-offer" data-annual="online" hidden><span class="annual-original"></span><b class="annual-saving"></b><small class="annual-equivalent"></small></div>
+          <div class="price-stack"><p class="plan-comparison" data-compare="online" hidden><s class="annual-original"></s><span>12 monthly payments</span></p><p class="price"><span class="amt" data-amt="online">—</span><span class="per" data-per>per computer, per month</span></p>
+          </div><div class="annual-offer" data-annual="online" hidden><b class="annual-saving"></b><small class="annual-equivalent"></small></div><button class="plan-yearly-link" type="button" data-card-yearly="online">Save 20% with yearly billing <span aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12"><path d="M6 18L18 6M6 6h12v12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
           <p class="note" data-note="online">Billed monthly. Cancel any time.</p>
           <ul class="ticks">
             <li>All 13 tools</li>
             <li>Always the newest version, updated for you</li>
             <li>Needs internet each time Maya starts</li>
             <li>After-sale support by email</li>
+            <li>Autodesk Maya 2023+ on Windows</li>
           </ul>
-          <a class="btn btn-dark btn-block" data-buy="online" href="checkout.html?plan=online&billing=monthly">Subscribe to Online</a>
+          <a class="btn btn-dark btn-block" data-buy="online" href="checkout.html?plan=online&billing=monthly">Get Online</a>
         </article>
 
         <article class="plan plan-lead">
-          <span class="ribbon">Best for studios</span>
-          <h3>Offline</h3>
+          <div class="plan-heading"><h3>Offline</h3><span class="plan-discount"><b>20% OFF</b><small>yearly billing</small></span></div>
           <p class="for">For studios that need Maya to run with no internet connection.</p>
-          <p class="price"><span class="amt" data-amt="offline">—</span><span class="per" data-per>per computer, per month</span></p>
-          <div class="annual-offer" data-annual="offline" hidden><span class="annual-original"></span><b class="annual-saving"></b><small class="annual-equivalent"></small></div>
+          <div class="price-stack"><p class="plan-comparison" data-compare="offline" hidden><s class="annual-original"></s><span>12 monthly payments</span></p><p class="price"><span class="amt" data-amt="offline">—</span><span class="per" data-per>per computer, per month</span></p>
+          </div><div class="annual-offer" data-annual="offline" hidden><b class="annual-saving"></b><small class="annual-equivalent"></small></div><button class="plan-yearly-link" type="button" data-card-yearly="offline">Save 20% with yearly billing <span aria-hidden="true"><svg viewBox="0 0 24 24" width="12" height="12"><path d="M6 18L18 6M6 6h12v12" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span></button>
           <p class="note" data-note="offline">Billed monthly. Cancel any time.</p>
           <ul class="ticks">
             <li>All 13 tools</li>
@@ -221,7 +221,7 @@
             <li>Priority after-sale support</li>
             <li>Built for studio-wide rollouts</li>
           </ul>
-          <a class="btn btn-blue btn-block" data-buy="offline" href="checkout.html?plan=offline&billing=monthly">Subscribe to Offline</a>
+          <a class="btn btn-blue btn-block" data-buy="offline" href="checkout.html?plan=offline&billing=monthly">Get Offline</a>
         </article>
       </div>
 
@@ -299,7 +299,7 @@
 
 <script src="js/site-config.js?v=20261017-r7"></script>
 <script src="js/main.js?v=20261017-r12"></script>
-<script type="module" src="js/pricing.js?v=20261017-r13"></script>
+<script type="module" src="js/pricing.js?v=20261017-r14"></script>
 <script type="module" src="js/scene.js?v=20261017-r7"></script>
 <script type="module" src="js/ui-motion.js?v=20261017-r12"></script></body>
 </html>

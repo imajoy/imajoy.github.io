@@ -179,8 +179,8 @@
     camera.aspect = w / h;
     wide = w > 960;
     camera.updateProjectionMatrix();
-    rig.position.set(wide ? 3.6 : 0, wide ? 0.2 : 1.1, 0);
-    rig.scale.setScalar(wide ? 1 : 0.7);
+    rig.position.set(wide ? 3.0 : 0, wide ? 0.1 : 1.1, 0);
+    rig.scale.setScalar(wide ? 0.92 : 0.7);
     grid.position.x = rig.position.x * 0.6;
   }
   window.addEventListener('resize', resize);

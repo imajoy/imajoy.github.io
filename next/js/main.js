@@ -50,7 +50,7 @@
     var dark = document.documentElement.getAttribute('data-theme') === 'dark';
     if (themeBtn) themeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
     var meta = document.querySelector('meta[name="theme-color"]');
-    if (meta) meta.setAttribute('content', dark ? '#080C18' : '#E9EDF3');
+    if (meta) meta.setAttribute('content', getComputedStyle(document.documentElement).getPropertyValue('--bg').trim());
   }
   syncTheme();
   if (themeBtn) themeBtn.addEventListener('click', function () {

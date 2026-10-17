@@ -15,6 +15,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700;800&family=Instrument+Serif:ital@1&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=11">
+<link rel="stylesheet" href="css/studio.css?v=1">
 </head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
@@ -58,21 +59,48 @@
 
   <!-- HERO -->
   <section class="hero">
-    <canvas id="stage" aria-hidden="true"></canvas>
+    <div class="viewport" aria-label="Illustrative animation rig study">
+      <div class="viewport-bar"><span><i></i> Rig study</span><span>Perspective / 01</span></div>
+      <svg class="rig-study" viewBox="0 0 600 520" aria-hidden="true">
+        <g fill="none" stroke="#62767c" stroke-width="1" opacity=".4">
+          <path d="M0 420h600M0 380h600M0 350h600M0 330h600M300 300L0 520M300 300L100 520M300 300L220 520M300 300L380 520M300 300L500 520M300 300L600 520"/>
+          <ellipse cx="300" cy="416" rx="150" ry="33"/>
+        </g>
+        <g fill="none" stroke="#e7e9df" stroke-width="19" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M293 199L287 290L247 349L228 410M287 290L346 337L378 406M293 218L235 251L196 215M293 218L357 235L396 173"/>
+          <path d="M293 194L300 164" stroke-width="15"/>
+          <ellipse cx="302" cy="141" rx="25" ry="30" fill="#c7d4d0" stroke="none"/>
+        </g>
+        <g fill="#172c2b" stroke="#bdeca7" stroke-width="2">
+          <circle cx="293" cy="218" r="8"/><circle cx="235" cy="251" r="8"/><circle cx="196" cy="215" r="8"/>
+          <circle cx="357" cy="235" r="8"/><circle cx="396" cy="173" r="8"/><circle cx="287" cy="290" r="8"/>
+          <circle cx="247" cy="349" r="8"/><circle cx="346" cy="337" r="8"/>
+          <ellipse cx="228" cy="414" rx="29" ry="9"/><ellipse cx="378" cy="410" rx="29" ry="9"/>
+          <path d="M379 155h34v34h-34zM179 198h34v34h-34z" fill="none"/>
+          <ellipse cx="289" cy="287" rx="43" ry="12" fill="none"/>
+        </g>
+        <g fill="none" stroke="#bdeca7" stroke-width="1" opacity=".6"><path d="M413 173h54v-36h27M196 215h-55v36h-30" stroke-dasharray="4 5"/></g>
+        <g fill="#bdeca7" font-family="monospace" font-size="11"><text x="453" y="125">IK / FK</text><text x="72" y="269">CTRL_L</text></g>
+      </svg>
+      <canvas id="stage" aria-hidden="true"></canvas>
+      <div class="viewport-caption"><span class="live-dot"></span> <span class="rig-label">Animation rig study</span> <span class="viewport-hint">Move your cursor ↗</span></div>
+      <div class="timeline" aria-hidden="true"><span>01</span><div class="timeline-track"><i></i><i></i><i></i><i></i><i></i><b></b></div><span>120</span><span class="timeline-fps">24 fps</span></div>
+    </div>
     <div class="hero-copy">
+      <p class="eyebrow intro-fade"><span></span> Ajoy Tools / Built for Maya</p>
       <h1 class="intro">
-        <span class="ln"><span>Maya tools that make</span></span>
-        <span class="ln"><span>the <em>hard parts</em> easy.</span></span>
+        <span class="ln"><span>Less repetition.</span></span>
+        <span class="ln"><span>More <em>animation.</em></span></span>
       </h1>
-      <p class="lead intro-fade">Export by shot, snap IK to FK, rebake spaces and clean up scenes. Thirteen production tools in one menu, licensed per computer for studios.</p>
+      <p class="lead intro-fade">Export by shot, snap IK to FK, rebake spaces and clean up scenes. Thirteen focused tools, right inside Maya.</p>
       <div class="actions intro-fade">
-        <a class="btn btn-dark" href="#pricing">View plans</a>
+        <a class="btn btn-dark" href="#tools">Explore the tools <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
         <a class="btn btn-light" href="downloads/AjoyTools_Setup.py" download>
           <svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download setup
         </a>
       </div>
     </div>
-    <p class="hero-fine intro-fade">For Autodesk Maya 2023 and newer on Windows.</p>
+    <div class="hero-specs"><span><b>13</b> focused tools</span><span><b>01</b> Maya menu</span><span>Maya <b>2023+</b> / Windows</span></div>
   </section>
 
   <div class="marquee" aria-hidden="true"><div class="mq-track"><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-fbx"/></svg>FBX Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-abc"/></svg>Alembic Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg>Playblast</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-audio"/></svg>Audio Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-ik"/></svg>IK / FK Snap</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-switch"/></svg>Advanced IK FK Switch</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-rebake"/></svg>Rebake IK Space</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-swap"/></svg>Multi Swapper</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-rivet"/></svg>Rivet</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-udim"/></svg>UDIM Preview</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg>Layer Prefix Remover</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-keys"/></svg>Hotkey Manager</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-revert"/></svg>Revert to Last Saved</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-fbx"/></svg>FBX Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-abc"/></svg>Alembic Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg>Playblast</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-audio"/></svg>Audio Exporter</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-ik"/></svg>IK / FK Snap</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-switch"/></svg>Advanced IK FK Switch</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-rebake"/></svg>Rebake IK Space</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-swap"/></svg>Multi Swapper</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-rivet"/></svg>Rivet</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-udim"/></svg>UDIM Preview</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg>Layer Prefix Remover</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-keys"/></svg>Hotkey Manager</span><span class="mq"><svg viewBox="0 0 24 24"><use href="#i-revert"/></svg>Revert to Last Saved</span></div></div>
@@ -80,13 +108,15 @@
   <!-- TOOLS -->
   <section class="block" id="tools">
     <div class="wrap">
-      <div class="head center">
+      <div class="head tools-head">
+        <p class="eyebrow">01 / The toolkit</p>
         <h2>Thirteen tools, <em>one</em> Maya menu.</h2>
         <p class="sub">Every tool does one job well, and each one can have its own hotkey.</p>
       </div>
 
       <div class="bento">
         <article class="tile t-export reveal">
+          <span class="tile-index">01 / Output</span>
           <h3>Export</h3>
           <p class="t-sub">Get shots, assets and previews out of Maya cleanly.</p>
           <ul class="tl">
@@ -98,6 +128,7 @@
         </article>
 
         <article class="tile t-anim reveal">
+          <span class="tile-index">02 / Motion</span>
           <h3>Animation</h3>
           <p class="t-sub">Move between controls and spaces without losing the pose.</p>
           <ul class="tl">
@@ -109,6 +140,7 @@
         </article>
 
         <article class="tile t-rig reveal">
+          <span class="tile-index">03 / Rigging</span>
           <h3>Rigging</h3>
           <p class="t-sub">Stable attachments in one click.</p>
           <ul class="tl">
@@ -119,6 +151,7 @@
         </article>
 
         <article class="tile t-scene reveal">
+          <span class="tile-index">04 / Housekeeping</span>
           <h3>Scene</h3>
           <p class="t-sub">Keep scenes tidy and recover from mistakes.</p>
           <ul class="tl tl-2">

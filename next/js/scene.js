@@ -12,6 +12,9 @@
   try {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
   } catch (e) { canvas.style.display = 'none'; return; }
+  canvas.parentNode.classList.add('scene-ready');
+  var rigLabel = canvas.parentNode.querySelector('.rig-label');
+  if (rigLabel) rigLabel.textContent = 'Interactive rig study';
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.75));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;

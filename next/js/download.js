@@ -1,5 +1,5 @@
 /* Download flow: Download -> email (Gmail, Yahoo, Hotmail) -> automatic download -> plans in 3 seconds.
-   The email address is only validated here. It is never sent, logged or stored. */
+   The email is validated here. It is only sent to the owner's list when leadsUrl is set in site-config.js. */
 const root = document.querySelector('#dl');
 const form = document.querySelector('#dl-form');
 const input = document.querySelector('#dl-email');
@@ -34,6 +34,18 @@ function clearFail() {
   root.removeAttribute('data-invalid');
   input.removeAttribute('aria-invalid');
   hint.textContent = 'Use a Gmail, Yahoo or Hotmail address.';
+}
+/* Optional: add the email to the owner's list. Never blocks the download. */
+function saveLead(email) {
+  const c = window.AJOY_CONFIG || {};
+  if (!c.leadsUrl || !c.leadsKey) return;
+  try {
+    fetch(c.leadsUrl.replace(/\/$/, '') + '/rest/v1/download_leads?on_conflict=email', {
+      method: 'POST', keepalive: true, signal: AbortSignal.timeout(8000),
+      headers: { apikey: c.leadsKey, Authorization: 'Bearer ' + c.leadsKey, 'Content-Type': 'application/json', Prefer: 'resolution=ignore-duplicates,return=minimal' },
+      body: JSON.stringify({ email: email.trim().toLowerCase(), source: 'download-page' })
+    }).catch(() => {});
+  } catch (e) { /* ignore */ }
 }
 function saveFile() {
   const a = document.createElement('a');
@@ -71,7 +83,7 @@ form.addEventListener('submit', e => {
   e.preventDefault();
   const problem = check(input.value);
   if (problem) { fail(problem); input.focus(); return; }
-  clearFail(); run();
+  clearFail(); saveLead(input.value); run();
 });
 document.querySelector('#dl-go').addEventListener('click', () => { timers.forEach(t => { clearTimeout(t); clearInterval(t); }); });
 document.querySelector('#dl-again').addEventListener('click', () => { /* keep the countdown running */ });

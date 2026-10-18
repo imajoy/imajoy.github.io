@@ -124,6 +124,11 @@ function handleOrder_(d) {
       sheet = ss.insertSheet(ORDERS_SHEET);
       sheet.appendRow(['Time', 'Subscription ID', 'PayPal status', 'Mode', 'Buyer email', 'Name', 'Billing country', 'Plan', 'Billing', 'Licenses', 'Company', 'PayPal plan ID', 'Detected country', 'PayPal country', 'Price check', 'License sent? (you fill)']);
       sheet.setFrozenRows(1);
+      sheet.getRange(1, 1, 1, 16).setBackground('#1a2959').setFontColor('#ffffff').setFontWeight('bold').setVerticalAlignment('middle');
+      sheet.setRowHeight(1, 32);
+      sheet.getRange(2, 1, 998, 1).setNumberFormat('dd mmm yyyy, hh:mm');
+      [150, 230, 110, 70, 220, 150, 100, 70, 80, 70, 150, 230, 110, 110, 90, 150].forEach(function (w, i) { sheet.setColumnWidth(i + 1, w); });
+      sheet.setTabColor('#c0392b');
     }
     var last = sheet.getLastRow();
     if (last >= 2) {
@@ -235,7 +240,27 @@ function setupPlans() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName('Plans') || ss.insertSheet('Plans');
   sh.clear();
-  sh.getRange(1, 1).setValue('Mode: ' + mode_() + '. Copy the cell below into the Supabase secret PAYPAL_PLANS.');
-  sh.getRange(2, 1).setValue(JSON.stringify({ tiers: result.tiers }));
-  Logger.log(JSON.stringify({ tiers: result.tiers }));
+  var labels = { high: 'High (US, Canada, Australia, Gulf...)', mid: 'Mid (Brazil, Mexico, Indonesia, Philippines...)', low: 'Low (Sri Lanka, Egypt, Nigeria, Kenya...)' };
+  var rows = [];
+  ['high', 'mid', 'low'].forEach(function (tier) {
+    ['online', 'offline'].forEach(function (kind) {
+      ['monthly', 'yearly'].forEach(function (period) {
+        rows.push([labels[tier], kind === 'online' ? 'Online' : 'Offline', period === 'yearly' ? 'Yearly' : 'Monthly', PRICES[tier][kind][period], result.tiers[tier][kind][period]]);
+      });
+    });
+  });
+  var json = JSON.stringify({ tiers: result.tiers });
+  sh.getRange(1, 1).setValue('Ajoy Tools: PayPal plans').setFontWeight('bold').setFontSize(16);
+  sh.getRange(2, 1).setValue('Mode: ' + mode_() + '. Created by the setupPlans script. Prices are USD per computer.').setFontStyle('italic').setFontColor('#666673');
+  sh.getRange(4, 1, 1, 5).setValues([['Price level', 'Plan', 'Billing', 'Price (USD)', 'PayPal plan ID']]).setBackground('#1a2959').setFontColor('#ffffff').setFontWeight('bold').setVerticalAlignment('middle');
+  sh.getRange(5, 1, rows.length, 5).setValues(rows);
+  [5, 13].forEach(function (r) { sh.getRange(r, 1, 4, 5).setBackground('#edf5ff'); });
+  sh.getRange(4, 4, 13, 1).setHorizontalAlignment('right');
+  sh.getRange(5, 4, 12, 1).setNumberFormat('$#,##0');
+  sh.getRange(5, 5, 12, 1).setFontFamily('Roboto Mono').setFontSize(10);
+  sh.getRange(18, 1).setValue('Copy the cell below into Supabase > Edge Functions > Secrets > PAYPAL_PLANS.').setFontStyle('italic').setFontColor('#666673');
+  sh.getRange(19, 1).setValue(json).setFontFamily('Roboto Mono').setFontSize(9).setBackground('#f5f5f5').setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP);
+  [330, 90, 90, 100, 260].forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
+  sh.setRowHeight(4, 32); sh.setFrozenRows(4); sh.setHiddenGridlines(true); sh.setTabColor('#1a2959');
+  Logger.log(json);
 }

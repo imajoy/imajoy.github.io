@@ -7,3 +7,5 @@ https://imajoy.github.io/
 Built with HTML, CSS, JavaScript and Three.js, hosted on GitHub Pages.
 
 See LICENSE. Ajoy Tools is proprietary software. All rights reserved.
+
+SEO metadata and sitemap checks: `node scripts/check-seo.mjs`. See [SEO.md](SEO.md) for Search Console submission, structured-data limits and community discovery guidance.

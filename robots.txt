@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://imajoy.github.io/sitemap.xml

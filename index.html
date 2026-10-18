@@ -6,8 +6,8 @@
 <script>(function(){var t;try{t=localStorage.getItem("ajoy-theme")}catch(e){}if(t!=="dark"&&t!=="light")t="light";document.documentElement.setAttribute("data-theme",t)})()</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Ajoy Tools: production tools for Maya</title>
-<meta name="description" content="Thirteen production tools for Autodesk Maya 2023 and newer: exporters, IK/FK snapping, rig and scene utilities. Licensed per computer for studios.">
+<title>Ajoy Tools | Animation &amp; Pipeline Tools for Autodesk Maya</title>
+<meta name="description" content="Explore 13 animation and pipeline tools for Autodesk Maya 2023+ on Windows. Discover exporters, IK/FK and rig utilities. Try Online for 2 days where available.">
 <meta name="theme-color" content="#E9EDF3">
 <link rel="icon" type="image/svg+xml" href="assets/logo-mark.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
@@ -15,7 +15,174 @@
 <link rel="stylesheet" href="css/style.css?v=20261017-r14">
 <link rel="stylesheet" href="css/polish.css?v=20261018-l1">
 <link rel="stylesheet" href="css/extras.css?v=20261018-h4">
-  <link rel="stylesheet" href="css/flourish.css?v=20261018-h1"><link rel="stylesheet" href="css/motion.css?v=20261018-g5"><link rel="stylesheet" href="css/pricing-cards.css?v=20261018-r20"><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="css/account.css?v=20261018-n1"><link rel="stylesheet" href="css/trial-promotion.css?v=20261018-p1"><link rel="stylesheet" href="css/faq.css?v=20261018-f1"><link rel="stylesheet" href="css/tool-guide.css?v=20261018-m1"><link rel="stylesheet" href="css/workflows.css?v=20261018-w1"><link rel="stylesheet" href="css/availability.css?v=20261018-a1"></head>
+  <link rel="stylesheet" href="css/flourish.css?v=20261018-h1"><link rel="stylesheet" href="css/motion.css?v=20261018-g5"><link rel="stylesheet" href="css/pricing-cards.css?v=20261018-r20"><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="css/account.css?v=20261018-n1"><link rel="stylesheet" href="css/trial-promotion.css?v=20261018-p1"><link rel="stylesheet" href="css/faq.css?v=20261018-f1"><link rel="stylesheet" href="css/tool-guide.css?v=20261018-m1"><link rel="stylesheet" href="css/workflows.css?v=20261018-w1"><link rel="stylesheet" href="css/availability.css?v=20261018-a1">
+<link rel="canonical" href="https://imajoy.github.io/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Ajoy Tools">
+<meta property="og:title" content="Ajoy Tools | Animation &amp; Pipeline Tools for Autodesk Maya">
+<meta property="og:description" content="Explore 13 animation and pipeline tools for Autodesk Maya 2023+ on Windows. Discover exporters, IK/FK and rig utilities. Try Online for 2 days where available.">
+<meta property="og:url" content="https://imajoy.github.io/">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Ajoy Tools | Animation &amp; Pipeline Tools for Autodesk Maya">
+<meta name="twitter:description" content="Explore 13 animation and pipeline tools for Autodesk Maya 2023+ on Windows. Discover exporters, IK/FK and rig utilities. Try Online for 2 days where available.">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebPage",
+      "@id": "https://imajoy.github.io/#webpage",
+      "url": "https://imajoy.github.io/",
+      "name": "Ajoy Tools | Animation & Pipeline Tools for Autodesk Maya",
+      "description": "Explore 13 animation and pipeline tools for Autodesk Maya 2023+ on Windows. Discover exporters, IK/FK and rig utilities. Try Online for 2 days where available.",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://imajoy.github.io/#website"
+      },
+      "about": {
+        "@id": "https://imajoy.github.io/#software"
+      },
+      "mainEntity": {
+        "@id": "https://imajoy.github.io/#software"
+      }
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://imajoy.github.io/#website",
+      "url": "https://imajoy.github.io/",
+      "name": "Ajoy Tools",
+      "inLanguage": "en",
+      "publisher": {
+        "@id": "https://imajoy.github.io/#publisher"
+      }
+    },
+    {
+      "@type": "Organization",
+      "@id": "https://imajoy.github.io/#publisher",
+      "name": "Ajoy Tools",
+      "url": "https://imajoy.github.io/",
+      "logo": "https://imajoy.github.io/assets/logo-mark.svg"
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://imajoy.github.io/#software",
+      "name": "Ajoy Tools",
+      "url": "https://imajoy.github.io/",
+      "description": "Explore 13 animation and pipeline tools for Autodesk Maya 2023+ on Windows. Discover exporters, IK/FK and rig utilities. Try Online for 2 days where available.",
+      "applicationCategory": "DesignApplication",
+      "applicationSubCategory": "3D animation and production pipeline tools",
+      "operatingSystem": "Windows",
+      "softwareRequirements": "Autodesk Maya 2023 or newer. FBX Exporter needs fbxmaya; Alembic Exporter needs AbcExport; Audio Exporter needs a separate FFmpeg installation.",
+      "isAccessibleForFree": false,
+      "publisher": {
+        "@id": "https://imajoy.github.io/#publisher"
+      },
+      "featureList": [
+        "Advanced IK FK Switch",
+        "Alembic Exporter",
+        "Audio Exporter",
+        "FBX Exporter",
+        "Hotkey Manager",
+        "IK / FK Snap",
+        "Layer Prefix Remover",
+        "Multi Swapper",
+        "Playblast",
+        "Rebake IK Space",
+        "Revert to Last Saved",
+        "Rivet",
+        "UDIM Preview"
+      ]
+    },
+    {
+      "@type": "ItemList",
+      "name": "The 13 Ajoy Tools for Autodesk Maya",
+      "numberOfItems": 13,
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Advanced IK FK Switch",
+          "url": "https://imajoy.github.io/tool-advanced-ik-fk-switch.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Alembic Exporter",
+          "url": "https://imajoy.github.io/tool-alembic-exporter.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Audio Exporter",
+          "url": "https://imajoy.github.io/tool-audio-exporter.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "FBX Exporter",
+          "url": "https://imajoy.github.io/tool-fbx-exporter.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 5,
+          "name": "Hotkey Manager",
+          "url": "https://imajoy.github.io/tool-hotkey-manager.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 6,
+          "name": "IK / FK Snap",
+          "url": "https://imajoy.github.io/tool-ik-fk-snap.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 7,
+          "name": "Layer Prefix Remover",
+          "url": "https://imajoy.github.io/tool-layer-prefix-remover.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 8,
+          "name": "Multi Swapper",
+          "url": "https://imajoy.github.io/tool-multi-swapper.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 9,
+          "name": "Playblast",
+          "url": "https://imajoy.github.io/tool-playblast.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 10,
+          "name": "Rebake IK Space",
+          "url": "https://imajoy.github.io/tool-rebake-ik-space.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 11,
+          "name": "Revert to Last Saved",
+          "url": "https://imajoy.github.io/tool-revert-to-last-saved.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 12,
+          "name": "Rivet",
+          "url": "https://imajoy.github.io/tool-rivet.html"
+        },
+        {
+          "@type": "ListItem",
+          "position": 13,
+          "name": "UDIM Preview",
+          "url": "https://imajoy.github.io/tool-udim-preview.html"
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
 

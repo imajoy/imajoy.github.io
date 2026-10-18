@@ -1,5 +1,6 @@
 import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261018-g5';
 import {detectGeo,cachedGeo} from './geo.js?v=20261018-g5';
+import {localApprox} from './fx.js?v=20261018-h4';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0;
 function chooseBilling(value){
@@ -19,6 +20,10 @@ async function render(){
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;
    amount.textContent=money(quote.unitAmount,quote.currency);animate(amount);
+   let loc=amount.closest('.price').parentElement.querySelector('.local-amt');
+   if(!loc){loc=document.createElement('p');loc.className='local-amt';amount.closest('.price').after(loc);}
+   loc.textContent='';
+   if(quote.currency==='USD')localApprox(quote.unitAmount/100,cachedGeo()).then(t=>{if(current===revision)loc.textContent=t?t+' (shown for reference, billed in USD)':'';});
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
    note.textContent=(billing==='yearly'?'Billed annually. ':'Billed monthly. ')+'Final price, no tax added at checkout.';
    yearlyLink.hidden=billing!=='monthly';

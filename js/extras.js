@@ -104,7 +104,7 @@ document.querySelectorAll('[data-trial-days]').forEach(n => { n.textContent = St
   if (!plans || !matchMedia('(max-width:680px)').matches || !('IntersectionObserver' in window)) return;
   const bar = el('div', 'm-cta');
   const p = el('a', 'primary', 'View plans'); p.href = '#pricing';
-  if (cfg.trialOpen) { const t = el('a', '', 'Free trial'); t.href = '#trial'; bar.append(t); }
+  if (cfg.trialOpen || document.querySelector('.trial-showcase')) { const t = el('a', '', '2-day trial'); t.href = '#trial'; bar.append(t); }
   bar.append(p); document.body.appendChild(bar);
   const hero = document.querySelector('.hero');
   const seen = new Set();

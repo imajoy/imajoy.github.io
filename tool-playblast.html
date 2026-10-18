@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="css/tool.css?v=20261018-t2">
 <link rel="stylesheet" href="css/motion.css?v=20261018-g5">
 <link rel="stylesheet" href="css/extras.css?v=20261018-h5">
-<link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="css/account.css?v=20261018-l1"></head>
+<link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="css/account.css?v=20261018-l1"><link rel="stylesheet" href="css/tool-guide.css?v=20261018-m1"><link rel="stylesheet" href="css/trial-promotion.css?v=20261018-m1"></head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -59,30 +59,34 @@
         <a class="crumb" href="index.html#tools"><svg class="ico" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>All 13 tools</a>
         <p class="cat-pill">Export</p>
         <h1 class="intro"><span class="ln"><span>Playblast</span></span></h1>
-        <p class="lead intro-fade">Capture camera previews with resolution presets and audio.</p>
+        <p class="lead intro-fade">Choose a shot camera and a saved setup for consistent review movies and dailies. Resolution, frame range, format, codec and scene-audio options live together in one window.</p>
         <div class="actions intro-fade">
-          <a class="btn btn-dark" href="index.html#pricing">Get access</a>
+          <a class="btn btn-dark" href="index.html#trial" data-trial-cta>Explore the 2-day trial</a>
           <a class="btn btn-light" href="index.html#install"><svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download setup</a>
         </div>
       </div>
-      <div class="tool-art" aria-hidden="true">
-        <div class="art-ring ring1"></div><div class="art-ring ring2"></div>
-        <div class="art-tile tilt" data-tilt="14"><svg viewBox="0 0 24 24"><use href="#i-play"/></svg></div>
-        <span class="orbit-chip oc1">Presets</span><span class="orbit-chip oc2">Audio</span><span class="orbit-chip oc3">Preview</span>
-      </div>
+      <figure class="tool-visual loop-graphic reveal" data-tool-motion data-phase="0">
+        <div class="visual-heading"><span>THE WORKFLOW</span><span class="visual-dot" aria-hidden="true"></span></div>
+        <div class="tool-diagram diagram-playblast"><svg viewBox="0 0 640 330" aria-hidden="true" focusable="false"><rect x="45" y="35" width="550" height="239" rx="18" class="diagram-box"/><path d="M67 83V57H104M536 57H573V83M67 226V252H104M536 252H573V226" class="diagram-wire"/><g class="diagram-live"><circle cx="320" cy="103" r="18"/><path d="M320 122V177M278 149L320 137L362 149M320 177L287 222M320 177L353 222" class="diagram-bone"/></g><text x="83" y="85" class="diagram-small">SHOT CAMERA</text><text x="480" y="85" class="diagram-small">1080p</text><path d="M90 294H550" class="diagram-track"/><circle cx="110" cy="294" r="6" class="diagram-scrubber"/></svg></div>
+        <ol class="workflow-beats" aria-label="Explore the workflow"><li><button type="button" data-tool-step="0" aria-pressed="true" disabled><span>01</span>Camera + preset</button></li><li><button type="button" data-tool-step="1" aria-pressed="false" disabled><span>02</span>Range + audio</button></li><li><button type="button" data-tool-step="2" aria-pressed="false" disabled><span>03</span>Review output</button></li></ol>
+        <figcaption>Animated workflow illustration · based on the Ajoy Tools guide</figcaption>
+      </figure>
     </div>
   </section>
 
   <section class="block tool-demo" data-demo hidden></section>
 
-  <section class="block tool-body">
+  <section class="block tool-body tool-guide" aria-labelledby="guide-heading">
     <div class="wrap">
-      <div class="tgrid">
-        <article class="tcard reveal "><h2>What it does</h2><ul><li>Captures a preview from your camera</li><li>Resolution presets, so you do not set them by hand</li><li>Includes the shot audio</li></ul></article>
-        <article class="tcard reveal "><h2>What you need</h2><ul><li>Autodesk Maya 2023 or newer, on Windows</li><li>An active Ajoy Tools license</li></ul></article>
-        <article class="tcard reveal "><h2>Where to find it</h2><ul><li>Open it from the Ajoy Tools menu in Maya, or from the Ajoy Tools shelf</li><li>Right-click it and choose Assign Hotkey to give it its own shortcut</li></ul></article>
+      <div class="guide-intro reveal"><p class="eyebrow">BUILT FOR THE WAY YOU WORK</p><h2 id="guide-heading">Review the shot. Keep the setup.</h2><div class="guide-tags"><span>Camera presets</span><span>Scene audio</span><span>Movies or frames</span></div></div>
+      <div class="guide-features"><article class="guide-feature reveal"><span class="guide-index">01</span><h3>Presets for repeatable reviews</h3><p>Save, load, update and delete complete playblast setups by name.</p></article><article class="guide-feature reveal"><span class="guide-index">02</span><h3>The resolution you need</h3><p>From Camera, HD 1080p, HD 720p, 2K, 4K, Half (960×540) or Custom, with a timeline or custom range.</p></article><article class="guide-feature reveal"><span class="guide-index">03</span><h3>Movie or image sequence</h3><p>Use available QuickTime codecs, AVI, or PNG, JPEG, TIF, TGA and EXR sequences, with quality and padding options.</p></article><article class="guide-feature reveal"><span class="guide-index">04</span><h3>Sound and camera care</h3><p>Include scene audio, optionally verify it, and restore the camera’s pan and zoom after capture. Ornaments and off-screen capture are optional.</p></article></div>
+      <div class="guide-workflow">
+        <div class="guide-step-heading reveal"><p class="eyebrow">FROM THE SHELF TO THE RESULT</p><h2>Make it part of<br>your workflow.</h2><p>Open the tool from the Ajoy Tools shelf or menu. Right-click its shelf button to assign your own hotkey.</p><small>Autodesk Maya 2023+ · Windows</small></div>
+        <ol class="guide-steps"><li class="reveal"><span class="step-index">01</span><div><h3>Choose camera and preset</h3><p>Load a named preset or choose the camera yourself.</p></div></li><li class="reveal"><span class="step-index">02</span><div><h3>Frame the review</h3><p>Set resolution and start/end frames, or use the timeline.</p></div></li><li class="reveal"><span class="step-index">03</span><div><h3>Choose the output</h3><p>Set the folder, name, format and codec, then choose audio and viewport options.</p></div></li><li class="reveal"><span class="step-index">04</span><div><h3>Capture</h3><p>Click Export Playblast. Open the folder on completion if you enabled that option.</p></div></li></ol>
       </div>
-      <p class="fine tnote reveal">Every tool is included in both plans. See <a href="index.html#pricing">plans</a> or the <a href="license.html">license</a>.</p>
+      <aside class="guide-notes reveal"><div><p class="eyebrow">BEFORE YOU START</p><h3>What you need</h3><p>Codecs available on your computer. FFmpeg is optional for audio verification.</p></div><div><p class="eyebrow">GOOD TO KNOW</p><h3>A detail worth keeping in mind.</h3><p>A file with the same name in the destination folder is replaced.</p></div></aside>
+      <p class="guide-source">Tool details: Ajoy Tools User Guide, page 7. All 13 tools are included in Online and Offline. Using the tools requires an active trial or license.</p>
+      <aside class="tool-trial reveal"><div class="tool-trial-mark" aria-hidden="true"><span>02</span><small>DAYS</small></div><div><p class="eyebrow">TRY IT IN YOUR OWN WORKFLOW</p><h2>This tool. And twelve more.</h2><p>Explore the 2-day Online free trial. Work with the full toolkit in Maya before the first subscription payment.</p><small>Eligible Online plans only. PayPal approval required. Billing starts automatically after two days unless you cancel in PayPal.</small></div><div class="tool-trial-action"><a class="btn btn-dark" href="index.html#trial" data-trial-cta>Explore the 2-day trial <svg class="trial-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L18 6M6 6h12v12"/></svg></a><p class="trial-availability" data-trial-status>Availability is confirmed at checkout.</p></div></aside>
     </div>
   </section>
 
@@ -106,5 +110,5 @@
 </footer>
 <script src="js/main.js?v=20261018-t2"></script>
 <script type="module" src="js/extras.js?v=20261018-g5"></script>
-<script type="module" src="js/ui-motion.js?v=20261017-r12"></script><script src="js/site-config.js?v=20261018-j1"></script><script type="module" src="js/account.js?v=20261018-l1"></script></body>
+<script type="module" src="js/ui-motion.js?v=20261017-r12"></script><script src="js/site-config.js?v=20261018-j1"></script><script type="module" src="js/account.js?v=20261018-l1"></script><script type="module" src="js/tool-guide.js?v=20261018-m1"></script><script type="module" src="js/trial-promotion.js?v=20261018-m1"></script></body>
 </html>

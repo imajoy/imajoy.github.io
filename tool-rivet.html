@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="css/tool.css?v=20261018-t2">
 <link rel="stylesheet" href="css/motion.css?v=20261018-g5">
 <link rel="stylesheet" href="css/extras.css?v=20261018-h5">
-<link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="css/account.css?v=20261018-l1"></head>
+<link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="css/account.css?v=20261018-l1"><link rel="stylesheet" href="css/tool-guide.css?v=20261018-m1"><link rel="stylesheet" href="css/trial-promotion.css?v=20261018-m1"></head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -59,30 +59,34 @@
         <a class="crumb" href="index.html#tools"><svg class="ico" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>All 13 tools</a>
         <p class="cat-pill">Rigging</p>
         <h1 class="intro"><span class="ln"><span>Rivet</span></span></h1>
-        <p class="lead intro-fade">Attach a locator to a polygon or NURBS surface.</p>
+        <p class="lead intro-fade">Create a locator attached to a polygon or NURBS surface. Parent an accessory, control or prop to that locator so it follows the moving, deforming surface.</p>
         <div class="actions intro-fade">
-          <a class="btn btn-dark" href="index.html#pricing">Get access</a>
+          <a class="btn btn-dark" href="index.html#trial" data-trial-cta>Explore the 2-day trial</a>
           <a class="btn btn-light" href="index.html#install"><svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download setup</a>
         </div>
       </div>
-      <div class="tool-art" aria-hidden="true">
-        <div class="art-ring ring1"></div><div class="art-ring ring2"></div>
-        <div class="art-tile tilt" data-tilt="14"><svg viewBox="0 0 24 24"><use href="#i-rivet"/></svg></div>
-        <span class="orbit-chip oc1">Polygon</span><span class="orbit-chip oc2">NURBS</span><span class="orbit-chip oc3">Locator</span>
-      </div>
+      <figure class="tool-visual loop-graphic reveal" data-tool-motion data-phase="0">
+        <div class="visual-heading"><span>THE WORKFLOW</span><span class="visual-dot" aria-hidden="true"></span></div>
+        <div class="tool-diagram diagram-rivet"><svg viewBox="0 0 640 330" aria-hidden="true" focusable="false"><g class="diagram-surface"><path d="M60 160Q173 94 315 152T584 155L583 244Q456 289 316 225T60 245ZM60 189Q173 123 315 181T584 184M60 217Q173 151 315 209T584 213M155 125V230M250 136V226M346 164V238M444 183V258M535 172V254" class="diagram-wire"/><path d="M322 74V157M306 90H338" class="diagram-pin"/><circle cx="322" cy="157" r="9"/><rect x="307" y="46" width="30" height="30" rx="8" class="diagram-box"/></g><text x="263" y="30" class="diagram-text">Attached prop</text><text x="140" y="307" class="diagram-small">Surface → locator → your attached object</text></svg></div>
+        <ol class="workflow-beats" aria-label="Explore the workflow"><li><button type="button" data-tool-step="0" aria-pressed="true" disabled><span>01</span>Select edges or a point</button></li><li><button type="button" data-tool-step="1" aria-pressed="false" disabled><span>02</span>Create an attached locator</button></li><li><button type="button" data-tool-step="2" aria-pressed="false" disabled><span>03</span>Parent your object</button></li></ol>
+        <figcaption>Animated workflow illustration · based on the Ajoy Tools guide</figcaption>
+      </figure>
     </div>
   </section>
 
   <section class="block tool-demo" data-demo hidden></section>
 
-  <section class="block tool-body">
+  <section class="block tool-body tool-guide" aria-labelledby="guide-heading">
     <div class="wrap">
-      <div class="tgrid">
-        <article class="tcard reveal "><h2>What it does</h2><ul><li>Attaches a locator to a polygon surface</li><li>Attaches a locator to a NURBS surface</li><li>Gives you a stable point that follows the surface</li></ul></article>
-        <article class="tcard reveal "><h2>What you need</h2><ul><li>Autodesk Maya 2023 or newer, on Windows</li><li>An active Ajoy Tools license</li></ul></article>
-        <article class="tcard reveal "><h2>Where to find it</h2><ul><li>Open it from the Ajoy Tools menu in Maya, or from the Ajoy Tools shelf</li><li>Right-click it and choose Assign Hotkey to give it its own shortcut</li></ul></article>
+      <div class="guide-intro reveal"><p class="eyebrow">BUILT FOR THE WAY YOU WORK</p><h2 id="guide-heading">Give your prop a place on the surface.</h2><div class="guide-tags"><span>Polygon + NURBS</span><span>Follows deformation</span><span>One-step undo</span></div></div>
+      <div class="guide-features"><article class="guide-feature reveal"><span class="guide-index">01</span><h3>Polygon or NURBS</h3><p>Use two polygon edges or one point on a NURBS surface.</p></article><article class="guide-feature reveal"><span class="guide-index">02</span><h3>Follow the deformation</h3><p>The created locator follows the surface as it moves and deforms.</p></article><article class="guide-feature reveal"><span class="guide-index">03</span><h3>One undo step</h3><p>The created setup is grouped into a single undo operation; Ctrl+Z removes it.</p></article><article class="guide-feature reveal"><span class="guide-index">04</span><h3>Clear selection feedback</h3><p>An invalid selection produces a message describing what you need to select.</p></article></div>
+      <div class="guide-workflow">
+        <div class="guide-step-heading reveal"><p class="eyebrow">FROM THE SHELF TO THE RESULT</p><h2>Make it part of<br>your workflow.</h2><p>Open the tool from the Ajoy Tools shelf or menu. Right-click its shelf button to assign your own hotkey.</p><small>Autodesk Maya 2023+ · Windows</small></div>
+        <ol class="guide-steps"><li class="reveal"><span class="step-index">01</span><div><h3>Choose a surface location</h3><p>Select two edges on a polygon mesh, or one point on a NURBS surface.</p></div></li><li class="reveal"><span class="step-index">02</span><div><h3>Create the rivet</h3><p>Click Rivet on the Ajoy Tools shelf.</p></div></li><li class="reveal"><span class="step-index">03</span><div><h3>Attach the object</h3><p>Parent the prop, accessory or control to the created locator.</p></div></li></ol>
       </div>
-      <p class="fine tnote reveal">Every tool is included in both plans. See <a href="index.html#pricing">plans</a> or the <a href="license.html">license</a>.</p>
+      <aside class="guide-notes reveal"><div><p class="eyebrow">BEFORE YOU START</p><h3>What you need</h3><p>Two selected polygon edges or one selected NURBS surface point.</p></div><div><p class="eyebrow">GOOD TO KNOW</p><h3>A detail worth keeping in mind.</h3><p>The tool creates the attached locator. Parent your object to that locator afterwards.</p></div></aside>
+      <p class="guide-source">Tool details: Ajoy Tools User Guide, page 12. All 13 tools are included in Online and Offline. Using the tools requires an active trial or license.</p>
+      <aside class="tool-trial reveal"><div class="tool-trial-mark" aria-hidden="true"><span>02</span><small>DAYS</small></div><div><p class="eyebrow">TRY IT IN YOUR OWN WORKFLOW</p><h2>This tool. And twelve more.</h2><p>Explore the 2-day Online free trial. Work with the full toolkit in Maya before the first subscription payment.</p><small>Eligible Online plans only. PayPal approval required. Billing starts automatically after two days unless you cancel in PayPal.</small></div><div class="tool-trial-action"><a class="btn btn-dark" href="index.html#trial" data-trial-cta>Explore the 2-day trial <svg class="trial-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L18 6M6 6h12v12"/></svg></a><p class="trial-availability" data-trial-status>Availability is confirmed at checkout.</p></div></aside>
     </div>
   </section>
 
@@ -106,5 +110,5 @@
 </footer>
 <script src="js/main.js?v=20261018-t2"></script>
 <script type="module" src="js/extras.js?v=20261018-g5"></script>
-<script type="module" src="js/ui-motion.js?v=20261017-r12"></script><script src="js/site-config.js?v=20261018-j1"></script><script type="module" src="js/account.js?v=20261018-l1"></script></body>
+<script type="module" src="js/ui-motion.js?v=20261017-r12"></script><script src="js/site-config.js?v=20261018-j1"></script><script type="module" src="js/account.js?v=20261018-l1"></script><script type="module" src="js/tool-guide.js?v=20261018-m1"></script><script type="module" src="js/trial-promotion.js?v=20261018-m1"></script></body>
 </html>

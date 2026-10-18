@@ -1,4 +1,5 @@
-import {regionalPrice} from './regions.js?v=20261018-g2';
+import {regionalPrice} from './regions.js?v=20261018-g3';
+import {cachedGeo} from './geo.js?v=20261018-g3';
 export const apiBase = (window.AJOY_CONFIG?.apiBase || '').replace(/\/$/, '');
 export const money = (amount,currency) => new Intl.NumberFormat(navigator.language || 'en', {style:'currency',currency,minimumFractionDigits:Number.isInteger(amount/100)?0:2,maximumFractionDigits:2}).format(amount/100);
 export async function api(path, options = {}) {
@@ -10,6 +11,8 @@ export async function api(path, options = {}) {
   return data;
 }
 export function suggestedCountry() {
+  const seen=cachedGeo();
+  if(seen)return seen;
   const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   if(['Asia/Calcutta','Asia/Kolkata'].includes(timezone))return 'IN';
   if(timezone==='Asia/Karachi')return 'PK';

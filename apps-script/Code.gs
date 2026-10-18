@@ -53,6 +53,48 @@ function saveLead_(email) {
 }
 
 /* ---------- 2) orders ---------- */
+/* Keep these lists the same as js/regions.js. Used only to spot buyers who paid a cheaper regional price. */
+var LOW_ = 'PK BD NP LK EG NG KE GH ET TZ UG ZM ZW SN CM MM KH LA AF'.split(' ');
+var MID_ = 'ID PH VN BR MX ZA TR TH MY CO AR CL PE UA RS KZ GE AM AZ MA TN DZ JO LB EC DO CR PA GT CN UZ MN JM'.split(' ');
+var CLOSED_ = 'IN AT BE BG HR CY CZ DK EE FI FR DE GR HU IE IT LV LT LU MT NL PL PT RO SK SI ES SE GB NO IS LI RU BY IR KP SY CU'.split(' ');
+var RANK_ = { low: 0, mid: 1, high: 2 };
+function tierFor_(c) { return LOW_.indexOf(c) >= 0 ? 'low' : MID_.indexOf(c) >= 0 ? 'mid' : 'high'; }
+function planTier_(planId) {
+  var saved = props_().getProperty('PLANS_' + mode_());
+  if (!saved || !planId) return '';
+  var tiers = (JSON.parse(saved).tiers) || {};
+  for (var t in tiers) for (var k in tiers[t]) for (var p in tiers[t][k]) if (tiers[t][k][p] === planId) return t;
+  return '';
+}
+/* Best effort: PayPal does not always tell us the buyer's country right after approval. */
+function payerCountry_(s, t, subId) {
+  try {
+    var a = s.subscriber && s.subscriber.shipping_address && s.subscriber.shipping_address.address;
+    if (a && a.country_code) return String(a.country_code).toUpperCase();
+    var now = new Date(), from = new Date(now.getTime() - 2 * 86400000), to = new Date(now.getTime() + 86400000);
+    var r = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(subId) + '/transactions?start_time=' + from.toISOString() + '&end_time=' + to.toISOString(),
+      { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t } });
+    if (r.getResponseCode() === 200) {
+      var tx = (JSON.parse(r.getContentText()).transactions || [])[0] || {};
+      var pi = tx.payer_info || {};
+      var cc = pi.country_code || (pi.address && pi.address.country_code) || '';
+      if (cc) return String(cc).toUpperCase();
+    }
+  } catch (err) { /* unknown */ }
+  return '';
+}
+/* Returns a list of plain-language warnings (empty when everything lines up). */
+function priceFlags_(paidTier, chosen, detected, payer) {
+  var flags = [];
+  if (!paidTier) paidTier = tierFor_(chosen);
+  [['connection', detected], ['PayPal account', payer]].forEach(function (x) {
+    var c = x[1];
+    if (!c) return;
+    if (CLOSED_.indexOf(c) >= 0) flags.push('The ' + x[0] + ' country is ' + c + ', a region that is closed for now.');
+    else if (RANK_[tierFor_(c)] > RANK_[paidTier]) flags.push('The ' + x[0] + ' country is ' + c + ' (' + tierFor_(c) + ' price) but the plan paid is the ' + paidTier + ' price.');
+  });
+  return flags;
+}
 function token_() {
   var p = props_(), id = p.getProperty('PAYPAL_CLIENT_ID'), secret = p.getProperty('PAYPAL_SECRET');
   if (!id || !secret) return '';
@@ -80,7 +122,7 @@ function handleOrder_(d) {
     var sheet = ss.getSheetByName(ORDERS_SHEET);
     if (!sheet) {
       sheet = ss.insertSheet(ORDERS_SHEET);
-      sheet.appendRow(['Time', 'Subscription ID', 'PayPal status', 'Mode', 'Buyer email', 'Name', 'Country', 'Plan', 'Billing', 'Licenses', 'Company', 'PayPal plan ID', 'License sent? (you fill)']);
+      sheet.appendRow(['Time', 'Subscription ID', 'PayPal status', 'Mode', 'Buyer email', 'Name', 'Billing country', 'Plan', 'Billing', 'Licenses', 'Company', 'PayPal plan ID', 'Detected country', 'PayPal country', 'Price check', 'License sent? (you fill)']);
       sheet.setFrozenRows(1);
     }
     var last = sheet.getLastRow();
@@ -88,7 +130,7 @@ function handleOrder_(d) {
       var ids = sheet.getRange(2, 2, last - 1, 1).getValues();
       for (var i = 0; i < ids.length; i++) if (ids[i][0] === subId) return 'duplicate';
     }
-    var status = 'UNVERIFIED', planId = '', paypalEmail = '';
+    var status = 'UNVERIFIED', planId = '', paypalEmail = '', payer = '';
     var t = token_();
     if (t) {
       var r = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(subId), {
@@ -98,10 +140,14 @@ function handleOrder_(d) {
         var s = JSON.parse(r.getContentText());
         status = s.status || 'UNKNOWN'; planId = s.plan_id || '';
         paypalEmail = (s.subscriber && s.subscriber.email_address) || '';
+        payer = payerCountry_(s, t, subId);
       } else { status = 'NOT_FOUND'; }
     }
     var verified = status === 'ACTIVE' || status === 'APPROVED';
-    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, '']);
+    var detected = clip_(d.detectedCountry, 2).toUpperCase();
+    var flags = priceFlags_(planTier_(planId), clip_(d.country, 2).toUpperCase(), detected, payer);
+    if (detected && detected !== clip_(d.country, 2).toUpperCase() && flags.length === 0) flags.push('Billing country (' + clip_(d.country, 2) + ') differs from the connection country (' + detected + '), but the price is not lower.');
+    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, detected, payer, flags.length ? 'CHECK' : 'ok', '']);
 
     var test = mode_() !== 'live';
     var planText = 'Ajoy Tools ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)';
@@ -111,9 +157,10 @@ function handleOrder_(d) {
     /* You always get a reminder, even if the order could not be verified. */
     MailApp.sendEmail({
       to: owner, name: 'Ajoy Tools orders',
-      subject: tag + (verified ? 'New order: send the license key' : 'CHECK THIS ORDER (' + status + ')'),
+      subject: tag + (flags.length && verified ? 'CHECK PRICE, then send the license key' : verified ? 'New order: send the license key' : 'CHECK THIS ORDER (' + status + ')'),
       body: 'Plan: ' + planText + '\nSubscription ID: ' + subId + '\nPayPal status: ' + status + '\nBuyer email (form): ' + email + '\nPayPal email: ' + paypalEmail +
-        '\nName: ' + clip_(d.name, 80) + '\nCountry: ' + clip_(d.country, 2) + '\nCompany: ' + clip_(d.company, 80) + '\n\nPromise made to the buyer: license key within 12 hours.\nMark "License sent?" in the Orders tab when done.'
+        '\nName: ' + clip_(d.name, 80) + '\nBilling country: ' + clip_(d.country, 2) + '\nConnection country: ' + (detected || 'unknown') + '\nPayPal buyer country: ' + (payer || 'not reported (check the payment in PayPal > Activity)') + '\nCompany: ' + clip_(d.company, 80) +
+        (flags.length ? '\n\nPRICE CHECK NEEDED BEFORE YOU SEND THE KEY:\n- ' + flags.join('\n- ') + '\nIf the buyer is not in the region of the price they paid, cancel the subscription in PayPal or ask them to subscribe again at the right price.' : '') + '\n\nPromise made to the buyer: license key within 12 hours.\nMark "License sent?" in the Orders tab when done.'
     });
 
     /* The buyer only gets a confirmation when PayPal confirms the subscription. */

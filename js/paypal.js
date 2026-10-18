@@ -1,7 +1,8 @@
 /* PayPal subscription buttons for the checkout page.
    Settings (Client ID, plan IDs, mode) come from the paypal-config function. No secrets are used here.
    Plans are picked by the buyer's region tier (see regions.js). */
-import { tierFor, availability, closedMessage } from './regions.js?v=20261018-g2';
+import { tierFor, availability, closedMessage, countryCheck } from './regions.js?v=20261018-g3';
+import { rememberGeo } from './geo.js?v=20261018-g3';
 
 const url = window.AJOY_CONFIG && window.AJOY_CONFIG.paypalConfigUrl;
 const orderUrl = window.AJOY_CONFIG && window.AJOY_CONFIG.sheetUrl;
@@ -19,6 +20,19 @@ if (url && form && pay) {
 
 if (cfg && cfg.clientId && cfg.plans && form && pay) {
   const test = cfg.mode !== 'live';
+  const detected = rememberGeo(cfg.country); /* where the buyer really connects from */
+  const extraClosed = Array.isArray(cfg.closedCountries) ? cfg.closedCountries : [];
+  let names = null;
+  try { names = new Intl.DisplayNames([navigator.language || 'en'], { type: 'region' }); } catch (e) { names = null; }
+  const nameOf = c => { try { return (names && names.of(c)) || c; } catch (e) { return c; } };
+  const sel = form.elements.country;
+  /* Start on the detected country so the price matches where the buyer is. */
+  if (detected && sel && sel.value !== detected && [...sel.options].some(o => o.value === detected)) {
+    sel.value = detected; sel.dispatchEvent(new Event('change', { bubbles: true }));
+  }
+  const geoNote = document.createElement('p');
+  geoNote.className = 'form-hint'; geoNote.id = 'geo-note'; geoNote.setAttribute('role', 'status'); geoNote.hidden = true;
+  if (sel && sel.parentElement) sel.parentElement.appendChild(geoNote);
   const box = document.createElement('div');
   box.className = 'paypal-box';
   box.innerHTML =
@@ -44,11 +58,16 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
   };
   const avail = document.querySelector('#availability');
   const syncRegion = () => {
-    const c = choice(), a = availability(c.country);
-    const ok = a.open && !!planFor(c);
+    const c = choice(), a = availability(c.country, extraClosed), chk = countryCheck(c.country, detected);
+    const ok = a.open && !!planFor(c) && chk.ok;
     closed.hidden = ok; buttons.hidden = !ok;
     box.querySelector('.paypal-fine').hidden = !ok;
-    closed.textContent = a.open ? 'This plan is not available yet.' : closedMessage[a.reason];
+    closed.textContent = !a.open ? closedMessage[a.reason]
+      : !chk.ok && !availability(chk.detected, extraClosed).open ? closedMessage[availability(chk.detected, extraClosed).reason]
+      : !chk.ok ? 'Your connection appears to be from ' + nameOf(chk.detected) + '. Please choose ' + nameOf(chk.detected) + ' as your billing country, or contact Ajoy if you are paying from another country.'
+      : 'This plan is not available yet.';
+    geoNote.hidden = !detected;
+    geoNote.textContent = detected ? 'Your price follows your location (' + nameOf(detected) + ').' : '';
     if (avail) avail.textContent = ok
       ? (test ? 'Test mode: review your billing details, then subscribe with PayPal. No real money moves.' : 'Review your billing details, then subscribe securely with PayPal.')
       : closed.textContent;
@@ -62,7 +81,7 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
     const g = n => (form.elements[n] && form.elements[n].value || '').trim();
     try {
       fetch(orderUrl, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ type: 'order', subscriptionId: subId, email: g('email'), name: g('name'), country: c.country, plan: c.plan, billing: c.billing, seats: c.seats, company: g('company') }) });
+        body: JSON.stringify({ type: 'order', subscriptionId: subId, email: g('email'), name: g('name'), country: c.country, plan: c.plan, billing: c.billing, seats: c.seats, company: g('company'), detectedCountry: detected }) });
     } catch (e) { /* the owner can still see the subscription in PayPal */ }
   };
   function showDone(subId) {
@@ -103,7 +122,8 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
     window.paypal.Buttons({
       style: { layout: 'vertical', shape: 'pill', color: 'blue', label: 'subscribe', height: 46 },
       onClick: (data, actions) => {
-        if (!availability(choice().country).open) return actions.reject();
+        const pick = choice();
+        if (!availability(pick.country, extraClosed).open || !countryCheck(pick.country, detected).ok) return actions.reject();
         if (!form.reportValidity()) { say('Please complete the billing details above first.', true); return actions.reject(); }
         say('');
         return actions.resolve();
@@ -115,7 +135,7 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
         const email = (form.elements.email && form.elements.email.value || '').trim();
         const req = {
           plan_id: planId,
-          custom_id: [c.plan, c.billing, c.seats, c.country].join('|'),
+          custom_id: [c.plan, c.billing, c.seats, c.country, detected || '-'].join('|'),
           application_context: { brand_name: 'Ajoy Tools', shipping_preference: 'NO_SHIPPING', user_action: 'SUBSCRIBE_NOW' }
         };
         if (c.seats > 1) req.quantity = String(c.seats);

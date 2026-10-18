@@ -25,6 +25,16 @@ test('Regional price table: yearly is 12 months less about 20%, offline is doubl
  assert.equal(tierFor('US'),'high');assert.equal(tierFor('BR'),'mid');assert.equal(tierFor('PK'),'low');
  assert.equal(availability('US').open,true);assert.equal(availability('DE').open,false);assert.equal(availability('GB').reason,'tax');assert.equal(availability('IN').reason,'india');
 });
+test('Billing country must match the connection country; PayPal-unsupported countries are closed',async()=>{
+ const {availability,countryCheck}=await import('../js/regions.js');
+ assert.equal(availability('LK').open,true);assert.equal(availability('PK').reason,'paypal');assert.equal(availability('LK',['LK']).reason,'paypal');
+ assert.equal(countryCheck('LK','LK').ok,true);assert.equal(countryCheck('LK','').ok,true);
+ assert.equal(countryCheck('LK','US').ok,false,'US visitor cannot pick the cheap tier');
+ assert.equal(countryCheck('US','LK').ok,true,'paying the dearer tier is allowed');
+ assert.equal(countryCheck('US','DE').ok,false,'EU visitor cannot pick an open country');
+ assert.equal(countryCheck('US','IN').ok,false);
+ assert.equal(countryCheck('BR','US').ok,false);assert.equal(countryCheck('US','BR').ok,true);
+});
 test('A valid monthly coupon discounts server subtotal and preserves original prices',async()=>{
  const quote=priceFor('IN');const result=await applyCoupon(quote,' test-owner-10 ',await registry(makeRule()));
  assert.equal(result.subtotal,80910);assert.equal(result.baseSubtotal,89900);assert.equal(result.unitAmount,89900);assert.equal(result.coupon.discountAmount,8990);assert.equal(result.coupon.percent,10);

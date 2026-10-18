@@ -24,7 +24,22 @@ export async function localApprox(usd, country) {
   const r = await rates();
   if (!r || !r[cur]) return '';
   const v = usd * r[cur];
-  const step = v >= 100000 ? 1000 : v >= 10000 ? 100 : v >= 1000 ? 10 : v >= 100 ? 1 : 0.5;
+  const step = v >= 100000 ? 1000 : v >= 10000 ? 100 : v >= 1000 ? 10 : v >= 10 ? 1 : 0.5;
   try { return '≈ ' + new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, maximumFractionDigits: 0 }).format(Math.round(v / step) * step); }
   catch (e) { return '≈ ' + cur + ' ' + Math.round(v).toLocaleString(); }
+}
+
+/* Returns a function (usd cents) -> "LKR 2,700" for the visitor's country, or null when there is no local currency or no rate. */
+export async function localFormatter(country) {
+  const cur = CUR[country];
+  if (!cur || cur === 'USD') return null;
+  const r = await rates();
+  if (!r || !r[cur]) return null;
+  return cents => {
+    const v = cents / 100 * r[cur];
+    const step = v >= 100000 ? 1000 : v >= 10000 ? 100 : v >= 1000 ? 10 : v >= 10 ? 1 : 0.5;
+    const n = Math.round(v / step) * step;
+    try { return new Intl.NumberFormat(undefined, { style: 'currency', currency: cur, maximumFractionDigits: n % 1 ? 1 : 0 }).format(n); }
+    catch (e) { return cur + ' ' + Math.round(n).toLocaleString(); }
+  };
 }

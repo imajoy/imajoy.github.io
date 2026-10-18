@@ -115,3 +115,5 @@ html[data-theme=dark] .commerce-page::before,html[data-theme=dark] .commerce-pag
 .m-total small{display:block;font-size:.6875rem;color:var(--mute);line-height:1.2}.m-total strong{font-size:1.125rem;letter-spacing:-.02em}
 .m-total button{flex:none;border:0;border-radius:999px;padding:12px 20px;font:600 .875rem var(--sans);color:#fff;background:linear-gradient(145deg,#4F8DFF,#2A64E8);cursor:pointer;touch-action:manipulation}
 @media(max-width:800px){.m-total{display:flex}.paypal-box{scroll-margin-bottom:90px}}
+
+.order-total #local-total,#local-total{display:block;font-size:22px;font-weight:600;letter-spacing:-.01em;margin-top:2px;color:inherit}

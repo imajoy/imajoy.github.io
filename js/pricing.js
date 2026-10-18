@@ -1,6 +1,6 @@
 import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261018-g5';
 import {detectGeo,cachedGeo} from './geo.js?v=20261018-g5';
-import {localApprox} from './fx.js?v=20261018-h4';
+import {localFormatter} from './fx.js?v=20261018-h6';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0;
 function chooseBilling(value){
@@ -19,18 +19,17 @@ async function render(){
   try{
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;
-   amount.textContent=money(quote.unitAmount,quote.currency);animate(amount);
-   let loc=amount.closest('.price').parentElement.querySelector('.local-amt');
-   if(!loc){loc=document.createElement('p');loc.className='local-amt';amount.closest('.price').after(loc);}
-   loc.textContent='';
-   if(quote.currency==='USD')localApprox(quote.unitAmount/100,cachedGeo()).then(t=>{if(current===revision)loc.textContent=t?t+' (shown for reference, billed in USD)':'';});
+   const lf=quote.currency==='USD'?await localFormatter(cachedGeo()):null;
+   if(current!==revision)return;
+   const show=c=>lf?lf(c):money(c,quote.currency);
+   amount.textContent=show(quote.unitAmount);animate(amount);
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
-   note.textContent=(billing==='yearly'?'Billed annually. ':'Billed monthly. ')+'Final price, no tax added at checkout.';
+   note.textContent=(billing==='yearly'?'Billed annually. ':'Billed monthly. ')+'Final price, no tax added at checkout.'+(lf?' Charged in US dollars ('+money(quote.unitAmount,'USD')+') at checkout.':'');
    yearlyLink.hidden=billing!=='monthly';
    if(billing==='yearly'&&quote.annualSavings>0){
-    offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=money(quote.compareAtUnitAmount,quote.currency);
-    offer.querySelector('.annual-saving').textContent='Save '+money(quote.annualSavings,quote.currency)+' per year';
-    offer.querySelector('.annual-equivalent').textContent=money(quote.unitAmount/12,quote.currency)+' per month, billed yearly';animate(offer);
+    offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);
+    offer.querySelector('.annual-saving').textContent='Save '+show(quote.annualSavings)+' per year';
+    offer.querySelector('.annual-equivalent').textContent=show(quote.unitAmount/12)+' per month, billed yearly';animate(offer);
    }
    status.textContent=quote.preview?(quote.currency==='INR'?'Prices for India are shown in rupees. Payments for India open soon.':'Prices shown in US dollars for your region. Your country is confirmed at checkout.'):'';
   }catch{if(current!==revision)return;amount.textContent='See checkout';offer.hidden=true;note.textContent='Confirm pricing on the billing page.';status.textContent='Pricing is temporarily unavailable.';}

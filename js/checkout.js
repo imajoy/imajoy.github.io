@@ -1,4 +1,4 @@
-import {localApprox} from './fx.js?v=20261018-h4';
+import {localApprox} from './fx.js?v=20261018-h6';
 import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry,mountTurnstile} from './commerce.js?v=20261018-g5';
 import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261018-r17';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
@@ -42,7 +42,7 @@ function showQuote(data){
  document.querySelector('#summary-total').textContent=money(data.subtotal,data.currency);
  {const t=document.querySelector('#summary-total');let n=document.querySelector('#local-total');if(!n){n=document.createElement('small');n.id='local-total';n.className='local-amt';t.after(n);}n.textContent='';
   const cc=(document.querySelector('#billing-form')?.elements.country?.value)||'';
-  if(data.currency==='USD')localApprox(data.subtotal/100,cc).then(x=>{n.textContent=x?x+' (reference only, billed in USD)':'';});}
+  if(data.currency==='USD')localApprox(data.subtotal/100,cc).then(x=>{n.textContent=x?x.replace('≈ ','≈ '):'';});}
  const annual=document.querySelector('#annual-summary');
  document.querySelector('#annual-summary-row').hidden=!(data.billing==='yearly'&&data.annualSavings>0);
  annual.hidden=data.billing!=='yearly';

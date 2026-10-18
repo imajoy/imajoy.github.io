@@ -96,3 +96,5 @@
 @media(max-width:680px){.acct-btn{padding:7px 10px;font-size:.75rem;margin-right:6px}}
 /* both plan buttons sit on the same line */
 .plans .plan{display:flex;flex-direction:column}.plans .plan .btn-block{margin-top:auto}
+
+.acct-total{margin:10px 0 0;padding:10px 14px;border-radius:12px;background:#e9f7f0;color:#14573f;font-size:.9rem}

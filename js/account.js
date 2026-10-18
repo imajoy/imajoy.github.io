@@ -20,10 +20,14 @@ function init() {
   const describe = s => {
     const left = s.endsAt ? daysLeft(s.endsAt) : null;
     const live = s.endsAt && new Date(s.endsAt) > Date.now();
-    if (s.status === 'ACTIVE' && live) return { state: 'active', text: left + (left === 1 ? ' day' : ' days') + ' left · renews ' + fmtDate(s.endsAt), short: left + 'd left' };
-    if (live) return { state: 'ending', text: 'Ends ' + fmtDate(s.endsAt) + ' (' + left + (left === 1 ? ' day' : ' days') + ' left) · not renewing', short: left + 'd left' };
-    return { state: 'ended', text: 'Ended' + (s.endsAt ? ' ' + fmtDate(s.endsAt) : '') + ' · renew to keep using Ajoy Tools', short: 'Renew' };
+    if (s.status === 'ACTIVE' && live && s.trial) return { state: 'active', text: 'Free trial · ' + left + (left === 1 ? ' day' : ' days') + ' left, then billed automatically on ' + fmtDate(s.endsAt), short: left + 'd left', days: left };
+    if (s.status === 'ACTIVE' && live) return { state: 'active', text: left + (left === 1 ? ' day' : ' days') + ' left · renews ' + fmtDate(s.endsAt), short: left + 'd left', days: left };
+    if (live) return { state: 'ending', text: 'Ends ' + fmtDate(s.endsAt) + ' (' + left + (left === 1 ? ' day' : ' days') + ' left) · not renewing', short: left + 'd left', days: left };
+    return { state: 'ended', text: 'Ended' + (s.endsAt ? ' ' + fmtDate(s.endsAt) : '') + ' · renew to keep using Ajoy Tools', short: 'Renew', days: 0 };
   };
+
+  const totalDays = list => list.reduce((n, x) => n + (x.d.days || 0), 0);
+  const dayWord = n => n + (n === 1 ? ' day' : ' days');
 
   /* ---------- modal ---------- */
   const dlg = document.createElement('dialog');
@@ -34,15 +38,16 @@ function init() {
   const open = () => { render(); if (!dlg.open) dlg.showModal(); };
   dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
 
-  let session = load(), subs = null, email = '', msg = '', busy = false, step = 'email';
+  let session = load(), subs = null, limited = false, email = '', msg = '', busy = false, step = 'email';
   const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
   function render() {
     if (session && subs) {
       body.innerHTML = '<p class="eyebrow">Your subscription</p><h2>' + esc(session.email) + '</h2>' +
+        (subs.length > 1 && totalDays(subs.map(x => ({ d: describe(x) }))) ? '<p class="acct-total">Total across your subscriptions: <b>' + dayWord(totalDays(subs.map(x => ({ d: describe(x) })))) + ' left</b></p>' : '') +
         (subs.length ? subs.map(s => { const d = describe(s); return '<div class="acct-sub" data-state="' + d.state + '"><b>Ajoy Tools ' + label(s.plan) + '</b><span>' + (s.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + s.seats + (s.seats === 1 ? ' license' : ' licenses') + '</span><p>' + esc(d.text) + '</p>' +
           (d.state !== 'active' ? '<a class="btn btn-dark btn-sm" href="checkout.html?plan=' + esc(s.plan) + '&billing=' + esc(s.billing) + '">Renew</a>' : '') + '</div>'; }).join('') : '<p class="acct-note">No subscription found for this email.</p>') +
-        '<p class="acct-note">Need help? Email contactmy3dart@gmail.com.</p><button class="acct-link" data-out>Sign out</button>';
+        (limited ? '<p class="acct-note">Showing the subscription you just bought. To see every subscription on this email, sign out and sign in with the emailed code.</p>' : '') + '<p class="acct-note">Need help? Email contactmy3dart@gmail.com.</p><button class="acct-link" data-out>Sign out</button>';
       body.querySelector('[data-out]').onclick = () => { save(null); session = null; subs = null; step = 'email'; dlg.close(); refresh(); };
       return;
     }
@@ -85,7 +90,8 @@ function init() {
   function refresh() {
     const active = subs && subs.map(s => ({ s, d: describe(s) }));
     const best = active && active.find(x => x.d.state !== 'ended') || (active && active[0]);
-    btn.textContent = !session ? 'Sign in' : best ? label(best.s.plan) + ' · ' + best.d.short : 'Account';
+    const total = active ? totalDays(active) : 0;
+    btn.textContent = !session ? 'Sign in' : !best ? 'Account' : best.d.state === 'ended' ? label(best.s.plan) + ' · Renew' : (active.length > 1 ? 'Subscribed' : label(best.s.plan)) + ' · ' + total + 'd left';
     btn.dataset.state = best ? best.d.state : '';
     for (const plan of ['online', 'offline']) {
       const a = document.querySelector('[data-buy="' + plan + '"]'); if (!a) continue;
@@ -100,7 +106,7 @@ function init() {
     if (!session) return;
     try {
       const r = await call({ step: 'status', token: session.token });
-      if (r.ok) { subs = r.subscriptions; } else if (r.error === 'expired') { save(null); session = null; subs = null; }
+      if (r.ok) { subs = r.subscriptions; limited = !!r.limited; } else if (r.error === 'expired') { save(null); session = null; subs = null; }
     } catch (e) { /* offline: leave the button as it is */ }
     refresh();
   }
@@ -110,5 +116,5 @@ function init() {
     if (/Your plan/.test(a.textContent)) { e.preventDefault(); open(); }
   });
   refresh();
-  status();
+  status().then(() => { let go = false; try { go = sessionStorage.getItem('ajoy.acct.open') === '1'; sessionStorage.removeItem('ajoy.acct.open'); } catch (e) { /* ignore */ } if (go && session && subs) open(); });
 }

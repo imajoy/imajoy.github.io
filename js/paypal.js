@@ -11,7 +11,7 @@ const orderUrl = window.AJOY_CONFIG && window.AJOY_CONFIG.sheetUrl;
 const form = document.querySelector('#billing-form');
 const pay = document.querySelector('#pay');
 const HOME = 'index.html';
-const REDIRECT_SECONDS = 5;
+const REDIRECT_SECONDS = 8;
 let cfg = null;
 if (url && form && pay) {
   try {
@@ -103,17 +103,24 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
   for (const n of ['plan', 'billing', 'country']) form.elements[n].addEventListener('change', syncRegion);
   syncRegion();
 
-  const sendOrder = (subId, c) => {
-    if (!orderUrl) return;
+  /* Logs the order and, when the site's account sign-in is on, keeps the buyer signed in on this browser. */
+  const sendOrder = async (subId, c) => {
+    if (!orderUrl) return null;
     const g = n => (form.elements[n] && form.elements[n].value || '').trim();
     try {
-      fetch(orderUrl, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      const r = await fetch(orderUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
         body: JSON.stringify({ type: 'order', subscriptionId: subId, email: g('email'), name: g('name'), country: c.country, plan: c.plan, billing: c.billing, seats: c.seats, company: g('company'), detectedCountry: detected }) });
+      const j = await r.json();
+      if (j && j.token && window.AJOY_CONFIG.accountOpen) {
+        try { localStorage.setItem('ajoy.acct', JSON.stringify({ token: j.token, email: j.email })); sessionStorage.setItem('ajoy.acct.open', '1'); } catch (e) { /* private mode */ }
+        return j;
+      }
     } catch (e) { /* the owner can still see the subscription in PayPal */ }
+    return null;
   };
   function showDone(subId) {
     const c = choice();
-    sendOrder(subId, c);
+    const signedIn = sendOrder(subId, c);
     const email = (form.elements.email && form.elements.email.value || '').trim();
     const plan = (c.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (c.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + c.seats + (c.seats === 1 ? ' license' : ' licenses');
     const steps = document.querySelectorAll('.checkout-progress span');
@@ -137,6 +144,7 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
     card.style.setProperty('--redir', REDIRECT_SECONDS + 's');
     if (grid) { grid.hidden = true; grid.before(card); } else { form.before(card); }
     card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    signedIn.then(j => { if (j) { const n = document.createElement('p'); n.className = 'pd-note'; n.innerHTML = '<b>You are signed in as ' + esc(j.email) + '.</b> Your plan and the days you have left are shown at the top of the home page.'; card.querySelector('.pd-bar').before(n); } });
     let left = REDIRECT_SECONDS;
     const sec = card.querySelector('#pd-sec');
     const t = setInterval(() => { left -= 1; if (sec) sec.textContent = String(Math.max(left, 0)); if (left <= 0) { clearInterval(t); location.href = HOME; } }, 1000);

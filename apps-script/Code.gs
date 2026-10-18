@@ -25,7 +25,7 @@ function doPost(e) {
     var raw = (e && e.postData && e.postData.contents) || '';
     var data = {};
     try { data = JSON.parse(raw); } catch (err) { data = { email: (e && e.parameter && e.parameter.email) || '' }; }
-    if (data.type === 'order') return out.setContent(handleOrder_(data));
+    if (data.type === 'order') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(orderReply_(handleOrder_(data), data))); }
     if (data.type === 'trial') return out.setContent(handleTrial_(data));
     if (data.type === 'account') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleAccount_(data))); }
     return out.setContent(saveLead_(String(data.email || '')));
@@ -135,6 +135,23 @@ function token_() {
 function esc_(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function clip_(s, n) { return String(s == null ? '' : s).replace(/[\r\n]+/g, ' ').slice(0, n); }
 
+/* Reply to the checkout page after an order: when PayPal confirmed the subscription, the buyer is signed in on the site.
+   The sign-in covers every subscription of this email only when PayPal's own account email matches the email typed in the form;
+   otherwise it covers just the subscription that was bought (the buyer can use the emailed code to see the rest). */
+function orderReply_(result, d) {
+  var out = { r: String(result) };
+  if (result !== 'ok' && result !== 'duplicate') return out;
+  var subId = String(d.subscriptionId || ''), email = clip_(d.email, 120).trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || ordersFor_(email, subId).length === 0) return out;
+  var same = false, t = token_();
+  if (t) {
+    var r = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(subId), { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t } });
+    if (r.getResponseCode() === 200) { var s = JSON.parse(r.getContentText()); same = String((s.subscriber && s.subscriber.email_address) || '').trim().toLowerCase() === email; }
+  }
+  out.token = makeSession_(email, same ? '' : subId); out.email = email; out.limited = !same;
+  return out;
+}
+
 function handleOrder_(d) {
   var subId = String(d.subscriptionId || '');
   if (!/^I-[A-Z0-9]{6,40}$/.test(subId)) return 'invalid';
@@ -231,35 +248,36 @@ function sessionSecret_() {
 }
 function b64u_(bytes) { return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/, ''); }
 function sign_(text) { return b64u_(Utilities.computeHmacSha256Signature(text, sessionSecret_())); }
-function makeSession_(email) {
-  var exp = Date.now() + 30 * 24 * 3600 * 1000, body = b64u_(Utilities.newBlob(email + '|' + exp).getBytes());
+function makeSession_(email, onlySub) {
+  var exp = Date.now() + 30 * 24 * 3600 * 1000, body = b64u_(Utilities.newBlob(email + '|' + exp + (onlySub ? '|' + onlySub : '')).getBytes());
   return body + '.' + sign_(body);
 }
+/* Returns {email, sub} ('sub' only for a sign-in that is limited to one subscription) or null. */
 function readSession_(tok) {
   tok = String(tok || '');
   var i = tok.indexOf('.');
-  if (i < 1) return '';
+  if (i < 1) return null;
   var body = tok.slice(0, i);
-  if (sign_(body) !== tok.slice(i + 1)) return '';
+  if (sign_(body) !== tok.slice(i + 1)) return null;
   var txt = Utilities.newBlob(Utilities.base64DecodeWebSafe(body + '==')).getDataAsString().split('|');
-  return Number(txt[1]) > Date.now() ? txt[0] : '';
+  return Number(txt[1]) > Date.now() ? { email: txt[0], sub: txt[2] || '' } : null;
 }
 function hashCode_(email, code) { return b64u_(Utilities.computeHmacSha256Signature(email + ':' + code, sessionSecret_())); }
-function ordersFor_(email) {
+function ordersFor_(email, onlySub) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
   if (!sheet || sheet.getLastRow() < 2) return [];
   var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues(), out = [];
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
-    if (String(r[4]).trim().toLowerCase() === email && /^I-/.test(String(r[1])) && r[3] === mode_()) out.push({ id: String(r[1]), plan: String(r[7]).split(' ')[0], billing: String(r[8]), seats: Number(r[9]) || 1 });
+    if (String(r[4]).trim().toLowerCase() === email && /^I-/.test(String(r[1])) && r[3] === mode_()) if (!onlySub || String(r[1]) === onlySub) out.push({ id: String(r[1]), plan: String(r[7]).split(' ')[0], billing: String(r[8]), seats: Number(r[9]) || 1, at: r[0] instanceof Date ? r[0] : new Date(r[0]), trialPlan: String(r[7]).indexOf('trial') >= 0 });
   }
   return out;
 }
 function addPeriod_(d, billing) { var x = new Date(d.getTime()); if (billing === 'yearly') x.setFullYear(x.getFullYear() + 1); else x.setMonth(x.getMonth() + 1); return x; }
-function subscriptionsFor_(email) {
-  var list = ordersFor_(email).slice(-5).reverse(), t = token_(), out = [];
+function subscriptionsFor_(email, onlySub) {
+  var list = ordersFor_(email, onlySub).slice(-5).reverse(), t = token_(), out = [];
   list.forEach(function (o) {
-    var item = { plan: o.plan, billing: o.billing, seats: o.seats, status: 'UNKNOWN', endsAt: '', renews: false };
+    var item = { plan: o.plan, billing: o.billing, seats: o.seats, status: 'UNKNOWN', endsAt: '', renews: false, trial: false };
     if (t) {
       var r = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(o.id), { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t } });
       if (r.getResponseCode() === 200) {
@@ -267,7 +285,7 @@ function subscriptionsFor_(email) {
         item.status = s.status || 'UNKNOWN';
         var next = b.next_billing_time ? new Date(b.next_billing_time) : null;
         var last = b.last_payment && b.last_payment.time ? new Date(b.last_payment.time) : (s.start_time ? new Date(s.start_time) : null);
-        if (item.status === 'ACTIVE' && next) { item.endsAt = next.toISOString(); item.renews = true; }
+        if (item.status === 'ACTIVE' && next) { item.endsAt = next.toISOString(); item.renews = true; item.trial = !!o.trialPlan && o.at && (Date.now() - o.at.getTime()) < 2 * 86400000 + 3600000 * 6; }
         else if (last) { item.endsAt = addPeriod_(last, o.billing).toISOString(); }
       }
     }
@@ -281,7 +299,7 @@ function handleAccount_(d) {
   if (step === 'status') {
     var who = readSession_(d.token);
     if (!who) return { ok: false, error: 'expired' };
-    return { ok: true, email: who, subscriptions: subscriptionsFor_(who) };
+    return { ok: true, email: who.email, limited: !!who.sub, subscriptions: subscriptionsFor_(who.email, who.sub) };
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: false, error: 'email' };
   var cache = CacheService.getScriptCache();

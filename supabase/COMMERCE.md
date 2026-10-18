@@ -74,6 +74,8 @@ Run `backfillTrialHistory()` from the Apps Script editor **before enabling the n
 
 Use sandbox accounts to test all of these before switching live:
 
+If the owner is in India or another closed sales region, use the optional private Supabase secret `COMMERCE_SANDBOX_COUNTRY=US` to simulate a supported market for Sandbox checkout. Both Supabase's `PAYPAL_MODE` and Apps Script's `PAYPAL_MODE` must explicitly be `sandbox`. Deploy the latest `commerce` function and `Commerce.gs` before using it. On the checkout page, select **United States** as the simulated billing country and use a US **Sandbox Personal** buyer account. The page remains marked as test mode. The real IP/browser hashes still enforce trial restrictions; only the pricing/availability country is simulated. The ledger records both the observed network country and simulated country in Buyer details. Browser-supplied test-country claims are ignored. The gateway ignores this setting in Live mode, and Apps Script rejects any Sandbox override arriving at a Live merchant. Remove the test-country secret before production activation. This does not open Indian domestic payments or add an Indian payment provider.
+
 1. Register a new email, verify the code, and download the private installer.
 2. Approve a first Online trial. It records one consumed trial and one order. Closing the browser must not skip the webhook check.
 3. Repeat with the same email, browser or public IP: a trial must be rejected before subscription creation. Standard paid checkout requires its own explicit selection.

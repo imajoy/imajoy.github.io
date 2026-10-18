@@ -75,9 +75,15 @@ function commercePlan_(plan,billing,country,offer) {
 function commerceCreate_(d,who) {
   if(['online','offline'].indexOf(d.plan)<0||['monthly','yearly'].indexOf(d.billing)<0||['trial','standard'].indexOf(d.offer)<0||!Number.isInteger(d.seats)||d.seats<1||d.seats>100||!/^[-a-f0-9]{36}$/i.test(d.requestId||''))throw commerceError_('selection','Review your plan and quantity.');
   if(d.offer==='trial'&&d.plan!=='online')throw commerceError_('selection','Only Online plans offer a trial.');
-  if(d.billingCountry&&tierFor_(d.billingCountry)!==tierFor_(d.country))throw commerceError_('region','Your billing country and detected price region differ. Review your country before subscribing.');
-  if(!/^[A-Z]{2}$/.test(d.country||''))throw commerceError_('network_unverified','Your network location could not be verified. Please retry or contact support.');
-  var planId=commercePlan_(d.plan,d.billing,d.country,d.offer),signals=commerceSignals_(d,who.email);
+  var checkoutCountry=d.country;
+  if(d.sandboxCountry){
+    if(props_().getProperty('PAYPAL_MODE')!=='sandbox')throw commerceError_('unavailable','A Sandbox country simulation requires PAYPAL_MODE=sandbox in Apps Script and cannot use Live merchant settings.');
+    if(!/^[A-Z]{2}$/.test(d.sandboxCountry))throw commerceError_('selection','Invalid Sandbox test country.');
+    checkoutCountry=d.sandboxCountry;
+  }
+  if(d.billingCountry&&tierFor_(d.billingCountry)!==tierFor_(checkoutCountry))throw commerceError_('region','Your billing country and detected price region differ. Review your country before subscribing.');
+  if(!/^[A-Z]{2}$/.test(checkoutCountry||''))throw commerceError_('network_unverified','Your network location could not be verified. Please retry or contact support.');
+  var planId=commercePlan_(d.plan,d.billing,checkoutCountry,d.offer),signals=commerceSignals_(d,who.email);
   var row=commerceLock_(function(){
     var existing=commerceRows_().filter(function(r){return r[1]===mode_()&&r[2]===who.email&&(r[17]===d.requestId||d.offer==='trial'&&r[6]==='trial'&&['reserved','created'].indexOf(r[12])>=0&&r[4]===signals.deviceHash&&r[5]===signals.ipHash&&Date.now()-new Date(r[13]).getTime()<1800000);})[0];
     if(existing){
@@ -86,8 +92,8 @@ function commerceCreate_(d,who) {
       return existing;
     }
     if(d.offer==='trial'&&(!signals.ipHash||!signals.deviceHash||commerceHistoricalTrial_(who.email)||commerceConflict_(signals,'')))throw commerceError_('trial_used','This trial is unavailable. Review the standard subscription price before continuing.');
-    var buyer=JSON.stringify({name:clip_(d.name,80),company:clip_(d.company,80)});
-    var now=new Date(),created=[Utilities.getUuid(),mode_(),who.email,signals.emailHash,signals.deviceHash,signals.ipHash,d.offer,d.plan,d.billing,d.seats,planId,'','reserved',now,now,'','',d.requestId,d.country,buyer,'',''];
+    var buyer=JSON.stringify({name:clip_(d.name,80),company:clip_(d.company,80),networkCountry:d.country||'',sandboxCountry:d.sandboxCountry||''});
+    var now=new Date(),created=[Utilities.getUuid(),mode_(),who.email,signals.emailHash,signals.deviceHash,signals.ipHash,d.offer,d.plan,d.billing,d.seats,planId,'','reserved',now,now,'','',d.requestId,checkoutCountry,buyer,'',''];
     commerceWrite_(created);return created;
   });
   if(row[11])return {ok:true,checkoutId:row[0],subscriptionId:row[11],offer:row[6]};

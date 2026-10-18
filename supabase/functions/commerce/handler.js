@@ -51,6 +51,12 @@ export async function handleCommerceRequest(req,env,request=fetch){
     if(path==='checkout'){
      if(!['online','offline'].includes(data.plan)||!['monthly','yearly'].includes(data.billing)||!['trial','standard'].includes(data.offer)||!Number.isInteger(data.seats)||data.seats<1||data.seats>100||!/^[-a-f0-9]{36}$/i.test(data.requestId||''))throw fail('Review your plan, billing period and license quantity.');
      Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,offer:data.offer,requestId:data.requestId,billingCountry:data.country,name:typeof data.name==='string'?data.name.slice(0,80):'',company:typeof data.company==='string'?data.company.slice(0,80):''});
+     // Owner-controlled Sandbox simulation. Never accept a test country from the browser.
+     const testCountry=(env('COMMERCE_SANDBOX_COUNTRY')||'').trim().toUpperCase();
+     if(env('PAYPAL_MODE')==='sandbox'&&testCountry){
+      if(!/^[A-Z]{2}$/.test(testCountry))throw fail('The Sandbox test country is not configured correctly.',503);
+      payload.sandboxCountry=testCountry;
+     }
     }
    }
    if(path==='confirm'){

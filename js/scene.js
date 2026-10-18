@@ -246,17 +246,22 @@ import * as THREE from './vendor/three.module.min.js';
     camera.aspect = aspect;
     narrow = aspect < 1.1 || window.innerHeight > window.innerWidth; /* tall windows (tablets in portrait) use the centred framing */
     var split = !narrow && w > 980;
-    var halfW = narrow ? 3.4 : (split ? 5.2 : 5.6);
+    var halfW = narrow ? 4.7 : (split ? 5.2 : 5.6);
     var dist = Math.max(11, halfW / (tanH * aspect * (split ? 0.5 : 1)));
     if (split) camera.setViewOffset(w, h, -w * 0.22, 0, w, h); else camera.clearViewOffset();
     var visH = 2 * dist * tanH;
     var feet = 0.36;
-    var centerY = feet + (narrow ? 0.40 : 0.42) * visH;
+    var centerY = feet + (narrow ? 0.35 : 0.42) * visH;
     camera.position.set(0, centerY + 0.9, dist);
     camera.lookAt(0, centerY, 0);
     camera.updateProjectionMatrix();
-    tiles.forEach(function (t, i) { t.visible = !narrow || i < 3; });
-    lines.forEach(function (l, i) { l.ln.visible = l.dot.visible = !narrow || i < 3; });
+    /* narrow screens: keep every tile, pulled in sideways so none is cut off by the screen edge */
+    var f = narrow ? 0.72 : 1;
+    tiles.forEach(function (t) {
+      var b = t.userData.base; if (b.ox === undefined) b.ox = b.x;
+      b.x = b.ox * f; t.position.x = b.x; t.visible = true;
+    });
+    lines.forEach(function (l) { l.ln.visible = l.dot.visible = true; });
   }
   window.addEventListener('resize', resize);
   resize();

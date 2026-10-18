@@ -3,6 +3,8 @@
    Plans are picked by the buyer's region tier (see regions.js). */
 import { tierFor, availability, closedMessage, countryCheck } from './regions.js?v=20261018-g5';
 import { rememberGeo } from './geo.js?v=20261018-h8';
+import { USD } from './regions.js?v=20261018-g5';
+import { trialPlanId, TRIAL_DAYS, addDays, fmtDay } from './trial.js?v=20261018-j3';
 
 const url = window.AJOY_CONFIG && window.AJOY_CONFIG.paypalConfigUrl;
 const orderUrl = window.AJOY_CONFIG && window.AJOY_CONFIG.sheetUrl;
@@ -51,12 +53,20 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
     seats: Math.max(1, Math.min(100, parseInt(form.elements.seats.value, 10) || 1)),
     country: form.elements.country.value
   });
+  const trialId = c => trialPlanId(cfg, c.plan, c.billing, c.country);
   const planFor = c => {
+    const tid = trialId(c); if (tid) return tid;
     const p = cfg.plans;
     const t = p.tiers && p.tiers[tierFor(c.country)];
     const set = t || (p.tiers ? null : p); /* flat plans are the single-price test setup */
     return set && set[c.plan] && set[c.plan][c.billing];
   };
+  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  let trialOn = false;
+  /* During a free trial the order summary shows $0 due today (the order form keeps rewriting the total, so it is watched). */
+  const totalEl = document.querySelector('#summary-total');
+  function zeroTotal() { if (trialOn && totalEl && totalEl.textContent !== '$0') totalEl.textContent = '$0'; }
+  if (totalEl) new MutationObserver(zeroTotal).observe(totalEl, { childList: true, characterData: true, subtree: true });
   const avail = document.querySelector('#availability');
   const syncRegion = () => {
     const c = choice(), a = availability(c.country, extraClosed), chk = countryCheck(c.country, lockTo);
@@ -67,6 +77,23 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
       : !chk.ok && !availability(chk.detected, extraClosed).open ? closedMessage[availability(chk.detected, extraClosed).reason]
       : !chk.ok ? 'Your connection appears to be from ' + nameOf(chk.detected) + '. Please choose ' + nameOf(chk.detected) + ' as your billing country, or contact Ajoy if you are paying from another country.'
       : 'This plan is not available yet.';
+    const tid = ok && trialId(c);
+    const fine = box.querySelector('.paypal-fine');
+    const sum = document.querySelector('.order-total');
+    let tl = document.querySelector('#trial-line');
+    trialOn = !!tid;
+    if (sum) sum.classList.toggle('is-trial', trialOn);
+    if (tid) {
+      const price = USD[tierFor(c.country)].online[c.billing] * c.seats, first = fmtDay(addDays(TRIAL_DAYS));
+      const text = TRIAL_DAYS + '-day free trial. Nothing is charged today. Your first payment of $' + price + ' is taken automatically on ' + first + ', then every ' + (c.billing === 'yearly' ? 'year' : 'month') + '. Cancel any time before then and you pay nothing.';
+      fine.textContent = text + ' Charged in US dollars by PayPal. Your license key is sent within 12 hours.';
+      if (sum && !tl) { tl = document.createElement('p'); tl.id = 'trial-line'; tl.className = 'trial-line'; sum.after(tl); }
+      if (tl) { tl.hidden = false; tl.innerHTML = '<b>Then $' + price + ' from ' + esc(first) + '</b><span>' + esc(text) + '</span>'; }
+      zeroTotal();
+    } else {
+      fine.textContent = 'Charged in US dollars by PayPal. Your bank may convert the amount. Your license key is sent within 12 hours.';
+      if (tl) tl.hidden = true;
+    }
     geoNote.hidden = !detected;
     geoNote.textContent = detected ? (test ? 'Test mode: you may try any country. Detected location: ' + nameOf(detected) + '.' : 'Your price follows your location (' + nameOf(detected) + ').') : '';
     if (avail) avail.textContent = ok
@@ -76,7 +103,6 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
   for (const n of ['plan', 'billing', 'country']) form.elements[n].addEventListener('change', syncRegion);
   syncRegion();
 
-  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const sendOrder = (subId, c) => {
     if (!orderUrl) return;
     const g = n => (form.elements[n] && form.elements[n].value || '').trim();
@@ -104,6 +130,7 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
       '<dl class="pd-list"><div><dt>Plan</dt><dd>Ajoy Tools ' + esc(plan) + '</dd></div>' +
       (email ? '<div><dt>License key sent to</dt><dd>' + esc(email) + '</dd></div>' : '') +
       '<div><dt>Subscription ID</dt><dd>' + esc(subId) + '</dd></div></dl>' +
+      (trialId(c) ? '<p class="pd-note"><b>Your ' + TRIAL_DAYS + '-day free trial has started.</b> Your first payment is taken on ' + esc(fmtDay(addDays(TRIAL_DAYS))) + ' unless you cancel in PayPal before then.</p>' : '') +
       '<p class="pd-note"><b>Your license key arrives within 12 hours.</b> A confirmation email is on its way now. ' + (test ? 'This was a test, so nothing was charged. ' : '') + 'Keep your subscription ID for any support question.</p>' +
       '<div class="pd-bar" aria-hidden="true"><i></i></div>' +
       '<p class="pd-count">Taking you to the home page in <b id="pd-sec">' + REDIRECT_SECONDS + '</b> seconds. <a href="' + HOME + '">Go now</a></p>';
@@ -136,7 +163,7 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
         const email = (form.elements.email && form.elements.email.value || '').trim();
         const req = {
           plan_id: planId,
-          custom_id: [c.plan, c.billing, c.seats, c.country, detected || '-'].join('|'),
+          custom_id: [c.plan, c.billing, c.seats, c.country, detected || '-', trialId(c) ? 'trial' : ''].join('|'),
           application_context: { brand_name: 'Ajoy Tools', shipping_preference: 'NO_SHIPPING', user_action: 'SUBSCRIBE_NOW' }
         };
         if (c.seats > 1) req.quantity = String(c.seats);

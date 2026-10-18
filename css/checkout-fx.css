@@ -123,3 +123,8 @@ html[data-theme=dark] .commerce-page::before,html[data-theme=dark] .commerce-pag
 #local-total{flex:0 0 100%;order:3;text-align:right;font-size:1.125rem;font-weight:600;letter-spacing:-.01em;color:var(--mute);margin:4px 0 0}
 #local-total:empty{display:none}
 .summary-note{font-size:.8125rem;line-height:1.65;color:var(--mute);margin:0 2px 18px;max-width:34em}
+.trial-line{margin:-6px 2px 16px;padding:12px 14px;border-radius:14px;background:#e9f7f0;color:#14573f;font-size:.8125rem;line-height:1.55;display:grid;gap:2px}
+.trial-line b{font-size:.9375rem}
+.trial-line[hidden]{display:none}
+
+.order-total.is-trial #local-total{display:none}

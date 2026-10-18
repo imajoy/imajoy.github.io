@@ -4,8 +4,8 @@ window.AJOY_CONFIG = Object.freeze({
   apiBase: '',
   /* Length of the free trial shown on the site. The owner creates the trial code by hand (see apps-script/Code.gs). */
   trialDays: 2,
-  /* Turn on (true) only after the newest apps-script/Code.gs is deployed, otherwise trial requests would not be handled. */
-  trialOpen: true,
+  /* Old trial-code request form (replaced by the 2-day PayPal trial on the Online plan). Keep false. */
+  trialOpen: false,
   /* Subscriber sign-in (plan and time left). Turn on (true) only after the newest apps-script/Code.gs is deployed. */
   accountOpen: true,
   /* Download-page email list (Google Sheet). Paste the Apps Script web app URL here.

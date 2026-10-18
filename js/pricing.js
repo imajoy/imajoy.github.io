@@ -1,5 +1,6 @@
-import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261018-g5';
+import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261018-g5';
 import {detectGeo,cachedGeo} from './geo.js?v=20261018-h8';
+import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261018-j3';
 import {localFormatter} from './fx.js?v=20261018-h8';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0;
@@ -24,7 +25,9 @@ async function render(){
    const show=c=>lf?lf(c):money(c,quote.currency);
    amount.textContent=show(quote.unitAmount);animate(amount);
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
-   note.textContent=(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
+   const trial=plan==='online'&&trialPlanId(tcfg,'online',billing,suggestedCountry());
+   note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Cancel any time.':(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
+   if(!buy.classList.contains('is-owned'))buy.textContent=trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
    yearlyLink.hidden=billing!=='monthly';
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);
@@ -42,6 +45,8 @@ for(const control of document.querySelectorAll('[data-choose-yearly]'))control.a
 for(const control of document.querySelectorAll('[data-card-yearly]'))control.addEventListener('click',()=>{
  chooseBilling('yearly');toggle.querySelector('[data-bill="yearly"]').focus({preventScroll:true});
 });
+let tcfg=null;
+loadTrialConfig().then(c=>{tcfg=c;if(c)render();});
 const knewGeo=cachedGeo();
 render();
 detectGeo().then(c=>{if(c&&c!==knewGeo)render();});

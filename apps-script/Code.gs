@@ -72,6 +72,26 @@ function planTier_(planId) {
   for (var t in tiers) for (var k in tiers[t]) for (var p in tiers[t][k]) if (tiers[t][k][p] === planId) return t;
   return '';
 }
+/* True when this PayPal plan is one of the 2-day-trial plans (Online only). */
+function isTrialPlan_(planId) {
+  var saved = props_().getProperty('PLANS_' + mode_());
+  if (!saved || !planId) return false;
+  var tiers = (JSON.parse(saved).tiers) || {};
+  for (var t in tiers) { var o = tiers[t].onlineTrial || {}; if (o.monthly === planId || o.yearly === planId) return true; }
+  return false;
+}
+/* Has this email (or PayPal email) been in the Orders tab before? Used to spot repeat free trials. */
+function seenBefore_(sheet, emails, subId) {
+  var last = sheet.getLastRow();
+  if (last < 2) return false;
+  var rows = sheet.getRange(2, 1, last - 1, 5).getValues();
+  for (var i = 0; i < rows.length; i++) {
+    if (rows[i][1] === subId) continue;
+    var e = String(rows[i][4]).trim().toLowerCase();
+    if (e && emails.indexOf(e) >= 0) return true;
+  }
+  return false;
+}
 /* Best effort: PayPal does not always tell us the buyer's country right after approval. */
 function payerCountry_(s, t, subId) {
   try {
@@ -155,15 +175,17 @@ function handleOrder_(d) {
       } else { status = 'NOT_FOUND'; }
     }
     var verified = status === 'ACTIVE' || status === 'APPROVED';
+    var trial = isTrialPlan_(planId);
     var detected = clip_(d.detectedCountry, 2).toUpperCase();
     var emailLog = [];
     var flags = priceFlags_(planTier_(planId), clip_(d.country, 2).toUpperCase(), detected, payer);
     if (detected && detected !== clip_(d.country, 2).toUpperCase() && flags.length === 0) flags.push('Billing country (' + clip_(d.country, 2) + ') differs from the connection country (' + detected + '), but the price is not lower.');
-    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, detected, payer, flags.length ? 'CHECK' : 'ok', '', '']);
+    if (trial && seenBefore_(sheet, [email, String(paypalEmail).toLowerCase()].filter(Boolean), subId)) flags.push('REPEAT FREE TRIAL: this email already has an earlier order. Consider cancelling this subscription in PayPal.');
+    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10) + (trial ? ' (2-day trial)' : ''), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, detected, payer, flags.length ? 'CHECK' : 'ok', '', '']);
     var orderRow = sheet.getLastRow();
 
     var test = mode_() !== 'live';
-    var planText = 'Ajoy Tools ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)';
+    var planText = 'Ajoy Tools ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)' + (trial ? ' · 2-day free trial, then billed automatically' : '');
     var tag = test ? '[TEST] ' : '';
     var owner = ownerEmail_();
 
@@ -173,7 +195,7 @@ function handleOrder_(d) {
       subject: tag + (flags.length && verified ? 'CHECK PRICE, then send the license key' : verified ? 'New order: send the license key' : 'CHECK THIS ORDER (' + status + ')'),
       body: 'Plan: ' + planText + '\nSubscription ID: ' + subId + '\nPayPal status: ' + status + '\nBuyer email (form): ' + email + '\nPayPal email: ' + paypalEmail +
         '\nName: ' + clip_(d.name, 80) + '\nBilling country: ' + clip_(d.country, 2) + '\nConnection country: ' + (detected || 'unknown') + '\nPayPal buyer country: ' + (payer || 'not reported (check the payment in PayPal > Activity)') + '\nCompany: ' + clip_(d.company, 80) +
-        (flags.length ? '\n\nPRICE CHECK NEEDED BEFORE YOU SEND THE KEY:\n- ' + flags.join('\n- ') + '\nIf the buyer is not in the region of the price they paid, cancel the subscription in PayPal or ask them to subscribe again at the right price.' : '') + '\n\nPromise made to the buyer: license key within 12 hours.\nMark "License sent?" in the Orders tab when done.'
+        (flags.length ? '\n\nPRICE CHECK NEEDED BEFORE YOU SEND THE KEY:\n- ' + flags.join('\n- ') + '\nIf the buyer is not in the region of the price they paid, cancel the subscription in PayPal or ask them to subscribe again at the right price.' : '') + (trial ? '\n\nFREE TRIAL: send a license that works for the trial. The first payment is taken automatically after 2 days unless the buyer cancels in PayPal.' : '') + '\n\nPromise made to the buyer: license key within 12 hours.\nMark "License sent?" in the Orders tab when done.'
     }); emailLog.push('owner: sent'); } catch (err) { emailLog.push('owner FAILED: ' + String(err).slice(0, 120)); }
 
     /* The buyer only gets a confirmation when PayPal confirms the subscription. */
@@ -184,6 +206,7 @@ function handleOrder_(d) {
         '<p>Your Ajoy Tools subscription is confirmed.</p>' +
         '<table style="border-collapse:collapse;width:100%;margin:14px 0"><tr><td style="padding:8px 0;color:#667">Plan</td><td style="text-align:right"><b>' + esc_(planText) + '</b></td></tr>' +
         '<tr><td style="padding:8px 0;color:#667;border-top:1px solid #e3e6ee">Subscription ID</td><td style="text-align:right;border-top:1px solid #e3e6ee"><b>' + esc_(subId) + '</b></td></tr></table>' +
+        (trial ? '<p><b>Your 2-day free trial has started.</b> Your first payment is taken automatically when it ends, unless you cancel before then in PayPal. You can cancel any time.</p>' : '') +
         '<p><b>Your license key will arrive within 12 hours</b> at this email address.</p>' +
         '<p>Questions? Reply to this email or write to ' + replyTo_() + '.</p>' +
         '<p style="color:#667;font-size:13px">Ajoy Tools: production tools for Maya.</p></div>';
@@ -228,7 +251,7 @@ function ordersFor_(email) {
   var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues(), out = [];
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
-    if (String(r[4]).trim().toLowerCase() === email && /^I-/.test(String(r[1])) && r[3] === mode_()) out.push({ id: String(r[1]), plan: String(r[7]), billing: String(r[8]), seats: Number(r[9]) || 1 });
+    if (String(r[4]).trim().toLowerCase() === email && /^I-/.test(String(r[1])) && r[3] === mode_()) out.push({ id: String(r[1]), plan: String(r[7]).split(' ')[0], billing: String(r[8]), seats: Number(r[9]) || 1 });
   }
   return out;
 }
@@ -384,6 +407,29 @@ function setupPlans() {
       });
     });
   });
+  /* Online plans with a 2-day free trial. The buyer approves in PayPal now and is first charged after the trial. */
+  ['high', 'mid', 'low'].forEach(function (tier) {
+    result.tiers[tier].onlineTrial = result.tiers[tier].onlineTrial || {};
+    ['monthly', 'yearly'].forEach(function (period) {
+      if (result.tiers[tier].onlineTrial[period]) return;
+      var plan = paypalPost_('/v1/billing/plans', {
+        product_id: productId,
+        name: 'Ajoy Tools online ' + period + ' with 2-day trial (' + tier + ')',
+        description: 'Ajoy Tools online license, 2-day free trial, then billed ' + period + '.',
+        status: 'ACTIVE',
+        billing_cycles: [
+          { frequency: { interval_unit: 'DAY', interval_count: 2 }, tenure_type: 'TRIAL', sequence: 1, total_cycles: 1,
+            pricing_scheme: { fixed_price: { value: '0', currency_code: 'USD' } } },
+          { frequency: { interval_unit: period === 'yearly' ? 'YEAR' : 'MONTH', interval_count: 1 }, tenure_type: 'REGULAR', sequence: 2, total_cycles: 0,
+            pricing_scheme: { fixed_price: { value: String(PRICES[tier].online[period]), currency_code: 'USD' } } }
+        ],
+        payment_preferences: { auto_bill_outstanding: true, setup_fee_failure_action: 'CONTINUE', payment_failure_threshold: 3 },
+        quantity_supported: true
+      }, t, 'ajoy-plan-' + mode_() + '-' + tier + '-onlinetrial-' + period);
+      result.tiers[tier].onlineTrial[period] = plan.id;
+      props_().setProperty(key, JSON.stringify(result));
+    });
+  });
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName('Plans') || ss.insertSheet('Plans');
   sh.clear();
@@ -396,17 +442,23 @@ function setupPlans() {
       });
     });
   });
+  ['high', 'mid', 'low'].forEach(function (tier) {
+    ['monthly', 'yearly'].forEach(function (period) {
+      rows.push([labels[tier], 'Online + 2-day trial', period === 'yearly' ? 'Yearly' : 'Monthly', PRICES[tier].online[period], result.tiers[tier].onlineTrial[period]]);
+    });
+  });
   var json = JSON.stringify({ tiers: result.tiers });
   sh.getRange(1, 1).setValue('Ajoy Tools: PayPal plans').setFontWeight('bold').setFontSize(16);
   sh.getRange(2, 1).setValue('Mode: ' + mode_() + '. Created by the setupPlans script. Prices are USD per computer.').setFontStyle('italic').setFontColor('#666673');
   sh.getRange(4, 1, 1, 5).setValues([['Price level', 'Plan', 'Billing', 'Price (USD)', 'PayPal plan ID']]).setBackground('#1a2959').setFontColor('#ffffff').setFontWeight('bold').setVerticalAlignment('middle');
   sh.getRange(5, 1, rows.length, 5).setValues(rows);
-  [5, 13].forEach(function (r) { sh.getRange(r, 1, 4, 5).setBackground('#edf5ff'); });
-  sh.getRange(4, 4, 13, 1).setHorizontalAlignment('right');
-  sh.getRange(5, 4, 12, 1).setNumberFormat('$#,##0');
-  sh.getRange(5, 5, 12, 1).setFontFamily('Roboto Mono').setFontSize(10);
-  sh.getRange(18, 1).setValue('Copy the cell below into Supabase > Edge Functions > Secrets > PAYPAL_PLANS.').setFontStyle('italic').setFontColor('#666673');
-  sh.getRange(19, 1).setValue(json).setFontFamily('Roboto Mono').setFontSize(9).setBackground('#f5f5f5').setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP);
+  [5, 13, 21].forEach(function (r) { sh.getRange(r, 1, Math.min(4, rows.length + 5 - r), 5).setBackground('#edf5ff'); });
+  var n = rows.length, jr = 5 + n + 1;
+  sh.getRange(4, 4, n + 1, 1).setHorizontalAlignment('right');
+  sh.getRange(5, 4, n, 1).setNumberFormat('$#,##0');
+  sh.getRange(5, 5, n, 1).setFontFamily('Roboto Mono').setFontSize(10);
+  sh.getRange(jr, 1).setValue('Copy the cell below into Supabase > Edge Functions > Secrets > PAYPAL_PLANS.').setFontStyle('italic').setFontColor('#666673');
+  sh.getRange(jr + 1, 1).setValue(json).setFontFamily('Roboto Mono').setFontSize(9).setBackground('#f5f5f5').setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP);
   [330, 90, 90, 100, 260].forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
   sh.setRowHeight(4, 32); sh.setFrozenRows(4); sh.setHiddenGridlines(true); sh.setTabColor('#1a2959');
   Logger.log(json);

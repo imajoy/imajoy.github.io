@@ -6,5 +6,7 @@ export function handleNetworkCheck(request) {
   if(!/^[a-f0-9-]{36}$/i.test(nonce))return new Response(JSON.stringify({error:'A diagnostic nonce is required.'}),{status:400,headers});
   const observed={};
   for(const name of ['cf-connecting-ip','x-real-ip'])observed[name]=(request.headers.get(name)||'').slice(0,128);
-  return new Response(JSON.stringify({nonce,observed}),{headers});
+  // Diagnostic only: the commerce gateway does not trust this forwarding chain.
+  const forwardedFor=(request.headers.get('x-forwarded-for')||'').slice(0,1024);
+  return new Response(JSON.stringify({nonce,observed,forwardedFor}),{headers});
 }

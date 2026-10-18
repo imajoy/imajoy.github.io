@@ -1,14 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {handleNetworkCheck} from '../supabase/functions/network-check/handler.js';
-import {PROBES,assessNetwork,runNetworkCheck} from '../scripts/check-commerce-network.mjs';
+import {PROBES,assessNetwork,runNetworkCheck,canonicalIp,describeAddress,describeForwardingChain} from '../scripts/check-commerce-network.mjs';
 const ip='198.51.100.10';
 const samples=()=>PROBES.map(([name])=>({name,observed:{'cf-connecting-ip':ip,'x-real-ip':''}}));
 test('Network probe exposes only candidate IP headers and echoes a cache-busting nonce',async()=>{
   const nonce='11111111-1111-4111-8111-111111111111';
   const response=handleNetworkCheck(new Request('https://example.test/?nonce='+nonce,{headers:{'cf-connecting-ip':ip,authorization:'private-token',cookie:'private-cookie'}}));
   assert.equal(response.status,200);assert.equal(response.headers.get('Cache-Control'),'no-store');
-  const data=await response.json();assert.deepEqual(data,{nonce,observed:{'cf-connecting-ip':ip,'x-real-ip':''}});
+  const data=await response.json();assert.deepEqual(data,{nonce,observed:{'cf-connecting-ip':ip,'x-real-ip':''},forwardedFor:''});
   assert.equal(handleNetworkCheck(new Request('https://example.test/')).status,400);
   assert.equal(handleNetworkCheck(new Request('https://example.test/',{method:'POST'})).status,405);
 });
@@ -31,9 +31,9 @@ test('IPv6 spellings are normalized and comma-separated or private-proxy mismatc
 });
 test('Diagnostic runner only calls the IP service and temporary probe, and rejects cached results',async()=>{
   const calls=[];
-  const request=async(url)=>{calls.push(url);if(url.startsWith('https://api64.ipify.org/'))return Response.json({ip});return handleNetworkCheck(new Request(url,{headers:{'cf-connecting-ip':ip}}));};
-  const result=await runNetworkCheck(request);assert(result.headers[0].candidate);assert.equal(calls.length,9);
-  assert(calls.every(url=>url.startsWith('https://api64.ipify.org/')||url.includes('/functions/v1/network-check?')));
+  const request=async(url)=>{calls.push(url);if(url.includes('ipify.org/'))return Response.json({ip});return handleNetworkCheck(new Request(url,{headers:{'cf-connecting-ip':ip}}));};
+  const result=await runNetworkCheck(request);assert(result.headers[0].candidate);assert.equal(calls.length,11);
+  assert(calls.every(url=>url.includes('ipify.org/')||url.includes('/functions/v1/network-check?')));
   await assert.rejects(runNetworkCheck(async url=>url.includes('ipify')?Response.json({ip}):Response.json({nonce:'old',observed:{}})),/cached/);
   const denied=await runNetworkCheck(async url=>url.includes('ipify')?Response.json({ip}):new Response('',{status:401}));
   assert.equal(denied.requests.length,1);assert.equal(denied.requests[0].status,401);assert(denied.headers.every(r=>!r.candidate));
@@ -59,4 +59,40 @@ test('A blocked normal request stops further probes and identifies its HTTP stat
   });
   assert.equal(count,1);assert.equal(result.requests[0].probe,'normal');assert.equal(result.requests[0].status,403);
   assert(result.headers.every(r=>!r.candidate&&r.result.includes('NORMAL REQUEST BLOCKED')));
+});
+test('Public IPv4 and IPv6 are compared separately without weakening stable-header checks',async()=>{
+  const v6='2001:db8::50';
+  const result=await runNetworkCheck(async url=>{
+    if(url.includes('api.ipify.org'))return Response.json({ip});
+    if(url.includes('ipify.org'))return Response.json({ip:v6});
+    return handleNetworkCheck(new Request(url,{headers:{'cf-connecting-ip':ip,'x-forwarded-for':ip}}));
+  });
+  assert(result.headers[0].candidate);assert.equal(result.lookups.length,3);
+  assert.equal(result.addresses[0].family,'IPv4');assert(result.addresses[0].matchesPublic);
+  assert(result.forwarding.every(r=>r.firstMatchesPublic&&r.lastMatchesPublic));
+  assert(!JSON.stringify(result).includes(ip));assert(!JSON.stringify(result).includes(v6));
+  const changed=samples();changed[2].observed['cf-connecting-ip']=v6;
+  assert.equal(assessNetwork([ip,v6],changed)[0].candidate,false);
+});
+test('Missing IPv6 connectivity does not prevent IPv4 diagnostics',async()=>{
+  const result=await runNetworkCheck(async url=>{
+    if(url.includes('api6.ipify.org'))throw new Error('No IPv6 route');
+    if(url.includes('ipify.org'))return Response.json({ip});
+    return handleNetworkCheck(new Request(url,{headers:{'cf-connecting-ip':ip}}));
+  });
+  assert(result.headers[0].candidate);assert.equal(result.lookups[2].result,'unavailable');
+});
+test('IPv4-mapped IPv6 forms compare equally, while known Worker markers never qualify',()=>{
+  assert.equal(canonicalIp('::ffff:198.51.100.10'),ip);
+  assert.equal(canonicalIp('fe80::1%eth0'),'');
+  const marker='2a06:98c0:3600::103',list=samples();
+  for(const s of list)s.observed['cf-connecting-ip']=marker;
+  assert.equal(assessNetwork([ip,marker],list)[0].candidate,false);
+  assert.match(describeAddress(marker,[ip]).kind,/Worker marker/);
+});
+test('Forwarding-chain diagnostics expose only comparisons and never recommend a header',()=>{
+  const data=describeForwardingChain('203.0.113.123, '+ip,[ip]);
+  assert.deepEqual(data,{entries:2,valid:true,firstMatchesPublic:false,lastMatchesPublic:true,containsTestAddress:true});
+  assert(!JSON.stringify(data).includes(ip));assert.equal(describeForwardingChain('',[ip]).valid,false);
+  assert.equal(describeForwardingChain('invalid, '+ip,[ip]).valid,false);
 });

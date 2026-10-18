@@ -1,4 +1,4 @@
-import {api,mountTurnstile} from './commerce.js?v=20261018-g4';
+import {api,mountTurnstile} from './commerce.js?v=20261018-g5';
 let session=null,version=0,resetUI=()=>{};
 export const customerVersion=()=>version;
 export const customerHeaders=()=>session&&session.expiresAt>Date.now()?{Authorization:'Bearer '+session.accessToken}:{};

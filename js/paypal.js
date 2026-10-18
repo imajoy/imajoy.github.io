@@ -1,8 +1,8 @@
 /* PayPal subscription buttons for the checkout page.
    Settings (Client ID, plan IDs, mode) come from the paypal-config function. No secrets are used here.
    Plans are picked by the buyer's region tier (see regions.js). */
-import { tierFor, availability, closedMessage, countryCheck } from './regions.js?v=20261018-g4';
-import { rememberGeo } from './geo.js?v=20261018-g4';
+import { tierFor, availability, closedMessage, countryCheck } from './regions.js?v=20261018-g5';
+import { rememberGeo } from './geo.js?v=20261018-g5';
 
 const url = window.AJOY_CONFIG && window.AJOY_CONFIG.paypalConfigUrl;
 const orderUrl = window.AJOY_CONFIG && window.AJOY_CONFIG.sheetUrl;

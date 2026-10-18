@@ -1,5 +1,5 @@
-import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261018-g4';
-import {detectGeo,cachedGeo} from './geo.js?v=20261018-g4';
+import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261018-g5';
+import {detectGeo,cachedGeo} from './geo.js?v=20261018-g5';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0;
 function chooseBilling(value){

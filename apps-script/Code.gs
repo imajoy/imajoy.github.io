@@ -26,6 +26,7 @@ function doPost(e) {
     var data = {};
     try { data = JSON.parse(raw); } catch (err) { data = { email: (e && e.parameter && e.parameter.email) || '' }; }
     if (data.type === 'order') return out.setContent(handleOrder_(data));
+    if (data.type === 'trial') return out.setContent(handleTrial_(data));
     return out.setContent(saveLead_(String(data.email || '')));
   } catch (err) {
     return out.setContent('error');
@@ -190,6 +191,52 @@ function handleOrder_(d) {
     } else { emailLog.push('buyer: skipped (' + (verified ? 'bad email' : 'not verified') + ')'); }
     sheet.getRange(orderRow, 17).setValue(emailLog.join(' | '));
     return verified ? 'ok' : 'unverified';
+  } finally { lock.releaseLock(); }
+}
+
+/* ---------- 2b) free trial requests ----------
+   Logs the request in the "Trials" tab, emails you to create a trial code, and emails the visitor a receipt.
+   Trial length comes from the Script property TRIAL_DAYS (default 2). Keep it the same as trialDays in js/site-config.js. */
+function handleTrial_(d) {
+  if (d.website) return 'ok'; /* hidden field filled in: a bot */
+  var email = clip_(d.email, 120).trim().toLowerCase();
+  if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) return 'invalid';
+  var name = clip_(d.name, 80);
+  var days = Number(props_().getProperty('TRIAL_DAYS')) || 2;
+  var lock = LockService.getScriptLock();
+  lock.waitLock(15000);
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName('Trials');
+    if (!sheet) {
+      sheet = ss.insertSheet('Trials');
+      sheet.appendRow(['Time', 'Email', 'Name', 'Trial days', 'Code sent? (you fill)', 'Email status']);
+      sheet.setFrozenRows(1);
+      sheet.getRange(1, 1, 1, 6).setBackground('#1a2959').setFontColor('#ffffff').setFontWeight('bold').setVerticalAlignment('middle');
+      sheet.setRowHeight(1, 32);
+      sheet.getRange(2, 1, 998, 1).setNumberFormat('dd mmm yyyy, hh:mm');
+      [150, 240, 140, 90, 160, 260].forEach(function (w, i) { sheet.setColumnWidth(i + 1, w); });
+      sheet.setTabColor('#e67e22');
+    }
+    var last = sheet.getLastRow();
+    if (last >= 2) {
+      var emails = sheet.getRange(2, 2, last - 1, 1).getValues();
+      for (var i = 0; i < emails.length; i++) if (String(emails[i][0]).trim().toLowerCase() === email) return 'duplicate';
+    }
+    sheet.appendRow([new Date(), email, name, days, '', '']);
+    var row = sheet.getLastRow(), log = [];
+    try {
+      MailApp.sendEmail({ to: ownerEmail_(), name: 'Ajoy Tools trials', subject: 'Trial request: send a ' + days + '-day code to ' + email,
+        body: 'Someone asked for a free trial.\n\nEmail: ' + email + '\nName: ' + (name || '-') + '\nTrial length promised: ' + days + ' days\n\nCreate a ' + days + '-day trial code the way you usually create access codes and email it to them. They were told it arrives within 12 hours.\nMark "Code sent?" in the Trials tab when done.' });
+      log.push('owner: sent');
+    } catch (err) { log.push('owner FAILED: ' + String(err).slice(0, 120)); }
+    try {
+      MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: replyTo_(), subject: 'We received your Ajoy Tools trial request',
+        body: 'Hi ' + (name || 'there') + ',\n\nThanks for asking to try Ajoy Tools. Your ' + days + '-day trial code will arrive at this email address within 12 hours.\n\nQuestions? Reply to this email or write to ' + replyTo_() + '.\n\nAjoy Tools: production tools for Maya.' });
+      log.push('visitor: sent');
+    } catch (err) { log.push('visitor FAILED: ' + String(err).slice(0, 120)); }
+    sheet.getRange(row, 6).setValue(log.join(' | '));
+    return 'ok';
   } finally { lock.releaseLock(); }
 }
 

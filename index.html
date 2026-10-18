@@ -13,7 +13,8 @@
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="stylesheet" href="css/style.css?v=20261017-r14">
-<link rel="stylesheet" href="css/polish.css?v=20261018-g4"><link rel="stylesheet" href="css/motion.css?v=20261018-g4"><link rel="stylesheet" href="css/pricing-cards.css?v=20261018-r20"><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin></head>
+<link rel="stylesheet" href="css/polish.css?v=20261018-g5">
+<link rel="stylesheet" href="css/extras.css?v=20261018-g5"><link rel="stylesheet" href="css/motion.css?v=20261018-g5"><link rel="stylesheet" href="css/pricing-cards.css?v=20261018-r20"><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin></head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
 
@@ -131,6 +132,17 @@
     </div>
   </section>
 
+  <!-- DEMOS: shown only when clips are listed in assets/demos/index.json -->
+  <section class="block" id="demos" hidden>
+    <div class="wrap">
+      <div class="head center">
+        <h2>See them <em>work.</em></h2>
+        <p class="sub">Short clips recorded inside Maya.</p>
+      </div>
+      <div class="demo-grid"></div>
+    </div>
+  </section>
+
   <!-- INSTALL -->
   <section class="block" id="install">
     <div class="wrap install">
@@ -169,6 +181,39 @@
         <div class="float-chip fc1" id="fc1"><i></i>Code verified</div>
         <div class="float-chip fc2" id="fc2"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>13 tools installed</div>
         <div class="confetti" id="confetti"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TRIAL -->
+  <section class="block" id="trial" hidden>
+    <div class="wrap">
+      <div class="trial-card reveal" id="trial-card">
+        <div>
+          <p class="eyebrow">Free trial</p>
+          <h2>Try it <em>first.</em></h2>
+          <p>Get a free <span data-trial-days>2</span>-day trial and test the tools on your own rigs before you subscribe. Ask for a trial code and we email it to you.</p>
+          <ul class="trial-list">
+            <li>Installs with the same free setup file</li>
+            <li>Trial code arrives within 12 hours</li>
+            <li>No payment details needed</li>
+          </ul>
+        </div>
+        <div>
+          <form class="trial-form" id="trial-form" novalidate>
+            <label>Your name (optional)<input type="text" name="name" autocomplete="name" maxlength="80"></label>
+            <label>Email address<input type="email" name="email" autocomplete="email" inputmode="email" maxlength="120" placeholder="you@studio.com" required></label>
+            <label class="hp" aria-hidden="true">Website<input type="text" name="website" tabindex="-1" autocomplete="off"></label>
+            <button class="btn btn-dark" type="submit">Request trial code</button>
+            <p class="trial-msg" role="status" aria-live="polite"></p>
+            <p class="trial-fine">One trial per person. Your email is used to send the code and to follow up about Ajoy Tools. See the <a href="privacy.html">privacy notice</a>.</p>
+          </form>
+          <div class="trial-done" role="status">
+            <svg viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 15-17"/></svg>
+            <h3>Request received.</h3>
+            <p>Your trial code will be emailed to <b data-trial-email></b> within 12 hours. Check your spam folder if it does not arrive.</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>
@@ -241,7 +286,23 @@
         </div>
       </div>
       <p class="paynote">The price you see is the price you pay. No tax is added at checkout.</p>
+      <div class="trust-row" aria-label="What you can count on">
+        <span><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6l8-3z"/><path d="M9 12l2.2 2.2L15 10"/></svg>Secure checkout with PayPal</span>
+        <span><svg viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5l2-2v6h-6"/><path d="M20 12a8 8 0 0 1-14 5l-2 2v-6h6"/></svg>Cancel renewals any time</span>
+        <span><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>License key within 12 hours</span>
+        <span><svg viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="11" rx="2"/><path d="M8 20h8M12 16v4"/></svg>Offline plan for closed networks</span>
+      </div>
       <p class="fine legal">Ajoy Tools is licensed, not sold, under the <a href="license.html">Ajoy Tools License Agreement</a>. Prices are in US dollars for most regions and set by your country.</p>
+    </div>
+  </section>
+
+  <!-- VOICES: shown only when real quotes are listed in data/testimonials.json -->
+  <section class="block" id="voices" hidden>
+    <div class="wrap">
+      <div class="head center">
+        <h2>What artists <em>say.</em></h2>
+      </div>
+      <div class="voices-grid"></div>
     </div>
   </section>
 
@@ -297,9 +358,10 @@
   </div>
 </footer>
 
-<script src="js/site-config.js?v=20261018-g4"></script>
+<script src="js/site-config.js?v=20261018-g5"></script>
 <script src="js/main.js?v=20261017-r12"></script>
-<script type="module" src="js/pricing.js?v=20261018-g4"></script>
-<script type="module" src="js/scene.js?v=20261018-g4"></script>
+<script type="module" src="js/extras.js?v=20261018-g5"></script>
+<script type="module" src="js/pricing.js?v=20261018-g5"></script>
+<script type="module" src="js/scene.js?v=20261018-g5"></script>
 <script type="module" src="js/ui-motion.js?v=20261017-r12"></script></body>
 </html>

@@ -1,0 +1,37 @@
+/* FAQ motion is isolated from the shared blur reveals. */
+.faq[data-faq-motion] details {
+  transition: transform 240ms cubic-bezier(.2,.8,.2,1), box-shadow 240ms ease, border-color 240ms ease;
+  transform-origin: center;
+}
+.faq[data-faq-motion] p { animation: none; }
+.faq[data-faq-motion] .faq-answer { overflow: hidden; }
+.faq[data-faq-motion] summary::after {
+  transition: transform 260ms cubic-bezier(.2,1.35,.4,1), background-color 200ms, color 200ms;
+}
+.faq[data-faq-motion] details[data-expanded="false"] summary::after {
+  transform: rotate(0);
+  background: var(--card);
+  color: var(--ink);
+}
+.faq[data-faq-motion] details[data-expanded="true"] summary::after {
+  transform: rotate(45deg);
+  background: var(--btnbg);
+  color: var(--btnfg);
+}
+.faq[data-faq-motion] summary:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: -5px;
+  border-radius: inherit;
+}
+@media (hover: hover) and (pointer: fine) {
+  .faq[data-faq-motion] details:hover {
+    transform: translateY(-2px) scale(1.01);
+    border-color: color-mix(in srgb, var(--blue) 45%, var(--line));
+    box-shadow: 0 10px 28px #3d8bff14, 0 0 0 3px #3d8bff08;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .faq[data-faq-motion] details,
+  .faq[data-faq-motion] summary::after { transition: none; }
+  .faq[data-faq-motion] details:hover { transform: none; }
+}

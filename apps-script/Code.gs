@@ -9,7 +9,11 @@
    Never paste the PayPal Secret into this file. */
 var SHEET_NAME = 'Sheet1';
 var ORDERS_SHEET = 'Orders';
-var OWNER_REPLY = 'contactmy3dart@gmail.com';
+var DEFAULT_REPLY = 'contactmy3dart@gmail.com';
+/* Optional Script properties: OWNER_EMAIL = where YOUR order reminders go (default: the Google account that owns this script);
+   REPLY_TO = the address buyers see and can reply to (default below). */
+function ownerEmail_() { return props_().getProperty('OWNER_EMAIL') || Session.getEffectiveUser().getEmail(); }
+function replyTo_() { return props_().getProperty('REPLY_TO') || DEFAULT_REPLY; }
 
 function props_() { return PropertiesService.getScriptProperties(); }
 function mode_() { return props_().getProperty('PAYPAL_MODE') === 'live' ? 'live' : 'sandbox'; }
@@ -159,7 +163,7 @@ function handleOrder_(d) {
     var test = mode_() !== 'live';
     var planText = 'Ajoy Tools ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)';
     var tag = test ? '[TEST] ' : '';
-    var owner = Session.getEffectiveUser().getEmail();
+    var owner = ownerEmail_();
 
     /* You always get a reminder, even if the order could not be verified. */
     try { MailApp.sendEmail({
@@ -179,10 +183,10 @@ function handleOrder_(d) {
         '<table style="border-collapse:collapse;width:100%;margin:14px 0"><tr><td style="padding:8px 0;color:#667">Plan</td><td style="text-align:right"><b>' + esc_(planText) + '</b></td></tr>' +
         '<tr><td style="padding:8px 0;color:#667;border-top:1px solid #e3e6ee">Subscription ID</td><td style="text-align:right;border-top:1px solid #e3e6ee"><b>' + esc_(subId) + '</b></td></tr></table>' +
         '<p><b>Your license key will arrive within 12 hours</b> at this email address.</p>' +
-        '<p>Questions? Reply to this email or write to ' + OWNER_REPLY + '.</p>' +
+        '<p>Questions? Reply to this email or write to ' + replyTo_() + '.</p>' +
         '<p style="color:#667;font-size:13px">Ajoy Tools: production tools for Maya.</p></div>';
-      try { MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: OWNER_REPLY, subject: tag + 'Your Ajoy Tools order is confirmed', htmlBody: html,
-        body: 'Thank you. Your Ajoy Tools subscription is confirmed.\nPlan: ' + planText + '\nSubscription ID: ' + subId + '\nYour license key will arrive within 12 hours at this email address.\nQuestions? ' + OWNER_REPLY }); emailLog.push('buyer: sent'); } catch (err) { emailLog.push('buyer FAILED: ' + String(err).slice(0, 120)); }
+      try { MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: replyTo_(), subject: tag + 'Your Ajoy Tools order is confirmed', htmlBody: html,
+        body: 'Thank you. Your Ajoy Tools subscription is confirmed.\nPlan: ' + planText + '\nSubscription ID: ' + subId + '\nYour license key will arrive within 12 hours at this email address.\nQuestions? ' + replyTo_() }); emailLog.push('buyer: sent'); } catch (err) { emailLog.push('buyer FAILED: ' + String(err).slice(0, 120)); }
     } else { emailLog.push('buyer: skipped (' + (verified ? 'bad email' : 'not verified') + ')'); }
     sheet.getRange(orderRow, 17).setValue(emailLog.join(' | '));
     return verified ? 'ok' : 'unverified';
@@ -271,7 +275,7 @@ function setupPlans() {
 /* Run this once from the editor (select testEmail, click Run) to check that email sending is allowed.
    You should receive "Ajoy Tools test email" within a minute. */
 function testEmail() {
-  var to = Session.getEffectiveUser().getEmail();
+  var to = ownerEmail_();
   MailApp.sendEmail({ to: to, subject: 'Ajoy Tools test email', body: 'If you can read this, the order emails can be sent. Remaining daily email quota: ' + MailApp.getRemainingDailyQuota() });
   Logger.log('Sent to ' + to);
 }

@@ -116,4 +116,10 @@ html[data-theme=dark] .commerce-page::before,html[data-theme=dark] .commerce-pag
 .m-total button{flex:none;border:0;border-radius:999px;padding:12px 20px;font:600 .875rem var(--sans);color:#fff;background:linear-gradient(145deg,#4F8DFF,#2A64E8);cursor:pointer;touch-action:manipulation}
 @media(max-width:800px){.m-total{display:flex}.paypal-box{scroll-margin-bottom:90px}}
 
-.order-total #local-total,#local-total{display:block;font-size:22px;font-weight:600;letter-spacing:-.01em;margin-top:2px;color:inherit}
+/* Order summary: label left, amount right, optional local amount on its own line under the total, box aligned with the rows above. */
+.order-total{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;margin:22px 0 16px;padding:18px 20px;gap:2px 16px}
+.order-total>span{font-size:.9375rem;color:var(--ink,inherit)}
+.order-total strong{margin-left:auto;text-align:right;font-size:2.125rem;line-height:1.1}
+#local-total{flex:0 0 100%;order:3;text-align:right;font-size:1.125rem;font-weight:600;letter-spacing:-.01em;color:var(--mute);margin:4px 0 0}
+#local-total:empty{display:none}
+.summary-note{font-size:.8125rem;line-height:1.65;color:var(--mute);margin:0 2px 18px;max-width:34em}

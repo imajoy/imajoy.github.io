@@ -244,7 +244,7 @@ import * as THREE from './vendor/three.module.min.js';
     renderer.setSize(w, h, false);
     var aspect = w / h;
     camera.aspect = aspect;
-    narrow = aspect < 1.1;
+    narrow = aspect < 1.1 || window.innerHeight > window.innerWidth; /* tall windows (tablets in portrait) use the centred framing */
     var split = !narrow && w > 980;
     var halfW = narrow ? 3.4 : (split ? 5.2 : 5.6);
     var dist = Math.max(11, halfW / (tanH * aspect * (split ? 0.5 : 1)));

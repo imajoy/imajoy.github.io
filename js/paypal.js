@@ -1,8 +1,8 @@
 /* PayPal subscription buttons for the checkout page.
    Settings (Client ID, plan IDs, mode) come from the paypal-config function. No secrets are used here.
    Plans are picked by the buyer's region tier (see regions.js). */
-import { tierFor, availability, closedMessage, countryCheck } from './regions.js?v=20261018-g3';
-import { rememberGeo } from './geo.js?v=20261018-g3';
+import { tierFor, availability, closedMessage, countryCheck } from './regions.js?v=20261018-g4';
+import { rememberGeo } from './geo.js?v=20261018-g4';
 
 const url = window.AJOY_CONFIG && window.AJOY_CONFIG.paypalConfigUrl;
 const orderUrl = window.AJOY_CONFIG && window.AJOY_CONFIG.sheetUrl;
@@ -21,6 +21,7 @@ if (url && form && pay) {
 if (cfg && cfg.clientId && cfg.plans && form && pay) {
   const test = cfg.mode !== 'live';
   const detected = rememberGeo(cfg.country); /* where the buyer really connects from */
+  const lockTo = test ? '' : detected; /* test mode: any country can be tried, so you can test from India */
   const extraClosed = Array.isArray(cfg.closedCountries) ? cfg.closedCountries : [];
   let names = null;
   try { names = new Intl.DisplayNames([navigator.language || 'en'], { type: 'region' }); } catch (e) { names = null; }
@@ -58,7 +59,7 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
   };
   const avail = document.querySelector('#availability');
   const syncRegion = () => {
-    const c = choice(), a = availability(c.country, extraClosed), chk = countryCheck(c.country, detected);
+    const c = choice(), a = availability(c.country, extraClosed), chk = countryCheck(c.country, lockTo);
     const ok = a.open && !!planFor(c) && chk.ok;
     closed.hidden = ok; buttons.hidden = !ok;
     box.querySelector('.paypal-fine').hidden = !ok;
@@ -67,7 +68,7 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
       : !chk.ok ? 'Your connection appears to be from ' + nameOf(chk.detected) + '. Please choose ' + nameOf(chk.detected) + ' as your billing country, or contact Ajoy if you are paying from another country.'
       : 'This plan is not available yet.';
     geoNote.hidden = !detected;
-    geoNote.textContent = detected ? 'Your price follows your location (' + nameOf(detected) + ').' : '';
+    geoNote.textContent = detected ? (test ? 'Test mode: you may try any country. Detected location: ' + nameOf(detected) + '.' : 'Your price follows your location (' + nameOf(detected) + ').') : '';
     if (avail) avail.textContent = ok
       ? (test ? 'Test mode: review your billing details, then subscribe with PayPal. No real money moves.' : 'Review your billing details, then subscribe securely with PayPal.')
       : closed.textContent;
@@ -123,7 +124,7 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
       style: { layout: 'vertical', shape: 'pill', color: 'blue', label: 'subscribe', height: 46 },
       onClick: (data, actions) => {
         const pick = choice();
-        if (!availability(pick.country, extraClosed).open || !countryCheck(pick.country, detected).ok) return actions.reject();
+        if (!availability(pick.country, extraClosed).open || !countryCheck(pick.country, lockTo).ok) return actions.reject();
         if (!form.reportValidity()) { say('Please complete the billing details above first.', true); return actions.reject(); }
         say('');
         return actions.resolve();

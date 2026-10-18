@@ -1,6 +1,6 @@
 import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261018-g5';
-import {detectGeo,cachedGeo} from './geo.js?v=20261018-g5';
-import {localFormatter} from './fx.js?v=20261018-h6';
+import {detectGeo,cachedGeo} from './geo.js?v=20261018-h8';
+import {localFormatter} from './fx.js?v=20261018-h8';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0;
 function chooseBilling(value){
@@ -44,4 +44,4 @@ for(const control of document.querySelectorAll('[data-card-yearly]'))control.add
 });
 const knewGeo=cachedGeo();
 render();
-if(!knewGeo)detectGeo().then(c=>{if(c)render();});
+detectGeo().then(c=>{if(c&&c!==knewGeo)render();});

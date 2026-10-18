@@ -322,12 +322,22 @@ import * as THREE from './vendor/three.module.min.js';
     });
   }
 
+  var perfN = 0, perfSum = 0;
   function frame() {
     requestAnimationFrame(frame);
     var dt = Math.min(0.05, clock.getDelta());
     if (!visible || document.hidden || document.documentElement.hasAttribute('data-ui-paused') || (reduce && !document.documentElement.hasAttribute('data-ui-motion'))) return;
     update(dt);
     renderer.render(scene, camera);
+    /* Adaptive quality: slow devices first drop resolution, then shadows, so animation never lags. */
+    perfN++; perfSum += dt;
+    if (perfN === 45) {
+      var avg = perfSum / perfN; perfN = 0; perfSum = 0;
+      if (avg > 0.027) {
+        if (renderer.getPixelRatio() > 1) { renderer.setPixelRatio(1); }
+        else if (sun.castShadow) { sun.castShadow = false; renderer.shadowMap.enabled = false; scene.traverse(function (n) { if (n.material) n.material.needsUpdate = true; }); }
+      }
+    }
   }
   update(0.016); renderer.render(scene, camera);
   frame();

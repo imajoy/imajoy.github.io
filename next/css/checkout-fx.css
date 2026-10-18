@@ -99,7 +99,7 @@ html[data-ui-paused] .customer-verification::before,html[data-ui-paused] .reward
 .checkout-form fieldset:has([required]):not(:has(:invalid)) legend{padding-right:38px;border-color:rgba(47,181,174,.55)}
 .checkout-form fieldset:has([required]):not(:has(:invalid)) legend::after{content:"";position:absolute;right:14px;top:50%;width:11px;height:6px;margin-top:-5px;border-left:2.5px solid #2FB5AE;border-bottom:2.5px solid #2FB5AE;transform:rotate(-45deg);animation:ck-pop .5s cubic-bezier(.22,1,.36,1)}
 /* --- soft drifting colour behind the page (cheap: two blurred shapes, transform only) --- */
-.commerce-page::before,.commerce-page::after{content:"";position:fixed;z-index:-1;width:46vmax;height:46vmax;border-radius:50%;filter:blur(70px);opacity:.28;pointer-events:none;will-change:transform}
+.commerce-page::before,.commerce-page::after{content:"";position:fixed;z-index:-1;width:46vmax;height:46vmax;border-radius:50%;opacity:.3;pointer-events:none}
 .commerce-page::before{left:-14vmax;top:-12vmax;background:radial-gradient(closest-side,#7FB0FF,transparent)}
 .commerce-page::after{right:-16vmax;bottom:-16vmax;background:radial-gradient(closest-side,#FFB199,transparent)}
 @media(prefers-reduced-motion:no-preference){

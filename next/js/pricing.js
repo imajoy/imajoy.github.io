@@ -1,4 +1,4 @@
-import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261017-r16';
+import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261018-g2';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0;
 function chooseBilling(value){
@@ -19,14 +19,14 @@ async function render(){
    if(current!==revision)return;
    amount.textContent=money(quote.unitAmount,quote.currency);animate(amount);
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
-   note.textContent=billing==='yearly'?'Billed annually. Prices exclude applicable taxes.':'Billed monthly. Prices exclude applicable taxes.';
+   note.textContent=(billing==='yearly'?'Billed annually. ':'Billed monthly. ')+'Final price, no tax added at checkout.';
    yearlyLink.hidden=billing!=='monthly';
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=money(quote.compareAtUnitAmount,quote.currency);
     offer.querySelector('.annual-saving').textContent='Save '+money(quote.annualSavings,quote.currency)+' per year';
     offer.querySelector('.annual-equivalent').textContent=money(quote.unitAmount/12,quote.currency)+' per month, billed yearly';animate(offer);
    }
-   status.textContent=quote.preview?'Estimated price. Your billing details confirm the total at checkout.':'';
+   status.textContent=quote.preview?(quote.currency==='INR'?'Prices for India are shown in rupees. Payments for India open soon.':'Prices shown in US dollars for your region. Your country is confirmed at checkout.'):'';
   }catch{if(current!==revision)return;amount.textContent='See checkout';offer.hidden=true;note.textContent='Confirm pricing on the billing page.';status.textContent='Pricing is temporarily unavailable.';}
  }));
 }

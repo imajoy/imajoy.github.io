@@ -16,7 +16,7 @@
  @keyframes rs-glow{0%,22%,100%{box-shadow:0 0 0 0 rgba(61,139,255,0)}8%{box-shadow:0 0 0 4px rgba(61,139,255,.22);border-color:var(--blue)}}
  .reward-steps li .rs-pct{animation:rs-pop 6s ease-in-out infinite;animation-delay:calc(var(--i)*2s)}
  @keyframes rs-pop{0%,22%,100%{transform:none}8%{transform:scale(1.1) rotate(-2deg)}}
- .customer-verification{animation:cv-in .9s cubic-bezier(.22,1,.36,1) .3s backwards}
+ .customer-verification{animation:cv-in .5s cubic-bezier(.22,1,.36,1) backwards}
  @keyframes cv-in{from{opacity:0;transform:translateY(18px) scale(.98)}}
 }
 /* --- fields: soft tick when valid, label colour on focus --- */
@@ -87,3 +87,31 @@ html[data-ui-paused] .customer-verification::before,html[data-ui-paused] .reward
  @keyframes pd-draw{to{stroke-dashoffset:0}}
 }
 @media (prefers-reduced-motion:reduce){.pd-check circle,.pd-check path{stroke-dashoffset:0}}
+
+.paypal-closed{margin:0;padding:14px 16px;border-radius:16px;background:var(--t05);border:1px solid var(--line);font-size:.875rem;line-height:1.55}
+.paypal-fine{margin:0;font-size:.75rem;color:var(--mute);line-height:1.55}
+.pd-bar{height:4px;border-radius:4px;background:var(--t05);overflow:hidden;margin:2px 0 10px}
+.pd-bar i{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--blue),#2FB5AE);transform-origin:0 50%;animation:pd-run var(--redir,5s) linear forwards}
+@keyframes pd-run{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.pd-count{margin:0;font-size:.8125rem;color:var(--mute)}.pd-count a{color:var(--blue-d)}
+/* --- section tick: a panel earns a check once all its required fields are valid --- */
+.checkout-form fieldset legend{position:relative;transition:padding .4s cubic-bezier(.22,1,.36,1),border-color .4s,background-color .4s}
+.checkout-form fieldset:has([required]):not(:has(:invalid)) legend{padding-right:38px;border-color:rgba(47,181,174,.55)}
+.checkout-form fieldset:has([required]):not(:has(:invalid)) legend::after{content:"";position:absolute;right:14px;top:50%;width:11px;height:6px;margin-top:-5px;border-left:2.5px solid #2FB5AE;border-bottom:2.5px solid #2FB5AE;transform:rotate(-45deg);animation:ck-pop .5s cubic-bezier(.22,1,.36,1)}
+/* --- soft drifting colour behind the page (cheap: two blurred shapes, transform only) --- */
+.commerce-page::before,.commerce-page::after{content:"";position:fixed;z-index:-1;width:46vmax;height:46vmax;border-radius:50%;filter:blur(70px);opacity:.28;pointer-events:none;will-change:transform}
+.commerce-page::before{left:-14vmax;top:-12vmax;background:radial-gradient(closest-side,#7FB0FF,transparent)}
+.commerce-page::after{right:-16vmax;bottom:-16vmax;background:radial-gradient(closest-side,#FFB199,transparent)}
+@media(prefers-reduced-motion:no-preference){
+ .commerce-page::before{animation:drift1 22s ease-in-out infinite alternate}
+ .commerce-page::after{animation:drift2 26s ease-in-out infinite alternate}
+ @keyframes drift1{to{transform:translate3d(9vmax,7vmax,0) scale(1.12)}}
+ @keyframes drift2{to{transform:translate3d(-8vmax,-6vmax,0) scale(1.1)}}
+}
+html[data-theme=dark] .commerce-page::before,html[data-theme=dark] .commerce-page::after{opacity:.16}
+/* --- phone: sticky total bar --- */
+.m-total{position:fixed;left:12px;right:12px;bottom:max(12px,env(safe-area-inset-bottom));z-index:40;display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 10px 10px 18px;border-radius:999px;background:color-mix(in srgb,var(--card) 88%,transparent);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid var(--line);box-shadow:0 14px 40px rgba(30,45,90,.2);transform:translateY(140%);transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.m-total.on{transform:none}
+.m-total small{display:block;font-size:.6875rem;color:var(--mute);line-height:1.2}.m-total strong{font-size:1.125rem;letter-spacing:-.02em}
+.m-total button{flex:none;border:0;border-radius:999px;padding:12px 20px;font:600 .875rem var(--sans);color:#fff;background:linear-gradient(145deg,#4F8DFF,#2A64E8);cursor:pointer;touch-action:manipulation}
+@media(max-width:800px){.m-total{display:flex}.paypal-box{scroll-margin-bottom:90px}}

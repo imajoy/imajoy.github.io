@@ -24,3 +24,24 @@ if (total) {
     total.classList.remove('tick'); void total.offsetWidth; total.classList.add('tick');
   }).observe(total, { childList: true, characterData: true, subtree: true });
 }
+/* Phone: a sticky total bar that jumps to the PayPal button, hidden while that button is on screen. */
+if (matchMedia('(max-width: 800px)').matches) {
+  const totalEl = document.querySelector('#summary-total');
+  const bar = document.createElement('div');
+  bar.className = 'm-total';
+  bar.innerHTML = '<div><small>Total today</small><strong>—</strong></div><button type="button">Continue to pay</button>';
+  document.body.append(bar);
+  const strong = bar.querySelector('strong');
+  const sync = () => { if (totalEl) strong.textContent = totalEl.textContent || '—'; };
+  if (totalEl) new MutationObserver(sync).observe(totalEl, { childList: true, characterData: true, subtree: true });
+  sync();
+  let target = null, shown = false, atBottom = false;
+  const apply = () => bar.classList.toggle('on', shown && !atBottom && !document.querySelector('.pay-done'));
+  bar.querySelector('button').addEventListener('click', () => {
+    (document.querySelector('.paypal-box') || document.querySelector('.checkout-form')).scrollIntoView({ behavior: paused() ? 'auto' : 'smooth', block: 'center' });
+  });
+  const io = new IntersectionObserver(es => { for (const e of es) atBottom = e.isIntersecting; apply(); }, { threshold: 0.2 });
+  const watch = () => { target = document.querySelector('.paypal-box'); if (target) io.observe(target); };
+  setTimeout(watch, 1500); setTimeout(watch, 4000);
+  addEventListener('scroll', () => { shown = scrollY > 260; apply(); }, { passive: true });
+}

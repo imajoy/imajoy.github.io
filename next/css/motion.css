@@ -31,3 +31,11 @@ input:focus-visible,select:focus-visible,textarea:focus-visible{box-shadow:0 0 0
 .download-card:hover,.order-summary:hover{transform:translateY(-4px)}
 .policy-section:hover{transform:translateX(3px)}
 @media (prefers-reduced-motion:reduce){.ic,.art-tile,.orbit-chip,.art-ring,.tool-glow{animation:none!important}}
+/* Touch screens: comfortable tap areas for small links without changing how they look. */
+@media (pointer:coarse){
+ .crumb,.text-link,.policy-help,.yearly-link,.foot-links a,.commerce-footer a,.policy-index a{display:inline-flex;align-items:center;min-height:44px;padding-block:6px}
+ .tl-link{min-height:0;padding-block:12px;margin-block:-12px}
+ .commerce-footer a,.foot-links a{padding-inline:8px}
+ .btn,button.btn{min-height:46px}
+ .toggle button{min-height:44px}
+}

@@ -1,4 +1,4 @@
-import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry,mountTurnstile} from './commerce.js?v=20261017-r16';
+import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry,mountTurnstile} from './commerce.js?v=20261018-g2';
 import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261018-r17';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
 const params=new URLSearchParams(location.search);
@@ -33,7 +33,7 @@ function showQuote(data){
  upsell.hidden=data.billing!=='monthly';
  if(!upsell.hidden){
   const yearlySaving=(data.monthlyAmount*12-Math.round(data.monthlyAmount*12*.8))*data.seats;
-  document.querySelector('#yearly-upsell-copy').textContent='Save '+money(yearlySaving,data.currency)+' across '+data.seats+' license'+(data.seats===1?'':'s')+' over a year, compared with 12 standard monthly payments. Annual billing, before tax.';
+  document.querySelector('#yearly-upsell-copy').textContent='Save '+money(yearlySaving,data.currency)+' across '+data.seats+' license'+(data.seats===1?'':'s')+' over a year, compared with 12 standard monthly payments. Annual billing.';
  }
  document.querySelector('#summary-unit').textContent=money(data.unitAmount,data.currency);
  document.querySelector('#summary-subtotal-label').textContent=data.billing==='yearly'?'12 months at monthly price':'Subtotal';
@@ -59,7 +59,7 @@ function showQuote(data){
   document.querySelector('#loyalty-summary').textContent='One-time '+loyalty.percent+'% loyalty reward applied to your '+(data.billing==='yearly'?'first yearly renewal':'monthly payment '+loyalty.nextPayment)+'. '+(data.billing==='yearly'?'This is additional to the 20% yearly saving. ':'')+'Rewards and coupons do not stack.';
  }
  showCustomerReward(data);
- document.querySelector('#quote-note').textContent=data.preview?'Estimated subtotal. The final total and applicable tax will be shown before payment.':'Price confirmed for your billing country. Any applicable tax will be shown before payment.';
+ document.querySelector('#quote-note').textContent=data.preview?'Final price for your region. No tax is added at checkout. Billed in USD by PayPal; your bank may convert it.':'Price confirmed for your billing country. Any applicable tax will be shown before payment.';
  status.textContent='';updateButton();
 }
 async function render(){

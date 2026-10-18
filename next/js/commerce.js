@@ -1,3 +1,4 @@
+import {regionalPrice} from './regions.js?v=20261018-g2';
 export const apiBase = (window.AJOY_CONFIG?.apiBase || '').replace(/\/$/, '');
 export const money = (amount,currency) => new Intl.NumberFormat(navigator.language || 'en', {style:'currency',currency,minimumFractionDigits:Number.isInteger(amount/100)?0:2,maximumFractionDigits:2}).format(amount/100);
 export async function api(path, options = {}) {
@@ -16,14 +17,10 @@ export function suggestedCountry() {
   const region=(navigator.language||'').split('-')[1];
   return /^[A-Za-z]{2}$/.test(region||'')?region.toUpperCase():'US';
 }
-/* Display-only fallback while the server is unavailable. It cannot authorize a charge. */
+/* Regional price shown on the site (see regions.js). The PayPal plan for the same tier is what is charged. */
 export function previewPrice(plan='online',billing='monthly',seats=1,country=suggestedCountry()) {
-  const low=['IN','PK','BD','NP','LK'].includes(country),middle=['ID','PH','VN','BR','MX','ZA'].includes(country),base=low?899:middle?1299:1999;
-  const local={IN:['INR',1],PK:['PKR',3.25],US:['USD',.0116],GB:['GBP',.0087],CA:['CAD',.0158],AU:['AUD',.0179],AE:['AED',.0426],DE:['EUR',.0106],FR:['EUR',.0106],ES:['EUR',.0106],IT:['EUR',.0106],NL:['EUR',.0106],IE:['EUR',.0106]};
-  const [currency,rate]=local[country]||['USD',.0116],m=plan==='offline'?2:1;
-  const monthlyAmount=Math.round(base*m*rate*100),compareAtUnitAmount=billing==='yearly'?monthlyAmount*12:monthlyAmount;
-  const unitAmount=billing==='yearly'?Math.round(compareAtUnitAmount*.8):monthlyAmount;
-  return {plan,billing,seats,country,currency,unitAmount,subtotal:unitAmount*seats,baseSubtotal:unitAmount*seats,monthlyAmount,compareAtUnitAmount,annualSavings:(compareAtUnitAmount-unitAmount)*seats,annualSavingsPercent:billing==='yearly'?20:0,preview:true};
+  const p=regionalPrice(plan,billing,seats,country);
+  return {plan,billing,seats,country,currency:p.currency,unitAmount:p.unitAmount,subtotal:p.unitAmount*seats,baseSubtotal:p.unitAmount*seats,monthlyAmount:p.monthlyAmount,compareAtUnitAmount:p.compareAtUnitAmount,annualSavings:(p.compareAtUnitAmount-p.unitAmount)*seats,annualSavingsPercent:billing==='yearly'?20:0,preview:true};
 }
 export async function getQuote(plan,billing,seats=1,country,headers={}) {
   const params=new URLSearchParams({plan,billing,seats:String(seats)});

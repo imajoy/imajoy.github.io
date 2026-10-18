@@ -64,7 +64,7 @@ function commerceEligibility_(d,who) {
   var claimed=commerceHistoricalTrial_(who.email)||commerceConflict_(signals,'',true);
   var reason=claimed?'trial_used':!signals.ipHash?'network_unverified':!signals.deviceHash?'browser_unverified':commerceConflict_(signals,own?own[0]:'')?'trial_reserved':'eligible';
   var messages={trial_used:'2-day trial already claimed. You can continue with a paid subscription.',trial_reserved:'A trial checkout is already in progress for this browser or network. Resume it or try again after its reservation expires.',network_unverified:'Trial eligibility requires a verified network. Standard subscriptions remain available once your location is confirmed.',browser_unverified:'Trial eligibility requires a saved browser identifier. Allow site storage and try again.',eligible:'Trial eligibility is checked again when PayPal approves your account.'};
-  return {ok:true,eligible:reason==='eligible',reason:reason,message:messages[reason]};
+  return {ok:true,rewardsVersion:1,eligible:reason==='eligible',reason:reason,message:messages[reason]};
 }
 function commercePlan_(plan,billing,country,offer) {
   var noPaypal='AF BD NP PK MM ET ZW BI CF TD KM CG CD DJ ER GQ GW IQ LY SO SS SD YE LS LR ML MR NE SL ST BT GN HT TJ TM UZ VE TL KI NR TV PW MH FM SB VU WS TO PG SR'.split(' ');
@@ -86,11 +86,17 @@ function commerceCreate_(d,who) {
   if(d.billingCountry&&tierFor_(d.billingCountry)!==tierFor_(checkoutCountry))throw commerceError_('region','Your billing country and detected price region differ. Review your country before subscribing.');
   if(!/^[A-Z]{2}$/.test(checkoutCountry||''))throw commerceError_('network_unverified','Your network location could not be verified. Please retry or contact support.');
   var planId=commercePlan_(d.plan,d.billing,checkoutCountry,d.offer),signals=commerceSignals_(d,who.email);
+  var prior=rewardPending_(d,who);
+  var history=!prior&&d.offer==='standard'?rewardHistory_(who.email):null;
+  var pricing=prior?rewardBuyer_(prior).loyalty:d.offer==='standard'?rewardQuote_(d,who,history):null;
+  if(!prior&&pricing&&(d.expectedTotal!==undefined&&d.expectedTotal!==pricing.total||d.expectedRewardPercent!==undefined&&d.expectedRewardPercent!==pricing.percent))throw commerceError_('price_changed','Your payment history or price changed. Refresh your reward and review the total before approving.');
+  if(prior)planId=prior[10];
+  else if(pricing&&pricing.percent)planId=rewardPayPalPlan_(d,pricing);
   var row=commerceLock_(function(){
-    var existing=commerceRows_().filter(function(r){return r[1]===mode_()&&r[2]===who.email&&(r[17]===d.requestId||d.offer==='trial'&&r[6]==='trial'&&['reserved','created'].indexOf(r[12])>=0&&r[4]===signals.deviceHash&&r[5]===signals.ipHash&&Date.now()-new Date(r[13]).getTime()<1800000);})[0];
+    var existing=commerceRows_().filter(function(r){return r[1]===mode_()&&r[2]===who.email&&(r[17]===d.requestId||prior&&r[0]===prior[0]||d.offer==='trial'&&r[6]==='trial'&&['reserved','created'].indexOf(r[12])>=0&&r[4]===signals.deviceHash&&r[5]===signals.ipHash&&Date.now()-new Date(r[13]).getTime()<1800000);})[0];
     if(existing){
       if(existing[6]!==d.offer||existing[7]!==d.plan||existing[8]!==d.billing||existing[9]!==d.seats||existing[10]!==planId)throw commerceError_('selection','Start a new checkout after changing your selection.');
-      if(Date.now()-new Date(existing[13]).getTime()>1800000&&existing[12]!=='accepted')throw commerceError_('expired','This checkout expired. Start again.');
+      if(Date.now()-new Date(existing[13]).getTime()>1800000&&existing[12]!=='accepted'&&!(rewardBuyer_(existing).loyalty||{}).reward)throw commerceError_('expired','This checkout expired. Start again.');
       return existing;
     }
     if(d.offer==='trial'){
@@ -99,16 +105,17 @@ function commerceCreate_(d,who) {
       if(!signals.deviceHash)throw commerceError_('browser_unverified','Allow site storage to verify this browser for a trial.');
       if(commerceConflict_(signals,''))throw commerceError_('trial_reserved','A trial checkout is already in progress for this browser or network. Resume it or try again after its reservation expires.');
     }
-    var buyer=JSON.stringify({name:clip_(d.name,80),company:clip_(d.company,80),networkCountry:d.country||'',sandboxCountry:d.sandboxCountry||''});
+    if(pricing&&pricing.reward)rewardReserve_(who,pricing,history,'');
+    var buyer=JSON.stringify({name:clip_(d.name,80),company:clip_(d.company,80),networkCountry:d.country||'',sandboxCountry:d.sandboxCountry||'',loyalty:pricing});
     var now=new Date(),created=[Utilities.getUuid(),mode_(),who.email,signals.emailHash,signals.deviceHash,signals.ipHash,d.offer,d.plan,d.billing,d.seats,planId,'','reserved',now,now,'','',d.requestId,checkoutCountry,buyer,'',''];
     commerceWrite_(created);return created;
   });
-  if(row[11])return {ok:true,checkoutId:row[0],subscriptionId:row[11],offer:row[6]};
+  if(row[11])return {ok:true,checkoutId:row[0],subscriptionId:row[11],offer:row[6],pricing:rewardBuyer_(row).loyalty||null};
   var origin='https://imajoy.github.io';
   var subscription=commercePaypal_('/v1/billing/subscriptions','post',{plan_id:planId,quantity:String(d.seats),custom_id:row[0],subscriber:{email_address:who.email},application_context:{brand_name:'Ajoy Tools',shipping_preference:'NO_SHIPPING',user_action:'SUBSCRIBE_NOW',return_url:origin+'/checkout.html?checkout='+row[0],cancel_url:origin+'/checkout.html?cancelled=1'}},row[0]);
   if(!/^I-[A-Z0-9]+$/.test(subscription.id||''))throw commerceError_('provider','PayPal did not return a subscription.');
   commerceLock_(function(){var current=commerceFind_(row[0]);current[11]=subscription.id;current[12]='created';current[14]=new Date();commerceWrite_(current);});
-  return {ok:true,checkoutId:row[0],subscriptionId:subscription.id,offer:row[6]};
+  return {ok:true,checkoutId:row[0],subscriptionId:subscription.id,offer:row[6],pricing:rewardBuyer_(row).loyalty||null};
 }
 function commerceCancel_(id) {commercePaypal_('/v1/billing/subscriptions/'+encodeURIComponent(id)+'/cancel','post',{reason:'Trial eligibility could not be verified. No trial access will be issued.'});}
 function commerceConfirm_(id,who) {
@@ -177,6 +184,7 @@ function handleCommerceEnvelope_(envelope) {
     if(d.action==='webhook')return commerceWebhook_(d);
     var who=commerceWho_(d.accountToken);
     if(d.action==='eligibility')return commerceLock_(function(){return commerceEligibility_(d,who);});
+    if(d.action==='rewards')return commerceRewards_(d,who);
     if(d.action==='checkout')return commerceCreate_(d,who);
     if(d.action==='confirm')return commerceConfirm_(d.checkoutId,who);
     if(d.action==='download')return {ok:true,email:who.email};

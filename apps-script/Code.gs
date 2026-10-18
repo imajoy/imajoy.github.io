@@ -72,7 +72,8 @@ function planTier_(planId) {
   if (!saved || !planId) return '';
   var tiers = (JSON.parse(saved).tiers) || {};
   for (var t in tiers) for (var k in tiers[t]) for (var p in tiers[t][k]) if (tiers[t][k][p] === planId) return t;
-  return '';
+  var reward=rewardPlanInfo_(planId);
+  return reward?reward.tier:'';
 }
 /* True when this PayPal plan is one of the 2-day-trial plans (Online only). */
 function isTrialPlan_(planId) {

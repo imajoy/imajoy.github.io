@@ -89,3 +89,16 @@ test('Sandbox simulation never bypasses the trial network identifier requirement
   assert.equal((await result.json()).ok,false);assert.equal(s.app.subscriptions.size,0);
  }
 });
+
+test('Reward quotes and discounted checkout use the same signed gateway, identity and private paid history',async()=>{
+ const s=setup(),id='I-PRIORPAID',email=s.account.email;
+ s.app.orders.rows.push([new Date('2026-01-01'),id,'CANCELLED','sandbox',email,'Buyer','US','online','monthly',10,'','P-high-ONLINE']);
+ s.app.subscriptions.set(id,{id,status:'CANCELLED',plan_id:'P-high-ONLINE',create_time:'2026-01-01T00:00:00Z'});
+ s.app.transactions.set(id,{transactions:[{id:'TX-VERIFIED',status:'COMPLETED',time:'2026-02-01T00:00:00Z',amount_with_breakdown:{gross_amount:{value:'220.00',currency_code:'USD'}}}]});
+ const selection={plan:'online',billing:'monthly',seats:2,country:'US',email:'forged@example.com',paidPeriods:99,percent:99};
+ const result=await handleCommerceRequest(s.req('rewards',selection),s.env,s.upstream);assert.equal(result.status,200);
+ const quote=(await result.json()).pricing;assert.equal(quote.percent,5);assert.equal(quote.total,4180);assert.equal(quote.nextPayment,2);
+ const created=await handleCommerceRequest(s.req('checkout',{...selection,offer:'standard',requestId:randomUUID(),expectedTotal:quote.total,expectedRewardPercent:5}),s.env,s.upstream);
+ assert.equal(created.status,200);const data=await created.json();assert.equal(data.pricing.total,4180);assert.equal(s.app.subscriptions.get(data.subscriptionId).plan_id,[...s.app.plans.values()][0].id);
+ const rejected=await handleCommerceRequest(s.req('rewards',{...selection,accountToken:'not-a-valid-session-token'}),s.env,s.upstream);assert.equal(rejected.status,401);
+});

@@ -4,8 +4,8 @@ import {createHmac,randomUUID} from 'node:crypto';
 export function service({registered=true,mailFails=false}={}){
  const values=new Map([['SESSION_SECRET','private-account-test-secret'],['PAYPAL_MODE','sandbox'],['PAYPAL_CLIENT_ID','test-client'],['PAYPAL_SECRET','test-secret'],['COMMERCE_SECRET','test-private-gateway-secret-at-least-32-bytes'],['TRIAL_IDENTITY_SECRET','test-stable-identity-secret-at-least-32-bytes'],['COMMERCE_ENABLED','true'],['PAYPAL_WEBHOOK_ID','TEST-WEBHOOK'],['COMMERCE_ENFORCE_FROM',new Date(Date.now()-86400000).toISOString()]]);
  const tiers={};for(const tier of ['low','mid','high'])tiers[tier]={online:{monthly:'P-'+tier+'-ONLINE',yearly:'P-'+tier+'-YEARLY'},offline:{monthly:'P-'+tier+'-OFFLINE',yearly:'P-'+tier+'-OFFLINE-YEARLY'},onlineTrial:{monthly:'P-'+tier+'-TRIAL',yearly:'P-'+tier+'-TRIAL-YEARLY'}};
- values.set('PLANS_sandbox',JSON.stringify({tiers}));
- const cache=new Map(),mails=[],requests=[],sheets=new Map(),subscriptions=new Map(),idempotency=new Map();let sequence=0,locked=false,signatureValid=true;
+ values.set('PLANS_sandbox',JSON.stringify({productId:'PROD-TEST',tiers}));
+ const cache=new Map(),mails=[],requests=[],sheets=new Map(),subscriptions=new Map(),transactions=new Map(),plans=new Map(),idempotency=new Map();let sequence=0,locked=false,signatureValid=true;
  function table(name,initial=[[]]){
   const rows=initial;
   const sheet={rows,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
@@ -30,17 +30,22 @@ export function service({registered=true,mailFails=false}={}){
     const id='I-CREATED'+(++sequence),body=JSON.parse(options.payload);const value={...body,id,status:'APPROVAL_PENDING',create_time:new Date().toISOString(),subscriber:{...body.subscriber,payer_id:'PAYER-'+sequence},billing_info:{next_billing_time:new Date(Date.now()+2*864e5).toISOString()}};
     subscriptions.set(id,value);if(key)idempotency.set(key,id);return result(value,201);
    }
+   if(url.endsWith('/v1/billing/plans')&&options.method==='post'){
+    const key=options.headers?.['PayPal-Request-Id'];if(plans.has(key))return result(plans.get(key),201);
+    const plan={...JSON.parse(options.payload),id:'P-REWARD'+(plans.size+1)};plans.set(key,plan);return result(plan,201);
+   }
    const id=/\/subscriptions\/(I-[A-Z0-9]+)/.exec(url)?.[1];
+   if(url.includes('/transactions?'))return result(transactions.get(id)||{transactions:[],total_items:0,total_pages:0});
    if(url.endsWith('/cancel')){if(subscriptions.has(id))subscriptions.get(id).status='CANCELLED';return result(null,204);}
    if(id)return result(subscriptions.get(id)||{id,status:'ACTIVE',plan_id:'P-high-ONLINE',subscriber:{payer_id:'LEGACY-PAYER'},billing_info:{next_billing_time:new Date(Date.now()+20*864e5).toISOString()}});
    return result({},404);
   }},ContentService:{MimeType:{JSON:'json'},createTextOutput:()=>({setMimeType(){return this;},setContent(text){this.text=text;return this;}})}
  });
- for(const name of ['Code.gs','Commerce.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
+ for(const name of ['Code.gs','Loyalty.gs','Commerce.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
  const clone=value=>JSON.parse(JSON.stringify(value));
  const call=body=>clone(ctx.handleAccount_(body));
  const envelope=payload=>{const packed=JSON.stringify(payload),timestamp=String(Date.now()),nonce=randomUUID();return {type:'commerce',payload:packed,timestamp,nonce,signature:createHmac('sha256',values.get('COMMERCE_SECRET')).update(timestamp+'.'+nonce+'.'+packed).digest('hex')};};
  const rpc=(action,data={})=>clone(ctx.handleCommerceEnvelope_(envelope({action,...data})));
  const register=email=>{call({step:'code',email,intent:'register'});const code=mails.at(-1).subject.match(/\d{6}/)[0];return call({step:'verify',email,code});};
- return {ctx,values,mails,requests,cache,sheets,subscriptions,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
+ return {ctx,values,mails,requests,cache,sheets,subscriptions,transactions,plans,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
 }

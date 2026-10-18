@@ -64,7 +64,7 @@ function showQuote(data){
  }
  showCustomerReward(data);
  document.querySelector('#quote-note').textContent=data.preview?'Final price for your region. No tax is added at checkout. Billed in USD by PayPal; your bank may convert it.':'Price confirmed for your billing country. Any applicable tax will be shown before payment.';
- status.textContent='';updateButton();
+ status.textContent='';updateButton();document.dispatchEvent(new CustomEvent('ajoy:quote-rendered'));
 }
 async function render(){
  clearTimeout(quantityTimer);
@@ -119,7 +119,7 @@ async function init(){
   document.querySelector('#availability').textContent='Review your billing details, then continue to our payment partner to confirm tax and complete your subscription.';
   try{await mountTurnstile('#checkout-verification',config.turnstileSiteKey,token=>{turnstileToken=token;updateButton();},message=>{status.textContent=message;},'checkout');}catch(e){status.textContent=e.message;}
  }
- initializeCustomerVerification(config.loyalty,()=>{
+ if(!window.AJOY_CONFIG?.commerceUrl)initializeCustomerVerification(config.loyalty,()=>{
   couponOperation++;couponBusy=false;appliedCoupon='';couponApply.disabled=false;couponApply.textContent='Apply';couponRemove.hidden=true;couponMessage('Enter your code to check eligibility.');render();
  });
  await render();

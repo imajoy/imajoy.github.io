@@ -25,7 +25,7 @@ export async function handleCommerceRequest(req,env,request=fetch){
   if(req.method==='OPTIONS')return new Response(null,{status:allowed.includes(origin)?204:403,headers:cors});
   if(req.method!=='POST')throw fail('Method not allowed.',405);
   if(path!=='paypal-webhook'&&!allowed.includes(origin))throw fail('Origin not allowed.',403);
-  if(!['eligibility','checkout','confirm','download','paypal-webhook'].includes(path))throw fail('Not found.',404);
+  if(!['eligibility','rewards','checkout','confirm','download','paypal-webhook'].includes(path))throw fail('Not found.',404);
   if(env('COMMERCE_ENABLED')!=='true')throw fail('Account checkout and downloads are being connected. Please try again shortly.',503);
   const secret=env('COMMERCE_SECRET'),identitySecret=env('TRIAL_IDENTITY_SECRET'),script=env('SHEET_WEB_APP_URL');
   if(!secret||secret.length<32||!identitySecret||identitySecret.length<32||!/^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/.test(script||''))throw fail('Account service is not configured.',503);
@@ -39,7 +39,7 @@ export async function handleCommerceRequest(req,env,request=fetch){
   }else{
    if(typeof data.accountToken!=='string'||data.accountToken.length<16||data.accountToken.length>4096)throw fail('Sign in or register and verify your email first.',401);
    payload={action:path,accountToken:data.accountToken};
-   if(['checkout','eligibility'].includes(path)){
+   if(['checkout','eligibility','rewards'].includes(path)){
     const device=data.deviceId;
     if(device&& (typeof device!=='string'||!/^[-a-f0-9]{36}$/i.test(device)))throw fail('Invalid browser identifier.');
     const ip=trustedIp(req,env);
@@ -48,9 +48,9 @@ export async function handleCommerceRequest(req,env,request=fetch){
     let country='';
     if(ip){try{const r=await request('https://api.country.is/'+encodeURIComponent(ip),{signal:AbortSignal.timeout(2500)});if(r.ok)country=(await r.json()).country||'';}catch{}}
     payload.country=/^[A-Z]{2}$/.test(country)?country:'';
-    if(path==='checkout'){
-     if(!['online','offline'].includes(data.plan)||!['monthly','yearly'].includes(data.billing)||!['trial','standard'].includes(data.offer)||!Number.isInteger(data.seats)||data.seats<1||data.seats>100||!/^[-a-f0-9]{36}$/i.test(data.requestId||''))throw fail('Review your plan, billing period and license quantity.');
-     Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,offer:data.offer,requestId:data.requestId,billingCountry:data.country,name:typeof data.name==='string'?data.name.slice(0,80):'',company:typeof data.company==='string'?data.company.slice(0,80):''});
+    if(path==='checkout'||path==='rewards'){
+     if(!['online','offline'].includes(data.plan)||!['monthly','yearly'].includes(data.billing)||path==='checkout'&&!['trial','standard'].includes(data.offer)||!Number.isInteger(data.seats)||data.seats<1||data.seats>100||path==='checkout'&&!/^[-a-f0-9]{36}$/i.test(data.requestId||''))throw fail('Review your plan, billing period and license quantity.');
+     Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,offer:data.offer,requestId:data.requestId,billingCountry:data.country,expectedTotal:data.expectedTotal,expectedRewardPercent:data.expectedRewardPercent,name:typeof data.name==='string'?data.name.slice(0,80):'',company:typeof data.company==='string'?data.company.slice(0,80):''});
      // Owner-controlled Sandbox simulation. Never accept a test country from the browser.
      const testCountry=(env('COMMERCE_SANDBOX_COUNTRY')||'').trim().toUpperCase();
      if(env('PAYPAL_MODE')==='sandbox'&&testCountry){

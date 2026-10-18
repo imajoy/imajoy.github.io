@@ -14,7 +14,7 @@ Old copies remain in public Git history, browser caches or other people's downlo
 
 ## 2. Update the existing Apps Script web app
 
-In the existing Sheet's **Extensions → Apps Script**, update `Code.gs` and add `Commerce.gs` from `apps-script/`. Keep existing PayPal properties and the same web app URL. Do not run `setupPlans()` again if the existing plans are already configured.
+In the existing Sheet's **Extensions → Apps Script**, update `Code.gs`, `Commerce.gs` and `Loyalty.gs` from `apps-script/`. Keep existing PayPal properties and the same web app URL. Do not run `setupPlans()` again if the existing plans are already configured.
 
 Set these private **Script properties**:
 
@@ -98,3 +98,33 @@ Then set `COMMERCE_ENABLED=true` in both places. Keep live/sandbox plans, creden
 ## Local validation
 
 `node --test tests/*.test.mjs` covers registration, email-code ownership, private request signatures/replay, reservation conflicts, email/browser/IP reuse, PayPal payer reuse, idempotency, webhook verification, historical import, and protected downloads with mocked Google/PayPal services. The checks send no emails, create no real subscriptions and make no charges. They cannot establish real ingress behavior, SMTP delivery, storage permissions or merchant deployment readiness.
+
+## Returning subscriber rewards
+
+The active checkout uses Google Sheets accounts and PayPal payment records. The older Supabase `storefront` loyalty implementation is separate; enabling it does not connect rewards to this PayPal checkout.
+
+To activate this update on the already configured system:
+
+1. From the updated local repository, deploy the gateway first in PowerShell. This keeps the current checkout compatible during the update:
+
+   ```powershell
+   npx.cmd supabase@latest functions deploy commerce --project-ref wsadhewcmpdhojgqzstw --use-api --no-verify-jwt
+   ```
+
+2. In **Extensions → Apps Script**, replace `Code.gs` and `Commerce.gs` with the repository copies. Add a script file named **Loyalty** and paste `apps-script/Loyalty.gs` into it. Save all three files.
+3. Choose **Deploy → Manage deployments → Edit (pencil) → New version → Deploy**. Preserve the existing web app URL, properties and Sheet. Do not run `setupPlans()` again.
+4. Reload checkout and sign in with an email that has a completed Sandbox payment recorded in Orders. The reward panel should say **Verified: 5% off** after one monthly payment, or **Verified: 10% off** after one annual payment. Review the reduced total in PayPal before approval. Sandbox transactions and Live transactions are isolated.
+
+No new secrets, webhook types or history-import command are required. Matching Orders/Checkouts identify subscriptions; their positive completed payments are read back from PayPal. A row marked ACTIVE alone does not establish a payment. Missing, incomplete or unrecognised history stops reward checkout with a retry message; it never silently removes an advertised discount. Until the updated eligibility service advertises reward support, the frontend retains standard checkout and explicitly says no loyalty discount is applied.
+
+Rules:
+
+- Rewards follow the verified sign-in email across Online/Offline and quantities. One completed subscription payment counts once, regardless of the number of licenses. Free trials, pending/failed payments, refunds and prorated amounts do not advance the count. At most one full payment per subscription/calendar billing month or year qualifies. Refunds do not restore already-used rewards.
+- A returning customer with one completed monthly payment gets 5% off the next two monthly payments in the newly approved subscription. A customer with two completed monthly payments gets 5% off the next payment. Standard pricing follows; the percentages never accumulate to 10%.
+- After one completed annual payment, a new annual checkout gets an extra 10% off the current yearly catalog price for one payment. The next annual charge returns to that yearly catalog rate. Monthly payment history cannot invent an annual renewal.
+- PayPal receives an introductory paid pricing phase with a fixed number of cycles followed by the standard unlimited regular phase. PayPal calls that paid introductory phase `TRIAL` internally; it is not the separate free two-day trial. The checkout stores the reward schedule in private Checkouts → Buyer details. Reward plans are created as needed and stored in private Script properties under `LOYALTY_PLANS_sandbox` or `LOYALTY_PLANS_live`.
+- Existing previously approved PayPal subscriptions keep their agreed billing schedules. This update applies on a new checkout; it does not retrospectively change an existing subscription. Do not create overlapping subscriptions just to obtain a discount. To move an existing customer onto a reward schedule, arrange their replacement checkout and cancellation timing with them.
+- A pending reward checkout is resumed on reload, rather than issuing another reward. A competing checkout cannot reserve the same benefit. If you abandon an approved subscription before payment, cancel it in PayPal before starting a replacement.
+- Coupons are not combined with these rewards. The current PayPal checkout does not accept coupons through the inactive storefront service.
+
+Validate with separate Sandbox accounts/history: no previous paid period → no reward; one monthly paid period → 5% for payments 2 and 3; two → 5% for payment 3 only; three or more → no reward; one yearly paid period → 10% once; two or more yearly paid periods → no reward. Verify quantity totals, cancellation, duplicate requests and the standard-price phase in PayPal. Automated tests mock provider responses; an actual Sandbox approval of a generated reward plan is still required after deployment.

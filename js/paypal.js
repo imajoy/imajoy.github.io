@@ -13,9 +13,11 @@ if(form&&pay){
  const gate=box.querySelector('#checkout-account'),closed=box.querySelector('.paypal-closed'),offerBox=box.querySelector('.checkout-offer'),buttons=box.querySelector('#paypal-buttons'),note=box.querySelector('.paypal-note'),fine=box.querySelector('.paypal-fine');
  const total=document.querySelector('#summary-total'),availabilityNote=document.querySelector('#availability');
  const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let rewardQuote=null,rewardRevision=0,rewardTimer,rewardBusy=false,rewardError='',rewardKey='';
  let cfg=null,eligibility=null,selectedOffer='',trialOn=false,lastTotal=total?.textContent||'—',activeToken='',revision=0,sdkPromise,rendered=false,checkout=null,requestId=crypto.randomUUID();
  const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
  const say=(text,bad=false,claimed=false)=>{note.textContent=text;note.dataset.bad=bad?'1':'0';note.classList.toggle('is-trial-claimed',claimed);};
+ const rewardsSupported=()=>eligibility?.rewardsVersion===1;
  const trialConfigured=c=>Boolean(cfg&&trialPlanId(cfg,c.plan,c.billing,c.country));
  box.querySelector('[data-account-gate]').onclick=()=>openAccount({purpose:'checkout',email:form.elements.email.value});
  const invalidate=()=>{requestId=crypto.randomUUID();checkout=null;};
@@ -31,6 +33,8 @@ if(form&&pay){
   closed.hidden=available;closed.textContent=!region.open?closedMessage[region.reason]:!match.ok?'Choose your detected billing country before subscribing.':'';
   const trial=!!session&&eligibility?.eligible&&trialConfigured(c);
   const trialRadio=offerBox.querySelector('[value="trial"]');trialRadio.disabled=!trial;
+  const standardLabel=offerBox.querySelector('[value="standard"]').parentElement;
+  standardLabel.lastChild.textContent=rewardsSupported()?'Standard subscription · paid after PayPal approval':'Standard subscription · no loyalty reward applied';
   const trialLabel=offerBox.querySelector('[data-trial-option-label]');
   trialLabel.textContent=eligibility?.reason==='trial_used'?'2-day trial already claimed':'2-day Online trial · $0 today';
   trialLabel.toggleAttribute('data-trial-claimed',eligibility?.reason==='trial_used');
@@ -49,18 +53,62 @@ if(form&&pay){
    line.hidden=false;line.textContent='2-day free trial, subject to final PayPal account eligibility. Then $'+price+' per '+(c.billing==='yearly'?'year':'month')+'. Cancel in PayPal before billing starts.';
   }else{if(line)line.hidden=true;if(total&&total.textContent==='$0')total.textContent=lastTotal;}
   fine.textContent=trialOn?'One trial per customer, browser, network and verified PayPal payer account. We check your payment account before granting access. Your first subscription payment follows the 2-day trial unless cancelled.':'Charged in US dollars by PayPal. Review the subscription price before approving. Your license is sent within 12 hours after server confirmation.';
-  buttons.hidden=!session||!cfg||!eligibility||!selectedOffer||!available;
+  renderReward();
+  buttons.hidden=!session||!cfg||!eligibility||!selectedOffer||!available||(!trialOn&&rewardsSupported()&&(!rewardQuote||rewardBusy));
   if(availabilityNote)availabilityNote.textContent=!session?'Sign in or register your email, then review your subscription.':!cfg?'Secure checkout is temporarily unavailable.':!eligibility?'Checking your account and trial eligibility…':trialOn?'Review your free trial and its first paid renewal, then approve with PayPal.':'Review the standard subscription price, then approve with PayPal.';
   if(!buttons.hidden)startButtons();
  }
  if(total)new MutationObserver(()=>{if(total.textContent!=='$0')lastTotal=total.textContent;if(trialOn&&total.textContent!=='$0')total.textContent='$0';}).observe(total,{childList:true,characterData:true,subtree:true});
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{selectedOffer=radio.value;invalidate();sync();});
- for(const name of ['plan','billing','country','seats'])form.elements[name].addEventListener('change',()=>{invalidate();sync();});
+ for(const name of ['plan','billing','country','seats'])form.elements[name].addEventListener('change',()=>{invalidate();refreshReward();sync();});
+ form.elements.seats.addEventListener('input',()=>{invalidate();refreshReward();sync();});
+ document.addEventListener('ajoy:quote-rendered',sync);
+ const rewardStatus=document.querySelector('#loyalty-status'),rewardRetry=document.querySelector('#loyalty-send');
+ rewardRetry.textContent='Check rewards again';rewardRetry.disabled=false;rewardRetry.onclick=()=>{refreshReward();sync();};
+ for(const id of ['loyalty-send','loyalty-change','loyalty-code-panel','loyalty-challenge'])document.getElementById(id).hidden=true;
+ document.querySelector('.loyalty-fine').textContent='Sign in with your previous subscription email. Rewards apply to a new checkout after paid-history verification. Existing subscriptions keep their agreed schedule. Monthly rewards do not accumulate; extra licenses do not advance a reward.';
+ function renderReward(){
+  const s=getAccountSession(),q=rewardQuote;
+  const applied=Boolean(q?.percent&&selectedOffer==='standard');
+  document.querySelector('#loyalty-summary-row').hidden=!applied;
+  document.querySelector('#loyalty-summary').hidden=!applied;
+  rewardRetry.hidden=!s||!rewardError||rewardBusy;
+  rewardStatus.dataset.error=String(Boolean(rewardError));
+  rewardStatus.textContent=!s?'Sign in or register below to check your returning subscriber rewards.':rewardBusy?'Checking verified PayPal payment history…':rewardError||(eligibility&&!rewardsSupported()?'Returning subscriber rewards are not activated on this checkout yet. No loyalty discount is applied. Review the standard price in PayPal before approval.':!q?'Choose an available billing country to check your rewards.':q.percent?'Verified: '+q.percent+'% off '+(q.rewardPayments===2?'your next two monthly payments':'your next '+q.billing+' payment')+'. '+(trialOn?'Choose the standard subscription to use this reward; it does not combine with a free trial.':'The discounted total is shown before PayPal approval.'):'Verified: no returning subscriber reward is due for this payment.');
+  if(applied){
+   document.querySelector('#summary-loyalty').textContent='−'+dollars(q.discountAmount);
+   document.querySelector('#loyalty-percent').textContent=q.percent+'%';
+   document.querySelector('#loyalty-summary').textContent=q.percent+'% returning subscriber reward: '+dollars(q.total)+' for '+(q.rewardPayments===2?'each of the next two monthly payments':'the next '+q.billing+' payment')+', then '+dollars(q.unitAmount*q.seats)+' per '+(q.billing==='yearly'?'year':'month')+'. '+(q.billing==='yearly'?'Additional to the yearly plan saving. ':'')+'Rewards and coupons do not stack.';
+  }
+  if(q&&selectedOffer==='standard'){
+   if(total.textContent!==dollars(q.total))total.textContent=dollars(q.total);
+   document.querySelector('#summary-unit').textContent=dollars(q.unitAmount);
+   if(q.billing==='monthly')document.querySelector('#summary-subtotal').textContent=dollars(q.unitAmount*q.seats);
+   const local=document.querySelector('#local-total');if(local)local.textContent='';
+  }
+ }
+ function dollars(cents){return new Intl.NumberFormat(navigator.language||'en',{style:'currency',currency:'USD',minimumFractionDigits:2}).format(cents/100);}
+ function refreshReward(){
+  clearTimeout(rewardTimer);const operation=++rewardRevision,c=choice(),token=getAccountSession()?.token;
+  rewardQuote=null;rewardError='';rewardBusy=false;rewardKey='';
+  if(!token||!cfg||!rewardsSupported()||!Number.isInteger(c.seats)||c.seats<1||c.seats>100||!availability(c.country,cfg.closedCountries||[]).open)return;
+  rewardBusy=true;rewardKey=JSON.stringify(c);
+  rewardTimer=setTimeout(async()=>{
+   try{
+    const result=await secureCommerce('rewards',c);
+    if(operation!==rewardRevision||getAccountSession()?.token!==token||JSON.stringify(choice())!==rewardKey)return;
+    if(!result.pricing||!Number.isInteger(result.pricing.total)||![0,5,10].includes(result.pricing.percent))throw new Error('Your reward price could not be confirmed. Please try again.');
+    rewardQuote=result.pricing;
+   }catch(error){if(operation===rewardRevision)rewardError=error.message;}
+   finally{if(operation===rewardRevision){rewardBusy=false;sync();}}
+  },200);
+ }
+
  async function checkAccount(){
   const token=getAccountSession()?.token||'';if(token===activeToken&&eligibility){sync();return;}
-  activeToken=token;eligibility=null;selectedOffer='';invalidate();const operation=++revision;say(token?'Checking your account and trial eligibility…':'');sync();
+  activeToken=token;refreshReward();eligibility=null;selectedOffer='';invalidate();const operation=++revision;say(token?'Checking your account and trial eligibility…':'');sync();
   if(!token)return;
-  try{const result=await secureCommerce('eligibility');if(operation!==revision||getAccountSession()?.token!==token)return;eligibility=result;say(result.reason==='trial_used'?'2-day trial already claimed. You can continue with a paid subscription.':result.message||'Choose your subscription.',false,result.reason==='trial_used');}
+  try{const result=await secureCommerce('eligibility');if(operation!==revision||getAccountSession()?.token!==token)return;eligibility=result;refreshReward();say(result.reason==='trial_used'?'2-day trial already claimed. You can continue with a paid subscription.':result.message||'Choose your subscription.',false,result.reason==='trial_used');}
   catch(error){if(operation===revision)say(error.message,true);}
   sync();
  }
@@ -92,13 +140,14 @@ if(form&&pay){
    await window.paypal.Buttons({style:{layout:'vertical',shape:'pill',color:'blue',label:'subscribe',height:46},
     onClick:async(data,actions)=>{
      if(!getAccountSession()){openAccount({purpose:'checkout'});return actions.reject();}
-     if(!form.reportValidity()||!selectedOffer)return actions.reject();return actions.resolve();
+     if(!form.reportValidity()||!selectedOffer||selectedOffer==='standard'&&rewardsSupported()&&(!rewardQuote||rewardBusy))return actions.reject();return actions.resolve();
     },
     createSubscription:async()=>{
      const selection=choice(),offer=selectedOffer;if(!getAccountSession()||!offer)throw new Error('Sign in and choose your subscription first.');
      try{
-      const result=await secureCommerce('checkout',{...selection,offer,requestId,name:form.elements.name.value,company:form.elements.company.value});checkout={id:result.checkoutId,selection,offer:result.offer};return result.subscriptionId;
-     }catch(error){reflectTrialRestriction(error);say(error.message,true,error.code==='trial_used');throw error;}
+      if(offer==='standard'&&rewardsSupported()&&(!rewardQuote||rewardBusy||JSON.stringify(selection)!==rewardKey))throw new Error('Wait for your verified reward price before subscribing.');
+      const result=await secureCommerce('checkout',{...selection,offer,requestId,...(offer==='standard'&&rewardsSupported()?{expectedTotal:rewardQuote.total,expectedRewardPercent:rewardQuote.percent}:{}),name:form.elements.name.value,company:form.elements.company.value});checkout={id:result.checkoutId,selection,offer:result.offer};return result.subscriptionId;
+     }catch(error){if(error.code==='price_changed'){invalidate();refreshReward();sync();}reflectTrialRestriction(error);say(error.message,true,error.code==='trial_used');throw error;}
     },
     onApprove:()=>{if(checkout)confirm(checkout.id);else say('Open your account to check the subscription status.',true);},
     onCancel:()=>say('Checkout cancelled. You can resume this checkout or try again after its trial reservation expires.'),
@@ -107,7 +156,7 @@ if(form&&pay){
   }catch(error){say(error.message,true);rendered=false;}
  }
  sync();
- fetch(settings.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async response=>{if(!response.ok)throw Error();cfg=await response.json();rememberGeo(cfg.country);if(cfg.country&&[...form.elements.country.options].some(o=>o.value===cfg.country)){form.elements.country.value=cfg.country;form.elements.country.dispatchEvent(new Event('change'));}box.querySelector('.paypal-test').hidden=cfg.mode==='live';sync();}).catch(()=>say('Secure checkout settings are unavailable. Please try again later.',true));
+ fetch(settings.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async response=>{if(!response.ok)throw Error();cfg=await response.json();rememberGeo(cfg.country);if(cfg.country&&[...form.elements.country.options].some(o=>o.value===cfg.country)){form.elements.country.value=cfg.country;form.elements.country.dispatchEvent(new Event('change'));}box.querySelector('.paypal-test').hidden=cfg.mode==='live';refreshReward();sync();}).catch(()=>say('Secure checkout settings are unavailable. Please try again later.',true));
  checkAccount();
  const returning=new URLSearchParams(location.search).get('checkout');if(returning&&getAccountSession())confirm(returning);
 }

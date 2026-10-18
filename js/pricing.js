@@ -24,7 +24,7 @@ async function render(){
    const show=c=>lf?lf(c):money(c,quote.currency);
    amount.textContent=show(quote.unitAmount);animate(amount);
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
-   note.textContent=(billing==='yearly'?'Billed annually. ':'Billed monthly. ')+'Final price, no tax added at checkout.'+(lf?' Charged in US dollars ('+money(quote.unitAmount,'USD')+') at checkout.':'');
+   note.textContent=(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
    yearlyLink.hidden=billing!=='monthly';
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);

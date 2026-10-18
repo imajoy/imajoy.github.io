@@ -122,12 +122,12 @@ function handleOrder_(d) {
     var sheet = ss.getSheetByName(ORDERS_SHEET);
     if (!sheet) {
       sheet = ss.insertSheet(ORDERS_SHEET);
-      sheet.appendRow(['Time', 'Subscription ID', 'PayPal status', 'Mode', 'Buyer email', 'Name', 'Billing country', 'Plan', 'Billing', 'Licenses', 'Company', 'PayPal plan ID', 'Detected country', 'PayPal country', 'Price check', 'License sent? (you fill)']);
+      sheet.appendRow(['Time', 'Subscription ID', 'PayPal status', 'Mode', 'Buyer email', 'Name', 'Billing country', 'Plan', 'Billing', 'Licenses', 'Company', 'PayPal plan ID', 'Detected country', 'PayPal country', 'Price check', 'License sent? (you fill)', 'Email status']);
       sheet.setFrozenRows(1);
-      sheet.getRange(1, 1, 1, 16).setBackground('#1a2959').setFontColor('#ffffff').setFontWeight('bold').setVerticalAlignment('middle');
+      sheet.getRange(1, 1, 1, 17).setBackground('#1a2959').setFontColor('#ffffff').setFontWeight('bold').setVerticalAlignment('middle');
       sheet.setRowHeight(1, 32);
       sheet.getRange(2, 1, 998, 1).setNumberFormat('dd mmm yyyy, hh:mm');
-      [150, 230, 110, 70, 220, 150, 100, 70, 80, 70, 150, 230, 110, 110, 90, 150].forEach(function (w, i) { sheet.setColumnWidth(i + 1, w); });
+      [150, 230, 110, 70, 220, 150, 100, 70, 80, 70, 150, 230, 110, 110, 90, 150, 260].forEach(function (w, i) { sheet.setColumnWidth(i + 1, w); });
       sheet.setTabColor('#c0392b');
     }
     var last = sheet.getLastRow();
@@ -150,9 +150,11 @@ function handleOrder_(d) {
     }
     var verified = status === 'ACTIVE' || status === 'APPROVED';
     var detected = clip_(d.detectedCountry, 2).toUpperCase();
+    var emailLog = [];
     var flags = priceFlags_(planTier_(planId), clip_(d.country, 2).toUpperCase(), detected, payer);
     if (detected && detected !== clip_(d.country, 2).toUpperCase() && flags.length === 0) flags.push('Billing country (' + clip_(d.country, 2) + ') differs from the connection country (' + detected + '), but the price is not lower.');
-    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, detected, payer, flags.length ? 'CHECK' : 'ok', '']);
+    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, detected, payer, flags.length ? 'CHECK' : 'ok', '', '']);
+    var orderRow = sheet.getLastRow();
 
     var test = mode_() !== 'live';
     var planText = 'Ajoy Tools ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)';
@@ -160,13 +162,13 @@ function handleOrder_(d) {
     var owner = Session.getEffectiveUser().getEmail();
 
     /* You always get a reminder, even if the order could not be verified. */
-    MailApp.sendEmail({
+    try { MailApp.sendEmail({
       to: owner, name: 'Ajoy Tools orders',
       subject: tag + (flags.length && verified ? 'CHECK PRICE, then send the license key' : verified ? 'New order: send the license key' : 'CHECK THIS ORDER (' + status + ')'),
       body: 'Plan: ' + planText + '\nSubscription ID: ' + subId + '\nPayPal status: ' + status + '\nBuyer email (form): ' + email + '\nPayPal email: ' + paypalEmail +
         '\nName: ' + clip_(d.name, 80) + '\nBilling country: ' + clip_(d.country, 2) + '\nConnection country: ' + (detected || 'unknown') + '\nPayPal buyer country: ' + (payer || 'not reported (check the payment in PayPal > Activity)') + '\nCompany: ' + clip_(d.company, 80) +
         (flags.length ? '\n\nPRICE CHECK NEEDED BEFORE YOU SEND THE KEY:\n- ' + flags.join('\n- ') + '\nIf the buyer is not in the region of the price they paid, cancel the subscription in PayPal or ask them to subscribe again at the right price.' : '') + '\n\nPromise made to the buyer: license key within 12 hours.\nMark "License sent?" in the Orders tab when done.'
-    });
+    }); emailLog.push('owner: sent'); } catch (err) { emailLog.push('owner FAILED: ' + String(err).slice(0, 120)); }
 
     /* The buyer only gets a confirmation when PayPal confirms the subscription. */
     if (verified && validEmail) {
@@ -179,9 +181,10 @@ function handleOrder_(d) {
         '<p><b>Your license key will arrive within 12 hours</b> at this email address.</p>' +
         '<p>Questions? Reply to this email or write to ' + OWNER_REPLY + '.</p>' +
         '<p style="color:#667;font-size:13px">Ajoy Tools: production tools for Maya.</p></div>';
-      MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: OWNER_REPLY, subject: tag + 'Your Ajoy Tools order is confirmed', htmlBody: html,
-        body: 'Thank you. Your Ajoy Tools subscription is confirmed.\nPlan: ' + planText + '\nSubscription ID: ' + subId + '\nYour license key will arrive within 12 hours at this email address.\nQuestions? ' + OWNER_REPLY });
-    }
+      try { MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: OWNER_REPLY, subject: tag + 'Your Ajoy Tools order is confirmed', htmlBody: html,
+        body: 'Thank you. Your Ajoy Tools subscription is confirmed.\nPlan: ' + planText + '\nSubscription ID: ' + subId + '\nYour license key will arrive within 12 hours at this email address.\nQuestions? ' + OWNER_REPLY }); emailLog.push('buyer: sent'); } catch (err) { emailLog.push('buyer FAILED: ' + String(err).slice(0, 120)); }
+    } else { emailLog.push('buyer: skipped (' + (verified ? 'bad email' : 'not verified') + ')'); }
+    sheet.getRange(orderRow, 17).setValue(emailLog.join(' | '));
     return verified ? 'ok' : 'unverified';
   } finally { lock.releaseLock(); }
 }
@@ -263,4 +266,12 @@ function setupPlans() {
   [330, 90, 90, 100, 260].forEach(function (w, i) { sh.setColumnWidth(i + 1, w); });
   sh.setRowHeight(4, 32); sh.setFrozenRows(4); sh.setHiddenGridlines(true); sh.setTabColor('#1a2959');
   Logger.log(json);
+}
+
+/* Run this once from the editor (select testEmail, click Run) to check that email sending is allowed.
+   You should receive "Ajoy Tools test email" within a minute. */
+function testEmail() {
+  var to = Session.getEffectiveUser().getEmail();
+  MailApp.sendEmail({ to: to, subject: 'Ajoy Tools test email', body: 'If you can read this, the order emails can be sent. Remaining daily email quota: ' + MailApp.getRemainingDailyQuota() });
+  Logger.log('Sent to ' + to);
 }

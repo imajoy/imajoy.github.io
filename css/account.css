@@ -1,0 +1,40 @@
+/* Account controls share the site's palette and keep fields stable while updating. */
+.acct-btn{display:inline-flex;align-items:center;gap:7px;max-width:190px;overflow:hidden;text-overflow:ellipsis;min-height:42px;transition:background-color .25s,border-color .25s,box-shadow .25s}
+.acct-btn:focus-visible,.acct-link:focus-visible,.acct-close:focus-visible{outline:2px solid var(--blue,#326ff0);outline-offset:4px}
+.acct-btn.is-updating::after{content:'';flex:none;width:6px;height:6px;border-radius:50%;background:currentColor;opacity:.5}
+.acct-dlg{box-sizing:border-box;max-height:calc(100dvh - 32px);overflow-y:auto;padding:32px;border:1px solid var(--line);border-radius:28px;background:var(--bg2,#fff);color:var(--ink,#14182a)}
+.acct-body{min-width:0}.acct-body h2{padding-right:10px;overflow-wrap:anywhere;font-size:clamp(1.25rem,5vw,1.65rem);line-height:1.3}
+.acct-close{position:absolute;right:12px;top:10px;width:40px;height:40px;border:0;border-radius:50%;background:transparent;color:var(--mute);font:400 26px/1 var(--sans);cursor:pointer;z-index:1}
+.acct-close:hover{background:var(--t05)}
+.acct-icon{display:grid;place-items:center;width:58px;height:58px;margin-bottom:22px;border-radius:18px;background:linear-gradient(145deg,#699dff22,#3d8bff0b);color:var(--blue-d,#326ff0);border:1px solid #6c9fff25}
+.acct-icon svg{width:32px;height:32px}.acct-icon-success{color:#23815b;font-size:1.5rem;background:#49b68c12;border-color:#49b68c25}
+.acct-step{float:right;font-variant-numeric:tabular-nums;color:var(--mute);letter-spacing:.08em}
+.acct-form{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;margin-top:22px}
+.acct-form label{font-size:.8125rem;font-weight:500;color:var(--ink)}
+.acct-form input{box-sizing:border-box;min-width:0;width:100%;font-size:1rem;min-height:52px;outline-offset:3px;background:var(--card,#fff);transition:border-color .2s,box-shadow .2s}
+.acct-form input:focus-visible{outline:2px solid var(--blue,#326ff0)}.acct-form input[aria-invalid=true]{border-color:#c14646}
+.acct-form input[autocomplete=one-time-code]{letter-spacing:.24em;font-variant-numeric:tabular-nums}
+.acct-form .btn{min-height:50px;justify-content:center;font-size:.875rem;margin-top:4px;gap:14px}
+.acct-form button:disabled{cursor:wait;opacity:.65;transform:none}
+.acct-msg{font-size:.8125rem;line-height:1.65;min-height:1.65em}.acct-msg[data-error=true]{color:#b73a30}
+.acct-note{line-height:1.75}.acct-note b{overflow-wrap:anywhere;color:var(--ink);font-weight:500}
+.acct-link{min-height:44px}.acct-sub{background:var(--card,#fff)}
+.acct-skeleton{display:grid;gap:12px;padding:22px 16px;margin:18px 0;border:1px solid var(--line);border-radius:18px}.acct-skeleton i{height:12px;border-radius:6px;background:var(--t08,#e5e9f0)}.acct-skeleton i:last-child{width:65%}
+input[data-account-email]{background:var(--t05,#f4f6fb)!important;color:var(--doc);cursor:default}
+.commerce-header .wrap{flex-wrap:wrap;gap:10px}.commerce-header .acct-btn{margin-left:auto;margin-right:0}
+html[data-theme=dark] .acct-msg[data-error=true]{color:#f5a6a0}
+@media(prefers-reduced-motion:no-preference){
+ .acct-dlg{opacity:0;transform:translateY(14px) scale(.97);transition:opacity .24s ease,transform .32s var(--ease-soft,ease),display .32s allow-discrete,overlay .32s allow-discrete}
+ .acct-dlg[open]:not([data-closing]){opacity:1;transform:none}
+ .acct-dlg::backdrop{background:#0b142e00;transition:background-color .24s ease,display .32s allow-discrete,overlay .32s allow-discrete}
+ .acct-dlg[open]:not([data-closing])::backdrop{background:#0b142e80}
+ @starting-style{.acct-dlg[open]:not([data-closing]){opacity:0;transform:translateY(14px) scale(.97)}.acct-dlg[open]:not([data-closing])::backdrop{background:#0b142e00}}
+ .acct-body>:not(.acct-msg){animation:account-step-in .38s var(--ease-soft,ease) both}
+ .acct-body>:nth-child(3){animation-delay:35ms}.acct-body>:nth-child(4){animation-delay:70ms}.acct-body>:nth-child(5){animation-delay:105ms}
+ .acct-btn.is-updating::after{animation:account-breathe 1.8s ease-in-out infinite}
+ .acct-skeleton{animation:account-breathe 1.8s ease-in-out infinite}
+}
+@keyframes account-step-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes account-breathe{50%{opacity:.45}}
+@media(max-width:680px){.acct-btn{max-width:155px}.acct-dlg{padding:28px 24px}.commerce-header .back-link{flex-basis:100%;text-align:right}}
+@media(max-width:380px){.pillbar>.acct-btn{max-width:135px;font-size:.6875rem}}

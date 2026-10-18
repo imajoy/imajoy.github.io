@@ -1,120 +1,120 @@
-/* Subscriber sign-in: email -> 6-digit code -> shows the plan, time left and a renew button.
-   Works only when accountOpen is true in site-config.js and the newest apps-script/Code.gs is deployed.
-   No IP tracking: a visitor proves who they are with their email. The session is kept in this browser for 30 days. */
+/* Email-code sign-in with an immediate cached summary and live subscription refresh. */
+import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261018-l1';
 const cfg = window.AJOY_CONFIG || {};
-const KEY = 'ajoy.acct';
-const url = cfg.sheetUrl;
-if (cfg.accountOpen && url) init();
-
+if (cfg.accountOpen && cfg.sheetUrl) init();
 function init() {
-  const load = () => { try { return JSON.parse(localStorage.getItem(KEY) || 'null'); } catch (e) { return null; } };
-  const save = v => { try { v ? localStorage.setItem(KEY, JSON.stringify(v)) : localStorage.removeItem(KEY); } catch (e) { /* private mode */ } };
-  const call = async body => {
-    const r = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ type: 'account', ...body }), signal: AbortSignal.timeout(20000) });
-    return r.json();
-  };
-  const daysLeft = iso => Math.max(0, Math.ceil((new Date(iso) - Date.now()) / 864e5));
-  const fmtDate = iso => new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
-  const label = p => (p === 'offline' ? 'Offline' : 'Online');
-  /* one line per subscription: state, text */
-  const describe = s => {
-    const left = s.endsAt ? daysLeft(s.endsAt) : null;
-    const live = s.endsAt && new Date(s.endsAt) > Date.now();
-    if (s.status === 'ACTIVE' && live && s.trial) return { state: 'active', text: 'Free trial · ' + left + (left === 1 ? ' day' : ' days') + ' left, then billed automatically on ' + fmtDate(s.endsAt), short: left + 'd left', days: left };
-    if (s.status === 'ACTIVE' && live) return { state: 'active', text: left + (left === 1 ? ' day' : ' days') + ' left · renews ' + fmtDate(s.endsAt), short: left + 'd left', days: left };
-    if (live) return { state: 'ending', text: 'Ends ' + fmtDate(s.endsAt) + ' (' + left + (left === 1 ? ' day' : ' days') + ' left) · not renewing', short: left + 'd left', days: left };
-    return { state: 'ended', text: 'Ended' + (s.endsAt ? ' ' + fmtDate(s.endsAt) : '') + ' · renew to keep using Ajoy Tools', short: 'Renew', days: 0 };
-  };
-
-  const totalDays = list => list.reduce((n, x) => n + (x.d.days || 0), 0);
+  const esc = value => String(value ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  const label = plan => plan === 'offline' ? 'Offline' : 'Online';
   const dayWord = n => n + (n === 1 ? ' day' : ' days');
-
-  /* ---------- modal ---------- */
-  const dlg = document.createElement('dialog');
-  dlg.className = 'acct-dlg';
-  dlg.innerHTML = '<form method="dialog" class="acct-x"><button aria-label="Close">×</button></form><div class="acct-body"></div>';
+  const daysLeft = iso => Math.max(0, Math.ceil((new Date(iso) - Date.now()) / 864e5));
+  const fmtDate = iso => new Date(iso).toLocaleDateString(undefined, {day:'numeric',month:'short',year:'numeric'});
+  const describe = s => {
+    const days = s.endsAt ? daysLeft(s.endsAt) : 0, live = days > 0;
+    if (s.status === 'UNKNOWN') return {state:'unknown',text:'Subscription details are temporarily unavailable.',short:'Account',days:0};
+    if (s.status === 'ACTIVE' && live && s.trial) return {state:'active',text:'Free trial · '+dayWord(days)+' left, then billed automatically on '+fmtDate(s.endsAt),short:days+'d left',days};
+    if (s.status === 'ACTIVE' && live) return {state:'active',text:dayWord(days)+' left · renews '+fmtDate(s.endsAt),short:days+'d left',days};
+    if (live) return {state:'ending',text:'Ends '+fmtDate(s.endsAt)+' ('+dayWord(days)+' left) · not renewing',short:days+'d left',days};
+    return {state:'ended',text:'Ended'+(s.endsAt?' '+fmtDate(s.endsAt):'')+' · renew to keep using Ajoy Tools',short:'Renew',days:0};
+  };
+  const totalDays = list => list.reduce((n,s) => n+describe(s).days,0);
+  let email='',step='email',msg='',busy=false,updating=false,offline=false,generation=0,closing=false;
+  const dlg=document.createElement('dialog');
+  dlg.className='acct-dlg';dlg.setAttribute('aria-labelledby','acct-title');
+  dlg.innerHTML='<button class="acct-close" type="button" aria-label="Close sign-in">×</button><div class="acct-body"></div>';
   document.body.appendChild(dlg);
-  const body = dlg.querySelector('.acct-body');
-  const open = () => { render(); if (!dlg.open) dlg.showModal(); };
-  dlg.addEventListener('click', e => { if (e.target === dlg) dlg.close(); });
-
-  let session = load(), subs = null, limited = false, email = '', msg = '', busy = false, step = 'email';
-  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
+  const body=dlg.querySelector('.acct-body');
+  const btn=document.createElement('button');btn.type='button';btn.className='acct-btn';btn.setAttribute('aria-haspopup','dialog');btn.setAttribute('aria-controls','account-dialog');dlg.id='account-dialog';
+  const pill=document.querySelector('.site-header .pillbar');
+  const nav=pill||document.querySelector('.commerce-header .wrap');
+  if(nav)nav.insertBefore(btn,nav.querySelector('.btn-sm')||nav.querySelector('.back-link'));
+  const accountIcon='<span class="acct-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 11l9 7 9-7M8 8h16a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>';
+  async function close() {
+    if(closing||!dlg.open)return;
+    closing=true;dlg.dataset.closing='';
+    if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+      await new Promise(requestAnimationFrame);
+      await Promise.race([Promise.allSettled(dlg.getAnimations().map(a=>a.finished)),new Promise(r=>setTimeout(r,380))]);
+    }
+    dlg.close();delete dlg.dataset.closing;closing=false;
+  }
+  function open() { if(closing)return;render();if(!dlg.open)dlg.showModal();focusStep(); }
+  function focusStep(){if(dlg.open)body.querySelector('input, #acct-title')?.focus({preventScroll:true});}
+  dlg.querySelector('.acct-close').addEventListener('click',close);
+  dlg.addEventListener('cancel',e=>{e.preventDefault();close();});
+  dlg.addEventListener('click',e=>{const r=dlg.getBoundingClientRect();if(e.target===dlg&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))close();});
+  btn.addEventListener('click',open);
+  function announce(text,error=false){msg=text;const n=body.querySelector('.acct-msg');if(n){n.textContent=text;n.dataset.error=String(error);} }
+  function setBusy(value){busy=value;body.setAttribute('aria-busy',String(value));for(const button of body.querySelectorAll('button'))button.disabled=value;}
   function render() {
-    if (session && subs) {
-      body.innerHTML = '<p class="eyebrow">Your subscription</p><h2>' + esc(session.email) + '</h2>' +
-        (subs.length > 1 && totalDays(subs.map(x => ({ d: describe(x) }))) ? '<p class="acct-total">Total across your subscriptions: <b>' + dayWord(totalDays(subs.map(x => ({ d: describe(x) })))) + ' left</b></p>' : '') +
-        (subs.length ? subs.map(s => { const d = describe(s); return '<div class="acct-sub" data-state="' + d.state + '"><b>Ajoy Tools ' + label(s.plan) + '</b><span>' + (s.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + s.seats + (s.seats === 1 ? ' license' : ' licenses') + '</span><p>' + esc(d.text) + '</p>' +
-          (d.state !== 'active' ? '<a class="btn btn-dark btn-sm" href="checkout.html?plan=' + esc(s.plan) + '&billing=' + esc(s.billing) + '">Renew</a>' : '') + '</div>'; }).join('') : '<p class="acct-note">No subscription found for this email.</p>') +
-        (limited ? '<p class="acct-note">Showing the subscription you just bought. To see every subscription on this email, sign out and sign in with the emailed code.</p>' : '') + '<p class="acct-note">Need help? Email contactmy3dart@gmail.com.</p><button class="acct-link" data-out>Sign out</button>';
-      body.querySelector('[data-out]').onclick = () => { save(null); session = null; subs = null; step = 'email'; dlg.close(); refresh(); };
+    const session=getAccountSession(),subs=session?.subscriptions;
+    body.dataset.stage=session?'account':step;body.setAttribute('aria-busy',String(busy));
+    if(session){
+      body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Your account</p><h2 id="acct-title" tabindex="-1">'+esc(session.email)+'</h2><p class="acct-note acct-sync" role="status">'+(updating?'Updating your subscription details…':offline?'Showing your saved account. Reconnect to update your details.':'Your verified subscription email is used automatically at checkout.')+'</p>'+
+        (subs?.length>1&&totalDays(subs)?'<p class="acct-total">Total across your subscriptions: <b>'+dayWord(totalDays(subs))+' left</b></p>':'')+
+        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Ajoy Tools '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'||d.state==='ending'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+'</div>';}).join(''):'<p class="acct-note">No subscription found for this email.</p>')+
+        (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
+        (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<p class="acct-note">To use a different email, sign out first.</p><button class="acct-link" type="button" data-out>Sign out</button>';
+      body.querySelector('[data-out]').onclick=()=>{generation++;step='email';email='';msg='';busy=false;clearAccountSession();};
+      body.querySelector('[data-retry]')?.addEventListener('click',status);
       return;
     }
-    if (step === 'email') {
-      body.innerHTML = '<p class="eyebrow">Subscriber sign in</p><h2>See your plan and time left.</h2><p class="acct-note">Enter the email you subscribed with. We will send a 6-digit code.</p>' +
-        '<form class="acct-form"><input type="email" required autocomplete="email" placeholder="you@example.com" value="' + esc(email) + '"><button class="btn btn-dark" type="submit">Send code</button></form><p class="acct-msg">' + esc(msg) + '</p>';
-      body.querySelector('form').onsubmit = async e => {
-        e.preventDefault(); if (busy) return;
-        email = body.querySelector('input').value.trim().toLowerCase(); busy = true; msg = 'Sending…'; body.querySelector('.acct-msg').textContent = msg;
-        try {
-          const r = await call({ step: 'code', email });
-          msg = r.ok ? '' : r.error === 'limit' ? 'Too many tries. Please wait an hour.' : r.error === 'email' ? 'That does not look like an email address.' : 'Could not send the email. Please try again.';
-          if (r.ok) step = 'code';
-        } catch (err) { msg = 'Could not reach the service. Please try again.'; }
-        busy = false; render();
-      };
-    } else {
-      body.innerHTML = '<p class="eyebrow">Check your email</p><h2>Enter your code.</h2><p class="acct-note">If ' + esc(email) + ' has a subscription, a code is on its way. It works for 10 minutes.</p>' +
-        '<form class="acct-form"><input inputmode="numeric" maxlength="6" required autocomplete="one-time-code" placeholder="123456"><button class="btn btn-dark" type="submit">Sign in</button></form><p class="acct-msg">' + esc(msg) + '</p><button class="acct-link" data-back>Use a different email</button>';
-      body.querySelector('[data-back]').onclick = () => { step = 'email'; msg = ''; render(); };
-      body.querySelector('form').onsubmit = async e => {
-        e.preventDefault(); if (busy) return; busy = true; body.querySelector('.acct-msg').textContent = 'Checking…';
-        try {
-          const r = await call({ step: 'verify', email, code: body.querySelector('input').value });
-          if (r.ok) { session = { token: r.token, email: r.email }; subs = r.subscriptions; save(session); msg = ''; refresh(); }
-          else msg = r.error === 'limit' ? 'Too many wrong codes. Please wait 10 minutes.' : 'That code is not right or has expired.';
-        } catch (err) { msg = 'Could not reach the service. Please try again.'; }
-        busy = false; render();
-      };
-    }
+    const code=step==='code';
+    body.innerHTML=accountIcon+'<p class="eyebrow">Subscriber sign-in <span class="acct-step">'+(code?'02':'01')+' / 02</span></p><h2 id="acct-title" tabindex="-1">'+(code?'Check your inbox.':'Welcome back.')+'</h2><p class="acct-note">'+(code?'Enter the 6-digit code sent to <b>'+esc(email)+'</b>. It expires in 10 minutes.':'Use the email registered with your subscription.')+'</p><form class="acct-form"><label for="acct-input">'+(code?'Email verification code':'Registered email address')+'</label><input id="acct-input" '+(code?'type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code"':'type="email" maxlength="120" autocomplete="email"')+' required autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="acct-message" '+(!code?'value="'+esc(email)+'"':'')+'><button class="btn btn-dark" type="submit">'+(code?'Verify and sign in':'Send verification code')+'<span aria-hidden="true"> →</span></button></form><p id="acct-message" class="acct-msg" role="status" aria-live="polite">'+esc(msg)+'</p>'+(code?'<button class="acct-link" type="button" data-back>Use a different email</button>':'');
+    body.querySelector('[data-back]')?.addEventListener('click',()=>{generation++;step='email';msg='';render();focusStep();});
+    body.querySelector('form').addEventListener('submit',async event=>{
+      event.preventDefault();if(busy)return;
+      const input=body.querySelector('input');if(!input.reportValidity())return;
+      const operation=++generation,wasCode=step==='code',value=input.value.trim();
+      if(!wasCode)email=value.toLowerCase();
+      setBusy(true);announce(wasCode?'Verifying your code…':'Checking your registered email…');
+      try{
+        const result=await accountRequest(wasCode?{step:'verify',email,code:value}:{step:'code',email});
+        if(operation!==generation)return;
+        if(!result.ok){
+          announce(result.error==='not_registered'?'Email is not registered.':result.error==='limit'?(wasCode?'Too many wrong codes. Please wait 10 minutes.':'Too many requests. Please wait an hour.'):result.error==='email'?'Enter a valid email address.':wasCode?'That code is invalid or expired.':'Could not send your code. Please try again.',true);
+          input.setAttribute('aria-invalid','true');input.focus();return;
+        }
+        if(wasCode){
+          if(!result.token||!result.email||(result.subscriptions!==null&&!Array.isArray(result.subscriptions)))throw new Error('Sign-in could not be completed. Please try again.');
+          msg='';step='email';setAccountSession(result);
+          status();
+        }else{step='code';msg='';render();focusStep();}
+      }catch(error){if(operation===generation)announce(error.message||'Could not reach the service. Please try again.',true);}
+      finally{if(operation===generation)setBusy(false);}
+    });
+    body.querySelector('input').addEventListener('input',event=>{event.target.removeAttribute('aria-invalid');announce('');});
   }
-
-  /* ---------- page: nav button, plan cards ---------- */
-  const nav = document.querySelector('.site-header .btn-sm');
-  const btn = document.createElement('button');
-  btn.type = 'button'; btn.className = 'acct-btn'; btn.textContent = 'Sign in';
-  if (nav) nav.before(btn);
-  btn.addEventListener('click', open);
-
-  function refresh() {
-    const active = subs && subs.map(s => ({ s, d: describe(s) }));
-    const best = active && active.find(x => x.d.state !== 'ended') || (active && active[0]);
-    const total = active ? totalDays(active) : 0;
-    btn.textContent = !session ? 'Sign in' : !best ? 'Account' : best.d.state === 'ended' ? label(best.s.plan) + ' · Renew' : (active.length > 1 ? 'Subscribed' : label(best.s.plan)) + ' · ' + total + 'd left';
-    btn.dataset.state = best ? best.d.state : '';
-    for (const plan of ['online', 'offline']) {
-      const a = document.querySelector('[data-buy="' + plan + '"]'); if (!a) continue;
-      const mine = active && active.find(x => x.s.plan === plan && x.d.state !== 'ended') || (active && active.find(x => x.s.plan === plan));
-      if (!a.dataset.orig) a.dataset.orig = a.textContent;
-      if (!mine) { a.textContent = a.dataset.orig; a.classList.remove('is-owned'); continue; }
+  function refresh(){
+    const session=getAccountSession(),subs=session?.subscriptions;
+    const active=subs?.map(s=>({s,d:describe(s)})),best=active?.find(x=>x.d.state==='active'||x.d.state==='ending')||active?.[0];
+    btn.textContent=!session?'Sign in':!pill||!best?'Account':best.d.state==='ended'?label(best.s.plan)+' · Renew':best.d.state==='unknown'?'Account':(active.length>1?'Subscribed':label(best.s.plan))+' · '+totalDays(subs)+'d left';
+    btn.dataset.state=best?.d.state||'';btn.classList.toggle('is-updating',updating);
+    btn.setAttribute('aria-label',session?'Account: '+session.email+(updating?'. Updating subscription details.':''):'Sign in');
+    for(const plan of ['online','offline']){
+      const a=document.querySelector('[data-buy="'+plan+'"]');if(!a)continue;
+      const mine=active?.find(x=>x.s.plan===plan&&(x.d.state==='active'||x.d.state==='ending'))||active?.find(x=>x.s.plan===plan);
+      if(!a.dataset.orig)a.dataset.orig=a.textContent;
+      if(!mine){if(a.classList.contains('is-owned'))a.textContent=a.dataset.orig;a.classList.remove('is-owned');continue;}
       a.classList.add('is-owned');
-      a.textContent = mine.d.state === 'ended' ? 'Renew ' + label(plan) : mine.d.state === 'ending' ? 'Renew · ' + mine.d.short : 'Your plan · ' + mine.d.short;
+      a.textContent=mine.d.state==='ended'?'Renew '+label(plan):mine.d.state==='ending'?'Renew · '+mine.d.short:mine.d.state==='unknown'?'View account':'Your plan · '+mine.d.short;
     }
   }
-  async function status() {
-    if (!session) return;
-    try {
-      const r = await call({ step: 'status', token: session.token });
-      if (r.ok) { subs = r.subscriptions; limited = !!r.limited; } else if (r.error === 'expired') { save(null); session = null; subs = null; }
-    } catch (e) { /* offline: leave the button as it is */ }
-    refresh();
+  async function status(){
+    const saved=getAccountSession();if(!saved)return;
+    updating=true;offline=false;refresh();if(dlg.open)render();
+    try{
+      const result=await accountRequest({step:'status',token:saved.token});
+      if(getAccountSession()?.token!==saved.token)return;
+      if(result.ok&&Array.isArray(result.subscriptions)){setAccountSession({...saved,...result});}
+      else if(result.error==='expired'||result.error==='not_registered'){msg='Your session expired. Sign in again.';clearAccountSession();}
+      else offline=true;
+    }catch{offline=true;}
+    finally{updating=false;refresh();if(dlg.open)render();}
   }
-  /* owned plan buttons open the account view instead of the checkout (unless it is time to renew) */
-  document.addEventListener('click', e => {
-    const a = e.target.closest('.is-owned'); if (!a) return;
-    if (/Your plan/.test(a.textContent)) { e.preventDefault(); open(); }
-  });
+  onAccountChange(()=>{refresh();if(dlg.open)render();});
+  document.addEventListener('click',event=>{const a=event.target.closest('.is-owned');if(a&&/Your plan|View account/.test(a.textContent)){event.preventDefault();open();}});
   refresh();
-  status().then(() => { let go = false; try { go = sessionStorage.getItem('ajoy.acct.open') === '1'; sessionStorage.removeItem('ajoy.acct.open'); } catch (e) { /* ignore */ } if (go && session && subs) open(); });
+  let autoOpen=false;try{autoOpen=sessionStorage.getItem('ajoy.acct.open')==='1';sessionStorage.removeItem('ajoy.acct.open');email=sessionStorage.getItem('ajoy.acct.email')||'';sessionStorage.removeItem('ajoy.acct.email');}catch{}
+  if(autoOpen)open();
+  status();
 }

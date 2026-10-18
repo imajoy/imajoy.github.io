@@ -25,7 +25,16 @@ function doPost(e) {
     var raw = (e && e.postData && e.postData.contents) || '';
     var data = {};
     try { data = JSON.parse(raw); } catch (err) { data = { email: (e && e.parameter && e.parameter.email) || '' }; }
-    if (data.type === 'order') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(orderReply_(handleOrder_(data), data))); }
+    if (data.type === 'order') {
+      out.setMimeType(ContentService.MimeType.JSON);
+      if (data.accountToken) {
+        var account = readSession_(data.accountToken);
+        if (!account) return out.setContent(JSON.stringify({ r: 'account_expired' }));
+        // The signed session, never the submitted billing email, owns this order.
+        data.email = account.email;
+      }
+      return out.setContent(JSON.stringify(orderReply_(handleOrder_(data), data)));
+    }
     if (data.type === 'trial') return out.setContent(handleTrial_(data));
     if (data.type === 'account') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleAccount_(data))); }
     return out.setContent(saveLead_(String(data.email || '')));
@@ -135,20 +144,19 @@ function token_() {
 function esc_(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
 function clip_(s, n) { return String(s == null ? '' : s).replace(/[\r\n]+/g, ' ').slice(0, n); }
 
-/* Reply to the checkout page after an order: when PayPal confirmed the subscription, the buyer is signed in on the site.
-   The sign-in covers every subscription of this email only when PayPal's own account email matches the email typed in the form;
-   otherwise it covers just the subscription that was bought (the buyer can use the emailed code to see the rest). */
+/* A subscription ID is not proof of identity. Only an existing verified session
+   can remain signed in after an order; new buyers verify their email with a code. */
 function orderReply_(result, d) {
   var out = { r: String(result) };
   if (result !== 'ok' && result !== 'duplicate') return out;
-  var subId = String(d.subscriptionId || ''), email = clip_(d.email, 120).trim().toLowerCase();
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || ordersFor_(email, subId).length === 0) return out;
-  var same = false, t = token_();
-  if (t) {
-    var r = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(subId), { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t } });
-    if (r.getResponseCode() === 200) { var s = JSON.parse(r.getContentText()); same = String((s.subscriber && s.subscriber.email_address) || '').trim().toLowerCase() === email; }
+  var email = clip_(d.email, 120).trim().toLowerCase();
+  if (d.accountToken) {
+    var who = readSession_(d.accountToken);
+    if (!who) return { r: 'account_expired' };
+    out.token = d.accountToken; out.email = who.email; out.expiresAt = who.expiresAt; out.limited = !!who.sub;
+  } else {
+    out.email = email; out.requiresVerification = true;
   }
-  out.token = makeSession_(email, same ? '' : subId); out.email = email; out.limited = !same;
   return out;
 }
 
@@ -238,7 +246,8 @@ function handleOrder_(d) {
 /* ---------- 2a) subscriber account (sign in with an emailed code) ----------
    The site calls this with {type:'account', step:'code'|'verify'|'status', ...}.
    step 'code'   : emails a 6-digit code, but only if the email has a subscription in the Orders tab.
-   step 'verify' : checks the code and returns a session token (valid 30 days) and the subscription details.
+   step 'verify' : checks the code and returns a session token (valid 30 days), without waiting for PayPal.
+   step 'identity': verifies a saved token and returns its canonical email, without calling PayPal.
    step 'status' : checks the token and returns the subscription details again.
    Time left and status always come live from PayPal. Nothing here uses IP addresses. */
 function sessionSecret_() {
@@ -254,14 +263,20 @@ function makeSession_(email, onlySub) {
 }
 /* Returns {email, sub} ('sub' only for a sign-in that is limited to one subscription) or null. */
 function readSession_(tok) {
-  tok = String(tok || '');
-  var i = tok.indexOf('.');
-  if (i < 1) return null;
-  var body = tok.slice(0, i);
-  if (sign_(body) !== tok.slice(i + 1)) return null;
-  var txt = Utilities.newBlob(Utilities.base64DecodeWebSafe(body + '==')).getDataAsString().split('|');
-  return Number(txt[1]) > Date.now() ? { email: txt[0], sub: txt[2] || '' } : null;
+  try {
+    tok = String(tok || '');
+    if (tok.length > 4096) return null;
+    var i = tok.indexOf('.');
+    if (i < 1) return null;
+    var body = tok.slice(0, i);
+    if (sign_(body) !== tok.slice(i + 1)) return null;
+    var padded = body + '==='.slice(0, (4 - body.length % 4) % 4);
+    var txt = Utilities.newBlob(Utilities.base64DecodeWebSafe(padded)).getDataAsString().split('|');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(txt[0]) || !Number.isFinite(Number(txt[1])) || Number(txt[1]) <= Date.now()) return null;
+    return { email: txt[0], sub: txt[2] || '', expiresAt: Number(txt[1]) };
+  } catch (err) { return null; }
 }
+
 function hashCode_(email, code) { return b64u_(Utilities.computeHmacSha256Signature(email + ':' + code, sessionSecret_())); }
 function ordersFor_(email, onlySub) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
@@ -296,36 +311,44 @@ function subscriptionsFor_(email, onlySub) {
 function handleAccount_(d) {
   var email = clip_(d.email, 120).trim().toLowerCase();
   var step = String(d.step || '');
-  if (step === 'status') {
+  if (step === 'status' || step === 'identity') {
     var who = readSession_(d.token);
     if (!who) return { ok: false, error: 'expired' };
-    return { ok: true, email: who.email, limited: !!who.sub, subscriptions: subscriptionsFor_(who.email, who.sub) };
+    if (!ordersFor_(who.email, who.sub).length) return { ok: false, error: 'not_registered' };
+    var account = { ok: true, email: who.email, limited: !!who.sub, expiresAt: who.expiresAt };
+    if (step === 'status') account.subscriptions = subscriptionsFor_(who.email, who.sub);
+    return account;
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: false, error: 'email' };
-  var cache = CacheService.getScriptCache();
-  if (step === 'code') {
-    var key = 'sends:' + email, n = Number(cache.get(key) || 0);
-    if (n >= 5) return { ok: false, error: 'limit' };
-    cache.put(key, String(n + 1), 3600);
-    /* The reply is the same whether or not the email has a subscription, so addresses cannot be probed. */
-    if (ordersFor_(email).length) {
+  if (step !== 'code' && step !== 'verify') return { ok: false, error: 'step' };
+  // Serialize code requests and consumption so a code can be used only once.
+  var lock = LockService.getScriptLock();
+  if (!lock.tryLock(5000)) return { ok: false, error: 'busy' };
+  try {
+    var cache = CacheService.getScriptCache();
+    if (step === 'code') {
+      var key = 'sends:' + email, n = Number(cache.get(key) || 0);
+      if (n >= 5) return { ok: false, error: 'limit' };
+      cache.put(key, String(n + 1), 3600);
+      // Explicit owner policy: reject an unregistered address before generating or sending a code.
+      if (!ordersFor_(email).length) return { ok: false, error: 'not_registered' };
       var code = String(Math.floor(100000 + Math.random() * 900000));
       cache.put('code:' + email, hashCode_(email, code), 600); cache.remove('tries:' + email);
       try { MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: replyTo_(), subject: 'Your Ajoy Tools sign-in code: ' + code,
-        body: 'Your sign-in code is ' + code + '\n\nIt works for 10 minutes. If you did not ask for it, you can ignore this email.\n\nAjoy Tools' }); } catch (err) { return { ok: false, error: 'mail' }; }
+        body: 'Your sign-in code is ' + code + '\n\nIt works for 10 minutes. If you did not ask for it, you can ignore this email.\n\nAjoy Tools' }); }
+      catch (err) { cache.remove('code:' + email); return { ok: false, error: 'mail' }; }
+      return { ok: true, registered: true };
     }
-    return { ok: true };
-  }
-  if (step === 'verify') {
     var tk = 'tries:' + email, tries = Number(cache.get(tk) || 0);
     if (tries >= 5) return { ok: false, error: 'limit' };
     cache.put(tk, String(tries + 1), 600);
-    var want = cache.get('code:' + email), got = String(d.code || '').replace(/\D/g, '');
-    if (!want || got.length !== 6 || want !== hashCode_(email, got)) return { ok: false, error: 'code' };
+    var want = cache.get('code:' + email), got = String(d.code || '').trim();
+    if (!want || !/^\d{6}$/.test(got) || want !== hashCode_(email, got)) return { ok: false, error: 'code' };
     cache.remove('code:' + email);
-    return { ok: true, email: email, token: makeSession_(email), subscriptions: subscriptionsFor_(email) };
-  }
-  return { ok: false, error: 'step' };
+    if (!ordersFor_(email).length) return { ok: false, error: 'not_registered' };
+    var token = makeSession_(email), identity = readSession_(token);
+    return { ok: true, email: email, token: token, expiresAt: identity.expiresAt, subscriptions: null };
+  } finally { lock.releaseLock(); }
 }
 
 /* ---------- 2b) free trial requests ----------

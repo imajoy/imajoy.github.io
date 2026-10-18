@@ -5,10 +5,12 @@ import { tierFor, availability, closedMessage, countryCheck } from './regions.js
 import { rememberGeo } from './geo.js?v=20261018-h8';
 import { USD } from './regions.js?v=20261018-g5';
 import { trialPlanId, TRIAL_DAYS, addDays, fmtDay } from './trial.js?v=20261018-j3';
+import {getAccountSession,setAccountSession,verifyAccountSession,bindAccountEmail} from './account-session.js?v=20261018-l1';
 
 const url = window.AJOY_CONFIG && window.AJOY_CONFIG.paypalConfigUrl;
 const orderUrl = window.AJOY_CONFIG && window.AJOY_CONFIG.sheetUrl;
 const form = document.querySelector('#billing-form');
+bindAccountEmail(form?.elements.email, document.querySelector('#email-hint'));
 const pay = document.querySelector('#pay');
 const HOME = 'index.html';
 const REDIRECT_SECONDS = 8;
@@ -109,11 +111,15 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
     const g = n => (form.elements[n] && form.elements[n].value || '').trim();
     try {
       const r = await fetch(orderUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ type: 'order', subscriptionId: subId, email: g('email'), name: g('name'), country: c.country, plan: c.plan, billing: c.billing, seats: c.seats, company: g('company'), detectedCountry: detected }) });
+        body: JSON.stringify({ type: 'order', subscriptionId: subId, email: g('email'), accountToken: getAccountSession()?.token || '', name: g('name'), country: c.country, plan: c.plan, billing: c.billing, seats: c.seats, company: g('company'), detectedCountry: detected }) });
       const j = await r.json();
       if (j && j.token && window.AJOY_CONFIG.accountOpen) {
-        try { localStorage.setItem('ajoy.acct', JSON.stringify({ token: j.token, email: j.email })); sessionStorage.setItem('ajoy.acct.open', '1'); } catch (e) { /* private mode */ }
+        setAccountSession({...getAccountSession(), ...j});
+        try { sessionStorage.setItem('ajoy.acct.open', '1'); } catch (e) { /* private mode */ }
         return j;
+      }
+      if (j?.requiresVerification && window.AJOY_CONFIG.accountOpen) {
+        try { sessionStorage.setItem('ajoy.acct.email', j.email); sessionStorage.setItem('ajoy.acct.open', '1'); } catch (e) { /* private mode */ }
       }
     } catch (e) { /* the owner can still see the subscription in PayPal */ }
     return null;
@@ -157,10 +163,14 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
     if (!window.paypal || !window.paypal.Buttons) { say('PayPal could not start. Please refresh.', true); return; }
     window.paypal.Buttons({
       style: { layout: 'vertical', shape: 'pill', color: 'blue', label: 'subscribe', height: 46 },
-      onClick: (data, actions) => {
+      onClick: async (data, actions) => {
         const pick = choice();
         if (!availability(pick.country, extraClosed).open || !countryCheck(pick.country, lockTo).ok) return actions.reject();
         if (!form.reportValidity()) { say('Please complete the billing details above first.', true); return actions.reject(); }
+        if (getAccountSession()) {
+          try { if (!await verifyAccountSession()) return actions.reject(); }
+          catch (error) { say(error.message, true); return actions.reject(); }
+        }
         say('');
         return actions.resolve();
       },

@@ -1,9 +1,11 @@
 /* Download flow: Download -> email (Gmail, Yahoo, Hotmail) -> automatic download -> plans in 3 seconds.
    The email is checked here, then saved to the owner's Google Sheet when sheetUrl is set in site-config.js. A failed save never stops the download. */
+import {getAccountSession,verifyAccountSession,bindAccountEmail} from './account-session.js?v=20261018-l1';
 const root = document.querySelector('#dl');
 const form = document.querySelector('#dl-form');
 const input = document.querySelector('#dl-email');
 const hint = document.querySelector('#dl-hint');
+bindAccountEmail(input, hint);
 const countEl = document.querySelector('#dl-count');
 const statusEl = document.querySelector('#dl-status');
 const title = document.querySelector('#dl-title');
@@ -25,7 +27,7 @@ function check(value) {
   const v = value.trim().toLowerCase();
   if (!v) return 'Enter your email address.';
   if (v.length > 120 || !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(v)) return 'That does not look like an email address.';
-  if (!allowedDomain(v.split('@')[1])) return 'Use an email address ending in .com or .in, such as Gmail, Yahoo or Hotmail.';
+  if (getAccountSession()?.email !== v && !allowedDomain(v.split('@')[1])) return 'Use an email address ending in .com or .in, such as Gmail, Yahoo or Hotmail.';
   return '';
 }
 function fail(text) {
@@ -37,7 +39,7 @@ function fail(text) {
 function clearFail() {
   root.removeAttribute('data-invalid');
   input.removeAttribute('aria-invalid');
-  hint.textContent = HINT;
+  hint.textContent = getAccountSession() ? 'Using your signed-in email. Sign out to use a different email.' : HINT;
 }
 /* Adds (or refreshes) the email in the owner's Google Sheet. Never blocks the download. */
 function saveLead(email) {
@@ -79,8 +81,15 @@ document.querySelector('#dl-back').addEventListener('click', () => {
   clearFail(); state('idle'); title.textContent = 'Get the setup file.'; sub.textContent = 'It is free. Installing the tools needs a code from an active subscription.';
 });
 input.addEventListener('input', clearFail);
-form.addEventListener('submit', e => {
+form.addEventListener('submit', async e => {
   e.preventDefault();
+  if (busy) return;
+  if (getAccountSession()) {
+    busy = true;
+    try { if (!await verifyAccountSession()) return; }
+    catch (error) { fail(error.message); return; }
+    finally { busy = false; }
+  }
   const problem = check(input.value);
   if (problem) { fail(problem); input.focus(); return; }
   clearFail(); saveLead(input.value); run();

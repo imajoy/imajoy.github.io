@@ -75,3 +75,24 @@
 .trial-card .eyebrow{display:inline-block;margin-bottom:10px;padding:5px 12px;border-radius:999px;background:var(--t05);font-size:.6875rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--blue-d)}
 .local-amt{display:block;margin:2px 0 0;font-size:13px;color:var(--mute);letter-spacing:0}
 
+
+/* Subscriber sign-in */
+.acct-btn{font:inherit;font-size:.8125rem;font-weight:600;border:1px solid var(--line);background:transparent;color:inherit;border-radius:999px;padding:8px 14px;margin-right:8px;cursor:pointer;white-space:nowrap}
+.acct-btn:hover{background:var(--pill)}
+.acct-btn[data-state="active"]{border-color:#2fb583;color:#1c7d5b}
+.acct-btn[data-state="ending"]{border-color:#e3a23a;color:#9a6410}
+.acct-btn[data-state="ended"]{border-color:#e0564b;color:#b73a30}
+.acct-dlg{margin:auto;border:0;border-radius:24px;padding:30px;width:min(440px,calc(100vw - 32px));background:var(--pill,#fff);color:inherit;box-shadow:0 30px 80px -20px #0b1a4a66}
+.acct-dlg::backdrop{background:#0b142e80;backdrop-filter:blur(3px)}
+.acct-x{position:absolute;right:14px;top:12px;margin:0}.acct-x button{border:0;background:none;font-size:26px;line-height:1;cursor:pointer;color:var(--mute)}
+.acct-body h2{font-size:1.5rem;letter-spacing:-.03em;margin:4px 0 8px}
+.acct-note{color:var(--mute);font-size:.875rem;line-height:1.6;margin:8px 0}
+.acct-form{display:flex;gap:10px;margin:16px 0 6px;flex-wrap:wrap}.acct-form input{flex:1 1 180px;font:inherit;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:transparent;color:inherit}
+.acct-msg{min-height:1.2em;font-size:.8125rem;color:var(--mute);margin:4px 0}
+.acct-link{border:0;background:none;color:var(--blue,#2f6bff);font:inherit;font-size:.875rem;cursor:pointer;padding:6px 0}
+.acct-sub{border:1px solid var(--line);border-radius:16px;padding:14px 16px;margin:12px 0;display:grid;gap:2px}.acct-sub span{color:var(--mute);font-size:.8125rem}.acct-sub p{margin:6px 0 8px;font-weight:600}
+.acct-sub[data-state="active"] p{color:#1c7d5b}.acct-sub[data-state="ending"] p{color:#9a6410}.acct-sub[data-state="ended"] p{color:#b73a30}
+.acct-sub .btn{justify-self:start}
+@media(max-width:680px){.acct-btn{padding:7px 10px;font-size:.75rem;margin-right:6px}}
+/* both plan buttons sit on the same line */
+.plans .plan{display:flex;flex-direction:column}.plans .plan .btn-block{margin-top:auto}

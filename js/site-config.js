@@ -6,6 +6,8 @@ window.AJOY_CONFIG = Object.freeze({
   trialDays: 2,
   /* Turn on (true) only after the newest apps-script/Code.gs is deployed, otherwise trial requests would not be handled. */
   trialOpen: false,
+  /* Subscriber sign-in (plan and time left). Turn on (true) only after the newest apps-script/Code.gs is deployed. */
+  accountOpen: false,
   /* Download-page email list (Google Sheet). Paste the Apps Script web app URL here.
      Leave it empty to store nothing. It is a public address, not a secret. */
   sheetUrl: 'https://script.google.com/macros/s/AKfycbxAyrQQpvgXTD7WYS_5I1EVSfojM07O4oy3g6otATWgZzuwZ2e_YQ9qrcrVxW3r-vAjjQ/exec',

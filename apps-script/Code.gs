@@ -27,6 +27,7 @@ function doPost(e) {
     try { data = JSON.parse(raw); } catch (err) { data = { email: (e && e.parameter && e.parameter.email) || '' }; }
     if (data.type === 'order') return out.setContent(handleOrder_(data));
     if (data.type === 'trial') return out.setContent(handleTrial_(data));
+    if (data.type === 'account') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleAccount_(data))); }
     return out.setContent(saveLead_(String(data.email || '')));
   } catch (err) {
     return out.setContent('error');
@@ -192,6 +193,98 @@ function handleOrder_(d) {
     sheet.getRange(orderRow, 17).setValue(emailLog.join(' | '));
     return verified ? 'ok' : 'unverified';
   } finally { lock.releaseLock(); }
+}
+
+/* ---------- 2a) subscriber account (sign in with an emailed code) ----------
+   The site calls this with {type:'account', step:'code'|'verify'|'status', ...}.
+   step 'code'   : emails a 6-digit code, but only if the email has a subscription in the Orders tab.
+   step 'verify' : checks the code and returns a session token (valid 30 days) and the subscription details.
+   step 'status' : checks the token and returns the subscription details again.
+   Time left and status always come live from PayPal. Nothing here uses IP addresses. */
+function sessionSecret_() {
+  var p = props_(), k = p.getProperty('SESSION_SECRET');
+  if (!k) { k = Utilities.getUuid() + Utilities.getUuid(); p.setProperty('SESSION_SECRET', k); }
+  return k;
+}
+function b64u_(bytes) { return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/, ''); }
+function sign_(text) { return b64u_(Utilities.computeHmacSha256Signature(text, sessionSecret_())); }
+function makeSession_(email) {
+  var exp = Date.now() + 30 * 24 * 3600 * 1000, body = b64u_(Utilities.newBlob(email + '|' + exp).getBytes());
+  return body + '.' + sign_(body);
+}
+function readSession_(tok) {
+  tok = String(tok || '');
+  var i = tok.indexOf('.');
+  if (i < 1) return '';
+  var body = tok.slice(0, i);
+  if (sign_(body) !== tok.slice(i + 1)) return '';
+  var txt = Utilities.newBlob(Utilities.base64DecodeWebSafe(body + '==')).getDataAsString().split('|');
+  return Number(txt[1]) > Date.now() ? txt[0] : '';
+}
+function hashCode_(email, code) { return b64u_(Utilities.computeHmacSha256Signature(email + ':' + code, sessionSecret_())); }
+function ordersFor_(email) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues(), out = [];
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    if (String(r[4]).trim().toLowerCase() === email && /^I-/.test(String(r[1])) && r[3] === mode_()) out.push({ id: String(r[1]), plan: String(r[7]), billing: String(r[8]), seats: Number(r[9]) || 1 });
+  }
+  return out;
+}
+function addPeriod_(d, billing) { var x = new Date(d.getTime()); if (billing === 'yearly') x.setFullYear(x.getFullYear() + 1); else x.setMonth(x.getMonth() + 1); return x; }
+function subscriptionsFor_(email) {
+  var list = ordersFor_(email).slice(-5).reverse(), t = token_(), out = [];
+  list.forEach(function (o) {
+    var item = { plan: o.plan, billing: o.billing, seats: o.seats, status: 'UNKNOWN', endsAt: '', renews: false };
+    if (t) {
+      var r = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(o.id), { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t } });
+      if (r.getResponseCode() === 200) {
+        var s = JSON.parse(r.getContentText()), b = s.billing_info || {};
+        item.status = s.status || 'UNKNOWN';
+        var next = b.next_billing_time ? new Date(b.next_billing_time) : null;
+        var last = b.last_payment && b.last_payment.time ? new Date(b.last_payment.time) : (s.start_time ? new Date(s.start_time) : null);
+        if (item.status === 'ACTIVE' && next) { item.endsAt = next.toISOString(); item.renews = true; }
+        else if (last) { item.endsAt = addPeriod_(last, o.billing).toISOString(); }
+      }
+    }
+    out.push(item);
+  });
+  return out;
+}
+function handleAccount_(d) {
+  var email = clip_(d.email, 120).trim().toLowerCase();
+  var step = String(d.step || '');
+  if (step === 'status') {
+    var who = readSession_(d.token);
+    if (!who) return { ok: false, error: 'expired' };
+    return { ok: true, email: who, subscriptions: subscriptionsFor_(who) };
+  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: false, error: 'email' };
+  var cache = CacheService.getScriptCache();
+  if (step === 'code') {
+    var key = 'sends:' + email, n = Number(cache.get(key) || 0);
+    if (n >= 5) return { ok: false, error: 'limit' };
+    cache.put(key, String(n + 1), 3600);
+    /* The reply is the same whether or not the email has a subscription, so addresses cannot be probed. */
+    if (ordersFor_(email).length) {
+      var code = String(Math.floor(100000 + Math.random() * 900000));
+      cache.put('code:' + email, hashCode_(email, code), 600); cache.remove('tries:' + email);
+      try { MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: replyTo_(), subject: 'Your Ajoy Tools sign-in code: ' + code,
+        body: 'Your sign-in code is ' + code + '\n\nIt works for 10 minutes. If you did not ask for it, you can ignore this email.\n\nAjoy Tools' }); } catch (err) { return { ok: false, error: 'mail' }; }
+    }
+    return { ok: true };
+  }
+  if (step === 'verify') {
+    var tk = 'tries:' + email, tries = Number(cache.get(tk) || 0);
+    if (tries >= 5) return { ok: false, error: 'limit' };
+    cache.put(tk, String(tries + 1), 600);
+    var want = cache.get('code:' + email), got = String(d.code || '').replace(/\D/g, '');
+    if (!want || got.length !== 6 || want !== hashCode_(email, got)) return { ok: false, error: 'code' };
+    cache.remove('code:' + email);
+    return { ok: true, email: email, token: makeSession_(email), subscriptions: subscriptionsFor_(email) };
+  }
+  return { ok: false, error: 'step' };
 }
 
 /* ---------- 2b) free trial requests ----------

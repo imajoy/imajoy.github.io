@@ -46,7 +46,7 @@ test('The same PayPal payer on a new email, browser and IP is cancelled and rece
 test('Trial reservations block competing accounts, and repeated create/confirm requests are idempotent',()=>{
  const app=service({registered:false}),one=app.register('one@example.com'),two=app.register('two@example.com');
  const data=selection(one.token),created=app.rpc('checkout',data);
- assert.equal(app.rpc('checkout',selection(two.token)).error,'trial_used');
+ assert.equal(app.rpc('checkout',selection(two.token)).error,'trial_reserved');
  assert.equal(app.rpc('checkout',data).subscriptionId,created.subscriptionId);
  assert.equal(app.rpc('checkout',selection(one.token)).subscriptionId,created.subscriptionId,'same owner/browser resumes an existing reservation');
  assert.equal(app.subscriptions.size,1);
@@ -63,12 +63,12 @@ test('Lost PayPal responses keep the reservation and retry with the same provide
 test('Late approval after reservation expiry is cancelled without issuing access',()=>{
  const app=service({registered:false}),account=app.register('late@example.com'),created=app.rpc('checkout',selection(account.token));
  const row=app.sheets.get('Checkouts').rows.find(r=>r[0]===created.checkoutId);row[13]=new Date(Date.now()-3600000);app.subscriptions.get(created.subscriptionId).status='ACTIVE';
- assert.equal(app.rpc('confirm',{accountToken:account.token,checkoutId:created.checkoutId}).error,'trial_used');assert.equal(app.subscriptions.get(created.subscriptionId).status,'CANCELLED');assert.equal(app.orders.rows.length,1);
+ assert.equal(app.rpc('confirm',{accountToken:account.token,checkoutId:created.checkoutId}).error,'trial_expired');assert.equal(app.subscriptions.get(created.subscriptionId).status,'CANCELLED');assert.equal(app.orders.rows.length,1);
 });
 test('Unknown network/browser signals cannot claim a trial and fake owner/subscription details cannot confirm',()=>{
  const app=service({registered:false}),one=app.register('one@example.com'),two=app.register('two@example.com');
- assert.equal(app.rpc('checkout',selection(one.token,{ipHash:''})).error,'trial_used');
- assert.equal(app.rpc('checkout',selection(one.token,{deviceHash:''})).error,'trial_used');
+ assert.equal(app.rpc('checkout',selection(one.token,{ipHash:''})).error,'network_unverified');
+ assert.equal(app.rpc('checkout',selection(one.token,{deviceHash:''})).error,'browser_unverified');
  const created=app.rpc('checkout',selection(one.token));assert.equal(app.rpc('confirm',{accountToken:two.token,checkoutId:created.checkoutId}).error,'checkout');
  const subscription=app.subscriptions.get(created.subscriptionId);subscription.status='ACTIVE';subscription.custom_id='other-checkout';
  assert.equal(app.rpc('confirm',{accountToken:one.token,checkoutId:created.checkoutId}).error,'mismatch');assert.equal(app.orders.rows.length,1);
@@ -95,4 +95,26 @@ test('A new trial created outside the server-managed checkout is cancelled by a 
  app.subscriptions.set(id,{id,status:'ACTIVE',plan_id:'P-high-TRIAL',create_time:new Date().toISOString(),subscriber:{payer_id:'PAYER-OUTSIDE'}});
  assert.equal(app.rpc('webhook',{headers:{},event:{event_type:'BILLING.SUBSCRIPTION.ACTIVATED',resource:{id}}}).ok,true);
  assert.equal(app.subscriptions.get(id).status,'CANCELLED');assert.equal(app.orders.rows.length,1);
+});
+test('A consumed trial clearly says already claimed, including when network verification is unavailable',()=>{
+ const app=service(),token=app.ctx.makeSession_('buyer@example.com');assert(approved(app,token).confirmed.accepted);
+ const result=app.rpc('eligibility',selection(token,{ipHash:'',deviceHash:''}));
+ assert.equal(result.reason,'trial_used');assert.equal(result.eligible,false);assert.match(result.message,/2-day trial already claimed/);
+ const rejected=app.rpc('checkout',selection(token));assert.equal(rejected.error,'trial_used');assert.match(rejected.message,/2-day trial already claimed/);
+ assert.equal(app.rpc('checkout',selection(token,{offer:'standard'})).ok,true);
+});
+test('An unfinished checkout and missing verification never claim that a trial was already used',()=>{
+ const app=service({registered:false}),one=app.register('one@example.com'),two=app.register('two@example.com');
+ const data=selection(one.token),created=app.rpc('checkout',data);assert(created.ok);
+ const pending=app.rpc('eligibility',selection(two.token));assert.equal(pending.reason,'trial_reserved');assert(!pending.message.includes('already claimed'));
+ assert.equal(app.rpc('eligibility',data).eligible,true,'owner can resume the same reservation');
+ const row=app.sheets.get('Checkouts').rows.find(r=>r[0]===created.checkoutId);row[13]=new Date(Date.now()-3600000);
+ assert.equal(app.rpc('eligibility',selection(two.token)).eligible,true);
+ assert.equal(app.rpc('eligibility',selection(two.token,{ipHash:''})).reason,'network_unverified');
+ assert.equal(app.rpc('eligibility',selection(two.token,{deviceHash:''})).reason,'browser_unverified');
+});
+test('Missing payer verification cancels a trial without falsely calling it already claimed',()=>{
+ const app=service({registered:false}),one=app.register('payer@example.com');
+ const result=approved(app,one.token,{},'');assert.equal(result.confirmed.error,'trial_unavailable');
+ assert(!result.confirmed.message.includes('already claimed'));assert.equal(app.subscriptions.get(result.created.subscriptionId).status,'CANCELLED');
 });

@@ -46,11 +46,11 @@ function commerceHistoricalTrial_(email) {
   if(!sheet||sheet.getLastRow()<2)return false;
   return sheet.getRange(2,1,sheet.getLastRow()-1,12).getValues().some(function(r){return r[3]===mode_()&&String(r[4]).toLowerCase()===email&&(['ACTIVE','APPROVED'].indexOf(r[2])>=0)&&(String(r[7]).indexOf('trial')>=0||isTrialPlan_(String(r[11])));});
 }
-function commerceConflict_(signals,exceptId) {
+function commerceConflict_(signals,exceptId,usedOnly) {
   return commerceRows_().some(function(r){
     if(r[0]===exceptId||r[1]!==mode_()||r[6]!=='trial')return false;
     var pending=['reserved','created'].indexOf(r[12])>=0&&Date.now()-new Date(r[13]).getTime()<1800000;
-    if(!r[20]&&!pending)return false;
+    if(usedOnly&&!r[20]||!r[20]&&!pending)return false;
     return [[3,'emailHash'],[4,'deviceHash'],[5,'ipHash'],[15,'payerHash']].some(function(pair){return !!signals[pair[1]]&&!!r[pair[0]]&&signals[pair[1]]===r[pair[0]];});
   });
 }
@@ -61,8 +61,10 @@ function commerceSignals_(d,email) {
 function commerceEligibility_(d,who) {
   var signals=commerceSignals_(d,who.email);
   var own=commerceRows_().filter(function(r){return r[1]===mode_()&&r[2]===who.email&&r[6]==='trial'&&['reserved','created'].indexOf(r[12])>=0&&r[4]===signals.deviceHash&&r[5]===signals.ipHash&&Date.now()-new Date(r[13]).getTime()<1800000;})[0];
-  var eligible=!!signals.ipHash&&!!signals.deviceHash&&!commerceHistoricalTrial_(who.email)&&!commerceConflict_(signals,own?own[0]:'');
-  return {ok:true,eligible:eligible,reason:!signals.ipHash?'network_unverified':eligible?'eligible':'trial_used',message:!signals.ipHash?'Trial eligibility requires a verified network. Standard subscriptions remain available once your location is confirmed.':eligible?'Trial eligibility is checked again when PayPal approves your account.':'A trial was already used or reserved for this customer, browser or network. You can choose a standard subscription.'};
+  var claimed=commerceHistoricalTrial_(who.email)||commerceConflict_(signals,'',true);
+  var reason=claimed?'trial_used':!signals.ipHash?'network_unverified':!signals.deviceHash?'browser_unverified':commerceConflict_(signals,own?own[0]:'')?'trial_reserved':'eligible';
+  var messages={trial_used:'2-day trial already claimed. You can continue with a paid subscription.',trial_reserved:'A trial checkout is already in progress for this browser or network. Resume it or try again after its reservation expires.',network_unverified:'Trial eligibility requires a verified network. Standard subscriptions remain available once your location is confirmed.',browser_unverified:'Trial eligibility requires a saved browser identifier. Allow site storage and try again.',eligible:'Trial eligibility is checked again when PayPal approves your account.'};
+  return {ok:true,eligible:reason==='eligible',reason:reason,message:messages[reason]};
 }
 function commercePlan_(plan,billing,country,offer) {
   var noPaypal='AF BD NP PK MM ET ZW BI CF TD KM CG CD DJ ER GQ GW IQ LY SO SS SD YE LS LR ML MR NE SL ST BT GN HT TJ TM UZ VE TL KI NR TV PW MH FM SB VU WS TO PG SR'.split(' ');
@@ -91,7 +93,12 @@ function commerceCreate_(d,who) {
       if(Date.now()-new Date(existing[13]).getTime()>1800000&&existing[12]!=='accepted')throw commerceError_('expired','This checkout expired. Start again.');
       return existing;
     }
-    if(d.offer==='trial'&&(!signals.ipHash||!signals.deviceHash||commerceHistoricalTrial_(who.email)||commerceConflict_(signals,'')))throw commerceError_('trial_used','This trial is unavailable. Review the standard subscription price before continuing.');
+    if(d.offer==='trial'){
+      if(commerceHistoricalTrial_(who.email)||commerceConflict_(signals,'',true))throw commerceError_('trial_used','2-day trial already claimed. You can continue with a paid subscription.');
+      if(!signals.ipHash)throw commerceError_('network_unverified','Your network could not be verified for a trial. Please try again.');
+      if(!signals.deviceHash)throw commerceError_('browser_unverified','Allow site storage to verify this browser for a trial.');
+      if(commerceConflict_(signals,''))throw commerceError_('trial_reserved','A trial checkout is already in progress for this browser or network. Resume it or try again after its reservation expires.');
+    }
     var buyer=JSON.stringify({name:clip_(d.name,80),company:clip_(d.company,80),networkCountry:d.country||'',sandboxCountry:d.sandboxCountry||''});
     var now=new Date(),created=[Utilities.getUuid(),mode_(),who.email,signals.emailHash,signals.deviceHash,signals.ipHash,d.offer,d.plan,d.billing,d.seats,planId,'','reserved',now,now,'','',d.requestId,checkoutCountry,buyer,'',''];
     commerceWrite_(created);return created;
@@ -111,18 +118,25 @@ function commerceConfirm_(id,who) {
   var s=commercePaypal_('/v1/billing/subscriptions/'+encodeURIComponent(row[11])),payer=s.subscriber&&s.subscriber.payer_id;
   if(s.custom_id!==id||s.plan_id!==row[10]||Number(s.quantity||1)!==row[9])throw commerceError_('mismatch','PayPal details do not match this checkout. Access was not issued.');
   if(s.status!=='ACTIVE')return {ok:true,pending:true,status:s.status||'UNKNOWN',checkoutId:id};
-  var blocked=false;
+  var blocked=false,blockedReason='trial_unavailable';
   row=commerceLock_(function(){
     var current=commerceFind_(id);
     if(current[12]==='accepted')return current;
     var expired=current[6]==='trial'&&Date.now()-new Date(current[13]).getTime()>1800000;
     var signals={emailHash:current[3],deviceHash:current[4],ipHash:current[5],payerHash:payer?trialHash_('payer:'+payer):''};
-    blocked=expired||current[12]==='blocked'||current[6]==='trial'&&(!payer||commerceHistoricalTrial_(current[2])||commerceConflict_(signals,id));
+    var claimed=current[6]==='trial'&&(commerceHistoricalTrial_(current[2])||commerceConflict_(signals,id,true));
+    var reserved=current[6]==='trial'&&!claimed&&commerceConflict_(signals,id);
+    blocked=expired||current[12]==='blocked'||current[6]==='trial'&&(!payer||claimed||reserved);
+    blockedReason=claimed?'trial_used':expired?'trial_expired':reserved?'trial_reserved':'trial_unavailable';
     current[12]=blocked?'blocked':'accepted';current[14]=new Date();current[15]=signals.payerHash;current[21]=s.status;
     if(!blocked&&current[6]==='trial')current[20]=new Date();
     commerceWrite_(current);return current;
   });
-  if(blocked){commerceCancel_(row[11]);throw commerceError_('trial_used','This trial could not be approved and the subscription was cancelled. No trial access is issued. Choose a standard subscription if you want to continue.');}
+  if(blocked){
+    commerceCancel_(row[11]);
+    var message=blockedReason==='trial_used'?'2-day trial already claimed. This additional trial subscription was cancelled. You can continue with a paid subscription.':blockedReason==='trial_expired'?'This trial checkout expired and the subscription was cancelled. Start a new checkout to try again.':blockedReason==='trial_reserved'?'Another trial checkout is already in progress. This additional subscription was cancelled.':'Trial eligibility could not be verified and this subscription was cancelled. Please contact support.';
+    throw commerceError_(blockedReason,message);
+  }
   if(!row[16]){
     var buyer=row[19]?JSON.parse(row[19]):{};
     var logged=handleOrder_({subscriptionId:row[11],email:row[2],country:row[18],detectedCountry:row[18],plan:row[7],billing:row[8],seats:row[9],name:buyer.name||'',company:buyer.company||''});

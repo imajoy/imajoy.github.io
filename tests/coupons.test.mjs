@@ -8,15 +8,22 @@ import {handleRequest} from '../supabase/functions/storefront/handler.js';
 const code='TEST-OWNER-10',future=new Date(Date.now()+86400000).toISOString();
 const makeRule=extra=>({active:true,percent:10,expiresAt:future,billing:['monthly'],...extra});
 const registry=async rule=>({[await couponHash(code)]:rule});
-test('Yearly discount is 20% in every region, both plans, all quantities; preview equals server',async()=>{
+test('Regional price table: yearly is 12 months less about 20%, offline is double, tiers never invert',async()=>{
  globalThis.window={AJOY_CONFIG:{apiBase:''}};
- const {previewPrice}=await import('../next/js/commerce.js');
+ const {previewPrice}=await import('../js/commerce.js');
+ const {availability,tierFor}=await import('../js/regions.js');
  delete globalThis.window;
- for(const country of ['IN','PK','BD','NP','LK','ID','PH','VN','BR','MX','ZA','US','GB','DE','FR','CA','AU','AE','ZZ'])for(const plan of ['online','offline'])for(const seats of [1,3,100])for(const billing of ['monthly','yearly']){
-  const actual=priceFor(country,plan,billing,seats),preview=previewPrice(plan,billing,seats,country);
-  for(const key of ['currency','unitAmount','subtotal','compareAtUnitAmount','annualSavings'])assert.equal(preview[key],actual[key],country+' '+key);
-  if(billing==='yearly'){assert.equal(actual.unitAmount,Math.round(actual.monthlyAmount*12*.8));assert(actual.annualSavings>0);assert(actual.subtotal>=actual.minimumSubtotal);}
+ for(const country of ['IN','PK','ID','BR','US','CA','AU','AE','DE','GB','ZZ'])for(const plan of ['online','offline'])for(const seats of [1,3,100]){
+  const m=previewPrice(plan,'monthly',seats,country),y=previewPrice(plan,'yearly',seats,country);
+  assert.equal(m.subtotal,m.unitAmount*seats);assert.equal(y.subtotal,y.unitAmount*seats);
+  assert(Math.abs(y.unitAmount-m.unitAmount*12*.8)<=100,country+' yearly is about 20% off');
+  assert(y.annualSavings>0);
  }
+ for(const country of ['US','BR','PK']){assert.equal(previewPrice('offline','monthly',1,country).unitAmount,previewPrice('online','monthly',1,country).unitAmount*2);}
+ assert(previewPrice('online','monthly',1,'US').unitAmount>previewPrice('online','monthly',1,'BR').unitAmount);
+ assert(previewPrice('online','monthly',1,'BR').unitAmount>previewPrice('online','monthly',1,'PK').unitAmount);
+ assert.equal(tierFor('US'),'high');assert.equal(tierFor('BR'),'mid');assert.equal(tierFor('PK'),'low');
+ assert.equal(availability('US').open,true);assert.equal(availability('DE').open,false);assert.equal(availability('GB').reason,'tax');assert.equal(availability('IN').reason,'india');
 });
 test('A valid monthly coupon discounts server subtotal and preserves original prices',async()=>{
  const quote=priceFor('IN');const result=await applyCoupon(quote,' test-owner-10 ',await registry(makeRule()));

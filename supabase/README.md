@@ -1,12 +1,12 @@
 # Ajoy storefront: deployment and activation
 
-The public homepage is unchanged. This prepares `/next/` and a **new** Supabase Edge Function named `storefront`. Do not modify or replace the existing `activate` function used by the Maya installer.
+The public homepage is unchanged. This prepares the site and a **new** Supabase Edge Function named `storefront`. Do not modify or replace the existing `activate` function used by the Maya installer.
 
 ## Current status
 
 - The starting website layout and original 3D hero are restored. The billing page, automatic display pricing, and download page run as static files. Decorative graphics and form entrances use CSS and JavaScript animations.
 - No merchant account exists. Payments are deliberately disabled. Billing details are not submitted, stored, logged, or placed in URLs. `/checkout` returns 503 and creates no order or charge.
-- `next/js/site-config.js` has an empty `apiBase` until the new function is deployed. Static prices are estimates, not charge authorization. The full regional catalog is server-side; browser estimates are limited fallbacks.
+- `js/site-config.js` has an empty `apiBase` until the new function is deployed. Static prices are estimates, not charge authorization. The full regional catalog is server-side; browser estimates are limited fallbacks.
 - Human verification fails closed until Turnstile and private installer storage are configured. There is no fake checkbox, timeout-based pass, or unverified download fallback.
 
 ## Deploy using your existing Supabase project
@@ -21,14 +21,14 @@ The public homepage is unchanged. This prepares `/next/` and a **new** Supabase 
    - `QUOTE_SIGNING_SECRET`: random server-only signing secret of at least 32 bytes.
    - `INSTALLER_BUCKET=installers`, `INSTALLER_OBJECT=AjoyTools_Setup.py`.
    Supabase normally supplies `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to Edge Functions automatically. Confirm their presence; never expose the service role in frontend config.
-3. Create a **private** Storage bucket `installers`, and upload the existing `next/downloads/AjoyTools_Setup.py` unchanged. Permit only server access; no anonymous read policy. The backend generates a 60-second URL only after validating Turnstile's success, action, and hostname.
+3. Create a **private** Storage bucket `installers`, and upload the existing `downloads/AjoyTools_Setup.py` unchanged. Permit only server access; no anonymous read policy. The backend generates a 60-second URL only after validating Turnstile's success, action, and hostname.
 4. Deploy `supabase functions deploy storefront --project-ref YOUR_PROJECT_REF`. Existing `activate` and other functions must be left unchanged.
-5. Set `next/js/site-config.js`'s `apiBase` to `https://YOUR_PROJECT_REF.supabase.co/functions/v1/storefront`. This URL is public configuration, not a secret.
+5. Set `js/site-config.js`'s `apiBase` to `https://YOUR_PROJECT_REF.supabase.co/functions/v1/storefront`. This URL is public configuration, not a secret.
 6. Test real Turnstile on the permitted hostname, its failed/expired states, the private signed installer download, and the tab-close fallback. The UI cannot reliably confirm that a browser saved a file: it reports handoff only.
 
 ### Existing public installer URLs
 
-The `/next/` Install section's Download Setup button opens verification; the other download links lead to that section. **The installer remains publicly accessible at its existing GitHub Pages URLs and in Git history.** The public homepage also links to it. A private copy and signed link do not retroactively protect those public files. Enforcing exclusive download access requires a separate migration of public-build links and removal of publicly served copies; it cannot undo existing public distribution. This change deliberately leaves the public build and installer bytes unchanged.
+The the site Install section's Download Setup button opens verification; the other download links lead to that section. **The installer remains publicly accessible at its existing GitHub Pages URLs and in Git history.** The public homepage also links to it. A private copy and signed link do not retroactively protect those public files. Enforcing exclusive download access requires a separate migration of public-build links and removal of publicly served copies; it cannot undo existing public distribution. This change deliberately leaves the public build and installer bytes unchanged.
 
 ## Pricing
 
@@ -88,7 +88,7 @@ The checkout hides optional returning-subscriber verification until `/config` co
 4. Confirm `SUPABASE_ANON_KEY` is the project's **public anon/publishable key**, never a secret or service-role key. Supabase normally supplies it to Edge Functions. The service rejects secret-role keys for its public auth config. Keep `SUPABASE_SERVICE_ROLE_KEY` and `QUOTE_SIGNING_SECRET` server-only.
 5. Import old subscriptions from verified paid invoices/receipts, not unverified billing-form entries. Required ledger fields include provider, stable customer ID, invoice ID, billing period, period start, paid timestamp, amount in currency minor units, currency, payment status, verified source, unique event reference and event timestamp. Set `qualifying_period=true` only for a full subscription billing period; its default is false to avoid treating top-ups or prorations as renewals. Use `verification_source='verified-import'` for owner-checked receipts. Do not fabricate legacy records. Repeated imports must update the same provider/invoice row.
 6. `customer_email_hash` is lowercase hexadecimal SHA-256 of the receipt email after trimming whitespace and lowercasing. Use `emailHash` from `functions/_shared/customer.js` in a private import script. Do not remove plus tags or dots or guess that different emails belong to the same person. Leave `customer_user_id` null for a verified historical import if no account exists yet; the authenticated `/customer` POST can bind it on the first matching email verification. Already bound rows cannot be claimed by another account with the same email later. Historical discounts already used must have the appropriate `loyalty_reward` recorded and linked to the correct verified account.
-7. Deploy the updated `storefront` function. After Auth, CAPTCHA, schema, imports and rate limits are verified, set `LOYALTY_ENABLED=true`. Configure `next/js/site-config.js` with the storefront URL. This flag **does not enable payments**.
+7. Deploy the updated `storefront` function. After Auth, CAPTCHA, schema, imports and rate limits are verified, set `LOYALTY_ENABLED=true`. Configure `js/site-config.js` with the storefront URL. This flag **does not enable payments**.
 8. Test real email delivery, wrong/expired codes, verified old and new customers, email changes, quantity/country changes, unavailable history, refunds, duplicate invoices and all renewal steps. Current browser/HTTP tests use mocked Auth and payment records; they are not proof of a real deployment.
 
 The browser sends an OTP request directly to Supabase Auth only after the user requests verification and passes its human check. Tokens stay in memory, not local storage or URLs. A successful Auth response is independently checked by the storefront's `/auth/v1/user` request before `/customer` binds imports. Each authenticated quote reads the private ledger again. Names, postal addresses, IPs, card details and client claims never establish eligibility. An expired/unconfirmed/anonymous identity cannot access loyalty history.

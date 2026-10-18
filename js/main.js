@@ -1,48 +1,32 @@
 (function () {
   'use strict';
 
-  /* ------------------------------------------------------------------
-     CHECKOUT LINKS
-     Paste your payment links between the quotes. While a link is empty,
-     the button opens an email to you instead.
-     ------------------------------------------------------------------ */
-  var CHECKOUT = {
-    online:  { monthly: '', yearly: '' },
-    offline: { monthly: '', yearly: '' }
-  };
-  var CONTACT = 'contactmy3dart@gmail.com';
-
-  /* Prices in US dollars, per computer. Yearly is 20% off 12 months. */
-  var PRICES = {
-    online:  { monthly: 39, yearly: 374 },
-    offline: { monthly: 79, yearly: 758 }
-  };
-
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   var $ = function (s, r) { return (r || document).querySelector(s); };
   var $$ = function (s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+
+  /* ---------- theme ---------- */
+  var themeBtn = $('#theme');
+  function syncTheme() {
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (themeBtn) themeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+    var meta = document.querySelector('meta[name="theme-color"]');
+    if (meta) meta.setAttribute('content', dark ? '#080C18' : '#E9EDF3');
+  }
+  syncTheme();
+  if (themeBtn) themeBtn.addEventListener('click', function () {
+    var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('ajoy-theme', next); } catch (e) {}
+    syncTheme();
+  });
 
   var year = $('#year');
   if (year) year.textContent = new Date().getFullYear();
 
-  /* ---------- header ---------- */
-  var header = $('#header');
-  function onScroll(y) { if (header) header.classList.toggle('stuck', y > 24); }
-
   /* ---------- smooth scrolling ---------- */
-  var lenis = null;
-  if (window.Lenis && !reduce) {
-    try {
-      lenis = new window.Lenis({ duration: 1.1, easing: function (t) { return 1 - Math.pow(1 - t, 3); }, smoothWheel: true });
-      lenis.on('scroll', function (e) { onScroll(e.scroll); });
-      (function raf(t) { lenis.raf(t); requestAnimationFrame(raf); })(performance.now());
-    } catch (err) { lenis = null; }
-  }
-  if (!lenis) {
-    window.addEventListener('scroll', function () { onScroll(window.scrollY); }, { passive: true });
-    document.documentElement.style.scrollBehavior = reduce ? 'auto' : 'smooth';
-  }
-  onScroll(window.scrollY);
+  document.documentElement.style.scrollBehavior = reduce ? 'auto' : 'smooth';
 
   $$('a[href^="#"]').forEach(function (a) {
     a.addEventListener('click', function (e) {
@@ -50,158 +34,176 @@
       var target = id.length > 1 ? $(id) : null;
       if (!target) return;
       e.preventDefault();
-      if (lenis) lenis.scrollTo(target, { offset: -72, duration: 1.4 });
-      else window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 72, behavior: reduce ? 'auto' : 'smooth' });
+      window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 20, behavior: reduce ? 'auto' : 'smooth' });
       history.replaceState(null, '', id);
     });
   });
 
-  /* ---------- pricing toggle ---------- */
-  var toggle = $('.toggle');
-  if (toggle) {
-    var billing = 'monthly';
-    var plansEl = $('.plans');
-
-    function money(n) { return '$' + n.toLocaleString('en-US'); }
-
-    function render() {
-      ['online', 'offline'].forEach(function (plan) {
-        var p = PRICES[plan];
-        var yearly = billing === 'yearly';
-        var amt = $('[data-amt="' + plan + '"]');
-        var note = $('[data-note="' + plan + '"]');
-        var per = amt.parentNode.querySelector('[data-per]');
-        amt.textContent = money(yearly ? p.yearly : p.monthly);
-        per.textContent = yearly ? 'per computer, per year' : 'per computer, per month';
-        note.textContent = yearly
-          ? 'About ' + money(Math.round(p.yearly / 12)) + ' a month. You save ' + money(p.monthly * 12 - p.yearly) + ' a year.'
-          : 'Billed monthly. Cancel any time.';
-        var buy = $('[data-buy="' + plan + '"]');
-        var link = CHECKOUT[plan][billing];
-        var label = plan === 'online' ? 'Online' : 'Offline';
-        if (link) {
-          buy.href = link;
-          buy.target = '_blank';
-          buy.rel = 'noopener';
-        } else {
-          buy.removeAttribute('target');
-          buy.href = 'mailto:' + CONTACT + '?subject=' +
-            encodeURIComponent('Ajoy Tools ' + label + ' subscription (' + billing + ')');
-        }
+  /* ---------- reveal on scroll (once) ---------- */
+  var revs = $$('.reveal');
+  if ('IntersectionObserver' in window && !reduce) {
+    var io = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
       });
-    }
-
-    $$('button', toggle).forEach(function (btn) {
-      btn.addEventListener('click', function () {
-        var next = btn.getAttribute('data-bill');
-        if (next === billing) return;
-        billing = next;
-        toggle.setAttribute('data-state', billing);
-        $$('button', toggle).forEach(function (b) {
-          var on = b === btn;
-          b.classList.toggle('on', on);
-          b.setAttribute('aria-pressed', on ? 'true' : 'false');
-        });
-        if (reduce) { render(); return; }
-        plansEl.classList.add('swap');
-        setTimeout(function () { render(); plansEl.classList.remove('swap'); }, 180);
-      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+    revs.forEach(function (el, i) {
+      el.style.transitionDelay = (i % 2) * 90 + 'ms';
+      io.observe(el);
+      el.addEventListener('transitionend', function clr(e) { if (e.propertyName === 'opacity') { el.style.transitionDelay = ''; el.removeEventListener('transitionend', clr); } });
     });
-    render();
+  } else {
+    revs.forEach(function (el) { el.classList.add('in'); });
   }
 
-  /* ---------- 3D rotate gizmo ---------- */
-  var canvas = $('#rig');
-  if (!canvas || !window.THREE) return;
-  var THREE = window.THREE, renderer;
-  try {
-    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: 'low-power' });
-  } catch (err) { canvas.style.display = 'none'; return; }
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
-
-  var scene = new THREE.Scene();
-  var camera = new THREE.PerspectiveCamera(34, 1, 0.1, 100);
-  camera.position.set(0, 1.5, 10.5);
-  camera.lookAt(0, 0.1, 0);
-
-  var RED = 0xE5636F, GREEN = 0x5BC98A, BLUE = 0x3D8BFF;
-  var rig = new THREE.Group();
-  scene.add(rig);
-
-  function ring(radius, color, rx, ry) {
-    var m = new THREE.Mesh(new THREE.TorusGeometry(radius, 0.017, 8, 160), new THREE.MeshBasicMaterial({ color: color }));
-    m.rotation.x = rx; m.rotation.y = ry;
-    return m;
-  }
-  rig.add(ring(2, RED, 0, Math.PI / 2));    /* X: ring in the YZ plane */
-  rig.add(ring(2, GREEN, Math.PI / 2, 0));  /* Y: ring in the XZ plane */
-  rig.add(ring(2, BLUE, 0, 0));             /* Z: ring in the XY plane */
-
-  /* soft sphere: hides the back half of the rings, which gives real depth */
-  rig.add(new THREE.Mesh(
-    new THREE.SphereGeometry(1.96, 40, 28),
-    new THREE.MeshBasicMaterial({ color: 0x101114, transparent: true, opacity: 0.86 })
-  ));
-
-  /* translate arrows along each axis */
-  function arrow(color, axis) {
-    var g = new THREE.Group();
-    var mat = new THREE.MeshBasicMaterial({ color: color });
-    var shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.014, 0.014, 1.3, 8), mat);
-    shaft.position.y = 2.65;
-    var tip = new THREE.Mesh(new THREE.ConeGeometry(0.07, 0.24, 14), mat);
-    tip.position.y = 3.42;
-    g.add(shaft); g.add(tip);
-    if (axis === 'x') g.rotation.z = -Math.PI / 2;
-    if (axis === 'z') g.rotation.x = Math.PI / 2;
-    return g;
-  }
-  rig.add(arrow(RED, 'x'), arrow(GREEN, 'y'), arrow(BLUE, 'z'));
-
-  var dot = new THREE.Mesh(new THREE.SphereGeometry(0.07, 16, 12), new THREE.MeshBasicMaterial({ color: 0xE7E9ED }));
-  rig.add(dot);
-
-  /* viewport floor */
-  var grid = new THREE.GridHelper(18, 36, 0x2A2C32, 0x1C1E23);
-  grid.position.y = -3.4;
-  scene.add(grid);
-
-  var tx = 0, ty = 0, cx = 0, cy = 0, visible = true, wide = true;
-  window.addEventListener('pointermove', function (e) {
-    tx = (e.clientX / window.innerWidth - 0.5);
-    ty = (e.clientY / window.innerHeight - 0.5);
-  }, { passive: true });
-
-  function resize() {
-    var w = canvas.clientWidth, h = canvas.clientHeight;
-    if (!w || !h) return;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    wide = w > 960;
-    camera.updateProjectionMatrix();
-    rig.position.set(wide ? 3.0 : 0, wide ? 0.1 : 1.1, 0);
-    rig.scale.setScalar(wide ? 0.92 : 0.7);
-    grid.position.x = rig.position.x * 0.6;
-  }
-  window.addEventListener('resize', resize);
-  resize();
-
-  if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(canvas);
+  /* ---------- headings: words rise in ---------- */
+  if (!reduce && 'IntersectionObserver' in window) {
+    var hio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); hio.unobserve(e.target); } });
+    }, { threshold: 0.25 });
+    $$('.block h2, .frame-inner h2').forEach(function (h) {
+      var n = 0;
+      (function walk(node) {
+        Array.prototype.slice.call(node.childNodes).forEach(function (c) {
+          if (c.nodeType === 3) {
+            var frag = document.createDocumentFragment();
+            c.nodeValue.split(/(\s+)/).forEach(function (part) {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(' ')); return; }
+              var w = document.createElement('span'); w.className = 'w';
+              var i = document.createElement('span'); i.style.setProperty('--i', n++); i.textContent = part;
+              w.appendChild(i); frag.appendChild(w);
+            });
+            node.replaceChild(frag, c);
+          } else if (c.nodeType === 1) walk(c);
+        });
+      })(h);
+      hio.observe(h);
+    });
   }
 
-  var spin = 0.5, last = performance.now();
-  function frame(now) {
-    requestAnimationFrame(frame);
-    var dt = Math.min(0.05, (now - last) / 1000);
-    last = now;
-    if (!visible || document.hidden) return;
-    if (!reduce) spin += dt * 0.22;
-    cx += (tx - cx) * Math.min(1, dt * 4);
-    cy += (ty - cy) * Math.min(1, dt * 4);
-    rig.rotation.y = spin + cx * 0.9;
-    rig.rotation.x = 0.42 + cy * 0.5;
-    renderer.render(scene, camera);
+  /* ---------- scroll progress + active nav link ---------- */
+  var bar = $('#progress'), ticking = false;
+  function prog() {
+    ticking = false;
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    if (bar) bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, window.scrollY / max) : 0) + ')';
   }
-  requestAnimationFrame(frame);
+  window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(prog); } }, { passive: true });
+  prog();
+  var navLinks = $$('.nav a');
+  if (navLinks.length && 'IntersectionObserver' in window) {
+    var nio = new IntersectionObserver(function (es) {
+      es.forEach(function (e) {
+        if (!e.isIntersecting) return;
+        navLinks.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id); });
+      });
+    }, { rootMargin: '-40% 0px -55% 0px' });
+    ['tools', 'install', 'pricing', 'faq'].forEach(function (id) { var el = document.getElementById(id); if (el) nio.observe(el); });
+  }
+
+  /* ---------- install sequence ---------- */
+  var ist = $('#stage-install'), motionPaused = reduce;
+  if (ist) {
+    var steps = $$('#steps li'), codeEl = $('#code'), ph = $('#ph'), wcOn = $('#wc-on'), wcOff = $('#wc-off');
+    var goEl = $('#go'), fc1 = $('#fc1'), fc2 = $('#fc2'), conf = $('#confetti');
+    var CODE = 'ACME-4821-7K2Q-9XMD-31PL', timers = [], cur = 0, running = false, seen = false;
+    for (var k = 0; k < 18; k++) {
+      var d = document.createElement('i');
+      var ang = (k / 18) * Math.PI * 2, dist = 90 + (k % 3) * 40;
+      d.style.setProperty('--x', Math.round(Math.cos(ang) * dist) + 'px');
+      d.style.setProperty('--y', Math.round(Math.sin(ang) * dist - 30) + 'px');
+      d.style.setProperty('--r', (k * 47) + 'deg');
+      d.style.background = ['#3D8BFF', '#FF7A5C', '#2FB5AE', '#8DBBFF'][k % 4];
+      conf.appendChild(d);
+    }
+    var later = function (fn, ms) { timers.push(setTimeout(fn, ms)); };
+    var clearAll = function () { timers.forEach(clearTimeout); timers = []; };
+    function mark(n) {
+      ist.setAttribute('data-step', n);
+      steps.forEach(function (li, i) { li.classList.toggle('active', i === n); li.classList.toggle('done', i < n); });
+    }
+    function resetWindow() {
+      codeEl.textContent = ''; ph.style.display = '';
+      wcOn.classList.remove('on'); wcOff.classList.remove('on');
+      goEl.textContent = 'Install';
+      fc1.classList.remove('show'); fc2.classList.remove('show'); conf.classList.remove('go');
+    }
+    function finalState() {
+      mark(3); codeEl.textContent = CODE; ph.style.display = 'none';
+      wcOff.classList.add('on'); fc1.classList.add('show'); fc2.classList.add('show'); goEl.textContent = 'Done';
+    }
+    function play(n) {
+      clearAll(); cur = n; mark(n);
+      if (n === 0) { resetWindow(); later(function () { play(1); }, 3400); }
+      else if (n === 1) { later(function () { play(2); }, 2600); }
+      else if (n === 2) {
+        resetWindow(); wcOn.classList.add('on');
+        later(function () { wcOn.classList.remove('on'); wcOff.classList.add('on'); }, 900);
+        later(function () {
+          ph.style.display = 'none';
+          var i = 0;
+          (function type() {
+            codeEl.textContent = CODE.slice(0, ++i);
+            if (i < CODE.length) timers.push(setTimeout(type, 70));
+            else later(function () { fc1.classList.add('show'); }, 250);
+          })();
+        }, 1500);
+        later(function () { play(3); }, 4600);
+      } else {
+        if (!codeEl.textContent) { codeEl.textContent = CODE; ph.style.display = 'none'; wcOff.classList.add('on'); }
+        fc1.classList.add('show');
+        goEl.textContent = 'Installing';
+        later(function () {
+          goEl.textContent = 'Done'; fc2.classList.add('show');
+          conf.classList.remove('go'); void conf.offsetWidth; conf.classList.add('go');
+        }, 2900);
+        later(function () { fc1.classList.remove('show'); fc2.classList.remove('show'); }, 6200);
+        later(function () { play(0); }, 6700);
+      }
+    }
+    steps.forEach(function (li) {
+      li.addEventListener('click', function () { if (reduce) { finalState(); return; } running = true; play(parseInt(li.getAttribute('data-go'), 10)); });
+    });
+    if (reduce || !('IntersectionObserver' in window)) finalState();
+    else new IntersectionObserver(function (es) {
+      var on = es[0].isIntersecting;
+      if (on && !running && !motionPaused) { running = true; play(seen ? cur : 0); seen = true; }
+      else if (!on && running) { running = false; clearAll(); }
+    }, { threshold: 0.35 }).observe(ist);
+    document.addEventListener('ajoy:motion', function (event) {
+      motionPaused = event.detail.paused;
+      if (motionPaused) { clearAll(); running = false; finalState(); }
+      else if (!reduce && ist.getBoundingClientRect().top < window.innerHeight && ist.getBoundingClientRect().bottom > 0) { running = true; play(0); }
+    });
+  }
+
+  /* ---------- gentle 3D tilt (smoothed, no CSS transitions) ---------- */
+  var tilts = [];
+  if (fine && !reduce) {
+    $$('.tilt').forEach(function (el) {
+      var max = parseFloat(el.getAttribute('data-tilt')) || 10;
+      var host = el.parentNode;
+      var st = { el: el, max: max, tx: 0, ty: 0, cx: 0, cy: 0, active: false, base: el.classList.contains('lcard') ? [-14, 8] : [-10, 4] };
+      host.addEventListener('pointermove', function (e) {
+        var r = host.getBoundingClientRect();
+        st.tx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+        st.ty = ((e.clientY - r.top) / r.height - 0.5) * 2;
+        st.active = true;
+      });
+      host.addEventListener('pointerleave', function () { st.tx = 0; st.ty = 0; });
+      tilts.push(st);
+    });
+    (function loop() {
+      requestAnimationFrame(loop);
+      tilts.forEach(function (s) {
+        if (!s.active) return;
+        s.cx += (s.tx - s.cx) * 0.08;
+        s.cy += (s.ty - s.cy) * 0.08;
+        s.el.style.transform = 'perspective(1400px) rotateY(' + (s.base[0] + s.cx * s.max) + 'deg) rotateX(' + (s.base[1] - s.cy * s.max * 0.7) + 'deg)';
+        if (Math.abs(s.cx - s.tx) < 0.001 && Math.abs(s.cy - s.ty) < 0.001 && s.tx === 0 && s.ty === 0) s.active = false;
+      });
+    })();
+  }
+
 })();

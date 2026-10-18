@@ -1,3 +1,4 @@
+import {indiaContact} from './india-availability.js?v=20261018-a1';
 /* Clear, contextual offers. Promotions never authorize a trial or change a paid selection. */
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261018-j3';
 import {detectGeo,cachedGeo} from './geo.js?v=20261018-h8';
@@ -7,20 +8,26 @@ import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261018-p1
 const isHome=Boolean(document.querySelector('.trial-showcase'));
 const home=isHome?'#trial':'index.html#trial';
 const isDiscovery=Boolean(document.querySelector('.hero,.tool-page'));
-let config=null,country='',settled=false,billing='',nudge=null;
+let config=null,country=cachedGeo(),settled=false,billing='',nudge=null;
 const alreadyOnline=()=>getAccountSession()?.subscriptions?.some(s=>s.plan==='online'&&s.status==='ACTIVE'&&Date.parse(s.endsAt)>Date.now());
 function render(){
-  const subscribed=alreadyOnline(),known=/^[A-Z]{2}$/.test(country);
+  const subscribed=alreadyOnline(),inIndia=country==='IN',known=/^[A-Z]{2}$/.test(country);
   billing=known&&trialPlanId(config,'online','monthly',country)?'monthly':known&&trialPlanId(config,'online','yearly',country)?'yearly':'';
   const region=known?availability(country,config?.closedCountries||[]):null;
   const fallback=region&&!region.open?'index.html#pricing':isHome?'checkout.html?plan=online&billing=monthly&offer=trial':home;
   for(const link of document.querySelectorAll('[data-trial-cta]')){
-    link.href=subscribed?'index.html#pricing':billing?'checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial',v:'20261018-p1'}):fallback;
+    link.href=subscribed?'index.html#pricing':inIndia?indiaContact():billing?'checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial',v:'20261018-p1'}):fallback;
     // Keep the word trial when configuration/location cannot be confirmed.
-    link.textContent=subscribed?'View your Online plan':billing?'Start my 2-day free trial':region&&!region.open?'Check trial availability':'Explore the 2-day free trial';
+    link.textContent=subscribed?'View your Online plan':inIndia?'Ask about availability in India':billing?'Start my 2-day free trial':region&&!region.open?'Check trial availability':'Explore the 2-day free trial';
     link.dataset.trialReady=String(Boolean(billing&&!subscribed));
   }
-  const message=subscribed?'You already have an active Online subscription. View your plan or account.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 2-day trial unless cancelled.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
+  const mobileTrial=document.querySelector('.m-cta a:not(.primary)');
+  if(mobileTrial){mobileTrial.href=subscribed?'#pricing':inIndia?indiaContact():'#trial';mobileTrial.textContent=subscribed?'Your Online plan':inIndia?'India launch updates':'2-day trial';}
+  for(const teaser of document.querySelectorAll('[data-trial-teaser]')){
+    if(!teaser.dataset.originalCopy)teaser.dataset.originalCopy=teaser.textContent;
+    teaser.textContent=inIndia&&!subscribed?'In India? Checkout and the Online trial are not open yet. Email Ajoy for launch updates.':teaser.dataset.originalCopy;
+  }
+  const message=subscribed?'You already have an active Online subscription. View your plan or account.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 2-day trial unless cancelled.':inIndia?'Checkout and the 2-day Online trial are not available in India yet. Use the email link to ask Ajoy for launch updates.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
   for(const notice of document.querySelectorAll('[data-trial-status]'))notice.textContent=message;
   if(getAccountSession())closeNudge();
   tryNudge();

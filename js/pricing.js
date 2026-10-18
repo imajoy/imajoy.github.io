@@ -1,3 +1,4 @@
+import {indiaContact} from './india-availability.js?v=20261018-a1';
 import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261018-g5';
 import {detectGeo,cachedGeo} from './geo.js?v=20261018-h8';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261018-j3';
@@ -14,9 +15,14 @@ function chooseBilling(value){
 function animate(element){if(!matchMedia('(prefers-reduced-motion: reduce)').matches)element.animate([{opacity:.2,translate:'0 8px'},{opacity:1,translate:'0 0'}],{duration:550,easing:'cubic-bezier(.22,1,.36,1)'});}
 async function render(){
  const current=++revision,status=document.querySelector('#pricing-status');
+ const inIndia=suggestedCountry()==='IN';
+ const notice=document.querySelector('#india-availability');
+ notice.hidden=!inIndia;
+ notice.querySelector('a').href=indiaContact();
+ document.querySelector('.plan-trial-kicker').textContent=inIndia?'India launch pending · ask for updates':'2-day free trial on eligible Online plans';
  await Promise.all(['online','offline'].map(async plan=>{
   const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`),yearlyLink=document.querySelector(`[data-card-yearly="${plan}"]`);
-  buy.href=`checkout.html?${new URLSearchParams({plan,billing,v:'20261018-r19'})}`;amount.textContent='—';offer.hidden=true;comparison.hidden=true;yearlyLink.hidden=true;
+  buy.href=inIndia&&!buy.classList.contains('is-owned')?indiaContact(plan==='online'?'Online':'Offline'):`checkout.html?${new URLSearchParams({plan,billing,v:'20261018-r19'})}`;amount.textContent='—';offer.hidden=true;comparison.hidden=true;yearlyLink.hidden=true;
   try{
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;
@@ -27,14 +33,18 @@ async function render(){
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
    const trial=plan==='online'&&trialPlanId(tcfg,'online',billing,suggestedCountry());
    note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Cancel any time.':(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
-   if(!buy.classList.contains('is-owned'))buy.textContent=trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
+   if(!buy.classList.contains('is-owned')){
+    buy.textContent=inIndia?'Ask about '+(plan==='online'?'Online':'Offline')+' in India':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
+    if(inIndia)buy.href=indiaContact(plan==='online'?'Online':'Offline');
+   }
+   if(inIndia)note.textContent='Indicative price. Online purchase is not available in India yet.';
    yearlyLink.hidden=billing!=='monthly';
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);
     offer.querySelector('.annual-saving').textContent='Save '+show(quote.annualSavings)+' per year';
     offer.querySelector('.annual-equivalent').textContent=show(quote.unitAmount/12)+' per month, billed yearly';animate(offer);
    }
-   status.textContent=quote.preview?(quote.currency==='INR'?'Prices for India are shown in rupees. Payments for India open soon.':'Prices shown in US dollars for your region. Your country is confirmed at checkout.'):'';
+   status.textContent=quote.preview?(quote.currency==='INR'?'Indicative INR prices. Indian checkout and the 2-day trial are not open yet. Email Ajoy for launch updates.':'Prices shown in US dollars for your region. Your country is confirmed at checkout.'):'';
   }catch{if(current!==revision)return;amount.textContent='See checkout';offer.hidden=true;note.textContent='Confirm pricing on the billing page.';status.textContent='Pricing is temporarily unavailable.';}
  }));
 }

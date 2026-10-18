@@ -19,6 +19,11 @@ if(showcase){
   });
  };
  buttons.forEach(button=>button.addEventListener('click',()=>show(button)));
+ for(const link of document.querySelectorAll('[data-select-workflow]'))link.addEventListener('click',event=>{
+  if(event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+  const button=buttons.find(item=>item.getAttribute('aria-controls')===link.dataset.selectWorkflow);
+  if(button)show(button,false);
+ });
  show(buttons[0],false);choices.hidden=false;
  motion.addEventListener('change',()=>{if(motion.matches)animation?.cancel();});
 }

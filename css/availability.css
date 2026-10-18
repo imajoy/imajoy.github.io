@@ -1,0 +1,19 @@
+.india-availability{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:26px 28px;margin:0 0 28px;border:1px solid var(--line);border-radius:26px;background:var(--card);text-align:left}
+.india-availability[hidden],.category-demo[hidden]{display:none}
+.india-availability h3{font-size:1.1875rem;letter-spacing:-.03em;margin-bottom:9px}
+.india-availability p{font-size:.8125rem;color:var(--mute);line-height:1.8;max-width:52em}
+.india-availability .btn{flex:none;font-size:.8125rem}
+.requirements{padding:24px;border:1px solid var(--line);border-radius:24px;background:var(--card);margin:26px 0}
+.requirements h3{font-size:1.0625rem;letter-spacing:-.025em;margin-bottom:18px}
+.requirements dl{display:grid;grid-template-columns:1fr 1fr;gap:18px 24px}
+.requirements dt{font-size:.6875rem;font-weight:600;color:var(--mute);margin-bottom:5px}
+.requirements dd{font-size:.8125rem;line-height:1.65;color:var(--ink)}
+.requirements dd a{color:var(--blue-d);text-underline-offset:3px}
+.requirements p{font-size:.6875rem;color:var(--mute);line-height:1.85;margin-top:18px}
+.requirements-download{text-align:left;margin-top:28px}
+.category-demo{margin-top:24px}.category-demo .demo-card{box-shadow:none}
+.category-demo video{display:block;width:100%;aspect-ratio:16/9;background:var(--navy)}
+@media(max-width:680px){.india-availability{align-items:flex-start;flex-direction:column;padding:24px;gap:18px}.india-availability .btn{white-space:normal}.requirements{padding:22px}.requirements dl{gap:16px}.requirements dt{font-size:.625rem}}
+@media(max-width:360px){.requirements dl{grid-template-columns:1fr}}
+
+.category-workflow{display:inline-flex;gap:8px;align-items:center;font-size:.75rem;line-height:1.7;margin-top:20px;color:var(--blue-d);text-underline-offset:4px;min-height:32px}

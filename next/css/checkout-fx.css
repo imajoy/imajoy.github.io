@@ -66,3 +66,24 @@ html[data-ui-paused] .customer-verification::before,html[data-ui-paused] .reward
 .paypal-done #paypal-buttons{opacity:.4;pointer-events:none}
 .paypal-done .paypal-note{color:#1E8E6E;font-weight:600}
 @media (prefers-reduced-motion:no-preference){.paypal-box{animation:cv-in .7s cubic-bezier(.22,1,.36,1) backwards}}
+/* --- payment complete card --- */
+.checkout-progress .is-done{color:#1E8E6E}
+.checkout-progress .is-done::before{content:"\2713\00a0"}
+.pay-done{max-width:640px;margin:8px auto 40px;padding:40px 32px;text-align:center;border:1px solid var(--line);border-radius:28px;background:linear-gradient(160deg,var(--card),var(--bg2));box-shadow:0 30px 70px rgba(38,60,120,.14)}
+.pay-done h2{margin:6px 0 22px;font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.03em}
+.pd-check{width:84px;height:84px;margin:0 auto 10px;display:block}
+.pd-check circle{fill:none;stroke:#2FB5AE;stroke-width:3;stroke-dasharray:145;stroke-dashoffset:145;transform:rotate(-90deg);transform-origin:50% 50%}
+.pd-check path{fill:none;stroke:#2FB5AE;stroke-width:4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:44;stroke-dashoffset:44}
+.pd-list{margin:0 0 18px;text-align:left;display:grid;gap:0}
+.pd-list>div{display:flex;justify-content:space-between;gap:18px;padding:13px 4px;border-top:1px solid var(--line);font-size:.9375rem}
+.pd-list dt{color:var(--mute)}.pd-list dd{margin:0;text-align:right;font-weight:600;overflow-wrap:anywhere}
+.pd-note{margin:0 0 22px;font-size:.8125rem;line-height:1.6;color:var(--mute)}
+.pd-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+@media (prefers-reduced-motion:no-preference){
+ .pay-done{animation:cv-in .8s cubic-bezier(.22,1,.36,1) backwards}
+ .pd-check circle{animation:pd-draw .9s .2s cubic-bezier(.65,0,.35,1) forwards}
+ .pd-check path{animation:pd-draw .5s .95s cubic-bezier(.65,0,.35,1) forwards}
+ .pd-list>div{animation:cv-in .6s calc(.9s + var(--n,0)*.1s) backwards}
+ @keyframes pd-draw{to{stroke-dashoffset:0}}
+}
+@media (prefers-reduced-motion:reduce){.pd-check circle,.pd-check path{stroke-dashoffset:0}}

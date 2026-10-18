@@ -20,6 +20,32 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
   pay.replaceWith(box);
   const note = box.querySelector('#paypal-note');
   const say = (t, bad) => { note.textContent = t; note.dataset.bad = bad ? '1' : '0'; };
+  const avail = document.querySelector('#availability');
+  if (avail) avail.textContent = test ? 'Test mode: review your billing details, then subscribe with PayPal. No real money moves.' : 'Review your billing details, then subscribe securely with PayPal.';
+  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  function showDone(subId) {
+    const c = choice();
+    const email = (form.elements.email && form.elements.email.value || '').trim();
+    const plan = (c.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (c.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + c.seats + (c.seats === 1 ? ' license' : ' licenses');
+    const steps = document.querySelectorAll('.checkout-progress span');
+    if (steps.length > 1) { steps[0].removeAttribute('aria-current'); steps[0].classList.add('is-done'); steps[1].setAttribute('aria-current', 'step'); }
+    if (avail) avail.hidden = true;
+    const grid = document.querySelector('.checkout-grid');
+    const card = document.createElement('section');
+    card.className = 'pay-done';
+    card.setAttribute('role', 'status');
+    card.innerHTML =
+      '<svg class="pd-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 15-17"/></svg>' +
+      '<p class="eyebrow">' + (test ? 'Test payment complete' : 'Payment complete') + '</p>' +
+      '<h2>Thank you. Your subscription is confirmed.</h2>' +
+      '<dl class="pd-list"><div><dt>Plan</dt><dd>Ajoy Tools ' + esc(plan) + '</dd></div>' +
+      (email ? '<div><dt>License details to</dt><dd>' + esc(email) + '</dd></div>' : '') +
+      '<div><dt>Subscription ID</dt><dd>' + esc(subId) + '</dd></div></dl>' +
+      '<p class="pd-note">' + (test ? 'This was a test, so nothing was charged. ' : '') + 'Keep your subscription ID for any support question. Your license details will be sent to your email by Ajoy.</p>' +
+      '<div class="pd-actions"><a class="btn btn-blue" href="index.html">Back to Ajoy Tools</a><a class="btn" href="index.html#install">How to install</a></div>';
+    if (grid) { grid.hidden = true; grid.before(card); } else { form.before(card); }
+    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
   const choice = () => ({ plan: form.elements.plan.value, billing: form.elements.billing.value, seats: Math.max(1, Math.min(100, parseInt(form.elements.seats.value, 10) || 1)) });
 
   const script = document.createElement('script');
@@ -49,8 +75,8 @@ if (cfg && cfg.clientId && cfg.plans && form && pay) {
         return actions.subscription.create(req);
       },
       onApprove: data => {
-        say((test ? 'Test payment approved. ' : 'Thank you. ') + 'Subscription ID: ' + data.subscriptionID + '. Your license details will be sent to your email.', false);
-        box.classList.add('paypal-done');
+        say('');
+        showDone(data.subscriptionID);
       },
       onCancel: () => say('Payment cancelled. Nothing was charged.', false),
       onError: err => say('PayPal reported a problem' + (err && err.message ? ': ' + String(err.message).slice(0, 140) : '') + '. Nothing was charged.', true)

@@ -1,6 +1,7 @@
 /* Demo clips, real quotes, trial request form and the phone shortcut bar. Each part runs only when its markup exists. */
 const cfg = window.AJOY_CONFIG || {};
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const mediaPreference = matchMedia('(prefers-reduced-motion: reduce)');
+const reduce = mediaPreference.matches;
 const getJson = async path => { try { const r = await fetch(path, { cache: 'no-cache' }); return r.ok ? await r.json() : null; } catch (e) { return null; } };
 const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text) n.textContent = text; return n; };
 const slugOk = s => /^[a-z0-9-]{1,60}$/.test(String(s || ''));
@@ -18,24 +19,35 @@ document.querySelectorAll('[data-trial-days]').forEach(n => { n.textContent = St
   if (!Array.isArray(list)) return;
   const clips = list.filter(d => d && slugOk(d.slug));
   if (!clips.length) return;
+  const visibleVideos = new Set();
+  const updateVideo = v => {
+    v.controls = mediaPreference.matches;
+    if (visibleVideos.has(v) && !mediaPreference.matches && !document.hidden) v.play().catch(() => { v.controls = true; });
+    else v.pause();
+  };
+  mediaPreference.addEventListener('change', () => visibleVideos.forEach(updateVideo));
+  document.addEventListener('visibilitychange', () => visibleVideos.forEach(updateVideo));
   const watcher = 'IntersectionObserver' in window ? new IntersectionObserver(entries => {
     for (const e of entries) {
       const v = e.target;
-      if (e.isIntersecting) { if (!v.src) v.src = v.dataset.src; if (!reduce) v.play().catch(() => {}); }
-      else v.pause();
+      if (e.isIntersecting) { visibleVideos.add(v); if (!v.src) v.src = v.dataset.src; }
+      else visibleVideos.delete(v);
+      updateVideo(v);
     }
   }, { threshold: .4 }) : null;
   const card = d => {
     const fig = el('figure', 'demo-card');
     const v = el('video');
     v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'none'; v.setAttribute('aria-label', (d.title || 'Tool') + ' demonstration');
+    v.width = 960; v.height = 540; v.setAttribute('loading', 'lazy');
+    v.style.aspectRatio = '16 / 9'; v.style.objectFit = 'contain';
     v.dataset.src = 'assets/demos/' + d.slug + '.mp4';
     if (reduce) v.controls = true;
     fig.appendChild(v);
     const cap = el('figcaption'); cap.appendChild(el('b', '', d.title || ''));
     if (d.caption) cap.appendChild(el('span', '', d.caption));
     fig.appendChild(cap);
-    if (watcher) watcher.observe(v); else v.controls = true;
+    if (watcher) watcher.observe(v); else { v.src = v.dataset.src; v.controls = true; }
     return fig;
   };
   if (slot) {
@@ -57,12 +69,21 @@ document.querySelectorAll('[data-trial-days]').forEach(n => { n.textContent = St
   const list = await getJson('data/testimonials.json');
   if (!Array.isArray(list) || !list.length) return;
   const grid = box.querySelector('.voices-grid');
-  list.slice(0, 6).forEach(q => {
-    if (!q || !q.quote || !q.name) return;
+  list.filter(q => q && q.approved === true && q.quote && q.name).slice(0, 6).forEach(q => {
     const f = el('figure', 'voice');
     f.appendChild(el('blockquote', '', String(q.quote).slice(0, 400)));
     const c = el('figcaption'); c.appendChild(el('b', '', String(q.name).slice(0, 80)));
     if (q.role) c.appendChild(document.createTextNode(', ' + String(q.role).slice(0, 80)));
+    if (q.project) c.appendChild(el('span', 'voice-project', String(q.project).slice(0, 160)));
+    if (q.sourceUrl) {
+      try {
+        const source = new URL(q.sourceUrl);
+        if (source.protocol === 'https:') {
+          const link = el('a', 'voice-source', 'View original review');
+          link.href = source.href; link.rel = 'noopener noreferrer'; c.appendChild(link);
+        }
+      } catch { /* A malformed source must not prevent an approved quote appearing. */ }
+    }
     f.appendChild(c); grid.appendChild(f);
   });
   if (grid.children.length) box.hidden = false;

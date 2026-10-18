@@ -1,0 +1,13 @@
+/* Extra motion: staggered tool rows, hover life on tool rows, price roll. All off for reduced motion. */
+@media (prefers-reduced-motion:no-preference){
+  .tile .tl li{opacity:0;transform:translateY(14px);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .6s cubic-bezier(.22,1,.36,1);transition-delay:calc(var(--i,0)*70ms + 150ms)}
+  .tile.in .tl li{opacity:1;transform:none}
+  .tile .tl li{border-radius:12px}
+  .tile.in .tl li:hover{transform:translateX(4px);transition-delay:0s;transition-duration:.25s}
+  .tile .tl li .ic{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+  .tile .tl li:hover .ic{transform:scale(1.14) rotate(-6deg)}
+  .tile .tl li:hover .ic svg{animation:icpulse .9s ease-in-out infinite}
+  @keyframes icpulse{50%{transform:translateY(-2px)}}
+  [data-amt].rolling{display:inline-block;animation:amtpop .5s cubic-bezier(.22,1,.36,1)}
+  @keyframes amtpop{0%{transform:translateY(10px);opacity:.3}100%{transform:none;opacity:1}}
+}

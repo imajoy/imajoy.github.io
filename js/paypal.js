@@ -1,197 +1,103 @@
-/* PayPal subscription buttons for the checkout page.
-   Settings (Client ID, plan IDs, mode) come from the paypal-config function. No secrets are used here.
-   Plans are picked by the buyer's region tier (see regions.js). */
-import { tierFor, availability, closedMessage, countryCheck } from './regions.js?v=20261018-g5';
-import { rememberGeo } from './geo.js?v=20261018-h8';
-import { USD } from './regions.js?v=20261018-g5';
-import { trialPlanId, TRIAL_DAYS, addDays, fmtDay } from './trial.js?v=20261018-j3';
-import {getAccountSession,setAccountSession,verifyAccountSession,bindAccountEmail} from './account-session.js?v=20261018-l1';
-
-const url = window.AJOY_CONFIG && window.AJOY_CONFIG.paypalConfigUrl;
-const orderUrl = window.AJOY_CONFIG && window.AJOY_CONFIG.sheetUrl;
-const form = document.querySelector('#billing-form');
-bindAccountEmail(form?.elements.email, document.querySelector('#email-hint'));
-const pay = document.querySelector('#pay');
-const HOME = 'index.html';
-const REDIRECT_SECONDS = 8;
-let cfg = null;
-if (url && form && pay) {
-  try {
-    const r = await fetch(url, { headers: { Accept: 'application/json' }, cache: 'no-store' });
-    if (r.ok) cfg = await r.json();
-  } catch (e) { cfg = null; }
-}
-
-if (cfg && cfg.clientId && cfg.plans && form && pay) {
-  const test = cfg.mode !== 'live';
-  const detected = rememberGeo(cfg.country); /* where the buyer really connects from */
-  const lockTo = test ? '' : detected; /* test mode: any country can be tried, so you can test from India */
-  const extraClosed = Array.isArray(cfg.closedCountries) ? cfg.closedCountries : [];
-  let names = null;
-  try { names = new Intl.DisplayNames([navigator.language || 'en'], { type: 'region' }); } catch (e) { names = null; }
-  const nameOf = c => { try { return (names && names.of(c)) || c; } catch (e) { return c; } };
-  const sel = form.elements.country;
-  /* Start on the detected country so the price matches where the buyer is. */
-  if (detected && sel && sel.value !== detected && [...sel.options].some(o => o.value === detected)) {
-    sel.value = detected; sel.dispatchEvent(new Event('change', { bubbles: true }));
-  }
-  const geoNote = document.createElement('p');
-  geoNote.className = 'form-hint'; geoNote.id = 'geo-note'; geoNote.setAttribute('role', 'status'); geoNote.hidden = true;
-  if (sel && sel.parentElement) sel.parentElement.appendChild(geoNote);
-  const box = document.createElement('div');
-  box.className = 'paypal-box';
-  box.innerHTML =
-    (test ? '<p class="paypal-test"><b>Test mode.</b> No real money moves. Pay with your PayPal sandbox buyer account.</p>' : '') +
-    '<p class="paypal-closed" id="paypal-closed" hidden></p>' +
-    '<p class="paypal-note" id="paypal-note" role="status"></p><div id="paypal-buttons"></div>' +
-    '<p class="paypal-fine">Charged in US dollars by PayPal. Your bank may convert the amount. Your license key is sent within 12 hours.</p>';
-  pay.replaceWith(box);
-  const note = box.querySelector('#paypal-note');
-  const closed = box.querySelector('#paypal-closed');
-  const buttons = box.querySelector('#paypal-buttons');
-  const say = (t, bad) => { note.textContent = t; note.dataset.bad = bad ? '1' : '0'; };
-  const choice = () => ({
-    plan: form.elements.plan.value, billing: form.elements.billing.value,
-    seats: Math.max(1, Math.min(100, parseInt(form.elements.seats.value, 10) || 1)),
-    country: form.elements.country.value
-  });
-  const trialId = c => trialPlanId(cfg, c.plan, c.billing, c.country);
-  const planFor = c => {
-    const tid = trialId(c); if (tid) return tid;
-    const p = cfg.plans;
-    const t = p.tiers && p.tiers[tierFor(c.country)];
-    const set = t || (p.tiers ? null : p); /* flat plans are the single-price test setup */
-    return set && set[c.plan] && set[c.plan][c.billing];
-  };
-  const esc = t => String(t).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-  let trialOn = false;
-  /* During a free trial the order summary shows $0 due today (the order form keeps rewriting the total, so it is watched). */
-  const totalEl = document.querySelector('#summary-total');
-  function zeroTotal() { if (trialOn && totalEl && totalEl.textContent !== '$0') totalEl.textContent = '$0'; }
-  if (totalEl) new MutationObserver(zeroTotal).observe(totalEl, { childList: true, characterData: true, subtree: true });
-  const avail = document.querySelector('#availability');
-  const syncRegion = () => {
-    const c = choice(), a = availability(c.country, extraClosed), chk = countryCheck(c.country, lockTo);
-    const ok = a.open && !!planFor(c) && chk.ok;
-    closed.hidden = ok; buttons.hidden = !ok;
-    box.querySelector('.paypal-fine').hidden = !ok;
-    closed.textContent = !a.open ? closedMessage[a.reason]
-      : !chk.ok && !availability(chk.detected, extraClosed).open ? closedMessage[availability(chk.detected, extraClosed).reason]
-      : !chk.ok ? 'Your connection appears to be from ' + nameOf(chk.detected) + '. Please choose ' + nameOf(chk.detected) + ' as your billing country, or contact Ajoy if you are paying from another country.'
-      : 'This plan is not available yet.';
-    const tid = ok && trialId(c);
-    const fine = box.querySelector('.paypal-fine');
-    const sum = document.querySelector('.order-total');
-    let tl = document.querySelector('#trial-line');
-    trialOn = !!tid;
-    if (sum) sum.classList.toggle('is-trial', trialOn);
-    if (tid) {
-      const price = USD[tierFor(c.country)].online[c.billing] * c.seats, first = fmtDay(addDays(TRIAL_DAYS));
-      const text = TRIAL_DAYS + '-day free trial. Nothing is charged today. Your first payment of $' + price + ' is taken automatically on ' + first + ', then every ' + (c.billing === 'yearly' ? 'year' : 'month') + '. Cancel any time before then and you pay nothing.';
-      fine.textContent = text + ' Charged in US dollars by PayPal. Your license key is sent within 12 hours.';
-      if (sum && !tl) { tl = document.createElement('p'); tl.id = 'trial-line'; tl.className = 'trial-line'; sum.after(tl); }
-      if (tl) { tl.hidden = false; tl.innerHTML = '<b>Then $' + price + ' from ' + esc(first) + '</b><span>' + esc(text) + '</span>'; }
-      zeroTotal();
-    } else {
-      fine.textContent = 'Charged in US dollars by PayPal. Your bank may convert the amount. Your license key is sent within 12 hours.';
-      if (tl) tl.hidden = true;
-    }
-    geoNote.hidden = !detected;
-    geoNote.textContent = detected ? (test ? 'Test mode: you may try any country. Detected location: ' + nameOf(detected) + '.' : 'Your price follows your location (' + nameOf(detected) + ').') : '';
-    if (avail) avail.textContent = ok
-      ? (test ? 'Test mode: review your billing details, then subscribe with PayPal. No real money moves.' : 'Review your billing details, then subscribe securely with PayPal.')
-      : closed.textContent;
-  };
-  for (const n of ['plan', 'billing', 'country']) form.elements[n].addEventListener('change', syncRegion);
-  syncRegion();
-
-  /* Logs the order and, when the site's account sign-in is on, keeps the buyer signed in on this browser. */
-  const sendOrder = async (subId, c) => {
-    if (!orderUrl) return null;
-    const g = n => (form.elements[n] && form.elements[n].value || '').trim();
-    try {
-      const r = await fetch(orderUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ type: 'order', subscriptionId: subId, email: g('email'), accountToken: getAccountSession()?.token || '', name: g('name'), country: c.country, plan: c.plan, billing: c.billing, seats: c.seats, company: g('company'), detectedCountry: detected }) });
-      const j = await r.json();
-      if (j && j.token && window.AJOY_CONFIG.accountOpen) {
-        setAccountSession({...getAccountSession(), ...j});
-        try { sessionStorage.setItem('ajoy.acct.open', '1'); } catch (e) { /* private mode */ }
-        return j;
-      }
-      if (j?.requiresVerification && window.AJOY_CONFIG.accountOpen) {
-        try { sessionStorage.setItem('ajoy.acct.email', j.email); sessionStorage.setItem('ajoy.acct.open', '1'); } catch (e) { /* private mode */ }
-      }
-    } catch (e) { /* the owner can still see the subscription in PayPal */ }
-    return null;
-  };
-  function showDone(subId) {
-    const c = choice();
-    const signedIn = sendOrder(subId, c);
-    const email = (form.elements.email && form.elements.email.value || '').trim();
-    const plan = (c.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (c.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + c.seats + (c.seats === 1 ? ' license' : ' licenses');
-    const steps = document.querySelectorAll('.checkout-progress span');
-    if (steps.length > 1) { steps[0].removeAttribute('aria-current'); steps[0].classList.add('is-done'); steps[1].setAttribute('aria-current', 'step'); }
-    if (avail) avail.hidden = true;
-    const grid = document.querySelector('.checkout-grid');
-    const card = document.createElement('section');
-    card.className = 'pay-done';
-    card.setAttribute('role', 'status');
-    card.innerHTML =
-      '<svg class="pd-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 15-17"/></svg>' +
-      '<p class="eyebrow">' + (test ? 'Test payment complete' : 'Payment complete') + '</p>' +
-      '<h2>Thank you. Your subscription is confirmed.</h2>' +
-      '<dl class="pd-list"><div><dt>Plan</dt><dd>Ajoy Tools ' + esc(plan) + '</dd></div>' +
-      (email ? '<div><dt>License key sent to</dt><dd>' + esc(email) + '</dd></div>' : '') +
-      '<div><dt>Subscription ID</dt><dd>' + esc(subId) + '</dd></div></dl>' +
-      (trialId(c) ? '<p class="pd-note"><b>Your ' + TRIAL_DAYS + '-day free trial has started.</b> Your first payment is taken on ' + esc(fmtDay(addDays(TRIAL_DAYS))) + ' unless you cancel in PayPal before then.</p>' : '') +
-      '<p class="pd-note"><b>Your license key arrives within 12 hours.</b> A confirmation email is on its way now. ' + (test ? 'This was a test, so nothing was charged. ' : '') + 'Keep your subscription ID for any support question.</p>' +
-      '<div class="pd-bar" aria-hidden="true"><i></i></div>' +
-      '<p class="pd-count">Taking you to the home page in <b id="pd-sec">' + REDIRECT_SECONDS + '</b> seconds. <a href="' + HOME + '">Go now</a></p>';
-    card.style.setProperty('--redir', REDIRECT_SECONDS + 's');
-    if (grid) { grid.hidden = true; grid.before(card); } else { form.before(card); }
-    card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    signedIn.then(j => { if (j) { const n = document.createElement('p'); n.className = 'pd-note'; n.innerHTML = '<b>You are signed in as ' + esc(j.email) + '.</b> Your plan and the days you have left are shown at the top of the home page.'; card.querySelector('.pd-bar').before(n); } });
-    let left = REDIRECT_SECONDS;
-    const sec = card.querySelector('#pd-sec');
-    const t = setInterval(() => { left -= 1; if (sec) sec.textContent = String(Math.max(left, 0)); if (left <= 0) { clearInterval(t); location.href = HOME; } }, 1000);
-  }
-
-  const script = document.createElement('script');
-  script.src = 'https://www.paypal.com/sdk/js?client-id=' + encodeURIComponent(cfg.clientId) + '&vault=true&intent=subscription&currency=' + encodeURIComponent(cfg.currency || 'USD');
-  script.onerror = () => say('PayPal could not load. Check your connection or disable content blockers, then refresh.', true);
-  script.onload = () => {
-    if (!window.paypal || !window.paypal.Buttons) { say('PayPal could not start. Please refresh.', true); return; }
-    window.paypal.Buttons({
-      style: { layout: 'vertical', shape: 'pill', color: 'blue', label: 'subscribe', height: 46 },
-      onClick: async (data, actions) => {
-        const pick = choice();
-        if (!availability(pick.country, extraClosed).open || !countryCheck(pick.country, lockTo).ok) return actions.reject();
-        if (!form.reportValidity()) { say('Please complete the billing details above first.', true); return actions.reject(); }
-        if (getAccountSession()) {
-          try { if (!await verifyAccountSession()) return actions.reject(); }
-          catch (error) { say(error.message, true); return actions.reject(); }
-        }
-        say('');
-        return actions.resolve();
-      },
-      createSubscription: (data, actions) => {
-        const c = choice();
-        const planId = planFor(c);
-        if (!planId) throw new Error('This plan is not available yet.');
-        const email = (form.elements.email && form.elements.email.value || '').trim();
-        const req = {
-          plan_id: planId,
-          custom_id: [c.plan, c.billing, c.seats, c.country, detected || '-', trialId(c) ? 'trial' : ''].join('|'),
-          application_context: { brand_name: 'Ajoy Tools', shipping_preference: 'NO_SHIPPING', user_action: 'SUBSCRIBE_NOW' }
-        };
-        if (c.seats > 1) req.quantity = String(c.seats);
-        if (/^\S+@\S+\.\S+$/.test(email)) req.subscriber = { email_address: email };
-        return actions.subscription.create(req);
-      },
-      onApprove: data => { say(''); showDone(data.subscriptionID); },
-      onCancel: () => say('Payment cancelled. Nothing was charged.', false),
-      onError: err => say('PayPal reported a problem' + (err && err.message ? ': ' + String(err.message).slice(0, 140) : '') + '. Nothing was charged.', true)
-    }).render('#paypal-buttons').catch(() => say('PayPal buttons could not be shown. Please refresh.', true));
-  };
-  document.head.appendChild(script);
+/* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
+import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261018-g5';
+import {rememberGeo} from './geo.js?v=20261018-h8';
+import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261018-j3';
+import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261018-n1';
+import {secureCommerce} from './commerce-gateway.js?v=20261018-n1';
+const settings=window.AJOY_CONFIG||{},form=document.querySelector('#billing-form'),pay=document.querySelector('#pay');
+bindAccountEmail(form?.elements.email,document.querySelector('#email-hint'));
+if(form&&pay){
+ const box=document.createElement('div');box.className='paypal-box';
+ box.innerHTML='<section class="account-required" id="checkout-account"><b>Verify your email before subscribing.</b><p>Sign in, or register a new email with a verification code.</p><button type="button" class="btn btn-dark" data-account-gate>Sign in or register</button></section><p class="paypal-test" hidden><b>Test mode.</b> No real money moves.</p><p class="paypal-closed" role="status" hidden></p><fieldset class="checkout-offer" hidden><legend>Choose your subscription</legend><label><input type="radio" name="checkout-offer" value="trial">2-day Online trial · $0 today</label><label><input type="radio" name="checkout-offer" value="standard">Standard subscription · paid after PayPal approval</label></fieldset><p class="paypal-note" role="status"></p><div id="paypal-buttons" hidden></div><p class="paypal-fine"></p>';
+ pay.replaceWith(box);
+ const gate=box.querySelector('#checkout-account'),closed=box.querySelector('.paypal-closed'),offerBox=box.querySelector('.checkout-offer'),buttons=box.querySelector('#paypal-buttons'),note=box.querySelector('.paypal-note'),fine=box.querySelector('.paypal-fine');
+ const total=document.querySelector('#summary-total'),availabilityNote=document.querySelector('#availability');
+ const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ let cfg=null,eligibility=null,selectedOffer='',trialOn=false,lastTotal=total?.textContent||'—',activeToken='',revision=0,sdkPromise,rendered=false,checkout=null,requestId=crypto.randomUUID();
+ const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
+ const say=(text,bad=false)=>{note.textContent=text;note.dataset.bad=bad?'1':'0';};
+ const trialConfigured=c=>Boolean(cfg&&trialPlanId(cfg,c.plan,c.billing,c.country));
+ box.querySelector('[data-account-gate]').onclick=()=>openAccount({purpose:'checkout',email:form.elements.email.value});
+ const invalidate=()=>{requestId=crypto.randomUUID();checkout=null;};
+ function sync(){
+  const session=getAccountSession(),c=choice(),region=availability(c.country,cfg?.closedCountries||[]),match=countryCheck(c.country,cfg?.mode==='live'?cfg.country:'');
+  gate.hidden=!!session;offerBox.hidden=!session||!cfg||!eligibility;
+  const available=region.open&&match.ok;
+  closed.hidden=available;closed.textContent=!region.open?closedMessage[region.reason]:!match.ok?'Choose your detected billing country before subscribing.':'';
+  const trial=!!session&&eligibility?.eligible&&trialConfigured(c);
+  const trialRadio=offerBox.querySelector('[value="trial"]');trialRadio.disabled=!trial;
+  if(!session||!eligibility)selectedOffer='';
+  else if(c.plan==='offline')selectedOffer='standard';
+  else if(selectedOffer==='trial'&&!trial)selectedOffer='';
+  else if(!selectedOffer&&trial)selectedOffer='trial';
+  for(const radio of offerBox.querySelectorAll('input'))radio.checked=radio.value===selectedOffer;
+  trialOn=selectedOffer==='trial'&&trial;
+  const summary=document.querySelector('.order-total');summary?.classList.toggle('is-trial',trialOn);
+  let line=document.querySelector('#trial-line');
+  if(trialOn){
+   if(total&&total.textContent!=='$0'){lastTotal=total.textContent;total.textContent='$0';}
+   if(!line){line=document.createElement('p');line.id='trial-line';line.className='trial-line';summary?.after(line);}
+   const price=USD[tierFor(c.country)].online[c.billing]*c.seats;
+   line.hidden=false;line.textContent='2-day free trial, subject to final PayPal account eligibility. Then $'+price+' per '+(c.billing==='yearly'?'year':'month')+'. Cancel in PayPal before billing starts.';
+  }else{if(line)line.hidden=true;if(total&&total.textContent==='$0')total.textContent=lastTotal;}
+  fine.textContent=trialOn?'One trial per customer, browser, network and verified PayPal payer account. We check your payment account before granting access. Your first subscription payment follows the 2-day trial unless cancelled.':'Charged in US dollars by PayPal. Review the subscription price before approving. Your license is sent within 12 hours after server confirmation.';
+  buttons.hidden=!session||!cfg||!eligibility||!selectedOffer||!available;
+  if(availabilityNote)availabilityNote.textContent=!session?'Sign in or register your email, then review your subscription.':!cfg?'Secure checkout is temporarily unavailable.':!eligibility?'Checking your account and trial eligibility…':trialOn?'Review your free trial and its first paid renewal, then approve with PayPal.':'Review the standard subscription price, then approve with PayPal.';
+  if(!buttons.hidden)startButtons();
+ }
+ if(total)new MutationObserver(()=>{if(total.textContent!=='$0')lastTotal=total.textContent;if(trialOn&&total.textContent!=='$0')total.textContent='$0';}).observe(total,{childList:true,characterData:true,subtree:true});
+ for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{selectedOffer=radio.value;invalidate();sync();});
+ for(const name of ['plan','billing','country','seats'])form.elements[name].addEventListener('change',()=>{invalidate();sync();});
+ async function checkAccount(){
+  const token=getAccountSession()?.token||'';if(token===activeToken&&eligibility){sync();return;}
+  activeToken=token;eligibility=null;selectedOffer='';invalidate();const operation=++revision;sync();
+  if(!token)return;
+  try{const result=await secureCommerce('eligibility');if(operation!==revision||getAccountSession()?.token!==token)return;eligibility=result;say(result.message||'Choose your subscription.');}
+  catch(error){if(operation===revision)say(error.message,true);}
+  sync();
+ }
+ onAccountChange(checkAccount);
+ async function confirm(id){
+  say('Verifying your subscription and payment account…');
+  try{
+   const result=await secureCommerce('confirm',{checkoutId:id});
+   if(!result.accepted){say('PayPal approval is still processing. Choose Check subscription again.');let retry=box.querySelector('[data-confirm-retry]');if(!retry){retry=document.createElement('button');retry.type='button';retry.className='btn btn-light';retry.dataset.confirmRetry='';retry.textContent='Check subscription again';retry.onclick=()=>confirm(id);box.append(retry);}return;}
+   showDone(result);
+  }catch(error){say(error.message,true);if(error.code==='trial_used'){eligibility={eligible:false};selectedOffer='';invalidate();sync();}}
+ }
+ function showDone(result){
+  const c={...checkout?.selection,plan:result.plan||checkout?.selection.plan,billing:result.billing||checkout?.selection.billing,seats:result.seats||checkout?.selection.seats};
+  const card=document.createElement('section');card.className='pay-done';card.setAttribute('role','status');
+  card.innerHTML='<svg class="pd-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 15-17"/></svg><p class="eyebrow">'+(result.offer==='trial'?'Trial approved':'Subscription confirmed')+'</p><h2>Thank you. Your account is ready.</h2><dl class="pd-list"><div><dt>Plan</dt><dd>'+esc(c.plan==='offline'?'Offline':'Online')+' · '+esc(c.billing)+' · '+esc(c.seats)+' license(s)</dd></div><div><dt>License email</dt><dd>'+esc(result.email)+'</dd></div><div><dt>Subscription ID</dt><dd>'+esc(result.subscriptionId)+'</dd></div></dl>'+(result.offer==='trial'?'<p class="pd-note">Your 2-day trial is approved. Your first payment follows the trial unless you cancel in PayPal.</p>':'')+'<p class="pd-note">Your license arrives within 12 hours. You remain signed in with your verified email.</p><div class="pd-bar" aria-hidden="true"></div><p class="pd-count">Taking you home in <b id="pd-sec">8</b> seconds. <a href="index.html">Go now</a></p>';
+  card.style.setProperty('--redir','8s');document.querySelector('.checkout-grid').before(card);document.querySelector('.checkout-grid').hidden=true;if(availabilityNote)availabilityNote.hidden=true;
+  try{sessionStorage.setItem('ajoy.acct.open','1');}catch{}
+  card.scrollIntoView({behavior:'smooth',block:'center'});let left=8;const timer=setInterval(()=>{card.querySelector('#pd-sec').textContent=String(--left);if(left<=0){clearInterval(timer);location.href='index.html';}},1000);
+ }
+ function loadSdk(){
+  if(!sdkPromise)sdkPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(cfg.clientId)+'&vault=true&intent=subscription&currency=USD';script.onload=()=>window.paypal?.Buttons?resolve():reject(new Error('PayPal could not start.'));script.onerror=()=>reject(new Error('PayPal could not load. Check your connection.'));document.head.append(script);});
+  return sdkPromise;
+ }
+ async function startButtons(){
+  if(rendered)return;rendered=true;
+  try{
+   await loadSdk();
+   await window.paypal.Buttons({style:{layout:'vertical',shape:'pill',color:'blue',label:'subscribe',height:46},
+    onClick:async(data,actions)=>{
+     if(!getAccountSession()){openAccount({purpose:'checkout'});return actions.reject();}
+     if(!form.reportValidity()||!selectedOffer)return actions.reject();return actions.resolve();
+    },
+    createSubscription:async()=>{
+     const selection=choice(),offer=selectedOffer;if(!getAccountSession()||!offer)throw new Error('Sign in and choose your subscription first.');
+     const result=await secureCommerce('checkout',{...selection,offer,requestId,name:form.elements.name.value,company:form.elements.company.value});checkout={id:result.checkoutId,selection,offer:result.offer};return result.subscriptionId;
+    },
+    onApprove:()=>{if(checkout)confirm(checkout.id);else say('Open your account to check the subscription status.',true);},
+    onCancel:()=>say('Checkout cancelled. You can resume this checkout or try again after its trial reservation expires.'),
+    onError:error=>say(error.message||'PayPal could not complete the request. Please check your subscription status before retrying.',true)
+   }).render('#paypal-buttons');
+  }catch(error){say(error.message,true);rendered=false;}
+ }
+ sync();
+ fetch(settings.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async response=>{if(!response.ok)throw Error();cfg=await response.json();rememberGeo(cfg.country);if(cfg.country&&[...form.elements.country.options].some(o=>o.value===cfg.country)){form.elements.country.value=cfg.country;form.elements.country.dispatchEvent(new Event('change'));}box.querySelector('.paypal-test').hidden=cfg.mode==='live';sync();}).catch(()=>say('Secure checkout settings are unavailable. Please try again later.',true));
+ checkAccount();
+ const returning=new URLSearchParams(location.search).get('checkout');if(returning&&getAccountSession())confirm(returning);
 }

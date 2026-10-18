@@ -32,7 +32,7 @@ export async function handleRequest(req,env=defaultEnv,request=fetch){
  if(req.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
  const path=new URL(req.url).pathname.replace(/^.*\/storefront/,'')||'/';
  try{
-  if(req.method==='GET'&&path==='/config')return json({paymentsEnabled:false,downloadsEnabled:Boolean(env('TURNSTILE_SECRET_KEY')&&env('TURNSTILE_SITE_KEY')&&env('SUPABASE_SERVICE_ROLE_KEY')&&env('SUPABASE_URL')),turnstileSiteKey:env('TURNSTILE_SITE_KEY')||null,
+  if(req.method==='GET'&&path==='/config')return json({paymentsEnabled:false,downloadsEnabled:false,turnstileSiteKey:env('TURNSTILE_SITE_KEY')||null,
    loyalty:loyaltyEnabled(env)?{enabled:true,authUrl:env('SUPABASE_URL').replace(/\/$/,'')+'/auth/v1',publicKey:env('SUPABASE_ANON_KEY'),turnstileSiteKey:env('AUTH_TURNSTILE_SITE_KEY')}:{enabled:false}});
   if(req.method==='GET'&&path==='/quote'){
    const params=new URL(req.url).searchParams;
@@ -74,31 +74,8 @@ export async function handleRequest(req,env=defaultEnv,request=fetch){
     if(env('QUOTE_SIGNING_SECRET'))quote.quoteToken=await sign(quote,env('QUOTE_SIGNING_SECRET'));
     return json(quote);
    }
-   if(path!=='/download')return json({error:'Not found.'},404);
-   const raw=await req.text();if(raw.length>8192)return json({error:'Request is too large.'},413);
-   let body;try{body=JSON.parse(raw);}catch{return json({error:'Invalid request.'},400);}
-   if(typeof body.token!=='string'||!body.token||body.token.length>2048)return json({error:'Complete the human check before downloading.'},400);
-   const secret=env('TURNSTILE_SECRET_KEY');
-   if(!secret||!env('SUPABASE_SERVICE_ROLE_KEY')||!env('SUPABASE_URL'))return json({error:'Download verification is temporarily unavailable.'},503);
-   const verifyBody=new URLSearchParams({secret,response:body.token});
-   const ip=clientIP(req);if(ip)verifyBody.set('remoteip',ip);
-   const verification=await request('https://challenges.cloudflare.com/turnstile/v0/siteverify',{method:'POST',body:verifyBody,signal:AbortSignal.timeout(10000)});
-   const verified=await verification.json();
-   const hostname=env('TURNSTILE_HOSTNAME')||'imajoy.github.io';
-   if(!verification.ok||verified.success!==true||verified.action!=='download'||verified.hostname!==hostname)return json({error:'Human verification failed or expired. Please verify again.'},403);
-   const bucket=env('INSTALLER_BUCKET')||'installers';
-   const file=env('INSTALLER_OBJECT')||'AjoyTools_Setup.py';
-   const base=env('SUPABASE_URL').replace(/\/$/,'');
-   const serviceKey=env('SUPABASE_SERVICE_ROLE_KEY');
-   const storage=await request(base+'/storage/v1/object/sign/'+encodeURIComponent(bucket)+'/'+file.split('/').map(encodeURIComponent).join('/'),{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+serviceKey,'apikey':serviceKey},body:JSON.stringify({expiresIn:60}),signal:AbortSignal.timeout(10000)});
-   const signed=await storage.json();
-   if(!storage.ok||typeof signed.signedURL!=='string')return json({error:'The installer is temporarily unavailable. Please try again later.'},503);
-   // Storage REST returns /object/sign/... (the SDK prepends /storage/v1).
-   const signedPath=signed.signedURL.startsWith('/object/sign/')?'/storage/v1'+signed.signedURL:signed.signedURL;
-   if(!signedPath.startsWith('/storage/v1/object/sign/'))return json({error:'The installer link could not be created.'},503);
-   const signedURL=new URL(signedPath,base);
-   if(signedURL.origin!==new URL(base).origin)return json({error:'The installer link could not be created.'},503);
-   return json({url:signedURL.href,expiresIn:60});
+   if(path==='/download')return json({error:'Sign in or register through the current download page. This legacy download route is closed.'},410);
+   return json({error:'Not found.'},404);
   }
   return json({error:'Not found.'},404);
  }catch(e){return json({error:e?.status===401?e.message:'The service is temporarily unavailable. Please try again.'},e?.status===401?401:503);}

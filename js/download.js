@@ -1,98 +1,34 @@
-/* Download flow: Download -> email (Gmail, Yahoo, Hotmail) -> automatic download -> plans in 3 seconds.
-   The email is checked here, then saved to the owner's Google Sheet when sheetUrl is set in site-config.js. A failed save never stops the download. */
-import {getAccountSession,verifyAccountSession,bindAccountEmail} from './account-session.js?v=20261018-l1';
-const root = document.querySelector('#dl');
-const form = document.querySelector('#dl-form');
-const input = document.querySelector('#dl-email');
-const hint = document.querySelector('#dl-hint');
-bindAccountEmail(input, hint);
-const countEl = document.querySelector('#dl-count');
-const statusEl = document.querySelector('#dl-status');
-const title = document.querySelector('#dl-title');
-const sub = document.querySelector('#dl-sub');
-const HINT = 'Gmail, Yahoo, Hotmail or any .com or .in address.';
-const FILE = 'downloads/AjoyTools_Setup.py';
-const NEXT = 'index.html#pricing';
-const allowedDomain = domain => /(^|\.)(com|in)$/.test(domain);
-const saved = !!(window.AJOY_CONFIG || {}).sheetUrl;
-const fine = document.querySelector('.download-fine');
-if (fine) fine.textContent = saved ? 'Your email address is saved to Ajoy\u2019s contact list so Ajoy can follow up about Ajoy Tools. See the privacy notice.' : 'Your email address is only checked in your browser. It is not sent anywhere or stored.';
-const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-let timers = [], busy = false;
-
-const later = (fn, ms) => timers.push(setTimeout(fn, ms));
-const state = s => root.setAttribute('data-state', s);
-
-function check(value) {
-  const v = value.trim().toLowerCase();
-  if (!v) return 'Enter your email address.';
-  if (v.length > 120 || !/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(v)) return 'That does not look like an email address.';
-  if (getAccountSession()?.email !== v && !allowedDomain(v.split('@')[1])) return 'Use an email address ending in .com or .in, such as Gmail, Yahoo or Hotmail.';
-  return '';
+/* Registration and server verification are required before a short-lived private installer link is issued. */
+import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261018-n1';
+import {secureCommerce} from './commerce-gateway.js?v=20261018-n1';
+const root=document.querySelector('#dl'),form=document.querySelector('#dl-form'),input=document.querySelector('#dl-email'),hint=document.querySelector('#dl-hint');
+const title=document.querySelector('#dl-title'),sub=document.querySelector('#dl-sub'),status=document.querySelector('#dl-status'),start=document.querySelector('#dl-start');
+bindAccountEmail(input,hint);input.readOnly=true;
+let busy=false,pending=false,countdown;
+const state=value=>root.setAttribute('data-state',value);
+function sync(){
+ const session=getAccountSession();input.readOnly=true;
+ start.textContent=session?'Download Setup':'Sign in or register to download';
+ document.querySelector('.download-fine').textContent='Verify your email to register an account before downloading. Your email is used for account and service messages. See the privacy notice.';
+ if(!session){state('idle');clearInterval(countdown);return;}
+ if(pending){pending=false;state('email');title.textContent='Your registered email.';sub.textContent='Your setup download uses this verified account.';}
 }
-function fail(text) {
-  hint.textContent = text;
-  root.setAttribute('data-invalid', '');
-  input.setAttribute('aria-invalid', 'true');
-  form.classList.remove('shake'); void form.offsetWidth; form.classList.add('shake');
+onAccountChange(sync);sync();
+start.addEventListener('click',()=>{if(!getAccountSession()){pending=true;openAccount({purpose:'download'});return;}state('email');title.textContent='Your registered email.';sub.textContent='Continue to get your setup file.';});
+document.querySelector('#dl-back').addEventListener('click',()=>{if(!busy)state('idle');});
+async function download(){
+ if(busy)return;if(!getAccountSession()){pending=true;openAccount({purpose:'download'});return;}
+ busy=true;state('working');title.textContent='Preparing your installer.';sub.textContent='Verifying your registered account…';status.textContent='Checking your account…';
+ try{
+  const result=await secureCommerce('download');
+  const parsed=new URL(result.url);const configured=new URL(window.AJOY_CONFIG.commerceUrl);
+  if(parsed.protocol!=='https:'||parsed.origin!==configured.origin)throw new Error('The installer link could not be verified.');
+  const link=document.createElement('a');link.href=parsed.href;link.download='AjoyTools_Setup.py';link.rel='noopener';document.body.append(link);link.click();link.remove();
+  state('done');title.textContent='Your download is starting.';sub.textContent='Your browser will handle the setup file.';
+  let n=3;document.querySelector('#dl-count').textContent=String(n);countdown=setInterval(()=>{document.querySelector('#dl-count').textContent=String(Math.max(0,--n));if(n<=0){clearInterval(countdown);location.href='index.html#pricing';}},1000);
+ }catch(error){state('email');hint.textContent=error.message;input.setAttribute('aria-invalid','true');title.textContent='Download could not start.';sub.textContent='Please retry after checking your account connection.';}
+ finally{busy=false;}
 }
-function clearFail() {
-  root.removeAttribute('data-invalid');
-  input.removeAttribute('aria-invalid');
-  hint.textContent = getAccountSession() ? 'Using your signed-in email. Sign out to use a different email.' : HINT;
-}
-/* Adds (or refreshes) the email in the owner's Google Sheet. Never blocks the download. */
-function saveLead(email) {
-  const url = (window.AJOY_CONFIG || {}).sheetUrl;
-  if (!url) return;
-  try {
-    fetch(url, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ email: email.trim().toLowerCase() }) }).catch(() => {});
-  } catch (e) { /* the download goes ahead either way */ }
-}
-function saveFile() {
-  const a = document.createElement('a');
-  a.href = FILE; a.download = 'AjoyTools_Setup.py';
-  document.body.append(a); a.click(); a.remove();
-}
-function run() {
-  if (busy) return; busy = true;
-  state('working');
-  title.textContent = 'Packing your installer.';
-  sub.textContent = 'One moment. Your download starts by itself.';
-  const t = reduce ? 600 : 2600;
-  statusEl.textContent = 'Packing your installer…';
-  later(() => { statusEl.textContent = 'Starting your download…'; }, t * .62);
-  later(() => {
-    saveFile();
-    state('done');
-    title.textContent = 'You have it.';
-    sub.textContent = 'Check your Downloads folder.';
-    let n = 3; countEl.textContent = String(n);
-    const tick = setInterval(() => { n -= 1; if (n > 0) countEl.textContent = String(n); }, 1000);
-    timers.push(tick);
-    later(() => { clearInterval(tick); location.href = NEXT; }, 3000);
-  }, t);
-}
-document.querySelector('#dl-start').addEventListener('click', () => {
-  state('email'); title.textContent = 'Almost there.'; sub.textContent = 'Enter your email and the download starts by itself.';
-  setTimeout(() => input.focus({ preventScroll: true }), 350);
-});
-document.querySelector('#dl-back').addEventListener('click', () => {
-  clearFail(); state('idle'); title.textContent = 'Get the setup file.'; sub.textContent = 'It is free. Installing the tools needs a code from an active subscription.';
-});
-input.addEventListener('input', clearFail);
-form.addEventListener('submit', async e => {
-  e.preventDefault();
-  if (busy) return;
-  if (getAccountSession()) {
-    busy = true;
-    try { if (!await verifyAccountSession()) return; }
-    catch (error) { fail(error.message); return; }
-    finally { busy = false; }
-  }
-  const problem = check(input.value);
-  if (problem) { fail(problem); input.focus(); return; }
-  clearFail(); saveLead(input.value); run();
-});
-document.querySelector('#dl-go').addEventListener('click', () => { timers.forEach(t => { clearTimeout(t); clearInterval(t); }); });
-document.querySelector('#dl-again').addEventListener('click', () => { /* keep the countdown running */ });
+form.addEventListener('submit',event=>{event.preventDefault();download();});
+document.querySelector('#dl-again').addEventListener('click',event=>{event.preventDefault();clearInterval(countdown);download();});
+document.querySelector('#dl-go').addEventListener('click',()=>clearInterval(countdown));

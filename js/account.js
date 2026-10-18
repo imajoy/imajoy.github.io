@@ -1,5 +1,5 @@
 /* Email-code sign-in with an immediate cached summary and live subscription refresh. */
-import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261018-l1';
+import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261018-n1';
 const cfg = window.AJOY_CONFIG || {};
 if (cfg.accountOpen && cfg.sheetUrl) init();
 function init() {
@@ -17,7 +17,7 @@ function init() {
     return {state:'ended',text:'Ended'+(s.endsAt?' '+fmtDate(s.endsAt):'')+' · renew to keep using Ajoy Tools',short:'Renew',days:0};
   };
   const totalDays = list => list.reduce((n,s) => n+describe(s).days,0);
-  let email='',step='email',msg='',busy=false,updating=false,offline=false,generation=0,closing=false;
+  let registration=false,purpose='',email='',step='email',msg='',busy=false,updating=false,offline=false,generation=0,closing=false;
   const dlg=document.createElement('dialog');
   dlg.className='acct-dlg';dlg.setAttribute('aria-labelledby','acct-title');
   dlg.innerHTML='<button class="acct-close" type="button" aria-label="Close sign-in">×</button><div class="acct-body"></div>';
@@ -42,24 +42,26 @@ function init() {
   dlg.querySelector('.acct-close').addEventListener('click',close);
   dlg.addEventListener('cancel',e=>{e.preventDefault();close();});
   dlg.addEventListener('click',e=>{const r=dlg.getBoundingClientRect();if(e.target===dlg&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))close();});
-  btn.addEventListener('click',open);
+  btn.addEventListener('click',()=>{purpose='';open();});
+  window.addEventListener('ajoy-account-open',event=>{purpose=event.detail?.purpose||'';registration=event.detail?.intent==='register';if(event.detail?.email)email=event.detail.email;open();});
   function announce(text,error=false){msg=text;const n=body.querySelector('.acct-msg');if(n){n.textContent=text;n.dataset.error=String(error);} }
   function setBusy(value){busy=value;body.setAttribute('aria-busy',String(value));for(const button of body.querySelectorAll('button'))button.disabled=value;}
   function render() {
     const session=getAccountSession(),subs=session?.subscriptions;
     body.dataset.stage=session?'account':step;body.setAttribute('aria-busy',String(busy));
     if(session){
-      body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Your account</p><h2 id="acct-title" tabindex="-1">'+esc(session.email)+'</h2><p class="acct-note acct-sync" role="status">'+(updating?'Updating your subscription details…':offline?'Showing your saved account. Reconnect to update your details.':'Your verified subscription email is used automatically at checkout.')+'</p>'+
+      body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Your account</p><h2 id="acct-title" tabindex="-1">'+esc(session.email)+'</h2><p class="acct-note acct-sync" role="status">'+(updating?'Updating your subscription details…':offline?'Showing your saved account. Reconnect to update your details.':'Your verified account email is used automatically at checkout.')+'</p>'+
         (subs?.length>1&&totalDays(subs)?'<p class="acct-total">Total across your subscriptions: <b>'+dayWord(totalDays(subs))+' left</b></p>':'')+
-        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Ajoy Tools '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'||d.state==='ending'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+'</div>';}).join(''):'<p class="acct-note">No subscription found for this email.</p>')+
+        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Ajoy Tools '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'||d.state==='ending'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+'</div>';}).join(''):'<p class="acct-note">Your email is registered. <a href="index.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
         (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<p class="acct-note">To use a different email, sign out first.</p><button class="acct-link" type="button" data-out>Sign out</button>';
-      body.querySelector('[data-out]').onclick=()=>{generation++;step='email';email='';msg='';busy=false;clearAccountSession();};
+      body.querySelector('[data-out]').onclick=()=>{generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
       body.querySelector('[data-retry]')?.addEventListener('click',status);
       return;
     }
     const code=step==='code';
-    body.innerHTML=accountIcon+'<p class="eyebrow">Subscriber sign-in <span class="acct-step">'+(code?'02':'01')+' / 02</span></p><h2 id="acct-title" tabindex="-1">'+(code?'Check your inbox.':'Welcome back.')+'</h2><p class="acct-note">'+(code?'Enter the 6-digit code sent to <b>'+esc(email)+'</b>. It expires in 10 minutes.':'Use the email registered with your subscription.')+'</p><form class="acct-form"><label for="acct-input">'+(code?'Email verification code':'Registered email address')+'</label><input id="acct-input" '+(code?'type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code"':'type="email" maxlength="120" autocomplete="email"')+' required autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="acct-message" '+(!code?'value="'+esc(email)+'"':'')+'><button class="btn btn-dark" type="submit">'+(code?'Verify and sign in':'Send verification code')+'<span aria-hidden="true"> →</span></button></form><p id="acct-message" class="acct-msg" role="status" aria-live="polite">'+esc(msg)+'</p>'+(code?'<button class="acct-link" type="button" data-back>Use a different email</button>':'');
+    body.innerHTML=accountIcon+'<p class="eyebrow">'+(registration?'Register your email':'Sign in')+' <span class="acct-step">'+(code?'02':'01')+' / 02</span></p><h2 id="acct-title" tabindex="-1">'+(code?'Check your inbox.':registration?'Create your account.':'Welcome back.')+'</h2><p class="acct-note">'+(code?'Enter the 6-digit code sent to <b>'+esc(email)+'</b>. It expires in 10 minutes.':registration?'Verify your email to download the setup or subscribe. Your account is created only after verification.':'Use your registered email. New here? Register below.')+'</p><form class="acct-form"><label for="acct-input">'+(code?'Email verification code':registration?'Your email address':'Registered email address')+'</label><input id="acct-input" '+(code?'type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code"':'type="email" maxlength="120" autocomplete="email"')+' required autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="acct-message" '+(!code?'value="'+esc(email)+'"':'')+'><button class="btn btn-dark" type="submit">'+(code?(registration?'Verify and register':'Verify and sign in'):'Send verification code')+'<span aria-hidden="true"> →</span></button></form><p id="acct-message" class="acct-msg" role="status" aria-live="polite">'+esc(msg)+'</p>'+(code?'<button class="acct-link" type="button" data-back>Use a different email</button>':'<button class="acct-link" type="button" data-register>'+(registration?'Already registered? Sign in':'New here? Register your email')+'</button><p class="acct-note acct-privacy">We use your email for account verification and service messages. <a href="privacy.html">Privacy notice</a></p>');
+    body.querySelector('[data-register]')?.addEventListener('click',()=>{registration=!registration;email=body.querySelector('input').value.trim().toLowerCase();msg='';render();focusStep();});
     body.querySelector('[data-back]')?.addEventListener('click',()=>{generation++;step='email';msg='';render();focusStep();});
     body.querySelector('form').addEventListener('submit',async event=>{
       event.preventDefault();if(busy)return;
@@ -68,16 +70,16 @@ function init() {
       if(!wasCode)email=value.toLowerCase();
       setBusy(true);announce(wasCode?'Verifying your code…':'Checking your registered email…');
       try{
-        const result=await accountRequest(wasCode?{step:'verify',email,code:value}:{step:'code',email});
+        const result=await accountRequest(wasCode?{step:'verify',email,code:value}:{step:'code',email,intent:registration?'register':'signin'});
         if(operation!==generation)return;
         if(!result.ok){
-          announce(result.error==='not_registered'?'Email is not registered.':result.error==='limit'?(wasCode?'Too many wrong codes. Please wait 10 minutes.':'Too many requests. Please wait an hour.'):result.error==='email'?'Enter a valid email address.':wasCode?'That code is invalid or expired.':'Could not send your code. Please try again.',true);
+          announce(result.error==='not_registered'?'Email is not registered. Choose Register your email below.':result.error==='limit'?(wasCode?'Too many wrong codes. Please wait 10 minutes.':'Too many requests. Please wait an hour.'):result.error==='email'?'Enter a valid email address.':wasCode?'That code is invalid or expired.':'Could not send your code. Please try again.',true);
           input.setAttribute('aria-invalid','true');input.focus();return;
         }
         if(wasCode){
           if(!result.token||!result.email||(result.subscriptions!==null&&!Array.isArray(result.subscriptions)))throw new Error('Sign-in could not be completed. Please try again.');
           msg='';step='email';setAccountSession(result);
-          status();
+          status();if(purpose){purpose='';close();}
         }else{step='code';msg='';render();focusStep();}
       }catch(error){if(operation===generation)announce(error.message||'Could not reach the service. Please try again.',true);}
       finally{if(operation===generation)setBusy(false);}

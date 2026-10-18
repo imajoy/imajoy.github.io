@@ -38,3 +38,5 @@ html[data-theme=dark] .acct-msg[data-error=true]{color:#f5a6a0}
 @keyframes account-breathe{50%{opacity:.45}}
 @media(max-width:680px){.acct-btn{max-width:155px}.acct-dlg{padding:28px 24px}.commerce-header .back-link{flex-basis:100%;text-align:right}}
 @media(max-width:380px){.pillbar>.acct-btn{max-width:135px;font-size:.6875rem}}
+.account-required{padding:20px;border:1px solid var(--line);border-radius:20px;background:var(--bg2);margin:16px 0}.account-required>b{font-size:.875rem}.account-required p{font-size:.8125rem;line-height:1.8;color:var(--mute);margin:8px 0 14px}.account-required .btn{font-size:.8125rem;min-height:46px}
+.checkout-offer{border:1px solid var(--line);border-radius:18px;padding:16px;margin:18px 0}.checkout-offer legend{font-size:.8125rem;font-weight:600;padding:0 5px}.checkout-offer label{display:flex;align-items:flex-start;gap:9px;font-size:.75rem;line-height:1.8;margin:10px 0;color:var(--ink)}.checkout-offer input{margin-top:5px;accent-color:var(--blue,#326ff0)}.checkout-offer label:has(input:disabled){color:var(--mute)}.acct-privacy{font-size:.6875rem}

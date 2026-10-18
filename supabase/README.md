@@ -1,34 +1,12 @@
-# Ajoy storefront: deployment and activation
+# Current account checkout and download flow
 
-The public homepage is unchanged. This prepares the site and a **new** Supabase Edge Function named `storefront`. Do not modify or replace the existing `activate` function used by the Maya installer.
+See [COMMERCE.md](COMMERCE.md) for the active registration, server-managed PayPal checkout, one-time trial ledger and private downloads. The public installer was removed from the served tree; upload the preserved original to private storage. The storefront notes below describe the earlier, separate pricing/coupon service and must not be treated as activation instructions for the new PayPal flow.
 
-## Current status
+# Legacy storefront pricing and coupon service
 
-- The starting website layout and original 3D hero are restored. The billing page, automatic display pricing, and download page run as static files. Decorative graphics and form entrances use CSS and JavaScript animations.
-- No merchant account exists. Payments are deliberately disabled. Billing details are not submitted, stored, logged, or placed in URLs. `/checkout` returns 503 and creates no order or charge.
-- `js/site-config.js` has an empty `apiBase` until the new function is deployed. Static prices are estimates, not charge authorization. The full regional catalog is server-side; browser estimates are limited fallbacks.
-- Human verification fails closed until Turnstile and private installer storage are configured. There is no fake checkbox, timeout-based pass, or unverified download fallback.
+The remaining notes describe the separate `storefront` quote/coupon/loyalty service, not the active Apps Script account and PayPal flow. `apiBase` remains empty. Its checkout stays disabled. Its old download route is permanently closed; deploy the updated function if an older version is running. Private downloads belong only to the authenticated `commerce` gateway described in [COMMERCE.md](COMMERCE.md).
 
-## Deploy using your existing Supabase project
-
-1. Authenticate the Supabase CLI with your own account and link the existing project. Do not put access tokens in repository files. Merge `[functions.storefront] verify_jwt = false` from `config.toml` into the existing project's config; preserve its other function sections.
-2. Create a Cloudflare Turnstile widget for `imajoy.github.io`. Configure the following via Supabase's secure function environment settings:
-   - `TURNSTILE_SITE_KEY`: public widget key.
-   - `TURNSTILE_SECRET_KEY`: server-only verification secret.
-   - `TURNSTILE_HOSTNAME=imajoy.github.io`.
-   - `ALLOWED_ORIGINS=https://imajoy.github.io` (comma-separated exact origins if adding your own development origin).
-   - `DEFAULT_COUNTRY=US` (only used if approximate IP lookup fails).
-   - `QUOTE_SIGNING_SECRET`: random server-only signing secret of at least 32 bytes.
-   - `INSTALLER_BUCKET=installers`, `INSTALLER_OBJECT=AjoyTools_Setup.py`.
-   Supabase normally supplies `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY` to Edge Functions automatically. Confirm their presence; never expose the service role in frontend config.
-3. Create a **private** Storage bucket `installers`, and upload the existing `downloads/AjoyTools_Setup.py` unchanged. Permit only server access; no anonymous read policy. The backend generates a 60-second URL only after validating Turnstile's success, action, and hostname.
-4. Deploy `supabase functions deploy storefront --project-ref YOUR_PROJECT_REF`. Existing `activate` and other functions must be left unchanged.
-5. Set `js/site-config.js`'s `apiBase` to `https://YOUR_PROJECT_REF.supabase.co/functions/v1/storefront`. This URL is public configuration, not a secret.
-6. Test real Turnstile on the permitted hostname, its failed/expired states, the private signed installer download, and the tab-close fallback. The UI cannot reliably confirm that a browser saved a file: it reports handoff only.
-
-### Existing public installer URLs
-
-The the site Install section's Download Setup button opens verification; the other download links lead to that section. **The installer remains publicly accessible at its existing GitHub Pages URLs and in Git history.** The public homepage also links to it. A private copy and signed link do not retroactively protect those public files. Enforcing exclusive download access requires a separate migration of public-build links and removal of publicly served copies; it cannot undo existing public distribution. This change deliberately leaves the public build and installer bytes unchanged.
+Do not replace the existing Maya `activate` function. Storage setup, trial history, trusted network configuration and PayPal deployment instructions are all in [COMMERCE.md](COMMERCE.md).
 
 ## Pricing
 
@@ -52,7 +30,7 @@ Only after provider sandbox end-to-end validation should `/config` advertise `pa
 
 ## Validation
 
-`node --test tests/*.test.mjs` exercises regional price bounds, forged amounts, seats, CORS, disabled checkout, and successful/failed/expired/incorrect-host human checks with mocked external services. Browser tests must distinguish mocked success flows from a real Supabase/Turnstile deployment.
+`node --test tests/*.test.mjs` exercises regional price bounds, forged amounts, seats, CORS, disabled checkout, and rejection of the legacy download route even with a human-check token. Authenticated downloads and account registration are covered by the commerce tests with mocked external services. Browser tests must distinguish mocked success flows from a real Supabase/Turnstile deployment.
 
 ## Coupon validation
 

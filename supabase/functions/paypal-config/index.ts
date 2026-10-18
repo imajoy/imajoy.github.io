@@ -48,5 +48,10 @@ Deno.serve(async (req: Request) => {
   if (!clientId || !plans) return new Response('{"error":"not configured"}', { status: 503, headers });
   const mode = Deno.env.get('PAYPAL_MODE') === 'live' ? 'live' : 'sandbox';
   const closedCountries = (Deno.env.get('PAYPAL_CLOSED_COUNTRIES') || '').toUpperCase().split(/[^A-Z]+/).filter((c) => c.length === 2);
-  return new Response(JSON.stringify({ mode, clientId, currency: 'USD', plans, country, closedCountries }), { headers });
+  // The browser only needs availability. Subscription IDs are selected privately by Apps Script.
+  const flags = (value: unknown): unknown => {
+    if (value && typeof value === 'object' && !Array.isArray(value)) return Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'productId').map(([key, item]) => [key, flags(item)]));
+    return Boolean(value);
+  };
+  return new Response(JSON.stringify({ mode, clientId, currency: 'USD', plans: flags(plans), country, closedCountries }), { headers });
 });

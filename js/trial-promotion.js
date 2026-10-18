@@ -2,7 +2,7 @@
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261018-j3';
 import {detectGeo,cachedGeo} from './geo.js?v=20261018-h8';
 import {availability,closedMessage} from './regions.js?v=20261018-g5';
-import {getAccountSession,onAccountChange} from './account-session.js?v=20261018-l1';
+import {getAccountSession,onAccountChange} from './account-session.js?v=20261018-n1';
 const ctas=[...document.querySelectorAll('[data-trial-cta]')];
 const notices=[...document.querySelectorAll('[data-trial-status]')];
 const home=document.querySelector('.trial-showcase')?'#pricing':'index.html#pricing';

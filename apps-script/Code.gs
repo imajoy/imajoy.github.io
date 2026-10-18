@@ -1,8 +1,9 @@
 /* Ajoy Tools: one Google Apps Script for the website.
-   1) Download page: saves emails into the "Sheet1" tab (overwrite repeats).
-   2) Orders: after a PayPal subscription, checks it with PayPal, logs it in the "Orders" tab,
+   1) Verified email registration and account sessions use the "Accounts" tab.
+   2) Commerce.gs privately manages checkout/trial eligibility and protected downloads.
+      Orders: after a verified PayPal subscription, logs it in the "Orders" tab,
       emails the buyer a confirmation and emails you a "send the license" reminder.
-   3) setupPlans(): run once to create the 12 regional PayPal plans.
+   3) setupPlans(): run once to create the regional standard and trial PayPal plans.
    Secrets live ONLY in Project Settings > Script properties:
       PAYPAL_MODE = sandbox (or live)
       PAYPAL_CLIENT_ID, PAYPAL_SECRET   (the matching pair for that mode)
@@ -25,17 +26,9 @@ function doPost(e) {
     var raw = (e && e.postData && e.postData.contents) || '';
     var data = {};
     try { data = JSON.parse(raw); } catch (err) { data = { email: (e && e.parameter && e.parameter.email) || '' }; }
-    if (data.type === 'order') {
-      out.setMimeType(ContentService.MimeType.JSON);
-      if (data.accountToken) {
-        var account = readSession_(data.accountToken);
-        if (!account) return out.setContent(JSON.stringify({ r: 'account_expired' }));
-        // The signed session, never the submitted billing email, owns this order.
-        data.email = account.email;
-      }
-      return out.setContent(JSON.stringify(orderReply_(handleOrder_(data), data)));
-    }
-    if (data.type === 'trial') return out.setContent(handleTrial_(data));
+    if (data.type === 'commerce') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleCommerceEnvelope_(data))); }
+    if (data.type === 'order') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify({ r: 'secure_checkout_required' })); }
+    if (data.type === 'trial') return out.setContent('secure_checkout_required');
     if (data.type === 'account') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleAccount_(data))); }
     return out.setContent(saveLead_(String(data.email || '')));
   } catch (err) {
@@ -205,8 +198,8 @@ function handleOrder_(d) {
     var emailLog = [];
     var flags = priceFlags_(planTier_(planId), clip_(d.country, 2).toUpperCase(), detected, payer);
     if (detected && detected !== clip_(d.country, 2).toUpperCase() && flags.length === 0) flags.push('Billing country (' + clip_(d.country, 2) + ') differs from the connection country (' + detected + '), but the price is not lower.');
-    if (trial && seenBefore_(sheet, [email, String(paypalEmail).toLowerCase()].filter(Boolean), subId)) flags.push('REPEAT FREE TRIAL: this email already has an earlier order. Consider cancelling this subscription in PayPal.');
-    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10) + (trial ? ' (2-day trial)' : ''), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, detected, payer, flags.length ? 'CHECK' : 'ok', '', '']);
+    if (trial && [email, String(paypalEmail).toLowerCase()].filter(Boolean).some(function(e){return commerceHistoricalTrial_(e);})) flags.push('REPEAT FREE TRIAL: this email already has an earlier order. Consider cancelling this subscription in PayPal.');
+    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10) + (trial ? ' (2-day trial)' : ''), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, detected, payer, flags.length ? 'CHECK' : 'ok', '', ''].map(safeSheetCell_));
     var orderRow = sheet.getLastRow();
 
     var test = mode_() !== 'live';
@@ -245,7 +238,7 @@ function handleOrder_(d) {
 
 /* ---------- 2a) subscriber account (sign in with an emailed code) ----------
    The site calls this with {type:'account', step:'code'|'verify'|'status', ...}.
-   step 'code'   : emails a 6-digit code, but only if the email has a subscription in the Orders tab.
+   step 'code'   : emails a 6-digit code for a registered email or an explicit registration request.
    step 'verify' : checks the code and returns a session token (valid 30 days), without waiting for PayPal.
    step 'identity': verifies a saved token and returns its canonical email, without calling PayPal.
    step 'status' : checks the token and returns the subscription details again.
@@ -308,13 +301,30 @@ function subscriptionsFor_(email, onlySub) {
   });
   return out;
 }
+/* Accounts are created only after a registration email code has been verified. */
+function safeSheetCell_(value) { return typeof value === 'string' && /^[=+@-]/.test(value) ? "'" + value : value; }
+function registeredEmail_(email) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Accounts');
+  if (sheet && sheet.getLastRow() > 1) {
+    var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues();
+    if (rows.some(function(r) { return String(r[0]).toLowerCase() === email && !!r[1]; })) return true;
+  }
+  return ordersFor_(email).length > 0;
+}
+function registerAccount_(email) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet(), sheet = ss.getSheetByName('Accounts');
+  if (!sheet) { sheet = ss.insertSheet('Accounts'); sheet.appendRow(['Email', 'Verified at', 'Account ID']); sheet.setFrozenRows(1); }
+  var rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues() : [];
+  var existing = rows.filter(function(r) { return String(r[0]).toLowerCase() === email && !!r[1]; })[0];
+  if (!existing) sheet.appendRow([email, new Date(), Utilities.getUuid()].map(safeSheetCell_));
+}
 function handleAccount_(d) {
   var email = clip_(d.email, 120).trim().toLowerCase();
   var step = String(d.step || '');
   if (step === 'status' || step === 'identity') {
     var who = readSession_(d.token);
     if (!who) return { ok: false, error: 'expired' };
-    if (!ordersFor_(who.email, who.sub).length) return { ok: false, error: 'not_registered' };
+    if (!registeredEmail_(who.email)) return { ok: false, error: 'not_registered' };
     var account = { ok: true, email: who.email, limited: !!who.sub, expiresAt: who.expiresAt };
     if (step === 'status') account.subscriptions = subscriptionsFor_(who.email, who.sub);
     return account;
@@ -331,21 +341,26 @@ function handleAccount_(d) {
       if (n >= 5) return { ok: false, error: 'limit' };
       cache.put(key, String(n + 1), 3600);
       // Explicit owner policy: reject an unregistered address before generating or sending a code.
-      if (!ordersFor_(email).length) return { ok: false, error: 'not_registered' };
+      var registered = registeredEmail_(email);
+      var intent = d.intent === 'register' && !registered ? 'register' : 'signin';
+      if (!registered && intent !== 'register') return { ok: false, error: 'not_registered', registrationAvailable: true };
+      cache.put('intent:' + email, intent, 600);
       var code = String(Math.floor(100000 + Math.random() * 900000));
       cache.put('code:' + email, hashCode_(email, code), 600); cache.remove('tries:' + email);
       try { MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: replyTo_(), subject: 'Your Ajoy Tools sign-in code: ' + code,
         body: 'Your sign-in code is ' + code + '\n\nIt works for 10 minutes. If you did not ask for it, you can ignore this email.\n\nAjoy Tools' }); }
       catch (err) { cache.remove('code:' + email); return { ok: false, error: 'mail' }; }
-      return { ok: true, registered: true };
+      return { ok: true, registered: registered, intent: intent };
     }
     var tk = 'tries:' + email, tries = Number(cache.get(tk) || 0);
     if (tries >= 5) return { ok: false, error: 'limit' };
     cache.put(tk, String(tries + 1), 600);
     var want = cache.get('code:' + email), got = String(d.code || '').trim();
     if (!want || !/^\d{6}$/.test(got) || want !== hashCode_(email, got)) return { ok: false, error: 'code' };
-    cache.remove('code:' + email);
-    if (!ordersFor_(email).length) return { ok: false, error: 'not_registered' };
+    var intent = cache.get('intent:' + email);
+    cache.remove('code:' + email); cache.remove('intent:' + email);
+    if (!registeredEmail_(email) && intent !== 'register') return { ok: false, error: 'not_registered' };
+    registerAccount_(email);
     var token = makeSession_(email), identity = readSession_(token);
     return { ok: true, email: email, token: token, expiresAt: identity.expiresAt, subscriptions: null };
   } finally { lock.releaseLock(); }

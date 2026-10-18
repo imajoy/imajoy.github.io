@@ -41,26 +41,10 @@ test('Merchant is unavailable: never accepts billing or creates a charge',async(
  assert.equal((await (await handleRequest(req('/config'),env)).json()).paymentsEnabled,false);
  const response=await handleRequest(req('/checkout',{billing:{email:'not-stored@example.com'},amount:1}),env,()=>{throw Error('No upstream requests allowed');});assert.equal(response.status,503);
 });
-test('Missing or malformed human tokens cannot request a download',async()=>{
- for(const token of ['',null,3,'a'.repeat(2049)])assert.equal((await handleRequest(req('/download',{token}),env,()=>{throw Error('No upstream requests allowed');})).status,400);
-});
-for(const [name,verification] of [['failed',{success:false}],['wrong action',{success:true,action:'checkout',hostname:'imajoy.github.io'}],['wrong hostname',{success:true,action:'download',hostname:'evil.example'}],['expired',{success:false,'error-codes':['timeout-or-duplicate']}]]){
- test(`Reject ${name} verification without generating any installer link`,async()=>{
-  let count=0;const response=await handleRequest(req('/download',{token:'test-token'}),env,async()=>{count++;return jsonResponse(verification);});assert.equal(response.status,403);assert.equal(count,1);
- });
-}
-test('Valid server verification creates a short-lived private storage URL',async()=>{
- const calls=[];const response=await handleRequest(req('/download',{token:'test-token'}),env,async(url,options)=>{
-  calls.push(url);
-  if(url.includes('siteverify'))return jsonResponse({success:true,action:'download',hostname:'imajoy.github.io'});
-  assert.match(url,/object\/sign\/installers\/AjoyTools_Setup.py/);assert.equal(JSON.parse(options.body).expiresIn,60);assert.equal(options.headers.Authorization,'Bearer server-test-key');
-  return jsonResponse({signedURL:'/object/sign/installers/AjoyTools_Setup.py?token=test-signed-token'});
- });
- assert.equal(response.status,200);const result=await response.json();assert.equal(result.expiresIn,60);assert.match(result.url,/^https:\/\/example.supabase.co\/storage\/v1\/object\/sign/);assert.equal(calls.length,2);
- assert(!JSON.stringify(result).includes('server-test-key'));
-});
-test('Unconfigured verification fails closed',async()=>{
- const emptyEnv=k=>k==='ALLOWED_ORIGINS'?origin:undefined;
- assert.equal((await handleRequest(req('/download',{token:'test-token'}),emptyEnv)).status,503);
- assert.equal((await (await handleRequest(req('/config'),emptyEnv)).json()).downloadsEnabled,false);
+test('The legacy download route stays closed even with a valid human token and storage credentials',async()=>{
+ for(const body of [{token:'valid-test-token'},{token:''},{accountToken:'forged',token:'valid-test-token'}]){
+  const response=await handleRequest(req('/download',body),env,()=>{throw Error('Legacy routes must never verify a token or sign a file');});
+  assert.equal(response.status,410);assert.equal((await response.json()).url,undefined);
+ }
+ assert.equal((await (await handleRequest(req('/config'),env)).json()).downloadsEnabled,false);
 });

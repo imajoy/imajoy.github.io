@@ -84,3 +84,5 @@ export function bindAccountEmail(input, hint) {
   sync();
   if (current) verifyAccountSession().catch(() => { /* keep cached identity on a network error; server checks it before checkout */ });
 }
+
+export function openAccount(detail={}) { window.dispatchEvent(new CustomEvent('ajoy-account-open',{detail})); }

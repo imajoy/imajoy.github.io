@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.paypal-config]
 verify_jwt = false
+
+[functions.commerce]
+verify_jwt = false

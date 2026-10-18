@@ -12,7 +12,7 @@ export function loadTrialConfig() {
   })();
   return pending;
 }
-/* planId of the trial plan for this buyer, or '' when there is no trial for this plan, billing period or country */
+/* Display-only trial availability for this buyer (a boolean in the new config), or '' when there is no trial for this plan, billing period or country */
 export function trialPlanId(cfg, plan, billing, country) {
   if (!cfg || !cfg.plans || plan !== 'online') return '';
   if (!availability(country, cfg.closedCountries || []).open) return '';

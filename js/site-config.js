@@ -2,17 +2,18 @@
    Set apiBase to the deployed Supabase storefront function URL when ready. */
 window.AJOY_CONFIG = Object.freeze({
   apiBase: '',
-  /* Length of the free trial shown on the site. The owner creates the trial code by hand (see apps-script/Code.gs). */
+  commerceUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/commerce',
+  /* Length of the PayPal trial shown on the site. Licenses are issued after server approval. */
   trialDays: 2,
   /* Old trial-code request form (replaced by the 2-day PayPal trial on the Online plan). Keep false. */
   trialOpen: false,
   /* Subscriber sign-in (plan and time left). Turn on (true) only after the newest apps-script/Code.gs is deployed. */
   accountOpen: true,
-  /* Download-page email list (Google Sheet). Paste the Apps Script web app URL here.
-     Leave it empty to store nothing. It is a public address, not a secret. */
+  /* Email registration and account sessions (Google Sheets / Apps Script).
+     This is a public address, not a secret. */
   sheetUrl: 'https://script.google.com/macros/s/AKfycbz2Y9PbQsXraKgcNjc_gnyNKs6Qbe7RyDlB2wjhfPSyHhwgGpb_d_EzkFGSxEGipgDJ/exec',
-  /* PayPal settings (Client ID, plan IDs, mode) are not stored here. They are served by the paypal-config
-     Supabase function from private secrets. Never put the PayPal Secret anywhere in this repo. */
+  /* PayPal client ID, mode and plan availability are served by paypal-config.
+     Actual plan IDs and merchant credentials remain on the server. */
   paypalConfigUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/paypal-config',
   // Example: https://YOUR_PROJECT.supabase.co/functions/v1/storefront
 });

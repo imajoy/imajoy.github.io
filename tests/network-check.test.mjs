@@ -32,8 +32,31 @@ test('IPv6 spellings are normalized and comma-separated or private-proxy mismatc
 test('Diagnostic runner only calls the IP service and temporary probe, and rejects cached results',async()=>{
   const calls=[];
   const request=async(url)=>{calls.push(url);if(url.startsWith('https://api64.ipify.org/'))return Response.json({ip});return handleNetworkCheck(new Request(url,{headers:{'cf-connecting-ip':ip}}));};
-  const result=await runNetworkCheck(request);assert(result[0].candidate);assert.equal(calls.length,9);
+  const result=await runNetworkCheck(request);assert(result.headers[0].candidate);assert.equal(calls.length,9);
   assert(calls.every(url=>url.startsWith('https://api64.ipify.org/')||url.includes('/functions/v1/network-check?')));
   await assert.rejects(runNetworkCheck(async url=>url.includes('ipify')?Response.json({ip}):Response.json({nonce:'old',observed:{}})),/cached/);
-  await assert.rejects(runNetworkCheck(async url=>url.includes('ipify')?Response.json({ip}):new Response('',{status:401})),/HTTP 401/);
+  const denied=await runNetworkCheck(async url=>url.includes('ipify')?Response.json({ip}):new Response('',{status:401}));
+  assert.equal(denied.requests.length,1);assert.equal(denied.requests[0].status,401);assert(denied.headers.every(r=>!r.candidate));
+});
+test('A rejected forged-header probe is reported separately and never counted as trusted-header proof',async()=>{
+  let count=0;
+  const result=await runNetworkCheck(async(url,options)=>{
+    if(url.includes('ipify'))return Response.json({ip});
+    count++;
+    if(options.headers['cf-connecting-ip'])return new Response('blocked',{status:403,headers:{server:'cloudflare'}});
+    return handleNetworkCheck(new Request(url,{headers:{'cf-connecting-ip':ip}}));
+  });
+  assert.equal(count,8);assert.equal(result.requests[0].status,200);
+  assert.equal(result.requests[1].status,403);assert.equal(result.requests[1].probe,'forged Cloudflare IPv4');
+  assert.equal(result.requests[1].server,'cloudflare');assert(result.headers.every(r=>!r.candidate));
+  assert.match(result.headers[0].result,/INCONCLUSIVE/);
+});
+test('A blocked normal request stops further probes and identifies its HTTP status',async()=>{
+  let count=0;
+  const result=await runNetworkCheck(async url=>{
+    if(url.includes('ipify'))return Response.json({ip});
+    count++;return new Response('access denied',{status:403,headers:{server:'cloudflare'}});
+  });
+  assert.equal(count,1);assert.equal(result.requests[0].probe,'normal');assert.equal(result.requests[0].status,403);
+  assert(result.headers.every(r=>!r.candidate&&r.result.includes('NORMAL REQUEST BLOCKED')));
 });

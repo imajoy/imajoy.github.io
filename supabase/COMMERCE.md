@@ -54,7 +54,7 @@ node scripts/check-commerce-network.mjs
 
 On Windows PowerShell, use `npx.cmd` in place of `npx`. The probe returns only the caller's two candidate IP headers and a request nonce; it has no account/payment/storage logic or environment access. The local checker compares them with a separate public-IP lookup at `api64.ipify.org`, then makes seven requests containing forged forwarding headers. It prints a result table without printing the addresses. Missing headers, public-IP mismatches, changed values, failed requests and stale responses cannot yield a passing candidate. VPNs or different IPv4/IPv6 routes can produce an inconclusive mismatch.
 
-The checker does **not** set `COMMERCE_CLIENT_IP_HEADER`. A passing candidate is deployment evidence to review alongside the provider's ingress guarantees, not proof of every possible ingress path. Keep the header unset if neither passes or the provider behavior remains uncertain. After reviewing the results, remove the temporary function:
+The checker prints separate per-request HTTP results and candidate-header results. A blocked normal request stops further probes. A rejected forged-header request is reported as inconclusive, not treated as proof that the header was rewritten. HTTP 403 is not automatically diagnosed as a JWT problem. The checker does **not** set `COMMERCE_CLIENT_IP_HEADER`. A passing candidate is deployment evidence to review alongside the provider's ingress guarantees, not proof of every possible ingress path. Keep the header unset if neither passes or the provider behavior remains uncertain. After reviewing the results, remove the temporary function:
 
 ```sh
 npx supabase@latest functions delete network-check --project-ref wsadhewcmpdhojgqzstw

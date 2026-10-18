@@ -45,6 +45,21 @@ Configure private function settings:
 
 Test the deployed route with normal and spoofed headers and confirm the ingress behavior before enabling trials. If neither supported header can be established as trustworthy in your Supabase deployment, keep this setting unset and the trial disabled until a trusted ingress supplies one. Do not set a header name just to make the eligibility UI green. The server cannot verify location for checkout without this network configuration. Downloads and email registration do not require IP eligibility.
 
+An owner diagnostic is provided to make that check reviewable. From the repository folder, deploy the temporary, read-only probe and run the local checker:
+
+```sh
+npx supabase@latest functions deploy network-check --project-ref wsadhewcmpdhojgqzstw --use-api --no-verify-jwt
+node scripts/check-commerce-network.mjs
+```
+
+On Windows PowerShell, use `npx.cmd` in place of `npx`. The probe returns only the caller's two candidate IP headers and a request nonce; it has no account/payment/storage logic or environment access. The local checker compares them with a separate public-IP lookup at `api64.ipify.org`, then makes seven requests containing forged forwarding headers. It prints a result table without printing the addresses. Missing headers, public-IP mismatches, changed values, failed requests and stale responses cannot yield a passing candidate. VPNs or different IPv4/IPv6 routes can produce an inconclusive mismatch.
+
+The checker does **not** set `COMMERCE_CLIENT_IP_HEADER`. A passing candidate is deployment evidence to review alongside the provider's ingress guarantees, not proof of every possible ingress path. Keep the header unset if neither passes or the provider behavior remains uncertain. After reviewing the results, remove the temporary function:
+
+```sh
+npx supabase@latest functions delete network-check --project-ref wsadhewcmpdhojgqzstw
+```
+
 The server hashes the observed IP and browser identifier before forwarding them. Raw addresses are not stored in trial records. Location lookup uses the same `api.country.is` provider already used by the site. The server, not a browser-supplied country or price, chooses its configured PayPal plan. Public `paypal-config` now returns plan availability flags rather than actual plan IDs.
 
 ## 4. Configure and validate PayPal webhooks

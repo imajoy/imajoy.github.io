@@ -1,6 +1,6 @@
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
 import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261018-g5';
-import {rememberGeo} from './geo.js?v=20261018-h8';
+import {rememberGeo,detectGeo} from './geo.js?v=20261019-geo1';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261018-j3';
 import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261018-n1';
 import {secureCommerce} from './commerce-gateway.js?v=20261019-t60';
@@ -15,6 +15,7 @@ if(form&&pay){
  const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let rewardQuote=null,rewardRevision=0,rewardTimer,rewardBusy=false,rewardError='',rewardKey='';
  let cfg=null,eligibility=null,selectedOffer='',trialOn=false,lastTotal=total?.textContent||'—',activeToken='',revision=0,sdkPromise,rendered=false,checkout=null,requestId=crypto.randomUUID();
+ let countryTouched=false;form.elements.country.addEventListener('change',()=>{countryTouched=true;});
  const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
  const say=(text,bad=false,claimed=false)=>{note.textContent=text;note.dataset.bad=bad?'1':'0';note.classList.toggle('is-trial-claimed',claimed);};
  const rewardsSupported=()=>eligibility?.rewardsVersion===1;
@@ -82,7 +83,7 @@ if(form&&pay){
  if(cRemove)cRemove.onclick=()=>{couponCode='';cInput.value='';cRemove.hidden=true;couponSay('Coupon removed.');invalidate();refreshReward();sync();};
  const rewardStatus=document.querySelector('#loyalty-status'),rewardRetry=document.querySelector('#loyalty-send');
  rewardRetry.textContent='Check rewards again';rewardRetry.disabled=false;rewardRetry.onclick=()=>{refreshReward();sync();};
- for(const id of ['loyalty-send','loyalty-change','loyalty-code-panel','loyalty-challenge'])document.getElementById(id).hidden=true;
+ for(const id of ['loyalty-send','loyalty-change','loyalty-code-panel'])document.getElementById(id).hidden=true;
  document.querySelector('.loyalty-fine').textContent='Sign in with your previous subscription email. Rewards apply to a new checkout after paid-history verification. Existing subscriptions keep their agreed schedule. Monthly rewards do not accumulate; extra licenses do not advance a reward.';
  function renderReward(){
   const s=getAccountSession(),q=rewardQuote;
@@ -191,7 +192,7 @@ if(form&&pay){
   }catch(error){say(error.message,true);rendered=false;}
  }
  sync();
- fetch(settings.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async response=>{if(!response.ok)throw Error();cfg=await response.json();rememberGeo(cfg.country);if(cfg.country&&[...form.elements.country.options].some(o=>o.value===cfg.country)){form.elements.country.value=cfg.country;form.elements.country.dispatchEvent(new Event('change'));}box.querySelector('.paypal-test').hidden=cfg.mode==='live';refreshReward();sync();}).catch(()=>say('Secure checkout settings are unavailable. Please try again later.',true));
+ fetch(settings.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async response=>{if(!response.ok)throw Error();cfg=await response.json();box.querySelector('.paypal-test').hidden=cfg.mode==='live';refreshReward();sync();const detected=rememberGeo(cfg.country)||await detectGeo();if(!countryTouched&&detected&&[...form.elements.country.options].some(o=>o.value===detected)){form.elements.country.value=detected;form.elements.country.dispatchEvent(new Event('change'));}}).catch(()=>say('Secure checkout settings are unavailable. Please try again later.',true));
  checkAccount();
  const returning=new URLSearchParams(location.search).get('checkout');if(returning&&getAccountSession())confirm(returning);
 }

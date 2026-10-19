@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { priceFor } from '../supabase/functions/_shared/catalog.js';
 import { handleRequest } from '../supabase/functions/storefront/handler.js';
 const origin='https://imajoy.github.io';
-const envValues={ALLOWED_ORIGINS:origin,DEFAULT_COUNTRY:'US',TURNSTILE_SITE_KEY:'public-test-key',TURNSTILE_SECRET_KEY:'test-secret',TURNSTILE_HOSTNAME:'imajoy.github.io',SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'server-test-key',QUOTE_SIGNING_SECRET:'test-only-signing-key-with-at-least-32-bytes'};
+const envValues={ALLOWED_ORIGINS:origin,DEFAULT_COUNTRY:'US',SUPABASE_URL:'https://example.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'server-test-key',QUOTE_SIGNING_SECRET:'test-only-signing-key-with-at-least-32-bytes'};
 const env=k=>envValues[k];
 const req=(path,body,requestOrigin=origin)=>new Request('https://example.supabase.co/functions/v1/storefront'+path,{method:body?'POST':'GET',headers:{Origin:requestOrigin,'Content-Type':'application/json'},...(body?{body:JSON.stringify(body)}:{})});
 const jsonResponse=data=>new Response(JSON.stringify(data),{headers:{'Content-Type':'application/json'}});

@@ -2,6 +2,7 @@
 (function () {
   'use strict';
   var root = document.documentElement;
+  if (root.dataset.makerMotion === 'skip') return;
   var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (motion.matches) return;
   var started = false;

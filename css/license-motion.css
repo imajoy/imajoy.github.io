@@ -1,0 +1,26 @@
+.home-page .card-stage{position:relative;flex-direction:column;align-items:center;gap:0;isolation:isolate;padding:24px 0 6px;min-width:0}
+.license-float{position:relative;width:min(360px,100%);z-index:2}
+.license-float .lcard{width:100%;will-change:auto}
+.license-status{position:absolute;right:0;top:-19px;display:flex;align-items:center;gap:7px;padding:7px 12px;border:1px solid var(--line);border-radius:999px;background:var(--card);box-shadow:var(--shadow);color:var(--ink);font-size:11px;font-weight:600;z-index:3}
+.license-status i{width:6px;height:6px;background:#35b5a2;border-radius:50%}
+.license-network{position:relative;width:min(350px,100%);padding-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.license-wires{position:absolute;inset:0 0 auto;width:100%;height:50px;overflow:visible;fill:none;stroke:#5d99ed;stroke-width:1.5;opacity:.5}
+.license-seat{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 5px;border:1px solid var(--line);background:var(--card);border-radius:15px;box-shadow:0 8px 18px -12px #3463b35c;color:var(--mute);font-size:10px}
+.license-seat svg{width:28px;height:26px;fill:none;stroke:var(--blue);stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.license-seat::after{content:'✓';position:absolute;right:7px;top:7px;color:#198b72;font-size:10px}
+.license-caption{margin:12px 0 0!important;font-size:10px;color:var(--mute);text-align:center}
+/* Transform and opacity only; fixed geometry keeps the surrounding reading layout still. */
+@media(prefers-reduced-motion:no-preference){
+ .license-float{animation:license-float 6s ease-in-out infinite}
+ .home-page .card-stage .sheen{left:-60%;transform:translateX(0) rotate(12deg);animation:license-light 6s ease-in-out infinite!important}
+ .license-seat{animation:license-seat 6s ease-in-out infinite}
+ .license-seat:nth-of-type(2){animation-delay:180ms}.license-seat:nth-of-type(3){animation-delay:360ms}
+ .license-seat::after{animation:license-check 6s ease-in-out infinite}
+ .card-stage:not([data-license-active]) :is(.license-float,.sheen,.license-seat),.card-stage:not([data-license-active]) .license-seat::after{animation-play-state:paused!important}
+}
+@keyframes license-float{0%,100%{transform:translateY(0) rotate(-1deg)}50%{transform:translateY(-7px) rotate(1deg)}}
+@keyframes license-light{0%,55%{transform:translateX(0) rotate(12deg);opacity:0}60%{opacity:1}95%,100%{transform:translateX(580%) rotate(12deg);opacity:0}}
+@keyframes license-seat{0%,30%,100%{transform:translateY(0)}42%,58%{transform:translateY(-4px)}}
+@keyframes license-check{0%,25%,100%{opacity:.4;transform:scale(.85)}42%,75%{opacity:1;transform:scale(1)}}
+@media(max-width:680px){.home-page .licensebox{padding:28px 22px}.license-float .lc-code{font-size:clamp(12px,3.8vw,21px);letter-spacing:.09em}.license-float .lcard{padding:21px}.license-network{gap:9px}.license-status{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.home-page .card-stage *,.home-page .card-stage *::after,.home-page .card-stage .sheen{animation:none!important;transition:none!important}.license-float .lcard{transform:none}.license-float .sheen{display:none}}

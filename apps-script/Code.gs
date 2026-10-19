@@ -573,23 +573,66 @@ function handleContact_(data) {
       ['general','support','studio','india','privacy','idea'].indexOf(topic)<0 || !/^[a-zA-Z0-9-]{20,80}$/.test(requestId) || data.consent!==true) return {ok:false,error:'invalid'};
   var lock=LockService.getScriptLock();
   if (!lock.tryLock(10000)) return {ok:false,error:'busy'};
+  var held=true;
   try {
-    var cache=CacheService.getScriptCache(),who=sign_('contact:'+email),fingerprint=sign_('contact-body:'+JSON.stringify([name,email,topic,message])),saved=cache.get('contact-receipt:'+requestId);
-    if (saved) { var receipt=JSON.parse(saved);return receipt.who===who&&receipt.fingerprint===fingerprint?{ok:true,reference:receipt.reference}:{ok:false,error:'invalid'}; }
+    var attachment;try{attachment=contactAttachment_(data.attachment);}catch(error){return {ok:false,error:'attachment_invalid'};}
+    var cache=CacheService.getScriptCache(),who=sign_('contact:'+email),fingerprint=sign_('contact-body:'+JSON.stringify([name,email,topic,message,attachment?attachment.sha:''])),saved=cache.get('contact-receipt:'+requestId);
+    if (saved) { var receipt=JSON.parse(saved);return receipt.who===who&&receipt.fingerprint===fingerprint?{ok:true,reference:receipt.reference,attachmentSaved:!!receipt.attachmentSaved}:{ok:false,error:'invalid'}; }
     var key='contact-count:'+who,count=Number(cache.get(key)||0);
     // Per-email/hour and site/day limits reduce bulk abuse without emailing visitors.
     var day=new Date().toISOString().slice(0,10),p=props_(),daily=JSON.parse(p.getProperty('CONTACT_DAILY')||'{}');
     if (daily.day!==day)daily={day:day,count:0};
     if (count>=3 || daily.count>=200) return {ok:false,error:'limit'};
+    // Reserve attempts before external uploads so failures cannot bypass quotas.
+    daily.count++;p.setProperty('CONTACT_DAILY',JSON.stringify(daily));cache.put(key,String(count+1),3600);
+    var attachmentURL='';
+    if(attachment){
+      // Large GitHub transfers must not hold the lock used by registration and commerce.
+      lock.releaseLock();held=false;
+      try{attachmentURL=storeContactAttachment_(attachment,requestId);}catch(error){return {ok:false,error:'attachment_unavailable'};}
+      if(!lock.tryLock(10000))return {ok:false,error:'busy'};held=true;
+      saved=cache.get('contact-receipt:'+requestId);
+      if(saved){var completed=JSON.parse(saved);return completed.fingerprint===fingerprint?{ok:true,reference:completed.reference,attachmentSaved:!!completed.attachmentSaved}:{ok:false,error:'invalid'};}
+    }
     var ss=SpreadsheetApp.getActiveSpreadsheet(),sheet=ss.getSheetByName('Contacts');
     if (!sheet) {sheet=ss.insertSheet('Contacts');sheet.appendRow(['Received at','Reference','Name','Email','Topic','Message','Status','Privacy consent']);sheet.setFrozenRows(1);}
+    sheet.getRange(1,9,1,4).setValues([['Private attachment','Attachment name','Attachment type','Attachment bytes']]);
     var reference='AJ-'+Utilities.getUuid();
     // Strip leading whitespace before formula escaping, including tabs and newlines.
-    sheet.appendRow([new Date(),reference,name,email,topic,message,'New',true].map(safeSheetCell_));
-    daily.count++;p.setProperty('CONTACT_DAILY',JSON.stringify(daily));
-    cache.put(key,String(count+1),3600);
-    cache.put('contact-receipt:'+requestId,JSON.stringify({who:who,fingerprint:fingerprint,reference:reference}),21600);
-    return {ok:true,reference:reference};
+    sheet.appendRow([new Date(),reference,name,email,topic,message,'New',true,attachmentURL,attachment?attachment.name:'',attachment?attachment.type:'',attachment?attachment.bytes.length:''].map(safeSheetCell_));
+    cache.put('contact-receipt:'+requestId,JSON.stringify({who:who,fingerprint:fingerprint,reference:reference,attachmentSaved:!!attachment}),21600);
+    return {ok:true,reference:reference,attachmentSaved:!!attachment};
   } catch (error) {return {ok:false,error:'unavailable'};}
-  finally {lock.releaseLock();}
+  finally {if(held)lock.releaseLock();}
+}
+
+/* Optional media never goes into the public website repository. */
+function contactAttachment_(file) {
+  if(file===undefined||file===null)return null;
+  if(typeof file!=='object'||Array.isArray(file)||typeof file.name!=='string'||file.name.length>180||/[\\/\x00-\x1f]/.test(file.name))throw Error('attachment');
+  var ext=file.name.split('.').pop().toLowerCase(),types={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',mp4:'video/mp4',mov:'video/quicktime'};
+  if(!types[ext]||file.type!==types[ext]||!Number.isInteger(file.size)||file.size<1||file.size>5*1024*1024||typeof file.base64!=='string'||file.base64.length>6990508||file.base64.length%4||!/^[A-Za-z0-9+/]*={0,2}$/.test(file.base64))throw Error('attachment');
+  var bytes=Utilities.base64Decode(file.base64);if(bytes.length!==file.size)throw Error('attachment');
+  var b=bytes.slice(0,32).map(function(n){return(n+256)%256;}),text=function(start,end){return String.fromCharCode.apply(null,b.slice(start,end));};
+  var valid=ext==='png'?b.length>=8&&[137,80,78,71,13,10,26,10].every(function(n,i){return b[i]===n;}):ext==='jpg'||ext==='jpeg'?b[0]===255&&b[1]===216&&b[2]===255:ext==='gif'?['GIF87a','GIF89a'].indexOf(text(0,6))>=0:b.length>=12&&(text(4,8)==='ftyp'||ext==='mov'&&['moov','mdat','wide','free'].indexOf(text(4,8))>=0);
+  if(!valid)throw Error('attachment');
+  var header=Utilities.newBlob('blob '+bytes.length+'\0').getBytes(),sha=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_1,header.concat(bytes)).map(function(n){return('0'+((n+256)%256).toString(16)).slice(-2);}).join('');
+  return {name:file.name,type:types[ext],extension:ext==='jpeg'?'jpg':ext,bytes:bytes,base64:Utilities.base64Encode(bytes),sha:sha};
+}
+function storeContactAttachment_(file,requestId) {
+  var repo=props_().getProperty('CONTACT_GITHUB_REPO')||'imajoy/Ajoy-Tools-Contact-Details',token=props_().getProperty('CONTACT_GITHUB_TOKEN');
+  if(!token||!/^([A-Za-z0-9][A-Za-z0-9_.-]{0,99})\/([A-Za-z0-9][A-Za-z0-9_.-]{0,99})$/.test(repo))throw Error('storage');
+  var headers={Authorization:'Bearer '+token,Accept:'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'},base='https://api.github.com/repos/'+repo;
+  function github(url,options){var response=UrlFetchApp.fetch(url,Object.assign({headers:headers,muteHttpExceptions:true},options||{}));var data;try{data=JSON.parse(response.getContentText());}catch(error){throw Error('storage');}return {status:response.getResponseCode(),data:data};}
+  // Recheck every submission: a repository made public must stop accepting attachments.
+  var metadata=github(base);if(metadata.status!==200||metadata.data.private!==true||metadata.data.full_name.toLowerCase()!==repo.toLowerCase())throw Error('storage');
+  var path='contact-details/'+requestId+'/attachment.'+file.extension,url=base+'/contents/'+path,existing=github(url),stored;
+  if(existing.status===200){if(existing.data.sha!==file.sha)throw Error('storage');stored=existing.data;}
+  else {
+    if(existing.status!==404&&!(existing.status===409&&metadata.data.size===0&&/repository is empty/i.test(existing.data.message||'')))throw Error('storage');
+    var result=github(url,{method:'put',contentType:'application/json',payload:JSON.stringify({message:'Store private contact attachment',content:file.base64})});
+    if(result.status!==201||result.data.content?.sha!==file.sha)throw Error('storage');stored=result.data.content;
+  }
+  if(typeof stored.html_url!=='string'||stored.html_url.indexOf('https://github.com/'+repo+'/blob/')!==0)throw Error('storage');
+  return stored.html_url;
 }

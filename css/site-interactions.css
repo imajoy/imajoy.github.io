@@ -1,14 +1,14 @@
 /* Shared, restrained feedback. Dense policy text and active form fields stay still. */
 :root{--interaction-shadow:0 12px 28px -18px #326ff080}
-:is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.policy-help,.policy-switch a,.s-card,.s-contact-card,.tool-trial){--hover-x:50%;--hover-y:50%;transition:transform 240ms cubic-bezier(.2,.8,.2,1),box-shadow 240ms,border-color 240ms,background-color 240ms}
-:is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.tool-trial):focus-within{border-color:#669eff;box-shadow:0 0 0 3px #3d8bff12,var(--interaction-shadow)}
+:is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.policy-help,.policy-switch a,.s-card,.s-contact-card,.s-slot,.s-point,.tool-trial){--hover-x:50%;--hover-y:50%;transition:transform 240ms cubic-bezier(.2,.8,.2,1),box-shadow 240ms,border-color 240ms,background-color 240ms}
+:is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.s-slot,.s-point,.tool-trial):focus-within{border-color:#669eff;box-shadow:0 0 0 3px #3d8bff12,var(--interaction-shadow)}
 .btn:focus-visible,.trial-banner:focus-visible,.policy-help:focus-visible,.policy-switch a:focus-visible{outline:2px solid var(--blue,#326ff0);outline-offset:4px}
 @media(hover:hover) and (pointer:fine){
- :is(.btn:not(:disabled):not([aria-disabled=true]),.trial-banner,.offer-inline,.policy-highlights article,.policy-help,.policy-switch a,.s-card,.s-contact-card,.tool-trial):hover{transform:translateY(-3px);border-color:#78aaff;box-shadow:0 0 0 1px #3d8bff24,0 15px 32px -20px #326ff08a}
+ :is(.btn:not(:disabled):not([aria-disabled=true]),.trial-banner,.offer-inline,.policy-highlights article,.policy-help,.policy-switch a,.s-card,.s-contact-card,.s-slot,.s-point,.tool-trial):hover{transform:translateY(-3px);border-color:#78aaff;box-shadow:0 0 0 1px #3d8bff24,0 15px 32px -20px #326ff08a}
  .home-page .trial-banner:hover{transform:translateY(-3px) scale(1.012);box-shadow:0 0 0 1px #8bbaff60,0 18px 38px -15px #1c4e9d70}
- :is(.btn:not(:disabled),.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.tool-trial){position:relative;isolation:isolate}
- :is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.tool-trial)::before{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(170px circle at var(--hover-x) var(--hover-y),#86b6ff26,transparent 75%);opacity:0;pointer-events:none;transition:opacity 240ms;z-index:-1}
- :is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.tool-trial):hover::before{opacity:1}
+ :is(.btn:not(:disabled),.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.s-slot,.s-point,.tool-trial){position:relative;isolation:isolate}
+ :is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.s-slot,.s-point,.tool-trial)::before{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(170px circle at var(--hover-x) var(--hover-y),#86b6ff26,transparent 75%);opacity:0;pointer-events:none;transition:opacity 240ms;z-index:-1}
+ :is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.s-slot,.s-point,.tool-trial):hover::before{opacity:1}
 }
 /* Maker-home account controls share the existing email-code dialog. */
 .studio-page .acct-btn{font:600 .8125rem var(--sans);border:1px solid var(--line);border-radius:999px;padding:10px 14px;color:var(--ink);background:transparent;justify-content:center;white-space:nowrap;cursor:pointer}
@@ -34,4 +34,4 @@
 @media(prefers-reduced-motion:no-preference){.guest-prompt:not([hidden]){animation:guest-arrive 360ms cubic-bezier(.16,1,.3,1) backwards}}
 @keyframes guest-arrive{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
 @media(max-width:680px){.guest-prompt{inset:auto 16px calc(20px + env(safe-area-inset-bottom)) auto;padding:24px}.home-page .guest-prompt{bottom:calc(100px + env(safe-area-inset-bottom))}}
-@media(prefers-reduced-motion:reduce){:is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.policy-help,.policy-switch a,.s-card,.s-contact-card,.tool-trial){transition:none!important}:is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.policy-help,.policy-switch a,.s-card,.s-contact-card,.tool-trial):hover{transform:none!important}.guest-prompt{animation:none!important}}
+@media(prefers-reduced-motion:reduce){:is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.policy-help,.policy-switch a,.s-card,.s-contact-card,.s-slot,.s-point,.tool-trial){transition:none!important}:is(.btn,.trial-banner,.offer-inline,.policy-highlights article,.policy-help,.policy-switch a,.s-card,.s-contact-card,.s-slot,.s-point,.tool-trial):hover{transform:none!important}.guest-prompt{animation:none!important}}

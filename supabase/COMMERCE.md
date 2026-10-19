@@ -28,7 +28,7 @@ Deploy with **Deploy → Manage deployments → Edit → New version → Deploy*
 
 ## 3. Deploy the Supabase functions
 
-Deploy `commerce`, the updated `paypal-config`, and the updated `storefront` if that older function is deployed; retain existing `activate` and other functions. The legacy storefront download route now returns 410 and cannot bypass registration, even with a valid CAPTCHA token. `verify_jwt=false` is intentional: the commerce function validates the site's signed account sessions through Apps Script. Supabase JWTs are not this authentication system.
+Deploy `commerce`, the updated `paypal-config`, and the updated `storefront` if that older function is deployed; retain existing `activate` and other functions. The legacy storefront download route now returns 410 and cannot bypass registration, even with a supplied download token. `verify_jwt=false` is intentional: the commerce function validates the site's signed account sessions through Apps Script. Supabase JWTs are not this authentication system.
 
 Configure private function settings:
 
@@ -60,7 +60,7 @@ The checker prints separate per-request HTTP results and candidate-header result
 npx supabase@latest functions delete network-check --project-ref wsadhewcmpdhojgqzstw
 ```
 
-The server hashes the observed IP and browser identifier before forwarding them. Raw addresses are not stored in trial records. Location lookup uses the same `api.country.is` provider already used by the site. The server, not a browser-supplied country or price, chooses its configured PayPal plan. Public `paypal-config` now returns plan availability flags rather than actual plan IDs.
+The server hashes the observed IP and browser identifier before forwarding them. Raw addresses are not stored in trial records. Location lookup tries country.is and then GeoJS using only the configured, verified ingress IP header. The display-only browser lookup also falls back between those providers when the edge cannot determine a country. The server, not a browser-supplied country or price, chooses its configured PayPal plan. Public `paypal-config` now returns plan availability flags rather than actual plan IDs.
 
 ## 4. Configure and validate PayPal webhooks
 
@@ -128,3 +128,14 @@ Rules:
 - Coupons are not combined with these rewards. Coupon codes are managed in the Sheet's **Coupons** tab (Code, Percent off, Payments discounted, Expires on, Plan, Billing, Max uses, Used, Active, Note). A valid coupon replaces any reward on that checkout, can be used once per verified account, never applies to the free trial, and is billed through the same discounted-then-standard PayPal plan mechanism. `Used` is updated automatically after a confirmed checkout.
 
 Validate with separate Sandbox accounts/history: no previous paid period → no reward; one monthly paid period → 5% for payments 2 and 3; two → 5% for payment 3 only; three or more → no reward; one yearly paid period → 10% once; two or more yearly paid periods → no reward. Verify quantity totals, cancellation, duplicate requests and the standard-price phase in PayPal. Automated tests mock provider responses; an actual Sandbox approval of a generated reward plan is still required after deployment.
+
+## Country lookup updates
+
+Deploy updated lookup code after pulling this version:
+
+```powershell
+npx.cmd supabase@latest functions deploy paypal-config --project-ref wsadhewcmpdhojgqzstw --use-api --no-verify-jwt
+npx.cmd supabase@latest functions deploy commerce --project-ref wsadhewcmpdhojgqzstw --use-api --no-verify-jwt
+```
+
+Leave `COMMERCE_CLIENT_IP_HEADER` unset unless the ingress checks above have verified it. An unknown edge country is intentional when the IP cannot be trusted; the browser can still estimate the visitor country directly with country.is or GeoJS for display. These estimates do not authorize payment or establish trial eligibility. Neither a chosen billing country nor a forged forwarding/country header supplies trusted server location.

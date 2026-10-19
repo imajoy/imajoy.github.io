@@ -20,13 +20,34 @@ See [reward activation and checks](../supabase/COMMERCE.md#returning-subscriber-
 
 ## Activate the contact form
 
-The new `/contact.html` form uses the **same private spreadsheet and existing web app URL** as account sign-in. It needs no new secret and does not send verification or marketing emails.
+The new `/contact.html` form uses the **same private spreadsheet and existing web app URL** as account sign-in. Text-only messages need no new secret and do not send verification or marketing emails. Optional attachments use the private GitHub setup below.
 
 1. Open your existing spreadsheet → **Extensions → Apps Script**.
 2. Replace the contents of **Code.gs** with this repository’s updated [Code.gs](Code.gs). Keep **Commerce.gs**, **Loyalty.gs**, all Script properties and the existing deployment.
 3. Choose **Deploy → Manage deployments → pencil/Edit → Version: New version → Deploy**. Keep **Execute as: Me** and access **Anyone**. A GitHub push alone does not publish Apps Script.
 4. Open your site’s **Contact** page and send one test message. The **Contacts** tab is created automatically in the same spreadsheet. Confirm the row contains your message and the reference shown on the page. Reply manually to the address in the Email column and update Status as needed.
 
-Columns: Received at, Reference, Name, Email, Topic, Message, Status, Privacy consent. Keep this spreadsheet private; do not publish it or share a public edit link. Contact submissions do not create an account or enrol visitors in marketing. The website confirms success only after the service returns a saved-message reference. Until you redeploy, visitors receive an honest retry message and their form text stays intact.
+Columns: Received at, Reference, Name, Email, Topic, Message, Status, Privacy consent, Private attachment, Attachment name, Attachment type, Attachment bytes. Keep this spreadsheet private; do not publish it or share a public edit link. Contact submissions do not create an account or enrol visitors in marketing. The website confirms success only after the service returns a saved-message reference. Until you redeploy, visitors receive an honest retry message and their form text stays intact.
 
-The endpoint validates field lengths, topics and consent, rejects the hidden spam field, escapes spreadsheet formulas and limits submissions (three per email per hour, 200 site-wide per UTC day). Retries with the same request ID reuse a receipt for six hours. This is basic abuse protection, not a claim of a verified human identity.
+The endpoint validates field lengths, topics and consent, rejects the hidden spam field, escapes spreadsheet formulas and limits submissions (three attempts per email per hour, 200 site-wide per UTC day). Retries with the same request ID reuse a receipt for six hours. This is basic abuse protection, not a claim of a verified human identity.
+
+
+## Activate private contact attachments
+
+The selected repository is **`imajoy/Ajoy-Tools-Contact-Details`**, separate from the public website. Files go to **`contact-details/<request-id>/attachment.<extension>`**; the Contacts row contains the private file link. The website does not receive a GitHub token or a public download URL.
+
+1. In GitHub create **Ajoy-Tools-Contact-Details** under **imajoy**, choose **Private**, and keep it private. If you already created it, use that repository’s exact `owner/name` below. A README is optional; the first successful attachment can initialise an empty repository.
+2. In GitHub → **Settings → Developer settings → Personal access tokens → Fine-grained tokens**, generate a token limited to this repository. Grant **Repository permissions → Contents: Read and write**; Metadata read access is included automatically. Choose an expiry and renew the token before it expires. Do not use the public website repo or grant access to every repo.
+3. In your existing Apps Script project → **Project settings → Script properties**, add:
+
+   | Name | Value |
+   | --- | --- |
+   | `CONTACT_GITHUB_REPO` | `imajoy/Ajoy-Tools-Contact-Details` |
+   | `CONTACT_GITHUB_TOKEN` | Your fine-grained token, entered only in this private setting |
+
+4. Replace **Code.gs** with the updated repository file. Keep **Commerce.gs**, **Loyalty.gs**, other properties and the same web app URL. **Deploy → Manage deployments → Edit → New version → Deploy**.
+5. As a guest, send a small PNG from `/contact.html`. Check its Contacts row and private GitHub link while signed into your GitHub account. Repeat with a short MP4 if needed. Sending a message must not create an Accounts row or send an OTP.
+
+The form accepts one optional PNG, JPEG, GIF, MP4 or MOV, **5 MB maximum per file** (5 × 1,024 × 1,024 bytes). Both client and server check the extension, size, MIME type and file signature. Files are uploaded only after Send, not when selected. The server rechecks repository privacy before every upload and refuses public repositories. Uploads release the shared script lock while calling GitHub so they do not block registration and commerce. Messages without attachments continue to work if attachment storage is unconfigured. Failed uploads keep the draft and selection in the browser and never receive a false success confirmation.
+
+GitHub retains file versions in Git history. Deleting a current file alone does not erase older versions; use GitHub’s supported history-cleanup procedures when a deletion request requires it, and review provider backup retention. Keep the contact spreadsheet and repository private.

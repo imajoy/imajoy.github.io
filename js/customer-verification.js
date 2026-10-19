@@ -1,4 +1,4 @@
-import {api,mountTurnstile} from './commerce.js?v=20261018-g5';
+import {api} from './commerce.js?v=20261019-complete1';
 let session=null,version=0,resetUI=()=>{};
 export const customerVersion=()=>version;
 export const customerHeaders=()=>session&&session.expiresAt>Date.now()?{Authorization:'Bearer '+session.accessToken}:{};
@@ -17,14 +17,13 @@ export function showCustomerReward(quote){
 export function initializeCustomerVerification(config,onChange){
  const panel=document.querySelector('#customer-verification'),email=document.querySelector('#email');
  const send=document.querySelector('#loyalty-send'),verify=document.querySelector('#loyalty-verify'),change=document.querySelector('#loyalty-change');
- const code=document.querySelector('#loyalty-code'),codePanel=document.querySelector('#loyalty-code-panel'),challenge=document.querySelector('#loyalty-challenge'),notice=document.querySelector('#loyalty-status');
- let widget,generation=0,expiryTimer,requestEmail='',busy=false;
+ const code=document.querySelector('#loyalty-code'),codePanel=document.querySelector('#loyalty-code-panel'),notice=document.querySelector('#loyalty-status');
+ let generation=0,expiryTimer,requestEmail='',busy=false;
  const normalizedEmail=()=>email.value.trim().toLowerCase();
  const message=(text,error=false)=>{notice.textContent=text;notice.dataset.error=String(error);};
  const setBusy=value=>{busy=value;panel.setAttribute('aria-busy',String(value));send.disabled=value||!config?.enabled;verify.disabled=value;};
- const removeWidget=()=>{if(widget!==undefined&&window.turnstile){window.turnstile.remove(widget);widget=undefined;}challenge.hidden=true;challenge.replaceChildren();};
  const reset=(text)=>{
-  generation++;version++;session=null;requestEmail='';clearTimeout(expiryTimer);removeWidget();code.value='';codePanel.hidden=true;change.hidden=true;send.hidden=false;send.textContent='Verify subscription email';setBusy(false);
+  generation++;version++;session=null;requestEmail='';clearTimeout(expiryTimer);code.value='';codePanel.hidden=true;change.hidden=true;send.hidden=false;send.textContent='Verify subscription email';setBusy(false);
   message(text||'Use the email from your previous subscription to check your rewards.');onChange();
  };
  resetUI=reset;
@@ -34,7 +33,7 @@ export function initializeCustomerVerification(config,onChange){
  panel.toggleAttribute('data-preview',!live);
  const fineText=panel.querySelector('.loyalty-fine');
  if(!live){
-  send.hidden=true;change.hidden=true;codePanel.hidden=true;challenge.hidden=true;setBusy(false);message('');
+  send.hidden=true;change.hidden=true;codePanel.hidden=true;setBusy(false);message('');
   if(fineText)fineText.textContent='Your reward is applied automatically when you subscribe again with the same email. Monthly rewards do not accumulate. Multiple licenses do not advance a reward.';
   return;
  }
@@ -51,21 +50,13 @@ export function initializeCustomerVerification(config,onChange){
   if(busy)return;
   if(customerVerified()){onChange();return;}
   if(!email.reportValidity())return;
-  const operation=++generation,target=normalizedEmail();requestEmail=target;setBusy(true);message('Complete the human check to request your email code.');removeWidget();challenge.hidden=false;
+  const operation=++generation,target=normalizedEmail();requestEmail=target;setBusy(true);message('Requesting your email code…');
   try{
-   widget=await mountTurnstile('#loyalty-challenge',config.turnstileSiteKey,async token=>{
-    if(operation!==generation)return;
-    if(!token){generation++;removeWidget();setBusy(false);message('The human check expired. Request a new code.',true);return;}
-    try{
-     message('Requesting your email code…');
-     await authRequest('/otp',{email:target,create_user:true,gotrue_meta_security:{captcha_token:token}});
-     if(operation!==generation||target!==normalizedEmail())return;
-     codePanel.hidden=false;code.value='';send.textContent='Send a new code';message('If this address can receive a code, it will arrive shortly. Enter it below.');code.focus();
-    }catch(e){if(operation===generation)message(e.message,true);}
-    finally{if(operation===generation){removeWidget();setBusy(false);}}
-   },text=>{if(operation===generation){message(text,true);removeWidget();setBusy(false);}},'loyalty','compact');
-   if(operation!==generation)removeWidget();
-  }catch(e){if(operation===generation){message(e.message,true);removeWidget();setBusy(false);}}
+   await authRequest('/otp',{email:target,create_user:true});
+   if(operation!==generation||target!==normalizedEmail())return;
+   codePanel.hidden=false;code.value='';send.textContent='Send a new code';message('If this address can receive a code, it will arrive shortly. Enter it below.');code.focus();
+  }catch(e){if(operation===generation)message(e.message,true);}
+  finally{if(operation===generation)setBusy(false);}
  });
  async function verifyCode(){
   if(busy)return;

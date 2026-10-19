@@ -7,7 +7,7 @@ import {handleRequest} from '../supabase/functions/storefront/handler.js';
 import {emailHash} from '../supabase/functions/_shared/customer.js';
 const id='11111111-1111-4111-8111-111111111111',customer={id,email:'owner@example.test'};
 const history=(monthly=0,yearly=0,usedRewards=[])=>({paidPurchases:monthly+yearly,monthlyPaidPeriods:monthly,yearlyPaidPeriods:yearly,usedRewards,historyVersion:'test-ledger-revision'});
-const origin='https://imajoy.github.io',values={ALLOWED_ORIGINS:origin,SUPABASE_URL:'https://project.supabase.co',SUPABASE_ANON_KEY:'sb_publishable_test_only',SUPABASE_SERVICE_ROLE_KEY:'private-service-key',AUTH_TURNSTILE_SITE_KEY:'public-captcha-key',QUOTE_SIGNING_SECRET:'private-quote-signing-secret-at-least-32-bytes',LOYALTY_ENABLED:'true'};
+const origin='https://imajoy.github.io',values={ALLOWED_ORIGINS:origin,SUPABASE_URL:'https://project.supabase.co',SUPABASE_ANON_KEY:'sb_publishable_test_only',SUPABASE_SERVICE_ROLE_KEY:'private-service-key',QUOTE_SIGNING_SECRET:'private-quote-signing-secret-at-least-32-bytes',LOYALTY_ENABLED:'true'};
 const env=key=>values[key];
 const response=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json'}});
 const request=(path,{method='GET',body,token='test-access-token-with-enough-characters'}={})=>new Request('https://project.supabase.co/functions/v1/storefront'+path,{method,headers:{Origin:origin,...(token?{Authorization:'Bearer '+token}:{}),...(body?{'Content-Type':'application/json'}:{})},...(body?{body:JSON.stringify(body)}:{})});

@@ -1,6 +1,6 @@
 import {localApprox} from './fx.js?v=20261018-h8';
-import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry,mountTurnstile} from './commerce.js?v=20261018-g5';
-import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261018-r17';
+import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry} from './commerce.js?v=20261019-complete1';
+import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261019-contact2';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
 const params=new URLSearchParams(location.search);
 form.elements.plan.value=['online','offline'].includes(params.get('plan'))?params.get('plan'):'online';
@@ -10,7 +10,7 @@ const names=new Intl.DisplayNames([navigator.language||'en'],{type:'region'});
 const countries=codes.map(code=>[code,names.of(code)]).sort((a,b)=>a[1].localeCompare(b[1]));
 for(const [code,name] of countries){const o=new Option(name,code);form.elements.country.add(o);}
 form.elements.country.value=suggestedCountry();
-let config={paymentsEnabled:false},quote=null,turnstileToken='',quoteRevision=0;
+let config={paymentsEnabled:false},quote=null,quoteRevision=0;
 const quantity=form.elements.seats,less=document.querySelector('#quantity-less'),more=document.querySelector('#quantity-more');
 const couponInput=form.elements.couponCode,couponApply=document.querySelector('#coupon-apply'),couponRemove=document.querySelector('#coupon-remove'),couponStatus=document.querySelector('#coupon-status');
 let quantityTimer,appliedCoupon='',couponBusy=false,couponOperation=0;
@@ -27,7 +27,7 @@ for(const [button,step] of [[less,-1],[more,1]])button.addEventListener('click',
  quantity.dispatchEvent(new Event('input',{bubbles:true}));quantity.dispatchEvent(new Event('change',{bubbles:true}));
 });
 function selection(){return {plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(quantity.value),country:form.elements.country.value};}
-function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!quote.quoteToken||!turnstileToken||couponBusy||Boolean(quote?.customerId&&!customerVerified());pay.textContent=!config.paymentsEnabled?'Payments opening soon':'Continue to secure payment';}
+function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!quote.quoteToken||couponBusy||Boolean(quote?.customerId&&!customerVerified());pay.textContent=!config.paymentsEnabled?'Payments opening soon':'Continue to secure payment';}
 function showQuote(data){
  quote=data;
  const upsell=document.querySelector('#yearly-upsell');
@@ -117,7 +117,6 @@ async function init(){
  if(!config.paymentsEnabled&&!configFailed)document.querySelector('#availability').textContent=config.loyalty?.enabled?'Payments are opening soon. You can review your plan and available rewards; no order or charge will be created.':'Payments are opening soon. You can review your plan; no order or charge will be created.';
  else if(config.paymentsEnabled){
   document.querySelector('#availability').textContent='Review your billing details, then continue to our payment partner to confirm tax and complete your subscription.';
-  try{await mountTurnstile('#checkout-verification',config.turnstileSiteKey,token=>{turnstileToken=token;updateButton();},message=>{status.textContent=message;},'checkout');}catch(e){status.textContent=e.message;}
  }
  if(!window.AJOY_CONFIG?.commerceUrl)initializeCustomerVerification(config.loyalty,()=>{
   couponOperation++;couponBusy=false;appliedCoupon='';couponApply.disabled=false;couponApply.textContent='Apply';couponRemove.hidden=true;couponMessage('Enter your code to check eligibility.');render();
@@ -127,16 +126,16 @@ async function init(){
 form.addEventListener('submit',async event=>{
  event.preventDefault();if(!form.reportValidity())return;
  if(!config.paymentsEnabled){status.textContent='Payments are not open yet. No billing details have been submitted.';return;}
- if(!quote||quote.preview||!quote.quoteToken||!turnstileToken||couponBusy){status.textContent='Please refresh your price and complete human verification.';return;}
+ if(!quote||quote.preview||!quote.quoteToken||couponBusy){status.textContent='Please refresh your price before continuing.';return;}
  if(quote.expiresAt<=Date.now()){await render();status.textContent='Your price has been refreshed. Review the total, then continue.';return;}
  pay.disabled=true;status.textContent='Preparing secure checkout…';
  try{
   const data=Object.fromEntries(new FormData(form));
-  const result=await api('/checkout',{method:'POST',headers:customerHeaders(),body:JSON.stringify({billing:data,quoteToken:quote.quoteToken,couponCode:appliedCoupon||undefined,turnstileToken})});
+  const result=await api('/checkout',{method:'POST',headers:customerHeaders(),body:JSON.stringify({billing:data,quoteToken:quote.quoteToken,couponCode:appliedCoupon||undefined})});
   const destination=new URL(result.url);
   if(destination.protocol!=='https:'||!['checkout.stripe.com','www.paypal.com','api.razorpay.com','rzp.io'].includes(destination.hostname))throw new Error('Invalid payment destination. Please contact support.');
   location.assign(destination.href);
- }catch(e){status.textContent=e.message;turnstileToken='';if(window.turnstile)window.turnstile.reset();updateButton();}
+ }catch(e){status.textContent=e.message;updateButton();}
 });
 init();
 document.querySelector('#choose-yearly').addEventListener('click',()=>{

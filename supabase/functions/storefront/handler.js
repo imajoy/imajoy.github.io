@@ -32,8 +32,8 @@ export async function handleRequest(req,env=defaultEnv,request=fetch){
  if(req.method==='OPTIONS')return new Response(null,{status:204,headers:cors});
  const path=new URL(req.url).pathname.replace(/^.*\/storefront/,'')||'/';
  try{
-  if(req.method==='GET'&&path==='/config')return json({paymentsEnabled:false,downloadsEnabled:false,turnstileSiteKey:env('TURNSTILE_SITE_KEY')||null,
-   loyalty:loyaltyEnabled(env)?{enabled:true,authUrl:env('SUPABASE_URL').replace(/\/$/,'')+'/auth/v1',publicKey:env('SUPABASE_ANON_KEY'),turnstileSiteKey:env('AUTH_TURNSTILE_SITE_KEY')}:{enabled:false}});
+  if(req.method==='GET'&&path==='/config')return json({paymentsEnabled:false,downloadsEnabled:false,
+   loyalty:loyaltyEnabled(env)?{enabled:true,authUrl:env('SUPABASE_URL').replace(/\/$/,'')+'/auth/v1',publicKey:env('SUPABASE_ANON_KEY')}:{enabled:false}});
   if(req.method==='GET'&&path==='/quote'){
    const params=new URL(req.url).searchParams;
    const requested=params.get('country');

@@ -1,6 +1,6 @@
 /* A cursor-lit surface, shared across product, maker and legal pages. */
 if(matchMedia('(hover:hover) and (pointer:fine)').matches&&!matchMedia('(prefers-reduced-motion:reduce)').matches){
- const selector='.btn,.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.tool-trial';
+ const selector='.btn,.trial-banner,.offer-inline,.policy-highlights article,.s-card,.s-contact-card,.s-slot,.s-point,.tool-trial';
  let pending=false,target=null,x=0,y=0;
  document.addEventListener('pointermove',event=>{
   const surface=event.target.closest(selector);if(!surface)return;

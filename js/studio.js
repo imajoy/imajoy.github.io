@@ -10,6 +10,13 @@
     label();
   });
   var year = document.getElementById('year'); if (year) year.textContent = new Date().getFullYear();
+  var shelf=document.querySelector('.s-shelf'),shelfVisible=false;
+  if(shelf){
+    var preference=matchMedia('(prefers-reduced-motion:reduce)');
+    var syncShelf=function(){shelf.toggleAttribute('data-motion-paused',!shelfVisible||document.hidden||preference.matches);};
+    if('IntersectionObserver'in window)new IntersectionObserver(function(entries){shelfVisible=entries[0].isIntersecting;syncShelf();}).observe(shelf);
+    document.addEventListener('visibilitychange',syncShelf);preference.addEventListener('change',syncShelf);syncShelf();
+  }
   if (!('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
   var items = document.querySelectorAll('.s-head, .s-card, .s-point, .s-contact-card');
   root.classList.add('js-ready');

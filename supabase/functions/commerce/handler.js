@@ -1,19 +1,12 @@
+import {trustedIp} from '../_shared/network.js';
+export {trustedIp} from '../_shared/network.js';
+import {createCountryLookup} from '../_shared/country.js';
 /* Trusted network boundary. Private records and PayPal credentials stay in Apps Script. */
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 const encoder=new TextEncoder();
 export async function keyedHash(secret,text){
  const key=await crypto.subtle.importKey('raw',encoder.encode(secret),{name:'HMAC',hash:'SHA-256'},false,['sign']);
  return [...new Uint8Array(await crypto.subtle.sign('HMAC',key,encoder.encode(text)))].map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-export function trustedIp(req,env){
- // Set this only to a header the deployed ingress strips and overwrites; never trust arbitrary X-Forwarded-For.
- const name=env('COMMERCE_CLIENT_IP_HEADER');
- if(!['cf-connecting-ip','x-real-ip'].includes(name))return '';
- const value=(req.headers.get(name)||'').trim().toLowerCase();
- if(value.includes(',')||!(/^(?:\d{1,3}\.){3}\d{1,3}$/.test(value)||/^[0-9a-f:]+$/.test(value)&&value.includes(':')))return '';
- if(value.includes('.'))return value.split('.').every(n=>Number(n)<=255)?value.split('.').map(Number).join('.'):'';
- // URL canonicalizes equivalent IPv6 spellings so the same address cannot claim twice by changing notation.
- try{return new URL('http://['+value+']/').hostname.slice(1,-1);}catch{return '';}
 }
 export async function handleCommerceRequest(req,env,request=fetch){
  const origin=req.headers.get('origin')||'',allowed=(env('ALLOWED_ORIGINS')||'https://imajoy.github.io').split(',').map(s=>s.trim());
@@ -45,9 +38,7 @@ export async function handleCommerceRequest(req,env,request=fetch){
     const ip=trustedIp(req,env);
     payload.deviceHash=device?await keyedHash(identitySecret,'device:'+device.toLowerCase()):'';
     payload.ipHash=ip?await keyedHash(identitySecret,'ip:'+ip):'';
-    let country='';
-    if(ip){try{const r=await request('https://api.country.is/'+encodeURIComponent(ip),{signal:AbortSignal.timeout(2500)});if(r.ok)country=(await r.json()).country||'';}catch{}}
-    payload.country=/^[A-Z]{2}$/.test(country)?country:'';
+    payload.country=await createCountryLookup(request,Date.now,env)(req);
     if(path==='checkout'||path==='rewards'){
      if(!['online','offline'].includes(data.plan)||!['monthly','yearly'].includes(data.billing)||path==='checkout'&&!['trial','standard'].includes(data.offer)||!Number.isInteger(data.seats)||data.seats<1||data.seats>100||path==='checkout'&&!/^[-a-f0-9]{36}$/i.test(data.requestId||''))throw fail('Review your plan, billing period and license quantity.');
      Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,offer:data.offer,requestId:data.requestId,billingCountry:data.country,expectedTotal:data.expectedTotal,expectedRewardPercent:data.expectedRewardPercent,coupon:typeof data.coupon==='string'?data.coupon.trim().toUpperCase().slice(0,32):'',name:typeof data.name==='string'?data.name.slice(0,80):'',company:typeof data.company==='string'?data.company.slice(0,80):''});

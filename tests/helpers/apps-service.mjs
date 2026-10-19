@@ -1,11 +1,12 @@
 import {readFileSync} from 'node:fs';
 import {createContext,runInContext} from 'node:vm';
-import {createHmac,randomUUID} from 'node:crypto';
+import {createHash,createHmac,randomUUID} from 'node:crypto';
 export function service({registered=true,mailFails=false}={}){
  const values=new Map([['SESSION_SECRET','private-account-test-secret'],['PAYPAL_MODE','sandbox'],['PAYPAL_CLIENT_ID','test-client'],['PAYPAL_SECRET','test-secret'],['COMMERCE_SECRET','test-private-gateway-secret-at-least-32-bytes'],['TRIAL_IDENTITY_SECRET','test-stable-identity-secret-at-least-32-bytes'],['COMMERCE_ENABLED','true'],['PAYPAL_WEBHOOK_ID','TEST-WEBHOOK'],['COMMERCE_ENFORCE_FROM',new Date(Date.now()-86400000).toISOString()]]);
  const tiers={};for(const tier of ['low','mid','high'])tiers[tier]={online:{monthly:'P-'+tier+'-ONLINE',yearly:'P-'+tier+'-YEARLY'},offline:{monthly:'P-'+tier+'-OFFLINE',yearly:'P-'+tier+'-OFFLINE-YEARLY'},onlineTrial:{monthly:'P-'+tier+'-TRIAL',yearly:'P-'+tier+'-TRIAL-YEARLY'}};
  values.set('PLANS_sandbox',JSON.stringify({productId:'PROD-TEST',tiers}));
  const cache=new Map(),mails=[],requests=[],sheets=new Map(),subscriptions=new Map(),transactions=new Map(),plans=new Map(),idempotency=new Map();let sequence=0,locked=false,signatureValid=true;
+ const github={private:true,available:true,empty:false,files:new Map(),uploads:0};
  function table(name,initial=[[]]){
   const rows=initial;
   const sheet={rows,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
@@ -17,12 +18,24 @@ export function service({registered=true,mailFails=false}={}){
  const blob=value=>({getBytes:()=>[...Buffer.from(value)],getDataAsString:()=>Buffer.from(value).toString()});
  const result=(body,status=200)=>({getResponseCode:()=>status,getContentText:()=>body===null?'':JSON.stringify(body)});
  const ctx=createContext({console,PropertiesService:{getScriptProperties:()=>({getProperty:k=>values.get(k)||null,setProperty:(k,v)=>values.set(k,v)})},
-  Utilities:{getUuid:randomUUID,base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:bytes=>Buffer.from(bytes).toString('base64url'),base64DecodeWebSafe:text=>[...Buffer.from(text,'base64url')],newBlob:blob,computeHmacSha256Signature:(text,key)=>[...createHmac('sha256',key).update(text).digest()]},
+  Utilities:{getUuid:randomUUID,DigestAlgorithm:{SHA_1:'sha1'},computeDigest:(algorithm,bytes)=>[...createHash(algorithm).update(Buffer.from(bytes)).digest()],base64Decode:text=>[...Buffer.from(text,'base64')],base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:bytes=>Buffer.from(bytes).toString('base64url'),base64DecodeWebSafe:text=>[...Buffer.from(text,'base64url')],newBlob:blob,computeHmacSha256Signature:(text,key)=>[...createHmac('sha256',key).update(text).digest()]},
   LockService:{getScriptLock:()=>lock},CacheService:{getScriptCache:()=>({get:k=>cache.get(k)||null,put:(k,v)=>cache.set(k,v),remove:k=>cache.delete(k)})},
   SpreadsheetApp:{getActiveSpreadsheet:()=>({getSheetByName:name=>sheets.get(name)||null,insertSheet:name=>table(name,[])})},
   MailApp:{sendEmail:message=>{if(mailFails)throw Error('Mail service unavailable');mails.push(message);}},Session:{getEffectiveUser:()=>({getEmail:()=> 'owner@example.com'})},
   UrlFetchApp:{fetch:(url,options={})=>{
    requests.push({url,options});
+   if(url.startsWith('https://api.github.com/repos/')){
+    if(!github.available)return result({},503);
+    const match=/repos\/([^/]+\/[^/]+)(?:\/contents\/(.*))?$/.exec(url),repo=match[1],path=match[2];
+    if(!path)return result({private:github.private,full_name:repo,default_branch:'main',size:github.empty?0:1});
+    if(options.method==='put'){
+     const content=JSON.parse(options.payload).content,bytes=Buffer.from(content,'base64');
+     const sha=createHash('sha1').update(Buffer.concat([Buffer.from('blob '+bytes.length+'\0'),bytes])).digest('hex');
+     github.empty=false;const file={sha,html_url:'https://github.com/'+repo+'/blob/main/'+path};github.files.set(path,file);github.uploads++;return result({content:file},201);
+    }
+    if(github.empty)return result({message:'Git Repository is empty.'},409);
+    return github.files.has(path)?result(github.files.get(path)):result({},404);
+   }
    if(url.endsWith('/v1/oauth2/token'))return result({access_token:'paypal-test-token'});
    if(url.endsWith('/v1/notifications/verify-webhook-signature'))return result({verification_status:signatureValid?'SUCCESS':'FAILURE'});
    if(url.endsWith('/v1/billing/subscriptions')&&options.method==='post'){
@@ -49,5 +62,5 @@ export function service({registered=true,mailFails=false}={}){
  const options={keepHistoryCache:false};
  const rpc=(action,data={})=>{if(!options.keepHistoryCache)for(const k of [...cache.keys()])if(k.startsWith('rh:'))cache.delete(k);return clone(ctx.handleCommerceEnvelope_(envelope({action,...data})));};
  const register=email=>{call({step:'code',email,intent:'register'});const code=mails.at(-1).subject.match(/\d{6}/)[0];return call({step:'verify',email,code});};
- return {options,ctx,values,mails,requests,cache,sheets,subscriptions,transactions,plans,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
+ return {options,ctx,github,values,mails,requests,cache,sheets,subscriptions,transactions,plans,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
 }

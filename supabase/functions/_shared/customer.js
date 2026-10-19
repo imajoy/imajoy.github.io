@@ -1,5 +1,5 @@
 export function loyaltyEnabled(env){
- return env('LOYALTY_ENABLED')==='true'&&Boolean(env('SUPABASE_URL')&&publicAuthKey(env('SUPABASE_ANON_KEY'))&&env('SUPABASE_SERVICE_ROLE_KEY')&&env('QUOTE_SIGNING_SECRET')?.length>=32&&env('AUTH_TURNSTILE_SITE_KEY'));
+ return env('LOYALTY_ENABLED')==='true'&&Boolean(env('SUPABASE_URL')&&publicAuthKey(env('SUPABASE_ANON_KEY'))&&env('SUPABASE_SERVICE_ROLE_KEY')&&env('QUOTE_SIGNING_SECRET')?.length>=32);
 }
 function publicAuthKey(value){
  if(typeof value!=='string')return false;

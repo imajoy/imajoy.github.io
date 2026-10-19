@@ -1,5 +1,5 @@
 import {regionalPrice} from './regions.js?v=20261018-g5';
-import {cachedGeo} from './geo.js?v=20261018-h8';
+import {cachedGeo} from './geo.js?v=20261019-geo1';
 export const apiBase = (window.AJOY_CONFIG?.apiBase || '').replace(/\/$/, '');
 export const money = (amount,currency) => new Intl.NumberFormat(navigator.language || 'en', {style:'currency',currency,minimumFractionDigits:Number.isInteger(amount/100)?0:2,maximumFractionDigits:2}).format(amount/100);
 export async function api(path, options = {}) {
@@ -31,13 +31,3 @@ export async function getQuote(plan,billing,seats=1,country,headers={}) {
   return api('/quote?'+params,{headers});
 }
 export function getCouponQuote(selection,code,headers={}){return api('/coupon',{method:'POST',headers,body:JSON.stringify({...selection,code})});}
-export function mountTurnstile(container,siteKey,onToken,onError,action,size='normal') {
-  return new Promise((resolve,reject)=>{
-    let widget;
-    const render=()=>{
-      try {widget=window.turnstile.render(container,{sitekey:siteKey,action,size,theme:'auto',callback:onToken,'expired-callback':()=>onToken(''),'error-callback':()=>{onToken('');onError('Verification could not load. Please retry.');}});resolve(widget);}catch(e){reject(e);}
-    };
-    if(window.turnstile){render();return;}
-    const script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.onload=render;script.onerror=()=>reject(new Error('Human verification could not load. Please check your connection.'));document.head.append(script);
-  });
-}

@@ -1,7 +1,7 @@
 import {indiaContact} from './india-availability.js?v=20261019-contact1';
 /* Clear, contextual offers. Promotions never authorize a trial or change a paid selection. */
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261018-j3';
-import {detectGeo,cachedGeo} from './geo.js?v=20261018-h8';
+import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {availability,closedMessage} from './regions.js?v=20261018-g5';
 import {getAccountSession,onAccountChange} from './account-session.js?v=20261018-n1';
 import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261018-p1';

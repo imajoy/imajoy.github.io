@@ -1,4 +1,4 @@
-import {indiaContact} from './india-availability.js?v=20261018-a1';
+import {indiaContact} from './india-availability.js?v=20261019-wl1';
 /* Clear, contextual offers. Promotions never authorize a trial or change a paid selection. */
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261018-j3';
 import {detectGeo,cachedGeo} from './geo.js?v=20261018-h8';

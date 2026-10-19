@@ -3,6 +3,7 @@
 <head>
 <script>document.documentElement.classList.add("js")</script>
 <script>(function(){var t;try{t=localStorage.getItem("ajoy-theme")}catch(e){}if(t!=="dark"&&t!=="light")t="light";document.documentElement.setAttribute("data-theme",t)})()</script>
+<script src="js/pill-entrance.js?v=20261019-reload1"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wrapline by Ajoy Tools | Animation &amp; Pipeline Tools for Autodesk Maya</title>
@@ -14,7 +15,7 @@
 <link rel="stylesheet" href="css/style.css?v=20261019-wl1">
 <link rel="stylesheet" href="css/polish.css?v=20261018-l1">
 <link rel="stylesheet" href="css/extras.css?v=20261018-h4">
-  <link rel="stylesheet" href="css/motion.css?v=20261018-g5"><link rel="stylesheet" href="css/pricing-cards.css?v=20261018-r20"><link rel="preload" href="assets/fonts/instrument-serif-italic-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="css/account.css?v=20261018-n1"><link rel="stylesheet" href="css/trial-promotion.css?v=20261018-p1"><link rel="stylesheet" href="css/faq.css?v=20261018-f1"><link rel="stylesheet" href="css/tool-guide.css?v=20261018-m1"><link rel="stylesheet" href="css/workflows.css?v=20261018-w1"><link rel="stylesheet" href="css/availability.css?v=20261018-a1"><link rel="stylesheet" href="css/mobile-home.css?v=20261019-m1"><link rel="stylesheet" href="css/landing-motion.css?v=20261019-blend1"><link rel="stylesheet" href="css/tool-card-motion.css?v=20261019-lock1">
+  <link rel="stylesheet" href="css/motion.css?v=20261018-g5"><link rel="stylesheet" href="css/pricing-cards.css?v=20261018-r20"><link rel="preload" href="assets/fonts/instrument-serif-italic-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="css/account.css?v=20261018-n1"><link rel="stylesheet" href="css/trial-promotion.css?v=20261018-p1"><link rel="stylesheet" href="css/faq.css?v=20261018-f1"><link rel="stylesheet" href="css/tool-guide.css?v=20261018-m1"><link rel="stylesheet" href="css/workflows.css?v=20261018-w1"><link rel="stylesheet" href="css/availability.css?v=20261018-a1"><link rel="stylesheet" href="css/mobile-home.css?v=20261019-m1"><link rel="stylesheet" href="css/landing-motion.css?v=20261019-entry1"><link rel="stylesheet" href="css/tool-card-motion.css?v=20261019-lock1">
 <link rel="canonical" href="https://imajoy.github.io/wrapline.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Ajoy Tools">
@@ -207,7 +208,8 @@
 </svg>
 
 <header class="site-header" id="header">
-  <div class="pillbar">
+  <div class="pillbar" data-wrapline-account>
+    <a class="maker-home" href="https://imajoy.github.io/" aria-label="Ajoy Tools home"><img src="assets/ajoy-mark.svg" width="32" height="32" alt=""></a>
     <a class="brand" href="wrapline.html" aria-label="Wrapline by Ajoy Tools, home">
       <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3D8BFF"/><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg>
       <span class="brand-name">Wrapline<small class="brand-by">by Ajoy Tools</small></span>
@@ -219,8 +221,8 @@
       <a href="#faq">FAQ</a>
     </nav>
     <button class="theme" type="button" id="theme" aria-label="Switch to dark mode"><svg class="sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.9 4.9l1.4 1.4m11.4 11.4l1.4 1.4M2 12h2m16 0h2M4.9 19.1l1.4-1.4m11.4-11.4l1.4-1.4"/></svg><svg class="moon" viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/></svg></button>
-    <button class="acct-btn" data-account-button type="button" disabled title="Sign-in requires JavaScript">Sign in</button>
-    <a class="btn btn-dark btn-sm" href="#pricing">Get access</a>
+    <button class="acct-btn" data-account-button type="button" disabled title="Log in requires JavaScript">Log in</button>
+    <button class="btn btn-dark btn-sm" data-account-register type="button" disabled title="Registration requires JavaScript">Register</button>
   </div>
 </header>
 
@@ -530,9 +532,9 @@
 <script src="js/main.js?v=20261019-i1"></script>
 <script type="module" src="js/extras.js?v=20261019-m1"></script>
 <script type="module" src="js/pricing.js?v=20261019-r1"></script>
-<script type="module" src="js/landing-motion.js?v=20261019-s1"></script>
+<script type="module" src="js/landing-motion.js?v=20261019-entry1"></script>
 <script type="module" src="js/tool-card-motion.js?v=20261019-lock1"></script>
 
-<script type="module" src="js/account.js?v=20261019-wl1"></script>
+<script type="module" src="js/account.js?v=20261019-entry1"></script>
 <script type="module" src="js/workflows.js?v=20261018-a1"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/faq.js?v=20261019-s1"></script><script type="module" src="js/ui-motion.js?v=20261019-s1"></script><script type="module" src="js/trial-promotion.js?v=20261019-wl1"></script></body>
 </html>

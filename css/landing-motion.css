@@ -2,8 +2,8 @@
 @font-face{font-family:'Geist Landing';font-style:normal;font-weight:100 900;font-display:optional;src:url('../assets/fonts/geist-latin-5.3.0.woff2') format('woff2')}
 @font-face{font-family:'Instrument Landing';font-style:italic;font-weight:400;font-display:optional;src:url('../assets/fonts/instrument-serif-italic-5.3.0.woff2') format('woff2')}
 .home-page{--sans:'Geist Landing',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Instrument Landing','Times New Roman',serif}
-.home-page .acct-btn{flex:0 0 170px;justify-content:center}
-@media(max-width:680px){.home-page .pillbar .acct-btn{flex-basis:92px}}
+.home-page .acct-btn{justify-content:center}
+.home-page .pillbar[data-signed-in=true] .acct-btn{min-width:150px}
 /* Content is visible in its final position before any scripts execute. */
 .home-page .hero{background:none;--hero-fade:clamp(100px,16vh,180px)}
 .home-page .hero::before{content:'';position:absolute;inset:0;background:var(--hero-background);pointer-events:none}
@@ -11,9 +11,9 @@
 @supports not ((mask-image:linear-gradient(#000,transparent)) or (-webkit-mask-image:linear-gradient(#000,transparent))){
  .home-page .hero::after{content:'';position:absolute;inset:auto 0 0;height:var(--hero-fade);background:linear-gradient(to bottom,transparent,var(--bg));pointer-events:none;z-index:1}
 }
-.home-page .intro .ln>span,.home-page .intro-fade,.home-page #stage{opacity:1!important;transform:none!important;translate:none!important;animation:none!important}
+.home-page #stage{opacity:1!important;transform:none!important;translate:none!important;animation:none!important}
+.home-page .intro .ln>span,.home-page .intro-fade{opacity:1;transform:none;translate:none;animation:none}
 .home-page :is(.reveal,.scroll-soft,.tile.reveal.in,.head,.inst-copy){opacity:1!important;filter:none!important;translate:none!important;animation:none!important;transition:none!important;transform:none}
-.home-page .pillbar,.home-page .pillbar>*{animation:none!important;clip-path:none!important;opacity:1!important;filter:none!important}
 .home-page .block h2 em::after,.home-page .frame-inner h2 em::after{transform:scaleX(1);transition:none}
 /* Decorative loops rest; FAQ, hover and user-selected workflow feedback remain. */
 .home-page :is(.ic,.keycaps kbd,.sheen,.mq-track,.glow,.o1,.o2,.frame,.saving-ticket,.saving-orbit,.trial-art *,.offer-inline *,.tool-diagram *){animation:none!important}
@@ -44,3 +44,42 @@
 }
 @media(prefers-reduced-motion:reduce){.home-page .inst-stage *,.home-page .steps li::before{animation:none!important;transition:none!important}}
 .home-page .tool-visual .phase{transition:opacity 220ms ease-out}
+
+/* Maker identity and explicit account entry, without changing product navigation. */
+.home-page .maker-home{display:grid;place-items:center;flex:none;width:44px;height:44px;border-radius:50%;transition:background-color 200ms}
+.home-page .maker-home:hover{background:var(--t05)}
+.home-page .maker-home:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.home-page .maker-home img{display:block;width:32px;height:32px}
+.home-page [data-account-register][hidden]{display:none}
+.home-page .pillbar{gap:18px}
+@media(max-width:1100px){.home-page .pillbar{gap:10px}.home-page .pillbar .nav{gap:20px;margin-right:0}}
+@media(max-width:680px){
+ .home-page .pillbar{gap:5px;padding-inline:8px}
+ .home-page .maker-home{width:32px;height:44px}.home-page .maker-home img{width:28px;height:28px}
+ .home-page .pillbar .theme{width:36px}
+ .home-page .pillbar .acct-btn{flex:0 0 auto;padding-inline:9px}
+ .home-page .pillbar[data-signed-in=true] .acct-btn{min-width:122px;font-size:.625rem}
+ .home-page .pillbar .btn-sm{padding-inline:10px}
+}
+@media(prefers-reduced-motion:no-preference){
+ html.pill-pending .home-page .maker-home{opacity:0}
+ html.pill-entering .home-page .maker-home{animation:pill-content .5s .78s backwards}
+ .js .home-page .intro .ln>span{animation:wrapline-copy-in 650ms 140ms cubic-bezier(.16,1,.3,1) backwards}
+ .js .home-page .intro .ln:nth-child(2)>span{animation-delay:230ms}
+ .js .home-page .intro-fade{animation:wrapline-copy-in 550ms 300ms ease-out backwards}
+ .js .home-page .actions.intro-fade{animation:none;opacity:1}
+ .js .home-page .hero-actions>.btn{animation:wrapline-copy-in 550ms 390ms cubic-bezier(.16,1,.3,1) backwards}
+ .js .home-page .hero-actions>.btn:nth-child(2){animation-delay:490ms}
+ .js .home-page .trial-banner{animation:wrapline-banner-float 5.5s 900ms ease-in-out infinite;animation-play-state:paused}
+ .js .home-page .trial-banner[data-float-active]{animation-play-state:running}
+ .js .home-page .trial-banner-copy>*{animation:wrapline-copy-in 550ms 100ms ease-out backwards}
+ .js .home-page .trial-banner-copy>strong{animation-delay:180ms}
+ .js .home-page .trial-banner-copy>span:last-child{animation-delay:260ms}
+ .js .home-page .trial-banner:is(:hover,:focus-visible){animation-play-state:paused}
+}
+.home-page .pillbar:focus-within .maker-home,.home-page .hero-actions:focus-within>.btn{animation:none;opacity:1}
+@keyframes wrapline-copy-in{from{opacity:0;transform:translateY(12px);filter:blur(2px)}to{opacity:1;transform:none;filter:blur(0)}}
+@keyframes wrapline-banner-float{0%,100%{translate:0 0}50%{translate:0 -7px}}
+@media(prefers-reduced-motion:reduce){
+ .home-page .intro .ln>span,.home-page .intro-fade,.home-page .hero-actions>.btn,.home-page .trial-banner,.home-page .trial-banner-copy>*{animation:none!important;opacity:1!important;transform:none!important;translate:none!important;filter:none!important}
+}

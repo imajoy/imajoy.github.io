@@ -17,3 +17,13 @@ if(canvas){
   observer.observe(canvas);
  }else load();
 }
+
+// Float only while the promotion is visible and the browser tab is active.
+const banner=document.querySelector('.home-page .trial-banner');
+if(banner){
+ let visible=true;
+ const sync=()=>banner.toggleAttribute('data-float-active',visible&&!document.hidden);
+ if('IntersectionObserver'in window){new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;sync();}).observe(banner);}
+ document.addEventListener('visibilitychange',sync);
+ sync();
+}

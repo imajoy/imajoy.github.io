@@ -25,6 +25,9 @@ function init() {
   const body=dlg.querySelector('.acct-body');
   const btn=document.querySelector('[data-account-button]')||document.createElement('button');btn.disabled=false;btn.removeAttribute('title');btn.type='button';btn.className='acct-btn';btn.setAttribute('aria-haspopup','dialog');btn.setAttribute('aria-controls','account-dialog');dlg.id='account-dialog';
   const pill=document.querySelector('.site-header .pillbar');
+  const landingAccount=!!pill?.hasAttribute('data-wrapline-account');
+  const registerBtn=landingAccount?pill.querySelector('[data-account-register]'):null;
+  if(registerBtn){registerBtn.disabled=false;registerBtn.removeAttribute('title');registerBtn.setAttribute('aria-haspopup','dialog');registerBtn.setAttribute('aria-controls',dlg.id);registerBtn.addEventListener('click',()=>{purpose='';if(!registration){generation++;busy=false;registration=true;step='email';msg='';}open();});}
   const nav=pill||document.querySelector('.commerce-header .wrap');
   if(nav&&!btn.parentElement)nav.insertBefore(btn,nav.querySelector('.btn-sm')||nav.querySelector('.back-link'));
   const accountIcon='<span class="acct-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 11l9 7 9-7M8 8h16a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>';
@@ -42,7 +45,7 @@ function init() {
   dlg.querySelector('.acct-close').addEventListener('click',close);
   dlg.addEventListener('cancel',e=>{e.preventDefault();close();});
   dlg.addEventListener('click',e=>{const r=dlg.getBoundingClientRect();if(e.target===dlg&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))close();});
-  btn.addEventListener('click',()=>{purpose='';open();});
+  btn.addEventListener('click',()=>{purpose='';if(landingAccount&&!getAccountSession()&&registration){generation++;busy=false;registration=false;step='email';msg='';}open();});
   window.addEventListener('ajoy-account-open',event=>{purpose=event.detail?.purpose||'';registration=event.detail?.intent==='register';if(event.detail?.email)email=event.detail.email;open();});
   function announce(text,error=false){msg=text;const n=body.querySelector('.acct-msg');if(n){n.textContent=text;n.dataset.error=String(error);} }
   function setBusy(value){busy=value;body.setAttribute('aria-busy',String(value));for(const button of body.querySelectorAll('button'))button.disabled=value;}
@@ -89,9 +92,11 @@ function init() {
   function refresh(){
     const session=getAccountSession(),subs=session?.subscriptions;
     const active=subs?.map(s=>({s,d:describe(s)})),best=active?.find(x=>x.d.state==='active'||x.d.state==='ending')||active?.[0];
-    btn.textContent=!session?'Sign in':!pill||!best?'Account':best.d.state==='ended'?label(best.s.plan)+' · Renew':best.d.state==='unknown'?'Account':(active.length>1?'Subscribed':label(best.s.plan))+' · '+totalDays(subs)+'d left';
+    btn.textContent=!session?(landingAccount?'Log in':'Sign in'):landingAccount&&Array.isArray(subs)&&!subs.length?'No subscription':!pill||!best?'Account':best.d.state==='ended'?label(best.s.plan)+' · Renew':best.d.state==='unknown'?'Account':(active.length>1?'Subscribed':label(best.s.plan))+' · '+totalDays(subs)+'d left';
+    if(registerBtn)registerBtn.hidden=!!session;
+    if(landingAccount)pill.dataset.signedIn=String(!!session);
     btn.dataset.state=best?.d.state||'';btn.classList.toggle('is-updating',updating);
-    btn.setAttribute('aria-label',session?'Account: '+session.email+(updating?'. Updating subscription details.':''):'Sign in');
+    btn.setAttribute('aria-label',session?'Account: '+session.email+'. '+btn.textContent+(updating?'. Updating subscription details.':''):(landingAccount?'Log in':'Sign in'));
     for(const plan of ['online','offline']){
       const a=document.querySelector('[data-buy="'+plan+'"]');if(!a)continue;
       const mine=active?.find(x=>x.s.plan===plan&&(x.d.state==='active'||x.d.state==='ending'))||active?.find(x=>x.s.plan===plan);

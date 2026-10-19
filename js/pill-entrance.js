@@ -1,4 +1,4 @@
-/* Start after loading and two painted frames, rather than during CSS parsing. */
+/* Begin after the DOM and two painted frames, including cold/hard reloads. */
 (function () {
   'use strict';
   var root = document.documentElement;
@@ -30,14 +30,14 @@
   }
   window.addEventListener('load', start, { once: true });
   document.addEventListener('visibilitychange', function () {
-    if (document.readyState === 'complete') start();
+    if (document.readyState !== 'loading') start();
   });
   document.addEventListener('focusin', function (event) {
     if (event.target.closest('.pillbar')) finish();
   });
   motion.addEventListener('change', function () { if (motion.matches) finish(); });
   // A stalled asset must not leave navigation waiting indefinitely.
-  document.addEventListener('DOMContentLoaded', function () { setTimeout(start, 2500); }, { once: true });
+  document.addEventListener('DOMContentLoaded', start, { once: true });
   window.addEventListener('pageshow', function (event) { if (event.persisted) finish(); });
-  if (document.readyState === 'complete') start();
+  if (document.readyState !== 'loading') start();
 })();

@@ -6,7 +6,7 @@ import {availability,closedMessage} from './regions.js?v=20261018-g5';
 import {getAccountSession,onAccountChange} from './account-session.js?v=20261018-n1';
 import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261018-p1';
 const isHome=Boolean(document.querySelector('.trial-showcase'));
-const home=isHome?'#trial':'index.html#trial';
+const home=isHome?'#trial':'wrapline.html#trial';
 const isDiscovery=Boolean(document.querySelector('.tool-page'));
 let config=null,country=cachedGeo(),settled=false,billing='',nudge=null;
 const alreadyOnline=()=>getAccountSession()?.subscriptions?.some(s=>s.plan==='online'&&s.status==='ACTIVE'&&Date.parse(s.endsAt)>Date.now());
@@ -14,9 +14,9 @@ function render(){
   const subscribed=alreadyOnline(),inIndia=country==='IN',known=/^[A-Z]{2}$/.test(country);
   billing=known&&trialPlanId(config,'online','monthly',country)?'monthly':known&&trialPlanId(config,'online','yearly',country)?'yearly':'';
   const region=known?availability(country,config?.closedCountries||[]):null;
-  const fallback=region&&!region.open?'index.html#pricing':isHome?'checkout.html?plan=online&billing=monthly&offer=trial':home;
+  const fallback=region&&!region.open?'wrapline.html#pricing':isHome?'checkout.html?plan=online&billing=monthly&offer=trial':home;
   for(const link of document.querySelectorAll('[data-trial-cta]')){
-    link.href=subscribed?'index.html#pricing':inIndia?indiaContact():billing?'checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial',v:'20261018-p1'}):fallback;
+    link.href=subscribed?'wrapline.html#pricing':inIndia?indiaContact():billing?'checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial',v:'20261018-p1'}):fallback;
     // Keep the word trial when configuration/location cannot be confirmed.
     link.textContent=subscribed?'View your Online plan':inIndia?'Ask about availability in India':billing?'Start my 2-day free trial':region&&!region.open?'Check trial availability':'Explore the 2-day free trial';
     link.toggleAttribute('data-region-unavailable',Boolean(region&&!region.open&&!subscribed));

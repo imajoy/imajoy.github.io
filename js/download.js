@@ -25,7 +25,7 @@ async function download(){
   if(parsed.protocol!=='https:'||parsed.origin!==configured.origin)throw new Error('The installer link could not be verified.');
   const link=document.createElement('a');link.href=parsed.href;link.download='Wrapline_Setup.py';link.rel='noopener';document.body.append(link);link.click();link.remove();
   state('done');title.textContent='Your download is starting.';sub.textContent='Your browser will handle the setup file.';
-  let n=3;document.querySelector('#dl-count').textContent=String(n);countdown=setInterval(()=>{document.querySelector('#dl-count').textContent=String(Math.max(0,--n));if(n<=0){clearInterval(countdown);location.href='index.html#pricing';}},1000);
+  let n=3;document.querySelector('#dl-count').textContent=String(n);countdown=setInterval(()=>{document.querySelector('#dl-count').textContent=String(Math.max(0,--n));if(n<=0){clearInterval(countdown);location.href='wrapline.html#pricing';}},1000);
  }catch(error){state('email');hint.textContent=error.message;input.setAttribute('aria-invalid','true');title.textContent='Download could not start.';sub.textContent='Please retry after checking your account connection.';}
  finally{busy=false;}
 }

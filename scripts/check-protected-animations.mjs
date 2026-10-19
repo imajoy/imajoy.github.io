@@ -16,7 +16,7 @@ async function open(width,mode='normal'){
  await context.route('**/*',route=>new URL(route.request().url()).origin===base.origin?route.continue():route.abort());
  const page=await context.newPage(),errors=[];
  page.on('pageerror',error=>errors.push(error.message));
- await page.goto(base.href);
+ await page.goto(base.pathname.endsWith('.html')?base.href:new URL('wrapline.html',base).href);
  return {context,page,errors};
 }
 async function visibleTools(page){

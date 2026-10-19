@@ -31,5 +31,10 @@
 @media(prefers-reduced-motion:reduce){.home-page .tile.reveal:hover{transform:none;transition:none!important}}
 
 .home-page .trial-banner::after,.home-page .trial-stage::before{animation:none!important}
-.home-page .inst-stage *,.home-page .steps li.active::before{animation:none!important}
+.home-page .inst-stage[data-install-paused] *,.home-page .steps[data-install-paused] li::before{animation-play-state:paused!important}
+@media(prefers-reduced-motion:no-preference){
+ .home-page .inst-stage .o1{animation:orb1 11s ease-in-out infinite alternate!important}
+ .home-page .inst-stage .o2{animation:orb2 13s ease-in-out infinite alternate!important}
+}
+@media(prefers-reduced-motion:reduce){.home-page .inst-stage *,.home-page .steps li::before{animation:none!important;transition:none!important}}
 .home-page .tool-visual .phase{transition:opacity 220ms ease-out}

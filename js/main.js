@@ -166,17 +166,33 @@
     if (!calmLanding) steps.forEach(function (li) {
       li.addEventListener('click', function () { if (reduce) { finalState(); return; } running = true; play(parseInt(li.getAttribute('data-go'), 10)); });
     });
-    if (calmLanding || reduce || !('IntersectionObserver' in window)) finalState();
+    var installVisible = false, installPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+    function syncInstallMotion() {
+      var paused = motionPaused || installPreference.matches;
+      var active = installVisible && !document.hidden && !paused;
+      ist.toggleAttribute('data-install-paused', !active);
+      $('#steps').toggleAttribute('data-install-paused', !active);
+      if (!active) {
+        running = false; clearAll();
+        if (paused) finalState();
+      } else if (!running) {
+        running = true; play(seen ? cur : 0); seen = true;
+      }
+    }
+    if (!('IntersectionObserver' in window)) finalState();
     else new IntersectionObserver(function (es) {
-      var on = es[0].isIntersecting;
-      if (on && !running && !motionPaused) { running = true; play(seen ? cur : 0); seen = true; }
-      else if (!on && running) { running = false; clearAll(); }
+      installVisible = es[0].isIntersecting;
+      syncInstallMotion();
     }, { threshold: 0.35 }).observe(ist);
+    syncInstallMotion();
+    document.addEventListener('visibilitychange', syncInstallMotion);
+    installPreference.addEventListener('change', function () {
+      motionPaused = installPreference.matches;
+      syncInstallMotion();
+    });
     document.addEventListener('ajoy:motion', function (event) {
-      if (calmLanding) return;
       motionPaused = event.detail.paused;
-      if (motionPaused) { clearAll(); running = false; finalState(); }
-      else if (!reduce && ist.getBoundingClientRect().top < window.innerHeight && ist.getBoundingClientRect().bottom > 0) { running = true; play(0); }
+      syncInstallMotion();
     });
   }
 

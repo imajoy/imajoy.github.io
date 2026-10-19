@@ -31,7 +31,8 @@ html[data-theme=dark] .studio-page .brand .mark,html[data-theme=dark] .s-foot-br
 .s-slot{position:relative;aspect-ratio:1/1;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;text-align:center}
 .s-slot small{font-size:13px;color:var(--mute)}
 .s-slot b{font-size:20px;letter-spacing:-.02em}
-.s-slot.is-live{background:var(--card);box-shadow:0 18px 40px -18px rgba(42,100,232,.55),0 0 0 1px var(--line);animation:s-float 6s ease-in-out infinite}
+.s-slot.is-live{color:var(--ink);text-decoration:none;background:var(--card);box-shadow:0 18px 40px -18px rgba(42,100,232,.55),0 0 0 1px var(--line);animation:s-float 6s ease-in-out infinite}
+.s-slot.is-live:focus-visible{outline:3px solid var(--blue,#2a64e8);outline-offset:5px}
 .s-slot.is-next{border:1.5px dashed var(--line);background:transparent}
 .s-slot.is-next:nth-child(3){animation:s-fade 4.5s ease-in-out infinite}
 .s-slot.is-next:nth-child(2){animation:s-fade 4.5s 1.5s ease-in-out infinite}

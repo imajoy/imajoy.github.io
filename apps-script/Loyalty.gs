@@ -30,6 +30,8 @@ function rewardHistory_(email) {
     var start=Date.parse(s.create_time||known[id].created);
     if(!Number.isFinite(start))throw commerceError_('rewards_unavailable','A previous subscription date could not be verified. Please contact Ajoy.');
     var result=commercePaypal_('/v1/billing/subscriptions/'+encodeURIComponent(id)+'/transactions?start_time='+encodeURIComponent(new Date(start-86400000).toISOString())+'&end_time='+encodeURIComponent(new Date().toISOString()));
+    // PayPal leaves out "transactions" when a subscription has no payments yet (for example a trial).
+    if(!Object.prototype.hasOwnProperty.call(result,'transactions')&&!Number(result.total_items||0))result.transactions=[];
     if(!Array.isArray(result.transactions)||Number(result.total_pages||1)>1||Number(result.total_items||0)>result.transactions.length)throw commerceError_('rewards_unavailable','Complete payment history is not available. Please contact Ajoy before subscribing.');
     var settled=[],periods={},paidPeriods={},loyalty=known[id].loyalty;
     var quantity=Number(s.quantity||known[id].seats||1);

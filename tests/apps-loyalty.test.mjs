@@ -56,6 +56,8 @@ test('Identity, environment and provider failures cannot invent rewards; stale d
  const other=app.register('other@example.com');assert.equal(app.rpc('rewards',selection(app,{accountToken:other.token,email:'buyer@example.com'})).pricing.percent,0);
  assert.equal(app.rpc('checkout',selection(app,{expectedTotal:2200,expectedRewardPercent:0})).error,'price_changed');assert.equal(app.plans.size,0);
  app.transactions.set('I-TESTBUYER1',{transactions:[],total_items:1,total_pages:2});assert.equal(app.rpc('rewards',selection(app)).error,'rewards_unavailable');
+ app.transactions.set('I-TESTBUYER1',{links:[]});assert.equal(app.rpc('rewards',selection(app)).pricing.percent,0);
+ app.transactions.set('I-TESTBUYER1',{total_items:2});assert.equal(app.rpc('rewards',selection(app)).error,'rewards_unavailable');
  app.values.set('PAYPAL_MODE','live');assert.equal(app.ctx.rewardHistory_('buyer@example.com').monthly,0);
 });
 

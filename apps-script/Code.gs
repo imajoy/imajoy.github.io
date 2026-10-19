@@ -1,4 +1,4 @@
-/* Ajoy Tools: one Google Apps Script for the website.
+/* Wrapline: one Google Apps Script for the website.
    1) Verified email registration and account sessions use the "Accounts" tab.
    2) Commerce.gs privately manages checkout/trial eligibility and protected downloads.
       Orders: after a verified PayPal subscription, logs it in the "Orders" tab,
@@ -36,7 +36,7 @@ function doPost(e) {
   }
 }
 
-function doGet() { return ContentService.createTextOutput('Ajoy Tools service is running.'); }
+function doGet() { return ContentService.createTextOutput('Wrapline service is running.'); }
 
 /* ---------- 1) download-page emails ---------- */
 function saveLead_(email) {
@@ -209,13 +209,13 @@ function handleOrder_(d) {
     var orderRow = sheet.getLastRow();
 
     var test = mode_() !== 'live';
-    var planText = 'Ajoy Tools ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)' + (trial ? ' · 2-day free trial, then billed automatically' : '');
+    var planText = 'Wrapline ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)' + (trial ? ' · 2-day free trial, then billed automatically' : '');
     var tag = test ? '[TEST] ' : '';
     var owner = ownerEmail_();
 
     /* You always get a reminder, even if the order could not be verified. */
     try { MailApp.sendEmail({
-      to: owner, name: 'Ajoy Tools orders',
+      to: owner, name: 'Wrapline orders',
       subject: tag + (flags.length && verified ? 'CHECK PRICE, then send the license key' : verified ? 'New order: send the license key' : 'CHECK THIS ORDER (' + status + ')'),
       body: 'Plan: ' + planText + '\nSubscription ID: ' + subId + '\nPayPal status: ' + status + '\nBuyer email (form): ' + email + '\nPayPal email: ' + paypalEmail +
         '\nName: ' + clip_(d.name, 80) + '\nBilling country: ' + clip_(d.country, 2) + '\nConnection country: ' + (detected || 'unknown') + '\nPayPal buyer country: ' + (payer || 'not reported (check the payment in PayPal > Activity)') + '\nCompany: ' + clip_(d.company, 80) +
@@ -227,15 +227,15 @@ function handleOrder_(d) {
       var name = clip_(d.name, 80) || 'there';
       var html = '<div style="font-family:Arial,sans-serif;max-width:520px;margin:auto;color:#14182a">' +
         '<h2 style="margin:0 0 12px">Thank you, ' + esc_(name) + '.</h2>' +
-        '<p>Your Ajoy Tools subscription is confirmed.</p>' +
+        '<p>Your Wrapline subscription is confirmed.</p>' +
         '<table style="border-collapse:collapse;width:100%;margin:14px 0"><tr><td style="padding:8px 0;color:#667">Plan</td><td style="text-align:right"><b>' + esc_(planText) + '</b></td></tr>' +
         '<tr><td style="padding:8px 0;color:#667;border-top:1px solid #e3e6ee">Subscription ID</td><td style="text-align:right;border-top:1px solid #e3e6ee"><b>' + esc_(subId) + '</b></td></tr></table>' +
         (trial ? '<p><b>Your 2-day free trial has started.</b> Your first payment is taken automatically when it ends, unless you cancel before then in PayPal. You can cancel any time.</p>' : '') +
         '<p><b>Your license key will arrive within 12 hours</b> at this email address.</p>' +
         '<p>Questions? Reply to this email or write to ' + replyTo_() + '.</p>' +
-        '<p style="color:#667;font-size:13px">Ajoy Tools: production tools for Maya.</p></div>';
-      try { MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: replyTo_(), subject: tag + 'Your Ajoy Tools order is confirmed', htmlBody: html,
-        body: 'Thank you. Your Ajoy Tools subscription is confirmed.\nPlan: ' + planText + '\nSubscription ID: ' + subId + '\nYour license key will arrive within 12 hours at this email address.\nQuestions? ' + replyTo_() }); emailLog.push('buyer: sent'); } catch (err) { emailLog.push('buyer FAILED: ' + String(err).slice(0, 120)); }
+        '<p style="color:#667;font-size:13px">Wrapline by Ajoy Tools: production tools for Maya.</p></div>';
+      try { MailApp.sendEmail({ to: email, name: 'Wrapline by Ajoy Tools', replyTo: replyTo_(), subject: tag + 'Your Wrapline order is confirmed', htmlBody: html,
+        body: 'Thank you. Your Wrapline subscription is confirmed.\nPlan: ' + planText + '\nSubscription ID: ' + subId + '\nYour license key will arrive within 12 hours at this email address.\nQuestions? ' + replyTo_() }); emailLog.push('buyer: sent'); } catch (err) { emailLog.push('buyer FAILED: ' + String(err).slice(0, 120)); }
     } else { emailLog.push('buyer: skipped (' + (verified ? 'bad email' : 'not verified') + ')'); }
     sheet.getRange(orderRow, 17).setValue(emailLog.join(' | '));
     return verified ? 'ok' : 'unverified';
@@ -353,8 +353,8 @@ function handleAccount_(d) {
       cache.put('intent:' + email, intent, 600);
       var code = String(Math.floor(100000 + Math.random() * 900000));
       cache.put('code:' + email, hashCode_(email, code), 600); cache.remove('tries:' + email);
-      try { MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: replyTo_(), subject: 'Your Ajoy Tools sign-in code: ' + code,
-        body: 'Your sign-in code is ' + code + '\n\nIt works for 10 minutes. If you did not ask for it, you can ignore this email.\n\nAjoy Tools' }); }
+      try { MailApp.sendEmail({ to: email, name: 'Wrapline by Ajoy Tools', replyTo: replyTo_(), subject: 'Your Wrapline sign-in code: ' + code,
+        body: 'Your sign-in code is ' + code + '\n\nIt works for 10 minutes. If you did not ask for it, you can ignore this email.\n\nWrapline' }); }
       catch (err) { cache.remove('code:' + email); return { ok: false, error: 'mail' }; }
       return { ok: true, registered: registered, intent: intent };
     }
@@ -404,13 +404,13 @@ function handleTrial_(d) {
     sheet.appendRow([new Date(), email, name, days, '', '']);
     var row = sheet.getLastRow(), log = [];
     try {
-      MailApp.sendEmail({ to: ownerEmail_(), name: 'Ajoy Tools trials', subject: 'Trial request: send a ' + days + '-day code to ' + email,
+      MailApp.sendEmail({ to: ownerEmail_(), name: 'Wrapline trials', subject: 'Trial request: send a ' + days + '-day code to ' + email,
         body: 'Someone asked for a free trial.\n\nEmail: ' + email + '\nName: ' + (name || '-') + '\nTrial length promised: ' + days + ' days\n\nCreate a ' + days + '-day trial code the way you usually create access codes and email it to them. They were told it arrives within 12 hours.\nMark "Code sent?" in the Trials tab when done.' });
       log.push('owner: sent');
     } catch (err) { log.push('owner FAILED: ' + String(err).slice(0, 120)); }
     try {
-      MailApp.sendEmail({ to: email, name: 'Ajoy Tools', replyTo: replyTo_(), subject: 'We received your Ajoy Tools trial request',
-        body: 'Hi ' + (name || 'there') + ',\n\nThanks for asking to try Ajoy Tools. Your ' + days + '-day trial code will arrive at this email address within 12 hours.\n\nQuestions? Reply to this email or write to ' + replyTo_() + '.\n\nAjoy Tools: production tools for Maya.' });
+      MailApp.sendEmail({ to: email, name: 'Wrapline by Ajoy Tools', replyTo: replyTo_(), subject: 'We received your Wrapline trial request',
+        body: 'Hi ' + (name || 'there') + ',\n\nThanks for asking to try Wrapline. Your ' + days + '-day trial code will arrive at this email address within 12 hours.\n\nQuestions? Reply to this email or write to ' + replyTo_() + '.\n\nWrapline by Ajoy Tools: production tools for Maya.' });
       log.push('visitor: sent');
     } catch (err) { log.push('visitor FAILED: ' + String(err).slice(0, 120)); }
     sheet.getRange(row, 6).setValue(log.join(' | '));
@@ -445,7 +445,7 @@ function setupPlans() {
   var result = saved ? JSON.parse(saved) : { tiers: {} };
   var productId = result.productId;
   if (!productId) {
-    productId = paypalPost_('/v1/catalogs/products', { name: 'Ajoy Tools', description: 'Production tools for Maya.', type: 'DIGITAL', category: 'SOFTWARE', home_url: 'https://imajoy.github.io/' }, t, 'ajoy-product-' + mode_()).id;
+    productId = paypalPost_('/v1/catalogs/products', { name: 'Wrapline by Ajoy Tools', description: 'Production tools for Maya.', type: 'DIGITAL', category: 'SOFTWARE', home_url: 'https://imajoy.github.io/' }, t, 'ajoy-product-' + mode_()).id;
     result.productId = productId;
   }
   ['high', 'mid', 'low'].forEach(function (tier) {
@@ -456,8 +456,8 @@ function setupPlans() {
         if (result.tiers[tier][kind][period]) return;
         var plan = paypalPost_('/v1/billing/plans', {
           product_id: productId,
-          name: 'Ajoy Tools ' + kind + ' ' + period + ' (' + tier + ')',
-          description: 'Ajoy Tools ' + kind + ' license, billed ' + period + '.',
+          name: 'Wrapline ' + kind + ' ' + period + ' (' + tier + ')',
+          description: 'Wrapline ' + kind + ' license, billed ' + period + '.',
           status: 'ACTIVE',
           billing_cycles: [{ frequency: { interval_unit: period === 'yearly' ? 'YEAR' : 'MONTH', interval_count: 1 }, tenure_type: 'REGULAR', sequence: 1, total_cycles: 0,
             pricing_scheme: { fixed_price: { value: String(PRICES[tier][kind][period]), currency_code: 'USD' } } }],
@@ -476,8 +476,8 @@ function setupPlans() {
       if (result.tiers[tier].onlineTrial[period]) return;
       var plan = paypalPost_('/v1/billing/plans', {
         product_id: productId,
-        name: 'Ajoy Tools online ' + period + ' with 2-day trial (' + tier + ')',
-        description: 'Ajoy Tools online license, 2-day free trial, then billed ' + period + '.',
+        name: 'Wrapline online ' + period + ' with 2-day trial (' + tier + ')',
+        description: 'Wrapline online license, 2-day free trial, then billed ' + period + '.',
         status: 'ACTIVE',
         billing_cycles: [
           { frequency: { interval_unit: 'DAY', interval_count: 2 }, tenure_type: 'TRIAL', sequence: 1, total_cycles: 1,
@@ -510,7 +510,7 @@ function setupPlans() {
     });
   });
   var json = JSON.stringify({ tiers: result.tiers });
-  sh.getRange(1, 1).setValue('Ajoy Tools: PayPal plans').setFontWeight('bold').setFontSize(16);
+  sh.getRange(1, 1).setValue('Wrapline: PayPal plans').setFontWeight('bold').setFontSize(16);
   sh.getRange(2, 1).setValue('Mode: ' + mode_() + '. Created by the setupPlans script. Prices are USD per computer.').setFontStyle('italic').setFontColor('#666673');
   sh.getRange(4, 1, 1, 5).setValues([['Price level', 'Plan', 'Billing', 'Price (USD)', 'PayPal plan ID']]).setBackground('#1a2959').setFontColor('#ffffff').setFontWeight('bold').setVerticalAlignment('middle');
   sh.getRange(5, 1, rows.length, 5).setValues(rows);
@@ -527,9 +527,37 @@ function setupPlans() {
 }
 
 /* Run this once from the editor (select testEmail, click Run) to check that email sending is allowed.
-   You should receive "Ajoy Tools test email" within a minute. */
+   You should receive "Wrapline test email" within a minute. */
 function testEmail() {
   var to = ownerEmail_();
-  MailApp.sendEmail({ to: to, subject: 'Ajoy Tools test email', body: 'If you can read this, the order emails can be sent. Remaining daily email quota: ' + MailApp.getRemainingDailyQuota() });
+  MailApp.sendEmail({ to: to, subject: 'Wrapline test email', body: 'If you can read this, the order emails can be sent. Remaining daily email quota: ' + MailApp.getRemainingDailyQuota() });
   Logger.log('Sent to ' + to);
+}
+
+/* Run once after renaming the toolkit (Ajoy Tools -> Wrapline): renames every PayPal plan this
+   script created (standard, trial, reward and coupon plans) so buyers see "Wrapline" in PayPal.
+   Prices, IDs and existing subscriptions are not changed. Safe to run again. */
+function renamePayPalPlans() {
+  var t = token_();
+  if (!t) throw new Error('PayPal is not connected. Check the Script properties.');
+  var ids = {}, catalog = JSON.parse(props_().getProperty('PLANS_' + mode_()) || '{}'), tiers = catalog.tiers || {};
+  for (var tier in tiers) for (var kind in tiers[tier]) for (var period in tiers[tier][kind]) ids[tiers[tier][kind][period]] = true;
+  var extra = JSON.parse(props_().getProperty('LOYALTY_PLANS_' + mode_()) || '{}');
+  for (var k in extra) if (extra[k] && extra[k].id) ids[extra[k].id] = true;
+  var renamed = 0, skipped = 0;
+  Object.keys(ids).forEach(function (id) {
+    var get = UrlFetchApp.fetch(base_() + '/v1/billing/plans/' + encodeURIComponent(id), { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t } });
+    if (get.getResponseCode() !== 200) { Logger.log('Could not read ' + id); skipped++; return; }
+    var plan = JSON.parse(get.getContentText()), ops = [];
+    var name = String(plan.name || ''), description = String(plan.description || '');
+    if (/Ajoy Tools/.test(name)) ops.push({ op: 'replace', path: '/name', value: name.replace(/Ajoy Tools/g, 'Wrapline').slice(0, 127) });
+    if (/Ajoy Tools/.test(description)) ops.push({ op: 'replace', path: '/description', value: description.replace(/Ajoy Tools/g, 'Wrapline').slice(0, 127) });
+    if (!ops.length) { skipped++; return; }
+    var r = UrlFetchApp.fetch(base_() + '/v1/billing/plans/' + encodeURIComponent(id), { method: 'patch', contentType: 'application/json', muteHttpExceptions: true, payload: JSON.stringify(ops), headers: { Authorization: 'Bearer ' + t } });
+    if (r.getResponseCode() === 204 || r.getResponseCode() === 200) { renamed++; Logger.log('Renamed ' + id + ': ' + ops[0].value); }
+    else Logger.log('Could not rename ' + id + ' (' + r.getResponseCode() + '): ' + r.getContentText().slice(0, 200));
+  });
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plans');
+  if (sheet && /Ajoy Tools/.test(String(sheet.getRange(1, 1).getValue()))) sheet.getRange(1, 1).setValue('Wrapline: PayPal plans');
+  Logger.log('Done (' + mode_() + '): ' + renamed + ' plan(s) renamed, ' + skipped + ' already fine or skipped.');
 }

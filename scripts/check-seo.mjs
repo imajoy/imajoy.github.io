@@ -31,7 +31,7 @@ for(const filename of publicPages){
  const nodes=scripts.flatMap(match=>{const json=JSON.parse(match[1]);assert.equal(json['@context'],'https://schema.org');return json['@graph']||[json];});
  const webpage=nodes.find(node=>node['@type']==='WebPage');assert.equal(webpage?.url,expected);assert.equal(webpage.description,description);
  if(filename==='index.html'){
-  const app=nodes.find(node=>node['@type']==='SoftwareApplication');assert(app,'SoftwareApplication missing');assert.equal(app.name,'Ajoy Tools');assert.equal(app.operatingSystem,'Windows');assert.match(app.softwareRequirements,/Maya 2023/);assert.equal(app.featureList.length,tools.length);
+  const app=nodes.find(node=>node['@type']==='SoftwareApplication');assert(app,'SoftwareApplication missing');assert.equal(app.name,'Wrapline');assert.equal(app.operatingSystem,'Windows');assert.match(app.softwareRequirements,/Maya 2023/);assert.equal(app.featureList.length,tools.length);
   const list=nodes.find(node=>node['@type']==='ItemList');assert.equal(list.numberOfItems,tools.length);assert.deepEqual(new Set(list.itemListElement.map(item=>item.url)),new Set(tools.map(name=>base+name)));
  }else{
   const breadcrumb=nodes.find(node=>node['@type']==='BreadcrumbList');assert.equal(breadcrumb?.itemListElement[0].item,base);assert.equal(breadcrumb.itemListElement.at(-1).item,expected);

@@ -116,7 +116,7 @@ function commerceCreate_(d,who) {
   });
   if(row[11])return {ok:true,checkoutId:row[0],subscriptionId:row[11],offer:row[6],pricing:rewardBuyer_(row).loyalty||null};
   var origin='https://imajoy.github.io';
-  var subscription=commercePaypal_('/v1/billing/subscriptions','post',{plan_id:planId,quantity:String(d.seats),custom_id:row[0],subscriber:{email_address:who.email},application_context:{brand_name:'Ajoy Tools',shipping_preference:'NO_SHIPPING',user_action:'SUBSCRIBE_NOW',return_url:origin+'/checkout.html?checkout='+row[0],cancel_url:origin+'/checkout.html?cancelled=1'}},row[0]);
+  var subscription=commercePaypal_('/v1/billing/subscriptions','post',{plan_id:planId,quantity:String(d.seats),custom_id:row[0],subscriber:{email_address:who.email},application_context:{brand_name:'Wrapline by Ajoy Tools',shipping_preference:'NO_SHIPPING',user_action:'SUBSCRIBE_NOW',return_url:origin+'/checkout.html?checkout='+row[0],cancel_url:origin+'/checkout.html?cancelled=1'}},row[0]);
   if(!/^I-[A-Z0-9]+$/.test(subscription.id||''))throw commerceError_('provider','PayPal did not return a subscription.');
   commerceLock_(function(){var current=commerceFind_(row[0]);current[11]=subscription.id;current[12]='created';current[14]=new Date();commerceWrite_(current);});
   return {ok:true,checkoutId:row[0],subscriptionId:subscription.id,offer:row[6],pricing:rewardBuyer_(row).loyalty||null};

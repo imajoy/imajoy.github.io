@@ -393,3 +393,7 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 @media(max-width:520px){.theme{width:38px;height:38px}.pillbar{gap:10px;padding-left:14px}.dropfile{display:none}}
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.js .reveal{opacity:1;transform:none}.js .w>span{transform:none}.progress{display:none}.float-chip{opacity:1;transform:none}}
+
+/* brand lockup: product name with the maker underneath */
+.brand-name{display:inline-flex;flex-direction:column;line-height:1.02}
+.brand-by{display:block;font-size:.625rem;font-weight:500;letter-spacing:.02em;opacity:.62;margin-top:2px;white-space:nowrap}

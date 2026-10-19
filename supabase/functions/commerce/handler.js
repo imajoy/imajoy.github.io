@@ -78,7 +78,7 @@ export async function handleCommerceRequest(req,env,request=fetch){
    const signedPath=file.signedURL.startsWith('/object/sign/')?'/storage/v1'+file.signedURL:file.signedURL;
    if(!signedPath.startsWith('/storage/v1/object/sign/'))throw fail('Invalid installer response.',503);
    const parsed=new URL(signedPath,base);if(parsed.origin!==new URL(base).origin)throw fail('Invalid installer response.',503);
-   parsed.searchParams.set('download','AjoyTools_Setup.py');
+   parsed.searchParams.set('download','Wrapline_Setup.py');
    return json({ok:true,url:parsed.href});
   }
   return json(response);

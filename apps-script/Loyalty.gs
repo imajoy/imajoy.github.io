@@ -127,7 +127,7 @@ function rewardPayPalPlan_(d,quote) {
   // PayPal supports paid introductory (TRIAL tenure) cycles. Only the promised introductory
   // payments are reduced; the unlimited REGULAR phase restores the catalog rate.
   var plan=commercePaypal_('/v1/billing/plans','post',{
-    product_id:catalog.productId,name:'Ajoy Tools '+d.plan+' '+d.billing+(quote.coupon?' coupon ':' returning reward ')+quote.percent+'% ('+tier+')',
+    product_id:catalog.productId,name:'Wrapline '+d.plan+' '+d.billing+(quote.coupon?' coupon ':' returning reward ')+quote.percent+'% ('+tier+')',
     description:quote.rewardPayments+' payment(s) with '+quote.percent+(quote.coupon?'% coupon savings':'% returning subscriber savings')+'; then the standard '+d.billing+' rate.',status:'ACTIVE',quantity_supported:true,
     billing_cycles:[
       {frequency:frequency,tenure_type:'TRIAL',sequence:1,total_cycles:quote.rewardPayments,pricing_scheme:{fixed_price:{value:(quote.discountedUnitAmount/100).toFixed(2),currency_code:'USD'}}},

@@ -14,7 +14,7 @@ function init() {
     if (s.status === 'ACTIVE' && live && s.trial) return {state:'active',text:'Free trial · '+dayWord(days)+' left, then billed automatically on '+fmtDate(s.endsAt),short:days+'d left',days};
     if (s.status === 'ACTIVE' && live) return {state:'active',text:dayWord(days)+' left · renews '+fmtDate(s.endsAt),short:days+'d left',days};
     if (live) return {state:'ending',text:'Ends '+fmtDate(s.endsAt)+' ('+dayWord(days)+' left) · not renewing',short:days+'d left',days};
-    return {state:'ended',text:'Ended'+(s.endsAt?' '+fmtDate(s.endsAt):'')+' · renew to keep using Ajoy Tools',short:'Renew',days:0};
+    return {state:'ended',text:'Ended'+(s.endsAt?' '+fmtDate(s.endsAt):'')+' · renew to keep using Wrapline',short:'Renew',days:0};
   };
   const totalDays = list => list.reduce((n,s) => n+describe(s).days,0);
   let registration=false,purpose='',email='',step='email',msg='',busy=false,updating=false,offline=false,generation=0,closing=false;
@@ -52,7 +52,7 @@ function init() {
     if(session){
       body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Your account</p><h2 id="acct-title" tabindex="-1">'+esc(session.email)+'</h2><p class="acct-note acct-sync" role="status">'+(updating?'Updating your subscription details…':offline?'Showing your saved account. Reconnect to update your details.':'Your verified account email is used automatically at checkout.')+'</p>'+
         (subs?.length>1&&totalDays(subs)?'<p class="acct-total">Total across your subscriptions: <b>'+dayWord(totalDays(subs))+' left</b></p>':'')+
-        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Ajoy Tools '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'||d.state==='ending'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+'</div>';}).join(''):'<p class="acct-note">Your email is registered. <a href="index.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
+        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Wrapline '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'||d.state==='ending'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+'</div>';}).join(''):'<p class="acct-note">Your email is registered. <a href="index.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
         (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<p class="acct-note">To use a different email, sign out first.</p><button class="acct-link" type="button" data-out>Sign out</button>';
       body.querySelector('[data-out]').onclick=()=>{generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};

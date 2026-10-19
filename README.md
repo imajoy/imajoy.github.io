@@ -1,12 +1,12 @@
-# Ajoy Tools
+# Wrapline by Ajoy Tools
 
-Website for **Ajoy Tools** — 13 animation and pipeline tools for Autodesk Maya 2023 and newer.
+Website for **Wrapline** (a product of **Ajoy Tools**): 13 animation and pipeline tools for Autodesk Maya 2023 and newer.
 
 https://imajoy.github.io/
 
 Built with HTML, CSS, JavaScript and Three.js, hosted on GitHub Pages.
 
-See LICENSE. Ajoy Tools is proprietary software. All rights reserved.
+See LICENSE. Wrapline is proprietary software by Ajoy Tools. All rights reserved.
 
 SEO metadata and sitemap checks: `node scripts/check-seo.mjs`. See [SEO.md](SEO.md) for Search Console submission, structured-data limits and community discovery guidance.
 

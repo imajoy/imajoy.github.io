@@ -13,4 +13,7 @@ When changing these files or shared motion rules, run `node scripts/check-protec
 
 ## Product terminology
 
-Ajoy Tools **FBX Exporter** and **Alembic Exporter** are AJOY's scripts. Their dependencies, **fbxmaya** and **AbcExport**, are Maya's built-in plug-ins. Explain that the Maya plug-ins can be enabled in the Plug-in Manager without a separate download; do not describe AJOY's exporter scripts as bundled with Maya. FFmpeg is a separate download used by **Audio Exporter**.
+**Ajoy Tools** is the maker brand. **Wrapline** is its Maya toolkit (shown as "Wrapline by Ajoy Tools"); future products for other software will also sit under Ajoy Tools. Use Wrapline for the toolkit, its menu, shelf, installer (`Wrapline_Setup.py`), plans and emails; keep Ajoy Tools for the publisher/organisation.
+
+
+Wrapline **FBX Exporter** and **Alembic Exporter** are AJOY's scripts. Their dependencies, **fbxmaya** and **AbcExport**, are Maya's built-in plug-ins. Explain that the Maya plug-ins can be enabled in the Plug-in Manager without a separate download; do not describe AJOY's exporter scripts as bundled with Maya. FFmpeg is a separate download used by **Audio Exporter**.

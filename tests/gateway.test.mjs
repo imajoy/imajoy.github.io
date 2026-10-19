@@ -4,13 +4,13 @@ import {service} from './helpers/apps-service.mjs';
 const origin='https://imajoy.github.io';
 function setup(){
  const app=service({registered:false}),account=app.register('new@example.com');
- const values={COMMERCE_ENABLED:'true',COMMERCE_SECRET:app.values.get('COMMERCE_SECRET'),TRIAL_IDENTITY_SECRET:app.values.get('TRIAL_IDENTITY_SECRET'),SHEET_WEB_APP_URL:'https://script.google.com/macros/s/TEST/exec',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip',SUPABASE_URL:'https://project.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'private-service-role',INSTALLER_BUCKET:'installers',INSTALLER_OBJECT:'AjoyTools_Setup.py'};
+ const values={COMMERCE_ENABLED:'true',COMMERCE_SECRET:app.values.get('COMMERCE_SECRET'),TRIAL_IDENTITY_SECRET:app.values.get('TRIAL_IDENTITY_SECRET'),SHEET_WEB_APP_URL:'https://script.google.com/macros/s/TEST/exec',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip',SUPABASE_URL:'https://project.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'private-service-role',INSTALLER_BUCKET:'installers',INSTALLER_OBJECT:'Wrapline_Setup.py'};
  const env=key=>values[key],calls=[];
  const upstream=async(url,options={})=>{
   calls.push({url,options});
   if(url.startsWith('https://api.country.is/'))return Response.json({country:'US'});
   if(url===values.SHEET_WEB_APP_URL)return Response.json(app.ctx.handleCommerceEnvelope_(JSON.parse(options.body)));
-  if(url.includes('/storage/v1/object/sign/')){assert.equal(options.headers.apikey,'private-service-role');assert.equal(JSON.parse(options.body).expiresIn,60);return Response.json({signedURL:'/object/sign/installers/AjoyTools_Setup.py?token=SIGNED&download=AjoyTools_Setup.py'});}
+  if(url.includes('/storage/v1/object/sign/')){assert.equal(options.headers.apikey,'private-service-role');assert.equal(JSON.parse(options.body).expiresIn,60);return Response.json({signedURL:'/object/sign/installers/Wrapline_Setup.py?token=SIGNED&download=Wrapline_Setup.py'});}
   throw Error('Unexpected upstream '+url);
  };
  const req=(path,body={},headers={})=>new Request('https://project.supabase.co/functions/v1/commerce/'+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','cf-connecting-ip':'203.0.113.12',...headers},body:JSON.stringify({accountToken:account.token,deviceId:'11111111-1111-4111-8111-111111111111',...body})});
@@ -34,7 +34,7 @@ test('Missing or untrusted IP headers cannot authorize a trial; equivalent IPv6 
 });
 test('Download verifies a registered account before issuing a 60-second private storage URL',async()=>{
  const s=setup(),result=await handleCommerceRequest(s.req('download'),s.env,s.upstream),data=await result.json();
- assert.equal(data.url,'https://project.supabase.co/storage/v1/object/sign/installers/AjoyTools_Setup.py?token=SIGNED&download=AjoyTools_Setup.py');
+ assert.equal(data.url,'https://project.supabase.co/storage/v1/object/sign/installers/Wrapline_Setup.py?token=SIGNED&download=Wrapline_Setup.py');
  const start=s.calls.length;const rejected=await handleCommerceRequest(s.req('download',{accountToken:'invalid-signed-session-token'}),s.env,s.upstream);
  assert.equal(rejected.status,401);assert(!s.calls.slice(start).some(c=>c.url.includes('/storage/')));
  assert(!JSON.stringify(data).includes(s.values.SUPABASE_SERVICE_ROLE_KEY));

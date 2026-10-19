@@ -1,0 +1,3 @@
+JSON serialization compatibility modules copied unchanged from `webauthn-polyfills@0.1.7` (Apache-2.0), installed from the npm registry. Source: https://github.com/passkeydeveloper/webauthn-polyfills . The included LICENSE applies to both files. No third-party requests are made by these modules.
+
+Only `esm/json_serialization.js` and its `esm/base64url.js` dependency are used. They feature-detect the native JSON methods; authentication remains the browser's native WebAuthn API, and server verification remains SimpleWebAuthn. The UA-parser/capabilities portion is not used because this site offers explicit passkey prompts and supports external security keys as well as platform authenticators.

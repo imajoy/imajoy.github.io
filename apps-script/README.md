@@ -57,3 +57,7 @@ GitHub retains file versions in Git history. Deleting a current file alone does 
 Deploy the latest Code.gs to activate automatic email detection (`intent: auto`) for the single Register / Login entry. Existing addresses sign in after email ownership verification; unknown addresses receive a registration code and are created only when it is verified. Both use a server-enforced two-minute deadline and single-use codes. Resending replaces the old code; the existing hourly send and wrong-attempt limits remain. Signed session tokens still restore an existing verified session without requesting a new code. Entering a registered email alone never grants access to subscriptions or checkout.
 
 Update Code.gs, preserve the other files/properties and web app URL, then Deploy → Manage deployments → Edit → New version → Deploy. GitHub publication does not deploy Apps Script. Older deployments retain their previous ten-minute code lifetime until updated; the compatible frontend shows that older lifetime rather than falsely claiming a two-minute server deadline.
+
+## Optional passkey sign-in
+
+Add Passkeys.gs, update Commerce.gs and deploy the new Supabase passkeys function using [the passkey setup guide](../supabase/PASSKEYS.md). It reuses the existing account Sheet and signing secret. Users verify their email once to enroll, then can log in with a device/password-manager passkey without email codes. Email-code sign-in remains the recovery option. Backend deployment is required; GitHub publication alone does not activate passkeys.

@@ -9,6 +9,7 @@ window.AJOY_CONFIG = Object.freeze({
   trialOpen: false,
   /* Subscriber sign-in (plan and time left). Turn on (true) only after the newest apps-script/Code.gs is deployed. */
   accountOpen: true,
+  passkeysUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/passkeys',
   /* Email registration and account sessions (Google Sheets / Apps Script).
      This is a public address, not a secret. */
   sheetUrl: 'https://script.google.com/macros/s/AKfycbz2Y9PbQsXraKgcNjc_gnyNKs6Qbe7RyDlB2wjhfPSyHhwgGpb_d_EzkFGSxEGipgDJ/exec',

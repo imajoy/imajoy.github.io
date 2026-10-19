@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.commerce]
 verify_jwt = false
+
+[functions.passkeys]
+verify_jwt = false

@@ -179,13 +179,14 @@ function commerceWebhook_(d) {
 }
 function handleCommerceEnvelope_(envelope) {
   try{
-    if(props_().getProperty('COMMERCE_ENABLED')!=='true')throw commerceError_('unavailable','Secure checkout is not activated.');
     var timestamp=String(envelope.timestamp||''),nonce=String(envelope.nonce||''),packed=envelope.payload;
     if(typeof packed!=='string'||packed.length>260000||!/^[-a-f0-9]{36}$/i.test(nonce)||!/^\d{13}$/.test(timestamp)||Math.abs(Date.now()-Number(timestamp))>120000)throw commerceError_('signature','Invalid service request.');
     var signature=commerceHash_(timestamp+'.'+nonce+'.'+packed);
     if(signature!==envelope.signature)throw commerceError_('signature','Invalid service signature.');
     commerceLock_(function(){var cache=CacheService.getScriptCache();if(cache.get('rpc:'+nonce))throw commerceError_('signature','Service request was already used.');cache.put('rpc:'+nonce,'1',300);});
     var d=JSON.parse(packed);
+    if(d.action==='passkeys')return handlePasskeys_(d);
+    if(props_().getProperty('COMMERCE_ENABLED')!=='true')throw commerceError_('unavailable','Secure checkout is not activated.');
     if((d.action==='checkout'||d.action==='webhook')&&!Number.isFinite(Date.parse(props_().getProperty('COMMERCE_ENFORCE_FROM')||'')))throw commerceError_('unavailable','The trial activation cutoff is not configured.');
     if(d.action==='webhook')return commerceWebhook_(d);
     var who=commerceWho_(d.accountToken);

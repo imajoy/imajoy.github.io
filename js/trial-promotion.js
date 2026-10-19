@@ -19,13 +19,15 @@ function render(){
     link.href=subscribed?'index.html#pricing':inIndia?indiaContact():billing?'checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial',v:'20261018-p1'}):fallback;
     // Keep the word trial when configuration/location cannot be confirmed.
     link.textContent=subscribed?'View your Online plan':inIndia?'Ask about availability in India':billing?'Start my 2-day free trial':region&&!region.open?'Check trial availability':'Explore the 2-day free trial';
+    link.toggleAttribute('data-region-unavailable',Boolean(region&&!region.open&&!subscribed));
+    if(link.classList.contains('hero-secondary')&&inIndia&&!subscribed)link.textContent='India availability & updates';
     link.dataset.trialReady=String(Boolean(billing&&!subscribed));
   }
   const mobileTrial=document.querySelector('.m-cta a:not(.primary)');
   if(mobileTrial){mobileTrial.href=subscribed?'#pricing':inIndia?indiaContact():'#trial';mobileTrial.textContent=subscribed?'Your Online plan':inIndia?'India launch updates':'2-day trial';}
   for(const teaser of document.querySelectorAll('[data-trial-teaser]')){
     if(!teaser.dataset.originalCopy)teaser.dataset.originalCopy=teaser.textContent;
-    teaser.textContent=inIndia&&!subscribed?'In India? Checkout and the Online trial are not open yet. Email Ajoy for launch updates.':teaser.dataset.originalCopy;
+    teaser.textContent=inIndia&&!subscribed?'India checkout and the Online trial are not open yet. Ask Ajoy for launch updates.':teaser.dataset.originalCopy;
   }
   const message=subscribed?'You already have an active Online subscription. View your plan or account.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 2-day trial unless cancelled.':inIndia?'Checkout and the 2-day Online trial are not available in India yet. Use the email link to ask Ajoy for launch updates.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
   for(const notice of document.querySelectorAll('[data-trial-status]'))notice.textContent=message;

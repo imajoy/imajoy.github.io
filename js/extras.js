@@ -130,7 +130,16 @@ document.querySelectorAll('[data-trial-days]').forEach(n => { n.textContent = St
   const hero = document.querySelector('.hero');
   const seen = new Set();
   let pastHero = false;
-  const update = () => bar.classList.toggle('on', pastHero && seen.size === 0);
+  const update = () => {
+    const typing = document.activeElement?.closest('input,textarea,select,[contenteditable="true"]');
+    bar.classList.toggle('on', pastHero && seen.size === 0 && !typing && !document.querySelector('dialog[open]'));
+  };
+  const measure = () => document.documentElement.style.setProperty('--mobile-action-space', Math.ceil(bar.getBoundingClientRect().height + 24) + 'px');
+  measure();
+  if ('ResizeObserver' in window) new ResizeObserver(measure).observe(bar);
+  else window.addEventListener('resize', measure, { passive: true });
+  document.addEventListener('focusin', update);
+  document.addEventListener('focusout', () => requestAnimationFrame(update));
   const io = new IntersectionObserver(es => { es.forEach(e => e.isIntersecting ? seen.add(e.target) : seen.delete(e.target)); update(); });
   document.querySelectorAll('#trial,#pricing,.closing,.site-footer').forEach(n => io.observe(n));
   if (hero) new IntersectionObserver(es => { pastHero = !es[0].isIntersecting; update(); }, { threshold: .15 }).observe(hero);

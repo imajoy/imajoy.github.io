@@ -1,0 +1,36 @@
+/* Keep the global download action ahead of regional sales information. */
+.home-page .hero-secondary[data-region-unavailable]{background:transparent;border-color:transparent;box-shadow:none;color:var(--blue-d);text-decoration:underline;text-underline-offset:4px;white-space:normal}
+@media(max-width:680px){
+ html:has(.home-page){scroll-padding-bottom:calc(var(--mobile-action-space,96px) + env(safe-area-inset-bottom))}
+ .home-page .hero-copy{padding:112px 24px 32px}
+ .home-page .hero-actions{display:flex;flex-direction:column;align-items:stretch;gap:10px}
+ .home-page .hero-actions .btn{min-height:50px;justify-content:center;white-space:normal;line-height:1.5;padding:13px 20px}
+ .home-page .hero-secondary[data-region-unavailable]{align-self:center;min-height:44px;padding:10px 8px;font-size:.8125rem}
+ .home-page .hero-trial-note{display:flex;align-items:flex-start;text-align:left;line-height:1.75;margin:18px auto 20px;max-width:32em;overflow-wrap:break-word}
+ .home-page .hero-trial-note::before{flex:none;margin-top:.65em}
+ .home-page #stage{margin-top:0;height:clamp(260px,85vw,400px)}
+ .home-page .hero-fine{padding-bottom:calc(32px + env(safe-area-inset-bottom));line-height:1.7}
+ .home-page .pillbar{gap:6px;padding-inline:10px}
+ .home-page .pillbar .brand{gap:7px;font-size:.8125rem;white-space:nowrap;min-height:44px}
+ .home-page .pillbar .mark{width:26px;height:26px}
+ .home-page .pillbar .theme{width:44px;height:44px;flex:none}
+ .home-page .pillbar .acct-btn{min-height:44px;padding-inline:10px;font-size:.6875rem;white-space:nowrap}
+ .home-page .pillbar .btn-sm{min-height:44px;padding:10px 12px;font-size:.6875rem;white-space:nowrap}
+ .home-page .tile{padding:26px 22px}
+ .home-page .t-sub{font-size:.9375rem;line-height:1.6;margin-bottom:18px}
+ .home-page .tl li{gap:12px;padding-block:13px}
+ .home-page .tl li>div{min-width:0}
+ .home-page .tl b{font-size:1rem;line-height:1.4}
+ .home-page .tl span:not(.ic){font-size:.875rem;line-height:1.6;margin-top:3px}
+ .home-page .workflow-panel{gap:24px}
+ .home-page .workflow-copy h3{font-size:1.75rem;line-height:1.2;margin-bottom:16px}
+ .home-page .workflow-copy>p:not(.eyebrow){font-size:.9375rem;line-height:1.7;margin-bottom:16px}
+ .home-page .workflow-panel .workflow-beats button{min-height:44px}
+ .home-page .m-cta a{min-width:0;padding:4px 8px;font-size:.8125rem;line-height:1.4;text-align:center}
+ .home-page .site-footer{padding-bottom:calc(var(--mobile-action-space,96px) + env(safe-area-inset-bottom))}
+ .home-page :is(a,button,input,select,textarea){scroll-margin-bottom:calc(var(--mobile-action-space,96px) + 16px)}
+}
+@media(max-width:360px){
+ .home-page .pillbar .brand>span{display:none}
+ .home-page .hero-copy{padding-inline:20px}
+}

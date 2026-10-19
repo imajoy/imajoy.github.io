@@ -1,0 +1,17 @@
+/* Protected tool-card motion. Text never depends on a reveal class to be visible. */
+.home-page #tools .tl li{opacity:1;transform:none;translate:none}
+.home-page #tools .ic{animation:icbreath 5s ease-in-out infinite!important;animation-play-state:paused!important}
+.home-page #tools .tl li:nth-child(2) .ic{animation-delay:-1.2s!important}
+.home-page #tools .tl li:nth-child(3) .ic{animation-delay:-2.4s!important}
+.home-page #tools .tl li:nth-child(4) .ic{animation-delay:-3.6s!important}
+.home-page #tools .tile[data-tool-active] .ic{animation-play-state:running!important}
+@media(hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+ .home-page #tools .tl li>div{transition:transform 220ms ease-out}
+ .home-page #tools .tl li:hover>div,.home-page #tools .tl li:focus-within>div{transform:translateX(4px)}
+ .home-page #tools .ic{transition:transform 250ms cubic-bezier(.22,1,.36,1)}
+ .home-page #tools .tl li:hover .ic,.home-page #tools .tl li:focus-within .ic{transform:scale(1.1) rotate(-5deg)}
+}
+@media(prefers-reduced-motion:reduce){
+ .home-page #tools .ic{animation:none!important}
+ .home-page #tools .tl li,.home-page #tools .tl li>div,.home-page #tools .ic{transform:none!important;translate:none!important;transition:none!important}
+}

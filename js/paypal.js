@@ -41,6 +41,7 @@ if(form&&pay){
   if(!session||!eligibility)selectedOffer='';
   else if(c.plan==='offline')selectedOffer='standard';
   else if(selectedOffer==='trial'&&!trial)selectedOffer='';
+  else if(!selectedOffer&&couponCode)selectedOffer='standard';
   else if(!selectedOffer&&trial)selectedOffer='trial';
   for(const radio of offerBox.querySelectorAll('input'))radio.checked=radio.value===selectedOffer;
   trialOn=selectedOffer==='trial'&&trial;
@@ -74,7 +75,7 @@ if(form&&pay){
   const code=cInput.value.trim().toUpperCase();cInput.value=code;
   if(!/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(code)){couponSay('Enter a valid coupon code.',true);cInput.focus();return;}
   if(!getAccountSession()){couponSay('Sign in or register first, then apply your coupon.',true);openAccount({purpose:'checkout',email:form.elements.email.value});return;}
-  couponCode=code;couponSay('Checking '+code+'…');invalidate();refreshReward();sync();
+  couponCode=code;if(selectedOffer!=='standard'&&getAccountSession()&&eligibility)selectedOffer='standard';invalidate();refreshReward();sync();
  }
  if(cApply)cApply.onclick=applyCoupon;
  if(cInput)cInput.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();applyCoupon();}});
@@ -89,7 +90,16 @@ if(form&&pay){
   const span=q?(q.rewardPayments>1?'your first '+q.rewardPayments+' '+q.billing+' payments':'your first '+q.billing+' payment'):'';
   const dt=document.querySelector('#loyalty-summary-row dt');if(dt&&dt.firstChild&&dt.firstChild.nodeType===3)dt.firstChild.textContent=coupon?'Coupon '+coupon.code+' ':'Loyalty reward ';
   if(cRemove)cRemove.hidden=!couponCode;
-  if(coupon)couponSay(coupon.code+' applied: '+coupon.percent+'% off '+span+'.'+(trialOn?' Choose the standard subscription to use it; coupons do not apply to the free trial.':''));
+  if(couponCode){
+   const c=choice(),region=cfg?availability(c.country,cfg.closedCountries||[]):null;
+   if(coupon)couponSay(coupon.code+' applied: '+coupon.percent+'% off '+span+'. The discount is shown in your order summary.'+(trialOn?' Choose the standard subscription to use it; coupons do not apply to the free trial.':''));
+   else if(rewardBusy)couponSay('Checking '+couponCode+'…');
+   else if(!s)couponSay('Sign in or register first, then apply your coupon.',true);
+   else if(!cfg||!eligibility)couponSay('Loading your checkout. Your coupon will be checked in a moment.');
+   else if(!c.country)couponSay('Choose your billing country to check this coupon.',true);
+   else if(region&&!region.open)couponSay('Subscriptions are not open for the selected billing country yet, so this coupon cannot be used there.',true);
+   else if(rewardError)couponSay(rewardError,true);
+  }
   document.querySelector('#loyalty-summary-row').hidden=!applied;
   document.querySelector('#loyalty-summary').hidden=!applied;
   rewardRetry.hidden=!s||!rewardError||rewardBusy;

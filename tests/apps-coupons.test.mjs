@@ -33,3 +33,12 @@ test('A coupon never applies to the free trial',()=>{
  const created=app.rpc('checkout',selection(app,{offer:'trial',coupon:'SAVE20',deviceId:undefined,deviceHash:'a'.repeat(64),ipHash:'b'.repeat(64)}));
  assert(created.ok,JSON.stringify(created));assert.equal(created.pricing,null);assert.equal(app.plans.size,0);
 });
+test('Price previews reuse the PayPal login and recent payment history; checkout always re-checks',()=>{
+ const app=service();app.options.keepHistoryCache=true;
+ const count=()=>app.requests.filter(r=>r.url.includes('/v1/billing/subscriptions/I-TESTBUYER1')).length;
+ const tokens=()=>app.requests.filter(r=>r.url.endsWith('/v1/oauth2/token')).length;
+ app.rpc('rewards',selection(app));const first=count();
+ app.rpc('rewards',selection(app));assert.equal(count(),first,'second preview should not call PayPal again');
+ assert.equal(tokens(),1,'PayPal login should be reused');
+ app.rpc('checkout',selection(app,{expectedTotal:2200,expectedRewardPercent:0}));assert(count()>first,'checkout must re-check history');
+});

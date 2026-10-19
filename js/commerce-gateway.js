@@ -14,7 +14,7 @@ export async function secureCommerce(path,body={}){
  const session=getAccountSession();
  if(!session){openAccount({purpose:path==='download'?'download':'checkout'});throw new Error('Sign in or register and verify your email to continue.');}
  if(!cfg.commerceUrl)throw new Error('Secure checkout and downloads are being connected. Please try again shortly.');
- const response=await fetch(cfg.commerceUrl.replace(/\/$/,'')+'/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,accountToken:session.token,...(['checkout','eligibility'].includes(path)?{deviceId:browserDeviceId()}: {})}),signal:AbortSignal.timeout(35000)});
+ const response=await fetch(cfg.commerceUrl.replace(/\/$/,'')+'/'+path,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,accountToken:session.token,...(['checkout','eligibility'].includes(path)?{deviceId:browserDeviceId()}: {})}),signal:AbortSignal.timeout(60000)});
  let data;try{data=await response.json();}catch{throw new Error('The secure account service needs updating. Please try again later.');}
  if(!response.ok||!data.ok){
   if(response.status===401){clearAccountSession();openAccount({purpose:path==='download'?'download':'checkout'});}

@@ -89,7 +89,10 @@ function commerceCreate_(d,who) {
   var prior=rewardPending_(d,who);
   var history=!prior&&d.offer==='standard'?rewardHistory_(who.email):null;
   var pricing=prior?rewardBuyer_(prior).loyalty:d.offer==='standard'?couponApply_(rewardQuote_(d,who,history),d,who.email):null;
-  if(!prior&&pricing&&(d.expectedTotal!==undefined&&d.expectedTotal!==pricing.total||d.expectedRewardPercent!==undefined&&d.expectedRewardPercent!==pricing.percent))throw commerceError_('price_changed','Your payment history or price changed. Refresh your reward and review the total before approving.');
+  if(!prior&&pricing&&(d.expectedTotal!==undefined&&d.expectedTotal!==pricing.total||d.expectedRewardPercent!==undefined&&d.expectedRewardPercent!==pricing.percent)){
+    try{CacheService.getScriptCache().remove('rh:'+mode_()+':'+who.email);}catch(e){}
+    throw commerceError_('price_changed','Your payment history or price changed. Refresh your reward and review the total before approving.');
+  }
   if(prior)planId=prior[10];
   else if(pricing&&pricing.percent)planId=rewardPayPalPlan_(d,pricing);
   var row=commerceLock_(function(){
@@ -150,6 +153,7 @@ function commerceConfirm_(id,who) {
     var logged=handleOrder_({subscriptionId:row[11],email:row[2],country:row[18],detectedCountry:row[18],plan:row[7],billing:row[8],seats:row[9],name:buyer.name||'',company:buyer.company||''});
     if(logged!=='ok'&&logged!=='duplicate')throw commerceError_('pending','Your approved subscription is being recorded. Please check again.');
     commerceLock_(function(){var current=commerceFind_(id);current[16]='yes';current[14]=new Date();commerceWrite_(current);});
+    try{CacheService.getScriptCache().remove('rh:'+mode_()+':'+row[2]);}catch(e){}
     var usedCoupon=(rewardBuyer_(row).loyalty||{}).coupon;if(usedCoupon)couponRecordUse_(usedCoupon.code);
   }
   return {ok:true,accepted:true,checkoutId:id,subscriptionId:row[11],offer:row[6],email:row[2],plan:row[7],billing:row[8],seats:row[9]};

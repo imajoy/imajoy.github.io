@@ -65,7 +65,7 @@ export async function handleCommerceRequest(req,env,request=fetch){
   }
   const packed=JSON.stringify(payload),timestamp=String(Date.now()),nonce=crypto.randomUUID();
   const signature=await keyedHash(secret,timestamp+'.'+nonce+'.'+packed);
-  const result=await request(script,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'commerce',payload:packed,timestamp,nonce,signature}),signal:AbortSignal.timeout(25000)});
+  const result=await request(script,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'commerce',payload:packed,timestamp,nonce,signature}),signal:AbortSignal.timeout(55000)});
   let response;try{response=await result.json();}catch{throw fail('The account service needs the latest deployment.',503);}
   if(!result.ok||!response||typeof response.ok!=='boolean')throw fail('The account service is unavailable.',503);
   if(!response.ok)return json(response,response.error==='signin_required'?401:response.error==='unavailable'?503:409);

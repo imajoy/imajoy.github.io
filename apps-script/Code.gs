@@ -127,12 +127,17 @@ function priceFlags_(paidTier, chosen, detected, payer) {
 function token_() {
   var p = props_(), id = p.getProperty('PAYPAL_CLIENT_ID'), secret = p.getProperty('PAYPAL_SECRET');
   if (!id || !secret) return '';
+  // Reuse the PayPal access token (valid for hours) instead of logging in again for every call.
+  var cache = CacheService.getScriptCache(), key = 'pp:' + mode_() + ':' + id.slice(-12);
+  var saved = cache.get(key); if (saved) return saved;
   var r = UrlFetchApp.fetch(base_() + '/v1/oauth2/token', {
     method: 'post', payload: 'grant_type=client_credentials', muteHttpExceptions: true,
     headers: { Authorization: 'Basic ' + Utilities.base64Encode(id + ':' + secret) }
   });
   if (r.getResponseCode() !== 200) return '';
-  return JSON.parse(r.getContentText()).access_token || '';
+  var data = JSON.parse(r.getContentText()), token = data.access_token || '';
+  if (token) cache.put(key, token, Math.max(60, Math.min(21600, (Number(data.expires_in) || 3600) - 300)));
+  return token;
 }
 
 function esc_(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }

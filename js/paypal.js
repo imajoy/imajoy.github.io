@@ -3,7 +3,7 @@ import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?
 import {rememberGeo} from './geo.js?v=20261018-h8';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261018-j3';
 import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261018-n1';
-import {secureCommerce} from './commerce-gateway.js?v=20261018-n1';
+import {secureCommerce} from './commerce-gateway.js?v=20261019-t60';
 const settings=window.AJOY_CONFIG||{},form=document.querySelector('#billing-form'),pay=document.querySelector('#pay');
 bindAccountEmail(form?.elements.email,document.querySelector('#email-hint'));
 if(form&&pay){

@@ -86,7 +86,11 @@ function rewardSelection_(d) {
 }
 function commerceRewards_(d,who) {
   rewardSelection_(d);
-  return {ok:true,pricing:couponApply_(rewardQuote_(d,who,rewardHistory_(who.email)),d,who.email)};
+  // The price preview reuses a recent payment-history lookup (PayPal calls are slow); checkout always re-checks.
+  var cache=CacheService.getScriptCache(),key='rh:'+mode_()+':'+who.email,history=null;
+  try{history=JSON.parse(cache.get(key)||'null');}catch(e){}
+  if(!history){history=rewardHistory_(who.email);cache.put(key,JSON.stringify(history),300);}
+  return {ok:true,pricing:couponApply_(rewardQuote_(d,who,history),d,who.email)};
 }
 function rewardPending_(d,who) {
   var rows=commerceRows_().filter(function(r){return r[1]===mode_()&&r[2]===who.email;});

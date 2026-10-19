@@ -45,7 +45,9 @@ export function service({registered=true,mailFails=false}={}){
  const clone=value=>JSON.parse(JSON.stringify(value));
  const call=body=>clone(ctx.handleAccount_(body));
  const envelope=payload=>{const packed=JSON.stringify(payload),timestamp=String(Date.now()),nonce=randomUUID();return {type:'commerce',payload:packed,timestamp,nonce,signature:createHmac('sha256',values.get('COMMERCE_SECRET')).update(timestamp+'.'+nonce+'.'+packed).digest('hex')};};
- const rpc=(action,data={})=>clone(ctx.handleCommerceEnvelope_(envelope({action,...data})));
+ // Logic tests re-check history after changing it; the 5-minute preview cache is tested separately (keepHistoryCache).
+ const options={keepHistoryCache:false};
+ const rpc=(action,data={})=>{if(!options.keepHistoryCache)for(const k of [...cache.keys()])if(k.startsWith('rh:'))cache.delete(k);return clone(ctx.handleCommerceEnvelope_(envelope({action,...data})));};
  const register=email=>{call({step:'code',email,intent:'register'});const code=mails.at(-1).subject.match(/\d{6}/)[0];return call({step:'verify',email,code});};
- return {ctx,values,mails,requests,cache,sheets,subscriptions,transactions,plans,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
+ return {options,ctx,values,mails,requests,cache,sheets,subscriptions,transactions,plans,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
 }

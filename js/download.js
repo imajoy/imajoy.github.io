@@ -1,6 +1,6 @@
 /* Registration and server verification are required before a short-lived private installer link is issued. */
 import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261018-n1';
-import {secureCommerce} from './commerce-gateway.js?v=20261018-n1';
+import {secureCommerce} from './commerce-gateway.js?v=20261019-t60';
 const root=document.querySelector('#dl'),form=document.querySelector('#dl-form'),input=document.querySelector('#dl-email'),hint=document.querySelector('#dl-hint');
 const title=document.querySelector('#dl-title'),sub=document.querySelector('#dl-sub'),status=document.querySelector('#dl-status'),start=document.querySelector('#dl-start');
 bindAccountEmail(input,hint);input.readOnly=true;

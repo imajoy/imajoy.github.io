@@ -9,7 +9,6 @@ function chooseBilling(value){
  if(billing===value)return;
  animatePricing=true;billing=value;toggle.dataset.state=billing;
  for(const button of toggle.querySelectorAll('button')){const selected=button.dataset.bill===billing;button.classList.toggle('on',selected);button.setAttribute('aria-pressed',String(selected));}
- for(const button of document.querySelectorAll('button[data-choose-yearly]')){button.disabled=billing==='yearly';button.textContent=billing==='yearly'?'Yearly savings selected ✓':'Choose yearly · save 20% ↗';}
  render();
 }
 function animate(element){if(animatePricing&&!matchMedia('(prefers-reduced-motion: reduce)').matches)element.animate([{opacity:.5},{opacity:1}],{duration:200,easing:'ease-out'});}
@@ -19,11 +18,10 @@ async function render(){
  const notice=document.querySelector('#india-availability');
  notice.hidden=!inIndia;
  notice.querySelector('a').href=indiaContact();
- document.querySelector('[data-hero-context]').hidden=inIndia;
  document.querySelector('.plan-trial-kicker').hidden=inIndia;
  await Promise.all(['online','offline'].map(async plan=>{
-  const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`),yearlyLink=document.querySelector(`[data-card-yearly="${plan}"]`);
-  buy.href=inIndia&&!buy.classList.contains('is-owned')?indiaContact():`checkout.html?${new URLSearchParams({plan,billing,v:'20261018-r19'})}`;amount.textContent='—';offer.hidden=true;comparison.hidden=true;yearlyLink.hidden=true;
+  const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`);
+  buy.href=inIndia&&!buy.classList.contains('is-owned')?indiaContact():`checkout.html?${new URLSearchParams({plan,billing,v:'20261018-r19'})}`;amount.textContent='—';offer.hidden=true;comparison.hidden=true;
   try{
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;
@@ -39,7 +37,6 @@ async function render(){
     if(inIndia)buy.href=indiaContact(plan==='online'?'Online':'Offline');
    }
    if(inIndia)note.textContent='Indicative price. Billed '+(billing==='yearly'?'annually.':'monthly.');
-   yearlyLink.hidden=billing!=='monthly';
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);
     offer.querySelector('.annual-saving').textContent='Save '+show(quote.annualSavings)+' per year';
@@ -52,10 +49,6 @@ async function render(){
 }
 for(const button of toggle.querySelectorAll('button'))button.addEventListener('click',()=>{
  chooseBilling(button.dataset.bill);
-});
-for(const control of document.querySelectorAll('[data-choose-yearly]'))control.addEventListener('click',()=>chooseBilling('yearly'));
-for(const control of document.querySelectorAll('[data-card-yearly]'))control.addEventListener('click',()=>{
- chooseBilling('yearly');toggle.querySelector('[data-bill="yearly"]').focus({preventScroll:true});
 });
 let tcfg=null;
 loadTrialConfig().then(c=>{tcfg=c;if(c)render();});

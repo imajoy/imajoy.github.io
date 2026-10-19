@@ -1,0 +1,46 @@
+/* Audio Exporter dependency guide: all file information stays visible without motion. */
+.ffmpeg-prep{margin-top:64px;padding:38px;border:1px solid var(--line);border-radius:32px;background:radial-gradient(ellipse at 90% 10%,#4a8bff12,transparent 55%),var(--bg2);scroll-margin-top:110px}
+.ffmpeg-heading{max-width:760px;margin-bottom:32px}
+.ffmpeg-heading .eyebrow{font-size:.625rem;letter-spacing:.12em;color:var(--blue-d)}
+.ffmpeg-heading h2{font-size:clamp(1.9rem,3vw,2.8rem);line-height:1.12;margin:14px 0 18px}
+.ffmpeg-heading>p:last-child{font-size:.9375rem;line-height:1.8;color:var(--mute)}
+.ffmpeg-layout{display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:38px;align-items:start}
+.ffmpeg-steps{counter-reset:ff-step;display:grid;gap:24px}
+.ffmpeg-steps>li{position:relative;padding-left:40px;counter-increment:ff-step}
+.ffmpeg-steps>li::before{content:"0" counter(ff-step);position:absolute;left:0;top:3px;font-size:.625rem;color:var(--blue-d);font-weight:600}
+.ffmpeg-steps h3{font-size:1rem;line-height:1.4;margin-bottom:9px}
+.ffmpeg-steps p{font-size:.8125rem;line-height:1.85;color:var(--mute)}
+.ffmpeg-prep code{font-family:Consolas,monospace;font-size:.95em;overflow-wrap:anywhere}
+.ffmpeg-prep .ffmpeg-download{margin-top:16px;min-height:46px;height:auto;padding:12px 18px;font-size:.75rem;white-space:normal;text-align:center}
+.ffmpeg-next{margin-top:28px;padding:20px;border:1px solid #3d8bff30;border-radius:18px;background:#3d8bff08}
+.ffmpeg-next strong{font-size:.8125rem;line-height:1.6}
+.ffmpeg-next p,.ffmpeg-build-note{font-size:.75rem;line-height:1.8;color:var(--mute);margin-top:10px}
+.ffmpeg-visual{position:relative;min-width:0;margin:0}
+.ffmpeg-visual-title{font-size:.5625rem;color:var(--mute);letter-spacing:.1em;margin-bottom:14px}
+.ff-window{min-width:0;border:1px solid var(--line);border-radius:20px;background:var(--card);box-shadow:0 18px 45px -30px #102c6770;overflow:hidden}
+.ff-window-title{display:flex;align-items:center;gap:8px;padding:14px 16px;border-bottom:1px solid var(--line);font-size:.6875rem;color:var(--mute);background:var(--bg2)}
+.ff-drive-icon{width:20px;height:14px;border:1px solid currentColor;border-radius:4px;position:relative;flex:none}
+.ff-drive-icon::after{content:'';position:absolute;bottom:3px;right:3px;width:3px;height:2px;border-radius:1px;background:var(--blue)}
+.ff-crumb-arrow{opacity:.45}
+.ff-file-head{display:flex;justify-content:space-between;margin:14px 16px 8px;color:var(--mute);font-size:.5625rem}
+.ff-folder-row{display:flex;align-items:center;gap:10px;margin:0 10px 12px;padding:13px 10px;border:1px solid transparent;border-radius:11px;transition:background-color 280ms ease,border-color 280ms ease}
+.ff-folder{position:relative;flex:none;width:25px;height:18px;border-radius:3px;background:linear-gradient(#ffda76,#f5bb3e);box-shadow:0 2px 3px #69440712}
+.ff-folder::before{content:'';position:absolute;left:0;top:-4px;width:11px;height:5px;background:#efb73e;border-radius:3px 3px 0 0}
+.ff-folder-row b{font-size:.8125rem;font-weight:500}.ff-folder-row small{margin-left:auto;color:var(--mute);font-size:.5625rem}
+.ff-connector{position:relative;height:38px;margin-left:24px;width:2px;background:#3d8bff25;overflow:hidden}
+.ff-connector::after{content:'';position:absolute;inset:0;background:linear-gradient(transparent,var(--blue),transparent);transform:translateY(-100%)}
+.ff-window-files{margin-left:24px}
+.ff-file-list{padding:0 10px 10px}
+.ff-file-list li{display:flex;align-items:center;gap:9px;padding:8px 8px;border:1px solid transparent;border-radius:8px;font-size:.6875rem;line-height:1.4;transition:background-color 280ms ease,border-color 280ms ease}
+.ff-file-list code{min-width:0}
+.ff-file-icon{flex:none;width:18px;height:21px;border:1px solid var(--line);border-radius:4px;color:var(--blue-d);font:600 7px/21px var(--sans);text-align:center;background:var(--bg2)}
+.ff-file-list small{margin-left:auto;font-size:.5rem;color:var(--mute);letter-spacing:.04em}
+.ffmpeg-visual[data-ff-phase="0"] .ff-folder-row,.ffmpeg-visual[data-ff-phase="1"] .ff-executable{background:#3d8bff0c;border-color:#3d8bff30}
+.ffmpeg-visual figcaption{font-size:.625rem;color:var(--mute);line-height:1.8;margin:16px 8px 0}
+@media(prefers-reduced-motion:no-preference){
+ .ffmpeg-visual[data-ff-active] .ff-connector::after{animation:ffmpeg-flow 2.8s ease-in-out infinite}
+ @keyframes ffmpeg-flow{to{transform:translateY(100%)}}
+}
+@media(max-width:800px){.ffmpeg-prep{padding:28px 24px}.ffmpeg-layout{grid-template-columns:1fr;gap:30px}.ffmpeg-visual{grid-row:1;width:100%;max-width:530px;margin-inline:auto}.ffmpeg-copy{grid-row:2}}
+@media(max-width:420px){.ffmpeg-prep{padding:24px 18px;border-radius:24px}.ffmpeg-steps>li{padding-left:30px}.ff-window-title{padding:13px 12px;gap:6px;font-size:.625rem}.ff-window-files{margin-left:12px}.ff-file-list li{font-size:.625rem;gap:7px}.ff-folder-row small{display:none}}
+@media(prefers-reduced-motion:reduce){.ffmpeg-prep *,.ffmpeg-prep *::before,.ffmpeg-prep *::after{animation:none!important;transition:none!important}}

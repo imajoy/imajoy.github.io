@@ -1,4 +1,4 @@
-import {mountPasskeys,cancelPasskey} from './passkeys.js?v=20261019-passkey1';
+import {mountPasskeys,cancelPasskey} from './passkeys.js?v=20261020-fast1';
 /* Email-code sign-in with an immediate cached summary and live subscription refresh. */
 import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261018-n1';
 const cfg = window.AJOY_CONFIG || {};

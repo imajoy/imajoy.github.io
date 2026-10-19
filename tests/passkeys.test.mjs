@@ -73,3 +73,38 @@ test('passkey function rejects untrusted origins and never exposes credentials o
  const result=await handler(request('registration/verify',{accountToken:s.token,challengeId:randomUUID(),credential:{type:'public-key',id:'testcredential'}}));assert.equal(result.status,409);assert.equal(s.app.sheets.has('Passkeys'),false);
  assert.deepEqual(await (await createPasskeyHandler({}, {env:()=>undefined})(request('config'))).json(),{enabled:false});
 });
+test('bundled verification uses two storage requests, preserves replay protection and supports older deployments',async()=>{
+ for(const legacy of [false,true]){
+  const s=setup(),operations=[],id=randomUUID();
+  s.rpc('save',{accountToken:s.token,credential:s.credential});
+  s.rpc('challenge',{kind:'authenticate',challengeId:id,challenge:'A'.repeat(43)});
+  const handler=createPasskeyHandler({verifyAuthenticationResponse:async()=>({verified:true,authenticationInfo:{userVerified:true,newCounter:1}})}, {
+   env:k=>k==='SHEET_WEB_APP_URL'?'https://script.google.com/macros/s/TEST/exec':s.app.values.get(k),
+   request:async(url,options)=>{
+    operations.push(JSON.parse(JSON.parse(options.body).payload).operation);
+    const result=JSON.parse(s.app.ctx.doPost({postData:{contents:options.body}}).text);
+    if(legacy&&operations.at(-1)==='consume')delete result.credential;
+    return Response.json(result);
+   }
+  });
+  const request=()=>new Request('https://project.supabase.co/functions/v1/passkeys/authentication/verify',{method:'POST',headers:{Origin:origin},body:JSON.stringify({challengeId:id,credential:{id:s.credential.id,type:'public-key',response:{userHandle:s.credential.userId}}})});
+  const response=await handler(request()),result=await response.json();
+  assert.equal(response.status,200);assert.equal(result.email,'buyer@example.com');assert(result.token);assert.equal(result.credential,undefined);
+  assert.deepEqual(operations,legacy?['consume','credential','login']:['consume','login']);
+  assert.equal((await handler(request())).status,409,'Bundled challenge stays single use');
+ }
+});
+test('bundled credential lookup rejects missing keys and final login rechecks revocation',async()=>{
+ const s=setup(),challenge='A'.repeat(43),missing=randomUUID();
+ s.rpc('challenge',{kind:'authenticate',challengeId:missing,challenge});
+ assert.equal(s.rpc('consume',{kind:'authenticate',challengeId:missing,credentialId:'unknown'}).error,'credential_missing');
+ assert.equal(s.rpc('consume',{kind:'authenticate',challengeId:missing,credentialId:'unknown'}).error,'challenge');
+ s.rpc('save',{accountToken:s.token,credential:s.credential});
+ const id=randomUUID();s.rpc('challenge',{kind:'authenticate',challengeId:id,challenge});
+ const consumed=s.rpc('consume',{kind:'authenticate',challengeId:id,credentialId:s.credential.id});
+ assert.equal(consumed.credential.id,s.credential.id);
+ s.rpc('remove',{accountToken:s.token,credentialId:s.credential.id});
+ assert.equal(s.rpc('login',{credentialId:s.credential.id,previousCounter:consumed.credential.counter,newCounter:1}).error,'verification');
+ const register=randomUUID();s.rpc('challenge',{kind:'register',challengeId:register,challenge,accountToken:s.token});
+ assert.equal(s.rpc('consume',{kind:'register',challengeId:register,accountToken:s.token}).userId,s.credential.userId);
+});

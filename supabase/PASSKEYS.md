@@ -33,6 +33,12 @@ The website probes `/passkeys/config`; controls stay hidden if either deployment
 3. Sign out. Open **Register / Login → Use a passkey** and approve the device prompt. You should sign in without an email code.
 4. Cancel a prompt and confirm the email form still works. Remove the passkey and confirm that it no longer grants access. Email-code recovery remains available.
 
+## Update an already-working deployment for faster verification
+
+Replace only **Passkeys.gs** with the latest repository version, then **Deploy → Manage deployments → Edit → New version → Deploy**, keeping the same web app URL and properties. Run the Supabase `passkeys` deployment command above from the latest repository. Refresh the website afterwards. Existing passkeys stay valid; users do not need to enroll again.
+
+This combines challenge consumption and credential lookup into one signed Apps Script request, reducing post-prompt verification from three sequential Apps Script requests to two. Registration verification also uses two instead of three. Signature verification, one-use/two-minute challenges, required user verification, counter updates and final account/revocation checks remain enforced. The Supabase function remains compatible with older Apps Script versions, using the separate lookup until Apps Script is updated. Google Apps Script startup and network latency can still affect total sign-in time; no fixed production speed improvement is guaranteed.
+
 ## Verification
 
 `node --test tests/*.test.mjs` tests signed-RPC boundaries, recent-session requirements, owner-only management, one-use/expired challenges, counters and revocation. It never sends real email.

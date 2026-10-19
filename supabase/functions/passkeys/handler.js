@@ -45,16 +45,18 @@ export function createPasskeyHandler(webauthn,{env,request=fetch,origin='https:/
         return json({options,challengeId});
       }
       const registering=path.startsWith('registration'),kind=registering?'register':'authenticate';
-      const challenge=await rpc('consume',{challengeId:data.challengeId,kind,...(registering?{accountToken:token}:{})});
       const credential=data.credential;
       if(!credential||credential.type!=='public-key'||!/^[-_a-zA-Z0-9]{1,2048}$/.test(credential.id||''))throw fail('verification','Invalid passkey response.');
+      const challenge=await rpc('consume',{challengeId:data.challengeId,kind,...(registering?{accountToken:token}:{credentialId:credential.id})});
       if(registering){
         let result;try{result=await webauthn.verifyRegistrationResponse({response:credential,expectedChallenge:challenge.challenge,expectedOrigin:origin,expectedRPID:rpID,requireUserVerification:true});}catch{throw fail('verification','Your passkey could not be verified. Please try again.');}
         if(!result.verified||!result.registrationInfo?.userVerified)throw fail('verification','Passkey verification is required.');
-        const info=result.registrationInfo,who=await rpc('context',{accountToken:token});
+        const info=result.registrationInfo,who=challenge.userId?challenge:await rpc('context',{accountToken:token});
         return json(await rpc('save',{accountToken:token,credential:{id:info.credential.id,publicKey:base64(info.credential.publicKey),counter:info.credential.counter,transports:info.credential.transports||[],userId:who.userId,deviceType:info.credentialDeviceType,backedUp:info.credentialBackedUp,aaguid:info.aaguid}}));
       }
-      const saved=(await rpc('credential',{credentialId:credential.id})).credential;
+      // Older Apps Script deployments ignore credentialId on consume; keep their
+      // separate lookup working until the storage deployment is updated.
+      const saved=challenge.credential||(await rpc('credential',{credentialId:credential.id})).credential;
       if(credential.response?.userHandle!==saved.userId)throw fail('verification','This passkey does not match the account.');
       let result;try{result=await webauthn.verifyAuthenticationResponse({response:credential,expectedChallenge:challenge.challenge,expectedOrigin:origin,expectedRPID:rpID,credential:{id:saved.id,publicKey:bytes(saved.publicKey),counter:saved.counter,transports:saved.transports},requireUserVerification:true});}catch{throw fail('verification','Your passkey could not be verified. Use an email code or try again.');}
       if(!result.verified||!result.authenticationInfo.userVerified)throw fail('verification','Passkey verification is required.');

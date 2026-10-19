@@ -61,6 +61,7 @@ export async function mountPasskeys(container,{session,onSession,onReauth}){
   const options=await api(kind+'/options',session?{accountToken:token}:{},signal);if(!current()||signal.aborted)return;
   const credential=session?await navigator.credentials.create({publicKey:PublicKeyCredential.parseCreationOptionsFromJSON(options.options),signal}):await navigator.credentials.get({publicKey:PublicKeyCredential.parseRequestOptionsFromJSON(options.options),signal});
   if(!credential||signal.aborted||!current())return;
+  say(session?'Saving your verified passkey…':'Verifying your passkey…');
   const encoded=credential.toJSON();let result;
   try{result=await api(kind+'/verify',{...(session?{accountToken:token}:{}),challengeId:options.challengeId,credential:encoded},signal);}
   catch(error){

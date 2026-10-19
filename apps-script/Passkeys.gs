@@ -17,6 +17,11 @@ function passkeyWrite_(record) {
   var row=['credential:'+record.id,'email:'+record.email,JSON.stringify(record),new Date(record.createdAt),record.revoked?'Removed':'Active'];
   if(index<0)sheet.appendRow(row);else sheet.getRange(index+2,1,1,5).setValues([row]);
 }
+function passkeyCredential_(id) {
+  var found=passkeyRows_().find(function(row){return row.id===id&&!row.revoked;});
+  if(!found||!registeredEmail_(found.email))throw commerceError_('credential_missing','This passkey is no longer registered. Use your email code.');
+  return found;
+}
 function handlePasskeys_(d) {
   return commerceLock_(function(){
     var operation=d.operation,cache=CacheService.getScriptCache();
@@ -38,7 +43,12 @@ function handlePasskeys_(d) {
       var key='passkey-challenge:'+d.challengeId,record=JSON.parse(cache.get(key)||'null');cache.remove(key);
       if(!record||record.expiresAt<=Date.now()||record.kind!==d.kind)throw commerceError_('challenge','This passkey prompt expired. Please try again.');
       if(record.kind==='register'&&passkeyWho_(d.accountToken,true).email!==record.email)throw commerceError_('signin_required','Verify the same account before adding a passkey.');
-      return {ok:true,challenge:record.challenge,email:record.email};
+      var result={ok:true,challenge:record.challenge,email:record.email};
+      // Return verification context in the same authenticated round trip. The
+      // login/save operations still independently recheck ownership and revocation.
+      if(record.kind==='register')result.userId=sign_('passkey-user:'+record.email);
+      else if(d.credentialId)result.credential=passkeyCredential_(d.credentialId);
+      return result;
     }
     if(operation==='save'){
       var who=passkeyWho_(d.accountToken,true),row=d.credential;
@@ -49,9 +59,7 @@ function handlePasskeys_(d) {
       passkeyWrite_(row);return {ok:true};
     }
     if(operation==='credential'){
-      var found=passkeyRows_().find(function(row){return row.id===d.credentialId&&!row.revoked;});
-      if(!found||!registeredEmail_(found.email))throw commerceError_('credential_missing','This passkey is no longer registered. Use your email code.');
-      return {ok:true,credential:found};
+      return {ok:true,credential:passkeyCredential_(d.credentialId)};
     }
     if(operation==='login'){
       var found=passkeyRows_().find(function(row){return row.id===d.credentialId&&!row.revoked;});

@@ -19,10 +19,11 @@ async function render(){
  const notice=document.querySelector('#india-availability');
  notice.hidden=!inIndia;
  notice.querySelector('a').href=indiaContact();
- document.querySelector('.plan-trial-kicker').textContent=inIndia?'Regional availability below':'2-day free trial on eligible Online plans';
+ document.querySelector('[data-hero-context]').hidden=inIndia;
+ document.querySelector('.plan-trial-kicker').hidden=inIndia;
  await Promise.all(['online','offline'].map(async plan=>{
   const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`),yearlyLink=document.querySelector(`[data-card-yearly="${plan}"]`);
-  buy.href=inIndia&&!buy.classList.contains('is-owned')?'#india-availability':`checkout.html?${new URLSearchParams({plan,billing,v:'20261018-r19'})}`;amount.textContent='—';offer.hidden=true;comparison.hidden=true;yearlyLink.hidden=true;
+  buy.href=inIndia&&!buy.classList.contains('is-owned')?indiaContact():`checkout.html?${new URLSearchParams({plan,billing,v:'20261018-r19'})}`;amount.textContent='—';offer.hidden=true;comparison.hidden=true;yearlyLink.hidden=true;
   try{
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;
@@ -34,17 +35,17 @@ async function render(){
    const trial=plan==='online'&&trialPlanId(tcfg,'online',billing,suggestedCountry());
    note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Cancel any time.':(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
    if(!buy.classList.contains('is-owned')){
-    buy.textContent=inIndia?'Ask about '+(plan==='online'?'Online':'Offline')+' in India':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
-    if(inIndia)buy.href='#india-availability';
+    buy.textContent=inIndia?'Get launch updates':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
+    if(inIndia)buy.href=indiaContact(plan==='online'?'Online':'Offline');
    }
-   if(inIndia)note.textContent='Indicative INR price. See regional availability above.';
+   if(inIndia)note.textContent='Indicative price. Billed '+(billing==='yearly'?'annually.':'monthly.');
    yearlyLink.hidden=billing!=='monthly';
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);
     offer.querySelector('.annual-saving').textContent='Save '+show(quote.annualSavings)+' per year';
     offer.querySelector('.annual-equivalent').textContent=show(quote.unitAmount/12)+' per month, billed yearly';animate(offer);
    }
-   status.textContent=quote.preview?(quote.currency==='INR'?'Indicative INR prices. Check regional availability below.':'Prices shown in US dollars for your region. Your country is confirmed at checkout.'):'';
+   status.textContent=quote.preview&&quote.currency!=='INR'?'Prices shown in US dollars for your region. Your country is confirmed at checkout.':'';
   }catch{if(current!==revision)return;amount.textContent='See checkout';offer.hidden=true;note.textContent='Confirm pricing on the billing page.';status.textContent='Pricing is temporarily unavailable.';}
  }));
  if(current===revision)animatePricing=false;

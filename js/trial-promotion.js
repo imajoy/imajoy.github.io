@@ -16,15 +16,18 @@ function render(){
   const region=known?availability(country,config?.closedCountries||[]):null;
   const fallback=region&&!region.open?'index.html#pricing':isHome?'checkout.html?plan=online&billing=monthly&offer=trial':home;
   for(const link of document.querySelectorAll('[data-trial-cta]')){
-    link.href=subscribed?'index.html#pricing':inIndia?(isHome?'#india-availability':indiaContact()):billing?'checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial',v:'20261018-p1'}):fallback;
+    link.href=subscribed?'index.html#pricing':inIndia?indiaContact():billing?'checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial',v:'20261018-p1'}):fallback;
     // Keep the word trial when configuration/location cannot be confirmed.
     link.textContent=subscribed?'View your Online plan':inIndia?'Ask about availability in India':billing?'Start my 2-day free trial':region&&!region.open?'Check trial availability':'Explore the 2-day free trial';
     link.toggleAttribute('data-region-unavailable',Boolean(region&&!region.open&&!subscribed));
-    if(link.classList.contains('hero-secondary')&&inIndia&&!subscribed)link.textContent='India availability & updates';
+    if(isHome&&inIndia&&!subscribed)link.textContent='Get launch updates';
+    if(isHome&&inIndia&&!subscribed&&link.classList.contains('hero-secondary')){
+      link.href='#workflows';link.textContent='Explore workflows';link.removeAttribute('data-region-unavailable');
+    }
     link.dataset.trialReady=String(Boolean(billing&&!subscribed));
   }
   const mobileTrial=document.querySelector('.m-cta a:not(.primary)');
-  if(mobileTrial){mobileTrial.href=subscribed?'#pricing':inIndia?(isHome?'#india-availability':indiaContact()):'#trial';mobileTrial.textContent=subscribed?'Your Online plan':inIndia?'India launch updates':'2-day trial';}
+  if(mobileTrial){mobileTrial.href=subscribed?'#pricing':inIndia?indiaContact():'#trial';mobileTrial.textContent=subscribed?'Your Online plan':inIndia?'Get updates':'2-day trial';}
   for(const teaser of document.querySelectorAll('[data-trial-teaser]')){
     if(!teaser.dataset.originalCopy)teaser.dataset.originalCopy=teaser.textContent;
     teaser.textContent=isHome?teaser.dataset.originalCopy:inIndia&&!subscribed?'India checkout and the Online trial are not open yet. Ask Ajoy for launch updates.':teaser.dataset.originalCopy;

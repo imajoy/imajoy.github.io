@@ -1,4 +1,4 @@
-import {indiaContact} from './india-availability.js?v=20261019-wl1';
+import {indiaContact} from './india-availability.js?v=20261019-contact1';
 /* Clear, contextual offers. Promotions never authorize a trial or change a paid selection. */
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261018-j3';
 import {detectGeo,cachedGeo} from './geo.js?v=20261018-h8';
@@ -68,6 +68,7 @@ if(isDiscovery){
   window.addEventListener('storage',event=>{if(event.key===shownKey){lastShown=Number(event.newValue)||0;closeNudge();}});
 }
 function tryNudge(){
+  try{if(sessionStorage.getItem('ajoy.discovery.nudge')==='1'||Date.now()-Number(localStorage.getItem('ajoy.guest.lastShown')||0)<7*864e5)return;}catch{return;}
   if(!isDiscovery||!storageAvailable||opening||nudge)return;
   const focused=document.activeElement;
   if(!canShowTrialNudge({now:Date.now(),lastShown,sessionSeen,elapsed:performance.now()-started,scrolled:scrollY>=Math.min(300,innerHeight*.35),available:!!billing,signedIn:!!getAccountSession(),busy:!!document.querySelector('dialog[open]')||!!focused?.closest('input,textarea,select,[contenteditable="true"]'),visible:document.visibilityState==='visible',viewportHeight:innerHeight}))return;

@@ -25,7 +25,7 @@ function init() {
   const body=dlg.querySelector('.acct-body');
   const btn=document.querySelector('[data-account-button]')||document.createElement('button');btn.disabled=false;btn.removeAttribute('title');btn.type='button';btn.className='acct-btn';btn.setAttribute('aria-haspopup','dialog');btn.setAttribute('aria-controls','account-dialog');dlg.id='account-dialog';
   const pill=document.querySelector('.site-header .pillbar');
-  const landingAccount=!!pill?.hasAttribute('data-wrapline-account');
+  const landingAccount=!!pill&&(pill.hasAttribute('data-wrapline-account')||pill.hasAttribute('data-account-entry'));
   const registerBtn=landingAccount?pill.querySelector('[data-account-register]'):null;
   if(registerBtn){registerBtn.disabled=false;registerBtn.removeAttribute('title');registerBtn.setAttribute('aria-haspopup','dialog');registerBtn.setAttribute('aria-controls',dlg.id);registerBtn.addEventListener('click',()=>{purpose='';if(!registration){generation++;busy=false;registration=true;step='email';msg='';}open();});}
   const nav=pill||document.querySelector('.commerce-header .wrap');

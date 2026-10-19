@@ -3,6 +3,7 @@
    2) Commerce.gs privately manages checkout/trial eligibility and protected downloads.
       Orders: after a verified PayPal subscription, logs it in the "Orders" tab,
       emails the buyer a confirmation and emails you a "send the license" reminder.
+   Contact messages are stored privately in the "Contacts" tab.
    3) setupPlans(): run once to create the regional standard and trial PayPal plans.
    Secrets live ONLY in Project Settings > Script properties:
       PAYPAL_MODE = sandbox (or live)
@@ -26,6 +27,7 @@ function doPost(e) {
     var raw = (e && e.postData && e.postData.contents) || '';
     var data = {};
     try { data = JSON.parse(raw); } catch (err) { data = { email: (e && e.parameter && e.parameter.email) || '' }; }
+    if (data.type === 'contact') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleContact_(data.contact || {}))); }
     if (data.type === 'commerce') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleCommerceEnvelope_(data))); }
     if (data.type === 'order') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify({ r: 'secure_checkout_required' })); }
     if (data.type === 'trial') return out.setContent('secure_checkout_required');
@@ -560,4 +562,34 @@ function renamePayPalPlans() {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Plans');
   if (sheet && /Ajoy Tools/.test(String(sheet.getRange(1, 1).getValue()))) sheet.getRange(1, 1).setValue('Wrapline: PayPal plans');
   Logger.log('Done (' + mode_() + '): ' + renamed + ' plan(s) renamed, ' + skipped + ' already fine or skipped.');
+}
+
+/* ---------- Contact form: private Contacts tab, no account or marketing enrolment ---------- */
+function handleContact_(data) {
+  var text = function(value) { return typeof value === 'string' ? value.trim() : ''; };
+  var name=text(data.name),email=text(data.email).toLowerCase(),message=text(data.message),topic=text(data.topic),requestId=text(data.requestId);
+  if (text(data.website)) return {ok:false,error:'invalid'};
+  if (!name || name.length>80 || email.length>120 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || message.length<10 || message.length>4000 ||
+      ['general','support','studio','india','privacy','idea'].indexOf(topic)<0 || !/^[a-zA-Z0-9-]{20,80}$/.test(requestId) || data.consent!==true) return {ok:false,error:'invalid'};
+  var lock=LockService.getScriptLock();
+  if (!lock.tryLock(10000)) return {ok:false,error:'busy'};
+  try {
+    var cache=CacheService.getScriptCache(),who=sign_('contact:'+email),fingerprint=sign_('contact-body:'+JSON.stringify([name,email,topic,message])),saved=cache.get('contact-receipt:'+requestId);
+    if (saved) { var receipt=JSON.parse(saved);return receipt.who===who&&receipt.fingerprint===fingerprint?{ok:true,reference:receipt.reference}:{ok:false,error:'invalid'}; }
+    var key='contact-count:'+who,count=Number(cache.get(key)||0);
+    // Per-email/hour and site/day limits reduce bulk abuse without emailing visitors.
+    var day=new Date().toISOString().slice(0,10),p=props_(),daily=JSON.parse(p.getProperty('CONTACT_DAILY')||'{}');
+    if (daily.day!==day)daily={day:day,count:0};
+    if (count>=3 || daily.count>=200) return {ok:false,error:'limit'};
+    var ss=SpreadsheetApp.getActiveSpreadsheet(),sheet=ss.getSheetByName('Contacts');
+    if (!sheet) {sheet=ss.insertSheet('Contacts');sheet.appendRow(['Received at','Reference','Name','Email','Topic','Message','Status','Privacy consent']);sheet.setFrozenRows(1);}
+    var reference='AJ-'+Utilities.getUuid();
+    // Strip leading whitespace before formula escaping, including tabs and newlines.
+    sheet.appendRow([new Date(),reference,name,email,topic,message,'New',true].map(safeSheetCell_));
+    daily.count++;p.setProperty('CONTACT_DAILY',JSON.stringify(daily));
+    cache.put(key,String(count+1),3600);
+    cache.put('contact-receipt:'+requestId,JSON.stringify({who:who,fingerprint:fingerprint,reference:reference}),21600);
+    return {ok:true,reference:reference};
+  } catch (error) {return {ok:false,error:'unavailable'};}
+  finally {lock.releaseLock();}
 }

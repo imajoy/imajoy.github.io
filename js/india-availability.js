@@ -1,6 +1,4 @@
-/* Opens an email draft; this does not enrol anyone or send a message. */
+/* Regional enquiries use the shared contact form; nothing is sent on navigation. */
 export function indiaContact(plan='Online and Offline'){
- const subject='Wrapline India availability — '+plan;
- const body='Hi Ajoy,\n\nPlease let me know when '+plan+' subscriptions and eligible Online trials become available for customers in India.\n\nMy Maya version:\nNumber of computers:\n';
- return 'mailto:contactmy3dart@gmail.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);
+ return 'contact.html?topic=india&plan='+encodeURIComponent(plan);
 }

@@ -1,4 +1,4 @@
-import {indiaContact} from './india-availability.js?v=20261019-wl1';
+import {indiaContact} from './india-availability.js?v=20261019-contact1';
 import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261018-g5';
 import {detectGeo,cachedGeo} from './geo.js?v=20261018-h8';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261018-j3';

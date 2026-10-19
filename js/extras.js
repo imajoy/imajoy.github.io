@@ -109,7 +109,7 @@ document.querySelectorAll('[data-trial-days]').forEach(n => { n.textContent = St
     const name = form.elements.name.value.trim().slice(0, 80);
     if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email) || email.length > 120) { say('Enter a valid email address.', true); form.elements.email.focus(); return; }
     if (form.elements.website.value) { finish(email); return; } /* hidden field: bots fill it */
-    if (!cfg.sheetUrl) { say('Trial requests are not open yet. Please email contactmy3dart@gmail.com.', true); return; }
+    if (!cfg.sheetUrl) { say('Trial requests are not open yet. Please use the contact form for help.', true); return; }
     const btn = form.querySelector('button[type=submit]'); btn.disabled = true; say('Sending…');
     try {
       fetch(cfg.sheetUrl, { method: 'POST', mode: 'no-cors', keepalive: true, headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ type: 'trial', email, name }) })

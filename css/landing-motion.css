@@ -68,18 +68,28 @@
  .js .home-page .intro .ln:nth-child(2)>span{animation-delay:230ms}
  .js .home-page .intro-fade{animation:wrapline-copy-in 550ms 300ms ease-out backwards}
  .js .home-page .actions.intro-fade{animation:none;opacity:1}
- .js .home-page .hero-actions>.btn{animation:wrapline-copy-in 550ms 390ms cubic-bezier(.16,1,.3,1) backwards}
- .js .home-page .hero-actions>.btn:nth-child(2){animation-delay:490ms}
- .js .home-page .trial-banner{animation:wrapline-banner-float 5.5s 900ms ease-in-out infinite;animation-play-state:paused}
- .js .home-page .trial-banner[data-float-active]{animation-play-state:running}
- .js .home-page .trial-banner-copy>*{animation:wrapline-copy-in 550ms 100ms ease-out backwards}
- .js .home-page .trial-banner-copy>strong{animation-delay:180ms}
- .js .home-page .trial-banner-copy>span:last-child{animation-delay:260ms}
- .js .home-page .trial-banner:is(:hover,:focus-visible){animation-play-state:paused}
+ .js .home-page .hero-actions>.btn{animation:wrapline-button-pop 650ms 330ms cubic-bezier(.16,1,.3,1) backwards}
+ .js .home-page .hero-actions>.btn:nth-child(2){animation:wrapline-button-glide 650ms 480ms cubic-bezier(.16,1,.3,1) backwards}
+ .js .home-page .trial-banner{animation:wrapline-banner-unfold 800ms 80ms cubic-bezier(.16,1,.3,1) backwards,wrapline-banner-float 5.5s 900ms ease-in-out infinite;animation-play-state:running,paused}
+ .js .home-page .trial-banner[data-float-active]{animation-play-state:running,running}
+ .js .home-page .trial-banner-copy>*{animation:wrapline-banner-ink 650ms 180ms ease-out backwards}
+ .js .home-page .trial-banner-copy>strong{animation-delay:260ms}
+ .js .home-page .trial-banner-copy>span:last-child{animation-delay:340ms}
+ .js .home-page .trial-banner:is(:hover,:focus-visible){animation-play-state:running,paused}
 }
 .home-page .pillbar:focus-within .maker-home,.home-page .hero-actions:focus-within>.btn{animation:none;opacity:1}
 @keyframes wrapline-copy-in{from{opacity:0;transform:translateY(12px);filter:blur(2px)}to{opacity:1;transform:none;filter:blur(0)}}
 @keyframes wrapline-banner-float{0%,100%{translate:0 0}50%{translate:0 -7px}}
 @media(prefers-reduced-motion:reduce){
  .home-page .intro .ln>span,.home-page .intro-fade,.home-page .hero-actions>.btn,.home-page .trial-banner,.home-page .trial-banner-copy>*{animation:none!important;opacity:1!important;transform:none!important;translate:none!important;filter:none!important}
+}
+
+/* Different entrance gestures: a soft press, a lateral glide, and an unfolding offer. */
+@keyframes wrapline-button-pop{0%{opacity:0;transform:translateY(14px) scale(.92)}70%{opacity:1;transform:translateY(-2px) scale(1.025)}100%{opacity:1;transform:none}}
+@keyframes wrapline-button-glide{from{opacity:0;transform:translateX(24px);clip-path:inset(0 24% 0 0 round 999px)}to{opacity:1;transform:none;clip-path:inset(0 round 999px)}}
+@keyframes wrapline-banner-unfold{from{opacity:0;transform:perspective(700px) rotateX(-12deg) scale(.96);clip-path:inset(0 42% round 22px)}to{opacity:1;transform:none;clip-path:inset(0 round 22px)}}
+@keyframes wrapline-banner-ink{from{opacity:0;transform:translateX(-8px);clip-path:inset(0 100% 0 0)}to{opacity:1;transform:none;clip-path:inset(0)}}
+@media(prefers-reduced-motion:no-preference){
+ html.pill-entering .home-page .pillbar>[data-account-register]{animation:wrapline-button-pop 500ms 1.18s backwards}
+ html.pill-entering .home-page .pillbar>[data-account-button]{animation:wrapline-button-glide 500ms 1.1s backwards}
 }

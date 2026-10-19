@@ -86,13 +86,13 @@ function rewardSelection_(d) {
 }
 function commerceRewards_(d,who) {
   rewardSelection_(d);
-  return {ok:true,pricing:rewardQuote_(d,who,rewardHistory_(who.email))};
+  return {ok:true,pricing:couponApply_(rewardQuote_(d,who,rewardHistory_(who.email)),d,who.email)};
 }
 function rewardPending_(d,who) {
   var rows=commerceRows_().filter(function(r){return r[1]===mode_()&&r[2]===who.email;});
   var same=rows.filter(function(r){return r[17]===d.requestId;})[0];
   if(same)return same;
-  if(d.offer!=='standard')return null;
+  if(d.offer!=='standard'||d.coupon)return null;
   var pending=rows.filter(function(r){return r[6]==='standard'&&r[7]===d.plan&&r[8]===d.billing&&r[9]===d.seats&&r[18]===(d.sandboxCountry||d.country)&&['reserved','created'].indexOf(r[12])>=0&&rewardBuyer_(r).loyalty&&rewardBuyer_(r).loyalty.reward;});
   for(var i=0;i<pending.length;i++){
     if(!pending[i][11])return pending[i];
@@ -115,7 +115,7 @@ function rewardReserve_(who,quote,history,exceptId) {
 }
 function rewardPayPalPlan_(d,quote) {
   var tier=tierFor_(d.sandboxCountry||d.country),saved=JSON.parse(props_().getProperty('LOYALTY_PLANS_'+mode_())||'{}');
-  var key=[tier,d.plan,d.billing,quote.percent,quote.unitAmount,quote.rewardPayments,'v1'].join('-');
+  var key=[tier,d.plan,d.billing,quote.percent,quote.unitAmount,quote.rewardPayments,quote.coupon?'coupon':'v1'].join('-');
   if(saved[key])return saved[key].id;
   var catalog=JSON.parse(props_().getProperty('PLANS_'+mode_())||'{}');
   if(!catalog.productId)throw commerceError_('rewards_unavailable','The PayPal product is not configured for rewards. Please contact Ajoy.');
@@ -123,8 +123,8 @@ function rewardPayPalPlan_(d,quote) {
   // PayPal supports paid introductory (TRIAL tenure) cycles. Only the promised introductory
   // payments are reduced; the unlimited REGULAR phase restores the catalog rate.
   var plan=commercePaypal_('/v1/billing/plans','post',{
-    product_id:catalog.productId,name:'Ajoy Tools '+d.plan+' '+d.billing+' returning reward '+quote.percent+'% ('+tier+')',
-    description:quote.rewardPayments+' payment(s) with '+quote.percent+'% returning subscriber savings; then the standard '+d.billing+' rate.',status:'ACTIVE',quantity_supported:true,
+    product_id:catalog.productId,name:'Ajoy Tools '+d.plan+' '+d.billing+(quote.coupon?' coupon ':' returning reward ')+quote.percent+'% ('+tier+')',
+    description:quote.rewardPayments+' payment(s) with '+quote.percent+(quote.coupon?'% coupon savings':'% returning subscriber savings')+'; then the standard '+d.billing+' rate.',status:'ACTIVE',quantity_supported:true,
     billing_cycles:[
       {frequency:frequency,tenure_type:'TRIAL',sequence:1,total_cycles:quote.rewardPayments,pricing_scheme:{fixed_price:{value:(quote.discountedUnitAmount/100).toFixed(2),currency_code:'USD'}}},
       {frequency:frequency,tenure_type:'REGULAR',sequence:2,total_cycles:0,pricing_scheme:{fixed_price:{value:(quote.unitAmount/100).toFixed(2),currency_code:'USD'}}}
@@ -134,4 +134,65 @@ function rewardPayPalPlan_(d,quote) {
   // Merge under a lock: simultaneous quotes for different plans must not lose entries.
   commerceLock_(function(){var latest=JSON.parse(props_().getProperty('LOYALTY_PLANS_'+mode_())||'{}');latest[key]={id:plan.id,tier:tier,plan:d.plan,billing:d.billing};props_().setProperty('LOYALTY_PLANS_'+mode_(),JSON.stringify(latest));});
   return plan.id;
+}
+
+/* ---------- Coupon codes (managed in the "Coupons" tab of this sheet) ----------
+   One row per code. Columns: Code | Percent off | Payments discounted | Expires on | Plan | Billing |
+   Max uses | Used | Active | Note. Plan/Billing: online, offline or both / monthly, yearly or both.
+   Blank Max uses = unlimited. "Used" is filled in automatically. A coupon replaces the returning
+   subscriber reward on that checkout (they never stack) and does not apply to the free trial. */
+var COUPON_HEADERS_=['Code','Percent off','Payments discounted','Expires on','Plan','Billing','Max uses','Used','Active','Note'];
+function couponSheet_() {
+  var ss=SpreadsheetApp.getActiveSpreadsheet(),sheet=ss.getSheetByName('Coupons');
+  if(!sheet){sheet=ss.insertSheet('Coupons');sheet.appendRow(COUPON_HEADERS_);sheet.setFrozenRows(1);}
+  return sheet;
+}
+function couponCode_(raw) {return String(raw||'').trim().toUpperCase();}
+function couponUses_(code,email,exceptId) {
+  var total=0,mine=0;
+  commerceRows_().forEach(function(r){
+    if(r[0]===exceptId||r[1]!==mode_())return;
+    var c=(rewardBuyer_(r).loyalty||{}).coupon;if(!c||couponCode_(c.code)!==code)return;
+    var live=r[12]==='accepted'||['reserved','created'].indexOf(r[12])>=0&&Date.now()-new Date(r[13]).getTime()<1800000;
+    if(!live)return;total++;if(email&&r[2]===email)mine++;
+  });
+  return {total:total,mine:mine};
+}
+function couponRule_(raw,d,email) {
+  var code=couponCode_(raw);
+  if(!/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(code))throw commerceError_('coupon_invalid','Enter a valid coupon code.');
+  var sheet=couponSheet_(),rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,COUPON_HEADERS_.length).getValues():[];
+  var row=rows.filter(function(r){return couponCode_(r[0])===code;})[0];
+  var active=row&&(row[8]===true||String(row[8]).trim().toUpperCase()==='TRUE'||String(row[8]).trim().toUpperCase()==='YES');
+  if(!row||!active)throw commerceError_('coupon_invalid','This coupon code is not valid.');
+  var percent=Number(row[1]),payments=row[2]===''?1:Number(row[2]);
+  if(!Number.isInteger(percent)||percent<1||percent>90||!Number.isInteger(payments)||payments<1||payments>24)throw commerceError_('coupon_invalid','This coupon is not set up correctly. Please contact Ajoy.');
+  if(row[3]!==''){
+    var end=row[3] instanceof Date?new Date(row[3].getTime()):new Date(String(row[3]));
+    if(isNaN(end.getTime()))throw commerceError_('coupon_invalid','This coupon is not set up correctly. Please contact Ajoy.');
+    if(!(row[3] instanceof Date)||end.getHours()===0&&end.getMinutes()===0)end.setHours(23,59,59,999);
+    if(end.getTime()<Date.now())throw commerceError_('coupon_expired','This coupon has expired.');
+  }
+  var plan=String(row[4]||'both').trim().toLowerCase(),billing=String(row[5]||'both').trim().toLowerCase();
+  if(plan!=='both'&&plan!==d.plan)throw commerceError_('coupon_invalid','This coupon is only for the '+plan.charAt(0).toUpperCase()+plan.slice(1)+' plan.');
+  if(billing!=='both'&&billing!==d.billing)throw commerceError_('coupon_invalid','This coupon is only for '+billing+' billing.');
+  var uses=couponUses_(code,email,d.exceptId||'');
+  if(uses.mine)throw commerceError_('coupon_used','You have already used this coupon.');
+  if(row[6]!==''&&uses.total>=Number(row[6]))throw commerceError_('coupon_used','This coupon has reached its usage limit.');
+  return {code:code,percent:percent,payments:payments};
+}
+function couponApply_(quote,d,email) {
+  if(!d.coupon)return quote;
+  var rule=couponRule_(d.coupon,d,email);
+  var discounted=Math.round(quote.unitAmount*(100-rule.percent)/100);
+  quote.percent=rule.percent;quote.discountedUnitAmount=discounted;quote.total=discounted*quote.seats;quote.discountAmount=(quote.unitAmount-discounted)*quote.seats;
+  quote.reward='';quote.rewardKeys=[];quote.rewardPayments=rule.payments;quote.coupon=rule;
+  return quote;
+}
+function couponRecordUse_(code) {
+  try{
+    var sheet=couponSheet_(),rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,1).getValues():[];
+    var used=0;commerceRows_().forEach(function(r){var c=(rewardBuyer_(r).loyalty||{}).coupon;if(r[1]===mode_()&&r[12]==='accepted'&&c&&couponCode_(c.code)===code)used++;});
+    rows.forEach(function(r,i){if(couponCode_(r[0])===code)sheet.getRange(i+2,8).setValue(used);});
+  }catch(e){}
 }

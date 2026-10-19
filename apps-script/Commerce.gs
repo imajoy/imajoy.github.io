@@ -88,7 +88,7 @@ function commerceCreate_(d,who) {
   var planId=commercePlan_(d.plan,d.billing,checkoutCountry,d.offer),signals=commerceSignals_(d,who.email);
   var prior=rewardPending_(d,who);
   var history=!prior&&d.offer==='standard'?rewardHistory_(who.email):null;
-  var pricing=prior?rewardBuyer_(prior).loyalty:d.offer==='standard'?rewardQuote_(d,who,history):null;
+  var pricing=prior?rewardBuyer_(prior).loyalty:d.offer==='standard'?couponApply_(rewardQuote_(d,who,history),d,who.email):null;
   if(!prior&&pricing&&(d.expectedTotal!==undefined&&d.expectedTotal!==pricing.total||d.expectedRewardPercent!==undefined&&d.expectedRewardPercent!==pricing.percent))throw commerceError_('price_changed','Your payment history or price changed. Refresh your reward and review the total before approving.');
   if(prior)planId=prior[10];
   else if(pricing&&pricing.percent)planId=rewardPayPalPlan_(d,pricing);
@@ -106,6 +106,7 @@ function commerceCreate_(d,who) {
       if(commerceConflict_(signals,''))throw commerceError_('trial_reserved','A trial checkout is already in progress for this browser or network. Resume it or try again after its reservation expires.');
     }
     if(pricing&&pricing.reward)rewardReserve_(who,pricing,history,'');
+    if(pricing&&pricing.coupon&&!prior)couponRule_(pricing.coupon.code,d,who.email);
     var buyer=JSON.stringify({name:clip_(d.name,80),company:clip_(d.company,80),networkCountry:d.country||'',sandboxCountry:d.sandboxCountry||'',loyalty:pricing});
     var now=new Date(),created=[Utilities.getUuid(),mode_(),who.email,signals.emailHash,signals.deviceHash,signals.ipHash,d.offer,d.plan,d.billing,d.seats,planId,'','reserved',now,now,'','',d.requestId,checkoutCountry,buyer,'',''];
     commerceWrite_(created);return created;
@@ -149,6 +150,7 @@ function commerceConfirm_(id,who) {
     var logged=handleOrder_({subscriptionId:row[11],email:row[2],country:row[18],detectedCountry:row[18],plan:row[7],billing:row[8],seats:row[9],name:buyer.name||'',company:buyer.company||''});
     if(logged!=='ok'&&logged!=='duplicate')throw commerceError_('pending','Your approved subscription is being recorded. Please check again.');
     commerceLock_(function(){var current=commerceFind_(id);current[16]='yes';current[14]=new Date();commerceWrite_(current);});
+    var usedCoupon=(rewardBuyer_(row).loyalty||{}).coupon;if(usedCoupon)couponRecordUse_(usedCoupon.code);
   }
   return {ok:true,accepted:true,checkoutId:id,subscriptionId:row[11],offer:row[6],email:row[2],plan:row[7],billing:row[8],seats:row[9]};
 }

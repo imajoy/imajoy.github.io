@@ -50,7 +50,7 @@ export async function handleCommerceRequest(req,env,request=fetch){
     payload.country=/^[A-Z]{2}$/.test(country)?country:'';
     if(path==='checkout'||path==='rewards'){
      if(!['online','offline'].includes(data.plan)||!['monthly','yearly'].includes(data.billing)||path==='checkout'&&!['trial','standard'].includes(data.offer)||!Number.isInteger(data.seats)||data.seats<1||data.seats>100||path==='checkout'&&!/^[-a-f0-9]{36}$/i.test(data.requestId||''))throw fail('Review your plan, billing period and license quantity.');
-     Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,offer:data.offer,requestId:data.requestId,billingCountry:data.country,expectedTotal:data.expectedTotal,expectedRewardPercent:data.expectedRewardPercent,name:typeof data.name==='string'?data.name.slice(0,80):'',company:typeof data.company==='string'?data.company.slice(0,80):''});
+     Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,offer:data.offer,requestId:data.requestId,billingCountry:data.country,expectedTotal:data.expectedTotal,expectedRewardPercent:data.expectedRewardPercent,coupon:typeof data.coupon==='string'?data.coupon.trim().toUpperCase().slice(0,32):'',name:typeof data.name==='string'?data.name.slice(0,80):'',company:typeof data.company==='string'?data.company.slice(0,80):''});
      // Owner-controlled Sandbox simulation. Never accept a test country from the browser.
      const testCountry=(env('COMMERCE_SANDBOX_COUNTRY')||'').trim().toUpperCase();
      if(env('PAYPAL_MODE')==='sandbox'&&testCountry){

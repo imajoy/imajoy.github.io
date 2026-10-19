@@ -246,7 +246,7 @@ function handleOrder_(d) {
 
 /* ---------- 2a) subscriber account (sign in with an emailed code) ----------
    The site calls this with {type:'account', step:'code'|'verify'|'status', ...}.
-   step 'code'   : emails a 6-digit code for a registered email or an explicit registration request.
+   step 'code'   : detects registration for intent auto and emails a two-minute verification code.
    step 'verify' : checks the code and returns a session token (valid 30 days), without waiting for PayPal.
    step 'identity': verifies a saved token and returns its canonical email, without calling PayPal.
    step 'status' : checks the token and returns the subscription details again.
@@ -348,23 +348,26 @@ function handleAccount_(d) {
       var key = 'sends:' + email, n = Number(cache.get(key) || 0);
       if (n >= 5) return { ok: false, error: 'limit' };
       cache.put(key, String(n + 1), 3600);
-      // Explicit owner policy: reject an unregistered address before generating or sending a code.
+      // Legacy sign-in-only requests still reject unknown emails; unified requests register only after verification.
       var registered = registeredEmail_(email);
-      var intent = d.intent === 'register' && !registered ? 'register' : 'signin';
+      var intent = !registered && ['register','auto'].indexOf(d.intent)>=0 ? 'register' : 'signin';
       if (!registered && intent !== 'register') return { ok: false, error: 'not_registered', registrationAvailable: true };
-      cache.put('intent:' + email, intent, 600);
+      cache.put('intent:' + email, intent, 120);
       var code = String(Math.floor(100000 + Math.random() * 900000));
-      cache.put('code:' + email, hashCode_(email, code), 600); cache.remove('tries:' + email);
+      var expiresAt=Date.now()+120000;
+      cache.put('code:' + email, JSON.stringify({hash:hashCode_(email,code),expiresAt:expiresAt}), 120); cache.remove('tries:' + email);
       try { MailApp.sendEmail({ to: email, name: 'Wrapline by Ajoy Tools', replyTo: replyTo_(), subject: 'Your Wrapline sign-in code: ' + code,
-        body: 'Your sign-in code is ' + code + '\n\nIt works for 10 minutes. If you did not ask for it, you can ignore this email.\n\nWrapline' }); }
+        body: 'Your sign-in code is ' + code + '\n\nIt expires in 2 minutes. If you did not ask for it, you can ignore this email.\n\nWrapline' }); }
       catch (err) { cache.remove('code:' + email); return { ok: false, error: 'mail' }; }
-      return { ok: true, registered: registered, intent: intent };
+      return { ok: true, registered: registered, intent: intent, expiresAt:expiresAt, expiresIn:Math.max(0,Math.ceil((expiresAt-Date.now())/1000)) };
     }
     var tk = 'tries:' + email, tries = Number(cache.get(tk) || 0);
     if (tries >= 5) return { ok: false, error: 'limit' };
     cache.put(tk, String(tries + 1), 600);
-    var want = cache.get('code:' + email), got = String(d.code || '').trim();
-    if (!want || !/^\d{6}$/.test(got) || want !== hashCode_(email, got)) return { ok: false, error: 'code' };
+    var packed=cache.get('code:' + email), record;try{record=JSON.parse(packed||'null');}catch(error){}
+    var got=String(d.code || '').trim();
+    if(!record||!Number.isFinite(record.expiresAt)||record.expiresAt<=Date.now()){cache.remove('code:' + email);cache.remove('intent:' + email);return {ok:false,error:'code_expired'};}
+    if(!/^\d{6}$/.test(got)||record.hash!==hashCode_(email,got))return {ok:false,error:'code'};
     var intent = cache.get('intent:' + email);
     cache.remove('code:' + email); cache.remove('intent:' + email);
     if (!registeredEmail_(email) && intent !== 'register') return { ok: false, error: 'not_registered' };

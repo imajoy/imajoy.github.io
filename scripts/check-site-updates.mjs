@@ -87,7 +87,7 @@ try{
  await gp.goto(new URL('index.html?preview=registration',base).href);await gp.locator('.guest-prompt').waitFor({state:'visible'});
  assert.equal(await gp.evaluate(()=>localStorage.getItem('ajoy.guest.lastShown')),null);
  await gp.locator('[data-guest-register]').click();await gp.locator('#account-dialog').waitFor({state:'visible'});
- assert.match(await gp.locator('#acct-title').textContent(),/Create your account/);await guest.close();
+ assert.match(await gp.locator('#acct-title').textContent(),/Your email. One account/);await guest.close();
  // Actual sign-out, without reloading, samples the guest invitation again.
  const returning=await context(),rp=await returning.newPage();
  await returning.addInitScript(()=>{Math.random=()=>.1;localStorage.setItem('ajoy.acct',JSON.stringify({token:'mock-returning-account-token',email:'buyer@example.com',expiresAt:Date.now()+864e5,subscriptions:[]}));});

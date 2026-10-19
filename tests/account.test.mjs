@@ -7,13 +7,13 @@ test('Unregistered email is rejected before a code is generated or sent',()=>{
  assert.equal(app.mails.length,0);assert.equal(app.cache.has('code:new@example.com'),false);
 });
 test('Registered email -> emailed code -> signed session; code cannot be reused',()=>{
- const app=service();assert.deepEqual(app.call({step:'code',email:' BUYER@EXAMPLE.COM '}),{ok:true,registered:true,intent:'signin'});
+ const app=service(),sent=app.call({step:'code',email:' BUYER@EXAMPLE.COM '});assert.equal(sent.ok,true);assert.equal(sent.registered,true);assert.equal(sent.intent,'signin');assert(sent.expiresIn>0&&sent.expiresIn<=120);
  const code=app.mails[0].subject.match(/\d{6}/)[0];
  assert.equal(app.call({step:'verify',email:'buyer@example.com',code:'000000'}).error,'code');
  const result=app.call({step:'verify',email:'buyer@example.com',code});
  assert.equal(result.ok,true);assert.equal(result.email,'buyer@example.com');assert.equal(result.subscriptions,null);assert(result.expiresAt>Date.now());
  assert.equal(app.requests.length,0,'code verification must not wait for PayPal');
- assert.equal(app.call({step:'verify',email:'buyer@example.com',code}).error,'code');
+ assert.equal(app.call({step:'verify',email:'buyer@example.com',code}).error,'code_expired');
  const before=app.requests.length;
  assert.equal(app.call({step:'identity',token:result.token,email:'other@example.com'}).email,'buyer@example.com');
  assert.equal(app.requests.length,before,'identity restoration does not wait for PayPal');
@@ -27,9 +27,9 @@ test('Wrong codes are rate limited and malformed codes cannot bypass verificatio
 test('Codes are tied to one email and an expired cached code cannot sign in',()=>{
  const app=service();app.call({step:'code',email:'buyer@example.com'});
  const code=app.mails[0].subject.match(/\d{6}/)[0];
- assert.equal(app.call({step:'verify',email:'other@example.com',code}).error,'code');
+ assert.equal(app.call({step:'verify',email:'other@example.com',code}).error,'code_expired');
  app.cache.delete('code:buyer@example.com');
- assert.equal(app.call({step:'verify',email:'buyer@example.com',code}).error,'code');
+ assert.equal(app.call({step:'verify',email:'buyer@example.com',code}).error,'code_expired');
 });
 test('Email delivery failure invalidates the unsent code and requests are rate limited',()=>{
  const app=service({mailFails:true});assert.equal(app.call({step:'code',email:'buyer@example.com'}).error,'mail');assert(!app.cache.has('code:buyer@example.com'));
@@ -66,4 +66,22 @@ test('Registration creates an account only after its own email code is verified'
  assert.equal(app.call({step:'identity',token:verified.token}).email,'new@example.com');
  assert.deepEqual(app.call({step:'status',token:verified.token}).subscriptions,[]);
  assert.equal(app.call({step:'verify',email:'new@example.com',code}).ok,false);
+});
+
+test('unified email detection never creates a session before verifying either existing or new email',()=>{
+ for(const [email,registered] of [['buyer@example.com',true],['new@example.com',false]]){
+  const app=service(),sent=app.call({step:'code',email,intent:'auto'});
+  assert.equal(sent.ok,true);assert.equal(sent.registered,registered);assert.equal(sent.intent,registered?'signin':'register');assert.equal(sent.token,undefined);assert(!app.sheets.has('Accounts'));
+  const code=app.mails[0].subject.match(/\d{6}/)[0];assert.match(app.mails[0].body,/2 minutes/);
+  assert.equal(app.call({step:'verify',email,code}).ok,true);
+ }
+});
+test('the server enforces the two-minute deadline even if a cached code survives, and resending invalidates it',()=>{
+ const app=service(),email='new@example.com',sent=app.call({step:'code',email,intent:'auto'}),old=app.mails[0].subject.match(/\d{6}/)[0];
+ let time=sent.expiresAt;app.ctx.Date=class extends Date{static now(){return time;}};
+ assert.equal(app.call({step:'verify',email,code:old}).error,'code_expired');assert(!app.sheets.has('Accounts'));
+ const resent=app.call({step:'code',email,intent:'auto'});assert.equal(resent.expiresAt,time+120000);
+ const current=app.mails.at(-1).subject.match(/\d{6}/)[0];
+ if(current!==old)assert.equal(app.call({step:'verify',email,code:old}).error,'code');
+ assert.equal(app.call({step:'verify',email,code:current}).ok,true);
 });

@@ -65,3 +65,6 @@ html[data-theme=dark] .acct-total{background:#49b68c16;color:#84dbb7}
 html[data-theme=dark] .acct-sub[data-state=active] p{color:#84dbb7}
 html[data-theme=dark] .acct-sub[data-state=ending] p{color:#e8bd77}
 html[data-theme=dark] .acct-sub[data-state=ended] p{color:#f5a6a0}
+
+.acct-code-status{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:16px}.acct-code-status p{font-size:.8125rem;color:var(--mute);font-variant-numeric:tabular-nums}.acct-code-status .acct-link{margin:0}.acct-code-status button:disabled{opacity:.5;cursor:default}.acct-form button:disabled{opacity:.55;cursor:default}
+.pillbar[data-signed-in=false] .acct-btn{background:var(--ink);border-color:var(--ink);color:var(--card)}

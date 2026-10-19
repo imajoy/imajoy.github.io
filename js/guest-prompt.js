@@ -24,10 +24,10 @@ if(window.AJOY_CONFIG?.accountOpen&&document.body.matches('.studio-page:not(.con
    if(!preview){sessionStorage.setItem(sessionKey,'1');localStorage.setItem(shownKey,String(Date.now()));}
   }catch{return;}
   eligible=false;clearTimeout(timer);prompt?.remove();prompt=document.createElement('aside');prompt.className='guest-prompt';prompt.setAttribute('aria-labelledby','guest-title');prompt.setAttribute('role','region');
-  prompt.innerHTML='<button class="guest-close" type="button" aria-label="Dismiss account invitation">×</button><p class="guest-kicker">YOUR AJOY TOOLS ACCOUNT</p><h2 id="guest-title">A little less setup.<br>A little more creating.</h2><p>Register your email for downloads and subscriptions, or log in to see your existing plans.</p><div class="guest-actions"><button class="btn btn-dark" type="button" data-guest-register>Register</button><button class="btn btn-light" type="button" data-guest-login>Log in</button></div><button class="guest-later" type="button">Maybe later</button>';
+  prompt.innerHTML='<button class="guest-close" type="button" aria-label="Dismiss account invitation">×</button><p class="guest-kicker">YOUR AJOY TOOLS ACCOUNT</p><h2 id="guest-title">A little less setup.<br>A little more creating.</h2><p>Register your email for downloads and subscriptions, or log in to see your existing plans.</p><div class="guest-actions"><button class="btn btn-dark" type="button" data-guest-register>Register / Login</button></div><button class="guest-later" type="button">Maybe later</button>';
   if(typeof prompt.showPopover==='function')prompt.setAttribute('popover','auto');document.body.append(prompt);
   prompt.querySelector('.guest-close').onclick=close;prompt.querySelector('.guest-later').onclick=close;
-  prompt.querySelector('[data-guest-register]').onclick=()=>{close();openAccount({intent:'register'});};prompt.querySelector('[data-guest-login]').onclick=()=>{close();openAccount({intent:'signin'});};
+  prompt.querySelector('[data-guest-register]').onclick=()=>{close();openAccount({intent:'register'});};
   prompt.addEventListener('toggle',event=>{if(event.newState==='closed')prompt.hidden=true;});
   if(typeof prompt.showPopover==='function')prompt.showPopover();
   // No autofocus, scroll lock or backdrop. Escape and outside clicks dismiss it.

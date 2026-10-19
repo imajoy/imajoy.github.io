@@ -13,7 +13,8 @@ async function layout(page){
  assert(Math.abs(rect.y+rect.height/2-viewport.height/2)<2,'Dialog centered vertically');
  assert(rect.x>=15&&rect.y>=15&&rect.x+rect.width<=viewport.width-15&&rect.y+rect.height<=viewport.height-15,'Dialog fits viewport');
  assert(await dialog.evaluate(el=>el.scrollWidth<=el.clientWidth+1),'No sideways scrolling');
- assert.equal(await page.locator('.acct-link').first().evaluate(el=>getComputedStyle(el).borderTopStyle),'none','Account links are styled, rather than browser-default buttons');
+ if(await page.locator('.acct-link').count())assert.equal(await page.locator('.acct-link').first().evaluate(el=>getComputedStyle(el).borderTopStyle),'none','Account links are styled, rather than browser-default buttons');
+ else assert(await page.locator('.acct-form .btn').isVisible(),'Unified email form has a styled submit button');
  return dialog;
 }
 try{
@@ -39,8 +40,8 @@ try{
    await page.goto(new URL('index.html',base).href);await page.locator('.acct-btn').click();
    await page.locator('[data-out]').click();await layout(page);
    assert.equal(await page.locator('.acct-form input').evaluate(el=>getComputedStyle(el).borderTopWidth),'1px');
-   await page.keyboard.press('Escape');await page.locator('[data-account-register]').click();await layout(page);
-   assert.match(await page.locator('#acct-title').textContent(),/Create your account/);
+   await page.keyboard.press('Escape');await page.locator('[data-account-button]').click();await layout(page);
+   assert.match(await page.locator('#acct-title').textContent(),/Your email. One account/);
    await context.close();
   }
  }

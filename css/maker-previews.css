@@ -1,0 +1,47 @@
+/* Lightweight maker-home illustrations; product-page motion stays independent. */
+.maker-previews{padding:0 0 100px}
+.mp-heading{display:flex;align-items:end;justify-content:space-between;gap:20px;margin-bottom:26px}
+.mp-heading h2{font-size:clamp(28px,3.5vw,42px)}
+.mp-heading .s-eyebrow{margin-bottom:10px}
+.mp-heading>p,.mp-caption{font-size:13px;color:var(--mute)}
+.mp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}
+.mp-card{--mp-accent:#7861df;display:block;min-width:0;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:var(--card);color:var(--ink);text-decoration:none;transition:transform 240ms ease,box-shadow 240ms ease,border-color 240ms ease}
+.mp-rivet{--mp-accent:#138b88}.mp-export{--mp-accent:#326fe5}
+.mp-stage{position:relative;padding-top:38px;background:radial-gradient(ellipse at 50% 100%,#9985ff20,transparent 75%),var(--t05)}
+.mp-rivet .mp-stage{background:radial-gradient(ellipse at 50% 100%,#37c9b925,transparent 75%),var(--t05)}
+.mp-export .mp-stage{background:radial-gradient(ellipse at 50% 100%,#538fff25,transparent 75%),var(--t05)}
+.mp-chip{position:absolute;top:17px;left:20px;font-size:10px;font-weight:650;letter-spacing:.12em;color:var(--mute)}
+.mp-stage svg{display:block;width:100%;height:auto;aspect-ratio:320/180;color:var(--mp-accent);stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.mp-stage text{fill:var(--mute);stroke:none;font:500 12px var(--sans)}
+.mp-floor{stroke:var(--mute);opacity:.18;stroke-width:1}
+.mp-ghost{opacity:.45}.mp-ghost path,.mp-arm path{stroke-width:5}
+.mp-ghost circle,.mp-arm circle{fill:var(--card);stroke-width:3}
+.mp-target{stroke-dasharray:3 5;opacity:.5;transform-box:fill-box;transform-origin:center}
+.mp-arm{transform-origin:201px 126px}.mp-mesh{fill:#29b9ad0d;stroke-width:1.3}
+.mp-prop{fill:var(--card);stroke-width:2.5}.mp-window{fill:var(--card);stroke:var(--line)}
+.mp-dot{fill:currentColor;stroke:none}.mp-file{fill:var(--card)}
+.mp-file text{fill:currentColor;font-weight:700;font-size:15px;letter-spacing:.1em}
+.mp-export-check circle{fill:var(--mp-accent);stroke:var(--card);stroke-width:3}
+.mp-export-check path{stroke:#fff;stroke-width:2.5}
+.mp-copy{padding:20px}.mp-copy h3{font-size:18px;letter-spacing:-.025em;display:flex;justify-content:space-between;gap:10px}
+.mp-link-arrow{width:18px;height:18px;flex:none;color:var(--mp-accent)}.mp-copy p{font-size:14px;color:var(--mute);margin-top:7px;line-height:1.6}
+.mp-caption{margin-top:18px;line-height:1.8}.mp-caption a{color:var(--blue-d);text-underline-offset:3px}
+.mp-card:focus-visible{outline:3px solid var(--blue,#326fe5);outline-offset:5px}
+@media(hover:hover) and (pointer:fine){.mp-card:hover{transform:translateY(-4px);border-color:var(--mp-accent);box-shadow:0 18px 32px -24px var(--mp-accent)}}
+@media(prefers-reduced-motion:no-preference){
+ .mp-arm{animation:mp-match 5s cubic-bezier(.4,0,.2,1) infinite}
+ .mp-surface{animation:mp-follow 5s ease-in-out infinite}
+ .mp-target{animation:mp-ring 5s ease-in-out infinite}
+ .mp-transfer{stroke-dasharray:7 5;animation:mp-flow 2s linear infinite}
+ .mp-file{animation:mp-file-arrive 5s ease-in-out infinite}
+ .mp-export-check{animation:mp-confirm 5s ease-in-out infinite;transform-origin:278px 143px}
+}
+.mp-card[data-preview-paused] *{animation-play-state:paused!important}
+@keyframes mp-match{0%,12%,100%{transform:rotate(-22deg)}40%,78%{transform:rotate(0)}}
+@keyframes mp-follow{0%,100%{transform:translateY(4px)}50%{transform:translateY(-7px)}}
+@keyframes mp-ring{0%,100%{transform:scale(.9);opacity:.3}50%{transform:scale(1.15);opacity:.75}}
+@keyframes mp-flow{to{stroke-dashoffset:-24}}
+@keyframes mp-file-arrive{0%,12%,100%{opacity:.3;transform:translateX(-8px)}38%,85%{opacity:1;transform:translateX(0)}}
+@keyframes mp-confirm{0%,25%,100%{opacity:0;transform:scale(.8)}42%,85%{opacity:1;transform:scale(1)}}
+@media(max-width:680px){.maker-previews{padding-bottom:70px}.mp-heading{align-items:start;flex-direction:column;gap:12px}.mp-grid{grid-template-columns:1fr}.mp-stage svg{max-height:190px}.mp-copy{padding:18px 20px}}
+@media(prefers-reduced-motion:reduce){.mp-card{transition:none}.mp-card:hover{transform:none}}

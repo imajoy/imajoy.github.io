@@ -5,6 +5,12 @@
 .home-page .acct-btn{flex:0 0 170px;justify-content:center}
 @media(max-width:680px){.home-page .pillbar .acct-btn{flex-basis:92px}}
 /* Content is visible in its final position before any scripts execute. */
+.home-page .hero{background:none;--hero-fade:clamp(100px,16vh,180px)}
+.home-page .hero::before{content:'';position:absolute;inset:0;background:var(--hero-background);pointer-events:none}
+.home-page .hero::before,.home-page #stage{-webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - var(--hero-fade)),transparent 100%);mask-image:linear-gradient(to bottom,#000 calc(100% - var(--hero-fade)),transparent 100%)}
+@supports not ((mask-image:linear-gradient(#000,transparent)) or (-webkit-mask-image:linear-gradient(#000,transparent))){
+ .home-page .hero::after{content:'';position:absolute;inset:auto 0 0;height:var(--hero-fade);background:linear-gradient(to bottom,transparent,var(--bg));pointer-events:none;z-index:1}
+}
 .home-page .intro .ln>span,.home-page .intro-fade,.home-page #stage{opacity:1!important;transform:none!important;translate:none!important;animation:none!important}
 .home-page :is(.reveal,.scroll-soft,.tile.reveal.in,.head,.inst-copy){opacity:1!important;filter:none!important;translate:none!important;animation:none!important;transition:none!important;transform:none}
 .home-page .pillbar,.home-page .pillbar>*{animation:none!important;clip-path:none!important;opacity:1!important;filter:none!important}

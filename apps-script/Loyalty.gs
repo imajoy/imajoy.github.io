@@ -139,7 +139,7 @@ function rewardPayPalPlan_(d,quote) {
 /* ---------- Coupon codes (managed in the "Coupons" tab of this sheet) ----------
    One row per code. Columns: Code | Percent off | Payments discounted | Expires on | Plan | Billing |
    Max uses | Used | Active | Note. Plan/Billing: online, offline or both / monthly, yearly or both.
-   Blank Max uses = unlimited. "Used" is filled in automatically. A coupon replaces the returning
+   Blank Max uses = unlimited. "Times used" is filled in automatically. Active: Yes/No (TRUE/FALSE also accepted). A coupon replaces the returning
    subscriber reward on that checkout (they never stack) and does not apply to the free trial. */
 var COUPON_HEADERS_=['Code','Percent off','Payments discounted','Expires on','Plan','Billing','Max uses','Used','Active','Note'];
 function couponSheet_() {

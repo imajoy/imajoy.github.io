@@ -19,10 +19,11 @@ test('A valid coupon from the Coupons tab discounts the chosen number of payment
  assert.equal(app.rpc('rewards',selection(app,{coupon:'SAVE20'})).error,'coupon_used');
 });
 test('Inactive, unknown, expired, wrong plan or billing and used-up coupons are refused; no coupon keeps the normal price',()=>{
- const app=service();coupons(app,[['OFF',10,1,future,'both','both','','',false,''],['OLD',10,1,past,'both','both','','',true,''],['YEARONLY',10,1,future,'both','yearly','','',true,''],['OFFLINE10',10,1,'','offline','both','','',true,''],['ONCE',10,1,'','both','both',1,'',true,'']]);
+ const app=service();coupons(app,[['OFF',10,1,future,'both','both','','','No',''],['YESCODE',15,1,future,'both','both','','','Yes',''],['OLD',10,1,past,'both','both','','',true,''],['YEARONLY',10,1,future,'both','yearly','','',true,''],['OFFLINE10',10,1,'','offline','both','','',true,''],['ONCE',10,1,'','both','both',1,'',true,'']]);
  for(const [code,error] of [['NOPE','coupon_invalid'],['OFF','coupon_invalid'],['OLD','coupon_expired'],['YEARONLY','coupon_invalid'],['OFFLINE10','coupon_invalid']])assert.equal(app.rpc('rewards',selection(app,{coupon:code})).error,error,code);
  assert.equal(app.rpc('rewards',selection(app,{coupon:'OFFLINE10',plan:'offline'})).pricing.percent,10);
  assert.equal(app.rpc('rewards',selection(app)).pricing.percent,0);
+ assert.equal(app.rpc('rewards',selection(app,{coupon:'yescode'})).pricing.percent,15);
  const other=app.register('other@example.com');
  const first=app.rpc('checkout',selection(app,{coupon:'ONCE'}));assert(first.ok,JSON.stringify(first));
  assert.equal(app.rpc('rewards',selection(app,{accountToken:other.token,coupon:'ONCE'})).error,'coupon_used');

@@ -23,10 +23,10 @@ function init() {
   dlg.innerHTML='<button class="acct-close" type="button" aria-label="Close sign-in">×</button><div class="acct-body"></div>';
   document.body.appendChild(dlg);
   const body=dlg.querySelector('.acct-body');
-  const btn=document.createElement('button');btn.type='button';btn.className='acct-btn';btn.setAttribute('aria-haspopup','dialog');btn.setAttribute('aria-controls','account-dialog');dlg.id='account-dialog';
+  const btn=document.querySelector('[data-account-button]')||document.createElement('button');btn.disabled=false;btn.removeAttribute('title');btn.type='button';btn.className='acct-btn';btn.setAttribute('aria-haspopup','dialog');btn.setAttribute('aria-controls','account-dialog');dlg.id='account-dialog';
   const pill=document.querySelector('.site-header .pillbar');
   const nav=pill||document.querySelector('.commerce-header .wrap');
-  if(nav)nav.insertBefore(btn,nav.querySelector('.btn-sm')||nav.querySelector('.back-link'));
+  if(nav&&!btn.parentElement)nav.insertBefore(btn,nav.querySelector('.btn-sm')||nav.querySelector('.back-link'));
   const accountIcon='<span class="acct-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 11l9 7 9-7M8 8h16a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>';
   async function close() {
     if(closing||!dlg.open)return;

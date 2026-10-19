@@ -1,6 +1,7 @@
 (function () {
   'use strict';
 
+  var calmLanding = document.body.classList.contains('home-page');
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   var $ = function (s, r) { return (r || document).querySelector(s); };
@@ -40,7 +41,7 @@
   });
 
   /* ---------- reveal on scroll (once) ---------- */
-  var revs = $$('.reveal');
+  var revs = calmLanding ? [] : $$('.reveal');
   if ('IntersectionObserver' in window && !reduce) {
     var io = new IntersectionObserver(function (es) {
       es.forEach(function (e) {
@@ -57,7 +58,7 @@
   }
 
   /* ---------- headings: words rise in ---------- */
-  if (!reduce && 'IntersectionObserver' in window) {
+  if (!calmLanding && !reduce && 'IntersectionObserver' in window) {
     var hio = new IntersectionObserver(function (es) {
       es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); hio.unobserve(e.target); } });
     }, { threshold: 0.25 });
@@ -162,16 +163,17 @@
         later(function () { play(0); }, 6700);
       }
     }
-    steps.forEach(function (li) {
+    if (!calmLanding) steps.forEach(function (li) {
       li.addEventListener('click', function () { if (reduce) { finalState(); return; } running = true; play(parseInt(li.getAttribute('data-go'), 10)); });
     });
-    if (reduce || !('IntersectionObserver' in window)) finalState();
+    if (calmLanding || reduce || !('IntersectionObserver' in window)) finalState();
     else new IntersectionObserver(function (es) {
       var on = es[0].isIntersecting;
       if (on && !running && !motionPaused) { running = true; play(seen ? cur : 0); seen = true; }
       else if (!on && running) { running = false; clearAll(); }
     }, { threshold: 0.35 }).observe(ist);
     document.addEventListener('ajoy:motion', function (event) {
+      if (calmLanding) return;
       motionPaused = event.detail.paused;
       if (motionPaused) { clearAll(); running = false; finalState(); }
       else if (!reduce && ist.getBoundingClientRect().top < window.innerHeight && ist.getBoundingClientRect().bottom > 0) { running = true; play(0); }
@@ -180,7 +182,7 @@
 
   /* ---------- gentle 3D tilt (smoothed, no CSS transitions) ---------- */
   var tilts = [];
-  if (fine && !reduce) {
+  if (fine && !reduce && !calmLanding) {
     $$('.tilt').forEach(function (el) {
       var max = parseFloat(el.getAttribute('data-tilt')) || 10;
       var host = el.parentNode;

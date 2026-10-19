@@ -66,7 +66,7 @@ if (faq && typeof Element.prototype.animate === 'function') {
   // Wait until the first row is visible, then cascade once. Rows stay available
   // before this point, including when scripts or IntersectionObserver are absent.
   let observer;
-  if (!reducedMotion.matches && 'IntersectionObserver' in window) {
+  if (!faq.closest('.home-page') && !reducedMotion.matches && 'IntersectionObserver' in window) {
     observer = new IntersectionObserver(entries => {
       if (!entries.some(entry => entry.isIntersecting)) return;
       observer.disconnect();

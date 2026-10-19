@@ -6,14 +6,17 @@ import * as THREE from './vendor/three.module.min.js';
   'use strict';
   var canvas = document.getElementById('stage');
   if (!canvas) return;
-  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var preference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var reduce = preference.matches;
+  var interactionOnly = document.body.classList.contains('home-page');
+  var frameId = 0, activeUntil = 0;
 
   /* Keep the original glossy look: the newer three.js defaults to physical lights and sRGB output. */
   THREE.ColorManagement.enabled = false;
   var renderer;
   try {
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
-  } catch (e) { canvas.style.display = 'none'; return; }
+  } catch (e) { canvas.setAttribute('data-scene-unavailable', ''); return; }
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, window.innerWidth < 600 ? 1.25 : 1.5));
   renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
   renderer.shadowMap.enabled = true;
@@ -233,6 +236,9 @@ import * as THREE from './vendor/three.module.min.js';
   /* ---------- input + layout ---------- */
   var px = 0, py = 0, spx = 0, spy = 0, visible = true, narrow = false;
   window.addEventListener('pointermove', function (e) {
+    if (interactionOnly && (!canvas.closest('.hero').contains(e.target) || reduce)) return;
+    activeUntil = performance.now() + 700;
+    scheduleFrame();
     px = (e.clientX / window.innerWidth) * 2 - 1;
     py = (e.clientY / window.innerHeight) * 2 - 1;
   }, { passive: true });
@@ -262,12 +268,13 @@ import * as THREE from './vendor/three.module.min.js';
       b.x = b.ox * f; t.position.x = b.x; t.visible = true;
     });
     lines.forEach(function (l) { l.ln.visible = l.dot.visible = true; });
+    if (clock) { update(0); renderer.render(scene, camera); }
   }
   window.addEventListener('resize', resize);
   resize();
 
   if ('IntersectionObserver' in window) {
-    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; }).observe(canvas);
+    new IntersectionObserver(function (es) { visible = es[0].isIntersecting; if (visible && !interactionOnly) scheduleFrame(); }).observe(canvas);
   }
 
   /* ---------- frame ---------- */
@@ -328,12 +335,15 @@ import * as THREE from './vendor/three.module.min.js';
   }
 
   var perfN = 0, perfSum = 0;
+  function scheduleFrame() { if (!frameId) frameId = requestAnimationFrame(frame); }
   function frame() {
-    requestAnimationFrame(frame);
+    frameId = 0;
     var dt = Math.min(0.05, clock.getDelta());
     if (!visible || document.hidden || document.documentElement.hasAttribute('data-ui-paused') || (reduce && !document.documentElement.hasAttribute('data-ui-motion'))) return;
+    if (interactionOnly && performance.now() > activeUntil) return;
     update(dt);
     renderer.render(scene, camera);
+    scheduleFrame();
     /* Adaptive quality: slow devices first drop resolution, then shadows, so animation never lags. */
     perfN++; perfSum += dt;
     if (perfN === 45) {
@@ -345,5 +355,8 @@ import * as THREE from './vendor/three.module.min.js';
     }
   }
   update(0.016); renderer.render(scene, camera);
-  frame();
+  if (!interactionOnly) scheduleFrame();
+  preference.addEventListener('change', function () { reduce = preference.matches; if (!reduce && !interactionOnly) scheduleFrame(); });
+  document.addEventListener('visibilitychange', function () { if (!document.hidden && !interactionOnly) scheduleFrame(); });
+  document.addEventListener('ajoy:motion', function (event) { if (!event.detail.paused && !interactionOnly) scheduleFrame(); });
 })();

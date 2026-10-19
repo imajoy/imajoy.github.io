@@ -6,7 +6,7 @@ for(const figure of document.querySelectorAll('[data-tool-motion]')){
  const show=index=>{phase=index;figure.dataset.phase=String(index);buttons.forEach((button,i)=>button.setAttribute('aria-pressed',String(i===index)));};
  const stop=()=>{clearTimeout(timer);};
  const schedule=()=>{
-  stop();if(!visible||preference.matches||document.hidden)return;
+  stop();if(figure.closest('.home-page'))return;if(!visible||preference.matches||document.hidden)return;
   timer=setTimeout(()=>{if(Date.now()>=manualUntil&&!figure.contains(document.activeElement))show((phase+1)%buttons.length);schedule();},2800);
  };
  buttons.forEach((button,index)=>{button.disabled=false;button.addEventListener('click',()=>{show(index);manualUntil=Date.now()+9000;schedule();});});

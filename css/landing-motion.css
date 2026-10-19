@@ -1,0 +1,29 @@
+/* Optional font swaps keep slow font downloads from moving readable content. */
+@font-face{font-family:'Geist Landing';font-style:normal;font-weight:100 900;font-display:optional;src:url('../assets/fonts/geist-latin-5.3.0.woff2') format('woff2')}
+@font-face{font-family:'Instrument Landing';font-style:italic;font-weight:400;font-display:optional;src:url('../assets/fonts/instrument-serif-italic-5.3.0.woff2') format('woff2')}
+.home-page{--sans:'Geist Landing',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Instrument Landing','Times New Roman',serif}
+.home-page .acct-btn{flex:0 0 170px;justify-content:center}
+@media(max-width:680px){.home-page .pillbar .acct-btn{flex-basis:92px}}
+/* Content is visible in its final position before any scripts execute. */
+.home-page .intro .ln>span,.home-page .intro-fade,.home-page #stage{opacity:1!important;transform:none!important;translate:none!important;animation:none!important}
+.home-page :is(.reveal,.scroll-soft,.tile.reveal.in,.head,.inst-copy){opacity:1!important;filter:none!important;translate:none!important;animation:none!important;transition:none!important;transform:none}
+.home-page .pillbar,.home-page .pillbar>*{animation:none!important;clip-path:none!important;opacity:1!important;filter:none!important}
+.home-page .block h2 em::after,.home-page .frame-inner h2 em::after{transform:scaleX(1);transition:none}
+/* Decorative loops rest; FAQ, hover and user-selected workflow feedback remain. */
+.home-page :is(.ic,.keycaps kbd,.sheen,.mq-track,.glow,.o1,.o2,.frame,.saving-ticket,.saving-orbit,.trial-art *,.offer-inline *,.tool-diagram *){animation:none!important}
+.home-page .tile.reveal:hover{transform:translateY(-2px);transition:transform 200ms ease-out,box-shadow 200ms ease-out!important}
+.home-page .tile .tl li,.home-page .tile .tl li>div{transition:none}
+.home-page .tile .tl li:hover>div,.home-page .tile .tl li:hover .ic{transform:none}
+.home-page .plan-discount .discount-typing{display:none}
+.home-page .plan-discount .discount-label{position:static;width:auto;height:auto;clip-path:none;overflow:visible;margin:0}
+.home-page .price-stack{min-height:6rem}
+.home-page .plan .note{min-height:3.6em}
+.home-page .hero-secondary{min-width:15rem}
+.home-page .hero-trial-note{display:flex;min-height:1.75em;line-height:1.75}
+.home-page #stage[data-scene-unavailable]{background:url('../assets/logo-mark.svg') center / 72px 72px no-repeat}
+@media(max-width:680px){.home-page .hero-secondary{min-width:0;width:100%}}
+@media(prefers-reduced-motion:reduce){.home-page .tile.reveal:hover{transform:none;transition:none!important}}
+
+.home-page .trial-banner::after,.home-page .trial-stage::before{animation:none!important}
+.home-page .inst-stage *,.home-page .steps li.active::before{animation:none!important}
+.home-page .tool-visual .phase{transition:opacity 220ms ease-out}

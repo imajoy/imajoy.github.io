@@ -1,13 +1,13 @@
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
-import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261018-g5';
+import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261020-rz1';
 import {rememberGeo,detectGeo} from './geo.js?v=20261019-geo1';
-import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261018-j3';
+import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261020-rz1';
 import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261018-n1';
 import {secureCommerce} from './commerce-gateway.js?v=20261019-t60';
 const settings=window.AJOY_CONFIG||{},form=document.querySelector('#billing-form'),pay=document.querySelector('#pay');
 bindAccountEmail(form?.elements.email,document.querySelector('#email-hint'));
 if(form&&pay){
- const box=document.createElement('div');box.className='paypal-box';
+ const box=document.createElement('div');box.className='paypal-box';box.dataset.paymentProvider='paypal';
  box.innerHTML='<section class="account-required" id="checkout-account"><b>Verify your email before subscribing.</b><p>Sign in, or register a new email with a verification code.</p><button type="button" class="btn btn-dark" data-account-gate>Register / Login</button></section><p class="paypal-test" hidden><b>Test mode.</b> No real money moves.</p><p class="paypal-closed" role="status" hidden></p><fieldset class="checkout-offer" hidden><legend>Choose your subscription</legend><label><input type="radio" name="checkout-offer" value="trial"><span data-trial-option-label>2-day Online trial · $0 today</span></label><label><input type="radio" name="checkout-offer" value="standard">Standard subscription · paid after PayPal approval</label></fieldset><p class="paypal-note" role="status"></p><div id="paypal-buttons" hidden></div><p class="paypal-fine"></p>';
  pay.replaceWith(box);
  const gate=box.querySelector('#checkout-account'),closed=box.querySelector('.paypal-closed'),offerBox=box.querySelector('.checkout-offer'),buttons=box.querySelector('#paypal-buttons'),note=box.querySelector('.paypal-note'),fine=box.querySelector('.paypal-fine');
@@ -28,6 +28,8 @@ if(form&&pay){
   eligibility={eligible:false,reason:error.code};selectedOffer='';invalidate();sync();
  };
  function sync(){
+  if(document.documentElement.dataset.paymentProvider==='razorpay'){box.hidden=true;trialOn=false;document.querySelector('#trial-line')?.setAttribute('hidden','');return;}
+  box.hidden=false;
   const session=getAccountSession(),c=choice(),region=availability(c.country,cfg?.closedCountries||[]),match=countryCheck(c.country,cfg?.mode==='live'?cfg.country:'');
   gate.hidden=!!session;offerBox.hidden=!session||!cfg||!eligibility;
   const available=region.open&&match.ok;
@@ -149,6 +151,7 @@ if(form&&pay){
   sync();
  }
  onAccountChange(checkAccount);
+ document.addEventListener('ajoy:provider-change',event=>{if(event.detail.provider==='paypal'){refreshReward();checkAccount();}sync();});
  async function confirm(id){
   say('Verifying your subscription and payment account…');
   try{

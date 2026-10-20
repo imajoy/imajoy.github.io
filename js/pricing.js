@@ -1,11 +1,12 @@
 import {indiaContact} from './india-availability.js?v=20261019-contact1';
-import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261019-complete1';
+import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261020-rz1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
-import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261018-j3';
+import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261020-rz1';
 import {localFormatter} from './fx.js?v=20261018-h8';
 import {animatePrice,settlePrices} from './price-motion.js?v=20261019-motion1';
+import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-rz1';
 const toggle=document.querySelector('.toggle');
-let billing='monthly',revision=0,animatePricing=false;
+let billing='monthly',revision=0,animatePricing=false,razorpayConfig=null;
 function chooseBilling(value){
  if(billing===value)return;
  settlePrices();animatePricing=true;billing=value;toggle.dataset.state=billing;
@@ -16,13 +17,14 @@ function animate(element){if(animatePricing&&!matchMedia('(prefers-reduced-motio
 async function render(){
  const current=++revision,status=document.querySelector('#pricing-status');
  const inIndia=suggestedCountry()==='IN';
+ const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
  const notice=document.querySelector('#india-availability');
- notice.hidden=!inIndia;
+ notice.hidden=!inIndia||indiaOpen;
  notice.querySelector('a').href=indiaContact();
  document.querySelector('.plan-trial-kicker').hidden=inIndia;
  await Promise.all(['online','offline'].map(async plan=>{
   const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`);
-  buy.href=inIndia&&!buy.classList.contains('is-owned')?indiaContact():`checkout.html?${new URLSearchParams({plan,billing,v:'20261018-r19'})}`;if(!amount.textContent.trim())amount.textContent='—';offer.hidden=true;comparison.hidden=true;
+  buy.href=inIndia&&!indiaOpen&&!buy.classList.contains('is-owned')?indiaContact():`checkout.html?${new URLSearchParams({plan,billing,v:'20261020-rz1'})}`;if(!amount.textContent.trim())amount.textContent='—';offer.hidden=true;comparison.hidden=true;
   try{
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;
@@ -34,10 +36,10 @@ async function render(){
    const trial=plan==='online'&&trialPlanId(tcfg,'online',billing,suggestedCountry());
    note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Cancel any time.':(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
    if(!buy.classList.contains('is-owned')){
-    buy.textContent=inIndia?'Get launch updates':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
-    if(inIndia)buy.href=indiaContact(plan==='online'?'Online':'Offline');
+    buy.textContent=inIndia&&!indiaOpen?'Get launch updates':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
+    if(inIndia&&!indiaOpen)buy.href=indiaContact(plan==='online'?'Online':'Offline');
    }
-   if(inIndia)note.textContent='Indicative price. Billed '+(billing==='yearly'?'annually.':'monthly.');
+   if(inIndia)note.textContent=(indiaOpen?'Pay securely with Razorpay. ':'Indicative price. ')+'Billed '+(billing==='yearly'?'annually.':'monthly.');
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);
     offer.querySelector('.annual-saving').textContent='Save '+show(quote.annualSavings)+' per year';
@@ -53,6 +55,7 @@ for(const button of toggle.querySelectorAll('button'))button.addEventListener('c
 });
 let tcfg=null;
 loadTrialConfig().then(c=>{tcfg=c;if(c)render();});
+loadRazorpayConfig().then(c=>{razorpayConfig=c;if(c?.enabled)render();});
 const knewGeo=cachedGeo();
 render();
 detectGeo().then(c=>{if(c&&c!==knewGeo)render();});

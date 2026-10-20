@@ -46,7 +46,7 @@ export function regionalPrice(plan, billing, seats, country) {
   const m = plan === 'offline' ? 2 : 1;
   if (country === 'IN') {
     const monthly = 899 * m * 100, compare = billing === 'yearly' ? monthly * 12 : monthly;
-    const unit = billing === 'yearly' ? Math.round(compare * .8 / 100) * 100 : monthly;
+    const unit = billing === 'yearly' ? Math.round(compare * .8) : monthly;
     return { currency: 'INR', unitAmount: unit, monthlyAmount: monthly, compareAtUnitAmount: compare };
   }
   const t = USD[tierFor(country)][plan], monthly = t.monthly * 100, compare = billing === 'yearly' ? monthly * 12 : monthly;

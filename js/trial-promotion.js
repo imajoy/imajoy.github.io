@@ -1,17 +1,19 @@
 import {indiaContact} from './india-availability.js?v=20261019-contact1';
 /* Clear, contextual offers. Promotions never authorize a trial or change a paid selection. */
-import {loadTrialConfig,trialPlanId} from './trial.js?v=20261018-j3';
+import {loadTrialConfig,trialPlanId} from './trial.js?v=20261020-rz1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
-import {availability,closedMessage} from './regions.js?v=20261018-g5';
+import {availability,closedMessage} from './regions.js?v=20261020-rz1';
 import {getAccountSession,onAccountChange} from './account-session.js?v=20261018-n1';
 import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261018-p1';
+import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-rz1';
 const isHome=Boolean(document.querySelector('.trial-showcase'));
 const home=isHome?'#trial':'wrapline.html#trial';
 const isDiscovery=Boolean(document.querySelector('.tool-page'));
-let config=null,country=cachedGeo(),settled=false,billing='',nudge=null;
+let config=null,country=cachedGeo(),settled=false,billing='',nudge=null,razorpayConfig=null;
 const alreadyOnline=()=>getAccountSession()?.subscriptions?.some(s=>s.plan==='online'&&s.status==='ACTIVE'&&Date.parse(s.endsAt)>Date.now());
 function render(){
   const subscribed=alreadyOnline(),inIndia=country==='IN',known=/^[A-Z]{2}$/.test(country);
+  const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
   billing=known&&trialPlanId(config,'online','monthly',country)?'monthly':known&&trialPlanId(config,'online','yearly',country)?'yearly':'';
   const region=known?availability(country,config?.closedCountries||[]):null;
   const fallback=region&&!region.open?'wrapline.html#pricing':isHome?'checkout.html?plan=online&billing=monthly&offer=trial':home;
@@ -25,15 +27,18 @@ function render(){
       link.href='#workflows';link.textContent='Explore workflows';link.removeAttribute('data-region-unavailable');
     }
     link.dataset.trialReady=String(Boolean(billing&&!subscribed));
+    if(indiaOpen&&!subscribed){link.href=isHome?'#pricing':'wrapline.html#pricing';link.textContent='Explore paid plans';link.removeAttribute('data-region-unavailable');}
   }
   const mobileTrial=document.querySelector('.m-cta a:not(.primary)');
   if(mobileTrial){mobileTrial.href=subscribed?'#pricing':inIndia?indiaContact():'#trial';mobileTrial.textContent=subscribed?'Your Online plan':inIndia?'Get updates':'2-day trial';}
+  if(mobileTrial&&indiaOpen&&!subscribed){mobileTrial.href='#pricing';mobileTrial.textContent='View plans';}
   for(const teaser of document.querySelectorAll('[data-trial-teaser]')){
     if(!teaser.dataset.originalCopy)teaser.dataset.originalCopy=teaser.textContent;
     teaser.textContent=isHome?teaser.dataset.originalCopy:inIndia&&!subscribed?'India checkout and the Online trial are not open yet. Ask Ajoy for launch updates.':teaser.dataset.originalCopy;
+    if(indiaOpen&&!subscribed)teaser.textContent='Paid subscriptions are available with Razorpay in India. The free trial is offered through PayPal in supported countries.';
   }
   const message=subscribed?'You already have an active Online subscription. View your plan or account.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 2-day trial unless cancelled.':inIndia?'Checkout and the 2-day Online trial are not available in India yet. Use the email link to ask Ajoy for launch updates.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
-  for(const notice of document.querySelectorAll('[data-trial-status]')){notice.hidden=isHome&&inIndia;notice.textContent=isHome&&inIndia?'':message;}
+  for(const notice of document.querySelectorAll('[data-trial-status]')){notice.hidden=isHome&&inIndia&&!indiaOpen;notice.textContent=indiaOpen?'Paid subscriptions are available with Razorpay. The PayPal free trial is not available in India.':isHome&&inIndia?'':message;}
   if(getAccountSession())closeNudge();
   tryNudge();
 }
@@ -108,5 +113,6 @@ async function closeNudge(){
 }
 if(document.querySelector('[data-trial-cta]')){
   onAccountChange(render);render();
+  loadRazorpayConfig().then(value=>{razorpayConfig=value;if(value?.enabled)render();});
   loadTrialConfig().then(async value=>{config=value;country=/^[A-Z]{2}$/.test(config?.country||'')?config.country:(await detectGeo())||cachedGeo();settled=true;render();}).catch(()=>{settled=true;render();});
 }

@@ -7,6 +7,7 @@ export function service({registered=true,mailFails=false}={}){
  values.set('PLANS_sandbox',JSON.stringify({productId:'PROD-TEST',tiers}));
  const cache=new Map(),mails=[],requests=[],sheets=new Map(),subscriptions=new Map(),transactions=new Map(),plans=new Map(),idempotency=new Map();let sequence=0,locked=false,signatureValid=true;
  const github={private:true,available:true,empty:false,files:new Map(),uploads:0};
+ const razorpay={plans:new Map(),subscriptions:new Map(),invoices:new Map(),payments:new Map(),loseCreateResponse:false};
  function table(name,initial=[[]]){
   const rows=initial;
   const sheet={rows,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
@@ -24,6 +25,22 @@ export function service({registered=true,mailFails=false}={}){
   MailApp:{sendEmail:message=>{if(mailFails)throw Error('Mail service unavailable');mails.push(message);}},Session:{getEffectiveUser:()=>({getEmail:()=> 'owner@example.com'})},
   UrlFetchApp:{fetch:(url,options={})=>{
    requests.push({url,options});
+   if(url.startsWith('https://api.razorpay.com/v1/')){
+    const u=new URL(url),path=u.pathname.replace('/v1',''),body=options.payload?JSON.parse(options.payload):null;
+    if(path==='/plans'&&options.method==='post'){const id='plan_test'+(razorpay.plans.size+1),plan={...body,id};razorpay.plans.set(id,plan);return result(plan,201);}
+    if(path.startsWith('/plans/'))return result(razorpay.plans.get(path.split('/').pop())||{},razorpay.plans.has(path.split('/').pop())?200:404);
+    if(path==='/subscriptions'&&options.method==='post'){
+     const id='sub_test'+(razorpay.subscriptions.size+1),s={...body,id,short_url:'https://rzp.io/i/'+id,status:'created',current_start:Math.floor(Date.now()/1000),current_end:Math.floor(Date.now()/1000)+30*86400};razorpay.subscriptions.set(id,s);
+     if(razorpay.loseCreateResponse){razorpay.loseCreateResponse=false;throw Error('Lost response');}
+     return result(s,201);
+    }
+    if(path==='/subscriptions')return result({items:[...razorpay.subscriptions.values()].slice(Number(u.searchParams.get('skip')||0),Number(u.searchParams.get('skip')||0)+100)});
+    if(path.startsWith('/subscriptions/'))return result(razorpay.subscriptions.get(path.split('/').pop())||{},razorpay.subscriptions.has(path.split('/').pop())?200:404);
+    if(path==='/invoices')return result({items:[...razorpay.invoices.values()].filter(i=>i.subscription_id===u.searchParams.get('subscription_id'))});
+    if(path.startsWith('/invoices/'))return result(razorpay.invoices.get(path.split('/').pop())||{},razorpay.invoices.has(path.split('/').pop())?200:404);
+    if(path.startsWith('/payments/'))return result(razorpay.payments.get(path.split('/').pop())||{},razorpay.payments.has(path.split('/').pop())?200:404);
+    return result({},404);
+   }
    if(url.startsWith('https://api.github.com/repos/')){
     if(!github.available)return result({},503);
     const match=/repos\/([^/]+\/[^/]+)(?:\/contents\/(.*))?$/.exec(url),repo=match[1],path=match[2];
@@ -54,7 +71,7 @@ export function service({registered=true,mailFails=false}={}){
    return result({},404);
   }},ContentService:{MimeType:{JSON:'json'},createTextOutput:()=>({setMimeType(){return this;},setContent(text){this.text=text;return this;}})}
  });
- for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
+ for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
  const clone=value=>JSON.parse(JSON.stringify(value));
  const call=body=>clone(ctx.handleAccount_(body));
  const envelope=payload=>{const packed=JSON.stringify(payload),timestamp=String(Date.now()),nonce=randomUUID();return {type:'commerce',payload:packed,timestamp,nonce,signature:createHmac('sha256',values.get('COMMERCE_SECRET')).update(timestamp+'.'+nonce+'.'+packed).digest('hex')};};
@@ -62,5 +79,5 @@ export function service({registered=true,mailFails=false}={}){
  const options={keepHistoryCache:false};
  const rpc=(action,data={})=>{if(!options.keepHistoryCache)for(const k of [...cache.keys()])if(k.startsWith('rh:'))cache.delete(k);return clone(ctx.handleCommerceEnvelope_(envelope({action,...data})));};
  const register=email=>{call({step:'code',email,intent:'register'});const code=mails.at(-1).subject.match(/\d{6}/)[0];return call({step:'verify',email,code});};
- return {options,ctx,github,values,mails,requests,cache,sheets,subscriptions,transactions,plans,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
+ return {options,ctx,github,razorpay,values,mails,requests,cache,sheets,subscriptions,transactions,plans,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
 }

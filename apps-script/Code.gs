@@ -305,9 +305,11 @@ function subscriptionsFor_(email, onlySub) {
         else if (last) { item.endsAt = addPeriod_(last, o.billing).toISOString(); }
       }
     }
+    item._orderTime=o.at.getTime();
     out.push(item);
   });
-  return out;
+  if(typeof razorpaySubscriptions_==='function')out=out.concat(razorpaySubscriptions_(email,onlySub));
+  return out.sort(function(a,b){return (b._orderTime||0)-(a._orderTime||0);}).slice(0,5).map(function(item){delete item._orderTime;return item;});
 }
 /* Accounts are created only after a registration email code has been verified. */
 function safeSheetCell_(value) { return typeof value === 'string' && /^[=+@-]/.test(value) ? "'" + value : value; }

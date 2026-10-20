@@ -1,0 +1,83 @@
+/* Browser + private Apps Script fixtures. Never contacts a payment provider or sends email. */
+import assert from 'node:assert/strict';
+import {createRequire} from 'node:module';
+import {service} from '../tests/helpers/apps-service.mjs';
+import {createRazorpayHandler} from '../supabase/functions/razorpay/handler.js';
+const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
+const base=new URL(process.argv[2]||'http://localhost:8798/');
+const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']});
+try{
+ for(const [country,enabled,width,theme] of [['IN',true,390,'light'],['IN',true,1280,'dark'],['US',true,390,'dark'],['US',true,1280,'light'],['GB',true,390,'light'],['IN',false,390,'light'],['US',false,1280,'light']]){
+  const app=service(),token=app.ctx.makeSession_('buyer@example.com');
+  for(const [k,v] of Object.entries({RAZORPAY_MODE:'test',RAZORPAY_ENABLED:String(enabled),RAZORPAY_KEY_ID:'rzp_test_fixture',RAZORPAY_KEY_SECRET:'private-razorpay-test-secret',RAZORPAY_WEBHOOK_SECRET:'private-webhook-test-secret',RAZORPAY_ALLOWED_COUNTRIES:'IN US GB'}))app.values.set(k,v);
+  app.ctx.Logger={log(){}};app.ctx.setupRazorpayPlans();
+  const handler=createRazorpayHandler({env:k=>({ALLOWED_ORIGINS:base.origin,SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip'}[k]||app.values.get(k)),request:async(url,options)=>url.startsWith('https://api.country.is/')?Response.json({country}):Response.json(JSON.parse(app.ctx.doPost({postData:{contents:options.body}}).text))});
+  const context=await browser.newContext({viewport:{width,height:950},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
+  page.on('pageerror',error=>errors.push(error.message));
+  await context.addInitScript(({token,country,theme})=>{if(!sessionStorage.getItem('fixture.accountSeeded')){localStorage.setItem('ajoy.acct',JSON.stringify({token,email:'buyer@example.com',expiresAt:Date.now()+864e5,subscriptions:[]}));sessionStorage.setItem('fixture.accountSeeded','1');}localStorage.setItem('ajoy-theme',theme);localStorage.setItem('ajoy.geo',JSON.stringify({country,at:Date.now()}));}, {token,country,theme});
+  await context.route('**/*',async route=>{
+   const req=route.request(),url=req.url();
+   if(new URL(url).origin===base.origin)return route.continue();
+   if(url.includes('/functions/v1/razorpay/')){
+    const response=await handler(new Request(url,{method:req.method(),headers:{...req.headers(),'cf-connecting-ip':'8.8.8.8'},...(req.postData()?{body:req.postData()}:{})}));
+    return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:await response.text()});
+   }
+   if(url.includes('/functions/v1/paypal-config'))return route.fulfill({json:{mode:'live',clientId:'fixture',country,plans:{tiers:Object.fromEntries(['low','mid','high'].map(t=>[t,{online:{monthly:true,yearly:true},offline:{monthly:true,yearly:true},onlineTrial:{monthly:true,yearly:true}}]))}}});
+   if(url.includes('/functions/v1/commerce/eligibility'))return route.fulfill({json:{ok:true,rewardsVersion:1,eligible:true,reason:'eligible'}});
+   if(url.includes('/functions/v1/commerce/rewards')){const body=JSON.parse(req.postData());return route.fulfill({json:{ok:true,pricing:{currency:'USD',unitAmount:2200,total:2200*body.seats,seats:body.seats,percent:0,rewardPayments:0,billing:body.billing}}});}
+   if(url.includes('www.paypal.com/sdk/js'))return route.fulfill({contentType:'text/javascript',body:'window.paypal={Buttons:function(){return {render:function(selector){document.querySelector(selector).innerHTML="<button type=button>PayPal Subscribe</button>";return Promise.resolve();}}}};'});
+   if(url.includes('script.google.com'))return route.fulfill({contentType:'application/json',body:app.ctx.doPost({postData:{contents:req.postData()}}).text});
+   if(url.includes('api.country.is'))return route.fulfill({json:{country}});
+   if(url.includes('get.geojs.io'))return route.fulfill({json:{country}});
+   if(url.startsWith('https://rzp.io/'))return route.fulfill({contentType:'text/html',body:'<h1>Fixture hosted checkout</h1>'});
+   return route.abort();
+  });
+  await page.goto(new URL('checkout.html?plan=online&billing=monthly',base).href);
+  await page.selectOption('#country',country);
+  if(enabled&&['IN','US'].includes(country)){
+   await page.locator('.payment-picker').waitFor({state:'visible'});
+   if(country==='US'){
+    await page.getByRole('radio',{name:/Razorpay/}).check();
+   }
+   await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed'));
+   assert.equal(await page.locator('.paypal-box').isVisible(),false);
+   assert.equal(await page.locator('#customer-verification').isVisible(),false);
+   assert.equal(await page.locator('.coupon-panel').isVisible(),false);
+   assert.match(await page.locator('#summary-total').textContent(),country==='IN'?/899/:/1,999/);
+   await page.selectOption('#billing','yearly');
+   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('8,630.40')||document.querySelector('#summary-total').textContent.includes('19,190.40'));
+   assert.equal(await page.locator('#annual-summary-row').isVisible(),true);
+   await page.locator('#name').fill('Example buyer');await page.locator('#address').fill('Example street');await page.locator('#city').fill('Example city');await page.locator('#terms').check();
+   if(country==='IN'){
+    await page.locator('.razorpay-panel').screenshot({path:'/tmp/razorpay-checkout-'+width+'.png'});
+    const popupPromise=context.waitForEvent('page');await page.locator('[data-razorpay-start]').click();const popup=await popupPromise;
+    await page.locator('[data-razorpay-check]').waitFor({state:'visible'});
+    assert.equal(app.razorpay.subscriptions.size,1);
+    await page.locator('[data-razorpay-check]').click();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('not confirmed'));
+    assert.equal(app.orders.rows.length,2);
+    const sub=[...app.razorpay.subscriptions.values()][0],amount=app.razorpay.plans.get(sub.plan_id).item.amount;sub.status='active';
+    const invoice={id:'inv_browser',subscription_id:sub.id,payment_id:'pay_browser',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:amount};
+    app.razorpay.invoices.set(invoice.id,invoice);app.razorpay.payments.set(invoice.payment_id,{id:invoice.payment_id,invoice_id:invoice.id,status:'captured',captured:true,currency:'INR',amount,amount_refunded:0});
+    await page.locator('[data-razorpay-check]').click();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Payment confirmed'));
+    assert.equal(app.orders.rows.length,3);assert.equal(app.mails.length,2);await popup.close();
+   }else{
+    await page.getByRole('radio',{name:/PayPal/}).check();
+    await page.locator('.paypal-box').waitFor({state:'visible'});assert.equal(await page.locator('.razorpay-panel').isVisible(),false);
+   }
+  }else{
+   await page.waitForTimeout(700);assert.equal(await page.locator('.razorpay-panel').isVisible(),false);assert.equal(await page.locator('.payment-picker').isVisible(),false);
+  }
+  if(country==='IN'){
+   await page.evaluate(()=>localStorage.removeItem('ajoy.acct'));
+   await page.goto(new URL('wrapline.html',base).href);
+   try{await page.waitForFunction(enabled=>document.querySelector('[data-buy="online"]')?.textContent.includes(enabled?'Subscribe now':'Get launch updates'),enabled,{timeout:10000});}
+   catch(error){console.error({country,enabled,errors,cta:await page.locator('[data-buy="online"]').textContent(),href:await page.locator('[data-buy="online"]').getAttribute('href')});throw error;}
+   assert.match(await page.locator('[data-buy="online"]').getAttribute('href'),enabled?/checkout\.html/:/contact\.html/);
+   if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('8,630.40'));}
+  }
+  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);
+  console.log(`${country}, Razorpay ${enabled?'enabled':'disabled'}, ${width}px ${theme}: provider gates and checkout passed`);
+  await context.close();
+ }
+ console.log('Payment-provider browser checks passed with local payment fixtures only.');
+}finally{await browser.close();}

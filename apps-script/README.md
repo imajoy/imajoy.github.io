@@ -1,5 +1,7 @@
 # Deploy registration, protected checkout and one-time trials
 
+For Razorpay beside PayPal, follow [the separate Razorpay activation guide](../supabase/RAZORPAY.md). Keep existing PayPal settings; Razorpay has its own module, credentials, plans, webhook, enablement and approved-country list.
+
 The site stores account and order records in your existing Google Sheet. New emails can register by verification code before buying or downloading; they do not need an existing subscription. Existing subscribers keep email-code sign-in. Accounts are created only after the correct code is verified.
 
 Deploy **all three files: `Code.gs`, `Commerce.gs` and `Loyalty.gs`** in the existing Apps Script project, preserving the current web app URL. In Apps Script choose **Deploy → Manage deployments → Edit → New version → Deploy**. A GitHub push does not update this deployment.

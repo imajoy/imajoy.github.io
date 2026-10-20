@@ -24,7 +24,7 @@ if (total) {
     total.classList.remove('tick'); void total.offsetWidth; total.classList.add('tick');
   }).observe(total, { childList: true, characterData: true, subtree: true });
 }
-/* Phone: a sticky total bar that jumps to the PayPal button, hidden while that button is on screen. */
+/* Phone: follow the selected provider and hide while its payment controls are visible. */
 if (matchMedia('(max-width: 800px)').matches) {
   const totalEl = document.querySelector('#summary-total');
   const bar = document.createElement('div');
@@ -36,12 +36,15 @@ if (matchMedia('(max-width: 800px)').matches) {
   if (totalEl) new MutationObserver(sync).observe(totalEl, { childList: true, characterData: true, subtree: true });
   sync();
   let target = null, shown = false, atBottom = false;
-  const apply = () => bar.classList.toggle('on', shown && !atBottom && !document.querySelector('.pay-done'));
+  const apply = () => bar.classList.toggle('on', shown && !atBottom && !document.querySelector('.pay-done,[data-payment-complete]'));
+  const paymentTarget = () => document.documentElement.dataset.paymentProvider==='razorpay'?document.querySelector('.razorpay-panel'):document.querySelector('.paypal-box');
   bar.querySelector('button').addEventListener('click', () => {
-    (document.querySelector('.paypal-box') || document.querySelector('.checkout-form')).scrollIntoView({ behavior: paused() ? 'auto' : 'smooth', block: 'center' });
+    (paymentTarget() || document.querySelector('.checkout-form')).scrollIntoView({ behavior: paused() ? 'auto' : 'smooth', block: 'center' });
   });
-  const io = new IntersectionObserver(es => { for (const e of es) atBottom = e.isIntersecting; apply(); }, { threshold: 0.2 });
-  const watch = () => { target = document.querySelector('.paypal-box'); if (target) io.observe(target); };
+  const io = new IntersectionObserver(es => { for (const e of es) if(e.target===target)atBottom = e.isIntersecting; apply(); }, { threshold: 0.2 });
+  const watch = () => {io.disconnect();target=paymentTarget();atBottom=false;if(target)io.observe(target);apply();};
+  document.addEventListener('ajoy:provider-change',watch);
+  document.addEventListener('ajoy:payment-complete',apply);
   setTimeout(watch, 1500); setTimeout(watch, 4000);
   addEventListener('scroll', () => { shown = scrollY > 260; apply(); }, { passive: true });
 }

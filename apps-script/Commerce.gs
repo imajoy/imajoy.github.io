@@ -186,6 +186,7 @@ function handleCommerceEnvelope_(envelope) {
     commerceLock_(function(){var cache=CacheService.getScriptCache();if(cache.get('rpc:'+nonce))throw commerceError_('signature','Service request was already used.');cache.put('rpc:'+nonce,'1',300);});
     var d=JSON.parse(packed);
     if(d.action==='passkeys')return handlePasskeys_(d);
+    if(d.action==='razorpay'&&typeof handleRazorpay_==='function')return handleRazorpay_(d);
     if(props_().getProperty('COMMERCE_ENABLED')!=='true')throw commerceError_('unavailable','Secure checkout is not activated.');
     if((d.action==='checkout'||d.action==='webhook')&&!Number.isFinite(Date.parse(props_().getProperty('COMMERCE_ENFORCE_FROM')||'')))throw commerceError_('unavailable','The trial activation cutoff is not configured.');
     if(d.action==='webhook')return commerceWebhook_(d);

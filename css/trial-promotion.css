@@ -80,3 +80,7 @@
 @media(max-width:360px){.trial-banner-copy strong{font-size:.75rem}.trial-banner-copy .offer-eyebrow{font-size:.4375rem}.trial-banner-copy>span:last-child{font-size:.5rem}.trial-banner-arrow{display:none}.hero-copy{padding-inline:20px}.offer-inline{grid-template-columns:1fr}.offer-inline>.offer-action{grid-column:1}.offer-download .offer-stamp{display:none}.trial-benefits{display:grid}.tool-trial h2{font-size:27px}}
 .offer-arrow{width:14px;height:14px;flex:none;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}.trial-banner-arrow .offer-arrow{width:18px;height:18px}
 @media(max-width:680px){.nudge-art{height:85px}.nudge-pass{width:110px;padding:9px 13px;transform:rotate(-9deg) translateY(19px)}.nudge-pass>b{font-size:2.8rem;line-height:1.2}.nudge-pass>small{font-size:.4375rem}.nudge-tool-one{top:25px}.nudge-tool-two{bottom:15px}.nudge-copy{padding:18px 22px 10px}.nudge-copy>p:not(.offer-eyebrow):not(.nudge-terms){display:none}.nudge-copy .btn{margin-top:12px}.nudge-copy h2{font-size:1.4rem;margin-bottom:9px}}
+
+.hero-trial-summary{max-width:42em;margin-top:18px;color:var(--mute);font-size:.75rem;line-height:1.8}
+.hero-trial-summary strong{color:var(--ink);font-weight:500}
+.hero-trial-summary a{color:var(--blue-d);white-space:nowrap}

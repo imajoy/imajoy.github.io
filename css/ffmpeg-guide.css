@@ -63,7 +63,7 @@
 .ff-demo-stage{position:relative;background:radial-gradient(ellipse at 20% 20%,#3d8bff12,transparent 70%),var(--bg2)}
 .ff-demo-panel{display:flex;flex-direction:column;gap:20px;min-height:400px;padding:22px;min-width:0}
 .ff-demo-panel[hidden]{display:none!important}
-.ff-install-demo[data-enhanced] .ff-demo-stage{height:500px}
+.ff-install-demo[data-enhanced] .ff-demo-stage{height:560px}
 .ff-install-demo[data-enhanced] .ff-demo-panel{height:100%;min-height:0}
 .ff-demo-scene-label{font-size:.5625rem;letter-spacing:.11em;font-weight:600;color:var(--blue-d)}
 .ff-demo-window{flex-shrink:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0;background:var(--card);box-shadow:0 15px 35px -22px #153a7880;color:var(--ink)}
@@ -112,7 +112,7 @@
 .ff-terminal-output>code{color:#dceaff}
 .ff-terminal-success{display:flex;align-items:center;gap:8px;margin-top:18px;color:#65ddbf;font:500 .625rem/1.7 var(--sans)}
 .ff-terminal-success>span{display:grid;place-items:center;flex:none;width:17px;height:17px;border-radius:50%;background:#65ddbf17}
-.ff-demo-progress{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:18px 20px 0}
+.ff-demo-progress{display:grid;grid-template-columns:repeat(9,1fr);gap:6px;margin:18px 20px 0}
 .ff-demo-progress>span{height:3px;position:relative;overflow:hidden;border-radius:5px;background:var(--line)}
 .ff-demo-progress>span::after{content:'';position:absolute;inset:0;background:var(--blue);transform:scaleX(0);transform-origin:left}
 .ff-demo-progress>span[data-current]::after{transform:scaleX(1)}
@@ -133,4 +133,19 @@
 @keyframes ff-command{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
 @keyframes ff-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
 @media(max-width:1000px){.ff-install-layout{grid-template-columns:1fr;gap:28px}.ff-install-demo{position:relative;top:auto;max-width:560px;width:100%;justify-self:center;grid-row:1}.ff-install-steps{grid-row:2}}
-@media(max-width:420px){.ff-demo-panel{padding:17px 13px}.ff-demo-heading{padding:17px 13px 14px;font-size:.5rem}.ff-install-demo[data-enhanced] .ff-demo-stage{height:500px}.ff-demo-window .ff-ui-body{padding:12px}.ff-search-window{padding:13px}.ff-search-result{padding:12px 8px;gap:8px}.ff-search-result strong{font-size:.6875rem}.ff-ui-arrow{display:none}.ff-save-stack{padding-inline:0}.ff-save-card{padding:16px 12px}.ff-ui-tabs{gap:10px}.ff-path-editor{gap:8px;grid-template-columns:minmax(0,1fr) 64px}.ff-install-steps li{padding:12px 8px}.ff-terminal-body{padding:20px 12px}.ff-terminal-line{font-size:.625rem}}
+@media(max-width:420px){.ff-demo-panel{padding:17px 13px}.ff-demo-heading{padding:17px 13px 14px;font-size:.5rem}.ff-install-demo[data-enhanced] .ff-demo-stage{height:560px}.ff-demo-window .ff-ui-body{padding:12px}.ff-search-window{padding:13px}.ff-search-result{padding:12px 8px;gap:8px}.ff-search-result strong{font-size:.6875rem}.ff-ui-arrow{display:none}.ff-save-stack{padding-inline:0}.ff-save-card{padding:16px 12px}.ff-ui-tabs{gap:10px}.ff-path-editor{gap:8px;grid-template-columns:minmax(0,1fr) 64px}.ff-install-steps li{padding:12px 8px}.ff-terminal-body{padding:20px 12px}.ff-terminal-line{font-size:.625rem}}
+
+/* One viewer covers download, folders and Windows configuration in a single flow. */
+#ffmpeg-install{scroll-margin-top:112px}
+.ff-demo-panel .ff-window-files{margin-left:0}
+.ff-demo-panel .ff-file-list li{padding-block:5px}
+.ff-folder-destination{display:flex;align-items:center;gap:12px;font-size:1.2rem;padding:20px;color:var(--blue-d)}
+.ff-demo-panel[data-ff-install-panel="1"] .ff-folder-row{background:#3d8bff0c;border-color:#3d8bff30}
+.ff-archive-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;flex:1;min-height:270px;text-align:center}
+.ff-archive-card>strong{font-size:1.25rem;font-weight:600;letter-spacing:-.02em}
+.ff-archive-card>span:not(.ff-archive-icon):not(.ff-archive-arrow){font-size:.625rem;line-height:1.7;color:var(--mute)}
+.ff-archive-icon{position:relative;display:block;width:65px;height:78px;color:var(--blue-d)}
+.ff-archive-icon svg{height:100%;width:100%;stroke:currentColor;stroke-width:1.5;fill:#3d8bff08}
+.ff-archive-icon small{position:absolute;bottom:2px;right:0;padding:5px 8px;background:var(--blue);color:white;border-radius:5px;font-size:.5625rem;font-weight:600}
+.ff-archive-arrow{color:var(--blue-d);font-size:27px;line-height:1}
+@media(prefers-reduced-motion:no-preference){.ff-install-demo[data-playing] .ff-archive-arrow{animation:ff-dialog-in 1.8s ease-in-out infinite alternate}}

@@ -7,9 +7,11 @@ const settings=window.AJOY_CONFIG||{},form=document.querySelector('#billing-form
 bindAccountEmail(form?.elements.email,document.querySelector('#email-hint'));
 if(form&&pay){
  const box=document.createElement('div');box.className='paypal-box';box.dataset.paymentProvider='paypal';
- box.innerHTML='<section class="account-required" id="checkout-account"><b>Verify your email before subscribing.</b><p>Sign in, or register a new email with a verification code.</p><button type="button" class="btn btn-dark" data-account-gate>Register / Login</button></section><p class="paypal-test" hidden><b>Test mode.</b> No real money moves.</p><p class="paypal-closed" role="status" hidden></p><fieldset class="checkout-offer" hidden><legend>Choose your subscription</legend><label><input type="radio" name="checkout-offer" value="trial"><span data-trial-option-label>2-day Online trial · $0 today</span></label><label><input type="radio" name="checkout-offer" value="standard">Standard subscription · paid after PayPal approval</label></fieldset><p class="paypal-note" role="status"></p><div id="paypal-buttons" hidden></div><p class="paypal-fine"></p>';
+ box.innerHTML='<section class="account-required" id="checkout-account"><b>Verify your email before subscribing.</b><p>Sign in, or register a new email with a verification code.</p><button type="button" class="btn btn-dark" data-account-gate>Register / Login</button></section><p class="paypal-test" hidden><b>Test mode.</b> No real money moves.</p><p class="paypal-closed" role="status" hidden></p><fieldset class="checkout-offer" hidden><legend>Choose your subscription</legend><label><input type="radio" name="checkout-offer" value="trial"><span data-trial-option-label>2-day Online trial · $0 today</span></label><label><input type="radio" name="checkout-offer" value="standard">Standard subscription · paid after PayPal approval</label></fieldset><p class="paypal-note" role="status"></p><section class="paypal-price-check" hidden><p class="form-hint" data-payment-price-status role="status" aria-live="polite"></p><button class="btn btn-light" type="button" data-payment-price-retry hidden>Retry price check</button></section><div id="paypal-buttons" hidden></div><p class="paypal-fine"></p>';
  pay.replaceWith(box);
  const gate=box.querySelector('#checkout-account'),closed=box.querySelector('.paypal-closed'),offerBox=box.querySelector('.checkout-offer'),buttons=box.querySelector('#paypal-buttons'),note=box.querySelector('.paypal-note'),fine=box.querySelector('.paypal-fine');
+ const priceCheck=box.querySelector('.paypal-price-check'),priceStatus=box.querySelector('[data-payment-price-status]'),priceRetry=box.querySelector('[data-payment-price-retry]');
+ priceRetry.onclick=()=>{refreshReward();sync();};
  const total=document.querySelector('#summary-total'),availabilityNote=document.querySelector('#availability');
  const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let rewardQuote=null,rewardRevision=0,rewardTimer,rewardBusy=false,rewardError='',rewardKey='';
@@ -58,12 +60,20 @@ if(form&&pay){
   fine.textContent=trialOn?'One trial per customer, browser, network and verified PayPal payer account. We check your payment account before granting access. Your first subscription payment follows the 2-day trial unless cancelled.':'Charged in US dollars by PayPal. Review the subscription price before approving. Your license is sent within 12 hours after server confirmation.';
   if(couponBox)couponBox.hidden=!session||!eligibility||!rewardsSupported();
   renderReward();
-  buttons.hidden=!session||!cfg||!eligibility||!selectedOffer||!available||(!trialOn&&rewardsSupported()&&(!rewardQuote||rewardBusy));
+  const needsPrice=selectedOffer==='standard'&&rewardsSupported(),priceReady=!!rewardQuote&&!rewardBusy&&rewardKey===keyOf();
+  const waiting=!!session&&!!cfg&&!!eligibility&&available&&needsPrice&&!priceReady;
+  priceCheck.hidden=!waiting;priceStatus.textContent=waiting?(rewardBusy?'Confirming your subscription price…':rewardError||'Confirm your subscription price before continuing to PayPal.'):'';
+  priceRetry.hidden=!waiting||rewardBusy;
+  buttons.hidden=!session||!cfg||!eligibility||!selectedOffer||!available||(needsPrice&&!priceReady);
   if(availabilityNote)availabilityNote.textContent=!session?'Sign in or register your email, then review your subscription.':!cfg?'Secure checkout is temporarily unavailable.':!eligibility?'Checking your account and trial eligibility…':trialOn?'Review your free trial and its first paid renewal, then approve with PayPal.':'Review the standard subscription price, then approve with PayPal.';
   if(!buttons.hidden)startButtons();
  }
  if(total)new MutationObserver(()=>{if(total.textContent!=='$0')lastTotal=total.textContent;if(trialOn&&total.textContent!=='$0')total.textContent='$0';}).observe(total,{childList:true,characterData:true,subtree:true});
- for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{selectedOffer=radio.value;invalidate();sync();});
+ for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{
+  selectedOffer=radio.value;invalidate();say('');
+  if(selectedOffer==='standard'&&rewardsSupported()&&(!rewardQuote||rewardKey!==keyOf())&&(!rewardBusy||rewardKey!==keyOf()))refreshReward();
+  sync();
+ });
  for(const name of ['plan','billing','country','seats'])form.elements[name].addEventListener('change',()=>{invalidate();refreshReward();sync();});
  form.elements.seats.addEventListener('input',()=>{invalidate();refreshReward();sync();});
  document.addEventListener('ajoy:quote-rendered',sync);

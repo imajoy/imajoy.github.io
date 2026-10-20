@@ -10,7 +10,10 @@ function tags(html,name){
  return [...html.matchAll(new RegExp('<'+name+'\\b[^>]*>','gi'))].map(match=>Object.fromEntries([...match[0].matchAll(/([\w:-]+)\s*=\s*(["'])([\s\S]*?)\2/g)].map(([,key,,value])=>[key.toLowerCase(),decode(value)])));
 }
 function meta(head,key){const tag=tags(head,'meta').filter(tag=>tag.name===key||tag.property===key);assert.equal(tag.length,1,`Exactly one ${key} expected`);return tag[0].content;}
-const htmlPages=readdirSync(root).filter(name=>name.endsWith('.html'));
+const verificationFiles=readdirSync(root).filter(name=>/^google[a-f0-9]+\.html$/.test(name));
+// Ownership tokens must remain exactly as supplied by Google; they are not content pages.
+for(const name of verificationFiles)assert.equal(read(name).trim(),'google-site-verification: '+name,`${name}: invalid Google verification file`);
+const htmlPages=readdirSync(root).filter(name=>name.endsWith('.html')&&!verificationFiles.includes(name));
 const publicPages=htmlPages.filter(name=>!tags(read(name),'meta').some(tag=>tag.name==='robots'&&/\bnoindex\b/.test(tag.content)));
 const tools=publicPages.filter(name=>name.startsWith('tool-'));
 const sitemap=read('sitemap.xml');

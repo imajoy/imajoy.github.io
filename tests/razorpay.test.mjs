@@ -122,3 +122,22 @@ test('Edge function rejects forged origins/sessions and uses only trusted server
  assert.equal((await handler(req('quote',{accountToken:s.token,plan:'online',billing:'monthly',seats:1,country:'IN'},undefined,''))).status,409);
  assert.equal((await handler(req('webhook',{event:'subscription.charged'},''))).status,400);
 });
+test('Closing the Razorpay window or a failed payment cancels only the unpaid checkout; a paid one is confirmed instead',()=>{
+ const s=setup(),created=s.rpc('checkout',s.selection());assert(created.ok,JSON.stringify(created));
+ assert.equal(s.rpc('config').keyId,'rzp_test_fixture');
+ const other=s.app.register('other@example.com');assert.equal(s.rpc('cancel',{accountToken:other.token,checkoutId:created.checkoutId}).error,'checkout');
+ const cancelled=s.rpc('cancel',{accountToken:s.token,checkoutId:created.checkoutId});assert(cancelled.cancelled,JSON.stringify(cancelled));
+ assert.equal(s.app.razorpay.subscriptions.get(created.subscriptionId).status,'cancelled');
+ const again=s.rpc('checkout',s.selection());assert(again.ok);assert.notEqual(again.checkoutId,created.checkoutId,'a cancelled checkout must not be reused');
+ paid(s,again);s.app.razorpay.subscriptions.get(again.subscriptionId).paid_count=1;
+ const late=s.rpc('cancel',{accountToken:s.token,checkoutId:again.checkoutId});assert(late.accepted,'a paid subscription is confirmed, never cancelled');
+ assert.equal(s.app.razorpay.subscriptions.get(again.subscriptionId).status,'active');
+});
+test('A subscriber can stop automatic renewal; access continues to the end of the paid period',()=>{
+ const s=setup(),created=s.rpc('checkout',s.selection());paid(s,created);
+ assert(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted);
+ const unpaid=s.rpc('checkout',s.selection({billing:'yearly',expectedTotal:863040}));assert.equal(s.rpc('stop',{accountToken:s.token,checkoutId:unpaid.checkoutId}).error,'checkout');
+ const stopped=s.rpc('stop',{accountToken:s.token,checkoutId:created.checkoutId});assert(stopped.stopped,JSON.stringify(stopped));assert(Date.parse(stopped.endsAt)>Date.now());
+ assert.deepEqual(s.app.razorpay.cancelled.at(-1),{id:created.subscriptionId,atCycleEnd:true});
+ const subs=s.app.ctx.razorpaySubscriptions_('buyer@example.com');assert.equal(subs[0].renews,false);assert.equal(subs[0].provider,'razorpay');assert.equal(subs[0].ref,created.checkoutId);
+});

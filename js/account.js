@@ -1,6 +1,6 @@
 import {mountPasskeys,cancelPasskey} from './passkeys.js?v=20261020-fast1';
 /* Email-code sign-in with an immediate cached summary and live subscription refresh. */
-import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261018-n1';
+import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261020-ty1';
 const cfg = window.AJOY_CONFIG || {};
 if (cfg.accountOpen && cfg.sheetUrl) init();
 function init() {
@@ -56,12 +56,24 @@ function init() {
     if(session){
       body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Your account</p><h2 id="acct-title" tabindex="-1">'+esc(session.email)+'</h2><p class="acct-note acct-sync" role="status">'+(updating?'Updating your subscription details…':offline?'Showing your saved account. Reconnect to update your details.':'Your verified account email is used automatically at checkout.')+'</p>'+
         (subs?.length>1&&totalDays(subs)?'<p class="acct-total">Total across your subscriptions: <b>'+dayWord(totalDays(subs))+' left</b></p>':'')+
-        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Wrapline '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'||d.state==='ending'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+'</div>';}).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
+        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Wrapline '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'||d.state==='ending'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+(s.renews&&s.provider==='razorpay'&&s.ref?'<button class="acct-link acct-stop" type="button" data-stop="'+esc(s.ref)+'">Stop automatic renewal</button>':s.renews&&s.provider==='paypal'?'<a class="acct-link acct-stop" href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener">Cancel renewal in PayPal</a>':'')+'</div>';}).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
         '<div class="acct-passkeys" hidden></div>'+
         (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<p class="acct-note">To use a different email, sign out first.</p><button class="acct-link" type="button" data-out>Sign out</button>';
       body.querySelector('[data-out]').onclick=()=>{generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
       body.querySelector('[data-retry]')?.addEventListener('click',status);
+      for(const stop of body.querySelectorAll('[data-stop]'))stop.addEventListener('click',async()=>{
+        if(stop.dataset.confirm!=='1'){stop.dataset.confirm='1';stop.textContent='Confirm: stop renewal (you keep access until the paid period ends)';return;}
+        const url=window.AJOY_CONFIG?.razorpayUrl,current=getAccountSession();if(!url||!current)return;
+        stop.disabled=true;stop.textContent='Stopping renewal…';
+        try{
+          const response=await fetch(url+'/stop',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({checkoutId:stop.dataset.stop,accountToken:current.token}),signal:AbortSignal.timeout(60000)});
+          const data=await response.json().catch(()=>({}));
+          if(!response.ok||!data.ok)throw new Error(data.message||'Renewal could not be stopped. Please try again or contact support.');
+          stop.replaceWith(Object.assign(document.createElement('p'),{className:'acct-note',textContent:'Automatic renewal stopped. You keep access until '+(data.endsAt?new Date(data.endsAt).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'the end of your paid period')+'.'}));
+          status();
+        }catch(error){stop.disabled=false;stop.dataset.confirm='';stop.textContent='Stop automatic renewal';announce(error.message,true);}
+      });
       mountAccountPasskeys(session);
       return;
     }

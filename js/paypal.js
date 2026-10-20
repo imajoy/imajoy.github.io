@@ -2,7 +2,7 @@ import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.j
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
 import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261020-rz1';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261020-rz1';
-import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261018-n1';
+import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261020-ty1';
 import {secureCommerce} from './commerce-gateway.js?v=20261020-country1';
 const settings=window.AJOY_CONFIG||{},form=document.querySelector('#billing-form'),pay=document.querySelector('#pay');
 bindAccountEmail(form?.elements.email,document.querySelector('#email-hint'));
@@ -177,13 +177,10 @@ if(form&&pay){
   }catch(error){reflectTrialRestriction(error);say(error.message,true,error.code==='trial_used');}
  }
  function showDone(result){
-  clearBillingDraft();
+  clearBillingDraft();document.dispatchEvent(new Event('ajoy:payment-complete'));
   const c={...checkout?.selection,plan:result.plan||checkout?.selection.plan,billing:result.billing||checkout?.selection.billing,seats:result.seats||checkout?.selection.seats};
-  const card=document.createElement('section');card.className='pay-done';card.setAttribute('role','status');
-  card.innerHTML='<svg class="pd-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 15-17"/></svg><p class="eyebrow">'+(result.offer==='trial'?'Trial approved':'Subscription confirmed')+'</p><h2>Thank you. Your account is ready.</h2><dl class="pd-list"><div><dt>Plan</dt><dd>'+esc(c.plan==='offline'?'Offline':'Online')+' · '+esc(c.billing)+' · '+esc(c.seats)+' license(s)</dd></div><div><dt>License email</dt><dd>'+esc(result.email)+'</dd></div><div><dt>Subscription ID</dt><dd>'+esc(result.subscriptionId)+'</dd></div></dl>'+(result.offer==='trial'?'<p class="pd-note">Your 2-day trial is approved. Your first payment follows the trial unless you cancel in PayPal.</p>':'')+'<p class="pd-note">Your license arrives within 12 hours. You remain signed in with your verified email.</p><div class="pd-bar" aria-hidden="true"></div><p class="pd-count">Taking you home in <b id="pd-sec">8</b> seconds. <a href="wrapline.html">Go now</a></p>';
-  card.style.setProperty('--redir','8s');document.querySelector('.checkout-grid').before(card);document.querySelector('.checkout-grid').hidden=true;document.dispatchEvent(new Event('ajoy:payment-complete'));if(availabilityNote)availabilityNote.hidden=true;
-  try{sessionStorage.setItem('ajoy.acct.open','1');}catch{}
-  card.scrollIntoView({behavior:'smooth',block:'center'});let left=8;const timer=setInterval(()=>{card.querySelector('#pd-sec').textContent=String(--left);if(left<=0){clearInterval(timer);location.href='wrapline.html';}},1000);
+  say('Payment confirmed. Taking you to your confirmation page…');
+  location.href='thank-you.html?'+new URLSearchParams({provider:'paypal',plan:c.plan==='offline'?'offline':'online',billing:c.billing==='yearly'?'yearly':'monthly',seats:String(c.seats||1),...(result.offer==='trial'?{offer:'trial'}:{})}).toString();
  }
  function loadSdk(){
   if(!sdkPromise)sdkPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(cfg.clientId)+'&vault=true&intent=subscription&currency=USD';script.onload=()=>window.paypal?.Buttons?resolve():reject(new Error('PayPal could not start.'));script.onerror=()=>reject(new Error('PayPal could not load. Check your connection.'));document.head.append(script);});

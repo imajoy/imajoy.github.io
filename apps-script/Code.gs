@@ -293,7 +293,7 @@ function addPeriod_(d, billing) { var x = new Date(d.getTime()); if (billing ===
 function subscriptionsFor_(email, onlySub) {
   var list = ordersFor_(email, onlySub).slice(-5).reverse(), t = token_(), out = [];
   list.forEach(function (o) {
-    var item = { plan: o.plan, billing: o.billing, seats: o.seats, status: 'UNKNOWN', endsAt: '', renews: false, trial: false };
+    var item = { plan: o.plan, billing: o.billing, seats: o.seats, status: 'UNKNOWN', endsAt: '', renews: false, trial: false, provider: 'paypal' };
     if (t) {
       var r = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(o.id), { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t } });
       if (r.getResponseCode() === 200) {

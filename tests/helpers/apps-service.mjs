@@ -35,6 +35,7 @@ export function service({registered=true,mailFails=false}={}){
      return result(s,201);
     }
     if(path==='/subscriptions')return result({items:[...razorpay.subscriptions.values()].slice(Number(u.searchParams.get('skip')||0),Number(u.searchParams.get('skip')||0)+100)});
+    if(/^\/subscriptions\/[^/]+\/cancel$/.test(path)&&options.method==='post'){const sub=razorpay.subscriptions.get(path.split('/')[2]);if(!sub)return result({},404);if(body&&body.cancel_at_cycle_end)sub.has_scheduled_changes=true;else sub.status='cancelled';razorpay.cancelled=(razorpay.cancelled||[]).concat([{id:sub.id,atCycleEnd:!!(body&&body.cancel_at_cycle_end)}]);return result(sub);}
     if(path.startsWith('/subscriptions/'))return result(razorpay.subscriptions.get(path.split('/').pop())||{},razorpay.subscriptions.has(path.split('/').pop())?200:404);
     if(path==='/invoices')return result({items:[...razorpay.invoices.values()].filter(i=>i.subscription_id===u.searchParams.get('subscription_id'))});
     if(path.startsWith('/invoices/'))return result(razorpay.invoices.get(path.split('/').pop())||{},razorpay.invoices.has(path.split('/').pop())?200:404);

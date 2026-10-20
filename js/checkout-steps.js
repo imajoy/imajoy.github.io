@@ -1,5 +1,5 @@
 /* Drafts are tab-local form convenience, never proof of identity, country or price. */
-import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261018-n1';
+import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ty1';
 const key='ajoy.billing-draft',lifetime=30*60*1000;
 export const paymentStep=document.documentElement.dataset.checkoutStep==='payment';
 const fields={name:80,company:160,address:400,city:100,region:100,postal:24,taxId:40};

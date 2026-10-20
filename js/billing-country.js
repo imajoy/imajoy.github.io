@@ -1,4 +1,4 @@
-import {getAccountSession,onAccountChange,clearAccountSession,openAccount} from './account-session.js?v=20261018-n1';
+import {getAccountSession,onAccountChange,clearAccountSession,openAccount} from './account-session.js?v=20261020-ty1';
 const reasons={
  vpn_detected:'Your connection was flagged as a VPN or proxy. Turn it off, then retry to continue.',
  country_unavailable:'We could not verify your connection country. Retry the check or contact support.',

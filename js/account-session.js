@@ -13,7 +13,8 @@ function clean(value) {
   const subscriptions = Array.isArray(value.subscriptions) ? value.subscriptions.filter(s => s && ['online','offline'].includes(s.plan) && ['monthly','yearly'].includes(s.billing)).slice(0,5).map(s => ({
     plan:s.plan,billing:s.billing,seats:Number.isInteger(s.seats)&&s.seats>0&&s.seats<=100?s.seats:1,
     status:['ACTIVE','APPROVED','CANCELLED','SUSPENDED','EXPIRED'].includes(s.status)?s.status:'UNKNOWN',
-    endsAt:typeof s.endsAt==='string'&&Number.isFinite(Date.parse(s.endsAt))?s.endsAt:'',trial:!!s.trial,renews:!!s.renews
+    endsAt:typeof s.endsAt==='string'&&Number.isFinite(Date.parse(s.endsAt))?s.endsAt:'',trial:!!s.trial,renews:!!s.renews,
+    provider:['paypal','razorpay'].includes(s.provider)?s.provider:'',ref:typeof s.ref==='string'&&/^[-a-f0-9]{36}$/i.test(s.ref)?s.ref:''
   })) : null;
   return { token: value.token, email, expiresAt, limited: !!value.limited, subscriptions };
 }

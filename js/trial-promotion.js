@@ -2,7 +2,7 @@
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261020-rz1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {availability,closedMessage} from './regions.js?v=20261020-rz1';
-import {getAccountSession,onAccountChange} from './account-session.js?v=20261018-n1';
+import {getAccountSession,onAccountChange} from './account-session.js?v=20261020-ty1';
 import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261018-p1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-rz1';
 const isHome=Boolean(document.querySelector('.trial-showcase'));

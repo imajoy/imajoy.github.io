@@ -15,3 +15,12 @@
 /* Locked country reads as a fixed value; verified testers retain the native picker. */
 #country:disabled{appearance:none;-webkit-appearance:none;background-image:none;opacity:1;cursor:default;-webkit-text-fill-color:currentColor}
 html[data-billing-blocked="true"] .m-total{display:none!important}
+
+/* Razorpay status messages and cancel control */
+.razorpay-status[data-kind="error"]{color:#c4392f;font-weight:600}
+.razorpay-status[data-kind="ok"]{color:#1c7d5b;font-weight:600}
+.razorpay-status[data-kind="warn"]{color:#9a6410}
+html[data-theme=dark] .razorpay-status[data-kind="error"]{color:#ff8a80}
+html[data-theme=dark] .razorpay-status[data-kind="ok"]{color:#5fd9a8}
+html[data-theme=dark] .razorpay-status[data-kind="warn"]{color:#f0bd62}
+.razorpay-cancel{display:block;margin:12px auto 0;border:0;background:none;color:#c4392f;font:inherit;font-size:.9rem;font-weight:600;text-decoration:underline;cursor:pointer;min-height:44px}

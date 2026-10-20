@@ -11,7 +11,7 @@ export function createRazorpayHandler({env,request=fetch}){
   try{
    const path=new URL(req.url).pathname.split('/').filter(Boolean).pop();
    if(req.method==='OPTIONS')return new Response(null,{status:allowed.includes(origin)?204:403,headers});
-   if(!['config','quote','checkout','confirm','webhook'].includes(path))throw fail('Not found.',404);
+   if(!['config','quote','checkout','confirm','cancel','stop','webhook'].includes(path))throw fail('Not found.',404);
    if(path!=='webhook'&&!allowed.includes(origin))throw fail('Origin not allowed.',403);
    if(req.method!==(path==='config'?'GET':'POST'))throw fail('Method not allowed.',405);
    if(path!=='config'&&env('COMMERCE_ENABLED')!=='true')throw fail('Checkout is temporarily unavailable.',503);
@@ -27,7 +27,7 @@ export function createRazorpayHandler({env,request=fetch}){
     let data;try{data=JSON.parse(raw);}catch{throw fail('Invalid request.');}
     if(typeof data.accountToken!=='string'||data.accountToken.length<16||data.accountToken.length>4096)throw fail('Sign in or register before subscribing.',401);
     payload.accountToken=data.accountToken;
-    if(path==='confirm'){
+    if(['confirm','cancel','stop'].includes(path)){
      if(!/^[-a-f0-9]{36}$/i.test(data.checkoutId||''))throw fail('Invalid checkout.');
      payload.checkoutId=data.checkoutId;
     }else{

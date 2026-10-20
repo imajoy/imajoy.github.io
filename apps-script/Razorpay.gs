@@ -46,7 +46,7 @@ function razorpayCheckout_(d,who){
   return commerceLock_(function(){
     var records=razorpayRows_().filter(function(r){return r.mode===razorpayMode_()&&r.email===who.email;}),record=records.find(function(r){return r.requestId===d.requestId;});
     if(record&&JSON.stringify(record.price)!==JSON.stringify(price))throw commerceError_('selection','This request belongs to a different selection. Refresh checkout.');
-    if(!record)record=records.find(function(r){return !r.accepted&&r.state!=='expired'&&Date.now()-r.createdAt<1800000&&JSON.stringify(r.price)===JSON.stringify(price);});
+    if(!record)record=records.find(function(r){return !r.accepted&&r.state!=='expired'&&r.state!=='cancelled'&&Date.now()-r.createdAt<1800000&&JSON.stringify(r.price)===JSON.stringify(price);});
     if(record&&record.subscriptionId)return razorpayPublic_(record);
     // If creation timed out, never issue another subscription blindly. Find the
     // original by its private checkout note, or leave it for owner reconciliation.
@@ -132,12 +132,15 @@ function constantTimeEqual_(a,b){if(a.length!==b.length)return false;var x=0;for
 function handleRazorpay_(d){
   if(d.operation==='config'){
     var catalog=razorpayCatalog_(),ready=['india','high','mid','low'].every(function(t){return ['online','offline'].every(function(k){return ['monthly','yearly'].every(function(b){return /^plan_[A-Za-z0-9]+$/.test(catalog[t]&&catalog[t][k]&&catalog[t][k][b]||'');});});});
-    return {ok:true,enabled:razorpayEnabled_()&&ready,countries:razorpayCountries_(),mode:razorpayMode_(),currency:'INR',trial:false,promotions:false};
+    var keyId=props_().getProperty('RAZORPAY_KEY_ID')||'';
+    return {ok:true,enabled:razorpayEnabled_()&&ready,countries:razorpayCountries_(),mode:razorpayMode_(),currency:'INR',trial:false,promotions:false,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
   }
   if(props_().getProperty('COMMERCE_ENABLED')!=='true'||!razorpayConnected_())throw commerceError_('unavailable','Razorpay is not connected.');
   if(d.operation==='webhook')return razorpayWebhook_(d);
   var who=commerceWho_(d.accountToken);
   if(d.operation==='confirm')return razorpayConfirm_(d.checkoutId,who);
+  if(d.operation==='cancel')return razorpayAbandon_(d.checkoutId,who);
+  if(d.operation==='stop')return razorpayStopRenewal_(d.checkoutId,who);
   if(['quote','checkout'].indexOf(d.operation)>=0){
       if(typeof billingApply_!=='function'&&(d.billingNetwork||props_().getProperty('BILLING_POLICY_ENABLED')==='true'))throw commerceError_('unavailable','The billing protection module needs updating.');
       if(typeof billingApply_==='function')billingApply_(d,who);
@@ -150,8 +153,8 @@ function handleRazorpay_(d){
 function razorpaySubscriptions_(email,onlySub){
   var list=razorpayRows_().filter(function(r){return r.mode===razorpayMode_()&&r.email===email&&r.accepted&&(!onlySub||r.subscriptionId===onlySub);}).slice(-5).reverse();
   return list.map(function(r){
-    var item={plan:r.price.plan,billing:r.price.billing,seats:r.price.seats,trial:false,status:'UNKNOWN',endsAt:r.paidThrough?new Date(r.paidThrough*1000).toISOString():'',renews:false,_orderTime:r.createdAt};
-    try{var s=razorpayVerify_(r);item.status=r.accessRevoked?'EXPIRED':s.status==='active'?'ACTIVE':['cancelled','completed','expired'].indexOf(s.status)>=0?'CANCELLED':'SUSPENDED';item.renews=s.status==='active'&&!r.accessRevoked;}catch(e){}
+    var item={plan:r.price.plan,billing:r.price.billing,seats:r.price.seats,trial:false,status:'UNKNOWN',endsAt:r.paidThrough?new Date(r.paidThrough*1000).toISOString():'',renews:false,provider:'razorpay',ref:r.id,_orderTime:r.createdAt};
+    try{var s=razorpayVerify_(r);item.status=r.accessRevoked?'EXPIRED':s.status==='active'?'ACTIVE':['cancelled','completed','expired'].indexOf(s.status)>=0?'CANCELLED':'SUSPENDED';item.renews=s.status==='active'&&!r.accessRevoked&&!r.stopRequested&&!s.ended_at&&s.status!=='cancelled';}catch(e){}
     return item;
   });
 }
@@ -166,4 +169,30 @@ function setupRazorpayPlans(){
     catalog[tier][kind][billing]=plan.id;props_().setProperty('RAZORPAY_PLANS_'+razorpayMode_(),JSON.stringify(catalog));
   });});});
   Logger.log('Razorpay '+razorpayMode_()+' plans saved. No customer subscription was created.');
+}
+
+/* Buyer closed the Razorpay window or the payment failed: end the unpaid checkout so it never lingers.
+   A subscription that has already been paid is never cancelled here. */
+function razorpayAbandon_(id,who){
+  var record=razorpayFind_(id);
+  if(!record||record.email!==who.email)throw commerceError_('checkout','This checkout does not belong to your account.');
+  if(record.accepted)return razorpayPublic_(record);
+  if(record.subscriptionId){
+    var s=razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId));
+    if(s.notes&&s.notes.checkout_id!==record.id)throw commerceError_('mismatch','Razorpay subscription details do not match this checkout.');
+    if(['active','authenticated'].indexOf(s.status)>=0&&s.paid_count>0)return razorpayConfirm_(id,who);
+    if(['created','authenticated','pending'].indexOf(s.status)>=0)razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:0});
+  }
+  commerceLock_(function(){var r=razorpayFind_(id);r.state='cancelled';r.providerStatus='cancelled';razorpayWrite_(r);});
+  return {ok:true,cancelled:true,checkoutId:id};
+}
+/* Subscriber stops future renewals. Access continues until the end of the period already paid for. */
+function razorpayStopRenewal_(id,who){
+  var record=razorpayFind_(id);
+  if(!record||record.email!==who.email||!record.accepted)throw commerceError_('checkout','This subscription does not belong to your account.');
+  var s=razorpayVerify_(record);
+  if(s.status==='active'&&!record.stopRequested)razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:1});
+  commerceLock_(function(){var r=razorpayFind_(id);r.stopRequested=true;razorpayWrite_(r);});
+  try{MailApp.sendEmail({to:ownerEmail_(),name:'Wrapline orders',subject:'Renewal stopped: '+record.subscriptionId,body:who.email+' stopped renewal of their Wrapline '+record.price.plan+' '+record.price.billing+' subscription ('+record.subscriptionId+'). Access continues until '+(record.paidThrough?new Date(record.paidThrough*1000).toDateString():'the end of the paid period')+'.'});}catch(e){}
+  return {ok:true,stopped:true,endsAt:record.paidThrough?new Date(record.paidThrough*1000).toISOString():''};
 }

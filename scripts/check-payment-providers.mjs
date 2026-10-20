@@ -29,6 +29,7 @@ try{
    if(url.includes('script.google.com'))return route.fulfill({contentType:'application/json',body:app.ctx.doPost({postData:{contents:req.postData()}}).text});
    if(url.includes('api.country.is'))return route.fulfill({json:{country}});
    if(url.includes('get.geojs.io'))return route.fulfill({json:{country}});
+   if(url.startsWith('https://checkout.razorpay.com/v1/checkout.js'))return route.fulfill({contentType:'text/javascript',body:'window.Razorpay=function(options){var r=window.__rzp=window.__rzp||{opened:0};r.options=options;r.events={};this.on=function(n,f){r.events[n]=f;};this.open=function(){r.opened++;};};'});
    if(url.startsWith('https://rzp.io/'))return route.fulfill({contentType:'text/html',body:'<h1>Fixture hosted checkout</h1>'});
    return route.abort();
   });
@@ -61,16 +62,32 @@ try{
    assert.equal(await page.locator('#annual-summary-row').isVisible(),true);
    if(country==='IN'){
     await page.locator('.razorpay-panel').screenshot({path:'/tmp/razorpay-checkout-'+width+'.png'});
-    const popupPromise=context.waitForEvent('page');await page.locator('[data-razorpay-start]').click();const popup=await popupPromise;
-    await page.locator('[data-razorpay-check]').waitFor({state:'visible'});
-    assert.equal(app.razorpay.subscriptions.size,1);
-    await page.locator('[data-razorpay-check]').click();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('not confirmed'));
+    const rzp=()=>page.evaluate(()=>window.__rzp?.opened||0),last=()=>[...app.razorpay.subscriptions.values()].at(-1);
+    const fire=(name,arg)=>page.evaluate(([name,arg])=>{const r=window.__rzp;if(name==='dismiss')r.options.modal.ondismiss();else if(name==='paid')r.options.handler({razorpay_payment_id:'pay_browser'});else r.events[name](arg);},[name,arg]);
+    // 1. Buyer closes the Razorpay window: message changes at once and the unpaid subscription is cancelled.
+    await page.locator('[data-razorpay-start]').click();await page.waitForFunction(()=>window.__rzp?.opened===1);
+    assert.equal(app.razorpay.subscriptions.size,1);assert.equal((await page.evaluate(()=>window.__rzp.options.key)),'rzp_test_fixture');
+    await fire('dismiss');await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Payment cancelled. No money was taken'));
+    await page.waitForFunction(()=>!document.querySelector('[data-razorpay-check]').checkVisibility());
+    for(let i=0;i<50&&last().status!=='cancelled';i++)await page.waitForTimeout(100);assert.equal(last().status,'cancelled');
+    // 2. Payment fails, then the buyer closes the window.
+    await page.locator('[data-razorpay-start]').click();await page.waitForFunction(()=>window.__rzp?.opened===2);
+    assert.equal(app.razorpay.subscriptions.size,2);
+    await fire('payment.failed',{error:{description:'Your card was declined'}});await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Payment failed: Your card was declined.'));
+    await fire('dismiss');await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('No money was taken'));
+    for(let i=0;i<50&&last().status!=='cancelled';i++)await page.waitForTimeout(100);assert.equal(last().status,'cancelled');
     assert.equal(app.orders.rows.length,2);
-    const sub=[...app.razorpay.subscriptions.values()][0],amount=app.razorpay.plans.get(sub.plan_id).item.amount;sub.status='active';
+    // 3. Successful payment goes straight to the thank-you page.
+    await page.locator('[data-razorpay-start]').click();await page.waitForFunction(()=>window.__rzp?.opened===3);
+    assert.equal(app.razorpay.subscriptions.size,3);
+    const sub=last(),amount=app.razorpay.plans.get(sub.plan_id).item.amount;sub.status='active';sub.paid_count=1;
     const invoice={id:'inv_browser',subscription_id:sub.id,payment_id:'pay_browser',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:amount};
     app.razorpay.invoices.set(invoice.id,invoice);app.razorpay.payments.set(invoice.payment_id,{id:invoice.payment_id,invoice_id:invoice.id,status:'captured',captured:true,currency:'INR',amount,amount_refunded:0});
-    await page.locator('[data-razorpay-check]').click();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Payment confirmed'));
-    assert.equal(app.orders.rows.length,3);assert.equal(app.mails.length,2);await popup.close();
+    await fire('paid');await page.waitForURL('**/thank-you.html?**');
+    assert.match(await page.locator('main').textContent(),/within 12 hours/);assert.match(await page.locator('main').textContent(),/starts when you activate/);
+    assert.equal(await page.locator('#ty-provider').textContent(),'Razorpay');assert.equal(await page.locator('#ty-billing').textContent(),'Yearly');
+    await page.waitForTimeout(1200);await page.screenshot({path:'/tmp/thank-you-'+width+'.png',fullPage:true});
+    assert.equal(app.orders.rows.length,3);assert.equal(app.mails.length,2);
    }else{
     await page.getByRole('radio',{name:/PayPal/}).check();
     await page.locator('.paypal-box').waitFor({state:'visible'});assert.equal(await page.locator('.razorpay-panel').isVisible(),false);

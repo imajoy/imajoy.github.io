@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="en" data-theme="light"><head><script>(function(){var t;try{t=localStorage.getItem('ajoy-theme')}catch(e){}document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light')})()</script>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="theme-color" content="#E9EDF3">
+<title>Thank you · Wrapline by Ajoy Tools</title>
+<link rel="icon" href="assets/logo-mark.svg">
+<link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css?v=20261019-wl1">
+<link rel="stylesheet" href="css/commerce.css?v=20261017-r7">
+<link rel="stylesheet" href="css/thank-you.css?v=20261020-ty1">
+</head>
+<body class="commerce-page ty-page">
+<header class="commerce-header"><div class="wrap"><a class="brand" href="wrapline.html"><img class="mark" src="assets/logo-mark.svg" alt="" width="28" height="28"><span class="brand-name">Wrapline<small class="brand-by">by Ajoy Tools</small></span></a><a class="back-link" href="wrapline.html">Back to Wrapline</a></div></header>
+<main class="commerce-main ty-main">
+  <div class="wrap">
+    <section class="ty-card" aria-labelledby="ty-title">
+      <div class="ty-badge" aria-hidden="true">
+        <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="28"/><path d="M19 33l9 9 17-19"/></svg>
+      </div>
+      <p class="ty-eyebrow" id="ty-eyebrow">Payment successful</p>
+      <h1 id="ty-title">Thank you. <em>You're all set.</em></h1>
+      <p class="ty-lead" id="ty-lead">Your Wrapline subscription is confirmed. A confirmation email is on its way to your verified email address.</p>
+
+      <dl class="ty-summary" id="ty-summary">
+        <div><dt>Plan</dt><dd id="ty-plan">Wrapline</dd></div>
+        <div><dt>Billing</dt><dd id="ty-billing">—</dd></div>
+        <div><dt>Licenses</dt><dd id="ty-seats">—</dd></div>
+        <div><dt>Paid with</dt><dd id="ty-provider">—</dd></div>
+      </dl>
+
+      <h2 class="ty-next-title">What happens next</h2>
+      <ol class="ty-steps">
+        <li><span>1</span><div><b>Your license key arrives within 12 hours</b><p>We send it to your verified email. Check your spam folder if it hasn't arrived.</p></div></li>
+        <li><span>2</span><div><b>Install Wrapline in Maya</b><p>Download the setup file, drag it into the Maya viewport and choose Online or Offline.</p></div></li>
+        <li><span>3</span><div><b>Your license time starts when you activate</b><p>Your subscription period begins when you first enter your key in Maya, not before.</p></div></li>
+      </ol>
+
+      <div class="ty-actions">
+        <a class="btn btn-dark" href="download.html">Download setup</a>
+        <a class="btn btn-light" href="wrapline.html">Back to Wrapline</a>
+      </div>
+      <p class="ty-fine" id="ty-fine">Need help or want to stop automatic renewal? Open <b>Account</b> on the Wrapline page, or <a href="contact.html">contact support</a>.</p>
+    </section>
+  </div>
+</main>
+<footer class="commerce-footer">© 2026 AJOY <a href="license.html">License terms</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></footer>
+<script>
+(function(){
+  var q=new URLSearchParams(location.search),plan=q.get('plan')==='offline'?'Offline':'Online',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
+  var seats=parseInt(q.get('seats'),10);seats=seats>0&&seats<=100?seats:1;
+  var provider=q.get('provider')==='razorpay'?'Razorpay':q.get('provider')==='paypal'?'PayPal':'',trial=q.get('offer')==='trial';
+  document.getElementById('ty-plan').textContent='Wrapline '+plan;
+  document.getElementById('ty-billing').textContent=billing;
+  document.getElementById('ty-seats').textContent=seats+(seats===1?' license':' licenses');
+  if(provider)document.getElementById('ty-provider').textContent=provider;else document.getElementById('ty-provider').parentElement.hidden=true;
+  if(trial){
+    document.getElementById('ty-eyebrow').textContent='Free trial started';
+    document.getElementById('ty-lead').textContent='Your 2-day Wrapline trial is approved. Your first payment is taken after the trial unless you cancel in PayPal.';
+  }
+  if(provider==='PayPal')document.getElementById('ty-fine').innerHTML='Need help? <a href="contact.html">Contact support</a>. To stop automatic renewal, cancel it in your <a href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener">PayPal account</a>.';
+  try{sessionStorage.removeItem('ajoy.acct.open');}catch(e){}
+})();
+</script>
+</body></html>

@@ -4,7 +4,7 @@ import {execFileSync} from 'node:child_process';
 import {createRequire} from 'node:module';
 for(const extension of ['mp4','gif']){
  const stream=JSON.parse(execFileSync('ffprobe',['-v','error','-count_frames','-show_entries','stream=width,height,nb_read_frames,duration','-of','json',`assets/playblast-loop.${extension}`],{encoding:'utf8'})).streams[0];
- assert.equal(stream.width,extension==='mp4'?720:576);assert.equal(stream.height,extension==='mp4'?450:360);assert.equal(Number(stream.nb_read_frames),extension==='mp4'?480:320);assert(Number(stream.duration)>=15&&Number(stream.duration)<=17);
+ assert.equal(stream.width,extension==='mp4'?1152:576);assert.equal(stream.height,extension==='mp4'?720:360);assert.equal(Number(stream.nb_read_frames),extension==='mp4'?480:320);assert(Number(stream.duration)>=15&&Number(stream.duration)<=17);
 }
 assert.match(execFileSync('identify',['-verbose','assets/playblast-loop.gif[0]'],{encoding:'utf8'}),/Iterations: 0/);
 const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
@@ -27,7 +27,7 @@ try{
   page.on('pageerror',e=>errors.push(e.message));
   await context.route('**/*',route=>{const url=route.request().url();if(new URL(url).origin!==base.origin)return route.abort();if(url.includes('playblast-loop.mp4')){mediaRequests++;if(fail)return route.fulfill({status:404,body:''});}return route.continue();});
   await page.goto(new URL('tool-playblast.html',base).href);const depth=page.locator('[data-playblast-depth]'),video=page.locator('[data-playblast-video]');await depth.scrollIntoViewIfNeeded();
-  await page.waitForFunction(()=>{const img=document.querySelector('.playblast-screen');return img.complete&&img.naturalWidth===720;});
+  await page.waitForFunction(()=>{const img=document.querySelector('.playblast-screen');return img.complete&&img.naturalWidth===1152;});
   if(!reduced&&!fail)await page.waitForFunction(()=>document.querySelector('[data-playblast-depth]').dataset.playing==='true');
   else if(fail)await page.waitForFunction(()=>document.querySelector('[data-playblast-video]').error);
   assert.equal(await page.locator('.diagram-playblast').count(),0);assert.equal(await page.locator('.playblast-screen-steps li').count(),4);

@@ -1,7 +1,7 @@
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {readBillingDraft} from './checkout-steps.js?v=20261020-steps1';
+import {readBillingDraft} from './checkout-steps.js?v=20261020-prices1';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
-import {availability,countryCheck,tierFor} from './regions.js?v=20261020-ps1';
+import {availability,countryCheck,tierFor} from './regions.js?v=20261020-prices1';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ps1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-rz1';
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;
@@ -100,7 +100,7 @@ if(form&&paypal&&url){
   const savings=(quote.compareAtUnitAmount-quote.unitAmount)*quote.seats;
   document.querySelector('#annual-summary-row').hidden=quote.billing!=='yearly';showAmount('summary-annual',-savings);
   const annual=document.querySelector('#annual-summary');annual.hidden=quote.billing!=='yearly';annual.textContent='20% off yearly · '+money(quote.unitAmount/12)+' per license/month, billed annually.';
-  document.querySelector('#quote-note').textContent='Razorpay charges INR. Converted local-currency amounts and the USD equivalent are estimates. Review the confirmed recurring amount before authorizing. No tax is added by this checkout.';
+  document.querySelector('#quote-note').textContent='Razorpay charges INR. Converted local-currency amounts and the USD equivalent are estimates. Review the confirmed recurring amount before authorizing.';
   document.querySelector('#availability').textContent='Review your billing details, then authorize securely with Razorpay.';
  }
  async function api(operation,body={}){

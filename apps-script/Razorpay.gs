@@ -20,7 +20,7 @@ function razorpayApi_(path,method,body){
 }
 function razorpayCatalog_(){return JSON.parse(props_().getProperty('RAZORPAY_PLANS_'+razorpayMode_())||'{}');}
 function razorpayPrice_(plan,billing,country){
-  var monthly=(country==='IN'?899:{low:899,mid:1399,high:1999}[tierFor_(country)])*(plan==='offline'?2:1)*100;
+  var monthly=(country==='IN'?91698:{low:91698,mid:142698,high:203898}[tierFor_(country)])*(plan==='offline'?2:1);
   return {currency:'INR',unitAmount:billing==='yearly'?Math.round(monthly*12*.8):monthly,monthlyAmount:monthly,compareAtUnitAmount:billing==='yearly'?monthly*12:monthly};
 }
 function razorpaySelection_(d){
@@ -31,6 +31,7 @@ function razorpaySelection_(d){
   if(razorpayCountries_().indexOf(country)<0||country!==d.billingCountry)throw commerceError_('region','Razorpay is not available for your verified billing country.');
   var key=country==='IN'?'india':tierFor_(country),catalog=razorpayCatalog_(),planId=catalog[key]&&catalog[key][d.plan]&&catalog[key][d.plan][d.billing];
   if(!/^plan_[A-Za-z0-9]+$/.test(planId||''))throw commerceError_('unavailable','This Razorpay subscription plan is not configured yet.');
+  if(catalog._priceVersion!==PRICE_VERSION)throw commerceError_('unavailable','Subscription plans are being updated. Please try again shortly.');
   var price=razorpayPrice_(d.plan,d.billing,country);price.total=price.unitAmount*d.seats;price.plan=d.plan;price.billing=d.billing;price.seats=d.seats;price.country=country;price.planId=planId;
   return price;
 }
@@ -141,7 +142,7 @@ function handleRazorpay_(d){
   if(d.operation==='config'){
     var catalog=razorpayCatalog_(),ready=['india','high','mid','low'].every(function(t){return ['online','offline'].every(function(k){return ['monthly','yearly'].every(function(b){return /^plan_[A-Za-z0-9]+$/.test(catalog[t]&&catalog[t][k]&&catalog[t][k][b]||'');});});});
     var keyId=props_().getProperty('RAZORPAY_KEY_ID')||'';
-    return {ok:true,enabled:razorpayEnabled_()&&ready,countries:razorpayCountries_(),mode:razorpayMode_(),currency:'INR',trial:false,promotions:false,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
+    return {ok:true,enabled:razorpayEnabled_()&&ready&&catalog._priceVersion===PRICE_VERSION,countries:razorpayCountries_(),mode:razorpayMode_(),currency:'INR',trial:false,promotions:false,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
   }
   if(props_().getProperty('COMMERCE_ENABLED')!=='true'||!razorpayConnected_())throw commerceError_('unavailable','Razorpay is not connected.');
   if(d.operation==='webhook')return razorpayWebhook_(d);
@@ -190,6 +191,11 @@ function resetTestPurchases(){
 }
 function setupRazorpayPlans(){
   var catalog=razorpayCatalog_();
+  if(catalog._priceVersion!==PRICE_VERSION){
+    props_().setProperty('RAZORPAY_PLANS_HISTORY_'+razorpayMode_(),JSON.stringify(catalog));
+    catalog={_priceVersion:PRICE_VERSION};
+    props_().setProperty('RAZORPAY_PLANS_'+razorpayMode_(),JSON.stringify(catalog));
+  }
   ['india','high','mid','low'].forEach(function(tier){catalog[tier]=catalog[tier]||{};['online','offline'].forEach(function(kind){catalog[tier][kind]=catalog[tier][kind]||{};['monthly','yearly'].forEach(function(billing){
     if(catalog[tier][kind][billing])return;
     var country={india:'IN',high:'US',mid:'BR',low:'LK'}[tier],price=razorpayPrice_(kind,billing,country);

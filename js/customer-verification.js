@@ -1,4 +1,4 @@
-import {api} from './commerce.js?v=20261020-rz1';
+import {api} from './commerce.js?v=20261020-prices1';
 let session=null,version=0,resetUI=()=>{};
 export const customerVersion=()=>version;
 export const customerHeaders=()=>session&&session.expiresAt>Date.now()?{Authorization:'Bearer '+session.accessToken}:{};

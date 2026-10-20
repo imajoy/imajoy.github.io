@@ -53,12 +53,12 @@ try{
    assert.equal(await page.locator('.paypal-box').isVisible(),false);
    assert.equal(await page.locator('#customer-verification').isVisible(),false);
    assert.equal(await page.locator('.coupon-panel').isVisible(),false);
-   assert.match(await page.locator('#summary-total').textContent(),country==='IN'?/899/:/1,999/);
+   assert.match(await page.locator('#summary-total').textContent(),country==='IN'?/916\.98/:/2,038\.98/);
    await page.getByRole('link',{name:'Edit billing details',exact:true}).first().click();await page.waitForURL('**/checkout.html');
    await page.selectOption('#billing','yearly');
    await page.waitForFunction(()=>document.documentElement.dataset.billingBlocked==='false');
    await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');
-   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('8,630.40')||document.querySelector('#summary-total').textContent.includes('19,190.40'));
+   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('8,803.01')||document.querySelector('#summary-total').textContent.includes('19,574.21'));
    assert.equal(await page.locator('#annual-summary-row').isVisible(),true);
    if(country==='IN'){
     await page.locator('.razorpay-panel').screenshot({path:'/tmp/razorpay-checkout-'+width+'.png'});
@@ -107,7 +107,7 @@ try{
    try{await page.waitForFunction(enabled=>document.querySelector('[data-buy="online"]')?.textContent.includes(enabled?'Subscribe now':'Review billing'),enabled,{timeout:10000});}
    catch(error){console.error({country,enabled,errors,cta:await page.locator('[data-buy="online"]').textContent(),href:await page.locator('[data-buy="online"]').getAttribute('href')});throw error;}
    assert.match(await page.locator('[data-buy="online"]').getAttribute('href'),/checkout\.html/);
-   if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('8,630.40'));}
+   if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('8,803.01'));}
   }
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);
   console.log(`${country}, Razorpay ${enabled?'enabled':'disabled'}, ${width}px ${theme}: provider gates and checkout passed`);

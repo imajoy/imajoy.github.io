@@ -8,10 +8,10 @@ function coupons(app,rows){app.ctx.couponSheet_();const sheet=app.sheets.get('Co
 test('A valid coupon from the Coupons tab discounts the chosen number of payments, then the standard rate',()=>{
  const app=service();coupons(app,[['SAVE20',20,3,future,'both','monthly','','',true,'']]);
  const data=selection(app,{coupon:'save20',seats:2}),quote=app.rpc('rewards',data);
- assert.equal(quote.pricing.percent,20);assert.equal(quote.pricing.total,1760*2);assert.equal(quote.pricing.coupon.code,'SAVE20');assert.equal(quote.pricing.rewardPayments,3);
+ assert.equal(quote.pricing.percent,20);assert.equal(quote.pricing.total,1795*2);assert.equal(quote.pricing.coupon.code,'SAVE20');assert.equal(quote.pricing.rewardPayments,3);
  const created=app.rpc('checkout',{...data,expectedTotal:quote.pricing.total,expectedRewardPercent:20});assert(created.ok,JSON.stringify(created));
  const plan=[...app.plans.values()][0];assert.equal(app.subscriptions.get(created.subscriptionId).plan_id,plan.id);
- assert.equal(plan.billing_cycles[0].total_cycles,3);assert.equal(plan.billing_cycles[0].pricing_scheme.fixed_price.value,'17.60');assert.equal(plan.billing_cycles[1].pricing_scheme.fixed_price.value,'22.00');
+ assert.equal(plan.billing_cycles[0].total_cycles,3);assert.equal(plan.billing_cycles[0].pricing_scheme.fixed_price.value,'17.95');assert.equal(plan.billing_cycles[1].pricing_scheme.fixed_price.value,'22.44');
  assert.match(plan.name,/coupon/);
  app.subscriptions.get(created.subscriptionId).status='ACTIVE';
  const done=app.rpc('confirm',{accountToken:data.accountToken,checkoutId:created.checkoutId});assert(done.accepted,JSON.stringify(done));
@@ -40,5 +40,5 @@ test('Price previews reuse the PayPal login and recent payment history; checkout
  app.rpc('rewards',selection(app));const first=count();
  app.rpc('rewards',selection(app));assert.equal(count(),first,'second preview should not call PayPal again');
  assert.equal(tokens(),1,'PayPal login should be reused');
- app.rpc('checkout',selection(app,{expectedTotal:2200,expectedRewardPercent:0}));assert(count()>first,'checkout must re-check history');
+ app.rpc('checkout',selection(app,{expectedTotal:2244,expectedRewardPercent:0}));assert(count()>first,'checkout must re-check history');
 });

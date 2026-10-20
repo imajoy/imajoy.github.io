@@ -13,19 +13,19 @@ function approve(app,created){app.subscriptions.get(created.subscriptionId).stat
 test('Active checkout verifies paid transactions: monthly payments 2 and 3 receive 5%, never 10%, then stop',()=>{
  for(const [paid,percent] of [[0,0],[1,5],[2,5],[3,0],[8,0]]){
   const app=service();history(app,paid);const data=selection(app),quote=app.rpc('rewards',data);
-  assert.equal(quote.pricing.percent,percent);assert.equal(quote.pricing.total,percent?2090:2200);
+  assert.equal(quote.pricing.percent,percent);assert.equal(quote.pricing.total,percent?2132:2244);
   const created=app.rpc('checkout',{...data,expectedTotal:quote.pricing.total,expectedRewardPercent:percent});assert(created.ok,JSON.stringify(created));
   assert.equal(created.pricing.percent,percent);const sub=app.subscriptions.get(created.subscriptionId);
-  if(percent){const plan=[...app.plans.values()][0];assert.equal(sub.plan_id,plan.id);assert.equal(plan.billing_cycles[0].pricing_scheme.fixed_price.value,'20.90');assert.equal(plan.billing_cycles[0].total_cycles,paid===1?2:1);assert.equal(plan.billing_cycles[1].pricing_scheme.fixed_price.value,'22.00');assert.equal(plan.billing_cycles[1].total_cycles,0);}
+  if(percent){const plan=[...app.plans.values()][0];assert.equal(sub.plan_id,plan.id);assert.equal(plan.billing_cycles[0].pricing_scheme.fixed_price.value,'21.32');assert.equal(plan.billing_cycles[0].total_cycles,paid===1?2:1);assert.equal(plan.billing_cycles[1].pricing_scheme.fixed_price.value,'22.44');assert.equal(plan.billing_cycles[1].total_cycles,0);}
   else assert.equal(app.plans.size,0);
  }
 });
 test('Second annual payment gets 10% off the yearly catalog rate once, with no monthly history cross-over',()=>{
  for(const [paid,percent] of [[0,0],[1,10],[2,0]]){
   const app=service();history(app,paid,'yearly');const data=selection(app,{billing:'yearly',seats:3}),quote=app.rpc('rewards',data);
-  assert.equal(quote.pricing.percent,percent);assert.equal(quote.pricing.total,(percent?18990:21100)*3);
+  assert.equal(quote.pricing.percent,percent);assert.equal(quote.pricing.total,(percent?19370:21522)*3);
   const created=app.rpc('checkout',data);assert(created.ok,JSON.stringify(created));
-  if(percent){const plan=[...app.plans.values()][0];assert.equal(plan.billing_cycles[0].total_cycles,1);assert.equal(plan.billing_cycles[0].pricing_scheme.fixed_price.value,'189.90');assert.equal(plan.billing_cycles[1].pricing_scheme.fixed_price.value,'211.00');}
+  if(percent){const plan=[...app.plans.values()][0];assert.equal(plan.billing_cycles[0].total_cycles,1);assert.equal(plan.billing_cycles[0].pricing_scheme.fixed_price.value,'193.70');assert.equal(plan.billing_cycles[1].pricing_scheme.fixed_price.value,'215.22');}
  }
  const app=service();history(app,2);assert.equal(app.rpc('rewards',selection(app,{billing:'yearly'})).pricing.percent,0);
 });
@@ -34,7 +34,7 @@ test('Free, failed, pending and refunded payments do not advance eligibility; li
  app.transactions.set('I-TESTBUYER1',{transactions:[receipt('PENDING','PENDING'),receipt('FAILED','FAILED'),receipt('FREE','COMPLETED','0.00'),receipt('REFUND','REFUNDED')]});
  assert.equal(app.rpc('rewards',selection(app)).pricing.percent,0);
  app.transactions.get('I-TESTBUYER1').transactions.push(receipt('REAL','COMPLETED','2178.00'));
- const q=app.rpc('rewards',selection(app,{seats:99})).pricing;assert.equal(q.nextPayment,2);assert.equal(q.percent,5);assert.equal(q.total,2090*99);
+ const q=app.rpc('rewards',selection(app,{seats:99})).pricing;assert.equal(q.nextPayment,2);assert.equal(q.percent,5);assert.equal(q.total,2132*99);
 });
 test('Reserved rewards resume after reload, competing checkouts cannot claim them, repeated requests are idempotent',()=>{
  const app=service();history(app,1);const data=selection(app),first=app.rpc('checkout',data);assert(first.ok);
@@ -54,7 +54,7 @@ test('Identity, environment and provider failures cannot invent rewards; stale d
  const app=service();history(app,1);
  assert.equal(app.rpc('rewards',selection(app,{accountToken:'invalid'})).error,'signin_required');
  const other=app.register('other@example.com');assert.equal(app.rpc('rewards',selection(app,{accountToken:other.token,email:'buyer@example.com'})).pricing.percent,0);
- assert.equal(app.rpc('checkout',selection(app,{expectedTotal:2200,expectedRewardPercent:0})).error,'price_changed');assert.equal(app.plans.size,0);
+ assert.equal(app.rpc('checkout',selection(app,{expectedTotal:2244,expectedRewardPercent:0})).error,'price_changed');assert.equal(app.plans.size,0);
  app.transactions.set('I-TESTBUYER1',{transactions:[],total_items:1,total_pages:2});assert.equal(app.rpc('rewards',selection(app)).error,'rewards_unavailable');
  app.transactions.set('I-TESTBUYER1',{links:[]});assert.equal(app.rpc('rewards',selection(app)).pricing.percent,0);
  app.transactions.set('I-TESTBUYER1',{total_items:2});assert.equal(app.rpc('rewards',selection(app)).error,'rewards_unavailable');
@@ -63,7 +63,7 @@ test('Identity, environment and provider failures cannot invent rewards; stale d
 
 test('Annual reward consumption survives refunds, duplicate confirmations and duplicate transaction IDs',()=>{
  const app=service();history(app,1,'yearly');const created=app.rpc('checkout',selection(app,{billing:'yearly'}));assert(approve(app,created).accepted);
- const tx=receipt('ANNUAL-REWARD','COMPLETED','189.90');app.transactions.set(created.subscriptionId,{transactions:[tx,{...tx}]});
+ const tx=receipt('ANNUAL-REWARD','COMPLETED','193.70');app.transactions.set(created.subscriptionId,{transactions:[tx,{...tx}]});
  assert.equal(app.rpc('rewards',selection(app,{billing:'yearly'})).pricing.nextPayment,3,'duplicate transaction cannot count twice');
  const mails=app.mails.length;assert(approve(app,created).accepted);assert.equal(app.mails.length,mails);
  tx.status='REFUNDED';app.transactions.get(created.subscriptionId).transactions=[tx];

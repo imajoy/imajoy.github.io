@@ -10,8 +10,8 @@ export function service({registered=true,mailFails=false}={}){
  const razorpay={plans:new Map(),subscriptions:new Map(),invoices:new Map(),payments:new Map(),loseCreateResponse:false};
  function table(name,initial=[[]]){
   const rows=initial;
-  const sheet={rows,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},deleteRow:index=>{rows.splice(index-1,1);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
-   getRange:(row,col,height=1,width=1)=>{const range={getValues:()=>Array.from({length:height},(_,r)=>Array.from({length:width},(_,c)=>rows[row+r-1]?.[col+c-1]??'')),setValues:data=>{data.forEach((r,i)=>r.forEach((v,j)=>{rows[row+i-1]??=[];rows[row+i-1][col+j-1]=v;}));return range;},setValue:v=>{rows[row-1]??=[];rows[row-1][col-1]=v;return range;}};for(const n of ['setNumberFormat','setBackground','setFontColor','setFontWeight','setVerticalAlignment'])range[n]=()=>range;return range;}};
+  const sheet={rows,clear:()=>{rows.length=0;return sheet;},setHiddenGridlines:()=>sheet,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},deleteRow:index=>{rows.splice(index-1,1);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
+   getRange:(row,col,height=1,width=1)=>{const range={getValues:()=>Array.from({length:height},(_,r)=>Array.from({length:width},(_,c)=>rows[row+r-1]?.[col+c-1]??'')),setValues:data=>{data.forEach((r,i)=>r.forEach((v,j)=>{rows[row+i-1]??=[];rows[row+i-1][col+j-1]=v;}));return range;},setValue:v=>{rows[row-1]??=[];rows[row-1][col-1]=v;return range;}};for(const n of ['setNumberFormat','setBackground','setFontColor','setFontWeight','setVerticalAlignment','setFontStyle','setFontSize','setFontFamily','setHorizontalAlignment','setWrapStrategy'])range[n]=()=>range;return range;}};
   sheets.set(name,sheet);return sheet;
  }
  const orders=table('Orders',[['headers'],...(registered?[[new Date(),'I-TESTBUYER1','ACTIVE','sandbox','buyer@example.com','Buyer','US','online','monthly',1,'','P-high-ONLINE']]:[])]);
@@ -21,7 +21,7 @@ export function service({registered=true,mailFails=false}={}){
  const ctx=createContext({console,PropertiesService:{getScriptProperties:()=>({getProperty:k=>values.get(k)||null,setProperty:(k,v)=>values.set(k,v)})},
   Utilities:{getUuid:randomUUID,DigestAlgorithm:{SHA_1:'sha1'},computeDigest:(algorithm,bytes)=>[...createHash(algorithm).update(Buffer.from(bytes)).digest()],base64Decode:text=>[...Buffer.from(text,'base64')],base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:bytes=>Buffer.from(bytes).toString('base64url'),base64DecodeWebSafe:text=>[...Buffer.from(text,'base64url')],newBlob:blob,computeHmacSha256Signature:(text,key)=>[...createHmac('sha256',key).update(text).digest()]},
   LockService:{getScriptLock:()=>lock},CacheService:{getScriptCache:()=>({get:k=>cache.get(k)||null,put:(k,v)=>cache.set(k,v),remove:k=>cache.delete(k)})},
-  SpreadsheetApp:{getActiveSpreadsheet:()=>({getSheetByName:name=>sheets.get(name)||null,insertSheet:name=>table(name,[])})},
+  SpreadsheetApp:{WrapStrategy:{CLIP:'CLIP'},getActiveSpreadsheet:()=>({getSheetByName:name=>sheets.get(name)||null,insertSheet:name=>table(name,[])})},
   MailApp:{sendEmail:message=>{if(mailFails)throw Error('Mail service unavailable');mails.push(message);}},Session:{getEffectiveUser:()=>({getEmail:()=> 'owner@example.com'})},
   UrlFetchApp:{fetch:(url,options={})=>{
    requests.push({url,options});
@@ -73,6 +73,9 @@ export function service({registered=true,mailFails=false}={}){
   }},ContentService:{MimeType:{JSON:'json'},createTextOutput:()=>({setMimeType(){return this;},setContent(text){this.text=text;return this;}})}
  });
  for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs','Billing.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
+ ctx.archivePayPalCatalog_({tiers});
+ const currentTiers=JSON.parse(JSON.stringify(tiers).replaceAll('P-','P-CURRENT-'));
+ values.set('PLANS_sandbox',JSON.stringify({productId:'PROD-TEST',tiers:currentTiers,priceVersion:ctx.PRICE_VERSION,prices:ctx.PRICES}));
  const clone=value=>JSON.parse(JSON.stringify(value));
  const call=body=>clone(ctx.handleAccount_(body));
  const envelope=payload=>{const packed=JSON.stringify(payload),timestamp=String(Date.now()),nonce=randomUUID();return {type:'commerce',payload:packed,timestamp,nonce,signature:createHmac('sha256',values.get('COMMERCE_SECRET')).update(timestamp+'.'+nonce+'.'+packed).digest('hex')};};

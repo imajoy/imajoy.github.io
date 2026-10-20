@@ -1,8 +1,8 @@
-import {initializeCheckoutSteps} from './checkout-steps.js?v=20261020-steps1';
+import {initializeCheckoutSteps} from './checkout-steps.js?v=20261020-prices1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {initializeBillingCountry} from './billing-country.js?v=20261020-country3';
-import {api,apiBase,getQuote,getCouponQuote,previewPrice} from './commerce.js?v=20261020-rz1';
-import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261019-contact2';
+import {api,apiBase,getQuote,getCouponQuote,previewPrice} from './commerce.js?v=20261020-prices1';
+import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261020-prices1';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
 const params=new URLSearchParams(location.search);
 form.elements.plan.value=['online','offline'].includes(params.get('plan'))?params.get('plan'):'online';
@@ -65,7 +65,7 @@ function showQuote(data){
   document.querySelector('#loyalty-summary').textContent='One-time '+loyalty.percent+'% loyalty reward applied to your '+(data.billing==='yearly'?'first yearly renewal':'monthly payment '+loyalty.nextPayment)+'. '+(data.billing==='yearly'?'This is additional to the 20% yearly saving. ':'')+'Rewards and coupons do not stack.';
  }
  showCustomerReward(data);
- document.querySelector('#quote-note').textContent=data.preview?data.currency==='USD'?'Local-currency amounts are estimates. PayPal charges USD; your bank may use its own rate. No tax is added at checkout.':'Prices shown in INR. The USD equivalent is an estimate. Review the confirmed currency before approving payment.':'Price confirmed for your billing country. Any applicable tax will be shown before payment.';
+ document.querySelector('#quote-note').textContent=data.preview?data.currency==='USD'?'Local-currency amounts are estimates. PayPal charges USD; your bank may use its own rate.':'Prices shown in INR. The USD equivalent is an estimate. Review the confirmed currency before approving payment.':'Price confirmed for your billing country. Review the confirmed total before payment.';
  status.textContent='';updateButton();document.dispatchEvent(new CustomEvent('ajoy:quote-rendered'));
 }
 document.addEventListener('ajoy:currency-ready',()=>{if(quote)showQuote(quote);});
@@ -119,7 +119,7 @@ async function init(){
  if(apiBase){try{config=await api('/config');}catch{configFailed=true;document.querySelector('#availability').textContent='Subscriptions are temporarily unavailable. Your billing details stay in this browser.';}}
  if(!config.paymentsEnabled&&!configFailed)document.querySelector('#availability').textContent=config.loyalty?.enabled?'Payments are temporarily unavailable. You can review your plan and available rewards; no order or charge will be created.':'Payments are temporarily unavailable. You can review your plan; no order or charge will be created.';
  else if(config.paymentsEnabled){
-  document.querySelector('#availability').textContent='Review your billing details, then continue to our payment partner to confirm tax and complete your subscription.';
+  document.querySelector('#availability').textContent='Review your billing details, then continue to our payment partner to complete your subscription.';
  }
  if(!window.AJOY_CONFIG?.commerceUrl)initializeCustomerVerification(config.loyalty,()=>{
   couponOperation++;couponBusy=false;appliedCoupon='';couponApply.disabled=false;couponApply.textContent='Apply';couponRemove.hidden=true;couponMessage('Enter your code to check eligibility.');render();

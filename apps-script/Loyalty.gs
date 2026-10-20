@@ -1,10 +1,20 @@
 /* Returning-subscriber rewards for the active Sheets/PayPal checkout.
    Only PayPal-verified, positive completed payments count. Orders are not receipts. */
+function archivePayPalCatalog_(catalog) {
+  var key='PAYPAL_PLAN_HISTORY_'+mode_(),history=JSON.parse(props_().getProperty(key)||'{}'),tiers=catalog.tiers||{},prices=catalog.prices||LEGACY_PRICES;
+  for(var tier in tiers)for(var kind in tiers[tier])for(var billing in tiers[tier][kind]){
+    var plan=kind==='onlineTrial'?'online':kind;
+    history[tiers[tier][kind][billing]]={tier:tier,plan:plan,billing:billing,trial:kind==='onlineTrial',unitAmount:Math.round(prices[tier][plan][billing]*100)};
+  }
+  props_().setProperty(key,JSON.stringify(history));
+}
 function rewardPlanInfo_(id) {
   var catalog=JSON.parse(props_().getProperty('PLANS_'+mode_())||'{}'),tiers=catalog.tiers||{};
   for(var tier in tiers)for(var kind in tiers[tier])for(var billing in tiers[tier][kind]){
-    if(tiers[tier][kind][billing]===id)return {tier:tier,plan:kind==='onlineTrial'?'online':kind,billing:billing};
+    if(tiers[tier][kind][billing]===id){var plan=kind==='onlineTrial'?'online':kind;return {tier:tier,plan:plan,billing:billing,trial:kind==='onlineTrial',unitAmount:Math.round((catalog.prices||LEGACY_PRICES)[tier][plan][billing]*100)};}
   }
+  var historic=JSON.parse(props_().getProperty('PAYPAL_PLAN_HISTORY_'+mode_())||'{}');
+  if(historic[id])return historic[id];
   var saved=JSON.parse(props_().getProperty('LOYALTY_PLANS_'+mode_())||'{}');
   for(var key in saved)if(saved[key].id===id)return saved[key];
   return null;
@@ -56,7 +66,7 @@ function rewardHistory_(email) {
       var date=new Date(t.time),period=date.getUTCFullYear()+(info.billing==='monthly'?'-'+date.getUTCMonth():'');
       var phase=Object.prototype.hasOwnProperty.call(periods,period)?periods[period]:settled.length;
       var intro=loyalty&&phase<(loyalty.rewardPayments||1);
-      var expected=(loyalty?(intro?loyalty.discountedUnitAmount:loyalty.unitAmount):PRICES[info.tier][info.plan][info.billing]*100)*quantity;
+      var expected=(loyalty?(intro?loyalty.discountedUnitAmount:loyalty.unitAmount):(info.unitAmount||Math.round(PRICES[info.tier][info.plan][info.billing]*100)))*quantity;
       // A refunded reward remains consumed; refunds never reset a used benefit.
       if(['COMPLETED','REFUNDED','PARTIALLY_REFUNDED'].indexOf(t.status)>=0&&!Object.prototype.hasOwnProperty.call(periods,period)){
         periods[period]=settled.length;settled.push(t);
@@ -75,7 +85,7 @@ function rewardHistory_(email) {
 }
 function rewardQuote_(d,who,history) {
   var country=d.sandboxCountry||d.country;
-  var amount=PRICES[tierFor_(country)][d.plan][d.billing]*100;
+  var amount=Math.round(PRICES[tierFor_(country)][d.plan][d.billing]*100);
   var next=history[d.billing]+1,reward='',percent=0;
   if(d.billing==='monthly'&&(next===2||next===3)){reward=next===2?'monthly_second':'monthly_third';percent=5;}
   if(d.billing==='yearly'&&next===2){reward='yearly_return';percent=10;}

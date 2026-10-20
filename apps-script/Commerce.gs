@@ -77,6 +77,7 @@ function commercePlan_(plan,billing,country,offer) {
   var noPaypal='AF BD NP PK MM ET ZW BI CF TD KM CG CD DJ ER GQ GW IQ LY SO SS SD YE LS LR ML MR NE SL ST BT GN HT TJ TM UZ VE TL KI NR TV PW MH FM SB VU WS TO PG SR'.split(' ');
   if(!/^[A-Z]{2}$/.test(country||'')||CLOSED_.indexOf(country)>=0||noPaypal.indexOf(country)>=0)throw commerceError_('region','Subscriptions are not currently available for this location.');
   var saved=JSON.parse(props_().getProperty('PLANS_'+mode_())||'{}'),tier=tierFor_(country),group=saved.tiers&&saved.tiers[tier];
+  if(saved.priceVersion!==PRICE_VERSION)throw commerceError_('unavailable','Subscription plans are being updated. Please try again shortly.');
   var id=group&&group[offer==='trial'?'onlineTrial':plan]&&group[offer==='trial'?'onlineTrial':plan][billing];
   if(!id)throw commerceError_('unavailable','This subscription is not configured yet.');
   return id;

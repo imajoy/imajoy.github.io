@@ -37,7 +37,7 @@ test('Billing country must match the connection country; PayPal-unsupported coun
 });
 test('A valid monthly coupon discounts server subtotal and preserves original prices',async()=>{
  const quote=priceFor('IN');const result=await applyCoupon(quote,' test-owner-10 ',await registry(makeRule()));
- assert.equal(result.subtotal,80910);assert.equal(result.baseSubtotal,89900);assert.equal(result.unitAmount,89900);assert.equal(result.coupon.discountAmount,8990);assert.equal(result.coupon.percent,10);
+ assert.equal(result.subtotal,82528);assert.equal(result.baseSubtotal,91698);assert.equal(result.unitAmount,91698);assert.equal(result.coupon.discountAmount,9170);assert.equal(result.coupon.percent,10);
  assert(result.expiresAt<=Date.parse(future));
 });
 test('Expired, inactive, unknown and malformed codes fail closed',async()=>{
@@ -56,7 +56,7 @@ test('Coupon cannot breach price floor or stack twice',async()=>{
 test('Public coupon endpoint ignores forged amounts and returns only selected coupon data',async()=>{
  const values={ALLOWED_ORIGINS:'https://imajoy.github.io',COUPONS_JSON:JSON.stringify(await registry(makeRule())),QUOTE_SIGNING_SECRET:'test-only-signing-secret-with-32-bytes'};
  const request=new Request('https://example.supabase.co/functions/v1/storefront/coupon',{method:'POST',headers:{Origin:'https://imajoy.github.io','Content-Type':'application/json'},body:JSON.stringify({code,country:'IN',plan:'online',billing:'monthly',seats:2,subtotal:1,percent:99,minimumSubtotal:0})});
- const response=await handleRequest(request,key=>values[key]);const result=await response.json();assert.equal(response.status,200);assert.equal(result.subtotal,161820);assert.equal(result.coupon.percent,10);assert(result.quoteToken);assert(!JSON.stringify(result).includes(await couponHash(code)));
+ const response=await handleRequest(request,key=>values[key]);const result=await response.json();assert.equal(response.status,200);assert.equal(result.subtotal,165056);assert.equal(result.coupon.percent,10);assert(result.quoteToken);assert(!JSON.stringify(result).includes(await couponHash(code)));
 });
 test('Coupon endpoint rejects bad origins and malformed or oversized requests',async()=>{
  const env=key=>key==='ALLOWED_ORIGINS'?'https://imajoy.github.io':undefined;

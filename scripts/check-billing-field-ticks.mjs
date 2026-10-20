@@ -11,8 +11,10 @@ try{
   await page.goto(new URL('checkout.html',base).href);
   // Only exercise field feedback. The intentionally blocked network gate is not this test's subject.
   await page.evaluate(()=>document.querySelector('.checkout-grid').hidden=false);
+  assert.equal(await page.locator('#tax-id, [name=taxId]').count(),0);
+  assert.equal(await page.locator('.order-summary').getByText('Tax',{exact:true}).count(),0);
   const tick=id=>page.locator('#'+id).evaluate(el=>getComputedStyle(el.closest('.form-field'),'::after').content==='""');
-  for(const id of ['company','region','postal','tax-id','name','address','city']){
+  for(const id of ['company','region','postal','name','address','city']){
    assert.equal(await tick(id),false,`${id}: an untouched empty field must not show a tick`);
    await page.locator('#'+id).fill('Example value');await page.locator('#'+id).blur();
    assert.equal(await tick(id),true,`${id}: a valid entered value gets its tick`);

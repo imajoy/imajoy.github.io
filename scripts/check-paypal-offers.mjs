@@ -18,7 +18,7 @@ try{
    if(url.includes('/commerce/rewards')){
     calls++;if(failures-->0)return route.fulfill({status:503,json:{ok:false,error:'unavailable',message:'Fixture: price service temporarily unavailable.'}});
     if(hold)await new Promise(resolve=>release=resolve);
-    const c=JSON.parse(r.postData()),unitAmount=c.billing==='yearly'?21100:2200,percent=c.coupon?10:5;
+    const c=JSON.parse(r.postData()),unitAmount=c.billing==='yearly'?21522:2244,percent=c.coupon?10:5;
     return route.fulfill({json:{ok:true,pricing:{currency:'USD',unitAmount,total:Math.round(unitAmount*c.seats*(1-percent/100)),discountAmount:Math.round(unitAmount*c.seats*percent/100),percent,seats:c.seats,billing:c.billing,rewardPayments:1,...(c.coupon?{coupon:{code:c.coupon,percent}}:{})}}});
    }
    if(url.includes('www.paypal.com/sdk/js'))return route.fulfill({contentType:'text/javascript',body:'window.paypal={Buttons(options){window.fixturePayPal=options;return {render(selector){document.querySelector(selector).innerHTML="<button type=button data-fixture-paypal>PayPal Subscribe</button>";return Promise.resolve();}}}};'});
@@ -36,24 +36,24 @@ try{
   await page.evaluate(()=>window.fixturePayPal.onCancel());
   await page.locator('[name="checkout-offer"][value="standard"]').check();
   await page.locator('[data-fixture-paypal]').waitFor({state:'visible',timeout:5000});
-  assert.match(await page.locator('#summary-total').textContent(),/20\.90/);
+  assert.match(await page.locator('#summary-total').textContent(),/21\.32/);
   assert.doesNotMatch(await page.locator('.paypal-note').textContent(),/Checkout cancelled/);
   assert(calls>=2,'selecting Standard must recover a missing/failed verified price');
   await page.locator('[name="checkout-offer"][value="trial"]').check();await page.locator('[data-fixture-paypal]').waitFor();
   await page.locator('#coupon-code').fill('OFFER10');await page.locator('#coupon-apply').click();
-  await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('19.80'));await page.locator('[data-fixture-paypal]').waitFor();
+  await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('20.20'));await page.locator('[data-fixture-paypal]').waitFor();
   hold=true;await page.locator('#coupon-remove').click();
   await page.waitForFunction(()=>document.querySelector('[data-payment-price-status]')?.textContent.includes('Confirming'));
   assert.equal(await page.locator('[data-fixture-paypal]').isVisible(),false);
   await page.waitForFunction(()=>document.querySelector('#loyalty-status').textContent.includes('Checking'));const deadline=Date.now()+5000;while(!release&&Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,20));assert(release,'the pending quote must reach the fixture service');release();hold=false;
-  await page.locator('[data-fixture-paypal]').waitFor();assert.match(await page.locator('#summary-total').textContent(),/20\.90/);
+  await page.locator('[data-fixture-paypal]').waitFor();assert.match(await page.locator('#summary-total').textContent(),/21\.32/);
   await page.getByRole('link',{name:'Edit billing details',exact:true}).first().click();await page.waitForURL('**/checkout.html');
   await page.waitForFunction(()=>document.documentElement.dataset.billingBlocked==='false');
   await page.selectOption('#billing','yearly');
-  await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('200.45'));
+  await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('204.46'));
   failures=1;await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');
   await page.locator('[data-payment-price-retry]').waitFor({state:'visible'});await page.locator('[data-payment-price-retry]').click();
-  await page.locator('[data-fixture-paypal]').waitFor();assert.match(await page.locator('#summary-total').textContent(),/200\.45/);
+  await page.locator('[data-fixture-paypal]').waitFor();assert.match(await page.locator('#summary-total').textContent(),/204\.46/);
   assert.deepEqual(errors,[]);await context.close();console.log(`${width}px: Standard recovery, cancelled trial, coupon apply/remove, pending price and retry passed`);
  }
 }finally{await browser.close();}

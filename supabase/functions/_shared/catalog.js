@@ -1,5 +1,5 @@
 /* Server prices in integer currency minor units. No browser amount is trusted. */
-export const CATALOG_VERSION = '2026-10-17-v2';
+export const CATALOG_VERSION = '2026-10-20-v3';
 const currencies = {
   IN: ['INR',1], PK: ['PKR',3.25], US: ['USD',.0116], GB: ['GBP',.0087],
   CA: ['CAD',.0158], AU: ['AUD',.0179], AE: ['AED',.0426],
@@ -13,7 +13,7 @@ export function priceFor(country, plan = 'online', billing = 'monthly', seats = 
   const onlineINR = low ? 899 : middle ? 1299 : 1999;
   const multiplier = plan === 'offline' ? 2 : 1;
   const [currency,rate] = currencies[country] || ['USD',.0116];
-  const monthlyAmount=Math.round(onlineINR*multiplier*rate*100);
+  const monthlyAmount=Math.round(onlineINR*multiplier*rate*102);
   const compareAtUnitAmount=billing==='yearly'?monthlyAmount*12:monthlyAmount;
   const unitAmount=billing==='yearly'?Math.round(compareAtUnitAmount*.8):monthlyAmount;
   const subtotal=unitAmount*seats;

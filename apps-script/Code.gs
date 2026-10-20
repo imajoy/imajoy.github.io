@@ -83,7 +83,8 @@ function isTrialPlan_(planId) {
   if (!saved || !planId) return false;
   var tiers = (JSON.parse(saved).tiers) || {};
   for (var t in tiers) { var o = tiers[t].onlineTrial || {}; if (o.monthly === planId || o.yearly === planId) return true; }
-  return false;
+  var historic=rewardPlanInfo_(planId);
+  return !!(historic&&historic.trial);
 }
 /* Has this email (or PayPal email) been in the Orders tab before? Used to spot repeat free trials. */
 function seenBefore_(sheet, emails, subId) {
@@ -461,13 +462,19 @@ function handleTrial_(d) {
 }
 
 /* ---------- 3) one-time plan creation ----------
-   Run setupPlans from the editor (select it, click Run). It creates 12 USD plans:
-   3 regional tiers x Online/Offline x Monthly/Yearly, and writes the result to a "Plans" tab.
+   Run setupPlans from the editor (select it, click Run). It creates 18 USD plans:
+   3 regional tiers x Online/Offline x Monthly/Yearly, plus 6 Online trial plans, and writes the result to a "Plans" tab.
    Copy the single JSON cell from that tab into the Supabase secret PAYPAL_PLANS. */
-var PRICES = {
+var PRICE_VERSION = '2026-10-20-v3';
+var LEGACY_PRICES = {
   high: { online: { monthly: 22, yearly: 211 }, offline: { monthly: 44, yearly: 422 } },
-  mid:  { online: { monthly: 14, yearly: 134 }, offline: { monthly: 28, yearly: 269 } },
-  low:  { online: { monthly: 9,  yearly: 86  }, offline: { monthly: 18, yearly: 173 } }
+  mid: { online: { monthly: 14, yearly: 134 }, offline: { monthly: 28, yearly: 269 } },
+  low: { online: { monthly: 9, yearly: 86 }, offline: { monthly: 18, yearly: 173 } }
+};
+var PRICES = {
+  high: { online: { monthly: 22.44, yearly: 215.22 }, offline: { monthly: 44.88, yearly: 430.44 } },
+  mid:  { online: { monthly: 14.28, yearly: 136.68 }, offline: { monthly: 28.56, yearly: 274.38 } },
+  low:  { online: { monthly: 9.18, yearly: 87.72 }, offline: { monthly: 18.36, yearly: 176.46 } }
 };
 
 function paypalPost_(path, body, t, reqId) {
@@ -485,6 +492,11 @@ function setupPlans() {
   if (!t) throw new Error('Add PAYPAL_CLIENT_ID, PAYPAL_SECRET and PAYPAL_MODE in Project Settings > Script properties first.');
   var key = 'PLANS_' + mode_(), saved = props_().getProperty(key);
   var result = saved ? JSON.parse(saved) : { tiers: {} };
+  if (result.priceVersion !== PRICE_VERSION) {
+    archivePayPalCatalog_(result);
+    result = { productId: result.productId, tiers: {}, priceVersion: PRICE_VERSION, prices: PRICES };
+    props_().setProperty(key, JSON.stringify(result));
+  }
   var productId = result.productId;
   if (!productId) {
     productId = paypalPost_('/v1/catalogs/products', { name: 'Wrapline by Ajoy Tools', description: 'Production tools for Maya.', type: 'DIGITAL', category: 'SOFTWARE', home_url: 'https://imajoy.github.io/' }, t, 'ajoy-product-' + mode_()).id;
@@ -505,7 +517,7 @@ function setupPlans() {
             pricing_scheme: { fixed_price: { value: String(PRICES[tier][kind][period]), currency_code: 'USD' } } }],
           payment_preferences: { auto_bill_outstanding: true, setup_fee_failure_action: 'CONTINUE', payment_failure_threshold: 3 },
           quantity_supported: true
-        }, t, 'ajoy-plan-' + mode_() + '-' + tier + '-' + kind + '-' + period);
+        }, t, 'ajoy-plan-' + PRICE_VERSION + '-' + mode_() + '-' + tier + '-' + kind + '-' + period);
         result.tiers[tier][kind][period] = plan.id;
         props_().setProperty(key, JSON.stringify(result));
       });
@@ -529,7 +541,7 @@ function setupPlans() {
         ],
         payment_preferences: { auto_bill_outstanding: true, setup_fee_failure_action: 'CONTINUE', payment_failure_threshold: 3 },
         quantity_supported: true
-      }, t, 'ajoy-plan-' + mode_() + '-' + tier + '-onlinetrial-' + period);
+      }, t, 'ajoy-plan-' + PRICE_VERSION + '-' + mode_() + '-' + tier + '-onlinetrial-' + period);
       result.tiers[tier].onlineTrial[period] = plan.id;
       props_().setProperty(key, JSON.stringify(result));
     });
@@ -559,7 +571,7 @@ function setupPlans() {
   [5, 13, 21].forEach(function (r) { sh.getRange(r, 1, Math.min(4, rows.length + 5 - r), 5).setBackground('#edf5ff'); });
   var n = rows.length, jr = 5 + n + 1;
   sh.getRange(4, 4, n + 1, 1).setHorizontalAlignment('right');
-  sh.getRange(5, 4, n, 1).setNumberFormat('$#,##0');
+  sh.getRange(5, 4, n, 1).setNumberFormat('$#,##0.00');
   sh.getRange(5, 5, n, 1).setFontFamily('Roboto Mono').setFontSize(10);
   sh.getRange(jr, 1).setValue('Copy the cell below into Supabase > Edge Functions > Secrets > PAYPAL_PLANS.').setFontStyle('italic').setFontColor('#666673');
   sh.getRange(jr + 1, 1).setValue(json).setFontFamily('Roboto Mono').setFontSize(9).setBackground('#f5f5f5').setWrapStrategy(SpreadsheetApp.WrapStrategy.CLIP);

@@ -10,11 +10,11 @@ const CLOSED_OTHER = 'RU BY IR KP SY CU'.split(' ');
    button. Open one by deleting its code once a real buyer from there has paid. The paypal-config function can also
    close extra countries without a code change (secret PAYPAL_CLOSED_COUNTRIES). */
 const NO_PAYPAL = 'AF BD NP PK MM ET ZW BI CF TD KM CG CD DJ ER GQ GW IQ LY SO SS SD YE LS LR ML MR NE SL ST BT GN HT TJ TM UZ VE TL KI NR TV PW MH FM SB VU WS TO PG SR'.split(' ');
-/* USD whole-dollar prices. Yearly = 12 months less 20 percent, rounded. */
+/* USD prices per computer. Annual plans retain their catalog rounding. */
 export const USD = {
-  high: { online: { monthly: 22, yearly: 211 }, offline: { monthly: 44, yearly: 422 } },
-  mid:  { online: { monthly: 14, yearly: 134 }, offline: { monthly: 28, yearly: 269 } },
-  low:  { online: { monthly: 9,  yearly: 86  }, offline: { monthly: 18, yearly: 173 } }
+  high: { online: { monthly: 22.44, yearly: 215.22 }, offline: { monthly: 44.88, yearly: 430.44 } },
+  mid:  { online: { monthly: 14.28, yearly: 136.68 }, offline: { monthly: 28.56, yearly: 274.38 } },
+  low:  { online: { monthly: 9.18, yearly: 87.72 }, offline: { monthly: 18.36, yearly: 176.46 } }
 };
 export const tierFor = c => LOW.includes(c) ? 'low' : MID.includes(c) ? 'mid' : 'high';
 /* open:true means the PayPal button is offered. reason explains a closed region. */
@@ -45,10 +45,10 @@ export const closedMessage = {
 export function regionalPrice(plan, billing, seats, country) {
   const m = plan === 'offline' ? 2 : 1;
   if (country === 'IN') {
-    const monthly = 899 * m * 100, compare = billing === 'yearly' ? monthly * 12 : monthly;
+    const monthly = 91698 * m, compare = billing === 'yearly' ? monthly * 12 : monthly;
     const unit = billing === 'yearly' ? Math.round(compare * .8) : monthly;
     return { currency: 'INR', unitAmount: unit, monthlyAmount: monthly, compareAtUnitAmount: compare };
   }
-  const t = USD[tierFor(country)][plan], monthly = t.monthly * 100, compare = billing === 'yearly' ? monthly * 12 : monthly;
-  return { currency: 'USD', unitAmount: t[billing] * 100, monthlyAmount: monthly, compareAtUnitAmount: compare };
+  const t = USD[tierFor(country)][plan], monthly = Math.round(t.monthly * 100), compare = billing === 'yearly' ? monthly * 12 : monthly;
+  return { currency: 'USD', unitAmount: Math.round(t[billing] * 100), monthlyAmount: monthly, compareAtUnitAmount: compare };
 }

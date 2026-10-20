@@ -14,7 +14,7 @@ try{
    if(url.includes('/paypal-config'))return route.fulfill({json:{mode:'live',billingPolicyEnabled:true,country:'US',clientId:'fixture',plans:{tiers:{high:{online:{monthly:true,yearly:true},onlineTrial:{monthly:true,yearly:true}}}}}});
    if(url.includes('/commerce/billing-context'))return route.fulfill({json:{ok:true,country:'US',canEditCountry:false,blocked:false}});
    if(url.includes('/commerce/eligibility'))return route.fulfill({json:{ok:true,rewardsVersion:1,eligible:true,reason:'eligible'}});
-   if(url.includes('/commerce/rewards'))return route.fulfill({json:{ok:true,pricing:{total:2200,unitAmount:2200,discountAmount:0,percent:0,seats:1,billing:'monthly',rewardPayments:0}}});
+   if(url.includes('/commerce/rewards'))return route.fulfill({json:{ok:true,pricing:{total:2244,unitAmount:2244,discountAmount:0,percent:0,seats:1,billing:'monthly',rewardPayments:0}}});
    if(url.includes('/commerce/confirm'))return route.fulfill({json:{ok:true,accepted:false}});
    if(url.includes('/razorpay/config'))return route.fulfill({json:{ok:true,enabled:false}});
    if(url.includes('www.paypal.com/sdk/js')){sdkCalls++;return route.fulfill({contentType:'text/javascript',body:'window.paypal={Buttons(){return {render(selector){document.querySelector(selector).innerHTML="<button type=button data-fixture-paypal>PayPal Subscribe</button>";return Promise.resolve()}}}};'});}

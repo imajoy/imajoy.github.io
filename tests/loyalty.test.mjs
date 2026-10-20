@@ -34,8 +34,8 @@ test('Only the first yearly renewal gets an additional 10%, including the author
   const quote=applyLoyalty(base,customer,history(0,years));assert.equal(quote.loyalty.percent,years===1?10:0);
  }
  const discounted=applyLoyalty(base,customer,history(0,1));
- assert.equal(base.subtotal,863040);assert.equal(discounted.subtotal,776736);assert.equal(discounted.subtotal/1200,647.28);
- assert.equal(discounted.loyalty.belowCatalogFloor,true);assert.equal(discounted.annualSavings,215760);
+ assert.equal(base.subtotal,880301);assert.equal(discounted.subtotal,792271);assert.equal(discounted.subtotal/1200,660.2258333333333);
+ assert.equal(discounted.loyalty.belowCatalogFloor,true);assert.equal(discounted.annualSavings,220075);
  assert.equal(applyLoyalty(base,customer,history(3,0)).loyalty.discountAmount,0,'previous monthly payments do not invent an annual renewal');
 });
 test('Previously consumed rewards cannot be reused, including after a refund changes paid counts',()=>{
@@ -54,12 +54,12 @@ test('Coupon and loyalty rewards never stack; the better validated offer wins',a
 });
 test('Authenticated quotes use verified identity and private history, ignoring client claims',async()=>{
  const result=await handleRequest(request('/quote?country=IN&billing=yearly&paidCount=500&customerId=forged&email=other@example.test'),env,upstream(history(0,1)));
- assert.equal(result.status,200);const quote=await result.json();assert.equal(quote.subtotal,776736);assert.equal(quote.customerId,id);assert(quote.quoteToken);
+ assert.equal(result.status,200);const quote=await result.json();assert.equal(quote.subtotal,792271);assert.equal(quote.customerId,id);assert(quote.quoteToken);
  assert(!JSON.stringify(quote).includes(customer.email));assert(!JSON.stringify(quote).includes(values.SUPABASE_SERVICE_ROLE_KEY));
 });
 test('Public quotes never trust an email or previous-payment count as proof',async()=>{
  const result=await handleRequest(request('/quote?country=IN&billing=yearly&email=owner@example.test&paidCount=1',{token:null}),env,()=>{throw Error('No private history request allowed');});
- const quote=await result.json();assert.equal(quote.subtotal,863040);assert.equal(quote.loyalty,undefined);
+ const quote=await result.json();assert.equal(quote.subtotal,880301);assert.equal(quote.loyalty,undefined);
 });
 test('Expired, anonymous, unconfirmed and invalid identities cannot read payment history',async()=>{
  const rejected=await handleRequest(request('/quote?country=IN'),env,async url=>{assert(url.endsWith('/auth/v1/user'));return response({},401);});assert.equal(rejected.status,401);

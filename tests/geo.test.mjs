@@ -21,7 +21,7 @@ test('browser falls back from unavailable Supabase and country.is to GeoJS',asyn
 });
 test('browser lookups still work without Supabase config; malformed and unknown countries fall through',async t=>{
  const geo=await browser(t,{},async url=>url.includes('country.is')?Response.json({country:'XX'}):Response.json({country:' pk '}));
- assert.equal(await geo.detectGeo(),'PK');assert.equal(regionalPrice('online','monthly',1,geo.cachedGeo()).unitAmount,900);
+ assert.equal(await geo.detectGeo(),'PK');assert.equal(regionalPrice('online','monthly',1,geo.cachedGeo()).unitAmount,918);
  assert.equal(geo.rememberGeo('ZZ'),'');assert.equal(geo.rememberGeo({country:'US'}),'');assert.equal(geo.cachedGeo(),'PK');
 });
 test('all lookup failures return unknown without inventing a country or rejecting',async t=>{

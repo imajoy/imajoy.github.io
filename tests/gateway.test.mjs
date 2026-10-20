@@ -56,29 +56,26 @@ test('Gateway-created checkout and webhook approval use the actual Sheets ledger
 });
 const testSelection=()=>({plan:'online',billing:'monthly',seats:1,country:'US',offer:'trial',requestId:randomUUID()});
 const fromIndia=s=>(url,options)=>url.startsWith('https://api.country.is/')?Promise.resolve(Response.json({country:'IN'})):s.upstream(url,options);
-test('An owner-configured test country allows Sandbox checkout from India and retains real network signals',async()=>{
+test('A private Sandbox country cannot grant an ordinary account country-edit permission',async()=>{
  const s=setup();s.values.PAYPAL_MODE='sandbox';s.values.COMMERCE_SANDBOX_COUNTRY='US';
  const response=await handleCommerceRequest(s.req('checkout',testSelection()),s.env,fromIndia(s));
- const data=await response.json();assert.equal(data.ok,true,JSON.stringify(data));
- assert.equal(s.app.subscriptions.get(data.subscriptionId).plan_id,'P-high-TRIAL');
- const row=s.app.sheets.get('Checkouts').rows.find(r=>r[0]===data.checkoutId);
- assert.equal(row[1],'sandbox');assert.equal(row[18],'US');
- assert.equal(JSON.parse(row[19]).networkCountry,'IN');assert.equal(JSON.parse(row[19]).sandboxCountry,'US');
- assert.equal(row[5],await keyedHash(s.values.TRIAL_IDENTITY_SECRET,'ip:203.0.113.12'));
+ assert.equal((await response.json()).error,'country_mismatch');assert.equal(s.app.subscriptions.size,0);
+ const payload=JSON.parse(JSON.parse(s.calls.find(c=>c.url===s.values.SHEET_WEB_APP_URL).options.body).payload);
+ assert.equal(payload.billingNetwork.country,'IN');assert.equal(payload.ipHash,await keyedHash(s.values.TRIAL_IDENTITY_SECRET,'ip:203.0.113.12'));
 });
 test('India stays closed without the private Sandbox setting; browser test-country claims are ignored',async()=>{
  const s=setup();s.values.PAYPAL_MODE='sandbox';
  const result=await handleCommerceRequest(s.req('checkout',{...testSelection(),sandboxCountry:'US',COMMERCE_SANDBOX_COUNTRY:'US'}),s.env,fromIndia(s));
- assert.equal((await result.json()).error,'region');assert.equal(s.app.subscriptions.size,0);
+ assert.equal((await result.json()).error,'country_mismatch');assert.equal(s.app.subscriptions.size,0);
 });
-test('Live gateway ignores Sandbox test-country settings and a Live merchant rejects mismatched Sandbox requests',async()=>{
+test('Live and Sandbox gateways reject country overrides from ordinary accounts',async()=>{
  const live=setup();live.values.PAYPAL_MODE='live';live.values.COMMERCE_SANDBOX_COUNTRY='US';
  const result=await handleCommerceRequest(live.req('checkout',testSelection()),live.env,fromIndia(live));
- assert.equal((await result.json()).error,'region');assert.equal(live.app.subscriptions.size,0);
+ assert.equal((await result.json()).error,'country_mismatch');assert.equal(live.app.subscriptions.size,0);
  for(const mode of ['live','']){
   const mismatch=setup();mismatch.values.PAYPAL_MODE='sandbox';mismatch.values.COMMERCE_SANDBOX_COUNTRY='US';mismatch.app.values.set('PAYPAL_MODE',mode);
   const rejected=await handleCommerceRequest(mismatch.req('checkout',testSelection()),mismatch.env,fromIndia(mismatch));
-  const data=await rejected.json();assert.equal(data.error,'unavailable');assert.match(data.message,/Live merchant/);assert.equal(mismatch.app.subscriptions.size,0);
+  const data=await rejected.json();assert.equal(data.error,'country_mismatch');assert.equal(mismatch.app.subscriptions.size,0);
  }
 });
 test('Sandbox simulation never bypasses the trial network identifier requirement or closed test countries',async()=>{

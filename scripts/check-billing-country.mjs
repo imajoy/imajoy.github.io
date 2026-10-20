@@ -10,7 +10,7 @@ try{
  for(const width of [390,1280]){
   const app=service();app.values.set('BILLING_POLICY_ENABLED','true');app.register('contactmy3dart@gmail.com');
   const buyer=app.ctx.makeSession_('buyer@example.com'),owner=app.ctx.makeSession_('contactmy3dart@gmail.com');
-  let status='clear';const errors=[];
+  let status='clear',checks=0;const errors=[];
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage();
   page.on('pageerror',error=>errors.push(error.message));
   const env=k=>({ALLOWED_ORIGINS:base.origin,BILLING_POLICY_ENABLED:'true',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
@@ -18,8 +18,8 @@ try{
    const r=route.request(),url=r.url();
    if(new URL(url).origin===base.origin)return route.continue();
    if(url.includes('/paypal-config'))return route.fulfill({json:{billingPolicyEnabled:true,country:'US',mode:'live',clientId:'fixture',plans:{tiers:{high:{online:{monthly:true,yearly:true}}}}}});
-   if(url.includes('/commerce/billing-context')){
-    const response=await handleCommerceRequest(new Request(url,{method:'POST',headers:r.headers(),body:r.postData()}),env,async(u,o)=>Response.json(JSON.parse(app.ctx.doPost({postData:{contents:o.body}}).text)),async()=>({country:'US',status}));
+   if(url.includes('/commerce/billing-context')){checks++;
+    const response=await handleCommerceRequest(new Request(url,{method:'POST',headers:r.headers(),body:r.postData()}),env,async(u,o)=>Response.json(JSON.parse(app.ctx.doPost({postData:{contents:o.body}}).text)),async()=>({country:'US',status,...(status==='disabled'?{vpnEnabled:false}:{})}));
     return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:await response.text()});
    }
    if(url.includes('/razorpay/config'))return route.fulfill({json:{ok:true,enabled:false}});
@@ -46,6 +46,14 @@ try{
   assert.equal(await page.getByRole('heading',{name:'Turn off your VPN to continue'}).count(),0);
   status='clear';await page.locator('[data-network-retry]').click();await ready();assert(await page.locator('.checkout-grid').isVisible());
   await account(buyer,'contactmy3dart@gmail.com');await ready();assert(await page.locator('#country').isDisabled());
+  status='disabled';app.values.set('BILLING_POLICY_ENABLED','false');
+  await page.evaluate(async({owner})=>{const m=await import('./js/account-session.js?v=20261018-n1');m.setAccountSession({token:owner,email:'contactmy3dart@gmail.com',expiresAt:Date.now()+864e5,subscriptions:[]});},{owner});
+  await page.waitForFunction(()=>document.querySelector('#country').disabled===false);
+  assert(await page.locator('.checkout-grid').isVisible());
+  const before=checks;
+  await page.evaluate(async()=>{const m=await import('./js/account-session.js?v=20261018-n1');m.setAccountSession({...m.getAccountSession(),subscriptions:[]});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));});
+  assert.equal(checks,before,'same-token account updates must not restart country checks');
+  assert.equal(await page.locator('#country').isDisabled(),false);
   assert.deepEqual(errors,[]);await context.close();console.log(`${width}px: server country, tampering, VPN gate, login access, verified tester, logout and retry passed`);
  }
 }finally{await browser.close();}

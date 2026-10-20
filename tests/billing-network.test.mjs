@@ -6,7 +6,7 @@ import {handleCommerceRequest} from '../supabase/functions/commerce/handler.js';
 const ip='8.8.8.8',req=()=>new Request('https://example.test/checkout',{headers:{'cf-connecting-ip':ip}});
 function lookup(response,{key='fixture-secret',trusted='cf-connecting-ip',now=Date.now}={}){
  const calls=[];
- const env=k=>({BILLING_POLICY_ENABLED:'true',BILLING_VPN_API_KEY:key,COMMERCE_CLIENT_IP_HEADER:trusted}[k]);
+ const env=k=>({BILLING_VPN_ENABLED:'true',BILLING_VPN_API_KEY:key,COMMERCE_CLIENT_IP_HEADER:trusted}[k]);
  const run=createBillingNetworkLookup(async url=>{calls.push(url);return url.startsWith('https://api.country.is/')?Response.json({country:'US'}):Response.json(response);},env,now);
  return {run,calls};
 }
@@ -84,11 +84,32 @@ test('Checkout/eligibility gateway also replaces client-supplied reputation',asy
   assert.equal((await response.json()).error,'vpn_detected');
  }
 });
-test('Partial activation or a missing billing module cannot silently skip protection',()=>{
+test('Country permissions work without VPN activation; missing billing modules fail closed',()=>{
  const app=setup(),accountToken=app.ctx.makeSession_('buyer@example.com'),billingNetwork={country:'US',status:'clear'};
  app.values.set('BILLING_POLICY_ENABLED','false');
- assert.equal(app.rpc('eligibility',{accountToken,billingNetwork}).error,'unavailable');
- assert.equal(app.rpc('billing_context',{billingNetwork}).error,'unavailable');
+ assert.equal(app.rpc('eligibility',{accountToken,billingNetwork}).ok,true);
+ assert.equal(app.rpc('billing_context',{billingNetwork}).blocked,false);
  app.values.set('BILLING_POLICY_ENABLED','true');app.ctx.billingApply_=undefined;
  assert.equal(app.rpc('eligibility',{accountToken,billingNetwork}).error,'unavailable');
+});
+
+test('VPN off requires no provider key and does not disable verified tester country editing',async()=>{
+ const calls=[],env=k=>k==='COMMERCE_CLIENT_IP_HEADER'?'cf-connecting-ip':undefined;
+ const network=await createBillingNetworkLookup(async url=>{calls.push(url);return Response.json({country:'US'});},env)(req());
+ assert.deepEqual(network,{country:'US',status:'disabled',vpnEnabled:false});assert.equal(calls.length,1);assert(!calls.some(u=>u.includes('proxycheck.io')));
+ const app=service();app.register('contactmy3dart@gmail.com');
+ const accountToken=app.ctx.makeSession_('contactmy3dart@gmail.com');
+ const context=app.rpc('billing_context',{accountToken,billingNetwork:network});assert.equal(context.canEditCountry,true);assert.equal(context.blocked,false);
+ const selection={billingCountry:'CA',billingNetwork:network};app.ctx.billingApply_(selection,app.ctx.commerceWho_(accountToken));assert.equal(selection.country,'CA');
+ assert.equal(app.rpc('rewards',{accountToken:app.ctx.makeSession_('buyer@example.com'),plan:'online',billing:'monthly',seats:1,billingCountry:'CA',billingNetwork:network}).error,'country_mismatch');
+});
+test('Real signed gateway permits only the verified tester override with no VPN configuration',async()=>{
+ const app=service();app.register('contactmy3dart@gmail.com');
+ const env=k=>({ALLOWED_ORIGINS:'https://imajoy.github.io',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
+ const upstream=async(url,options)=>url.startsWith('https://api.country.is/')?Response.json({country:'US'}):Response.json(JSON.parse(app.ctx.doPost({postData:{contents:options.body}}).text));
+ for(const email of ['contactmy3dart@gmail.com','buyer@example.com']){
+  const response=await handleCommerceRequest(new Request('https://edge.test/commerce/rewards',{method:'POST',headers:{Origin:'https://imajoy.github.io','cf-connecting-ip':ip},body:JSON.stringify({accountToken:app.ctx.makeSession_(email),plan:'online',billing:'monthly',seats:1,country:'CA'})}),env,upstream);
+  const result=await response.json();assert.equal(result.ok,email==='contactmy3dart@gmail.com',JSON.stringify(result));
+  if(email!=='contactmy3dart@gmail.com')assert.equal(result.error,'country_mismatch');
+ }
 });

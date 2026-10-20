@@ -34,5 +34,5 @@ Deno.serve(async (req: Request) => {
     if (value && typeof value === 'object' && !Array.isArray(value)) return Object.fromEntries(Object.entries(value).filter(([key]) => key !== 'productId').map(([key, item]) => [key, flags(item)]));
     return Boolean(value);
   };
-  return new Response(JSON.stringify({ mode, clientId, currency: 'USD', plans: flags(plans), country, closedCountries, billingPolicyEnabled:Deno.env.get('BILLING_POLICY_ENABLED')==='true' }), { headers });
+  return new Response(JSON.stringify({ mode, clientId, currency: 'USD', plans: flags(plans), country, closedCountries, billingPolicyEnabled:true, vpnProtectionEnabled:Deno.env.get('BILLING_VPN_ENABLED')==='true' }), { headers });
 });

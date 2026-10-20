@@ -1,6 +1,5 @@
 import {trustedIp} from '../_shared/network.js';
 export {trustedIp} from '../_shared/network.js';
-import {createCountryLookup} from '../_shared/country.js';
 import {createBillingNetworkLookup} from '../_shared/billing-network.js';
 /* Trusted network boundary. Private records and PayPal credentials stay in Apps Script. */
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
@@ -42,8 +41,7 @@ export async function handleCommerceRequest(req,env,request=fetch,networkOf=crea
     const ip=trustedIp(req,env);
     payload.deviceHash=device?await keyedHash(identitySecret,'device:'+device.toLowerCase()):'';
     payload.ipHash=ip?await keyedHash(identitySecret,'ip:'+ip):'';
-    if(env('BILLING_POLICY_ENABLED')!=='true')payload.country=await createCountryLookup(request,Date.now,env)(req);
-    if(env('BILLING_POLICY_ENABLED')==='true'){payload.billingNetwork=await networkOf(req);payload.country=payload.billingNetwork.country;}
+    payload.billingNetwork=await networkOf(req);payload.country=payload.billingNetwork.country;
     if(path==='checkout'||path==='rewards'){
      if(!['online','offline'].includes(data.plan)||!['monthly','yearly'].includes(data.billing)||path==='checkout'&&!['trial','standard'].includes(data.offer)||!Number.isInteger(data.seats)||data.seats<1||data.seats>100||path==='checkout'&&!/^[-a-f0-9]{36}$/i.test(data.requestId||''))throw fail('Review your plan, billing period and license quantity.');
      Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,offer:data.offer,requestId:data.requestId,billingCountry:data.country,expectedTotal:data.expectedTotal,expectedRewardPercent:data.expectedRewardPercent,coupon:typeof data.coupon==='string'?data.coupon.trim().toUpperCase().slice(0,32):'',name:typeof data.name==='string'?data.name.slice(0,80):'',company:typeof data.company==='string'?data.company.slice(0,80):''});

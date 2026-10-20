@@ -6,7 +6,7 @@ export function createBillingNetworkLookup(request=fetch,env=()=>undefined,now=D
  const countryOf=createCountryLookup(request,now,env),cache=new Map();
  return async req=>{
   const country=await countryOf(req);
-  if(env('BILLING_POLICY_ENABLED')!=='true')return {country,status:'disabled'};
+  if(env('BILLING_VPN_ENABLED')!=='true')return {country,status:'disabled',vpnEnabled:false};
   const ip=trustedIp(req,env),key=env('BILLING_VPN_API_KEY');
   if(!ip||!country||!key)return {country,status:'unavailable'};
   const previous=cache.get(ip);if(previous&&now()-previous.time<60000)return {country,status:previous.status};

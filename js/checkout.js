@@ -1,5 +1,5 @@
 import {localApprox} from './fx.js?v=20261018-h8';
-import {initializeBillingCountry} from './billing-country.js?v=20261020-country1';
+import {initializeBillingCountry} from './billing-country.js?v=20261020-country3';
 import {api,apiBase,getQuote,getCouponQuote,previewPrice,money} from './commerce.js?v=20261020-rz1';
 import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261019-contact2';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');

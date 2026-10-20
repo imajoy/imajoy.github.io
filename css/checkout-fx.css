@@ -116,7 +116,7 @@ html[data-theme=dark] .commerce-page::before,html[data-theme=dark] .commerce-pag
 .m-total button{flex:none;border:0;border-radius:999px;padding:12px 20px;font:600 .875rem var(--sans);color:#fff;background:linear-gradient(145deg,#4F8DFF,#2A64E8);cursor:pointer;touch-action:manipulation}
 @media(max-width:800px){.m-total{display:flex}.paypal-box{scroll-margin-bottom:90px}}
 
-/* Order summary: label left, amount right, optional local amount on its own line under the total, box aligned with the rows above. */
+/* Order summary: label left, amount right, secondary USD amount on its own line under the local total, box aligned with the rows above. */
 .order-total{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;margin:22px 0 16px;padding:18px 20px;gap:2px 16px}
 .order-total>span{font-size:.9375rem;color:var(--ink,inherit)}
 .order-total strong{margin-left:auto;text-align:right;font-size:2.125rem;line-height:1.1}
@@ -127,4 +127,4 @@ html[data-theme=dark] .commerce-page::before,html[data-theme=dark] .commerce-pag
 .trial-line b{font-size:.9375rem}
 .trial-line[hidden]{display:none}
 
-.order-total.is-trial #local-total{display:none}
+#local-total{overflow-wrap:anywhere}

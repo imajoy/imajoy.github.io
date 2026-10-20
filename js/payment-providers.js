@@ -1,3 +1,4 @@
+import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {readBillingDraft} from './checkout-steps.js?v=20261020-steps1';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
 import {availability,countryCheck,tierFor} from './regions.js?v=20261020-ps1';
@@ -20,7 +21,8 @@ if(form&&paypal&&url){
  let requestId=crypto.randomUUID();
  const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
  const key=()=>JSON.stringify(choice());
- const money=value=>new Intl.NumberFormat(navigator.language||'en',{style:'currency',currency:'INR'}).format(value/100);
+ const money=value=>displayMoney(value,'INR',choice().country);
+ const showAmount=(id,value)=>setMoney(document.getElementById(id),value,'INR',choice().country);
  const say=(text,kind='')=>{status.textContent=text;status.dataset.kind=kind;};
  let usingPopup=false,rzpScript=null;
  const thankYou=(r,plan,billing,seats)=>'thank-you.html?'+new URLSearchParams({provider:'razorpay',plan:r?.plan||plan,billing:r?.billing||billing,seats:String(r?.seats||seats)}).toString();
@@ -91,15 +93,14 @@ if(form&&paypal&&url){
   if(!ownsPending){check.hidden=true;link.hidden=true;}
   cancelBtn.hidden=check.hidden||busy;
   if(!session)start.disabled=false;
-  const amount=quote?money(quote.total):'—';document.getElementById('summary-total').textContent=amount;const figure=panel.querySelector('.razorpay-amount');if(quote){figure.innerHTML='<span class="rzp-figure"></span><span class="rzp-per"></span>';figure.firstChild.textContent=amount;figure.lastChild.textContent='per '+(quote.billing==='yearly'?'year':'month')+' · '+quote.seats+(quote.seats===1?' license':' licenses');}else figure.innerHTML='<span class="rzp-figure rzp-placeholder">₹ ——</span>';panel.querySelector('.rzp-saving').hidden=!quote||quote.billing!=='yearly';
-  if(!quote){for(const id of ['summary-unit','summary-subtotal'])document.getElementById(id).textContent='—';document.querySelector('#annual-summary-row').hidden=true;document.querySelector('#annual-summary').hidden=true;return;}
-  document.querySelector('#summary-unit').textContent=money(quote.unitAmount);
-  document.querySelector('#summary-subtotal').textContent=money(quote.compareAtUnitAmount*quote.seats);
+  const amount=quote?money(quote.total):'—';showAmount('summary-total',quote?quote.total:null);const figure=panel.querySelector('.razorpay-amount');if(quote){figure.innerHTML='<span class="rzp-figure"></span><span class="rzp-per"></span>';figure.firstChild.textContent=amount;figure.lastChild.textContent='per '+(quote.billing==='yearly'?'year':'month')+' · '+quote.seats+(quote.seats===1?' license':' licenses');}else figure.innerHTML='<span class="rzp-figure rzp-placeholder">₹ ——</span>';panel.querySelector('.rzp-saving').hidden=!quote||quote.billing!=='yearly';
+  if(!quote){for(const id of ['summary-unit','summary-subtotal'])showAmount(id,null);document.querySelector('#annual-summary-row').hidden=true;document.querySelector('#annual-summary').hidden=true;return;}
+  showAmount('summary-unit',quote.unitAmount);
+  showAmount('summary-subtotal',quote.compareAtUnitAmount*quote.seats);
   const savings=(quote.compareAtUnitAmount-quote.unitAmount)*quote.seats;
-  document.querySelector('#annual-summary-row').hidden=quote.billing!=='yearly';document.querySelector('#summary-annual').textContent='−'+money(savings);
+  document.querySelector('#annual-summary-row').hidden=quote.billing!=='yearly';showAmount('summary-annual',-savings);
   const annual=document.querySelector('#annual-summary');annual.hidden=quote.billing!=='yearly';annual.textContent='20% off yearly · '+money(quote.unitAmount/12)+' per license/month, billed annually.';
-  document.querySelector('#local-total')?.replaceChildren();
-  document.querySelector('#quote-note').textContent='Charged in INR by Razorpay. Review the recurring amount and billing schedule before authorizing. No tax is added by this checkout.';
+  document.querySelector('#quote-note').textContent='Razorpay charges INR. Converted local-currency amounts and the USD equivalent are estimates. Review the confirmed recurring amount before authorizing. No tax is added by this checkout.';
   document.querySelector('#availability').textContent='Review your billing details, then authorize securely with Razorpay.';
  }
  async function api(operation,body={}){
@@ -161,6 +162,7 @@ if(form&&paypal&&url){
  for(const radio of picker.querySelectorAll('input'))radio.onchange=()=>selected(radio.value);
  for(const name of ['plan','billing','seats','country'])form.elements[name].addEventListener('change',()=>{sync();if(provider==='razorpay')refresh();});
  form.elements.seats.addEventListener('input',()=>{if(provider==='razorpay')refresh();});
+ document.addEventListener('ajoy:currency-ready',()=>{if(provider==='razorpay')paint();});
  document.addEventListener('ajoy:quote-rendered',()=>{if(provider==='razorpay')paint();else if(provider==='review')reviewSummary();});
  onAccountChange(()=>{if(provider==='razorpay')refresh();});
  document.addEventListener('ajoy:billing-network',()=>{sync();if(provider==='razorpay')refresh();});

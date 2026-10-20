@@ -2,7 +2,7 @@ import {availability} from './regions.js?v=20261020-ps1';
 import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261020-rz1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261020-rz1';
-import {localFormatter} from './fx.js?v=20261018-h8';
+import {localFormatter} from './fx.js?v=20261020-local1';
 import {animatePrice,settlePrices} from './price-motion.js?v=20261019-motion1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-rz1';
 const toggle=document.querySelector('.toggle');
@@ -42,7 +42,7 @@ async function render(){
     offer.querySelector('.annual-saving').textContent='Save '+show(quote.annualSavings)+' per year';
     offer.querySelector('.annual-equivalent').textContent=show(quote.unitAmount/12)+' per month, billed yearly';animate(offer);
    }
-   status.textContent=quote.preview&&quote.currency!=='INR'?'Prices shown in US dollars for your region. Your country is confirmed at checkout.':'';
+   status.textContent=quote.currency==='USD'?(lf?'Local-currency prices are estimates. PayPal charges USD. Your country is confirmed at checkout.':'Prices shown in USD. Your country is confirmed at checkout.'):'Prices shown in INR. Your country is confirmed at checkout.';
   }catch{if(current!==revision)return;amount.textContent='See checkout';offer.hidden=true;note.textContent='Confirm pricing on the billing page.';status.textContent='Pricing is temporarily unavailable.';}
  }));
  if(current===revision)animatePricing=false;

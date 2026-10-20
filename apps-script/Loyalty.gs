@@ -110,6 +110,7 @@ function razorpayHistory_(email,history){
 function rewardHistoryCached_(email){
   var cache=CacheService.getScriptCache(),key='rh:'+mode_()+':'+email,history=null;
   try{history=JSON.parse(cache.get(key)||'null');}catch(e){}
+  if(history&&typeof paymentsOn_==='function'&&paymentsOn_()&&history.ledgerVersion!==2)history=null;
   if(!history){history=rewardHistory_(email);cache.put(key,JSON.stringify(history),300);}
   return history;
 }
@@ -159,7 +160,15 @@ function rewardReserve_(who,quote,history,exceptId) {
     if(!used||(used.rewardKeys||[used.reward]).indexOf(quote.reward)<0)return false;
     // Approval-pending subscriptions can still be approved after a local timeout.
     // Keep their reservation until PayPal confirms cancellation or expiration.
-    return !r[11]||['CANCELLED','EXPIRED'].indexOf(history.statuses[r[11]])<0;
+    if(!r[11])return true;
+    // Ledger history does not fetch subscription statuses. Verify only an actual
+    // conflicting reservation, rather than re-reading every historical payment.
+    if(!Object.prototype.hasOwnProperty.call(history.statuses,r[11])){
+      var sub=commercePaypal_('/v1/billing/subscriptions/'+encodeURIComponent(r[11]));
+      if(sub.id&&sub.id!==r[11])throw commerceError_('rewards_unavailable','A reserved subscription could not be verified. Please contact Ajoy.');
+      history.statuses[r[11]]=sub.status;
+    }
+    return ['CANCELLED','EXPIRED'].indexOf(history.statuses[r[11]])<0;
   });
   if(conflict)throw commerceError_('reward_reserved','This reward is already attached to another checkout. Complete it, or cancel that subscription in PayPal before starting again.');
 }

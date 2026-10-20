@@ -7,7 +7,7 @@ const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAY
 const base=new URL(process.argv[2]||'http://localhost:8798/');
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']});
 try{
- for(const [country,enabled,width,theme] of [['IN',true,390,'light'],['IN',true,1280,'dark'],['US',true,390,'dark'],['US',true,1280,'light'],['GB',true,390,'light'],['IN',false,390,'light'],['US',false,1280,'light'],['PK',true,390,'light']]){
+ for(const [country,enabled,width,theme,legacy] of [['IN',true,390,'light'],['IN',true,1280,'dark'],['US',true,390,'dark'],['US',true,1280,'light'],['GB',true,390,'light'],['IN',false,390,'light'],['US',false,1280,'light'],['PK',true,390,'light'],['IN',true,390,'light',true]]){
   const app=service(),token=app.ctx.makeSession_('buyer@example.com');
   for(const [k,v] of Object.entries({RAZORPAY_MODE:'test',RAZORPAY_ENABLED:String(enabled),RAZORPAY_KEY_ID:'rzp_test_fixture',RAZORPAY_KEY_SECRET:'private-razorpay-test-secret',RAZORPAY_WEBHOOK_SECRET:'private-webhook-test-secret',RAZORPAY_ALLOWED_COUNTRIES:'ALL'}))app.values.set(k,v);
   app.ctx.Logger={log(){}};app.ctx.setupRazorpayPlans();
@@ -20,7 +20,8 @@ try{
    if(new URL(url).origin===base.origin)return route.continue();
    if(url.includes('/functions/v1/razorpay/')){
     const response=await handler(new Request(url,{method:req.method(),headers:{...req.headers(),'cf-connecting-ip':'8.8.8.8'},...(req.postData()?{body:req.postData()}:{})}));
-    return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body:await response.text()});
+    let body=await response.text();if(legacy&&url.endsWith('/config')){const data=JSON.parse(body);delete data.trialCheckPaise;body=JSON.stringify(data);}
+    return route.fulfill({status:response.status,headers:Object.fromEntries(response.headers),body});
    }
    if(url.includes('/functions/v1/paypal-config'))return route.fulfill({json:{mode:'live',clientId:'fixture',country,plans:{tiers:Object.fromEntries(['low','mid','high'].map(t=>[t,{online:{monthly:true,yearly:true},offline:{monthly:true,yearly:true},onlineTrial:{monthly:true,yearly:true}}]))}}});
    if(url.includes('/functions/v1/commerce/eligibility'))return route.fulfill({json:{ok:true,rewardsVersion:1,eligible:true,reason:'eligible'}});
@@ -63,6 +64,9 @@ try{
     // Online plans offer the 2-day trial with Razorpay too (selected by default when eligible): nothing due today.
     await page.waitForFunction(()=>!document.querySelector('.rzp-offer').hidden&&document.querySelector('.rzp-offer [value=trial]').checked&&/(^|[^0-9,.])0\.00/.test(document.querySelector('#summary-total').textContent));
     assert.equal(await page.locator('[data-razorpay-start]').textContent(),'Start 2-day free trial');
+    const check=await page.locator('.rzp-check').textContent();
+    if(legacy){assert.match(check,/Review the exact amount/);assert(!check.includes('₹1'));assert(!check.includes('We refund'));}
+    else assert.match(check,/₹1 payment-method check/);
     await page.screenshot({path:'/tmp/payment-trial-'+width+'.png',fullPage:true});
     // The rest of this run checks the paid path; the trial path is covered by the server tests.
     await page.locator('.rzp-offer [value=standard]').check();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed')&&/916|2,038/.test(document.querySelector('#summary-total').textContent));
@@ -145,7 +149,7 @@ try{
    if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('8,803.01'));}
   }
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);
-  console.log(`${country}, Razorpay ${enabled?'enabled':'disabled'}, ${width}px ${theme}: provider gates and checkout passed`);
+  console.log(`${country}, Razorpay ${enabled?'enabled':'disabled'}, ${width}px ${theme}${legacy?' legacy config':''}: provider gates and checkout passed`);
   await context.close();
  }
  console.log('Payment-provider browser checks passed with local payment fixtures only.');

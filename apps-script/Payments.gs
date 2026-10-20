@@ -56,32 +56,65 @@ function paymentRefund_(paymentId){
 }
 function paymentsOn_(){return props_().getProperty('PAYMENT_LEDGER')==='on';}
 
+/* Immutable checkout/catalog terms, including old prices and paid introductory rates.
+   Ledger rows alone are not proof that a full billing period was paid. */
+function paymentTerms_(provider,sub,sources){
+  sources=sources||{};
+  if(provider==='Razorpay'){
+    sources.razorpay=sources.razorpay||razorpayRows_();
+    var record=sources.razorpay.filter(function(r){return r.subscriptionId===sub&&r.mode===razorpayMode_();})[0];
+    return record?{billing:record.price.billing,seats:record.price.seats,currency:'INR',unitAmount:record.price.unitAmount,upfront:record.price.upfront?record.price.total:0,prepaidPeriods:record.price.discount&&record.price.discount.payments||1}:null;
+  }
+  if(provider!=='PayPal')return null;
+  sources.paypal=sources.paypal||commerceRows_();
+  if(!sources.orders){var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);sources.orders=sheet&&sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,12).getValues():[];}
+  var row=sources.paypal.filter(function(r){return r[11]===sub&&r[1]===mode_();})[0],order=paymentOrderFor_(sub,sources.orders);
+  if(!row&&(!order||order.mode!==mode_()))return null;
+  var info=rewardPlanInfo_(row?row[10]:order.planId),loyalty=row?rewardBuyer_(row).loyalty:null;
+  if(!info)return null;
+  return {billing:info.billing,seats:row?row[9]:order.seats,currency:'USD',unitAmount:loyalty?loyalty.unitAmount:info.unitAmount,introAmount:loyalty&&loyalty.discountedUnitAmount,introPeriods:loyalty&&loyalty.rewardPayments||0};
+}
+
 /* Reward history from the Payments tab. Same rules as before: one payment per subscription and
    billing period, only paid rows count, rewards already given stay used even after a refund. */
 function paymentHistory_(email){
-  var history={monthly:0,yearly:0,used:{},statuses:{},receipts:[]},periods={};
+  var history={monthly:0,yearly:0,used:{},statuses:{},receipts:[],ledgerVersion:2},periods={},phases={},phaseCounts={},terms={},seen={},sources={};
   var paypalMode=paymentModeLabel_(mode_()),rzpMode=typeof razorpayMode_==='function'?paymentModeLabel_(razorpayMode_()):'';
-  paymentRows_().forEach(function(r){
+  paymentRows_().sort(function(a,b){return new Date(a[0])-new Date(b[0]);}).forEach(function(r){
     if(String(r[1]).trim().toLowerCase()!==email)return;
     var provider=String(r[2]),mode=String(r[3]||'Live');
     var modeOk=provider==='PayPal'?mode===paypalMode:provider==='Razorpay'?(mode===rzpMode&&rzpMode===paypalMode):mode===paypalMode;
     if(!modeOk)return;
+    var identity=provider+':'+mode+':'+String(r[12]);
+    if(!r[12]||seen[identity])return;seen[identity]=true;
     paymentRewardKeys_(r[11]).forEach(function(k){history.used[k]=true;});
     var billing=String(r[5]).toLowerCase(),date=r[0] instanceof Date?r[0]:new Date(r[0]);
-    if(r[9]!=='Paid'||String(r[10]).toLowerCase()==='no'||!(Number(r[7])>0)||['monthly','yearly'].indexOf(billing)<0||isNaN(date.getTime()))return;
-    var period=(String(r[13])||String(r[12]))+':'+date.getUTCFullYear()+(billing==='monthly'?'-'+date.getUTCMonth():'');
-    if(periods[period])return;periods[period]=true;
-    history[billing]++;history.receipts.push(String(r[12]));
+    if(['Paid','Refunded'].indexOf(r[9])<0||!Number.isFinite(Number(r[7]))||!(Number(r[7])>0)||['monthly','yearly'].indexOf(billing)<0||isNaN(date.getTime()))return;
+    var sub=String(r[13]),group=provider+':'+mode+':'+(sub||String(r[12]));
+    var period=group+':'+date.getUTCFullYear()+(billing==='monthly'?'-'+date.getUTCMonth():'');
+    var count=1;
+    if(provider!=='Manual'){
+      if(!Object.prototype.hasOwnProperty.call(terms,group))terms[group]=paymentTerms_(provider,sub,sources);
+      var t=terms[group];
+      if(!t||t.billing!==billing||t.currency!==r[8]||!Number.isInteger(Number(t.seats))||Number(t.seats)<1)return;
+      if(!Object.prototype.hasOwnProperty.call(phases,period)){phases[period]=phaseCounts[group]||0;phaseCounts[group]=phases[period]+1;}
+      var expected=(phases[period]<t.introPeriods?t.introAmount:t.unitAmount)*Number(t.seats);
+      var paid=Math.round(Number(r[7])*100);
+      if(t.upfront&&phases[period]===0&&paid===t.upfront){expected=t.upfront;count=t.prepaidPeriods;}
+      if(!Number.isSafeInteger(expected)||expected<=0||paid<expected)return;
+    }
+    if(r[9]!=='Paid'||String(r[10]).toLowerCase()==='no'||periods[period])return;periods[period]=true;
+    history[billing]+=count;history.receipts.push(String(r[12]));
   });
   return history;
 }
 
 /* ---------- Writers called by the payment code ---------- */
-function paymentOrderFor_(sub){
-  var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
-  if(!sheet||sheet.getLastRow()<2)return null;
-  var rows=sheet.getRange(2,1,sheet.getLastRow()-1,12).getValues();
-  for(var i=rows.length-1;i>=0;i--)if(String(rows[i][1])===sub)return {email:String(rows[i][4]).trim().toLowerCase(),plan:String(rows[i][7]).split(' ')[0],billing:String(rows[i][8]),seats:Number(rows[i][9])||1,mode:String(rows[i][3])};
+function paymentOrderFor_(sub,rows){
+  if(!rows){var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
+    if(!sheet||sheet.getLastRow()<2)return null;
+    rows=sheet.getRange(2,1,sheet.getLastRow()-1,12).getValues();}
+  for(var i=rows.length-1;i>=0;i--)if(String(rows[i][1])===sub)return {email:String(rows[i][4]).trim().toLowerCase(),plan:String(rows[i][7]).split(' ')[0],billing:String(rows[i][8]),seats:Number(rows[i][9])||1,mode:String(rows[i][3]),planId:String(rows[i][11])};
   return null;
 }
 /* PayPal PAYMENT.SALE.COMPLETED: the sale belongs to subscription `sub`. */

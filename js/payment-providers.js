@@ -109,7 +109,7 @@ if(form&&paypal&&url){
  form.addEventListener('submit',event=>{if(provider==='review'){event.preventDefault();event.stopImmediatePropagation();reviewDetails();}},true);
  const offerBox=panel.querySelector('.rzp-offer'),offerNote=offerBox.querySelector('.rzp-offer-note');
  const rupees=p=>p%100===0?'\u20b9'+p/100:money(p);
- const checkText=()=>{const p=Number(config?.trialCheckPaise??100);return p>0?'Razorpay takes a '+rupees(p)+' payment-method check now. We refund it automatically.':'Razorpay takes a \u20b95 payment-method check now and refunds it automatically.';};
+ const checkText=()=>{const raw=config?.trialCheckPaise;if(!Number.isInteger(raw)||raw<0||raw>500)return 'Razorpay may take a refundable payment-method check. Review the exact amount in the Razorpay window before approving.';const p=raw;return p>0?'Razorpay takes a '+rupees(p)+' payment-method check now. We refund it automatically.':'Razorpay takes a \u20b95 payment-method check now and refunds it automatically.';};
  const trialAvailable=()=>!!config?.trial&&choice().plan==='online';
  const trialOn=()=>trialAvailable()&&offer==='trial'&&trialCheck.key===trialKey()&&trialCheck.state==='eligible';
  const trialKey=()=>(getAccountSession()?.email||'')+'|'+choice().country;

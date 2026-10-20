@@ -58,3 +58,67 @@ test('Payments are written straight under the header even when the guide on the 
  assert.equal(sheet.rows[1][17],'Guide line 1','the guide is untouched');
  assert.equal(app.rpc('rewards',selection(app)).pricing.percent,5,'3rd monthly payment');
 });
+
+test('Partial or wrong-currency ledger payments cannot qualify; original catalog prices still qualify',()=>{
+ const app=service();app.values.set('PAYMENT_LEDGER','on');
+ const sale=(id,value,currency='USD',month='09')=>app.ctx.paymentFromPaypalSale_('I-TESTBUYER1',{id,create_time:`2026-${month}-02T00:00:00Z`,amount:{total:value,currency}},'Regression');
+ sale('ONE-CENT','0.01');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,0);
+ sale('PRORATED','10.00');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,0);
+ sale('WRONG-CURRENCY','100.00','INR');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,0);
+ sale('FULL-OLD-RATE','22.00');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,1);
+ sale('DUPLICATE-PERIOD','22.00');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,1);
+ app.ctx.paymentRefund_('FULL-OLD-RATE');app.ctx.paymentRefund_('DUPLICATE-PERIOD');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,0);
+});
+test('Ledger qualification uses the purchased license count, not editable receipt fields',()=>{
+ const app=service();app.orders.rows[1][9]=3;
+ const sale=(id,value)=>app.ctx.paymentFromPaypalSale_('I-TESTBUYER1',{id,create_time:'2026-09-02T00:00:00Z',amount:{total:value,currency:'USD'}},'Regression');
+ sale('ONE-SEAT','22.00');app.sheets.get('Payments').rows[1][6]=1;
+ assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,0);
+ sale('THREE-SEATS','66.00');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,1);
+});
+test('Discounted introductory receipts qualify and subsequent full periods require the agreed standard rate',()=>{
+ const app=service();app.values.set('PAYMENT_LEDGER','on');
+ app.ctx.paymentFromPaypalSale_('I-TESTBUYER1',{id:'PAST',create_time:'2026-01-02T00:00:00Z',amount:{total:'22.00',currency:'USD'}},'Regression');
+ const checkout=app.rpc('checkout',selection(app));assert(checkout.ok,JSON.stringify(checkout));
+ const sale=(id,value,month)=>app.ctx.paymentFromPaypalSale_(checkout.subscriptionId,{id,create_time:`2026-${month}-02T00:00:00Z`,amount:{total:value,currency:'USD'}},'Regression');
+ sale('INTRO-1','21.32','02');sale('INTRO-2','21.32','03');sale('UNDERPAID-REGULAR','21.32','04');
+ assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,3);
+ sale('FULL-REGULAR','22.44','04');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,4);
+ app.ctx.paymentRefund_('INTRO-1');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,3);
+ assert(app.ctx.paymentHistory_('buyer@example.com').used.monthly_second);
+});
+test('Ledger mode releases cancelled or expired reward reservations, while pending/active or unverifiable ones stay protected',()=>{
+ for(const status of ['CANCELLED','EXPIRED','APPROVAL_PENDING','ACTIVE','UNAVAILABLE']){
+  const app=service();app.values.set('PAYMENT_LEDGER','on');
+  app.ctx.paymentFromPaypalSale_('I-TESTBUYER1',{id:'PAST',create_time:'2026-01-02T00:00:00Z',amount:{total:'22.00',currency:'USD'}},'Regression');
+  const first=app.rpc('checkout',selection(app));assert(first.ok,JSON.stringify(first));
+  app.subscriptions.get(first.subscriptionId).status=status;
+  if(status==='UNAVAILABLE'){
+   const fetch=app.ctx.UrlFetchApp.fetch;
+   app.ctx.UrlFetchApp.fetch=(url,options)=>url.endsWith('/subscriptions/'+first.subscriptionId)?{getResponseCode:()=>503,getContentText:()=> '{}'}:fetch(url,options);
+  }
+  const result=app.rpc('checkout',selection(app,{seats:2}));
+  if(['CANCELLED','EXPIRED'].includes(status)){assert(result.ok,JSON.stringify(result));assert.notEqual(result.subscriptionId,first.subscriptionId);}
+  else {assert.equal(result.ok,false);assert.equal(result.error,status==='UNAVAILABLE'?'provider':'reward_reserved');}
+ }
+});
+test('A stale pre-fix history cache cannot keep granting credit for a partial receipt',()=>{
+ const app=service();app.values.set('PAYMENT_LEDGER','on');app.options.keepHistoryCache=true;
+ app.ctx.paymentFromPaypalSale_('I-TESTBUYER1',{id:'TINY',create_time:'2026-01-02T00:00:00Z',amount:{total:'0.01',currency:'USD'}},'Regression');
+ app.cache.set('rh:sandbox:buyer@example.com',JSON.stringify({monthly:1,yearly:0,used:{},statuses:{},receipts:['TINY']}));
+ const quote=app.rpc('rewards',selection(app));assert.equal(quote.pricing.percent,0);
+ assert.equal(JSON.parse(app.cache.get('rh:sandbox:buyer@example.com')).ledgerVersion,2);
+});
+test('Razorpay ledger requires the full purchased amount and counts paid upfront periods once',()=>{
+ const app=service();app.values.set('RAZORPAY_MODE','test');
+ const record={id:randomUUID(),subscriptionId:'sub_ledger',mode:'test',email:'buyer@example.com',price:{plan:'online',billing:'monthly',seats:2,unitAmount:91698,total:165056,upfront:true,recurringTotal:183396,discount:{payments:1,percent:10}},accepted:true};
+ app.ctx.razorpayWrite_(record);
+ const payment=(id,amount)=>app.ctx.paymentFromRazorpay_(record,{id,amount,created_at:Date.parse('2026-09-02T00:00:00Z')/1000},'Regression');
+ payment('pay_tiny',100);assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,0);
+ payment('pay_full',165056);assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,1);
+ app.ctx.paymentRefund_('pay_full');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,0);
+ // Two discounted months paid together represent two paid periods, not two seats.
+ record.subscriptionId='sub_prepaid';record.price.seats=1;record.price.discount.payments=2;record.price.total=165056;app.ctx.razorpayWrite_({...record,id:randomUUID()});
+ payment('pay_prepaid',165056);payment('pay_prepaid',165056);
+ assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,2);
+});

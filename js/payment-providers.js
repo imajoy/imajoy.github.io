@@ -29,7 +29,10 @@ if(form&&paypal&&url){
  /* Confirmed quotes are remembered for 10 minutes so the next step shows the price at once.
     Display only: checkout re-sends the expected total and the server refuses any changed price. */
  const quoteKey=extra=>'ajoy.rzpq:'+JSON.stringify([getAccountSession()?.email||'',choice(),extra]);
- const readQuote=extra=>{try{const v=JSON.parse(sessionStorage.getItem(quoteKey(extra))||'null');return v&&Date.now()-v.at<600000?v.pricing:null;}catch{return null;}};
+ const readQuote=extra=>{try{const v=JSON.parse(sessionStorage.getItem(quoteKey(extra))||'null');return v&&Date.now()-v.at<600000?Object.assign(v.pricing,{_age:Date.now()-v.at}):null;}catch{return null;}};
+ const inflight=new Map();
+ /* Identical price requests share one server call (Apps Script slows down when many arrive at once). */
+ const quoteOnce=(extra,body)=>{const k=quoteKey(extra);if(!inflight.has(k))inflight.set(k,api('quote',body).finally(()=>setTimeout(()=>inflight.delete(k),1500)));return inflight.get(k);};
  const saveQuote=(extra,pricing)=>{try{sessionStorage.setItem(quoteKey(extra),JSON.stringify({at:Date.now(),pricing}));}catch{}};
  let coupon=/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(draft?.coupon||'')?draft.coupon:'',usingPopup=false,rzpScript=null,offer='standard',trialCheck={key:'',state:'',message:''};
  const thankYou=(r,plan,billing,seats)=>'thank-you.html?'+new URLSearchParams({provider:'razorpay',plan:r?.plan||plan,billing:r?.billing||billing,seats:String(r?.seats||seats),...((r?.offer||offer)==='trial'?{offer:'trial'}:{})}).toString();
@@ -104,7 +107,8 @@ if(form&&paypal&&url){
  async function checkTrial(){
   const k=trialKey();if(!trialAvailable()||!getAccountSession()||trialCheck.key===k&&trialCheck.state)return;
   trialCheck={key:k,state:'checking',message:''};paint();
-  try{const r=await secureCommerce('eligibility',{country:choice().country});if(trialCheck.key!==k)return;trialCheck={key:k,state:r.eligible?'eligible':'used',message:r.eligible?'':(r.message||'The free trial is not available for this account.')};if(r.eligible){if(!offerTouched&&!coupon)offer='trial';if(offer==='trial'){paint();refresh();return;}}}
+  try{const memo='ajoy.rzptrial:'+k;let r=null;try{const v=JSON.parse(sessionStorage.getItem(memo)||'null');if(v&&Date.now()-v.at<600000)r=v.r;}catch{}
+   if(!r){r=await secureCommerce('eligibility',{country:choice().country});try{sessionStorage.setItem(memo,JSON.stringify({at:Date.now(),r:{eligible:r.eligible,message:r.message}}));}catch{}}if(trialCheck.key!==k)return;trialCheck={key:k,state:r.eligible?'eligible':'used',message:r.eligible?'':(r.message||'The free trial is not available for this account.')};if(r.eligible){if(!offerTouched&&!coupon)offer='trial';if(offer==='trial'){paint();refresh();return;}}}
   catch(error){if(trialCheck.key===k)trialCheck={key:k,state:'error',message:error.message||'Trial eligibility could not be checked. You can still pay now.'};}
   paint();
  }
@@ -196,7 +200,8 @@ if(form&&paypal&&url){
   if(remembered){quote=remembered;say('Price confirmed. Review the total before continuing.');couponNote();}
   else{busy=true;say('Confirming your Razorpay price…');}
   paint();
-  timer=setTimeout(async()=>{try{const data=await api('quote',{...c,offer:trialing?'trial':'standard',...(sentCoupon&&!trialing?{coupon:sentCoupon}:{})});if(operation!==revision||key()!==selection||getAccountSession()?.token!==token)return;quote=data.pricing;saveQuote(extra,data.pricing);say('Price confirmed. Review the total before continuing.');couponNote();}
+  if(remembered&&remembered._age<60000)return;
+  timer=setTimeout(async()=>{try{const data=await quoteOnce(extra,{...c,offer:trialing?'trial':'standard',...(sentCoupon&&!trialing?{coupon:sentCoupon}:{})});if(operation!==revision||key()!==selection||getAccountSession()?.token!==token)return;quote=data.pricing;saveQuote(extra,data.pricing);say('Price confirmed. Review the total before continuing.');couponNote();}
    catch(error){if(operation!==revision)return;quote=null;if(sentCoupon&&String(error.code||'').startsWith('coupon_')){coupon='';couponNote(error.message+' No coupon discount is applied.',true);busy=false;refresh();return;}say(error.message);}finally{if(operation===revision){busy=false;paint();}}},remembered?0:180);
  }
  async function confirm(){
@@ -246,7 +251,8 @@ if(form&&paypal&&url){
  form.elements.seats.addEventListener('input',()=>{if(provider==='razorpay')refresh();});
  document.addEventListener('ajoy:currency-ready',()=>{if(provider==='razorpay')paint();});
  document.addEventListener('ajoy:quote-rendered',()=>{if(provider==='razorpay')paint();else if(provider==='review')reviewSummary();});
- onAccountChange(()=>{if(provider==='razorpay')refresh();});
+ let pricedFor=getAccountSession()?.token;
+ onAccountChange(()=>{const t=getAccountSession()?.token;if(t===pricedFor)return;pricedFor=t;if(provider==='razorpay')refresh();});
  document.addEventListener('ajoy:billing-network',()=>{sync();if(provider==='razorpay')refresh();});
  Promise.all([loadRazorpayConfig(),fetch(window.AJOY_CONFIG.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():null).catch(()=>null)]).then(([rzp,pp])=>{config=rzp;paypalConfig=pp;sync();});
  try{const saved=JSON.parse(sessionStorage.getItem('ajoy.razorpay.pending')||'null');if(saved?.email===getAccountSession()?.email&&/^[-a-f0-9]{36}$/i.test(saved.id)){pending=saved;check.hidden=false;}}catch{}

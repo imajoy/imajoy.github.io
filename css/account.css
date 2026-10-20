@@ -125,3 +125,13 @@ html[data-theme=dark] .acct-sub[data-state=ended] p{color:#f5a6a0}
 @keyframes ps-pulse{70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
 @keyframes ps-pop{40%{transform:scale(1.08)}}
 @media (prefers-reduced-motion:reduce){.plan-status,.plan-status *{animation:none!important;transition:none!important}}
+/* The status card stands in for an owned plan's button while time remains. */
+[data-buy].is-covered{display:none!important}
+[data-buy].is-covered+.plan-status{margin-top:auto}
+.ps-links{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:6px}
+.ps-links .ps-cancel{margin-top:0}
+.ps-manage{padding:6px 0;border:0;background:none;font:600 13.5px var(--sans,inherit);color:var(--blue-d,#2A64E8);cursor:pointer;display:inline-flex;align-items:center;gap:6px}
+.ps-manage::after{content:"→";transition:transform .25s var(--out,ease)}
+.ps-manage:hover::after{transform:translateX(3px)}
+.plan-lead .ps-manage{color:#8DBBFF}
+html[data-theme=dark] .ps-manage{color:#8DBBFF}

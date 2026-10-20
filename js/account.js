@@ -163,8 +163,10 @@ function init() {
       const mine=active?.find(x=>x.s.plan===plan&&(x.d.state==='active'||x.d.state==='ending'))||active?.find(x=>x.s.plan===plan);
       if(!a.dataset.orig)a.dataset.orig=a.textContent;
       planStatus(a,mine);
-      if(!mine){if(a.classList.contains('is-owned'))a.textContent=a.dataset.orig;a.classList.remove('is-owned');delete a.dataset.state;continue;}
+      if(!mine){if(a.classList.contains('is-owned'))a.textContent=a.dataset.orig;a.classList.remove('is-owned','is-covered');delete a.dataset.state;continue;}
       a.classList.add('is-owned');a.dataset.state=mine.d.kind;
+      // While the plan still has time left, the status card replaces the button; it returns as "Renew" once access ends.
+      a.classList.toggle('is-covered',mine.d.state==='active'||mine.d.state==='ending');
       a.textContent=mine.d.state==='ended'?'Renew '+label(plan):mine.d.state==='unknown'?'View account':(mine.d.kind==='trial'?'Free trial · ':'Your plan · ')+mine.d.short;
     }
   }
@@ -186,11 +188,12 @@ function init() {
     const s=mine.s,d=mine.d;
     if(!box){
       box=document.createElement('div');box.className='plan-status';
-      box.innerHTML='<div class="ps-head"><span class="ps-badge"><i aria-hidden="true"></i><b></b></span><span class="ps-days" data-value="0"></span></div><div class="ps-meter" aria-hidden="true"><span></span></div><p class="ps-text"></p><button type="button" class="ps-cancel"></button><div class="ps-confirm" hidden><div class="ps-confirm-inner"><p></p><div class="ps-actions"><button type="button" class="ps-keep">Keep my plan</button><button type="button" class="ps-yes">Yes, cancel</button></div></div></div><p class="ps-msg" role="status" aria-live="polite"></p>';
+      box.innerHTML='<div class="ps-head"><span class="ps-badge"><i aria-hidden="true"></i><b></b></span><span class="ps-days" data-value="0"></span></div><div class="ps-meter" aria-hidden="true"><span></span></div><p class="ps-text"></p><div class="ps-links"><button type="button" class="ps-manage">Manage account</button><button type="button" class="ps-cancel"></button></div><div class="ps-confirm" hidden><div class="ps-confirm-inner"><p></p><div class="ps-actions"><button type="button" class="ps-keep">Keep my plan</button><button type="button" class="ps-yes">Yes, cancel</button></div></div></div><p class="ps-msg" role="status" aria-live="polite"></p>';
       a.after(box);
       const confirmBox=box.querySelector('.ps-confirm'),cancel=box.querySelector('.ps-cancel'),msgNode=box.querySelector('.ps-msg');
       const toggle=show=>{if(show){confirmBox.hidden=false;requestAnimationFrame(()=>confirmBox.dataset.open='');box.querySelector('.ps-keep').focus();}else{delete confirmBox.dataset.open;const hide=()=>{if(confirmBox.dataset.open===undefined)confirmBox.hidden=true;};calm()?hide():setTimeout(hide,320);cancel.focus();}cancel.setAttribute('aria-expanded',String(show));};
       cancel.addEventListener('click',()=>{msgNode.textContent='';toggle(confirmBox.hidden);});
+      box.querySelector('.ps-manage').addEventListener('click',()=>{purpose='';open();});
       box.querySelector('.ps-keep').addEventListener('click',()=>toggle(false));
       box.querySelector('.ps-yes').addEventListener('click',async()=>{
         const sub=box._sub;if(!sub)return;

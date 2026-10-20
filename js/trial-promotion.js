@@ -1,7 +1,7 @@
 /* Clear, contextual offers. Promotions never authorize a trial or change a paid selection. */
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261020-prices1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
-import {availability,closedMessage} from './regions.js?v=20261020-prices1';
+import {availability,closedMessage} from './regions.js?v=20261021-fast1';
 import {getAccountSession,onAccountChange} from './account-session.js?v=20261020-ps1';
 import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261018-p1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-intl1';

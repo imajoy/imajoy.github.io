@@ -246,3 +246,10 @@ test('A confirmed Razorpay payment is written to the Payments tab in rupees; a r
  webhook(s,{event:'refund.processed',payload:{refund:{entity:{id:'rfnd_1',payment_id:'pay_fixture1'}},subscription:{entity:{id:record.subscriptionId}}}});
  assert.equal(s.app.sheets.get('Payments').rows[1][9],'Refunded');
 });
+test('The instant Razorpay price shown on the payment page matches the server price for every region',async()=>{
+ const {razorpayEstimate}=await import('../js/regions.js');const s=setup();
+ for(const country of ['IN','US','BR','PK','LK','CA'])for(const plan of ['online','offline'])for(const billing of ['monthly','yearly']){
+  const server=s.app.ctx.razorpayPrice_(plan,billing,country),local=razorpayEstimate(plan,billing,3,country);
+  assert.equal(local.unitAmount,server.unitAmount,country+' '+plan+' '+billing);assert.equal(local.compareAtUnitAmount,server.compareAtUnitAmount);assert.equal(local.total,server.unitAmount*3);
+ }
+});

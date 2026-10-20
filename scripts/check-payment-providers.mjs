@@ -69,9 +69,21 @@ try{
    }
    assert.equal(await page.locator('.paypal-box').isVisible(),false);
    assert.equal(await page.locator('#customer-verification').isVisible(),false);
-   assert.equal(await page.locator('.coupon-panel').isVisible(),false);
+   assert.equal(await page.locator('.coupon-panel').isVisible(),true,'coupons are offered with Razorpay');
+   assert.equal(await page.locator('.razorpay-panel .rzp-coupon').isVisible(),false,'no duplicate coupon field');
+   if(country==='IN'){
+    app.ctx.couponSheet_();app.sheets.get('Coupons').appendRow(['SAVE10',10,1,new Date(Date.now()+30*864e5),'both','both','','',true,'','']);
+    await page.locator('#coupon-code').fill('save10');await page.locator('#coupon-apply').click();
+    await page.waitForFunction(()=>/SAVE10 applied: 10% off/.test(document.querySelector('#coupon-status').textContent));
+    assert.match(await page.locator('#summary-total').textContent(),/825\.28/);
+    assert.equal(await page.locator('#coupon-summary-row').isVisible(),true);
+    await page.locator('#coupon-remove').click();await page.waitForFunction(()=>/916\.98/.test(document.querySelector('#summary-total').textContent)&&document.querySelector('.razorpay-status').textContent.includes('Price confirmed'));
+   }
    assert.match(await page.locator('#summary-total').textContent(),country==='IN'?/916\.98/:/2,038\.98/);
    await page.getByRole('link',{name:'Edit billing details',exact:true}).first().click();await page.waitForURL('**/checkout.html');
+   await page.locator('#customer-verification').waitFor({state:'visible'});
+   await page.waitForFunction(()=>/reward/.test(document.querySelector('#loyalty-status').textContent));
+   assert.equal(await page.locator('#loyalty-send').isVisible(),false);
    await page.selectOption('#billing','yearly');
    await page.waitForFunction(()=>document.documentElement.dataset.billingBlocked==='false');
    await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');

@@ -1,7 +1,7 @@
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {readBillingDraft} from './checkout-steps.js?v=20261020-trial1';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
-import {availability,countryCheck,tierFor} from './regions.js?v=20261020-prices1';
+import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261021-fast1';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ps1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-intl1';
 import {secureCommerce,browserDeviceId} from './commerce-gateway.js?v=20261020-country1';
@@ -15,6 +15,7 @@ if(form&&paypal&&url){
  panel.innerHTML='<div class="rzp-head"><span class="rzp-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></span><div><b>Secure INR checkout</b><small>Processed by Razorpay. Card and bank details never reach this site.</small></div><p class="razorpay-mode" hidden><i aria-hidden="true"></i>Test mode</p></div><fieldset class="rzp-offer" hidden><legend>How would you like to start?</legend><label><input type="radio" name="rzp-offer" value="trial"><span><b>Start 2-day free trial</b><small data-trial-terms>Nothing to pay today</small></span><em>Free</em></label><label><input type="radio" name="rzp-offer" value="standard"><span><b>Pay now</b><small>Your paid subscription starts today</small></span></label><p class="rzp-offer-note" role="status"></p></fieldset><div class="rzp-total"><small data-rzp-label>Recurring amount</small><p class="razorpay-amount" aria-live="polite"></p><p class="rzp-saving" hidden>Includes your 20% yearly saving</p><p class="rzp-deal" hidden></p></div><details class="rzp-coupon"><summary>Have a coupon code?</summary><div class="rzp-coupon-row"><input type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Enter code" aria-label="Coupon code"><button type="button" class="btn btn-light btn-sm" data-coupon-apply>Apply</button><button type="button" class="rzp-coupon-remove" data-coupon-remove hidden>Remove</button></div><p class="rzp-coupon-msg" role="status" aria-live="polite"></p></details><ul class="rzp-methods" aria-label="Payment methods offered by Razorpay"><li>UPI</li><li>Cards</li><li>Net banking</li></ul><p class="razorpay-status" role="status" aria-live="polite"></p><button type="button" class="btn btn-blue btn-block rzp-pay" data-razorpay-start>Continue with Razorpay</button><button type="button" class="btn btn-light btn-block" data-razorpay-check hidden>Check payment status</button><a class="text-link" data-razorpay-open hidden target="_blank" rel="noopener">Open secure Razorpay checkout</a><button type="button" class="razorpay-cancel" data-razorpay-cancel hidden>Cancel this checkout</button><ul class="rzp-assure"><li>Cancel renewal any time from your account</li><li>License key within 12 hours</li><li>Time starts when you activate</li></ul><details class="razorpay-terms"><summary>Billing terms</summary><p>Paid recurring subscription in INR. The 20% yearly saving is included. The 2-day trial, coupons and returning-subscriber offers are currently available through PayPal only. Monthly plans authorize up to 100 charges; yearly plans up to 10, then billing stops.</p></details>';
  paypal.before(picker);paypal.after(panel,review);
  const status=panel.querySelector('.razorpay-status'),start=panel.querySelector('[data-razorpay-start]'),check=panel.querySelector('[data-razorpay-check]'),link=panel.querySelector('[data-razorpay-open]'),cancelBtn=panel.querySelector('[data-razorpay-cancel]');
+ const pageCoupon={input:document.querySelector('#coupon-code'),remove:document.querySelector('#coupon-remove'),status:document.querySelector('#coupon-status')};
  let config=null,paypalConfig=null,provider='review',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
  document.documentElement.dataset.paymentProvider='review';paypal.hidden=true;
  document.querySelector('#customer-verification').hidden=true;document.querySelector('.coupon-panel').hidden=true;
@@ -25,6 +26,11 @@ if(form&&paypal&&url){
  const money=value=>displayMoney(value,'INR',choice().country);
  const showAmount=(id,value)=>setMoney(document.getElementById(id),value,'INR',choice().country);
  const say=(text,kind='')=>{status.textContent=text;status.dataset.kind=kind;};
+ /* Confirmed quotes are remembered for 10 minutes so the next step shows the price at once.
+    Display only: checkout re-sends the expected total and the server refuses any changed price. */
+ const quoteKey=extra=>'ajoy.rzpq:'+JSON.stringify([getAccountSession()?.email||'',choice(),extra]);
+ const readQuote=extra=>{try{const v=JSON.parse(sessionStorage.getItem(quoteKey(extra))||'null');return v&&Date.now()-v.at<600000?v.pricing:null;}catch{return null;}};
+ const saveQuote=(extra,pricing)=>{try{sessionStorage.setItem(quoteKey(extra),JSON.stringify({at:Date.now(),pricing}));}catch{}};
  let coupon=/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(draft?.coupon||'')?draft.coupon:'',usingPopup=false,rzpScript=null,offer='standard',trialCheck={key:'',state:'',message:''};
  const thankYou=(r,plan,billing,seats)=>'thank-you.html?'+new URLSearchParams({provider:'razorpay',plan:r?.plan||plan,billing:r?.billing||billing,seats:String(r?.seats||seats),...((r?.offer||offer)==='trial'?{offer:'trial'}:{})}).toString();
  const clearPending=()=>{pending=null;requestId=crypto.randomUUID();check.hidden=true;link.hidden=true;try{sessionStorage.removeItem('ajoy.razorpay.pending');}catch{}};
@@ -51,8 +57,11 @@ if(form&&paypal&&url){
   for(const radio of picker.querySelectorAll('input'))radio.checked=radio.value===provider;
   panel.hidden=provider!=='razorpay';paypal.hidden=provider!=='paypal';
   review.hidden=provider!=='review';
-  const promos=document.querySelector('#customer-verification');if(promos)promos.hidden=provider!=='paypal';
-  document.querySelector('.coupon-panel').hidden=provider!=='paypal';
+  // Offers and coupons work with PayPal and Razorpay alike.
+  const promos=document.querySelector('#customer-verification');if(promos)promos.hidden=!['paypal','razorpay'].includes(provider);
+  document.querySelector('.coupon-panel').hidden=!['paypal','razorpay'].includes(provider);
+  document.documentElement.toggleAttribute('data-rzp-offers',provider==='razorpay');
+  if(provider==='razorpay'){pageCoupon.input.value=coupon;couponNote();loyaltyNote(quote?.discount&&!trialOn()?quote.discount:null);}
   document.dispatchEvent(new CustomEvent('ajoy:provider-change',{detail:{provider}}));
   if(provider==='razorpay')refresh();
   else form.elements.billing.dispatchEvent(new Event('change',{bubbles:true}));
@@ -105,15 +114,31 @@ if(form&&paypal&&url){
  function couponNote(text,bad=false){
   if(text===undefined){const d=quote?.discount;text=coupon&&d?.coupon?d.coupon.code+' applied: '+d.percent+'% off '+(d.payments>1?'your first '+d.payments+' payments':'your first payment')+'.':coupon&&trialOn()?'Coupons apply to paid subscriptions, not the free trial.':'';bad=false;}
   couponMsg.textContent=text;couponMsg.dataset.error=String(bad);couponRemove.hidden=!coupon;
+  if(provider==='razorpay'){pageCoupon.status.textContent=text||(getAccountSession()?'Enter your code and choose Apply. Coupons apply to paid subscriptions, not the free trial.':'Sign in, then enter your code.');pageCoupon.status.dataset.error=String(bad);pageCoupon.remove.hidden=!coupon;}
  }
- couponBox.querySelector('[data-coupon-apply]').onclick=()=>{
-  const code=couponInput.value.trim().toUpperCase();couponInput.value=code;
+ function applyCoupon(raw){
+  const code=String(raw||'').trim().toUpperCase();couponInput.value=code;pageCoupon.input.value=code;
   if(!/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(code)){couponNote('Enter a valid coupon code.',true);couponInput.focus();return;}
   if(!getAccountSession()){couponNote('Sign in or register first, then apply your coupon.',true);openAccount({purpose:'checkout'});return;}
   coupon=code;if(offer==='trial'){offer='standard';offerTouched=true;}couponNote('Checking '+code+'…');refresh();
- };
+ }
+ couponBox.querySelector('[data-coupon-apply]').onclick=()=>applyCoupon(couponInput.value);
+ /* The page's own coupon box and returning-subscriber card (also used by PayPal) drive Razorpay too. */
+ document.addEventListener('click',event=>{
+  if(provider!=='razorpay')return;const target=event.target.closest?.('#coupon-apply,#coupon-remove');if(!target)return;
+  event.preventDefault();event.stopPropagation();
+  if(target.id==='coupon-apply')applyCoupon(pageCoupon.input.value);else couponRemove.onclick();
+ },true);
+ pageCoupon.input.addEventListener('keydown',event=>{if(provider==='razorpay'&&event.key==='Enter'){event.preventDefault();event.stopPropagation();applyCoupon(pageCoupon.input.value);}},true);
+ function loyaltyNote(deal){
+  if(provider!=='razorpay')return;
+  for(const id of ['loyalty-send','loyalty-change','loyalty-code-panel'])document.getElementById(id)?.setAttribute('hidden','');
+  const note=document.getElementById('loyalty-status');if(!note)return;
+  const session=getAccountSession();note.dataset.error='false';
+  note.textContent=!session?'Sign in with the email you subscribed with before. Your reward is applied automatically.':deal&&!deal.coupon?'Welcome back. Your '+deal.percent+'% returning-subscriber reward is applied to this payment.':deal?.coupon?'Your coupon is applied. Coupons replace the returning-subscriber reward on this checkout.':quote?'Checked for '+session.email+': no returning-subscriber reward is due on this payment.':'Checking your returning-subscriber rewards…';
+ }
  couponInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();couponBox.querySelector('[data-coupon-apply]').click();}});
- couponRemove.onclick=()=>{coupon='';couponInput.value='';couponNote('Coupon removed.');refresh();};
+ couponRemove.onclick=()=>{coupon='';couponInput.value='';pageCoupon.input.value='';couponNote('Coupon removed.');refresh();};
  document.addEventListener('ajoy:checkout-draft',event=>{if(provider==='razorpay'){event.detail.coupon=coupon;if(offerTouched)event.detail.rzpOffer=offer;}});
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{offerTouched=true;offer=radio.value;if(offer==='trial'&&coupon)couponNote('Coupons apply to paid subscriptions, not the free trial. Choose "Pay now" to use '+coupon+'.');refresh();});
  function paint(){
@@ -136,7 +161,8 @@ if(form&&paypal&&url){
   if(!ownsPending){check.hidden=true;link.hidden=true;}
   cancelBtn.hidden=check.hidden||busy;
   if(!session)start.disabled=false;
-  const amount=quote?money(quote.total):'—';showAmount('summary-total',quote?(trialing?0:quote.total):null);
+  const shownQuote=quote||(provider==='razorpay'&&Number.isInteger(choice().seats)&&choice().seats>0&&/^[A-Z]{2}$/.test(choice().country)?razorpayEstimate(choice().plan,choice().billing,choice().seats,choice().country):null);
+  const amount=shownQuote?money(shownQuote.total):'—';showAmount('summary-total',shownQuote?(trialing?0:shownQuote.total):null);loyaltyNote(deal);
   const summary=document.querySelector('.order-total');summary?.classList.toggle('is-trial',trialing);
   let line=document.querySelector('#trial-line');
   if(deal){if(!line){line=document.createElement('p');line.id='trial-line';line.className='trial-line';summary?.after(line);}line.hidden=false;const until=new Date();if(quote.billing==='yearly')until.setFullYear(until.getFullYear()+deal.payments);else until.setMonth(until.getMonth()+deal.payments);
@@ -144,13 +170,13 @@ if(form&&paypal&&url){
    document.getElementById('coupon-summary-row').hidden=false;showAmount('summary-coupon',-(quote.unitAmount-deal.unitAmount)*quote.seats*deal.payments);}
   else if(trialing&&quote){if(!line){line=document.createElement('p');line.id='trial-line';line.className='trial-line';summary?.after(line);}line.hidden=false;line.textContent='2-day free trial. Then '+amount+' per '+(quote.billing==='yearly'?'year':'month')+' from '+dateIn(config.trialDays||2)+'. Cancel any time from your account before then and you won\u2019t be charged.';}const figure=panel.querySelector('.razorpay-amount');const dealNode=panel.querySelector('.rzp-deal');
   panel.querySelector('[data-rzp-label]').textContent=trialing||deal?'Due today':'Recurring amount';
-  dealNode.hidden=!deal;if(deal)dealNode.textContent=(deal.coupon?'Coupon '+deal.coupon.code:'Returning subscriber reward')+' · '+deal.percent+'% off';if(quote){figure.innerHTML='<span class="rzp-figure"></span><span class="rzp-per"></span>';figure.firstChild.textContent=trialing?money(0):amount;figure.lastChild.textContent=deal?'covers your first '+(deal.payments>1?deal.payments+' '+(quote.billing==='yearly'?'years':'months'):(quote.billing==='yearly'?'year':'month'))+' · then '+money(quote.recurringTotal)+' per '+(quote.billing==='yearly'?'year':'month'):trialing?'then '+amount+' per '+(quote.billing==='yearly'?'year':'month')+' from '+dateIn(config.trialDays||2):'per '+(quote.billing==='yearly'?'year':'month')+' · '+quote.seats+(quote.seats===1?' license':' licenses');}else figure.innerHTML='<span class="rzp-figure rzp-placeholder">₹ ——</span>';panel.querySelector('.rzp-saving').hidden=!quote||quote.billing!=='yearly';
-  if(!quote){for(const id of ['summary-unit','summary-subtotal'])showAmount(id,null);document.querySelector('#annual-summary-row').hidden=true;document.querySelector('#annual-summary').hidden=true;return;}
-  showAmount('summary-unit',quote.unitAmount);
-  showAmount('summary-subtotal',quote.compareAtUnitAmount*quote.seats);
-  const savings=(quote.compareAtUnitAmount-quote.unitAmount)*quote.seats;
-  document.querySelector('#annual-summary-row').hidden=quote.billing!=='yearly';showAmount('summary-annual',-savings);
-  const annual=document.querySelector('#annual-summary');annual.hidden=quote.billing!=='yearly';annual.textContent='20% off yearly · '+money(quote.unitAmount/12)+' per license/month, billed annually.';
+  dealNode.hidden=!deal;if(deal)dealNode.textContent=(deal.coupon?'Coupon '+deal.coupon.code:'Returning subscriber reward')+' · '+deal.percent+'% off';if(shownQuote){figure.innerHTML='<span class="rzp-figure"></span><span class="rzp-per"></span>';figure.firstChild.textContent=trialing?money(0):amount;figure.lastChild.textContent=deal?'covers your first '+(deal.payments>1?deal.payments+' '+(quote.billing==='yearly'?'years':'months'):(quote.billing==='yearly'?'year':'month'))+' · then '+money(quote.recurringTotal)+' per '+(quote.billing==='yearly'?'year':'month'):trialing?'then '+amount+' per '+(shownQuote.billing==='yearly'?'year':'month')+' from '+dateIn(config.trialDays||2):'per '+(shownQuote.billing==='yearly'?'year':'month')+' · '+shownQuote.seats+(shownQuote.seats===1?' license':' licenses');}else figure.innerHTML='<span class="rzp-figure rzp-placeholder">₹ ——</span>';panel.querySelector('.rzp-saving').hidden=!shownQuote||shownQuote.billing!=='yearly';
+  if(!shownQuote){for(const id of ['summary-unit','summary-subtotal'])showAmount(id,null);document.querySelector('#annual-summary-row').hidden=true;document.querySelector('#annual-summary').hidden=true;return;}
+  showAmount('summary-unit',shownQuote.unitAmount);
+  showAmount('summary-subtotal',shownQuote.compareAtUnitAmount*shownQuote.seats);
+  const savings=(shownQuote.compareAtUnitAmount-shownQuote.unitAmount)*shownQuote.seats;
+  document.querySelector('#annual-summary-row').hidden=shownQuote.billing!=='yearly';showAmount('summary-annual',-savings);
+  const annual=document.querySelector('#annual-summary');annual.hidden=shownQuote.billing!=='yearly';annual.textContent='20% off yearly · '+money(shownQuote.unitAmount/12)+' per license/month, billed annually.';
   document.querySelector('#quote-note').textContent='Razorpay charges INR. Converted local-currency amounts and the USD equivalent are estimates. Review the confirmed recurring amount before authorizing.';
   document.querySelector('#availability').textContent='Review your billing details, then authorize securely with Razorpay.';
  }
@@ -165,10 +191,13 @@ if(form&&paypal&&url){
   if(provider!=='razorpay'||!getAccountSession()||document.documentElement.dataset.billingBlocked==='true')return;
   const c=choice(),selection=key(),token=getAccountSession().token;
   if(!Number.isInteger(c.seats)||c.seats<1||c.seats>100)return;
-  busy=true;say('Confirming your Razorpay price…');paint();
-  const sentCoupon=coupon,trialing=trialOn();
-  timer=setTimeout(async()=>{try{const data=await api('quote',{...c,offer:trialing?'trial':'standard',...(sentCoupon&&!trialing?{coupon:sentCoupon}:{})});if(operation!==revision||key()!==selection||getAccountSession()?.token!==token)return;quote=data.pricing;say('Price confirmed. Review the total before continuing.');couponNote();}
-   catch(error){if(operation!==revision)return;if(sentCoupon&&String(error.code||'').startsWith('coupon_')){coupon='';couponNote(error.message+' No coupon discount is applied.',true);busy=false;refresh();return;}say(error.message);}finally{if(operation===revision){busy=false;paint();}}},180);
+  const sentCoupon=coupon,trialing=trialOn(),extra={offer:trialing?'trial':'standard',coupon:sentCoupon&&!trialing?sentCoupon:''};
+  const remembered=readQuote(extra);
+  if(remembered){quote=remembered;say('Price confirmed. Review the total before continuing.');couponNote();}
+  else{busy=true;say('Confirming your Razorpay price…');}
+  paint();
+  timer=setTimeout(async()=>{try{const data=await api('quote',{...c,offer:trialing?'trial':'standard',...(sentCoupon&&!trialing?{coupon:sentCoupon}:{})});if(operation!==revision||key()!==selection||getAccountSession()?.token!==token)return;quote=data.pricing;saveQuote(extra,data.pricing);say('Price confirmed. Review the total before continuing.');couponNote();}
+   catch(error){if(operation!==revision)return;quote=null;if(sentCoupon&&String(error.code||'').startsWith('coupon_')){coupon='';couponNote(error.message+' No coupon discount is applied.',true);busy=false;refresh();return;}say(error.message);}finally{if(operation===revision){busy=false;paint();}}},remembered?0:180);
  }
  async function confirm(){
   if(!pending||busy||getAccountSession()?.email!==pending.email)return;

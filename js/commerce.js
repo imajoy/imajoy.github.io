@@ -1,4 +1,4 @@
-import {regionalPrice} from './regions.js?v=20261020-prices1';
+import {regionalPrice} from './regions.js?v=20261021-fast1';
 import {cachedGeo} from './geo.js?v=20261019-geo1';
 export const apiBase = (window.AJOY_CONFIG?.apiBase || '').replace(/\/$/, '');
 export const money = (amount,currency) => new Intl.NumberFormat(navigator.language || 'en', {style:'currency',currency,minimumFractionDigits:Number.isInteger(amount/100)?0:2,maximumFractionDigits:2}).format(amount/100);

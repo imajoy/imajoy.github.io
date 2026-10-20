@@ -1,4 +1,4 @@
-import {availability} from './regions.js?v=20261020-prices1';
+import {availability} from './regions.js?v=20261021-fast1';
 import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261020-prices1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261020-prices1';

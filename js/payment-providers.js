@@ -1,5 +1,5 @@
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
-import {availability} from './regions.js?v=20261020-rz1';
+import {availability,countryCheck,tierFor} from './regions.js?v=20261020-rz1';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261018-n1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-rz1';
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;
@@ -7,10 +7,14 @@ if(form&&paypal&&url){
  const picker=document.createElement('fieldset');picker.className='payment-picker';picker.hidden=true;
  picker.innerHTML='<legend>Payment method</legend><label hidden><input type="radio" name="payment-provider" value="paypal" checked><span><b>PayPal</b><small>USD · subscriptions and eligible Online trials</small></span></label><label hidden><input type="radio" name="payment-provider" value="razorpay"><span><b>Razorpay</b><small>INR · payment methods available for your account</small></span></label>';
  const panel=document.createElement('section');panel.className='razorpay-panel';panel.hidden=true;
+ const review=document.createElement('section');review.className='billing-review';
+ review.innerHTML='<h3>Review your billing details</h3><p data-billing-availability>Checking payment availability…</p><button type="button" class="btn btn-light btn-block" data-review-billing>Review billing details</button><p class="billing-review-status" role="status" aria-live="polite"></p>';
  panel.innerHTML='<p class="razorpay-mode" hidden><b>Test mode.</b> No real money moves.</p><p class="razorpay-status" role="status" aria-live="polite"></p><p class="razorpay-terms">Paid recurring subscription in INR. The 20% yearly saving is included. The 2-day trial, coupons and returning-subscriber offers are currently available through PayPal only. Monthly plans authorize up to 100 charges; yearly plans up to 10, then billing stops.</p><p class="razorpay-amount"></p><button type="button" class="btn btn-blue btn-block" data-razorpay-start>Continue with Razorpay</button><button type="button" class="btn btn-light btn-block" data-razorpay-check hidden>Check payment status</button><a class="text-link" data-razorpay-open hidden target="_blank" rel="noopener">Open secure Razorpay checkout</a>';
- paypal.before(picker);paypal.after(panel);
+ paypal.before(picker);paypal.after(panel,review);
  const status=panel.querySelector('.razorpay-status'),start=panel.querySelector('[data-razorpay-start]'),check=panel.querySelector('[data-razorpay-check]'),link=panel.querySelector('[data-razorpay-open]');
- let config=null,paypalConfig=null,provider='paypal',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
+ let config=null,paypalConfig=null,provider='review',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
+ document.documentElement.dataset.paymentProvider='review';paypal.hidden=true;
+ document.querySelector('#customer-verification').hidden=true;document.querySelector('.coupon-panel').hidden=true;
  let requestId=crypto.randomUUID();
  const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
  const key=()=>JSON.stringify(choice());
@@ -20,19 +24,39 @@ if(form&&paypal&&url){
   provider=next;document.documentElement.dataset.paymentProvider=provider;
   for(const radio of picker.querySelectorAll('input'))radio.checked=radio.value===provider;
   panel.hidden=provider!=='razorpay';paypal.hidden=provider!=='paypal';
-  const promos=document.querySelector('#customer-verification');if(promos)promos.hidden=provider==='razorpay';
-  document.querySelector('.coupon-panel').hidden=provider==='razorpay';
+  review.hidden=provider!=='review';
+  const promos=document.querySelector('#customer-verification');if(promos)promos.hidden=provider!=='paypal';
+  document.querySelector('.coupon-panel').hidden=provider!=='paypal';
   document.dispatchEvent(new CustomEvent('ajoy:provider-change',{detail:{provider}}));
   if(provider==='razorpay')refresh();
   else form.elements.billing.dispatchEvent(new Event('change',{bubbles:true}));
  }
  function sync(){
-  const country=choice().country,canRazorpay=razorpayAvailable(config,country),canPaypal=!!paypalConfig&&availability(country,paypalConfig.closedCountries||[]).open;
+  const c=choice(),country=c.country,canRazorpay=razorpayAvailable(config,country),canPaypal=!!paypalConfig?.clientId&&/^[A-Z]{2}$/.test(country)&&availability(country,paypalConfig.closedCountries||[]).open&&countryCheck(country,paypalConfig.mode==='live'?paypalConfig.country:'').ok&&!!paypalConfig.plans?.tiers?.[tierFor(country)]?.[c.plan]?.[c.billing];
   picker.hidden=!canRazorpay;picker.querySelector('[value="razorpay"]').parentElement.hidden=!canRazorpay;picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
-  if(canRazorpay&&!canPaypal&&provider!=='razorpay')selected('razorpay');
-  else if(!canRazorpay&&provider!=='paypal')selected('paypal');
+  if(!canRazorpay&&!canPaypal&&provider!=='review')selected('review');
+  else if(canRazorpay&&!canPaypal&&provider!=='razorpay')selected('razorpay');
+  else if(canPaypal&&(provider==='review'||provider==='razorpay'&&!canRazorpay))selected('paypal');
+  if(provider==='review'){
+   paypal.hidden=true;panel.hidden=true;review.hidden=false;
+   document.querySelector('#customer-verification').hidden=true;document.querySelector('.coupon-panel').hidden=true;
+   review.querySelector('[data-billing-availability]').textContent='You can review your plan and billing details. Payment options will appear when available for your country.';
+   reviewSummary();
+  }
   if(provider==='razorpay'){panel.querySelector('.razorpay-mode').hidden=config.mode==='live';paint();}
  }
+ function reviewSummary(){
+  document.querySelector('#trial-line')?.setAttribute('hidden','');document.querySelector('.order-total')?.classList.remove('is-trial');
+  for(const id of ['loyalty-summary-row','loyalty-summary','coupon-summary-row'])document.getElementById(id).hidden=true;
+  document.querySelector('#availability').textContent='Review your plan and billing details. Payments are not available for this selection yet.';
+  document.querySelector('#quote-note').textContent='Estimated plan price for billing review. No payment will be collected until an available payment method is shown and you approve it.';
+ }
+ function reviewDetails(){
+  if(!form.reportValidity())return;
+  review.querySelector('.billing-review-status').textContent='Your billing details are ready for review. They have not been submitted, and no subscription or charge has been created.';
+ }
+ review.querySelector('[data-review-billing]').onclick=reviewDetails;
+ form.addEventListener('submit',event=>{if(provider==='review'){event.preventDefault();event.stopImmediatePropagation();reviewDetails();}},true);
  function paint(){
   if(provider!=='razorpay')return;
   document.querySelector('#trial-line')?.setAttribute('hidden','');document.querySelector('.order-total')?.classList.remove('is-trial');
@@ -93,7 +117,7 @@ if(form&&paypal&&url){
  for(const radio of picker.querySelectorAll('input'))radio.onchange=()=>selected(radio.value);
  for(const name of ['plan','billing','seats','country'])form.elements[name].addEventListener('change',()=>{sync();if(provider==='razorpay')refresh();});
  form.elements.seats.addEventListener('input',()=>{if(provider==='razorpay')refresh();});
- document.addEventListener('ajoy:quote-rendered',()=>{if(provider==='razorpay')paint();});
+ document.addEventListener('ajoy:quote-rendered',()=>{if(provider==='razorpay')paint();else if(provider==='review')reviewSummary();});
  onAccountChange(()=>{if(provider==='razorpay')refresh();});
  Promise.all([loadRazorpayConfig(),fetch(window.AJOY_CONFIG.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():null).catch(()=>null)]).then(([rzp,pp])=>{config=rzp;paypalConfig=pp;sync();});
  try{const saved=JSON.parse(sessionStorage.getItem('ajoy.razorpay.pending')||'null');if(saved?.email===getAccountSession()?.email&&/^[-a-f0-9]{36}$/i.test(saved.id)){pending=saved;check.hidden=false;}}catch{}

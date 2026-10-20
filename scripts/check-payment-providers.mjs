@@ -66,13 +66,20 @@ try{
    }
   }else{
    await page.waitForTimeout(700);assert.equal(await page.locator('.razorpay-panel').isVisible(),false);assert.equal(await page.locator('.payment-picker').isVisible(),false);
+   if(country!=='US'){
+    await page.locator('.billing-review').waitFor({state:'visible'});assert.equal(await page.locator('.paypal-box').isVisible(),false);
+    if(width<800)assert.equal(await page.locator('.m-total button').textContent(),'Review billing');
+    await page.locator('#name').fill('Billing review buyer');await page.locator('#address').fill('Example street');await page.locator('#city').fill('Example city');await page.locator('#terms').check();
+    await page.locator('[data-review-billing]').click();await page.waitForFunction(()=>document.querySelector('.billing-review-status').textContent.includes('not been submitted'));
+    assert.equal(app.razorpay.subscriptions.size,0);assert.equal(app.mails.length,0);assert.equal(app.orders.rows.length,2);
+   }else assert.equal(await page.locator('.billing-review').isVisible(),false);
   }
   if(country==='IN'){
    await page.evaluate(()=>localStorage.removeItem('ajoy.acct'));
    await page.goto(new URL('wrapline.html',base).href);
-   try{await page.waitForFunction(enabled=>document.querySelector('[data-buy="online"]')?.textContent.includes(enabled?'Subscribe now':'Get launch updates'),enabled,{timeout:10000});}
+   try{await page.waitForFunction(enabled=>document.querySelector('[data-buy="online"]')?.textContent.includes(enabled?'Subscribe now':'Review billing'),enabled,{timeout:10000});}
    catch(error){console.error({country,enabled,errors,cta:await page.locator('[data-buy="online"]').textContent(),href:await page.locator('[data-buy="online"]').getAttribute('href')});throw error;}
-   assert.match(await page.locator('[data-buy="online"]').getAttribute('href'),enabled?/checkout\.html/:/contact\.html/);
+   assert.match(await page.locator('[data-buy="online"]').getAttribute('href'),/checkout\.html/);
    if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('8,630.40'));}
   }
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);

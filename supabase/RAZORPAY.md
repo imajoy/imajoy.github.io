@@ -2,6 +2,8 @@
 
 GitHub publication does not activate a merchant account or deploy the server. PayPal keeps its existing settings. Razorpay stays hidden until explicitly enabled and configured.
 
+Visitors in any country can open the billing page and review the displayed plan and form. If no configured provider supports the selection, both payment controls stay hidden and the page offers local billing review only. Review does not submit personal details, create a subscription or reserve a payment. This does not change provider-country restrictions or activate Razorpay.
+
 ## Scope and pricing
 
 - Paid recurring Online/Offline subscriptions, monthly/yearly, 1–100 licenses. All Razorpay charges are **INR**, including approved international buyers. PayPal remains USD.

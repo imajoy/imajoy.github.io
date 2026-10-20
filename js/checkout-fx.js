@@ -37,14 +37,15 @@ if (matchMedia('(max-width: 800px)').matches) {
   sync();
   let target = null, shown = false, atBottom = false;
   const apply = () => bar.classList.toggle('on', shown && !atBottom && !document.querySelector('.pay-done,[data-payment-complete]'));
-  const paymentTarget = () => document.documentElement.dataset.paymentProvider==='razorpay'?document.querySelector('.razorpay-panel'):document.querySelector('.paypal-box');
+  const paymentTarget = () => document.documentElement.dataset.paymentProvider==='review'?document.querySelector('.billing-review'):document.documentElement.dataset.paymentProvider==='razorpay'?document.querySelector('.razorpay-panel'):document.querySelector('.paypal-box');
   bar.querySelector('button').addEventListener('click', () => {
     (paymentTarget() || document.querySelector('.checkout-form')).scrollIntoView({ behavior: paused() ? 'auto' : 'smooth', block: 'center' });
   });
   const io = new IntersectionObserver(es => { for (const e of es) if(e.target===target)atBottom = e.isIntersecting; apply(); }, { threshold: 0.2 });
-  const watch = () => {io.disconnect();target=paymentTarget();atBottom=false;if(target)io.observe(target);apply();};
+  const watch = () => {io.disconnect();target=paymentTarget();bar.querySelector('button').textContent=document.documentElement.dataset.paymentProvider==='review'?'Review billing':'Continue to pay';atBottom=false;if(target)io.observe(target);apply();};
   document.addEventListener('ajoy:provider-change',watch);
   document.addEventListener('ajoy:payment-complete',apply);
+  watch();
   setTimeout(watch, 1500); setTimeout(watch, 4000);
   addEventListener('scroll', () => { shown = scrollY > 260; apply(); }, { passive: true });
 }

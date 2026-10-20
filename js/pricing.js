@@ -1,4 +1,4 @@
-import {indiaContact} from './india-availability.js?v=20261019-contact1';
+import {availability} from './regions.js?v=20261020-rz1';
 import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261020-rz1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261020-rz1';
@@ -18,13 +18,13 @@ async function render(){
  const current=++revision,status=document.querySelector('#pricing-status');
  const inIndia=suggestedCountry()==='IN';
  const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
+ const paymentOpen=indiaOpen||(!inIndia&&!!tcfg?.clientId&&availability(suggestedCountry(),tcfg.closedCountries||[]).open);
  const notice=document.querySelector('#india-availability');
- notice.hidden=!inIndia||indiaOpen;
- notice.querySelector('a').href=indiaContact();
+ notice.hidden=true;
  document.querySelector('.plan-trial-kicker').hidden=inIndia;
  await Promise.all(['online','offline'].map(async plan=>{
   const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`);
-  buy.href=inIndia&&!indiaOpen&&!buy.classList.contains('is-owned')?indiaContact():`checkout.html?${new URLSearchParams({plan,billing,v:'20261020-rz1'})}`;if(!amount.textContent.trim())amount.textContent='—';offer.hidden=true;comparison.hidden=true;
+  buy.href=`checkout.html?${new URLSearchParams({plan,billing,v:'20261020-billing1'})}`;if(!amount.textContent.trim())amount.textContent='—';offer.hidden=true;comparison.hidden=true;
   try{
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;
@@ -36,8 +36,7 @@ async function render(){
    const trial=plan==='online'&&trialPlanId(tcfg,'online',billing,suggestedCountry());
    note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Cancel any time.':(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
    if(!buy.classList.contains('is-owned')){
-    buy.textContent=inIndia&&!indiaOpen?'Get launch updates':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
-    if(inIndia&&!indiaOpen)buy.href=indiaContact(plan==='online'?'Online':'Offline');
+    buy.textContent=!paymentOpen?'Review billing':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
    }
    if(inIndia)note.textContent=(indiaOpen?'Pay securely with Razorpay. ':'Indicative price. ')+'Billed '+(billing==='yearly'?'annually.':'monthly.');
    if(billing==='yearly'&&quote.annualSavings>0){

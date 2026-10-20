@@ -28,7 +28,7 @@ if(form&&pay){
   eligibility={eligible:false,reason:error.code};selectedOffer='';invalidate();sync();
  };
  function sync(){
-  if(document.documentElement.dataset.paymentProvider==='razorpay'){box.hidden=true;trialOn=false;document.querySelector('#trial-line')?.setAttribute('hidden','');return;}
+  if(document.documentElement.dataset.paymentProvider&&document.documentElement.dataset.paymentProvider!=='paypal'){box.hidden=true;trialOn=false;document.querySelector('#trial-line')?.setAttribute('hidden','');return;}
   box.hidden=false;
   const session=getAccountSession(),c=choice(),region=availability(c.country,cfg?.closedCountries||[]),match=countryCheck(c.country,cfg?.mode==='live'?cfg.country:'');
   gate.hidden=!!session;offerBox.hidden=!session||!cfg||!eligibility;

@@ -32,7 +32,8 @@ try{
   else if(fail)await page.waitForFunction(()=>document.querySelector('[data-playblast-video]').error);
   assert.equal(await page.locator('.diagram-playblast').count(),0);assert.equal(await page.locator('.playblast-screen-steps li').count(),4);
   assert.match(await page.locator('.guide-steps').textContent(),/Only names starting with SH_ or Shot_ are detected/);
-  assert.match(await page.locator('.playblast-screens figcaption a').getAttribute('href'),/playblast-loop.gif/);
+  assert.equal(await page.locator('.playblast-screens figcaption').count(),0);
+  assert.deepEqual(await page.locator('.playblast-screens').evaluate(el=>{const s=getComputedStyle(el);return [s.backgroundColor,s.backgroundImage,s.borderTopWidth,s.boxShadow];}),['rgba(0, 0, 0, 0)','none','0px','none'],'no background panel');
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no horizontal overflow');
   const media=await page.locator('.playblast-media').evaluate(el=>({w:el.offsetWidth,h:el.offsetHeight}));assert(Math.abs(media.w/media.h-1.6)<.02,'landscape aspect ratio');
   const bounds=await depth.boundingBox();assert(bounds.height<450&&bounds.height<width*.9,'compact stage fits every viewport');

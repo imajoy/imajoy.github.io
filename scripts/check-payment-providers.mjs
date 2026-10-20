@@ -120,6 +120,7 @@ try{
    }else{
     await page.getByRole('radio',{name:/PayPal/}).check();
     await page.locator('.paypal-box').waitFor({state:'visible'});assert.equal(await page.locator('.razorpay-panel').isVisible(),false);
+    await page.waitForTimeout(600);await page.locator('.payment-picker').screenshot({path:'/tmp/picker-'+width+'.png'});await page.locator('.paypal-box').screenshot({path:'/tmp/paypal-card-'+width+'.png'});
    }
   }else{
    await page.waitForTimeout(700);assert.equal(await page.locator('.razorpay-panel').isVisible(),false);assert.equal(await page.locator('.payment-picker').isVisible(),country==='US');

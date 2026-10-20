@@ -167,3 +167,56 @@ html[data-theme=dark] .rzp-coupon-msg[data-error=true]{color:#ff9d94}
 @media(max-width:560px){.checkout-form .rzp-offer{padding-inline:18px}}
 /* With Razorpay the page's own coupon box is used, so the duplicate inside the payment card steps aside. */
 html[data-rzp-offers] .razorpay-panel .rzp-coupon{display:none}
+
+/* PayPal option: same card as Razorpay so switching methods feels like one checkout. */
+html .paypal-box{position:relative;overflow:hidden;gap:0;margin-top:18px;padding:0 0 22px;border:1px solid var(--line);border-radius:28px;background:var(--card);box-shadow:var(--shadow);animation:rzp-in .5s var(--out,ease) both}
+html .paypal-box[hidden]{display:none}
+.paypal-box::before{content:"";position:absolute;inset:0 0 auto;height:4px;background:linear-gradient(90deg,#003087,#0070E0 55%,#2FB583)}
+.paypal-box>*{margin-left:24px;margin-right:24px}
+.paypal-box>.pp-head{margin:0;display:flex;align-items:center;gap:14px;padding:24px 24px 18px;border-bottom:1px dashed var(--line)}
+.pp-head b{display:block;font-size:16px;letter-spacing:-.01em}
+.pp-head small{display:block;font-size:12.5px;color:var(--mute);line-height:1.5;margin-top:2px}
+.pp-shield{flex:none;display:grid;place-items:center;width:44px;height:44px;border-radius:14px;background:linear-gradient(145deg,#0070E0,#003087);box-shadow:0 10px 22px -10px rgba(0,48,135,.8)}
+.pp-shield svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round}
+.pp-head .paypal-test{margin:0 0 0 auto;align-self:flex-start;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;padding:5px 10px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#8a5a00;background:repeating-linear-gradient(-45deg,#fff3d6 0 6px,#ffe9b8 6px 12px);border:1px solid #f1d28c}
+.pp-head .paypal-test[hidden]{display:none}
+.pp-head .paypal-test i{width:6px;height:6px;border-radius:50%;background:#e39a12}
+.paypal-box>.pp-total{margin-top:18px}
+.pp-total small{font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.pp-amount{display:flex;align-items:baseline;flex-wrap:wrap;gap:6px 12px;margin:6px 0 0}
+.pp-figure{font-size:clamp(32px,5vw,42px);font-weight:700;letter-spacing:-.04em;font-variant-numeric:tabular-nums;color:var(--ink)}
+.paypal-box[data-offer=trial] .pp-figure{color:#1C9A6C}
+.pp-per{font-size:14px;color:var(--mute)}
+.paypal-box>.account-required{margin-top:18px}
+.paypal-box>.paypal-closed:not([hidden]),.paypal-box>.paypal-note:not(:empty){margin-top:14px}
+.paypal-box>.paypal-note:empty{display:none}
+/* Offer choice as cards, like the Razorpay trial / pay-now choice */
+.paypal-box .checkout-offer{display:grid;gap:10px;margin-top:18px;padding:0;border:0;border-radius:0;background:none;box-shadow:none;min-width:0}
+.paypal-box .checkout-offer[hidden]{display:none}
+.paypal-box .checkout-offer legend{float:left;width:100%;margin:0;padding:0 0 10px;border:0;background:none;box-shadow:none;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.paypal-box .checkout-offer label{position:relative;display:flex;align-items:center;gap:12px;margin:0;padding:14px 16px;border:1px solid var(--line);border-radius:16px;cursor:pointer;transition:border-color .2s,background-color .2s,box-shadow .2s}
+.paypal-box .checkout-offer label:has(input:checked){border-color:#0070E0;background:rgba(0,112,224,.05);box-shadow:0 0 0 3px rgba(0,112,224,.13)}
+.paypal-box .checkout-offer label:has(input:disabled){opacity:.6;cursor:not-allowed}
+.paypal-box .checkout-offer input{width:18px;height:18px;flex:none;accent-color:#0070E0}
+.paypal-box .checkout-offer span{display:grid;gap:3px;min-width:0}
+.paypal-box .checkout-offer b{font-size:15px}
+.paypal-box .checkout-offer small{font-size:12.5px;color:var(--mute);line-height:1.5}
+.paypal-box .checkout-offer em{margin-left:auto;font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;color:#1C7D5B;background:#E3F5EC}
+.paypal-box .paypal-price-check:not([hidden]),.paypal-box #paypal-buttons:not([hidden]){margin-top:16px}
+.paypal-box>.paypal-fine{margin-top:14px;font-size:12.5px;line-height:1.65}
+/* Billing step: the choice only; the full card appears on the payment step */
+html[data-checkout-step=billing] .paypal-box>:is(.pp-head,.pp-total){display:none}
+html[data-checkout-step=billing] .paypal-box{padding-top:4px}
+/* Payment method picker badges */
+.payment-picker label .pick-badge{margin-left:auto;font-style:normal;font-size:11px;font-weight:800;letter-spacing:.08em;padding:5px 9px;border-radius:8px}
+.pick-paypal{color:#003087;background:rgba(0,112,224,.1)}
+.pick-rzp{color:#1F4FBF;background:rgba(61,139,255,.12)}
+html[data-theme=dark] .pick-paypal{color:#8DBBFF;background:rgba(0,112,224,.18)}
+html[data-theme=dark] .pick-rzp{color:#8DBBFF;background:rgba(61,139,255,.18)}
+html[data-theme=dark] .paypal-box .checkout-offer em{color:#5FD9A8;background:rgba(47,181,131,.14)}
+html[data-theme=dark] .pp-head .paypal-test{color:#f2c46d;background:repeating-linear-gradient(-45deg,rgba(242,182,79,.14) 0 6px,rgba(242,182,79,.07) 6px 12px);border-color:rgba(242,182,79,.35)}
+@media(max-width:560px){.paypal-box>*{margin-left:18px;margin-right:18px}.paypal-box>.pp-head{padding:20px 18px 16px}.pp-head .paypal-test{position:absolute;top:14px;right:14px}}
+@media(prefers-reduced-motion:reduce){html .paypal-box{animation:none}}
+html .checkout-form .paypal-box .checkout-offer{margin:18px 24px 0;padding:0}
+.paypal-box .checkout-offer em,.rzp-offer em{font-family:var(--sans,inherit);font-style:normal}
+@media(max-width:560px){html .checkout-form .paypal-box .checkout-offer{margin:16px 18px 0}}

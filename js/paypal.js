@@ -9,7 +9,7 @@ const settings=window.AJOY_CONFIG||{},form=document.querySelector('#billing-form
 bindAccountEmail(form?.elements.email,document.querySelector('#email-hint'));
 if(form&&pay){
  const box=document.createElement('div');box.className='paypal-box';box.dataset.paymentProvider='paypal';
- box.innerHTML='<section class="account-required" id="checkout-account"><b>Verify your email before subscribing.</b><p>Sign in, or register a new email with a verification code.</p><button type="button" class="btn btn-dark" data-account-gate>Register / Login</button></section><p class="paypal-test" hidden><b>Test mode.</b> No real money moves.</p><p class="paypal-closed" role="status" hidden></p><fieldset class="checkout-offer" hidden><legend>Choose your subscription</legend><label><input type="radio" name="checkout-offer" value="trial"><span data-trial-option-label>2-day Online trial · free today</span></label><label><input type="radio" name="checkout-offer" value="standard">Standard subscription · paid after PayPal approval</label></fieldset><p class="paypal-note" role="status"></p><section class="paypal-price-check" hidden><p class="form-hint" data-payment-price-status role="status" aria-live="polite"></p><button class="btn btn-light" type="button" data-payment-price-retry hidden>Retry price check</button></section><div id="paypal-buttons" hidden></div><p class="paypal-fine"></p>';
+ box.innerHTML='<section class="account-required" id="checkout-account"><b>Verify your email before subscribing.</b><p>Sign in, or register a new email with a verification code.</p><button type="button" class="btn btn-dark" data-account-gate>Register / Login</button></section><div class="pp-head"><span class="pp-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></span><div><b>Secure USD checkout</b><small>Processed by PayPal. Card and bank details never reach this site.</small></div><p class="paypal-test" hidden><i aria-hidden="true"></i>Test mode</p></div><div class="pp-total"><small data-pp-label>Recurring amount</small><p class="pp-amount" aria-live="polite"><span class="pp-figure">—</span><span class="pp-per"></span></p></div><p class="paypal-closed" role="status" hidden></p><fieldset class="checkout-offer" hidden><legend>How would you like to start?</legend><label><input type="radio" name="checkout-offer" value="trial"><span><b>Start 2-day free trial</b><small data-trial-option-label>Nothing to pay today</small></span><em>Free</em></label><label><input type="radio" name="checkout-offer" value="standard"><span><b>Pay now</b><small data-standard-option-label>Your paid subscription starts after PayPal approval</small></span></label></fieldset><p class="paypal-note" role="status"></p><section class="paypal-price-check" hidden><p class="form-hint" data-payment-price-status role="status" aria-live="polite"></p><button class="btn btn-light" type="button" data-payment-price-retry hidden>Retry price check</button></section><div id="paypal-buttons" hidden></div><p class="paypal-fine"></p>';
  pay.replaceWith(box);
  const gate=box.querySelector('#checkout-account'),closed=box.querySelector('.paypal-closed'),offerBox=box.querySelector('.checkout-offer'),buttons=box.querySelector('#paypal-buttons'),note=box.querySelector('.paypal-note'),fine=box.querySelector('.paypal-fine');
  const priceCheck=box.querySelector('.paypal-price-check'),priceStatus=box.querySelector('[data-payment-price-status]'),priceRetry=box.querySelector('[data-payment-price-retry]');
@@ -40,10 +40,9 @@ if(form&&pay){
   closed.hidden=available;closed.textContent=!region.open?closedMessage[region.reason]:!match.ok?'Choose your detected billing country before subscribing.':'';
   const trial=!!session&&eligibility?.eligible&&trialConfigured(c);
   const trialRadio=offerBox.querySelector('[value="trial"]');trialRadio.disabled=!trial;
-  const standardLabel=offerBox.querySelector('[value="standard"]').parentElement;
-  standardLabel.lastChild.textContent=rewardsSupported()?'Standard subscription · paid after PayPal approval':'Standard subscription · no loyalty reward applied';
+  offerBox.querySelector('[data-standard-option-label]').textContent=rewardsSupported()?'Your paid subscription starts after PayPal approval':'Paid subscription · no loyalty reward applied';
   const trialLabel=offerBox.querySelector('[data-trial-option-label]');
-  trialLabel.textContent=eligibility?.reason==='trial_used'?'2-day trial already claimed':'2-day Online trial · '+displayPrice(0)+' today';
+  trialLabel.textContent=eligibility?.reason==='trial_used'?'Already claimed on this account':displayPrice(0)+' today · first payment after 2 days · cancel any time before';
   trialLabel.toggleAttribute('data-trial-claimed',eligibility?.reason==='trial_used');
   if(session&&eligibility&&!restoredOffer){restoredOffer=true;if(draft?.offer)selectedOffer=draft.offer;}
   if(!session||!eligibility)selectedOffer='';
@@ -71,7 +70,18 @@ if(form&&pay){
   buttons.hidden=!session||!cfg||!eligibility||!selectedOffer||!available||(needsPrice&&!priceReady);
   if(availabilityNote)availabilityNote.textContent=!session?'Sign in or register your email, then review your subscription.':!cfg?'Secure checkout is temporarily unavailable.':!eligibility?'Checking your account and trial eligibility…':trialOn?'Review your free trial and its first paid renewal, then approve with PayPal.':'Review the standard subscription price, then approve with PayPal.';
   if(!buttons.hidden&&paymentStep&&document.documentElement.dataset.checkoutReady!=='false')startButtons();
+  paintHead();
  }
+ /* Same card layout as the Razorpay option: what is due today, then the recurring amount. */
+ function paintHead(){
+  const c=choice();if(!/^[A-Z]{2}$/.test(c.country)||!Number.isInteger(c.seats)||c.seats<1){box.querySelector('.pp-figure').textContent='—';box.querySelector('.pp-per').textContent='';return;}
+  const per=c.billing==='yearly'?'year':'month',regular=USD[tierFor(c.country)][c.plan][c.billing]*100*c.seats;
+  box.querySelector('[data-pp-label]').textContent=trialOn||rewardQuote?.percent?'Due today':'Recurring amount';
+  box.querySelector('.pp-figure').textContent=trialOn?displayPrice(0):total.textContent&&total.textContent!=='—'?total.textContent:displayPrice(regular);
+  box.querySelector('.pp-per').textContent=trialOn?'then '+displayPrice(regular)+' per '+per+' after 2 days':'per '+per+' · '+c.seats+(c.seats===1?' license':' licenses');
+  box.dataset.offer=trialOn?'trial':'standard';
+ }
+ if(total)new MutationObserver(()=>paintHead()).observe(total,{childList:true,characterData:true,subtree:true});
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{
   selectedOffer=radio.value;invalidate();say('');
   if(selectedOffer==='standard'&&rewardsSupported()&&(!rewardQuote||rewardKey!==keyOf())&&(!rewardBusy||rewardKey!==keyOf()))refreshReward();

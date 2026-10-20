@@ -8,7 +8,7 @@ import {secureCommerce,browserDeviceId} from './commerce-gateway.js?v=20261020-c
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;
 if(form&&paypal&&url){
  const picker=document.createElement('fieldset');picker.className='payment-picker';picker.hidden=true;
- picker.innerHTML='<legend>Choose a payment method</legend><label hidden><input type="radio" name="payment-provider" value="paypal" checked><span><b>PayPal</b><small>USD · subscriptions and eligible Online trials</small></span></label><label hidden><input type="radio" name="payment-provider" value="razorpay"><span><b>Razorpay</b><small>INR · payment methods available for your account</small></span></label>';
+ picker.innerHTML='<legend>Choose a payment method</legend><label hidden><input type="radio" name="payment-provider" value="paypal" checked><span><b>PayPal</b><small>Pay in USD · PayPal account or card</small></span><i class="pick-badge pick-paypal" aria-hidden="true">USD</i></label><label hidden><input type="radio" name="payment-provider" value="razorpay"><span><b>Razorpay</b><small data-rzp-pick>Pay in INR · cards</small></span><i class="pick-badge pick-rzp" aria-hidden="true">INR</i></label>';
  const panel=document.createElement('section');panel.className='razorpay-panel';panel.hidden=true;
  const review=document.createElement('section');review.className='billing-review';
  review.innerHTML='<h3>Review your billing details</h3><p data-billing-availability>Checking payment availability…</p><button type="button" class="btn btn-light btn-block" data-review-billing>Review billing details</button><p class="billing-review-status" role="status" aria-live="polite"></p>';
@@ -147,7 +147,8 @@ if(form&&paypal&&url){
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{offerTouched=true;offer=radio.value;if(offer==='trial'&&coupon)couponNote('Coupons apply to paid subscriptions, not the free trial. Choose "Pay now" to use '+coupon+'.');refresh();});
  function paint(){
   if(provider!=='razorpay')return;
-  const methods=panel.querySelector('.rzp-methods'),local=choice().country==='IN',want=local?'UPI,Cards,Net banking':'International cards';
+  const methods=panel.querySelector('.rzp-methods'),local=choice().country==='IN',pick=picker.querySelector('[data-rzp-pick]');if(pick)pick.textContent=local?'Pay in INR · UPI, cards or net banking':'Pay in INR · international cards';
+  const want=local?'UPI,Cards,Net banking':'International cards';
   if(methods&&methods.dataset.set!==want){methods.dataset.set=want;methods.replaceChildren(...want.split(',').map(t=>Object.assign(document.createElement('li'),{textContent:t})));}
   const showOffer=trialAvailable()&&!!getAccountSession();offerBox.hidden=!showOffer;
   if(showOffer){

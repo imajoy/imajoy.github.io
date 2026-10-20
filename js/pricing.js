@@ -4,7 +4,7 @@ import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261020-prices1';
 import {localFormatter} from './fx.js?v=20261020-local1';
 import {animatePrice,settlePrices} from './price-motion.js?v=20261019-motion1';
-import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-rz1';
+import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-intl1';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0,animatePricing=false,razorpayConfig=null;
 function chooseBilling(value){
@@ -18,7 +18,9 @@ async function render(){
  const current=++revision,status=document.querySelector('#pricing-status');
  const inIndia=suggestedCountry()==='IN';
  const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
- const paymentOpen=indiaOpen||(!inIndia&&!!tcfg?.clientId&&availability(suggestedCountry(),tcfg.closedCountries||[]).open);
+ const paypalOpen=!inIndia&&!!tcfg?.clientId&&availability(suggestedCountry(),tcfg.closedCountries||[]).open;
+ const rzpOpen=razorpayAvailable(razorpayConfig,suggestedCountry());
+ const paymentOpen=indiaOpen||paypalOpen||rzpOpen;
  const rzpTrial=!!razorpayConfig?.trial&&razorpayAvailable(razorpayConfig,suggestedCountry());
  document.querySelector('.plan-trial-kicker').hidden=inIndia&&!rzpTrial;
  await Promise.all(['online','offline'].map(async plan=>{
@@ -32,11 +34,12 @@ async function render(){
    const show=c=>lf?lf(c):money(c,quote.currency);
    animatePrice(amount,quote.unitAmount,show,animatePricing);
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
-   const trial=plan==='online'&&(trialPlanId(tcfg,'online',billing,suggestedCountry())||rzpTrial&&(inIndia||!tcfg?.clientId));
+   const trial=plan==='online'&&(paypalOpen&&trialPlanId(tcfg,'online',billing,suggestedCountry())||rzpTrial);
    note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Cancel any time.':(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
    if(!buy.classList.contains('is-owned')){
     buy.textContent=!paymentOpen?'Review billing':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
    }
+   if(!inIndia&&rzpOpen&&!paypalOpen)note.textContent=(trial?TRIAL_DAYS+'-day free trial, then billed ':'Billed ')+(billing==='yearly'?'annually':'monthly')+'. Pay by card via Razorpay, charged in INR.';
    if(inIndia)note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Pay with UPI or card via Razorpay.':(indiaOpen?'Pay securely with Razorpay. ':'Indicative price. ')+'Billed '+(billing==='yearly'?'annually.':'monthly.');
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);

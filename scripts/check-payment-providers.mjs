@@ -7,9 +7,9 @@ const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAY
 const base=new URL(process.argv[2]||'http://localhost:8798/');
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH||undefined,args:['--no-sandbox']});
 try{
- for(const [country,enabled,width,theme] of [['IN',true,390,'light'],['IN',true,1280,'dark'],['US',true,390,'dark'],['US',true,1280,'light'],['GB',true,390,'light'],['IN',false,390,'light'],['US',false,1280,'light']]){
+ for(const [country,enabled,width,theme] of [['IN',true,390,'light'],['IN',true,1280,'dark'],['US',true,390,'dark'],['US',true,1280,'light'],['GB',true,390,'light'],['IN',false,390,'light'],['US',false,1280,'light'],['PK',true,390,'light']]){
   const app=service(),token=app.ctx.makeSession_('buyer@example.com');
-  for(const [k,v] of Object.entries({RAZORPAY_MODE:'test',RAZORPAY_ENABLED:String(enabled),RAZORPAY_KEY_ID:'rzp_test_fixture',RAZORPAY_KEY_SECRET:'private-razorpay-test-secret',RAZORPAY_WEBHOOK_SECRET:'private-webhook-test-secret',RAZORPAY_ALLOWED_COUNTRIES:'IN US GB'}))app.values.set(k,v);
+  for(const [k,v] of Object.entries({RAZORPAY_MODE:'test',RAZORPAY_ENABLED:String(enabled),RAZORPAY_KEY_ID:'rzp_test_fixture',RAZORPAY_KEY_SECRET:'private-razorpay-test-secret',RAZORPAY_WEBHOOK_SECRET:'private-webhook-test-secret',RAZORPAY_ALLOWED_COUNTRIES:'ALL'}))app.values.set(k,v);
   app.ctx.Logger={log(){}};app.ctx.setupRazorpayPlans();
   const handler=createRazorpayHandler({env:k=>({ALLOWED_ORIGINS:base.origin,SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip'}[k]||app.values.get(k)),request:async(url,options)=>url.startsWith('https://api.country.is/')?Response.json({country}):Response.json(JSON.parse(app.ctx.doPost({postData:{contents:options.body}}).text))});
   const context=await browser.newContext({viewport:{width,height:950},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
@@ -44,7 +44,16 @@ try{
   await page.waitForFunction(country=>document.querySelector('#country').value===country,country);
   assert.equal(await page.locator('.billing-entry').isVisible(),false);
 
-  if(enabled&&['IN','US'].includes(country)){
+  if(enabled&&country==='PK'){
+   // No PayPal in this country: Razorpay is the only option, charged in INR by card.
+   await page.locator('.razorpay-panel').waitFor({state:'visible'});
+   await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed'));
+   assert.equal(await page.getByRole('radio',{name:/PayPal/}).isVisible(),false);
+   assert.equal(await page.locator('.paypal-box').isVisible(),false);
+   assert.deepEqual(await page.locator('.rzp-methods li').allTextContents(),['International cards']);
+   assert.equal(await page.locator('.rzp-offer').isVisible(),true,'the trial is offered through Razorpay');
+   await page.screenshot({path:'/tmp/payment-pk-'+width+'.png',fullPage:true});
+  }else if(enabled&&['IN','US'].includes(country)){
    await page.locator('.payment-picker').waitFor({state:'visible'});
    if(country==='US'){
     await page.getByRole('radio',{name:/Razorpay/}).check();

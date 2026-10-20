@@ -4,6 +4,15 @@ function razorpayMode_(){return props_().getProperty('RAZORPAY_MODE')==='live'?'
 function razorpayCountries_(){
   return (props_().getProperty('RAZORPAY_ALLOWED_COUNTRIES')||'IN').toUpperCase().split(/[^A-Z]+/).filter(function(c){return /^[A-Z]{2}$/.test(c)&&(c==='IN'||CLOSED_.indexOf(c)<0);});
 }
+/* RAZORPAY_ALLOWED_COUNTRIES = ALL opens Razorpay (international payments) everywhere except deliberately closed
+   countries (tax registration pending, sanctions). India is always included with ALL. */
+function razorpayAllCountries_(){return /^\s*ALL\s*$/i.test(props_().getProperty('RAZORPAY_ALLOWED_COUNTRIES')||'');}
+function razorpayClosed_(){return CLOSED_.filter(function(c){return c!=='IN';});}
+function razorpayCountryAllowed_(c){
+  if(!/^[A-Z]{2}$/.test(c||''))return false;
+  if(razorpayAllCountries_())return c==='IN'||razorpayClosed_().indexOf(c)<0;
+  return razorpayCountries_().indexOf(c)>=0;
+}
 function razorpayConnected_(){
   var p=props_(),key=p.getProperty('RAZORPAY_KEY_ID')||'';
   return key.indexOf('rzp_'+razorpayMode_()+'_')===0&&(p.getProperty('RAZORPAY_KEY_SECRET')||'').length>=16&&(p.getProperty('RAZORPAY_WEBHOOK_SECRET')||'').length>=16;
@@ -28,7 +37,7 @@ function razorpaySelection_(d){
   if(['online','offline'].indexOf(d.plan)<0||['monthly','yearly'].indexOf(d.billing)<0||!Number.isInteger(d.seats)||d.seats<1||d.seats>100)throw commerceError_('selection','Review your plan and license quantity.');
   if(d.sandboxCountry&&razorpayMode_()!=='test')throw commerceError_('region','Test country settings cannot be used for live payments.');
   var country=d.sandboxCountry||d.country;
-  if(razorpayCountries_().indexOf(country)<0||country!==d.billingCountry)throw commerceError_('region','Razorpay is not available for your verified billing country.');
+  if(!razorpayCountryAllowed_(country)||country!==d.billingCountry)throw commerceError_('region','Razorpay is not available for your verified billing country.');
   var key=country==='IN'?'india':tierFor_(country),catalog=razorpayCatalog_(),planId=catalog[key]&&catalog[key][d.plan]&&catalog[key][d.plan][d.billing];
   if(!/^plan_[A-Za-z0-9]+$/.test(planId||''))throw commerceError_('unavailable','This Razorpay subscription plan is not configured yet.');
   if(catalog._priceVersion!==PRICE_VERSION)throw commerceError_('unavailable','Subscription plans are being updated. Please try again shortly.');
@@ -227,7 +236,7 @@ function handleRazorpay_(d){
   if(d.operation==='config'){
     var catalog=razorpayCatalog_(),ready=['india','high','mid','low'].every(function(t){return ['online','offline'].every(function(k){return ['monthly','yearly'].every(function(b){return /^plan_[A-Za-z0-9]+$/.test(catalog[t]&&catalog[t][k]&&catalog[t][k][b]||'');});});});
     var keyId=props_().getProperty('RAZORPAY_KEY_ID')||'';
-    return {ok:true,enabled:razorpayEnabled_()&&ready&&catalog._priceVersion===PRICE_VERSION,countries:razorpayCountries_(),mode:razorpayMode_(),currency:'INR',trial:razorpayTrialOn_(),trialDays:RAZORPAY_TRIAL_DAYS_,promotions:true,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
+    return {ok:true,enabled:razorpayEnabled_()&&ready&&catalog._priceVersion===PRICE_VERSION,countries:razorpayAllCountries_()?['*']:razorpayCountries_(),closedCountries:razorpayAllCountries_()?razorpayClosed_():[],mode:razorpayMode_(),currency:'INR',trial:razorpayTrialOn_(),trialDays:RAZORPAY_TRIAL_DAYS_,promotions:true,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
   }
   if(props_().getProperty('COMMERCE_ENABLED')!=='true'||!razorpayConnected_())throw commerceError_('unavailable','Razorpay is not connected.');
   if(d.operation==='webhook')return razorpayWebhook_(d);

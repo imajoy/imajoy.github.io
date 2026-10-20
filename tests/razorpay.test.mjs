@@ -229,3 +229,11 @@ test('PayPal coupons respect the Countries column; blank means every country',()
  assert.equal(s.app.rpc('rewards',{...sel,coupon:'ALL5'}).pricing.percent,5);
  assert.equal(s.app.rpc('rewards',{...sel,coupon:'INONLY'}).error,'coupon_invalid');
 });
+test('RAZORPAY_ALLOWED_COUNTRIES=ALL opens Razorpay internationally except closed countries',()=>{
+ const s=setup();s.app.values.set('RAZORPAY_ALLOWED_COUNTRIES','ALL');
+ const config=s.rpc('config');assert.deepEqual(config.countries,['*']);assert(config.closedCountries.includes('GB'));assert(!config.closedCountries.includes('IN'));
+ for(const c of ['IN','US','PK','BR'])assert.equal(s.rpc('quote',s.selection({country:c,billingCountry:c})).ok,true,c+' is open');
+ assert.equal(s.rpc('quote',s.selection({country:'PK',billingCountry:'PK'})).pricing.currency,'INR');
+ for(const c of ['GB','DE','RU','IR'])assert.equal(s.rpc('quote',s.selection({country:c,billingCountry:c})).error,'region',c+' stays closed');
+ s.app.values.set('RAZORPAY_ALLOWED_COUNTRIES','IN');assert.deepEqual(s.rpc('config').countries,['IN']);assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).error,'region');
+});

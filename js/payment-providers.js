@@ -3,7 +3,7 @@ import {readBillingDraft} from './checkout-steps.js?v=20261020-trial1';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
 import {availability,countryCheck,tierFor} from './regions.js?v=20261020-prices1';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ps1';
-import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-rz1';
+import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-intl1';
 import {secureCommerce,browserDeviceId} from './commerce-gateway.js?v=20261020-country1';
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;
 if(form&&paypal&&url){
@@ -118,6 +118,8 @@ if(form&&paypal&&url){
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{offerTouched=true;offer=radio.value;if(offer==='trial'&&coupon)couponNote('Coupons apply to paid subscriptions, not the free trial. Choose "Pay now" to use '+coupon+'.');refresh();});
  function paint(){
   if(provider!=='razorpay')return;
+  const methods=panel.querySelector('.rzp-methods'),local=choice().country==='IN',want=local?'UPI,Cards,Net banking':'International cards';
+  if(methods&&methods.dataset.set!==want){methods.dataset.set=want;methods.replaceChildren(...want.split(',').map(t=>Object.assign(document.createElement('li'),{textContent:t})));}
   const showOffer=trialAvailable()&&!!getAccountSession();offerBox.hidden=!showOffer;
   if(showOffer){
    const trialRadio=offerBox.querySelector('[value=trial]');trialRadio.disabled=trialCheck.state!=='eligible';

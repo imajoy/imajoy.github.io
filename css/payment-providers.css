@@ -8,10 +8,10 @@
 
 /* The billing gate must override author display rules as well as native hidden. */
 .checkout-grid[hidden],.billing-network-gate[hidden]{display:none!important}
-.billing-network-gate{padding:clamp(24px,5vw,48px);margin:24px 0;border:1px solid var(--line,#cdd7eb);border-radius:24px;background:var(--card,#fff);color:var(--ink,#111827)}
+.billing-network-gate{display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,340px);gap:32px;align-items:center;padding:clamp(24px,5vw,48px);margin:24px 0;border:1px solid var(--line,#cdd7eb);border-radius:24px;background:var(--card,#fff);color:var(--ink,#111827)}
 .billing-network-gate h2{font-size:clamp(22px,4vw,32px);margin:0 0 12px}
 .billing-network-gate p{max-width:65ch;line-height:1.6}
-.billing-network-gate>div{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:24px}
+.network-actions{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:24px}
 /* Locked country reads as a fixed value; verified testers retain the native picker. */
 #country:disabled{appearance:none;-webkit-appearance:none;background-image:none;opacity:1;cursor:default;-webkit-text-fill-color:currentColor}
 html[data-billing-blocked="true"] .m-total{display:none!important}
@@ -82,3 +82,51 @@ html[data-theme=dark] .rzp-assure li::before{background-color:rgba(47,181,131,.1
 @keyframes rzp-spin{to{transform:rotate(360deg)}}
 @media(max-width:560px){.rzp-head,.rzp-total{padding-left:18px;padding-right:18px}.rzp-methods{padding-inline:18px}.razorpay-status{margin-inline:18px}.razorpay-panel .btn{width:calc(100% - 36px);margin-inline:18px}.rzp-assure,.razorpay-terms{margin-inline:18px}.razorpay-mode{position:absolute;top:14px;right:14px}}
 @media(prefers-reduced-motion:reduce){.razorpay-panel,.rzp-figure{animation:none}.razorpay-panel[data-busy=true]::before,.razorpay-panel[data-busy=true] .razorpay-status::before{animation:none}}
+
+/* A lightweight, decorative connection map. Verification is always server-driven. */
+.network-copy{min-width:0}
+.network-kicker{display:block;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--mute);margin-bottom:16px}
+.network-activity{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-top:18px;color:var(--mute);font-size:12px;min-height:20px}
+.network-activity i{width:5px;height:5px;border-radius:50%;background:#387bff;opacity:.4}
+.network-activity span{margin-left:7px}
+.network-art{position:relative;isolation:isolate;width:100%;height:250px;color:#4a85ee;pointer-events:none}
+.network-halo{position:absolute;inset:15px 40px;border-radius:50%;background:radial-gradient(circle,#4f8eff1b,transparent 70%)}
+.network-globe{position:absolute;width:200px;height:200px;left:50%;top:50%;transform:translate(-50%,-50%);stroke:currentColor;stroke-width:1.1;opacity:.45}
+.network-globe circle{fill:#4f8eff08}
+.network-orbit{position:absolute;width:232px;height:232px;left:calc(50% - 116px);top:9px;border:1px dashed #6c9fff45;border-radius:50%}
+.network-orbit>span{position:absolute;width:10px;height:10px;left:calc(50% - 5px);top:-5px;border-radius:50%;background:#558dff;box-shadow:0 0 0 6px #558dff14}
+.network-orbit>span+span{top:auto;bottom:-5px;background:#32bfb2;box-shadow:0 0 0 6px #32bfb214}
+.network-pin{position:absolute;top:72px;left:calc(50% - 24px);width:48px;height:56px;filter:drop-shadow(0 8px 10px #245bd025)}
+.network-pin svg{width:100%;height:100%;overflow:visible}.network-pin path{fill:#347bff;stroke:#77a5ff;stroke-width:1.5}.network-pin circle{fill:var(--card,#fff)}
+.network-chip{position:absolute;display:flex;gap:8px;align-items:center;background:var(--card,#fff);border:1px solid var(--line,#d4def0);border-radius:12px;padding:10px 12px;box-shadow:0 8px 24px #23457809;color:var(--ink,#111827);font-size:11px;font-weight:600;white-space:nowrap}
+.network-chip svg{width:18px;height:18px;stroke:#4a85ee;stroke-width:1.6}
+.network-chip-device{left:0;top:40px}.network-chip-region{right:0;bottom:36px}
+.network-chip-region>span{width:7px;height:7px;border-radius:50%;background:#4a85ee;box-shadow:0 0 0 4px #4a85ee14}
+.billing-network-gate[data-state=error] .network-activity{display:none}
+.billing-network-gate[data-state=error] .network-art{color:#b38a48}
+.billing-network-gate[data-state=error] .network-pin path,.billing-network-gate[data-state=error] .network-chip-region>span{fill:#b38a48;background:#b38a48}
+@keyframes network-orbit{to{transform:rotate(360deg)}}
+@keyframes network-float{50%{transform:translateY(-7px)}}
+@keyframes network-signal{50%{opacity:1;transform:translateY(-3px)}}
+@media(prefers-reduced-motion:no-preference){
+ .billing-network-gate[data-state=checking] .network-orbit{animation:network-orbit 14s linear infinite}
+ .billing-network-gate[data-state=checking] .network-pin{animation:network-float 3s ease-in-out infinite}
+ .billing-network-gate[data-state=checking] .network-chip{animation:network-float 4s ease-in-out infinite}
+ .billing-network-gate[data-state=checking] .network-chip-region{animation-delay:-2s}
+ .billing-network-gate[data-state=checking] .network-activity i{animation:network-signal 1.6s ease-in-out infinite}
+ .billing-network-gate[data-state=checking] .network-activity i:nth-child(2){animation-delay:.2s}
+ .billing-network-gate[data-state=checking] .network-activity i:nth-child(3){animation-delay:.4s}
+}
+.billing-network-gate[data-motion-paused=true] * ,html[data-ui-paused] .billing-network-gate *{animation-play-state:paused!important}
+@media(max-width:700px){
+ .billing-network-gate{grid-template-columns:minmax(0,1fr);gap:20px}
+ .network-art{width:min(100%,300px);justify-self:center;height:220px}
+ .network-orbit{top:0;width:212px;height:212px;left:calc(50% - 106px)}
+ .network-globe{width:180px;height:180px}.network-pin{top:58px}
+ .network-actions{gap:12px}.network-actions .btn{padding-inline:18px;font-size:14px}
+ .network-chip-device{top:24px}.network-chip-region{bottom:18px}
+}
+
+.network-pause{border:0;border-bottom:1px dotted currentColor;padding:2px 0;margin-left:10px;background:none;color:var(--mute);font:inherit;cursor:pointer}
+.network-pause:focus-visible{outline:2px solid var(--blue,#347bff);outline-offset:4px}
+@media(prefers-reduced-motion:reduce){.network-pause{display:none}}

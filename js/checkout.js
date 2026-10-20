@@ -1,6 +1,6 @@
 import {initializeCheckoutSteps} from './checkout-steps.js?v=20261020-prices1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {initializeBillingCountry} from './billing-country.js?v=20261020-country3';
+import {initializeBillingCountry} from './billing-country.js?v=20261020-network-motion1';
 import {api,apiBase,getQuote,getCouponQuote,previewPrice} from './commerce.js?v=20261020-prices1';
 import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261020-prices1';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');

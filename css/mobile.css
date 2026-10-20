@@ -1,0 +1,54 @@
+/* Phone layer, loaded last on every page.
+   Keeps the header inside the screen, stacks squeezed cards and sets readable minimum text sizes. */
+@media (max-width:680px){
+  /* Header: never wider than the screen. With the Account button present, "Get access" is
+     redundant (every page has its own trial / subscribe buttons), so it steps aside. */
+  .site-header .pillbar{max-width:calc(100vw - 24px);box-sizing:border-box;min-width:0}
+  .site-header .pillbar:has(.acct-btn)>a.btn-sm{display:none}
+  .site-header .pillbar .acct-btn{max-width:160px;min-width:0}
+  .site-header .pillbar .brand{min-width:0;flex:0 1 auto}
+
+  /* Tool-page trial card: badge on top, text across the full width. */
+  .tool-trial{grid-template-columns:minmax(0,1fr);gap:16px;padding:24px 22px}
+  .tool-trial>*{min-width:0;grid-column:1}
+  .tool-trial-mark{width:auto;min-width:64px;height:64px;padding:0 12px;box-sizing:border-box;aspect-ratio:auto;justify-self:start;border-radius:18px}
+  .tool-trial-mark>span{font-size:1.875rem}
+  .tool-trial-mark>small{font-size:.4375rem;letter-spacing:.08em;white-space:nowrap;margin-top:4px}
+  .tool-body>.wrap{padding-inline:0}
+  .tool-trial h2{font-size:clamp(26px,7.4vw,30px)}
+  .tool-trial p:not(.eyebrow){font-size:.9375rem;line-height:1.7}
+  .tool-trial small{font-size:.75rem;line-height:1.65}
+
+  /* Readable minimums (labels and captions had shrunk to 6–10px). */
+  .eyebrow,.policy-eyebrow,.offer-eyebrow,.trial-label,.trial-copy .trial-label{font-size:.6875rem!important;letter-spacing:.1em}
+  figcaption,.license-caption,.ffmpeg-visual-title{font-size:.6875rem}
+  .tool-trial-invite{font-size:.75rem}
+  .tool-trial-invite>span{font-size:.625rem}
+  .plan-trial-kicker{font-size:.6875rem}
+  .trial-benefits{font-size:.75rem}
+  .trial-stage .trial-float,.trial-float{font-size:.6875rem}
+  .trial-banner-seal small{font-size:.5rem}
+  .trial-banner-copy>span:last-child{font-size:.6875rem}
+  .offer-inline p:not(.offer-eyebrow),.offer-inline>.offer-action,.offer-download .offer-action{font-size:.8125rem}
+  .policy-index nav a{font-size:.8125rem}
+  [data-tool-step],.workflow-beats button{font-size:.75rem;line-height:1.4}
+  .tool-visual figcaption{font-size:.6875rem;line-height:1.5}
+  .nudge-pass>small{font-size:.5625rem}
+
+  /* Long words and links never push a card wider than the screen. */
+  main p,main li,main h1,main h2,main h3{overflow-wrap:break-word}
+}
+@media (max-width:380px){
+  .site-header .pillbar .acct-btn{max-width:132px}
+  .trial-banner-copy strong{font-size:.8125rem}
+  .trial-banner-copy .offer-eyebrow{font-size:.625rem!important}
+  .trial-banner-copy>span:last-child{font-size:.6875rem}
+  .tool-trial{padding:22px 18px}
+}
+/* Checkout, download, contact and thank-you headers: one tidy row on phones.
+   "Back to…" points to the same page as the Wrapline logo, so it steps aside on small screens. */
+@media (max-width:520px){
+  .commerce-header .wrap{flex-wrap:nowrap;align-items:center;gap:10px}
+  .commerce-header .back-link{display:none}
+  .commerce-header .acct-btn{margin-left:auto;max-width:170px}
+}

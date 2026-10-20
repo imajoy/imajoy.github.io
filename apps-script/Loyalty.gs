@@ -15,9 +15,13 @@ function rewardBuyer_(row) {
 function rewardHistory_(email) {
   var known={},sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
   if(sheet&&sheet.getLastRow()>1)sheet.getRange(2,1,sheet.getLastRow()-1,12).getValues().forEach(function(r){
-    if(r[3]===mode_()&&String(r[4]).trim().toLowerCase()===email)known[r[1]]={created:r[0],seats:r[9]};
+    if(r[3]===mode_()&&String(r[4]).trim().toLowerCase()===email)known[r[1]]={created:r[0],seats:r[9],recorded:true};
   });
-  commerceRows_().forEach(function(r){if(r[1]===mode_()&&r[2]===email&&r[11])known[r[11]]={created:r[13],seats:r[9],loyalty:rewardBuyer_(r).loyalty};});
+  commerceRows_().forEach(function(r){
+    if(r[1]!==mode_()||r[2]!==email||!r[11])return;
+    var recorded=!!(known[r[11]]&&known[r[11]].recorded)||r[12]==='accepted'||!!r[16];
+    known[r[11]]={created:r[13],seats:r[9],loyalty:rewardBuyer_(r).loyalty,recorded:recorded,unapproved:!recorded&&['reserved','created'].indexOf(r[12])>=0};
+  });
   var history={monthly:0,yearly:0,used:{},statuses:{},receipts:[]},seen={};
   var ids=Object.keys(known);
   if(ids.length>50)throw commerceError_('rewards_unavailable','Your payment history needs review. Please contact Ajoy before subscribing.');
@@ -27,6 +31,10 @@ function rewardHistory_(email) {
     var info=rewardPlanInfo_(s.plan_id);
     if(s.id&&s.id!==id||!info)throw commerceError_('rewards_unavailable','A previous subscription plan could not be verified. Please contact Ajoy.');
     history.statuses[id]=s.status;
+    // PayPal-confirmed unapproved checkouts have no completed billing periods.
+    // Skip their transaction endpoint only when no order/access was ever recorded.
+    // Established subscriptions still require complete verified payment history.
+    if(known[id].unapproved&&['APPROVAL_PENDING','APPROVED'].indexOf(s.status)>=0)return;
     var start=Date.parse(s.create_time||known[id].created);
     if(!Number.isFinite(start))throw commerceError_('rewards_unavailable','A previous subscription date could not be verified. Please contact Ajoy.');
     var result=commercePaypal_('/v1/billing/subscriptions/'+encodeURIComponent(id)+'/transactions?start_time='+encodeURIComponent(new Date(start-86400000).toISOString())+'&end_time='+encodeURIComponent(new Date().toISOString()));

@@ -76,3 +76,37 @@ test('Prorated amounts and repeated invoices in one billing period cannot accele
  assert.equal(app.rpc('rewards',selection(app)).pricing.nextPayment,2);
  app.transactions.get('I-TESTBUYER1').transactions=[receipt('PARTIAL','COMPLETED','5.00')];assert.equal(app.rpc('rewards',selection(app)).pricing.nextPayment,1);
 });
+
+function unpaidCheckout(app){
+ app.ctx.registerAccount_('buyer@example.com');app.orders.rows.splice(1);
+ const row=Array(22).fill('');Object.assign(row,{0:randomUUID(),1:'sandbox',2:'buyer@example.com',6:'trial',7:'online',8:'monthly',9:1,10:'P-high-ONLINE',11:'I-TESTBUYER1',12:'created',13:new Date(),14:new Date(),18:'US'});app.ctx.commerceWrite_(row);
+}
+test('Unapproved checkouts do not query unavailable transaction history or block a paid Standard subscription',()=>{
+ for(const status of ['APPROVAL_PENDING','APPROVED']){
+  const app=service();history(app,0);unpaidCheckout(app);app.subscriptions.get('I-TESTBUYER1').status=status;
+  const fetch=app.ctx.UrlFetchApp.fetch;
+  app.ctx.UrlFetchApp.fetch=(url,options)=>{
+   if(url.includes('/I-TESTBUYER1/transactions?'))return {getResponseCode:()=>400,getContentText:()=>JSON.stringify({name:'INVALID_REQUEST',details:[{issue:'INVALID_PARAMETER_VALUE'}]})};
+   return fetch(url,options);
+  };
+  const quote=app.rpc('rewards',selection(app));assert.equal(quote.ok,true,JSON.stringify(quote));assert.equal(quote.pricing.percent,0);
+  assert.equal(app.rpc('checkout',selection(app)).ok,true);
+  assert(!app.requests.some(r=>r.url.includes('/I-TESTBUYER1/transactions?')));
+ }
+});
+test('Unapproved checkouts cannot advance or consume a reward even if their transaction endpoint contains stale data',()=>{
+ const app=service();history(app,2);unpaidCheckout(app);app.subscriptions.get('I-TESTBUYER1').status='APPROVAL_PENDING';
+ const quote=app.rpc('rewards',selection(app));assert.equal(quote.pricing.percent,0);assert.equal(quote.pricing.nextPayment,1);
+});
+test('Paid-history provider failures remain blocked and expose only safe diagnostic codes',()=>{
+ const app=service();history(app,1);const fetch=app.ctx.UrlFetchApp.fetch;
+ app.ctx.UrlFetchApp.fetch=(url,options)=>url.includes('/I-TESTBUYER1/transactions?')?{getResponseCode:()=>403,getContentText:()=>JSON.stringify({name:'NOT_AUTHORIZED',details:[{issue:'PERMISSION_DENIED',description:'private account data must not appear'}],debug_id:'diagnostic-fixture',message:'private account data'})}:fetch(url,options);
+ const quote=app.rpc('rewards',selection(app));assert.equal(quote.ok,false);assert.equal(quote.error,'provider');assert.match(quote.message,/HTTP 403/);assert.match(quote.message,/PERMISSION_DENIED/);assert(!JSON.stringify(quote).includes('private account data'));
+ assert.equal(app.rpc('checkout',selection(app)).ok,false);assert.equal(app.plans.size,0);
+});
+test('Recorded subscriptions still require verified transactions even if their status needs renewed approval',()=>{
+ const app=service();history(app,1);app.subscriptions.get('I-TESTBUYER1').status='APPROVAL_PENDING';
+ const fetch=app.ctx.UrlFetchApp.fetch;
+ app.ctx.UrlFetchApp.fetch=(url,options)=>url.includes('/I-TESTBUYER1/transactions?')?{getResponseCode:()=>403,getContentText:()=>JSON.stringify({name:'NOT_AUTHORIZED'})}:fetch(url,options);
+ assert.equal(app.rpc('rewards',selection(app)).error,'provider');
+});

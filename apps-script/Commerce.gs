@@ -38,7 +38,14 @@ function commercePaypal_(path,method,body,id) {
   if(id)options.headers['PayPal-Request-Id']=id;
   if(body){options.contentType='application/json';options.payload=JSON.stringify(body);}
   var response=UrlFetchApp.fetch(base_()+path,options),status=response.getResponseCode();
-  if(status<200||status>299)throw commerceError_('provider','PayPal could not complete the request. Please retry; do not approve another checkout.');
+  if(status<200||status>299){
+    var failure={};try{var decoded=JSON.parse(response.getContentText());if(decoded&&typeof decoded==='object')failure=decoded;}catch(e){}
+    var rawIssue=failure.details&&failure.details[0]&&failure.details[0].issue||failure.name||'',issue=typeof rawIssue==='string'&&/^[A-Z][A-Z0-9_]{0,79}$/.test(rawIssue)?rawIssue:'';
+    var read=String(options.method).toLowerCase()==='get',subject=path.indexOf('/transactions?')>=0?'payment history':'subscription details';
+    var message=read?'PayPal could not verify your '+subject+' (HTTP '+status+(issue?', '+issue:'')+'). Please retry or contact support.':'PayPal could not complete the request. Please retry; do not approve another checkout.';
+    if(typeof Logger!=='undefined')Logger.log(JSON.stringify({event:'paypal_request_failed',status:status,issue:issue,read:read}));
+    var error=commerceError_('provider',message);error.providerStatus=status;error.providerIssue=issue;throw error;
+  }
   var text=response.getContentText();return text?JSON.parse(text):{};
 }
 function commerceHistoricalTrial_(email) {

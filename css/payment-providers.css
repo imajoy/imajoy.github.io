@@ -236,3 +236,7 @@ html .checkout-form .check-row.terms-in-card{margin:18px 24px 0;padding:12px 14p
 /* "Trial and coupon can't be combined" notice */
 .rzp-offer-note[data-kind=club]{padding:10px 12px;border-radius:12px;color:#8a5a00;background:#FFF4DA;font-size:13px;line-height:1.5}
 html[data-theme=dark] .rzp-offer-note[data-kind=club]{color:#f0bd62;background:rgba(242,182,79,.12)}
+/* Trial: small refundable payment-method check explained under the amount */
+.rzp-check{margin:10px 0 0;padding:8px 12px;border-radius:12px;font-size:12.5px;line-height:1.5;color:#1F4FBF;background:#E6EEFF}
+.rzp-check[hidden]{display:none}
+html[data-theme=dark] .rzp-check{color:#8DBBFF;background:rgba(61,139,255,.14)}

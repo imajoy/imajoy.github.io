@@ -65,6 +65,10 @@ function razorpayDiscount_(price,d,who){
   return price;
 }
 function razorpayAddPeriods_(seconds,billing,count){var x=new Date(seconds*1000);if(billing==='yearly')x.setFullYear(x.getFullYear()+count);else x.setMonth(x.getMonth()+count);return Math.floor(x.getTime()/1000);}
+/* Payment-method check taken when a trial mandate is authorized. Razorpay's default is ₹5 (refunded by Razorpay).
+   We set our own upfront amount (default ₹1, script property RAZORPAY_TRIAL_CHECK_PAISE) and refund it ourselves
+   as soon as the trial is approved. Set the property to 0 to use Razorpay's own ₹5 refundable check instead. */
+function razorpayTrialCheckPaise_(){var v=props_().getProperty('RAZORPAY_TRIAL_CHECK_PAISE');var n=v===null||v===''?100:Number(v);return Number.isInteger(n)&&n>=0&&n<=500?n:100;}
 function razorpayTrialOn_(){return props_().getProperty('RAZORPAY_TRIAL')!=='false'&&(props_().getProperty('TRIAL_IDENTITY_SECRET')||'').length>=32;}
 /* Razorpay trials share PayPal's one-trial rule: the same email, browser or network cannot claim another trial. */
 function razorpayTrialConflict_(signals,exceptId,usedOnly){
@@ -118,7 +122,7 @@ function razorpayCheckout_(d,who){
     razorpayWrite_(record);
     var body={plan_id:price.planId,quantity:price.seats,total_count:price.billing==='yearly'?10:100,customer_notify:1,notify_info:{notify_email:who.email},expire_by:Math.floor(Date.now()/1000)+1800,notes:{checkout_id:record.id}};
     // Trial: the buyer authorizes the mandate now; Razorpay takes the first payment when the trial ends.
-    if(price.offer==='trial'){body.start_at=Math.floor(Date.now()/1000)+price.trialDays*86400;body.notes.offer='trial';}
+    if(price.offer==='trial'){body.start_at=Math.floor(Date.now()/1000)+price.trialDays*86400;body.notes.offer='trial';var check=razorpayTrialCheckPaise_();if(check>0){body.addons=[{item:{name:'Payment method check (refunded automatically)',amount:check,currency:'INR'}}];record.trialCheckPaise=check;razorpayWrite_(record);}}
     // Discount: the buyer pays the discounted period(s) now; regular billing starts when they end.
     if(price.upfront){
       var n=price.discount.payments;body.start_at=razorpayAddPeriods_(Math.floor(Date.now()/1000),price.billing,n);body.notes.offer=price.discount.coupon?'coupon '+price.discount.coupon.code:'returning reward';
@@ -209,9 +213,26 @@ function razorpayAcceptTrial_(id,subscription){
     if(!sheet){sheet=SpreadsheetApp.getActiveSpreadsheet().insertSheet(ORDERS_SHEET);sheet.appendRow(['Time','Subscription ID','Status','Mode','Buyer email','Name','Country','Plan','Billing','Licenses','Company','Plan ID']);}
     var rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues():[];
     if(!rows.some(function(r){return r[1]===current.subscriptionId;}))sheet.appendRow([new Date(),current.subscriptionId,'ACTIVE','razorpay_'+current.mode,current.email,current.name,current.price.country,'online trial',current.price.billing,current.price.seats,current.company,current.price.planId].map(safeSheetCell_));
-    razorpayNotify_(current);return razorpayPublic_(current);
+    razorpayNotify_(current);
+    if(current.trialCheckPaise)razorpayRefundTrialCheck_(current);
+    return razorpayPublic_(current);
   });
 }
+/* Refund the small payment-method check taken when the trial mandate was authorized. Safe to repeat. */
+function razorpayRefundTrialCheck_(record){
+  if(!record||!record.trialCheckPaise||record.trialCheckRefundId)return false;
+  try{
+    var invoices=razorpayApi_('/invoices?subscription_id='+encodeURIComponent(record.subscriptionId)+'&count=100');
+    var check=(invoices.items||[]).filter(function(i){return i.status==='paid'&&i.payment_id&&Number(i.amount_paid)===record.trialCheckPaise;})[0];
+    if(!check)return false;
+    var payment=razorpayApi_('/payments/'+encodeURIComponent(check.payment_id));
+    if(Number(payment.amount_refunded||0)<record.trialCheckPaise){var refund=razorpayApi_('/payments/'+encodeURIComponent(check.payment_id)+'/refund','post',{amount:record.trialCheckPaise,notes:{reason:'Trial payment-method check'}});record.trialCheckRefundId=refund.id||'refunded';}
+    else record.trialCheckRefundId='refunded';
+    record.trialCheckPaymentId=check.payment_id;razorpayWrite_(record);return true;
+  }catch(e){if(typeof Logger!=='undefined')Logger.log('Trial check refund pending for '+record.subscriptionId+': '+e.message);return false;}
+}
+/* Daily safety net for checks whose refund could not be made at once. */
+function razorpayRefundPendingChecks_(){var n=0;razorpayRows_().forEach(function(r){if(r.mode===razorpayMode_()&&r.accepted&&r.trialCheckPaise&&!r.trialCheckRefundId&&razorpayRefundTrialCheck_(r))n++;});return n;}
 function razorpayWebhook_(d){
   var secret=props_().getProperty('RAZORPAY_WEBHOOK_SECRET')||'';
   var expected=Utilities.computeHmacSha256Signature(d.rawBody||'',secret).map(function(b){return ('0'+((b+256)%256).toString(16)).slice(-2);}).join('');
@@ -238,7 +259,7 @@ function handleRazorpay_(d){
   if(d.operation==='config'){
     var catalog=razorpayCatalog_(),ready=['india','high','mid','low'].every(function(t){return ['online','offline'].every(function(k){return ['monthly','yearly'].every(function(b){return /^plan_[A-Za-z0-9]+$/.test(catalog[t]&&catalog[t][k]&&catalog[t][k][b]||'');});});});
     var keyId=props_().getProperty('RAZORPAY_KEY_ID')||'';
-    return {ok:true,enabled:razorpayEnabled_()&&ready&&catalog._priceVersion===PRICE_VERSION,countries:razorpayAllCountries_()?['*']:razorpayCountries_(),closedCountries:razorpayAllCountries_()?razorpayClosed_():[],mode:razorpayMode_(),currency:'INR',trial:razorpayTrialOn_(),trialDays:RAZORPAY_TRIAL_DAYS_,promotions:true,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
+    return {ok:true,enabled:razorpayEnabled_()&&ready&&catalog._priceVersion===PRICE_VERSION,countries:razorpayAllCountries_()?['*']:razorpayCountries_(),closedCountries:razorpayAllCountries_()?razorpayClosed_():[],mode:razorpayMode_(),currency:'INR',trial:razorpayTrialOn_(),trialDays:RAZORPAY_TRIAL_DAYS_,trialCheckPaise:razorpayTrialCheckPaise_(),promotions:true,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
   }
   if(props_().getProperty('COMMERCE_ENABLED')!=='true'||!razorpayConnected_())throw commerceError_('unavailable','Razorpay is not connected.');
   if(d.operation==='webhook')return razorpayWebhook_(d);

@@ -253,3 +253,20 @@ test('The instant Razorpay price shown on the payment page matches the server pr
   assert.equal(local.unitAmount,server.unitAmount,country+' '+plan+' '+billing);assert.equal(local.compareAtUnitAmount,server.compareAtUnitAmount);assert.equal(local.total,server.unitAmount*3);
  }
 });
+test('Trial payment-method check: ₹1 upfront, refunded automatically once the trial is approved; 0 falls back to Razorpay ₹5',()=>{
+ const s=setup();assert.equal(s.rpc('config').trialCheckPaise,100);
+ const created=s.rpc('checkout',s.selection({offer:'trial',deviceHash:'a'.repeat(64),ipHash:'b'.repeat(64)}));assert.equal(created.ok,true,created.message);
+ const sub=s.app.razorpay.subscriptions.get(created.subscriptionId);
+ assert.deepEqual(sub.addons.map(a=>a.item.amount),[100],'₹1 check instead of the default ₹5');
+ sub.status='authenticated';sub.paid_count=0;
+ s.app.razorpay.invoices.set('inv_check',{id:'inv_check',subscription_id:sub.id,payment_id:'pay_check',status:'paid',amount_paid:100,currency:'INR',paid_at:Math.floor(Date.now()/1000)});
+ s.app.razorpay.payments.set('pay_check',{id:'pay_check',invoice_id:'inv_check',status:'captured',captured:true,amount:100,currency:'INR',amount_refunded:0});
+ assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true);
+ assert.deepEqual(s.app.razorpay.refunds,[{payment_id:'pay_check',amount:100}],'refunded once');
+ assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true);assert.equal(s.app.razorpay.refunds.length,1,'never refunded twice');
+ webhook(s,{event:'refund.processed',payload:{refund:{entity:{id:'rfnd_pay_check',payment_id:'pay_check'}},subscription:{entity:{id:sub.id}}}});
+ assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true,'the check refund never cancels the trial');
+ s.app.values.set('RAZORPAY_TRIAL_CHECK_PAISE','0');assert.equal(s.rpc('config').trialCheckPaise,0);
+ const other=s.app.register('zero@example.com'),c2=s.rpc('checkout',s.selection({accountToken:other.token,offer:'trial',deviceHash:'c'.repeat(64),ipHash:'d'.repeat(64)}));
+ assert.equal(s.app.razorpay.subscriptions.get(c2.subscriptionId).addons,undefined,'Razorpay default refundable ₹5 check');
+});

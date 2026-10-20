@@ -113,7 +113,7 @@ function buildPaymentHistory(){
   var note='Payments tab ready: '+added.paypal+' PayPal and '+added.razorpay+' Razorpay payment(s) added'+(added.skipped?', '+added.skipped+' old subscription(s) PayPal no longer has':'')+'. Rewards now use the Payments tab. A daily check runs at about 4 AM.';
   Logger.log(note);return note;
 }
-function dailyPaymentCheck(){var r=paymentSync_('Daily check');Logger.log('Daily payment check added '+(r.paypal+r.razorpay)+' payment(s).');return r;}
+function dailyPaymentCheck(){if(typeof razorpayRefundPendingChecks_==='function')try{razorpayRefundPendingChecks_();}catch(e){Logger.log('Trial check refunds: '+e.message);}var r=paymentSync_('Daily check');Logger.log('Daily payment check added '+(r.paypal+r.razorpay)+' payment(s).');return r;}
 function paymentSync_(source){
   var added={paypal:0,razorpay:0,skipped:0},ids={};
   var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);

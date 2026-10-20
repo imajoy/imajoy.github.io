@@ -8,9 +8,10 @@ $('ty-plan').textContent=plan+' plan';$('ty-billing').textContent=billing;$('ty-
 if(provider)$('ty-provider').textContent=provider;else $('ty-provider').parentElement.hidden=true;
 const eta=new Date(Date.now()+12*3600e3);
 $('ty-eta').textContent=eta.toLocaleString(undefined,{weekday:'short',hour:'numeric',minute:'2-digit'});
+const trialLead=()=>'Your 2-day Wrapline trial is approved. Your first payment is taken after the trial unless you cancel.'+(provider==='Razorpay'?' The small payment-method check Razorpay took is refunded to you automatically.':'');
 if(trial){
  $('ty-status').textContent='Free trial started';$('ty-step-pay').textContent='Trial approved';
- $('ty-lead').textContent='Your 2-day Wrapline trial is approved. Your first payment is taken after the trial unless you cancel.';
+ $('ty-lead').textContent=trialLead();
 }
 if(provider==='PayPal')$('ty-fine').innerHTML='Need help? <a href="contact.html">Contact support</a>. To stop automatic renewal, open <b>Account</b> on the Wrapline page or cancel in your <a href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener">PayPal account</a>.';
 try{sessionStorage.removeItem('ajoy.acct.open');}catch{}
@@ -21,7 +22,7 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
  state('verifying','Payment received · verifying with Razorpay','Razorpay has your payment. We are confirming it securely. This usually takes a few seconds; you can stay on this page.');
  $('ty-step-pay').textContent='Payment received · verifying';
  const started=Date.now();let done=false;
- const finish=()=>{if(done)return;done=true;state('confirmed','Payment confirmed','Your subscription is confirmed. A receipt is on its way to your verified email address.');$('ty-step-pay').textContent='Payment confirmed';
+ const finish=()=>{if(done)return;done=true;state('confirmed',trial?'Free trial started':'Payment confirmed',trial?trialLead():'Your subscription is confirmed. A receipt is on its way to your verified email address.');$('ty-step-pay').textContent=trial?'Trial approved':'Payment confirmed';
   const clean=new URLSearchParams(q);clean.delete('verify');clean.delete('checkout');history.replaceState(null,'','?'+clean.toString());};
  const poll=async()=>{
   if(done)return;

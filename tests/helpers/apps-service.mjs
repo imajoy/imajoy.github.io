@@ -74,7 +74,7 @@ export function service({registered=true,mailFails=false}={}){
    return result({},404);
   }},ContentService:{MimeType:{JSON:'json'},createTextOutput:()=>({setMimeType(){return this;},setContent(text){this.text=text;return this;}})}
  });
- for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs','Billing.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
+ for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs','Billing.gs','Payments.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
  ctx.archivePayPalCatalog_({tiers});
  const currentTiers=JSON.parse(JSON.stringify(tiers).replaceAll('P-','P-CURRENT-'));
  values.set('PLANS_sandbox',JSON.stringify({productId:'PROD-TEST',tiers:currentTiers,priceVersion:ctx.PRICE_VERSION,prices:ctx.PRICES}));

@@ -173,7 +173,13 @@ function commerceWebhook_(d) {
   var h=d.headers||{},verified=commercePaypal_('/v1/notifications/verify-webhook-signature','post',{auth_algo:h['paypal-auth-algo'],cert_url:h['paypal-cert-url'],transmission_id:h['paypal-transmission-id'],transmission_sig:h['paypal-transmission-sig'],transmission_time:h['paypal-transmission-time'],webhook_id:webhook,webhook_event:d.event});
   if(verified.verification_status!=='SUCCESS')throw commerceError_('signature','Invalid PayPal signature.');
   var event=d.event||{},resource=event.resource||{},sub=String(resource.billing_agreement_id||resource.id||'');
+  // Refunds and reversals mark the payment in the Payments tab (rewards already given stay used).
+  if((event.event_type==='PAYMENT.SALE.REFUNDED'||event.event_type==='PAYMENT.SALE.REVERSED')&&typeof paymentRefund_==='function'){
+    var refunded=String(resource.sale_id||resource.id||'');if(refunded)paymentRefund_(refunded);
+    if(!/^I-[A-Z0-9]+$/.test(sub))return {ok:true};
+  }
   if(!/^I-[A-Z0-9]+$/.test(sub))return {ok:true,ignored:true};
+  if(event.event_type==='PAYMENT.SALE.COMPLETED'&&typeof paymentFromPaypalSale_==='function'){try{paymentFromPaypalSale_(sub,resource,'Webhook');}catch(e){Logger.log('Payments tab: '+e.message);}}
   var row=commerceRows_().filter(function(r){return r[1]===mode_()&&r[11]===sub;})[0];
   if(!row){
     var cutoff=Date.parse(props_().getProperty('COMMERCE_ENFORCE_FROM')||'');

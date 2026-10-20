@@ -185,6 +185,7 @@ function razorpayConfirm_(id,who){
     if(!receipts){receipts=ss.insertSheet('RazorpayPayments');receipts.appendRow(['Payment ID','Subscription ID','Mode','Verified email','Amount (paise)','Currency','Paid through','Invoice ID']);}
     var seen=receipts.getLastRow()>1?receipts.getRange(2,1,receipts.getLastRow()-1,1).getValues():[];
     if(!seen.some(function(r){return r[0]===payment.id;}))receipts.appendRow([payment.id,current.subscriptionId,current.mode,'email:'+current.email,payment.amount,'INR',new Date(current.paidThrough*1000),invoice.id]);
+    if(typeof paymentFromRazorpay_==='function')try{paymentFromRazorpay_(current,payment,'Webhook');}catch(e){Logger.log('Payments tab: '+e.message);}
     razorpayNotify_(current);
     if(current.price.discount&&current.price.discount.coupon&&typeof couponRecordUse_==='function')couponRecordUse_(couponCode_(current.price.discount.coupon.code));
     try{CacheService.getScriptCache().remove('rh:'+mode_()+':'+current.email);}catch(e){}
@@ -226,6 +227,7 @@ function razorpayWebhook_(d){
   commerceLock_(function(){var r=razorpayFind_(record.id);r.providerStatus=current.status;razorpayWrite_(r);});
   if(event.event==='refund.processed'){
     var refund=event.payload&&event.payload.refund&&event.payload.refund.entity;
+    if(refund&&refund.payment_id&&typeof paymentRefund_==='function')paymentRefund_(refund.payment_id);
     if(refund&&refund.payment_id===record.paymentId){var paid=razorpayApi_('/payments/'+encodeURIComponent(record.paymentId));if(Number(paid.amount_refunded)>0)commerceLock_(function(){var r=razorpayFind_(record.id);r.paidThrough=0;r.accessRevoked=true;r.providerStatus='refunded';razorpayWrite_(r);});}
   }
   if(event.event==='subscription.charged'||event.event==='payment.captured'||event.event==='subscription.authenticated'&&(record.price.offer==='trial'||record.price.upfront))return razorpayConfirm_(record.id,null);

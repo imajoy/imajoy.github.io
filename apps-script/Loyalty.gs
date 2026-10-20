@@ -23,6 +23,8 @@ function rewardBuyer_(row) {
   try{return row[19]?JSON.parse(row[19]):{};}catch(e){throw commerceError_('rewards_unavailable','Saved reward details could not be verified. Please contact Ajoy.');}
 }
 function rewardHistory_(email) {
+  // After buildPaymentHistory() has run, rewards come from the shop's own Payments tab.
+  if(typeof paymentsOn_==='function'&&paymentsOn_())return paymentHistory_(email);
   var known={},sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
   if(sheet&&sheet.getLastRow()>1)sheet.getRange(2,1,sheet.getLastRow()-1,12).getValues().forEach(function(r){
     if(r[3]===mode_()&&String(r[4]).trim().toLowerCase()===email)known[r[1]]={created:r[0],seats:r[9],recorded:true};

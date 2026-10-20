@@ -237,3 +237,12 @@ test('RAZORPAY_ALLOWED_COUNTRIES=ALL opens Razorpay internationally except close
  for(const c of ['GB','DE','RU','IR'])assert.equal(s.rpc('quote',s.selection({country:c,billingCountry:c})).error,'region',c+' stays closed');
  s.app.values.set('RAZORPAY_ALLOWED_COUNTRIES','IN');assert.deepEqual(s.rpc('config').countries,['IN']);assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).error,'region');
 });
+test('A confirmed Razorpay payment is written to the Payments tab in rupees; a refund marks it',()=>{
+ const s=setup(),created=s.rpc('checkout',s.selection());paid(s,created);
+ assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true);
+ const rows=s.app.sheets.get('Payments').rows.slice(1);assert.equal(rows.length,1);
+ assert.deepEqual([rows[0][1],rows[0][2],rows[0][3],rows[0][7],rows[0][8],rows[0][9],rows[0][12]],['buyer@example.com','Razorpay','Test',916.98,'INR','Paid','pay_fixture1']);
+ const record=s.app.ctx.razorpayFind_(created.checkoutId);
+ webhook(s,{event:'refund.processed',payload:{refund:{entity:{id:'rfnd_1',payment_id:'pay_fixture1'}},subscription:{entity:{id:record.subscriptionId}}}});
+ assert.equal(s.app.sheets.get('Payments').rows[1][9],'Refunded');
+});

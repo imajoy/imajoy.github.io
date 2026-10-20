@@ -22,9 +22,8 @@ try{
   await page.waitForFunction(()=>document.querySelector('.billing-network-gate').dataset.motionPaused==='false');
   const running=()=>gate.evaluate(el=>el.getAnimations({subtree:true}).filter(a=>a.playState==='running'&&a.animationName?.startsWith('network-')).length);
   assert.equal((await running())>0,!reduced);
+  assert.equal(await page.locator('[data-network-motion]').count(),0);
   if(!reduced){
-   await page.locator('[data-network-motion]').click();assert.equal(await running(),0);
-   await page.locator('[data-network-motion]').click();assert((await running())>0);
    // Motion pauses when the panel is outside the viewport.
    await gate.evaluate(el=>{const spacer=document.createElement('div');spacer.id='fixture-spacer';spacer.style.height='1800px';el.before(spacer);});await page.evaluate(()=>scrollTo(0,0));
    await page.waitForFunction(()=>document.querySelector('.billing-network-gate').dataset.motionPaused==='true');

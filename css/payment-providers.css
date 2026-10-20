@@ -126,7 +126,3 @@ html[data-theme=dark] .rzp-assure li::before{background-color:rgba(47,181,131,.1
  .network-actions{gap:12px}.network-actions .btn{padding-inline:18px;font-size:14px}
  .network-chip-device{top:24px}.network-chip-region{bottom:18px}
 }
-
-.network-pause{border:0;border-bottom:1px dotted currentColor;padding:2px 0;margin-left:10px;background:none;color:var(--mute);font:inherit;cursor:pointer}
-.network-pause:focus-visible{outline:2px solid var(--blue,#347bff);outline-offset:4px}
-@media(prefers-reduced-motion:reduce){.network-pause{display:none}}

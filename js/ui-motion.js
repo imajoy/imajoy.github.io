@@ -41,6 +41,8 @@ if(form){
  const total=document.querySelector('#summary-total');
  let animation;
  const update=()=>{
+  // Optional fields stay natively valid when cleared; an empty value earns no success tick.
+  for(const control of form.querySelectorAll('.form-field > input,.form-field > textarea'))control.toggleAttribute('data-filled',Boolean(control.value.trim()));
   const fields=[...form.elements].filter(el=>el.required&&el.willValidate);
   const completed=fields.filter(el=>el.validity.valid).length;
   document.querySelector('.billing-completion').style.setProperty('--completion',String(fields.length?completed/fields.length:0));

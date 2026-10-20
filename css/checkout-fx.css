@@ -21,7 +21,7 @@
 }
 /* --- fields: soft tick when valid, label colour on focus --- */
 .form-field{position:relative}
-.form-field:has(> input:user-valid:not([type=number])):not(:has(.quantity-control))::after,.form-field:has(> textarea:user-valid)::after{content:"";position:absolute;right:16px;bottom:19px;width:12px;height:7px;border-left:2.5px solid #2FB5AE;border-bottom:2.5px solid #2FB5AE;transform:rotate(-45deg);pointer-events:none;animation:ck-pop .45s cubic-bezier(.22,1,.36,1)}
+.form-field:has(> input[data-filled]:user-valid:not([type=number])):not(:has(.quantity-control))::after,.form-field:has(> textarea[data-filled]:user-valid)::after{content:"";position:absolute;right:16px;bottom:19px;width:12px;height:7px;border-left:2.5px solid #2FB5AE;border-bottom:2.5px solid #2FB5AE;transform:rotate(-45deg);pointer-events:none;animation:ck-pop .45s cubic-bezier(.22,1,.36,1)}
 @keyframes ck-pop{from{opacity:0;transform:rotate(-45deg) scale(.2)}}
 .form-field:focus-within>label{color:var(--blue-d);transition:color .25s}
 .form-field>label{transition:color .25s,transform .35s cubic-bezier(.22,1,.36,1)}

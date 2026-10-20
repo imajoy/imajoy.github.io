@@ -83,7 +83,7 @@ if(form&&pay){
  }
  if(total)new MutationObserver(()=>paintHead()).observe(total,{childList:true,characterData:true,subtree:true});
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{
-  selectedOffer=radio.value;invalidate();say('');
+  selectedOffer=radio.value;invalidate();say(selectedOffer==='trial'&&couponCode?'The free trial can\u2019t be combined with a coupon, so '+couponCode+' is not applied. Choose Pay now to use your coupon instead.':'');
   if(selectedOffer==='standard'&&rewardsSupported()&&(!rewardQuote||rewardKey!==keyOf())&&(!rewardBusy||rewardKey!==keyOf()))refreshReward();
   sync();
  });
@@ -93,7 +93,14 @@ if(form&&pay){
  /* Coupon codes are checked by the server against the owner's Coupons sheet; the old storefront handlers are replaced. */
  let couponCode=draft?.coupon||'';
  for(const id of ['coupon-code','coupon-apply','coupon-remove']){const el=document.getElementById(id);if(el)el.replaceWith(el.cloneNode(true));}
- const couponBox=document.querySelector('.coupon-panel'),cInput=document.querySelector('#coupon-code'),cApply=document.querySelector('#coupon-apply'),cRemove=document.querySelector('#coupon-remove'),cStatus=document.querySelector('#coupon-status');
+ const couponBox=document.querySelector('.coupon-panel');
+ if(paymentStep&&couponBox){
+  const fold=document.createElement('details');fold.className='pp-coupon';fold.innerHTML='<summary>Have a coupon?</summary>';
+  box.querySelector('.paypal-price-check').before(fold);fold.append(couponBox);
+  const mirror=()=>{fold.hidden=couponBox.hidden;};new MutationObserver(mirror).observe(couponBox,{attributes:true,attributeFilter:['hidden']});mirror();
+  if(couponCode)fold.open=true;
+ }
+ const cInput=document.querySelector('#coupon-code'),cApply=document.querySelector('#coupon-apply'),cRemove=document.querySelector('#coupon-remove'),cStatus=document.querySelector('#coupon-status');
  if(cInput)cInput.value=couponCode;
  document.addEventListener('ajoy:checkout-draft',event=>{event.detail.offer=selectedOffer;event.detail.coupon=couponCode;});
  const couponSay=(text,bad=false)=>{if(cStatus){cStatus.textContent=text;cStatus.dataset.error=String(bad);}};
@@ -102,7 +109,8 @@ if(form&&pay){
   const code=cInput.value.trim().toUpperCase();cInput.value=code;
   if(!/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(code)){couponSay('Enter a valid coupon code.',true);cInput.focus();return;}
   if(!getAccountSession()){couponSay('Sign in or register first, then apply your coupon.',true);openAccount({purpose:'checkout',email:form.elements.email.value});return;}
-  couponCode=code;if(selectedOffer!=='standard'&&getAccountSession()&&eligibility)selectedOffer='standard';invalidate();refreshReward();sync();
+  const wasTrial=selectedOffer==='trial';couponCode=code;if(selectedOffer!=='standard'&&getAccountSession()&&eligibility)selectedOffer='standard';invalidate();refreshReward();sync();
+  if(wasTrial)say('A coupon can\u2019t be combined with the free trial, so you\u2019re now on Pay now with '+code+'. Prefer the free trial? Choose it above (the coupon won\u2019t apply).');
  }
  if(cApply)cApply.onclick=applyCoupon;
  if(cInput)cInput.addEventListener('keydown',event=>{if(event.key==='Enter'&&!event.isComposing){event.preventDefault();applyCoupon();}});

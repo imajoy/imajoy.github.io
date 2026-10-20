@@ -165,8 +165,6 @@ html[data-theme=dark] .rzp-coupon-msg[data-error=true]{color:#ff9d94}
 .checkout-form .rzp-offer legend{float:left;width:100%;margin:0;padding:0 0 10px;border:0;border-radius:0;background:none;box-shadow:none;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
 .checkout-form .rzp-offer:has([required]):not(:has(:invalid)) legend{padding-right:0}
 @media(max-width:560px){.checkout-form .rzp-offer{padding-inline:18px}}
-/* With Razorpay the page's own coupon box is used, so the duplicate inside the payment card steps aside. */
-html[data-rzp-offers] .razorpay-panel .rzp-coupon{display:none}
 
 /* PayPal option: same card as Razorpay so switching methods feels like one checkout. */
 html .paypal-box{position:relative;overflow:hidden;gap:0;margin-top:18px;padding:0 0 22px;border:1px solid var(--line);border-radius:28px;background:var(--card);box-shadow:var(--shadow);animation:rzp-in .5s var(--out,ease) both}
@@ -220,3 +218,21 @@ html[data-theme=dark] .pp-head .paypal-test{color:#f2c46d;background:repeating-l
 html .checkout-form .paypal-box .checkout-offer{margin:18px 24px 0;padding:0}
 .paypal-box .checkout-offer em,.rzp-offer em{font-family:var(--sans,inherit);font-style:normal}
 @media(max-width:560px){html .checkout-form .paypal-box .checkout-offer{margin:16px 18px 0}}
+
+/* Payment step: coupons live inside the payment card as a small "Have a coupon?" link. */
+.paypal-box>.pp-coupon{margin-top:14px;font-size:14px}
+.pp-coupon[hidden]{display:none}
+.pp-coupon summary{cursor:pointer;color:var(--blue-d,#2A64E8);font-weight:600;list-style:none;display:inline-flex;align-items:center;gap:6px}
+.pp-coupon summary::-webkit-details-marker{display:none}
+.pp-coupon summary::before{content:"";width:14px;height:14px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 4.5A1.5 1.5 0 0 1 3.5 3h9A1.5 1.5 0 0 1 14 4.5v1.8a1.7 1.7 0 0 0 0 3.4v1.8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11.5V9.7a1.7 1.7 0 0 0 0-3.4z' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 4.5A1.5 1.5 0 0 1 3.5 3h9A1.5 1.5 0 0 1 14 4.5v1.8a1.7 1.7 0 0 0 0 3.4v1.8a1.5 1.5 0 0 1-1.5 1.5h-9A1.5 1.5 0 0 1 2 11.5V9.7a1.7 1.7 0 0 0 0-3.4z' fill='none' stroke='black' stroke-width='1.3'/%3E%3C/svg%3E") center/contain no-repeat}
+html .checkout-form .pp-coupon .coupon-panel{margin:10px 0 0;padding:0;border:0;border-radius:0;background:none;box-shadow:none;min-width:0}
+.pp-coupon .coupon-panel legend,.pp-coupon .coupon-panel label[for=coupon-code]{display:none}
+.pp-coupon .coupon-panel .form-field{margin:0}
+html[data-checkout-step=payment] .checkout-form>.coupon-panel{display:none!important}
+/* The agreement sits just above the pay button. */
+html .checkout-form .check-row.terms-in-card{margin:18px 24px 0;padding:12px 14px;border:1px solid var(--line);border-radius:14px;background:var(--t05,rgba(14,18,32,.03));font-size:13.5px;line-height:1.55}
+.razorpay-panel .check-row.terms-in-card+.btn{margin-top:12px}
+@media(max-width:560px){html .checkout-form .check-row.terms-in-card{margin-inline:18px}}
+/* "Trial and coupon can't be combined" notice */
+.rzp-offer-note[data-kind=club]{padding:10px 12px;border-radius:12px;color:#8a5a00;background:#FFF4DA;font-size:13px;line-height:1.5}
+html[data-theme=dark] .rzp-offer-note[data-kind=club]{color:#f0bd62;background:rgba(242,182,79,.12)}

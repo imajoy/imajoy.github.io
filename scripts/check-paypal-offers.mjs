@@ -40,6 +40,7 @@ try{
   assert.doesNotMatch(await page.locator('.paypal-note').textContent(),/Checkout cancelled/);
   assert(calls>=2,'selecting Standard must recover a missing/failed verified price');
   await page.locator('[name="checkout-offer"][value="trial"]').check();await page.locator('[data-fixture-paypal]').waitFor();
+  if(await page.locator('.pp-coupon').count()&&!(await page.locator('.pp-coupon').evaluate(d=>d.open)))await page.locator('.pp-coupon summary').click();
   await page.locator('#coupon-code').fill('OFFER10');await page.locator('#coupon-apply').click();
   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('20.20'));await page.locator('[data-fixture-paypal]').waitFor();
   hold=true;await page.locator('#coupon-remove').click();

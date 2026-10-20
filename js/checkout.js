@@ -1,3 +1,4 @@
+import {initializeCheckoutSteps} from './checkout-steps.js?v=20261020-steps1';
 import {localApprox} from './fx.js?v=20261018-h8';
 import {initializeBillingCountry} from './billing-country.js?v=20261020-country3';
 import {api,apiBase,getQuote,getCouponQuote,previewPrice,money} from './commerce.js?v=20261020-rz1';
@@ -10,6 +11,7 @@ const codes='AF AL DZ AD AO AG AR AM AU AT AZ BS BH BD BB BY BE BZ BJ BT BO BA B
 const names=new Intl.DisplayNames([navigator.language||'en'],{type:'region'});
 const countries=codes.map(code=>[code,names.of(code)]).sort((a,b)=>a[1].localeCompare(b[1]));
 for(const [code,name] of countries){const o=new Option(name,code);form.elements.country.add(o);}
+initializeCheckoutSteps(form);
 initializeBillingCountry(form);
 let config={paymentsEnabled:false},quote=null,quoteRevision=0;
 const quantity=form.elements.seats,less=document.querySelector('#quantity-less'),more=document.querySelector('#quantity-more');

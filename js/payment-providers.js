@@ -1,3 +1,4 @@
+import {readBillingDraft} from './checkout-steps.js?v=20261020-steps1';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
 import {availability,countryCheck,tierFor} from './regions.js?v=20261020-rz1';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261018-n1';
@@ -5,7 +6,7 @@ import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;
 if(form&&paypal&&url){
  const picker=document.createElement('fieldset');picker.className='payment-picker';picker.hidden=true;
- picker.innerHTML='<legend>Payment method</legend><label hidden><input type="radio" name="payment-provider" value="paypal" checked><span><b>PayPal</b><small>USD · subscriptions and eligible Online trials</small></span></label><label hidden><input type="radio" name="payment-provider" value="razorpay"><span><b>Razorpay</b><small>INR · payment methods available for your account</small></span></label>';
+ picker.innerHTML='<legend>Choose a payment method</legend><label hidden><input type="radio" name="payment-provider" value="paypal" checked><span><b>PayPal</b><small>USD · subscriptions and eligible Online trials</small></span></label><label hidden><input type="radio" name="payment-provider" value="razorpay"><span><b>Razorpay</b><small>INR · payment methods available for your account</small></span></label>';
  const panel=document.createElement('section');panel.className='razorpay-panel';panel.hidden=true;
  const review=document.createElement('section');review.className='billing-review';
  review.innerHTML='<h3>Review your billing details</h3><p data-billing-availability>Checking payment availability…</p><button type="button" class="btn btn-light btn-block" data-review-billing>Review billing details</button><p class="billing-review-status" role="status" aria-live="polite"></p>';
@@ -15,6 +16,7 @@ if(form&&paypal&&url){
  let config=null,paypalConfig=null,provider='review',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
  document.documentElement.dataset.paymentProvider='review';paypal.hidden=true;
  document.querySelector('#customer-verification').hidden=true;document.querySelector('.coupon-panel').hidden=true;
+ const draft=readBillingDraft();let restoredProvider=false;
  let requestId=crypto.randomUUID();
  const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
  const key=()=>JSON.stringify(choice());
@@ -34,7 +36,8 @@ if(form&&paypal&&url){
  function sync(){
   if(document.documentElement.dataset.billingBlocked==='true'){picker.hidden=true;paypal.hidden=true;panel.hidden=true;review.hidden=true;return;}
   const c=choice(),country=c.country,canRazorpay=razorpayAvailable(config,country),canPaypal=!!paypalConfig?.clientId&&/^[A-Z]{2}$/.test(country)&&availability(country,paypalConfig.closedCountries||[]).open&&(document.documentElement.dataset.billingTester==='true'||countryCheck(country,paypalConfig.mode==='live'?paypalConfig.country:'').ok)&&!!paypalConfig.plans?.tiers?.[tierFor(country)]?.[c.plan]?.[c.billing];
-  picker.hidden=!canRazorpay;picker.querySelector('[value="razorpay"]').parentElement.hidden=!canRazorpay;picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
+  if(!restoredProvider&&(canRazorpay||canPaypal)){restoredProvider=true;if(draft?.provider==='razorpay'&&canRazorpay)selected('razorpay');}
+  picker.hidden=!canRazorpay&&!canPaypal;picker.querySelector('[value="razorpay"]').parentElement.hidden=!canRazorpay;picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
   if(!canRazorpay&&!canPaypal&&provider!=='review')selected('review');
   else if(canRazorpay&&!canPaypal&&provider!=='razorpay')selected('razorpay');
   else if(canPaypal&&(provider==='review'||provider==='razorpay'&&!canRazorpay))selected('paypal');

@@ -50,8 +50,8 @@ for(const filename of publicPages){
  }
  assert.equal((html.match(/<h1\b/gi)||[]).length,1,`${filename}: exactly one main heading expected`);
 }
-for(const filename of ['checkout.html','download.html','404.html','next/index.html']){
+for(const filename of ['checkout.html','payment.html','download.html','404.html','next/index.html']){
  assert(tags(read(filename),'meta').some(tag=>tag.name==='robots'&&/\bnoindex\b/.test(tag.content)),`${filename}: noindex missing`);
 }
 const robots=read('robots.txt');assert.match(robots,/^User-agent:\s*\*/m);assert(robots.includes('Sitemap: '+base+'sitemap.xml'));assert(!/^Disallow:\s*\/\s*$/m.test(robots),'Do not block the public site');
-console.log(`SEO checks passed: ${publicPages.length} public pages, ${tools.length} linked tool guides, unique metadata, canonical/schema consistency, sitemap coverage, internal page links and 4 noindex routes.`);
+console.log(`SEO checks passed: ${publicPages.length} public pages, ${tools.length} linked tool guides, unique metadata, canonical/schema consistency, sitemap coverage, internal page links and 5 noindex routes.`);

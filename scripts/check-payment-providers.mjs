@@ -35,6 +35,14 @@ try{
   await page.goto(new URL('checkout.html?plan=online&billing=monthly',base).href);
   await page.waitForFunction(country=>document.querySelector('#country').value===country,country);
   assert.equal(await page.locator('#country').isDisabled(),true);
+  assert.equal(await page.locator('.payment-picker').isVisible(),false);
+  assert.equal(await page.locator('#paypal-buttons').isVisible(),false);
+  assert.equal(await page.locator('.razorpay-panel').isVisible(),false);
+  await page.locator('#name').fill('Example buyer');await page.locator('#address').fill('Example street');await page.locator('#city').fill('Example city');await page.locator('#terms').check();
+  await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');
+  await page.waitForFunction(country=>document.querySelector('#country').value===country,country);
+  assert.equal(await page.locator('.billing-entry').isVisible(),false);
+
   if(enabled&&['IN','US'].includes(country)){
    await page.locator('.payment-picker').waitFor({state:'visible'});
    if(country==='US'){
@@ -45,10 +53,12 @@ try{
    assert.equal(await page.locator('#customer-verification').isVisible(),false);
    assert.equal(await page.locator('.coupon-panel').isVisible(),false);
    assert.match(await page.locator('#summary-total').textContent(),country==='IN'?/899/:/1,999/);
+   await page.getByRole('link',{name:'Edit billing details',exact:true}).first().click();await page.waitForURL('**/checkout.html');
    await page.selectOption('#billing','yearly');
+   await page.waitForFunction(()=>document.documentElement.dataset.billingBlocked==='false');
+   await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');
    await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('8,630.40')||document.querySelector('#summary-total').textContent.includes('19,190.40'));
    assert.equal(await page.locator('#annual-summary-row').isVisible(),true);
-   await page.locator('#name').fill('Example buyer');await page.locator('#address').fill('Example street');await page.locator('#city').fill('Example city');await page.locator('#terms').check();
    if(country==='IN'){
     await page.locator('.razorpay-panel').screenshot({path:'/tmp/razorpay-checkout-'+width+'.png'});
     const popupPromise=context.waitForEvent('page');await page.locator('[data-razorpay-start]').click();const popup=await popupPromise;
@@ -66,11 +76,10 @@ try{
     await page.locator('.paypal-box').waitFor({state:'visible'});assert.equal(await page.locator('.razorpay-panel').isVisible(),false);
    }
   }else{
-   await page.waitForTimeout(700);assert.equal(await page.locator('.razorpay-panel').isVisible(),false);assert.equal(await page.locator('.payment-picker').isVisible(),false);
+   await page.waitForTimeout(700);assert.equal(await page.locator('.razorpay-panel').isVisible(),false);assert.equal(await page.locator('.payment-picker').isVisible(),country==='US');
    if(country!=='US'){
     await page.locator('.billing-review').waitFor({state:'visible'});assert.equal(await page.locator('.paypal-box').isVisible(),false);
     if(width<800)assert.equal(await page.locator('.m-total button').textContent(),'Review billing');
-    await page.locator('#name').fill('Billing review buyer');await page.locator('#address').fill('Example street');await page.locator('#city').fill('Example city');await page.locator('#terms').check();
     await page.locator('[data-review-billing]').click();await page.waitForFunction(()=>document.querySelector('.billing-review-status').textContent.includes('not been submitted'));
     assert.equal(app.razorpay.subscriptions.size,0);assert.equal(app.mails.length,0);assert.equal(app.orders.rows.length,2);
    }else assert.equal(await page.locator('.billing-review').isVisible(),false);

@@ -25,6 +25,12 @@ try{
    return route.abort();
   });
   await page.goto(new URL('checkout.html',base).href);
+  await page.waitForFunction(()=>document.querySelector('#country').value==='US');
+  assert.equal(await page.locator('#paypal-buttons').isVisible(),false);
+  await page.waitForFunction(()=>document.querySelector('#loyalty-status').textContent.includes('Fixture:'));
+  await page.locator('#name').fill('Example buyer');await page.locator('#address').fill('Example street');await page.locator('#city').fill('Example city');await page.locator('#terms').check();
+  failures=1;await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');
+
   await page.locator('[data-fixture-paypal]').waitFor();
   await page.waitForFunction(()=>document.querySelector('#loyalty-status').textContent.includes('Fixture:'));
   await page.evaluate(()=>window.fixturePayPal.onCancel());
@@ -41,7 +47,11 @@ try{
   assert.equal(await page.locator('[data-fixture-paypal]').isVisible(),false);
   await page.waitForFunction(()=>document.querySelector('#loyalty-status').textContent.includes('Checking'));const deadline=Date.now()+5000;while(!release&&Date.now()<deadline)await new Promise(resolve=>setTimeout(resolve,20));assert(release,'the pending quote must reach the fixture service');release();hold=false;
   await page.locator('[data-fixture-paypal]').waitFor();assert.match(await page.locator('#summary-total').textContent(),/20\.90/);
-  failures=1;await page.selectOption('#billing','yearly');
+  await page.getByRole('link',{name:'Edit billing details',exact:true}).first().click();await page.waitForURL('**/checkout.html');
+  await page.waitForFunction(()=>document.documentElement.dataset.billingBlocked==='false');
+  await page.selectOption('#billing','yearly');
+  await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('200.45'));
+  failures=1;await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');
   await page.locator('[data-payment-price-retry]').waitFor({state:'visible'});await page.locator('[data-payment-price-retry]').click();
   await page.locator('[data-fixture-paypal]').waitFor();assert.match(await page.locator('#summary-total').textContent(),/200\.45/);
   assert.deepEqual(errors,[]);await context.close();console.log(`${width}px: Standard recovery, cancelled trial, coupon apply/remove, pending price and retry passed`);

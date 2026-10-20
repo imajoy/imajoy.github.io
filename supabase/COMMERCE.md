@@ -1,5 +1,7 @@
 # Registered checkout, downloads and one-time trials
 
+The website now separates `checkout.html` (billing, offers and one Continue to payment action) from `payment.html` (enabled, country-filtered gateways). A short-lived, tab-local draft carries form details; it contains no session token or authoritative price. Country, account, availability, trial and discount checks still run before payment. Legacy PayPal returns to checkout.html are forwarded to the payment page for confirmation. This page separation needs a website publish only.
+
 For locked server-detected billing countries, the verified testing-account exception and optional VPN/proxy checks, follow [BILLING-NETWORK.md](BILLING-NETWORK.md). This also replaces manual country selection during Sandbox testing.
 
 To add Razorpay without changing Live PayPal, see [RAZORPAY.md](RAZORPAY.md). Razorpay is separately enabled and hidden until configured; the existing PayPal trial/promotional flow remains separate.

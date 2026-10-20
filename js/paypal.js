@@ -1,3 +1,4 @@
+import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261020-steps1';
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
 import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261020-rz1';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261020-rz1';
@@ -15,6 +16,7 @@ if(form&&pay){
  const total=document.querySelector('#summary-total'),availabilityNote=document.querySelector('#availability');
  const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let rewardQuote=null,rewardRevision=0,rewardTimer,rewardBusy=false,rewardError='',rewardKey='';
+ const draft=readBillingDraft();let restoredOffer=false;
  let cfg=null,eligibility=null,selectedOffer='',trialOn=false,lastTotal=total?.textContent||'—',activeToken='',revision=0,sdkPromise,rendered=false,checkout=null,requestId=crypto.randomUUID();
  const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
  const say=(text,bad=false,claimed=false)=>{note.textContent=text;note.dataset.bad=bad?'1':'0';note.classList.toggle('is-trial-claimed',claimed);};
@@ -42,6 +44,7 @@ if(form&&pay){
   const trialLabel=offerBox.querySelector('[data-trial-option-label]');
   trialLabel.textContent=eligibility?.reason==='trial_used'?'2-day trial already claimed':'2-day Online trial · $0 today';
   trialLabel.toggleAttribute('data-trial-claimed',eligibility?.reason==='trial_used');
+  if(session&&eligibility&&!restoredOffer){restoredOffer=true;if(draft?.offer)selectedOffer=draft.offer;}
   if(!session||!eligibility)selectedOffer='';
   else if(c.plan==='offline')selectedOffer='standard';
   else if(selectedOffer==='trial'&&!trial)selectedOffer='';
@@ -66,7 +69,7 @@ if(form&&pay){
   priceRetry.hidden=!waiting||rewardBusy;
   buttons.hidden=!session||!cfg||!eligibility||!selectedOffer||!available||(needsPrice&&!priceReady);
   if(availabilityNote)availabilityNote.textContent=!session?'Sign in or register your email, then review your subscription.':!cfg?'Secure checkout is temporarily unavailable.':!eligibility?'Checking your account and trial eligibility…':trialOn?'Review your free trial and its first paid renewal, then approve with PayPal.':'Review the standard subscription price, then approve with PayPal.';
-  if(!buttons.hidden)startButtons();
+  if(!buttons.hidden&&paymentStep&&document.documentElement.dataset.checkoutReady!=='false')startButtons();
  }
  if(total)new MutationObserver(()=>{if(total.textContent!=='$0')lastTotal=total.textContent;if(trialOn&&total.textContent!=='$0')total.textContent='$0';}).observe(total,{childList:true,characterData:true,subtree:true});
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{
@@ -78,9 +81,11 @@ if(form&&pay){
  form.elements.seats.addEventListener('input',()=>{invalidate();refreshReward();sync();});
  document.addEventListener('ajoy:quote-rendered',sync);
  /* Coupon codes are checked by the server against the owner's Coupons sheet; the old storefront handlers are replaced. */
- let couponCode='';
+ let couponCode=draft?.coupon||'';
  for(const id of ['coupon-code','coupon-apply','coupon-remove']){const el=document.getElementById(id);if(el)el.replaceWith(el.cloneNode(true));}
  const couponBox=document.querySelector('.coupon-panel'),cInput=document.querySelector('#coupon-code'),cApply=document.querySelector('#coupon-apply'),cRemove=document.querySelector('#coupon-remove'),cStatus=document.querySelector('#coupon-status');
+ if(cInput)cInput.value=couponCode;
+ document.addEventListener('ajoy:checkout-draft',event=>{event.detail.offer=selectedOffer;event.detail.coupon=couponCode;});
  const couponSay=(text,bad=false)=>{if(cStatus){cStatus.textContent=text;cStatus.dataset.error=String(bad);}};
  const keyOf=()=>JSON.stringify({...choice(),coupon:couponCode});
  function applyCoupon(){
@@ -172,10 +177,11 @@ if(form&&pay){
   }catch(error){reflectTrialRestriction(error);say(error.message,true,error.code==='trial_used');}
  }
  function showDone(result){
+  clearBillingDraft();
   const c={...checkout?.selection,plan:result.plan||checkout?.selection.plan,billing:result.billing||checkout?.selection.billing,seats:result.seats||checkout?.selection.seats};
   const card=document.createElement('section');card.className='pay-done';card.setAttribute('role','status');
   card.innerHTML='<svg class="pd-check" viewBox="0 0 52 52" aria-hidden="true"><circle cx="26" cy="26" r="23"/><path d="M15 27l8 8 15-17"/></svg><p class="eyebrow">'+(result.offer==='trial'?'Trial approved':'Subscription confirmed')+'</p><h2>Thank you. Your account is ready.</h2><dl class="pd-list"><div><dt>Plan</dt><dd>'+esc(c.plan==='offline'?'Offline':'Online')+' · '+esc(c.billing)+' · '+esc(c.seats)+' license(s)</dd></div><div><dt>License email</dt><dd>'+esc(result.email)+'</dd></div><div><dt>Subscription ID</dt><dd>'+esc(result.subscriptionId)+'</dd></div></dl>'+(result.offer==='trial'?'<p class="pd-note">Your 2-day trial is approved. Your first payment follows the trial unless you cancel in PayPal.</p>':'')+'<p class="pd-note">Your license arrives within 12 hours. You remain signed in with your verified email.</p><div class="pd-bar" aria-hidden="true"></div><p class="pd-count">Taking you home in <b id="pd-sec">8</b> seconds. <a href="wrapline.html">Go now</a></p>';
-  card.style.setProperty('--redir','8s');document.querySelector('.checkout-grid').before(card);document.querySelector('.checkout-grid').hidden=true;if(availabilityNote)availabilityNote.hidden=true;
+  card.style.setProperty('--redir','8s');document.querySelector('.checkout-grid').before(card);document.querySelector('.checkout-grid').hidden=true;document.dispatchEvent(new Event('ajoy:payment-complete'));if(availabilityNote)availabilityNote.hidden=true;
   try{sessionStorage.setItem('ajoy.acct.open','1');}catch{}
   card.scrollIntoView({behavior:'smooth',block:'center'});let left=8;const timer=setInterval(()=>{card.querySelector('#pd-sec').textContent=String(--left);if(left<=0){clearInterval(timer);location.href='wrapline.html';}},1000);
  }

@@ -1,0 +1,16 @@
+/* Form steps keep their own control motion without cross-document snapshots. */
+@view-transition{navigation:none}
+/* Billing has one forward action. Gateway controls belong to the payment step. */
+html[data-checkout-step="billing"] :is(.payment-picker,.razorpay-panel,.billing-review,#paypal-buttons,.paypal-fine){display:none!important}
+.checkout-continue{margin-top:24px;padding-top:20px;border-top:1px solid var(--line)}
+.checkout-continue .btn{display:flex;justify-content:center;gap:14px;align-items:center;width:100%}
+.checkout-continue .form-hint{line-height:1.7;margin-top:12px}
+.checkout-continue .form-status:empty{display:none}
+html[data-checkout-step="payment"] :is(.license-entry,.billing-entry,.offer-checkout,.billing-completion,.order-summary .license-preview,.order-summary .creative-flow,.order-summary .summary-list){display:none!important}
+html[data-checkout-ready="false"] .checkout-grid{display:none!important}
+.payment-billing-summary{padding:22px;border:1px solid var(--line);border-radius:22px;background:var(--card);margin-bottom:26px}
+.payment-billing-summary h2{font-size:1.1rem;margin-bottom:12px}
+.payment-billing-summary p{color:var(--mute);line-height:1.7;overflow-wrap:anywhere;margin-bottom:14px;font-size:.875rem}
+.checkout-progress a{color:var(--mute);text-underline-offset:4px}
+html[data-checkout-step="payment"] .payment-picker{margin-top:18px}
+@media(prefers-reduced-motion:no-preference){.payment-billing-summary{animation:payment-review-in 220ms ease-out both}@keyframes payment-review-in{from{opacity:.6;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}}

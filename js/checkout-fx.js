@@ -1,3 +1,4 @@
+import {paymentStep} from './checkout-steps.js?v=20261020-steps1';
 /* Checkout extras: license pass follows the pointer, total rolls when it changes. */
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const paused = () => reduce.matches || document.documentElement.hasAttribute('data-ui-paused');
@@ -37,12 +38,12 @@ if (matchMedia('(max-width: 800px)').matches) {
   sync();
   let target = null, shown = false, atBottom = false;
   const apply = () => bar.classList.toggle('on', document.documentElement.dataset.billingBlocked!=='true' && shown && !atBottom && !document.querySelector('.pay-done,[data-payment-complete]'));
-  const paymentTarget = () => document.documentElement.dataset.paymentProvider==='review'?document.querySelector('.billing-review'):document.documentElement.dataset.paymentProvider==='razorpay'?document.querySelector('.razorpay-panel'):document.querySelector('.paypal-box');
+  const paymentTarget = () => !paymentStep?document.querySelector('.checkout-continue'):document.documentElement.dataset.paymentProvider==='review'?document.querySelector('.billing-review'):document.documentElement.dataset.paymentProvider==='razorpay'?document.querySelector('.razorpay-panel'):document.querySelector('.paypal-box');
   bar.querySelector('button').addEventListener('click', () => {
     (paymentTarget() || document.querySelector('.checkout-form')).scrollIntoView({ behavior: paused() ? 'auto' : 'smooth', block: 'center' });
   });
   const io = new IntersectionObserver(es => { for (const e of es) if(e.target===target)atBottom = e.isIntersecting; apply(); }, { threshold: 0.2 });
-  const watch = () => {io.disconnect();target=paymentTarget();bar.querySelector('button').textContent=document.documentElement.dataset.paymentProvider==='review'?'Review billing':'Continue to pay';atBottom=false;if(target)io.observe(target);apply();};
+  const watch = () => {io.disconnect();target=paymentTarget();bar.querySelector('button').textContent=!paymentStep?'Continue to payment':document.documentElement.dataset.paymentProvider==='review'?'Review billing':'Continue to pay';atBottom=false;if(target)io.observe(target);apply();};
   document.addEventListener('ajoy:provider-change',watch);
   document.addEventListener('ajoy:billing-network',apply);
   document.addEventListener('ajoy:payment-complete',apply);

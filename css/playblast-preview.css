@@ -3,6 +3,17 @@
 .playblast-screens .visual-heading{font-size:.5625rem;letter-spacing:.08em;margin:0 6px 8px}
 .playblast-depth{--tilt-x:0deg;--tilt-y:0deg;position:relative;padding:22px 18px 32px;perspective:1100px}
 .playblast-depth::after{content:"";position:absolute;inset:auto 12% 6px;height:18px;border-radius:50%;background:#194fa02b;filter:blur(12px);z-index:-1}
+.playblast-arrival{transform-style:preserve-3d;transform-origin:50% 65%}
+.playblast-screens[data-preview-entered] .playblast-arrival{animation:playblast-unfold 1.05s cubic-bezier(.2,.8,.2,1) backwards}
+.playblast-screens[data-preview-entered] .visual-heading{animation:playblast-heading-in .6s ease-out backwards}
+.playblast-screens[data-preview-entered] .playblast-screen-steps li{animation:playblast-step-in .55s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:.25s}
+.playblast-screens[data-preview-entered] .playblast-screen-steps li:nth-child(2){animation-delay:.34s}
+.playblast-screens[data-preview-entered] .playblast-screen-steps li:nth-child(3){animation-delay:.43s}
+.playblast-screens[data-preview-entered] .playblast-screen-steps li:nth-child(4){animation-delay:.52s}
+.playblast-screens[data-preview-active="false"] :is(.playblast-arrival,.visual-heading,.playblast-screen-steps li){animation-play-state:paused}
+@keyframes playblast-unfold{0%{opacity:0;transform:translate3d(0,28px,-90px) rotateX(20deg) rotateY(-12deg) rotateZ(-4deg) scale(.94)}65%{opacity:1;transform:translate3d(0,-3px,0) rotateX(-1.5deg) rotateY(1deg) rotateZ(.4deg) scale(1)}100%{opacity:1;transform:none}}
+@keyframes playblast-heading-in{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+@keyframes playblast-step-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 .playblast-float{transform-style:preserve-3d;animation:playblast-hover 7s ease-in-out infinite;animation-play-state:paused}
 .playblast-device{position:relative;transform-style:preserve-3d;transform:rotateX(calc(6deg + var(--tilt-x))) rotateY(calc(-9deg + var(--tilt-y))) rotateZ(-1.5deg);transition:transform .45s ease-out;border:1px solid #5d7394;border-radius:14px;background:#171e2b;box-shadow:5px 7px 0 #283b57,8px 10px 0 #667994,14px 22px 32px -15px #152b5d80}
 .playblast-device::before{content:"";position:absolute;inset:8px -7px -10px 7px;border:1px solid #91b5eb66;border-radius:14px;background:linear-gradient(135deg,#508fe24d,#526f9c18);transform:translateZ(-18px);z-index:-1;pointer-events:none}
@@ -21,3 +32,4 @@
 @keyframes playblast-hover{0%,100%{transform:translateY(2px)}50%{transform:translateY(-5px)}}
 @media(max-width:520px){.tool-visual.playblast-screens{padding:16px 10px 10px}.playblast-depth{padding:16px 9px 25px}.playblast-device{transform:rotateX(4deg) rotateY(-5deg) rotateZ(-1deg);border-radius:10px}.playblast-window{min-height:28px;padding:5px 8px;font-size:.5625rem}.playblast-window-shot{font-size:.4375rem;letter-spacing:.03em}.playblast-media{border-radius:0 0 9px 9px}.playblast-screens .visual-heading{font-size:.5rem;letter-spacing:.04em}.playblast-screen-steps li{font-size:.5625rem}}
 @media(prefers-reduced-motion:reduce){.playblast-float{animation:none}.playblast-device{transform:rotateY(-4deg);transition:none}.playblast-video,.playblast-screen-steps li{transition:none}}
+@media(prefers-reduced-motion:reduce){.playblast-screens[data-preview-entered] :is(.playblast-arrival,.visual-heading,.playblast-screen-steps li){animation:none}}

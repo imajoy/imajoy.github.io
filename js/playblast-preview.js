@@ -1,11 +1,14 @@
 /* Play the landscape capture only while visible; a still works without JS/media. */
 for(const depth of document.querySelectorAll('[data-playblast-depth]')){
  const video=depth.querySelector('[data-playblast-video]'),preference=matchMedia('(prefers-reduced-motion: reduce)'),pointer=matchMedia('(hover: hover) and (pointer: fine)');
- const steps=[...depth.closest('figure').querySelectorAll('.playblast-screen-steps li')];
- let visible=false,failed=false,frame=0,generation=0;
+ const figure=depth.closest('figure'),steps=[...figure.querySelectorAll('.playblast-screen-steps li')];
+ let visible=false,failed=false,frame=0,generation=0,entered=false;
  const resetTilt=()=>{cancelAnimationFrame(frame);frame=0;depth.style.removeProperty('--tilt-x');depth.style.removeProperty('--tilt-y');};
  const showStep=()=>{const t=video.currentTime,step=t<2.7?0:t<7.2?1:t<11.25?2:3;steps.forEach((el,i)=>i===step?el.setAttribute('aria-current','step'):el.removeAttribute('aria-current'));};
  const sync=()=>{
+  const active=visible&&!document.hidden&&!preference.matches;
+  figure.dataset.previewActive=String(active);
+  if(active&&!entered){entered=true;figure.dataset.previewEntered='true';}
   const play=visible&&!document.hidden&&!preference.matches&&!failed,token=++generation;
   if(!play){video.pause();depth.dataset.playing='false';resetTilt();return;}
   if(!video.getAttribute('src')){video.muted=true;video.src=video.dataset.src;}

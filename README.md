@@ -1,6 +1,6 @@
 # Wrapline by Ajoy Tools
 
-Website for **Wrapline** (a product of **Ajoy Tools**): 13 animation and pipeline tools for Autodesk Maya 2023 and newer.
+Website for **Wrapline** (a product of **Ajoy Tools**): 13 animation and pipeline tools for Autodesk Maya 2023–2026.
 
 https://imajoy.github.io/
 

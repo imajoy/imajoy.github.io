@@ -1,10 +1,7 @@
-/* Occasional maker-home entrances; the default document always remains readable. */
+/* Maker-home entrance on every visit (skipped only when the visitor asks for reduced motion).
+   The page stays readable without it. */
 (function(){
- var root=document.documentElement,enabled=false;
- if(!matchMedia('(prefers-reduced-motion:reduce)').matches)try{
-  enabled=new URLSearchParams(location.search).get('preview')==='motion'||(Date.now()-Number(localStorage.getItem('ajoy.maker.motion')||0)>3600000&&Math.random()<.35);
-  if(enabled)localStorage.setItem('ajoy.maker.motion',String(Date.now()));
- }catch{}
+ var root=document.documentElement,enabled=!matchMedia('(prefers-reduced-motion:reduce)').matches;
  root.dataset.makerMotion=enabled?'play':'skip';
  if(enabled){
   root.classList.add('maker-enter');

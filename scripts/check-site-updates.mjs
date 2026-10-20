@@ -96,6 +96,6 @@ try{
  // Random maker entrances run on an eligible visit, then respect their cooldown.
  const maker=await context(),mp=await maker.newPage();await maker.addInitScript(()=>{Math.random=()=>.1;});
  await mp.goto(new URL('index.html',base).href);assert.equal(await mp.locator('html').getAttribute('data-maker-motion'),'play');
- await mp.reload();assert.equal(await mp.locator('html').getAttribute('data-maker-motion'),'skip');await maker.close();
+ await mp.reload();assert.equal(await mp.locator('html').getAttribute('data-maker-motion'),'play','plays on every visit');await maker.close();
  console.log('Site updates passed: 8 contact layouts, real form-to-mocked-Sheets/private-GitHub flow, text-only guest, exact animated prices, license pause/reduced motion, invitation preview, sign-out resampling and maker cooldown.');
 }finally{await browser.close();}

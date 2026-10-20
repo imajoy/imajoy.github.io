@@ -70,7 +70,7 @@
   ]
 }
 </script>
-<link rel="stylesheet" href="css/ffmpeg-guide.css?v=20261019-f1">
+<link rel="stylesheet" href="css/ffmpeg-guide.css?v=20261021-install1">
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 </head>
@@ -141,7 +141,7 @@
         <div class="guide-step-heading reveal"><p class="eyebrow">FROM THE SHELF TO THE RESULT</p><h2>Make it part of<br>your workflow.</h2><p>Open the tool from the Wrapline shelf or menu. Right-click its shelf button to assign your own hotkey.</p><small>Autodesk Maya 2023–2026 · Windows</small></div>
         <ol class="guide-steps"><li class="reveal"><span class="step-index">01</span><div><h3>Drop your source videos</h3><p>Open Audio Exporter and drag the videos into its window.</p></div></li><li class="reveal"><span class="step-index">02</span><div><h3>Choose names and folder</h3><p>Set an output destination and review the token-based naming preview.</p></div></li><li class="reveal"><span class="step-index">03</span><div><h3>Choose what happens next</h3><p>Optionally enable scene import, loudness levelling or skipping existing exports.</p></div></li><li class="reveal"><span class="step-index">04</span><div><h3>Extract the audio</h3><p>Click Export. Press Esc if you need to cancel.</p></div></li></ol>
       </div>
-      <aside class="guide-notes reveal"><div><p class="eyebrow">BEFORE YOU START</p><h3>What you need</h3><p>FFmpeg is a separate download. <a href="tool-audio-exporter.html#ffmpeg-setup">Prepare the FFmpeg files</a>, then complete manual setup. The tool can find FFmpeg automatically or let you browse to ffmpeg.exe.</p></div><div><p class="eyebrow">GOOD TO KNOW</p><h3>A detail worth keeping in mind.</h3><p>Existing WAV files are replaced unless Skip files already exported is enabled. Import into Maya sets the scene to 30 fps.</p></div></aside>
+      <aside class="guide-notes reveal"><div><p class="eyebrow">BEFORE YOU START</p><h3>What you need</h3><p>FFmpeg is a separate download. <a href="#ffmpeg-setup">Download FFmpeg and follow the setup guide below</a>. The tool can find FFmpeg automatically or let you browse to ffmpeg.exe.</p></div><div><p class="eyebrow">GOOD TO KNOW</p><h3>A detail worth keeping in mind.</h3><p>Existing WAV files are replaced unless Skip files already exported is enabled. Import into Maya sets the scene to 30 fps.</p></div></aside>
       <section class="ffmpeg-prep" id="ffmpeg-setup" aria-labelledby="ffmpeg-heading">
         <header class="ffmpeg-heading"><p class="eyebrow">AUDIO EXPORTER / FFMPEG / PART 1</p><h2 id="ffmpeg-heading">Get the files ready.<br><em>Then finish setup.</em></h2><p>FFmpeg is a separate download used by Audio Exporter. Prepare its Windows files in <code>C:\FFmpeg</code> before continuing with manual setup.</p></header>
         <div class="ffmpeg-layout">
@@ -151,7 +151,7 @@
               <li><h3>Place the folder on your C: drive</h3><p>Extract the archive and arrange the folder as <code>C:\FFmpeg</code>. For the layout shown here, <code>ffmpeg.exe</code>, <code>ffplay.exe</code>, <code>ffprobe.exe</code> and their matching DLLs stay together inside that folder.</p></li>
               <li><h3>Check the folder contents</h3><p>Check that the applications and their matching DLLs are together, as shown. Do not move only <code>ffmpeg.exe</code> on its own.</p></li>
             </ol>
-            <aside class="ffmpeg-next"><strong>Extracted files are not a completed installation.</strong><p>This is file preparation only. Manual configuration is the next step before using FFmpeg with Audio Exporter.</p></aside>
+            <aside class="ffmpeg-next"><strong>Files ready? Connect FFmpeg to Windows next.</strong><p>Continue to the <a href="#ffmpeg-install">animated Path setup guide</a> to finish the installation.</p></aside>
             <p class="ffmpeg-build-note">Other builds may use different DLL versions or a <code>bin</code> subfolder. Windows may hide the <code>.exe</code> extension.</p>
           </div>
           <figure class="ffmpeg-visual" data-ffmpeg-visual data-ff-phase="0" aria-labelledby="ffmpeg-visual-title">
@@ -182,6 +182,60 @@
           </figure>
         </div>
       </section>
+      <section class="ffmpeg-prep ffmpeg-install" id="ffmpeg-install" aria-labelledby="ffmpeg-install-heading">
+        <header class="ffmpeg-heading"><p class="eyebrow">AUDIO EXPORTER / FFMPEG / PART 2</p><h2 id="ffmpeg-install-heading">One small Windows setting.<br><em>Ready for your next export.</em></h2><p>With the files in place, add FFmpeg to your user Path so Windows and Audio Exporter can find it. Follow the illustrated walkthrough or choose a step to take a closer look.</p></header>
+        <div class="ff-install-layout" data-ff-install>
+          <ol class="ff-install-steps" aria-label="FFmpeg Windows setup steps">
+            <li><button type="button" data-ff-install-step="0" disabled><span>01</span>Find the Windows setting</button><p>Open Start and search for <strong>Edit the system environment variables</strong>. Open the matching Control Panel result.</p></li>
+            <li><button type="button" data-ff-install-step="1" disabled><span>02</span>Open Environment Variables</button><p>In the <strong>Advanced</strong> tab of System Properties, choose <strong>Environment Variables…</strong> near the bottom.</p></li>
+            <li><button type="button" data-ff-install-step="2" disabled><span>03</span>Choose your user Path</button><p>In the upper <strong>User variables</strong> section, select <strong>Path</strong> and choose <strong>Edit…</strong>.</p></li>
+            <li><button type="button" data-ff-install-step="3" disabled><span>04</span>Add the FFmpeg folder</button><p>Choose <strong>New</strong> and enter <code>C:\FFmpeg</code>. This should be the folder containing <code>ffmpeg.exe</code>. Keep the other Path entries.</p></li>
+            <li><button type="button" data-ff-install-step="4" disabled><span>05</span>Save all three windows</button><p>Choose <strong>OK</strong> in the Path editor, <strong>OK</strong> in Environment Variables, then <strong>OK</strong> in System Properties.</p></li>
+            <li><button type="button" data-ff-install-step="5" disabled><span>06</span>Check in a fresh terminal</button><p>Close and reopen Terminal. In File Explorer, open <strong>C:</strong>, right-click an empty area and choose <strong>Open in Terminal</strong>. Run <code>ffmpeg -version</code>. A version line confirms it is available. Restart Maya before opening Audio Exporter.</p></li>
+          </ol>
+          <figure class="ff-install-demo" aria-labelledby="ff-install-caption">
+            <div class="ff-demo-heading"><span><span class="ff-demo-dot" aria-hidden="true"></span>WINDOWS WALKTHROUGH</span><span data-ff-install-count aria-hidden="true">01 / 06</span></div>
+            <div class="ff-demo-stage">
+              <div class="ff-demo-panel" data-ff-install-panel="0">
+                <div class="ff-demo-scene-label">01 / START WITH SEARCH</div>
+                <div class="ff-search-window ff-demo-window">
+                  <div class="ff-search-input"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10" cy="10" r="6"/><path d="m15 15 5 5"/></svg><span>Edit the system environment variables</span></div>
+                  <p class="ff-ui-label">BEST MATCH</p><div class="ff-search-result ff-ui-highlight"><span class="ff-settings-icon" aria-hidden="true">▤</span><div><strong>Edit the system<br>environment variables</strong><small>Control Panel</small></div><span class="ff-ui-arrow" aria-hidden="true">↗</span></div>
+                </div>
+                <p class="ff-demo-tip">The shortcut to the Windows setting you need.</p>
+              </div>
+              <div class="ff-demo-panel" data-ff-install-panel="1">
+                <div class="ff-demo-scene-label">02 / SYSTEM PROPERTIES</div>
+                <div class="ff-demo-window ff-properties-window"><div class="ff-ui-title">System Properties <span aria-hidden="true">×</span></div><div class="ff-ui-tabs"><span>Computer Name</span><strong>Advanced</strong><span>Hardware</span></div><div class="ff-ui-body"><div class="ff-ui-group"><b>Performance</b><span>Visual effects and processor settings</span></div><div class="ff-ui-group"><b>User Profiles</b><span>Desktop settings for your account</span></div><div class="ff-ui-group"><b>Startup and Recovery</b><span>System startup settings</span></div><div class="ff-ui-actions"><span class="ff-ui-button ff-ui-highlight">Environment Variables…</span></div></div></div>
+                <p class="ff-demo-tip">Advanced → Environment Variables…</p>
+              </div>
+              <div class="ff-demo-panel" data-ff-install-panel="2">
+                <div class="ff-demo-scene-label">03 / YOUR ACCOUNT, YOUR PATH</div>
+                <div class="ff-demo-window"><div class="ff-ui-title">Environment Variables <span aria-hidden="true">×</span></div><div class="ff-ui-body"><p class="ff-ui-label">USER VARIABLES</p><div class="ff-ui-table"><div><b>Variable</b><b>Value</b></div><div class="ff-ui-highlight"><strong>Path</strong><span>Existing folders…</span></div><div><span>TEMP</span><span>%TEMP%</span></div></div><div class="ff-ui-actions"><span class="ff-ui-button">New…</span><span class="ff-ui-button ff-ui-highlight">Edit…</span></div><div class="ff-ui-system"><span>SYSTEM VARIABLES</span><div></div><div></div></div></div></div>
+                <p class="ff-demo-tip">Select Path in the upper User variables section.</p>
+              </div>
+              <div class="ff-demo-panel" data-ff-install-panel="3">
+                <div class="ff-demo-scene-label">04 / GIVE WINDOWS THE FOLDER</div>
+                <div class="ff-demo-window"><div class="ff-ui-title">Edit environment variable <span aria-hidden="true">×</span></div><div class="ff-ui-body ff-path-editor"><div class="ff-path-list"><span>Existing Path entry</span><span>Another existing entry</span><strong class="ff-path-entry ff-ui-highlight">C:\FFmpeg<span class="ff-path-caret" aria-hidden="true"></span></strong></div><div class="ff-path-actions"><span class="ff-ui-button ff-ui-highlight">New</span><span class="ff-ui-button">Edit</span><span class="ff-ui-button">Browse…</span></div></div><div class="ff-ui-footer"><span class="ff-ui-button">OK</span><span class="ff-ui-button">Cancel</span></div></div>
+                <p class="ff-demo-tip">Add the folder, not the ffmpeg.exe file.</p>
+              </div>
+              <div class="ff-demo-panel" data-ff-install-panel="4">
+                <div class="ff-demo-scene-label">05 / THREE CLICKS TO SAVE</div>
+                <div class="ff-save-stack"><div class="ff-save-card"><span>Edit environment variable</span><strong class="ff-ui-button">OK <span aria-hidden="true">✓</span></strong></div><div class="ff-save-card"><span>Environment Variables</span><strong class="ff-ui-button">OK <span aria-hidden="true">✓</span></strong></div><div class="ff-save-card"><span>System Properties</span><strong class="ff-ui-button">OK <span aria-hidden="true">✓</span></strong></div></div>
+                <p class="ff-demo-tip">Save each dialog to keep your new Path entry.</p>
+              </div>
+              <div class="ff-demo-panel" data-ff-install-panel="5">
+                <div class="ff-demo-scene-label">06 / THE FINAL CHECK</div>
+                <div class="ff-demo-terminal"><div class="ff-terminal-title"><span aria-hidden="true">&gt;_</span> Windows Terminal <span aria-hidden="true">×</span></div><div class="ff-terminal-body"><p>PowerShell · new window</p><div class="ff-terminal-line"><span>PS C:\&gt; </span><code class="ff-terminal-command">ffmpeg -version</code></div><div class="ff-terminal-output"><code>ffmpeg version …</code><span>FFmpeg developers</span><span>libavutil … / libavcodec …</span></div><div class="ff-terminal-success"><span aria-hidden="true">✓</span>Version found. Ready for Audio Exporter.</div></div></div>
+                <p class="ff-demo-tip">Your version number will depend on the build you downloaded.</p>
+              </div>
+            </div>
+            <div class="ff-demo-progress" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+            <figcaption id="ff-install-caption">Illustrated Windows setup. Choose a numbered step to review it; terminal output is an example.</figcaption>
+          </figure>
+        </div>
+        <aside class="ffmpeg-next"><strong>Different folder? Use its actual location.</strong><p>If your build keeps <code>ffmpeg.exe</code> in <code>C:\FFmpeg\bin</code>, add that folder instead. If Windows says the command is not recognized, check the Path entry and reopen Terminal. You can also browse to <code>ffmpeg.exe</code> in Audio Exporter.</p></aside>
+      </section>
       <p class="guide-source">Tool details: Wrapline User Guide, page 8. All 13 tools are included in Online and Offline. Using the tools requires an active trial or license.</p>
       <aside class="tool-trial reveal"><div class="tool-trial-mark" aria-hidden="true"><span>02</span><small>DAYS FREE</small></div><div><p class="eyebrow trial-label">YOUR 2-DAY ONLINE FREE TRIAL</p><h2>Try Audio Exporter.<br>Free for 2 days.</h2><p>Put Audio Exporter to work in your own Maya scenes, with all twelve companion tools included. Try the full Online toolkit free for two days before the first subscription payment.</p><small>One trial per eligible customer, browser, network and PayPal payer account. Verified registration required. Approve with PayPal, or with Razorpay in India. Billing starts automatically after two days unless you cancel.</small></div><div class="tool-trial-action"><a class="btn btn-dark" href="wrapline.html#trial" data-trial-cta>Explore the 2-day free trial <svg class="trial-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L18 6M6 6h12v12"/></svg></a><p class="trial-availability" data-trial-status>Availability is confirmed at checkout.</p></div></aside>
     </div>
@@ -207,5 +261,5 @@
 </footer>
 <script src="js/main.js?v=20261019-i1"></script>
 <script type="module" src="js/extras.js?v=20261019-m1"></script>
-<script type="module" src="js/ui-motion.js?v=20261019-s1"></script><script src="js/site-config.js?v=20261020-rz1"></script><script type="module" src="js/account.js?v=20261020-ps2"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/trial-promotion.js?v=20261020-intl1"></script><script type="module" src="js/ffmpeg-guide.js?v=20261019-f1"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script></body>
+<script type="module" src="js/ui-motion.js?v=20261019-s1"></script><script src="js/site-config.js?v=20261020-rz1"></script><script type="module" src="js/account.js?v=20261020-ps2"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/trial-promotion.js?v=20261020-intl1"></script><script type="module" src="js/ffmpeg-guide.js?v=20261021-install1"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script></body>
 </html>

@@ -44,3 +44,93 @@
 @media(max-width:800px){.ffmpeg-prep{padding:28px 24px}.ffmpeg-layout{grid-template-columns:1fr;gap:30px}.ffmpeg-visual{grid-row:1;width:100%;max-width:530px;margin-inline:auto}.ffmpeg-copy{grid-row:2}}
 @media(max-width:420px){.ffmpeg-prep{padding:24px 18px;border-radius:24px}.ffmpeg-steps>li{padding-left:30px}.ff-window-title{padding:13px 12px;gap:6px;font-size:.625rem}.ff-window-files{margin-left:12px}.ff-file-list li{font-size:.625rem;gap:7px}.ff-folder-row small{display:none}}
 @media(prefers-reduced-motion:reduce){.ffmpeg-prep *,.ffmpeg-prep *::before,.ffmpeg-prep *::after{animation:none!important;transition:none!important}}
+
+/* Windows Path walkthrough: fixed-size illustrated dialogs, readable steps, no media payload. */
+.ff-install-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.12fr);gap:38px;align-items:start}
+.ff-install-steps{display:grid;gap:9px;list-style:none;margin:0;padding:0}
+.ff-install-steps li{border:1px solid transparent;border-radius:17px;padding:12px 13px;transition:background-color .2s,border-color .2s}
+.ff-install-steps li[data-current]{background:var(--card);border-color:var(--line)}
+.ff-install-steps button{display:flex;gap:12px;align-items:baseline;text-align:left;width:100%;padding:0;border:0;background:none;color:var(--ink);font:600 .875rem/1.5 var(--sans);cursor:pointer}
+.ff-install-steps button:disabled{opacity:1;cursor:default}
+.ff-install-steps button>span{flex:none;color:var(--blue-d);font-size:.625rem;font-weight:600;letter-spacing:.08em}
+.ff-install-steps button:focus-visible{outline:2px solid var(--blue);outline-offset:6px;border-radius:4px}
+.ff-install-steps p{margin:7px 0 0 28px;font-size:.75rem;line-height:1.85;color:var(--mute)}
+.ff-install-steps strong{font-weight:550;color:var(--ink)}
+.ff-install-demo{scroll-margin-top:112px;position:sticky;top:112px;min-width:0;margin:0;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:var(--card);box-shadow:0 20px 55px -40px #193d87aa}
+.ff-demo-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 20px 16px;color:var(--mute);font-size:.5625rem;font-weight:600;letter-spacing:.1em}
+.ff-demo-heading>span:first-child{display:flex;align-items:center;gap:8px}
+.ff-demo-dot{width:6px;height:6px;background:var(--blue);border-radius:50%;box-shadow:0 0 0 4px #3d8bff12}
+.ff-demo-stage{position:relative;background:radial-gradient(ellipse at 20% 20%,#3d8bff12,transparent 70%),var(--bg2)}
+.ff-demo-panel{display:flex;flex-direction:column;gap:20px;min-height:400px;padding:22px;min-width:0}
+.ff-demo-panel[hidden]{display:none!important}
+.ff-install-demo[data-enhanced] .ff-demo-stage{height:500px}
+.ff-install-demo[data-enhanced] .ff-demo-panel{height:100%;min-height:0}
+.ff-demo-scene-label{font-size:.5625rem;letter-spacing:.11em;font-weight:600;color:var(--blue-d)}
+.ff-demo-window{flex-shrink:0;border:1px solid var(--line);border-radius:12px;overflow:hidden;min-width:0;background:var(--card);box-shadow:0 15px 35px -22px #153a7880;color:var(--ink)}
+.ff-ui-title{display:flex;justify-content:space-between;gap:8px;padding:12px 14px;background:var(--bg2);font-size:.75rem;font-weight:500;border-bottom:1px solid var(--line)}
+.ff-ui-title>span{color:var(--mute);font-size:15px}
+.ff-ui-tabs{display:flex;gap:14px;align-items:center;padding:12px 14px;border-bottom:1px solid var(--line);font-size:.5625rem;color:var(--mute)}
+.ff-ui-tabs strong{color:var(--blue-d);border-bottom:2px solid var(--blue);padding:5px 0}
+.ff-ui-body{padding:16px}
+.ff-ui-label{font-size:.5625rem;font-weight:600;letter-spacing:.07em;color:var(--mute);margin-bottom:12px}
+.ff-ui-group{padding:10px 12px;border:1px solid var(--line);border-radius:7px;margin-bottom:9px}
+.ff-ui-group b{display:block;font-size:.625rem;font-weight:500}.ff-ui-group>span{display:block;font-size:.5625rem;color:var(--mute);line-height:1.5;margin-top:4px}
+.ff-ui-actions{display:flex;justify-content:flex-end;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ff-ui-button{display:inline-flex;justify-content:center;align-items:center;gap:10px;padding:9px 12px;border:1px solid var(--line);border-radius:6px;background:var(--card);font-size:.625rem;font-weight:500;line-height:1.4}
+.ff-ui-highlight{background:#3d8bff12;border:1px solid #3d8bff60;color:var(--blue-d);border-radius:6px}
+.ff-search-window{padding:18px;margin-top:22px}
+.ff-search-input{display:flex;gap:10px;align-items:center;padding:12px;margin-bottom:22px;border:1px solid var(--line);border-bottom:2px solid var(--blue);border-radius:8px;font-size:.6875rem;line-height:1.5}
+.ff-search-input>svg{width:16px;height:16px;flex:none;fill:none;stroke:var(--blue-d);stroke-width:1.6}
+.ff-search-result{display:flex;align-items:center;gap:11px;padding:15px 12px}
+.ff-settings-icon{display:grid;place-items:center;flex:none;width:32px;height:32px;border-radius:9px;background:#3d8bff17;color:var(--blue-d);font-size:22px}
+.ff-search-result strong{display:block;font-size:.75rem;line-height:1.6;font-weight:500;color:var(--ink)}
+.ff-search-result small{display:block;margin-top:4px;color:var(--mute);font-size:.625rem}
+.ff-ui-arrow{margin-left:auto;color:var(--blue-d);font-size:20px}
+.ff-ui-table{border:1px solid var(--line);border-radius:6px;overflow:hidden}
+.ff-ui-table>div{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.4fr);gap:10px;padding:10px;font-size:.625rem}
+.ff-ui-table>div:first-child{color:var(--mute);border-bottom:1px solid var(--line)}
+.ff-ui-table b{font-weight:500}.ff-ui-table>div.ff-ui-highlight{border-radius:0}
+.ff-ui-system{margin-top:24px;opacity:.55}.ff-ui-system>span{font-size:.5625rem;letter-spacing:.06em;color:var(--mute)}
+.ff-ui-system>div{height:7px;width:75%;border-radius:4px;background:var(--line);margin-top:12px}.ff-ui-system>div:last-child{width:55%}
+.ff-path-editor{display:grid;grid-template-columns:minmax(0,1fr) 72px;gap:12px}
+.ff-path-list{min-width:0;min-height:170px;border:1px solid var(--line);border-radius:6px;padding:8px 6px}
+.ff-path-list>span{display:block;font-size:.5625rem;padding:9px 4px;color:var(--mute)}
+.ff-path-entry{display:block;font:500 .8125rem/1.5 Consolas,monospace;padding:8px 6px;overflow-wrap:anywhere;margin-top:6px}
+.ff-path-caret{display:inline-block;width:1px;height:12px;background:currentColor;margin-left:3px;vertical-align:middle}
+.ff-path-actions{display:flex;flex-direction:column;gap:9px;align-items:stretch;align-self:start}
+.ff-ui-footer{display:flex;justify-content:flex-end;gap:8px;padding:12px 16px;border-top:1px solid var(--line)}
+.ff-save-stack{display:grid;gap:16px;align-content:center;flex:1;padding:10px 8px}
+.ff-save-card{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid var(--line);border-radius:12px;background:var(--card);box-shadow:0 10px 20px -16px #193d87aa;padding:18px 15px;font-size:.6875rem}
+.ff-save-card .ff-ui-button{color:var(--blue-d);border-color:#3d8bff60;background:#3d8bff0a}
+.ff-demo-tip{font-size:.6875rem;line-height:1.7;color:var(--mute);margin-top:auto}
+.ff-demo-terminal{overflow:hidden;border-radius:12px;border:1px solid #263047;background:#101725;color:#e4edff;box-shadow:0 18px 35px -22px #10172570;margin-top:20px}
+.ff-terminal-title{display:flex;gap:12px;align-items:center;padding:13px 15px;background:#1a2335;font-size:.6875rem;color:#d4e1f7}.ff-terminal-title>span:first-child{color:#6c9fff}.ff-terminal-title>span:last-child{margin-left:auto;color:#a1b1c9}
+.ff-terminal-body{padding:22px 16px 25px;font:400 .6875rem/1.9 Consolas,monospace;min-height:210px}
+.ff-terminal-body>p{font:400 .625rem/1.8 var(--sans);color:#95a6c1;margin-bottom:22px}
+.ff-terminal-line{display:flex;align-items:baseline;white-space:nowrap}.ff-terminal-line>span{color:#95a6c1;white-space:pre}.ff-terminal-command{color:#f8d77c;display:inline-block}
+.ff-terminal-output{display:flex;flex-direction:column;margin-top:18px;color:#9fb4d5;font-size:.625rem}
+.ff-terminal-output>code{color:#dceaff}
+.ff-terminal-success{display:flex;align-items:center;gap:8px;margin-top:18px;color:#65ddbf;font:500 .625rem/1.7 var(--sans)}
+.ff-terminal-success>span{display:grid;place-items:center;flex:none;width:17px;height:17px;border-radius:50%;background:#65ddbf17}
+.ff-demo-progress{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin:18px 20px 0}
+.ff-demo-progress>span{height:3px;position:relative;overflow:hidden;border-radius:5px;background:var(--line)}
+.ff-demo-progress>span::after{content:'';position:absolute;inset:0;background:var(--blue);transform:scaleX(0);transform-origin:left}
+.ff-demo-progress>span[data-current]::after{transform:scaleX(1)}
+.ff-install-demo figcaption{font-size:.625rem;color:var(--mute);line-height:1.8;padding:14px 20px 20px}
+@media(prefers-reduced-motion:no-preference){
+ .ff-install-demo[data-playing] .ff-demo-panel:not([hidden]){animation:ff-dialog-in .35s ease-out both}
+ .ff-install-demo[data-playing] .ff-demo-panel:not([hidden]) .ff-ui-highlight{animation:ff-target 2.8s ease-in-out infinite}
+ .ff-install-demo[data-playing] .ff-demo-panel:not([hidden]) .ff-path-caret{animation:ff-caret 1.2s steps(2,end) infinite}
+ .ff-install-demo[data-playing] .ff-demo-panel:not([hidden]) .ff-save-card{animation:ff-dialog-in .45s ease-out both}
+ .ff-install-demo[data-playing] .ff-save-card:nth-child(2){animation-delay:.4s}.ff-install-demo[data-playing] .ff-save-card:nth-child(3){animation-delay:.8s}
+ .ff-install-demo[data-playing] .ff-demo-panel:not([hidden]) .ff-terminal-command{animation:ff-command .9s steps(15,end) both}
+ .ff-install-demo[data-playing] .ff-terminal-output,.ff-install-demo[data-playing] .ff-terminal-success{animation:ff-dialog-in .45s 1.1s both}
+ .ff-install-demo[data-playing] .ff-demo-progress>span[data-current]::after{animation:ff-progress var(--ff-step-time,4.8s) linear both}
+}
+@keyframes ff-dialog-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes ff-target{50%{opacity:.6;transform:translateY(-1px)}}
+@keyframes ff-caret{50%{opacity:0}}
+@keyframes ff-command{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0)}}
+@keyframes ff-progress{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+@media(max-width:1000px){.ff-install-layout{grid-template-columns:1fr;gap:28px}.ff-install-demo{position:relative;top:auto;max-width:560px;width:100%;justify-self:center;grid-row:1}.ff-install-steps{grid-row:2}}
+@media(max-width:420px){.ff-demo-panel{padding:17px 13px}.ff-demo-heading{padding:17px 13px 14px;font-size:.5rem}.ff-install-demo[data-enhanced] .ff-demo-stage{height:500px}.ff-demo-window .ff-ui-body{padding:12px}.ff-search-window{padding:13px}.ff-search-result{padding:12px 8px;gap:8px}.ff-search-result strong{font-size:.6875rem}.ff-ui-arrow{display:none}.ff-save-stack{padding-inline:0}.ff-save-card{padding:16px 12px}.ff-ui-tabs{gap:10px}.ff-path-editor{gap:8px;grid-template-columns:minmax(0,1fr) 64px}.ff-install-steps li{padding:12px 8px}.ff-terminal-body{padding:20px 12px}.ff-terminal-line{font-size:.625rem}}

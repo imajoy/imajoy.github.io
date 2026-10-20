@@ -19,6 +19,7 @@ export function initializeBillingCountry(form){
  const pauseMotion=()=>{gate.dataset.motionPaused=String(document.hidden||!inView);};
  if('IntersectionObserver' in window)new IntersectionObserver(entries=>{inView=entries[0].isIntersecting;pauseMotion();}).observe(gate);
  document.addEventListener('visibilitychange',pauseMotion);pauseMotion();
+ const CHECK_KEY='ajoy.billing-check';
  let country='',tester=false,revision=0,accountToken=getAccountSession()?.token,configPromise;
  const config=()=>configPromise||=(async()=>{const response=await fetch(window.AJOY_CONFIG.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)});if(!response.ok)throw Error();return response.json();})().catch(error=>{configPromise=null;throw error;});
  const valid=c=>typeof c==='string'&&/^[A-Z]{2}$/.test(c)&&!['XX','ZZ','EU'].includes(c);
@@ -33,6 +34,9 @@ export function initializeBillingCountry(form){
  }
  async function refresh(){
   const operation=++revision,session=getAccountSession(),previousTester=tester,previousCountry=field.value;
+  // A connection check that passed in the last 10 minutes opens the form at once while a fresh check runs.
+  // Display only: every quote and payment is checked again on the server.
+  if(!country){try{const v=JSON.parse(sessionStorage.getItem(CHECK_KEY)||'null');if(v&&Date.now()-v.at<600000&&v.email===(session?.email||'')&&valid(v.country)){country=v.country;tester=v.tester===true;if(![...field.options].some(o=>o.value===country))field.add(new Option(new Intl.DisplayNames([navigator.language||'en'],{type:'region'}).of(country),country));field.value=country;announce(false);field.dispatchEvent(new Event('change',{bubbles:true}));}}catch{}}
   tester=false;field.disabled=true;retry.disabled=true;if(country)field.value=country;
   if(!country)announce(true,'',true);
   else{root.dataset.billingTester='false';hint.textContent='Confirming account permissions…';}
@@ -49,9 +53,10 @@ export function initializeBillingCountry(form){
    if(chosen&&![...field.options].some(o=>o.value===chosen))field.add(new Option(new Intl.DisplayNames([navigator.language||'en'],{type:'region'}).of(chosen),chosen));
    field.value=chosen;field.disabled=!tester;
    const blocked=context.blocked===true||(!country&&!tester);
+   try{if(blocked)sessionStorage.removeItem(CHECK_KEY);else sessionStorage.setItem(CHECK_KEY,JSON.stringify({at:Date.now(),email:session?.email||'',country,tester}));}catch{}
    announce(blocked,context.reason||'country_unavailable');
    field.dispatchEvent(new Event('change',{bubbles:true}));
-  }catch{if(operation===revision){country='';tester=false;field.value='';field.disabled=true;announce(true,'network_unavailable');}}
+  }catch{if(operation===revision){try{sessionStorage.removeItem(CHECK_KEY);}catch{}country='';tester=false;field.value='';field.disabled=true;announce(true,'network_unavailable');}}
  }
  // Native disabled controls stop ordinary editing; payment servers independently
  // reject tampering, including same-tier substitutions and forged tester claims.

@@ -4,7 +4,7 @@ import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261020-prices1';
 import {localFormatter} from './fx.js?v=20261020-local1';
 import {animatePrice,settlePrices} from './price-motion.js?v=20261019-motion1';
-import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261020-intl1';
+import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0,animatePricing=false,razorpayConfig=null;
 function chooseBilling(value){

@@ -87,6 +87,7 @@ function razorpayNotify_(record){
 function razorpayConfirm_(id,who){
   var record=razorpayFind_(id);if(!record||who&&who.email!==record.email)throw commerceError_('checkout','This checkout does not belong to your account.');
   if(!record.subscriptionId)throw commerceError_('pending','Your checkout is still being prepared.');
+  if(record.state==='reset')return {ok:true,pending:true,status:'cancelled',checkoutId:id};
   // Already verified (usually by the subscription.charged webhook): answer at once. Refunds and revocations update the record.
   if(who&&record.accepted&&!record.accessRevoked&&record.paidThrough>Date.now()/1000)return razorpayPublic_(record);
   var subscription=razorpayVerify_(record);
@@ -166,6 +167,27 @@ function razorpaySubscriptions_(email,onlySub){
   });
 }
 /* Run once per mode, with checkout disabled until plans/webhooks have been tested. */
+/* Owner tool for TEST mode only. Run it from the Apps Script editor to make a test account look new again:
+   cancels that account's test Razorpay subscriptions and removes them from the account and the Orders tab.
+   Change TEST_EMAIL below if you test with another address. Live-mode records are never touched. */
+function resetTestPurchases(){
+  var TEST_EMAIL='';  // leave empty to use the Google account that runs this script
+  var email=String(TEST_EMAIL||Session.getEffectiveUser().getEmail()||'').trim().toLowerCase();
+  if(razorpayMode_()!=='test')throw new Error('Razorpay is in LIVE mode. This reset only works in test mode.');
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email))throw new Error('Set TEST_EMAIL to your test email address.');
+  var mine=razorpayRows_().filter(function(r){return r.mode==='test'&&r.email===email&&r.state!=='reset';}),cancelled=0;
+  mine.forEach(function(r){
+    if(r.subscriptionId){try{var sub=razorpayApi_('/subscriptions/'+encodeURIComponent(r.subscriptionId));if(['created','authenticated','active','pending','halted'].indexOf(sub.status)>=0){razorpayApi_('/subscriptions/'+encodeURIComponent(r.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:0});cancelled++;}}catch(e){Logger.log('Could not cancel '+r.subscriptionId+': '+e.message);}}
+    commerceLock_(function(){var current=razorpayFind_(r.id);current.state='reset';current.accepted=false;current.accessRevoked=true;current.paidThrough=0;razorpayWrite_(current);});
+  });
+  var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET),removed=0;
+  if(sheet&&sheet.getLastRow()>1){
+    var rows=sheet.getRange(2,1,sheet.getLastRow()-1,5).getValues();
+    for(var i=rows.length-1;i>=0;i--)if(rows[i][3]==='razorpay_test'&&String(rows[i][4]).trim().toLowerCase()===email){sheet.deleteRow(i+2);removed++;}
+  }
+  var note='Test reset for '+email+': '+mine.length+' test checkout(s) cleared, '+cancelled+' Razorpay test subscription(s) cancelled, '+removed+' Orders row(s) removed. Sign out and back in on the site to see a fresh account.';
+  Logger.log(note);return note;
+}
 function setupRazorpayPlans(){
   var catalog=razorpayCatalog_();
   ['india','high','mid','low'].forEach(function(tier){catalog[tier]=catalog[tier]||{};['online','offline'].forEach(function(kind){catalog[tier][kind]=catalog[tier][kind]||{};['monthly','yearly'].forEach(function(billing){

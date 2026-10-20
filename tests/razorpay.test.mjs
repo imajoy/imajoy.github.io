@@ -141,3 +141,15 @@ test('A subscriber can stop automatic renewal; access continues to the end of th
  assert.deepEqual(s.app.razorpay.cancelled.at(-1),{id:created.subscriptionId,atCycleEnd:true});
  const subs=s.app.ctx.razorpaySubscriptions_('buyer@example.com');assert.equal(subs[0].renews,false);assert.equal(subs[0].provider,'razorpay');assert.equal(subs[0].ref,created.checkoutId);
 });
+test('Owner test reset clears test purchases for the test account only and refuses live mode',()=>{
+ const s=setup(),created=s.rpc('checkout',s.selection());assert.equal(created.ok,true);
+ const {sub}=paid(s,created);assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true);
+ assert(s.app.call({step:'status',token:s.token}).subscriptions.some(x=>x.provider==='razorpay'));
+ s.app.ctx.Session={getEffectiveUser:()=>({getEmail:()=>'buyer@example.com'})};
+ assert.match(s.app.ctx.resetTestPurchases(),/1 test checkout\(s\) cleared, 1 Razorpay test subscription\(s\) cancelled, 1 Orders row/);
+ assert.equal(sub.status,'cancelled');
+ assert.notEqual(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true);
+ assert(!s.app.call({step:'status',token:s.token}).subscriptions.some(x=>x.provider==='razorpay'),'reset purchase no longer shows on the account');
+ assert.equal(s.app.ctx.razorpayFind_(created.checkoutId).state,'reset');
+ s.app.values.set('RAZORPAY_MODE','live');assert.throws(()=>s.app.ctx.resetTestPurchases(),/LIVE mode/);
+});

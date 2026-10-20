@@ -10,7 +10,7 @@ export function service({registered=true,mailFails=false}={}){
  const razorpay={plans:new Map(),subscriptions:new Map(),invoices:new Map(),payments:new Map(),loseCreateResponse:false};
  function table(name,initial=[[]]){
   const rows=initial;
-  const sheet={rows,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
+  const sheet={rows,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},deleteRow:index=>{rows.splice(index-1,1);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
    getRange:(row,col,height=1,width=1)=>{const range={getValues:()=>Array.from({length:height},(_,r)=>Array.from({length:width},(_,c)=>rows[row+r-1]?.[col+c-1]??'')),setValues:data=>{data.forEach((r,i)=>r.forEach((v,j)=>{rows[row+i-1]??=[];rows[row+i-1][col+j-1]=v;}));return range;},setValue:v=>{rows[row-1]??=[];rows[row-1][col-1]=v;return range;}};for(const n of ['setNumberFormat','setBackground','setFontColor','setFontWeight','setVerticalAlignment'])range[n]=()=>range;return range;}};
   sheets.set(name,sheet);return sheet;
  }

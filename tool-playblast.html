@@ -72,6 +72,7 @@
 </script>
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
+<link rel="stylesheet" href="css/playblast-preview.css?v=20261021-gif1">
 </head>
 <body>
 <div class="progress" id="progress" aria-hidden="true"></div>
@@ -121,11 +122,11 @@
           <a class="btn btn-light" href="wrapline.html#install"><svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download setup</a>
         </div>
       </div>
-      <figure class="tool-visual loop-graphic reveal" data-tool-motion data-phase="0">
-        <div class="visual-heading"><span>THE WORKFLOW</span><span class="visual-dot" aria-hidden="true"></span></div>
-        <div class="tool-diagram diagram-playblast"><svg viewBox="0 0 640 330" aria-hidden="true" focusable="false"><rect x="45" y="35" width="550" height="239" rx="18" class="diagram-box"/><path d="M67 83V57H104M536 57H573V83M67 226V252H104M536 252H573V226" class="diagram-wire"/><g class="diagram-live"><circle cx="320" cy="103" r="18"/><path d="M320 122V177M278 149L320 137L362 149M320 177L287 222M320 177L353 222" class="diagram-bone"/></g><text x="83" y="85" class="diagram-small">SHOT CAMERA</text><text x="480" y="85" class="diagram-small">1080p</text><path d="M90 294H550" class="diagram-track"/><circle cx="110" cy="294" r="6" class="diagram-scrubber"/></svg></div>
-        <ol class="workflow-beats" aria-label="Explore the workflow"><li><button type="button" data-tool-step="0" aria-pressed="true" disabled><span>01</span>Camera + preset</button></li><li><button type="button" data-tool-step="1" aria-pressed="false" disabled><span>02</span>Range + audio</button></li><li><button type="button" data-tool-step="2" aria-pressed="false" disabled><span>03</span>Review output</button></li></ol>
-        <figcaption>Animated workflow illustration · based on the Wrapline guide</figcaption>
+      <figure class="tool-visual playblast-screens reveal" aria-labelledby="playblast-preview-caption">
+        <div class="visual-heading"><span>PLAYBLAST / INTERFACE PREVIEW</span><span class="visual-dot" aria-hidden="true"></span></div>
+        <img class="playblast-screen" src="assets/playblast-poster.webp" data-playblast-gif="assets/playblast-loop.gif" width="540" height="718" fetchpriority="high" alt="Playblast interface walkthrough: choose output, export with a progress dialog, then see the saved-file confirmation.">
+        <ol class="playblast-screen-steps" aria-label="Preview sequence"><li><span>01</span>Set output</li><li><span>02</span>Export</li><li><span>03</span>Saved</li></ol>
+        <figcaption id="playblast-preview-caption">Loop assembled from the supplied interface images, with an example folder path. <a href="assets/playblast-loop.gif" target="_blank" rel="noopener">View GIF</a></figcaption>
       </figure>
     </div>
   </section>
@@ -166,5 +167,5 @@
 </footer>
 <script src="js/main.js?v=20261019-i1"></script>
 <script type="module" src="js/extras.js?v=20261019-m1"></script>
-<script type="module" src="js/ui-motion.js?v=20261019-s1"></script><script src="js/site-config.js?v=20261020-rz1"></script><script type="module" src="js/account.js?v=20261020-ps2"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/trial-promotion.js?v=20261020-intl1"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script></body>
+<script type="module" src="js/ui-motion.js?v=20261019-s1"></script><script src="js/site-config.js?v=20261020-rz1"></script><script type="module" src="js/account.js?v=20261020-ps2"></script><script type="module" src="js/trial-promotion.js?v=20261020-intl1"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script type="module" src="js/playblast-preview.js?v=20261021-gif1"></script></body>
 </html>

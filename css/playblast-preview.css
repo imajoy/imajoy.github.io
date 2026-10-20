@@ -1,0 +1,10 @@
+/* Screenshot loop with a reserved aspect ratio and static reduced-motion fallback. */
+.tool-visual.playblast-screens{width:100%;max-width:600px;justify-self:center;padding:18px;background:var(--card)}
+.playblast-screens .visual-heading{font-size:.5625rem;letter-spacing:.08em;margin-bottom:16px}
+.playblast-screen{display:block;width:100%;height:auto;aspect-ratio:540 / 718;border:1px solid #373b42;border-radius:12px;background:#202123}
+.playblast-screen-steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:16px 0 0;padding:0;list-style:none}
+.playblast-screen-steps li{padding:10px 6px;color:var(--ink);font-size:.6875rem;line-height:1.6}
+.playblast-screen-steps span{display:block;color:var(--mute);font-size:.5625rem;margin-bottom:4px;letter-spacing:.08em}
+.playblast-screens figcaption{padding-top:10px;font-size:.5625rem;line-height:1.8}
+.playblast-screens figcaption a{display:inline-block;min-height:32px;padding:5px 2px;color:var(--blue-d);text-underline-offset:3px}
+@media(max-width:520px){.tool-visual.playblast-screens{padding:15px 12px}.playblast-screens .visual-heading{font-size:.5rem;letter-spacing:.04em}.playblast-screen-steps li{font-size:.625rem}}

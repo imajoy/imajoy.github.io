@@ -1,9 +1,8 @@
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
 import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261020-rz1';
-import {rememberGeo,detectGeo} from './geo.js?v=20261019-geo1';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261020-rz1';
 import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261018-n1';
-import {secureCommerce} from './commerce-gateway.js?v=20261019-t60';
+import {secureCommerce} from './commerce-gateway.js?v=20261020-country1';
 const settings=window.AJOY_CONFIG||{},form=document.querySelector('#billing-form'),pay=document.querySelector('#pay');
 bindAccountEmail(form?.elements.email,document.querySelector('#email-hint'));
 if(form&&pay){
@@ -15,7 +14,6 @@ if(form&&pay){
  const esc=t=>String(t??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  let rewardQuote=null,rewardRevision=0,rewardTimer,rewardBusy=false,rewardError='',rewardKey='';
  let cfg=null,eligibility=null,selectedOffer='',trialOn=false,lastTotal=total?.textContent||'—',activeToken='',revision=0,sdkPromise,rendered=false,checkout=null,requestId=crypto.randomUUID();
- let countryTouched=false;form.elements.country.addEventListener('change',()=>{countryTouched=true;});
  const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
  const say=(text,bad=false,claimed=false)=>{note.textContent=text;note.dataset.bad=bad?'1':'0';note.classList.toggle('is-trial-claimed',claimed);};
  const rewardsSupported=()=>eligibility?.rewardsVersion===1;
@@ -28,9 +26,10 @@ if(form&&pay){
   eligibility={eligible:false,reason:error.code};selectedOffer='';invalidate();sync();
  };
  function sync(){
+  if(document.documentElement.dataset.billingBlocked==='true'){box.hidden=true;trialOn=false;return;}
   if(document.documentElement.dataset.paymentProvider&&document.documentElement.dataset.paymentProvider!=='paypal'){box.hidden=true;trialOn=false;document.querySelector('#trial-line')?.setAttribute('hidden','');return;}
   box.hidden=false;
-  const session=getAccountSession(),c=choice(),region=availability(c.country,cfg?.closedCountries||[]),match=countryCheck(c.country,cfg?.mode==='live'?cfg.country:'');
+  const session=getAccountSession(),c=choice(),region=availability(c.country,cfg?.closedCountries||[]),match=document.documentElement.dataset.billingTester==='true'?{ok:true}:countryCheck(c.country,cfg?.mode==='live'?cfg.country:'');
   gate.hidden=!!session;offerBox.hidden=!session||!cfg||!eligibility;
   const available=region.open&&match.ok;
   closed.hidden=available;closed.textContent=!region.open?closedMessage[region.reason]:!match.ok?'Choose your detected billing country before subscribing.':'';
@@ -124,7 +123,7 @@ if(form&&pay){
  function refreshReward(){
   clearTimeout(rewardTimer);const operation=++rewardRevision,c=choice(),token=getAccountSession()?.token;
   rewardQuote=null;rewardError='';rewardBusy=false;rewardKey='';
-  if(!token||!cfg||!rewardsSupported()||!Number.isInteger(c.seats)||c.seats<1||c.seats>100||!availability(c.country,cfg.closedCountries||[]).open)return;
+  if(document.documentElement.dataset.billingBlocked==='true'||!token||!cfg||!rewardsSupported()||!Number.isInteger(c.seats)||c.seats<1||c.seats>100||!availability(c.country,cfg.closedCountries||[]).open)return;
   rewardBusy=true;rewardKey=keyOf();const sentCoupon=couponCode;
   rewardTimer=setTimeout(async()=>{
    try{
@@ -143,6 +142,7 @@ if(form&&pay){
  }
 
  async function checkAccount(){
+  if(document.documentElement.dataset.billingBlocked==='true'){revision++;eligibility=null;sync();return;}
   const token=getAccountSession()?.token||'';if(token===activeToken&&eligibility){sync();return;}
   activeToken=token;refreshReward();eligibility=null;selectedOffer='';invalidate();const operation=++revision;say(token?'Checking your account and trial eligibility…':'');sync();
   if(!token)return;
@@ -151,6 +151,7 @@ if(form&&pay){
   sync();
  }
  onAccountChange(checkAccount);
+ document.addEventListener('ajoy:billing-network',checkAccount);
  document.addEventListener('ajoy:provider-change',event=>{if(event.detail.provider==='paypal'){refreshReward();checkAccount();}sync();});
  async function confirm(id){
   say('Verifying your subscription and payment account…');
@@ -195,7 +196,7 @@ if(form&&pay){
   }catch(error){say(error.message,true);rendered=false;}
  }
  sync();
- fetch(settings.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async response=>{if(!response.ok)throw Error();cfg=await response.json();box.querySelector('.paypal-test').hidden=cfg.mode==='live';refreshReward();sync();const detected=rememberGeo(cfg.country)||await detectGeo();if(!countryTouched&&detected&&[...form.elements.country.options].some(o=>o.value===detected)){form.elements.country.value=detected;form.elements.country.dispatchEvent(new Event('change'));}}).catch(()=>say('Secure checkout settings are unavailable. Please try again later.',true));
+ fetch(settings.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async response=>{if(!response.ok)throw Error();cfg=await response.json();box.querySelector('.paypal-test').hidden=cfg.mode==='live';refreshReward();sync();}).catch(()=>say('Secure checkout settings are unavailable. Please try again later.',true));
  checkAccount();
  const returning=new URLSearchParams(location.search).get('checkout');if(returning&&getAccountSession())confirm(returning);
 }

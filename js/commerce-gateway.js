@@ -18,6 +18,7 @@ export async function secureCommerce(path,body={}){
  let data;try{data=await response.json();}catch{throw new Error('The secure account service needs updating. Please try again later.');}
  if(!response.ok||!data.ok){
   if(response.status===401){clearAccountSession();openAccount({purpose:path==='download'?'download':'checkout'});}
+  document.dispatchEvent(new CustomEvent('ajoy:billing-denied',{detail:{code:data.error}}));
   const error=new Error(data.message||'The request could not be completed. Please try again.');error.code=data.error;throw error;
  }
  return data;

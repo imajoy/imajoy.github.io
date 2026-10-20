@@ -1,5 +1,6 @@
 import {localApprox} from './fx.js?v=20261018-h8';
-import {api,apiBase,getQuote,getCouponQuote,previewPrice,money,suggestedCountry} from './commerce.js?v=20261020-rz1';
+import {initializeBillingCountry} from './billing-country.js?v=20261020-country1';
+import {api,apiBase,getQuote,getCouponQuote,previewPrice,money} from './commerce.js?v=20261020-rz1';
 import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261019-contact2';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
 const params=new URLSearchParams(location.search);
@@ -9,7 +10,7 @@ const codes='AF AL DZ AD AO AG AR AM AU AT AZ BS BH BD BB BY BE BZ BJ BT BO BA B
 const names=new Intl.DisplayNames([navigator.language||'en'],{type:'region'});
 const countries=codes.map(code=>[code,names.of(code)]).sort((a,b)=>a[1].localeCompare(b[1]));
 for(const [code,name] of countries){const o=new Option(name,code);form.elements.country.add(o);}
-form.elements.country.value=suggestedCountry();
+initializeBillingCountry(form);
 let config={paymentsEnabled:false},quote=null,quoteRevision=0;
 const quantity=form.elements.seats,less=document.querySelector('#quantity-less'),more=document.querySelector('#quantity-more');
 const couponInput=form.elements.couponCode,couponApply=document.querySelector('#coupon-apply'),couponRemove=document.querySelector('#coupon-remove'),couponStatus=document.querySelector('#coupon-status');

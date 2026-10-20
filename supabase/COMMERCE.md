@@ -1,5 +1,7 @@
 # Registered checkout, downloads and one-time trials
 
+For locked server-detected billing countries, the verified testing-account exception and optional VPN/proxy checks, follow [BILLING-NETWORK.md](BILLING-NETWORK.md). This also replaces manual country selection during Sandbox testing.
+
 To add Razorpay without changing Live PayPal, see [RAZORPAY.md](RAZORPAY.md). Razorpay is separately enabled and hidden until configured; the existing PayPal trial/promotional flow remains separate.
 
 The website requires email verification before subscribing or requesting the setup. Records remain in the owner's Google Sheet. Supabase supplies the trusted network boundary, signs private installer downloads and forwards signed commerce requests to Apps Script. PayPal handles payment information; the application never receives a full card number or security code.

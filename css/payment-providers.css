@@ -5,3 +5,12 @@
 .razorpay-panel{border:1px solid var(--line);padding:22px;border-radius:24px;background:var(--card)}.razorpay-panel[hidden]{display:none}.razorpay-status{font-size:15px;line-height:1.7}.razorpay-terms{font-size:12px;color:var(--mute);line-height:1.8;margin:12px 0}.razorpay-amount{font-weight:600;margin:16px 0}.razorpay-panel .btn{margin-top:12px}.razorpay-panel .text-link{display:inline-block;margin-top:16px}.razorpay-panel [hidden]{display:none!important}.razorpay-mode{color:var(--blue-d);margin-bottom:12px}
 @media(prefers-reduced-motion:reduce){.payment-picker label{transition:none}}
 .billing-review{border:1px solid var(--line);border-radius:24px;background:var(--card);padding:22px}.billing-review[hidden]{display:none}.billing-review h3{font-size:19px}.billing-review p{color:var(--mute);font-size:14px;line-height:1.8;margin-top:12px}.billing-review .btn{margin-top:18px}.billing-review-status:empty{display:none}
+
+/* The billing gate must override author display rules as well as native hidden. */
+.checkout-grid[hidden],.billing-network-gate[hidden]{display:none!important}
+.billing-network-gate{padding:clamp(24px,5vw,48px);margin:24px 0;border:1px solid var(--line,#cdd7eb);border-radius:24px;background:var(--card,#fff);color:var(--ink,#111827)}
+.billing-network-gate h2{font-size:clamp(22px,4vw,32px);margin:0 0 12px}
+.billing-network-gate p{max-width:65ch;line-height:1.6}
+.billing-network-gate>div{display:flex;gap:16px;flex-wrap:wrap;align-items:center;margin-top:24px}
+#country:disabled{opacity:1;cursor:default;-webkit-text-fill-color:currentColor}
+html[data-billing-blocked="true"] .m-total{display:none!important}

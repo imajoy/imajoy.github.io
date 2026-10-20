@@ -1,9 +1,11 @@
 import {keyedHash} from '../commerce/handler.js';
 import {createCountryLookup} from '../_shared/country.js';
 import {trustedIp} from '../_shared/network.js';
+import {createBillingNetworkLookup} from '../_shared/billing-network.js';
 const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 export function createRazorpayHandler({env,request=fetch}){
  const countryOf=createCountryLookup(request,Date.now,env);
+ const networkOf=createBillingNetworkLookup(request,env);
  return async req=>{
   const origin=req.headers.get('origin')||'',allowed=(env('ALLOWED_ORIGINS')||'https://imajoy.github.io').split(',').map(s=>s.trim());
   const headers={'Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type'};
@@ -34,10 +36,11 @@ export function createRazorpayHandler({env,request=fetch}){
     }else{
      if(!['online','offline'].includes(data.plan)||!['monthly','yearly'].includes(data.billing)||!Number.isInteger(data.seats)||data.seats<1||data.seats>100||!/^([A-Z]{2})$/.test(data.country||''))throw fail('Review your plan, licenses and billing country.');
      if(path==='checkout'&&!/^[-a-f0-9]{36}$/i.test(data.requestId||''))throw fail('Invalid checkout request.');
-     const ip=trustedIp(req,env),country=await countryOf(req);
+     const ip=trustedIp(req,env),country=env('BILLING_POLICY_ENABLED')==='true'?'':await countryOf(req);
      const sandbox=(env('RAZORPAY_MODE')==='test'&&/^[A-Z]{2}$/.test(env('RAZORPAY_SANDBOX_COUNTRY')||''))?env('RAZORPAY_SANDBOX_COUNTRY'):'';
-     if(!sandbox&&(!ip||!country))throw fail('Your network country could not be verified. Please retry or contact support.',409);
+     if(env('BILLING_POLICY_ENABLED')!=='true'&&!sandbox&&(!ip||!country))throw fail('Your network country could not be verified. Please retry or contact support.',409);
      Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,country,billingCountry:data.country,sandboxCountry:sandbox,name:typeof data.name==='string'?data.name.slice(0,80):'',company:typeof data.company==='string'?data.company.slice(0,80):'',requestId:data.requestId,expectedTotal:data.expectedTotal});
+     if(env('BILLING_POLICY_ENABLED')==='true'){payload.billingNetwork=await networkOf(req);payload.country=payload.billingNetwork.country;}
     }
    }
    const packed=JSON.stringify(payload),timestamp=String(Date.now()),nonce=crypto.randomUUID(),signature=await keyedHash(secret,timestamp+'.'+nonce+'.'+packed);

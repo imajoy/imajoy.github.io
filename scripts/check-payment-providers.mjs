@@ -33,7 +33,8 @@ try{
    return route.abort();
   });
   await page.goto(new URL('checkout.html?plan=online&billing=monthly',base).href);
-  await page.selectOption('#country',country);
+  await page.waitForFunction(country=>document.querySelector('#country').value===country,country);
+  assert.equal(await page.locator('#country').isDisabled(),true);
   if(enabled&&['IN','US'].includes(country)){
    await page.locator('.payment-picker').waitFor({state:'visible'});
    if(country==='US'){

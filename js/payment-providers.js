@@ -32,7 +32,8 @@ if(form&&paypal&&url){
   else form.elements.billing.dispatchEvent(new Event('change',{bubbles:true}));
  }
  function sync(){
-  const c=choice(),country=c.country,canRazorpay=razorpayAvailable(config,country),canPaypal=!!paypalConfig?.clientId&&/^[A-Z]{2}$/.test(country)&&availability(country,paypalConfig.closedCountries||[]).open&&countryCheck(country,paypalConfig.mode==='live'?paypalConfig.country:'').ok&&!!paypalConfig.plans?.tiers?.[tierFor(country)]?.[c.plan]?.[c.billing];
+  if(document.documentElement.dataset.billingBlocked==='true'){picker.hidden=true;paypal.hidden=true;panel.hidden=true;review.hidden=true;return;}
+  const c=choice(),country=c.country,canRazorpay=razorpayAvailable(config,country),canPaypal=!!paypalConfig?.clientId&&/^[A-Z]{2}$/.test(country)&&availability(country,paypalConfig.closedCountries||[]).open&&(document.documentElement.dataset.billingTester==='true'||countryCheck(country,paypalConfig.mode==='live'?paypalConfig.country:'').ok)&&!!paypalConfig.plans?.tiers?.[tierFor(country)]?.[c.plan]?.[c.billing];
   picker.hidden=!canRazorpay;picker.querySelector('[value="razorpay"]').parentElement.hidden=!canRazorpay;picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
   if(!canRazorpay&&!canPaypal&&provider!=='review')selected('review');
   else if(canRazorpay&&!canPaypal&&provider!=='razorpay')selected('razorpay');
@@ -43,7 +44,8 @@ if(form&&paypal&&url){
    review.querySelector('[data-billing-availability]').textContent='You can review your plan and billing details. Payment options will appear when available for your country.';
    reviewSummary();
   }
-  if(provider==='razorpay'){panel.querySelector('.razorpay-mode').hidden=config.mode==='live';paint();}
+  if(provider==='paypal')paypal.hidden=false;
+  if(provider==='razorpay'){panel.hidden=false;panel.querySelector('.razorpay-mode').hidden=config.mode==='live';paint();}
  }
  function reviewSummary(){
   document.querySelector('#trial-line')?.setAttribute('hidden','');document.querySelector('.order-total')?.classList.remove('is-trial');
@@ -79,11 +81,11 @@ if(form&&paypal&&url){
   const session=getAccountSession();if(!session){openAccount({purpose:'checkout'});throw Error('Sign in or register to continue.');}
   const response=await fetch(url+'/'+operation,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...body,accountToken:session.token}),signal:AbortSignal.timeout(60000)});
   let data;try{data=await response.json();}catch{throw Error('Razorpay could not respond. Please try again later.');}
-  if(!response.ok||!data.ok)throw Error(data.message||'Razorpay checkout is temporarily unavailable.');return data;
+  if(!response.ok||!data.ok){document.dispatchEvent(new CustomEvent('ajoy:billing-denied',{detail:{code:data.error}}));throw Error(data.message||'Razorpay checkout is temporarily unavailable.');}return data;
  }
  function refresh(){
   clearTimeout(timer);const operation=++revision;quote=null;requestId=crypto.randomUUID();paint();
-  if(provider!=='razorpay'||!getAccountSession())return;
+  if(provider!=='razorpay'||!getAccountSession()||document.documentElement.dataset.billingBlocked==='true')return;
   const c=choice(),selection=key(),token=getAccountSession().token;
   if(!Number.isInteger(c.seats)||c.seats<1||c.seats>100)return;
   busy=true;say('Confirming your Razorpay price…');paint();
@@ -119,6 +121,7 @@ if(form&&paypal&&url){
  form.elements.seats.addEventListener('input',()=>{if(provider==='razorpay')refresh();});
  document.addEventListener('ajoy:quote-rendered',()=>{if(provider==='razorpay')paint();else if(provider==='review')reviewSummary();});
  onAccountChange(()=>{if(provider==='razorpay')refresh();});
+ document.addEventListener('ajoy:billing-network',()=>{sync();if(provider==='razorpay')refresh();});
  Promise.all([loadRazorpayConfig(),fetch(window.AJOY_CONFIG.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():null).catch(()=>null)]).then(([rzp,pp])=>{config=rzp;paypalConfig=pp;sync();});
  try{const saved=JSON.parse(sessionStorage.getItem('ajoy.razorpay.pending')||'null');if(saved?.email===getAccountSession()?.email&&/^[-a-f0-9]{36}$/i.test(saved.id)){pending=saved;check.hidden=false;}}catch{}
 }

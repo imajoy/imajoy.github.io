@@ -138,6 +138,10 @@ function handleRazorpay_(d){
   if(d.operation==='webhook')return razorpayWebhook_(d);
   var who=commerceWho_(d.accountToken);
   if(d.operation==='confirm')return razorpayConfirm_(d.checkoutId,who);
+  if(['quote','checkout'].indexOf(d.operation)>=0){
+      if(typeof billingApply_!=='function'&&(d.billingNetwork||props_().getProperty('BILLING_POLICY_ENABLED')==='true'))throw commerceError_('unavailable','The billing protection module needs updating.');
+      if(typeof billingApply_==='function')billingApply_(d,who);
+    }
   if(!razorpayEnabled_())throw commerceError_('unavailable','Razorpay subscriptions are not activated yet.');
   if(d.operation==='quote'){var price=razorpaySelection_(d);delete price.planId;return {ok:true,pricing:price};}
   if(d.operation==='checkout')return razorpayCheckout_(d,who);

@@ -71,7 +71,7 @@ export function service({registered=true,mailFails=false}={}){
    return result({},404);
   }},ContentService:{MimeType:{JSON:'json'},createTextOutput:()=>({setMimeType(){return this;},setContent(text){this.text=text;return this;}})}
  });
- for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
+ for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs','Billing.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
  const clone=value=>JSON.parse(JSON.stringify(value));
  const call=body=>clone(ctx.handleAccount_(body));
  const envelope=payload=>{const packed=JSON.stringify(payload),timestamp=String(Date.now()),nonce=randomUUID();return {type:'commerce',payload:packed,timestamp,nonce,signature:createHmac('sha256',values.get('COMMERCE_SECRET')).update(timestamp+'.'+nonce+'.'+packed).digest('hex')};};

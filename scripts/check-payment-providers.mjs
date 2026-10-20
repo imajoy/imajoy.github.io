@@ -83,7 +83,7 @@ try{
     const sub=last(),amount=app.razorpay.plans.get(sub.plan_id).item.amount;sub.status='active';sub.paid_count=1;
     const invoice={id:'inv_browser',subscription_id:sub.id,payment_id:'pay_browser',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:amount};
     app.razorpay.invoices.set(invoice.id,invoice);app.razorpay.payments.set(invoice.payment_id,{id:invoice.payment_id,invoice_id:invoice.id,status:'captured',captured:true,currency:'INR',amount,amount_refunded:0});
-    await fire('paid');await page.waitForURL('**/thank-you.html?**');
+    await fire('paid');await page.waitForURL('**/thank-you.html?**');await page.waitForFunction(()=>document.querySelector('.ty-main').dataset.tyState==='confirmed');
     assert.match(await page.locator('main').textContent(),/within 12 hours/);assert.match(await page.locator('main').textContent(),/starts when you activate/);
     assert.equal(await page.locator('#ty-provider').textContent(),'Razorpay');assert.equal(await page.locator('#ty-billing').textContent(),'Yearly');
     await page.waitForTimeout(1200);await page.screenshot({path:'/tmp/thank-you-'+width+'.png',fullPage:true});

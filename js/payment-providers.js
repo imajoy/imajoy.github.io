@@ -10,7 +10,7 @@ if(form&&paypal&&url){
  const panel=document.createElement('section');panel.className='razorpay-panel';panel.hidden=true;
  const review=document.createElement('section');review.className='billing-review';
  review.innerHTML='<h3>Review your billing details</h3><p data-billing-availability>Checking payment availability…</p><button type="button" class="btn btn-light btn-block" data-review-billing>Review billing details</button><p class="billing-review-status" role="status" aria-live="polite"></p>';
- panel.innerHTML='<p class="razorpay-mode" hidden><b>Test mode.</b> No real money moves.</p><p class="razorpay-status" role="status" aria-live="polite"></p><p class="razorpay-terms">Paid recurring subscription in INR. The 20% yearly saving is included. The 2-day trial, coupons and returning-subscriber offers are currently available through PayPal only. Monthly plans authorize up to 100 charges; yearly plans up to 10, then billing stops.</p><p class="razorpay-amount"></p><button type="button" class="btn btn-blue btn-block" data-razorpay-start>Continue with Razorpay</button><button type="button" class="btn btn-light btn-block" data-razorpay-check hidden>Check payment status</button><a class="text-link" data-razorpay-open hidden target="_blank" rel="noopener">Open secure Razorpay checkout</a><button type="button" class="razorpay-cancel" data-razorpay-cancel hidden>Cancel this checkout</button>';
+ panel.innerHTML='<div class="rzp-head"><span class="rzp-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></span><div><b>Secure INR checkout</b><small>Processed by Razorpay. Card and bank details never reach this site.</small></div><p class="razorpay-mode" hidden><i aria-hidden="true"></i>Test mode</p></div><div class="rzp-total"><small>Recurring amount</small><p class="razorpay-amount" aria-live="polite"></p><p class="rzp-saving" hidden>Includes your 20% yearly saving</p></div><ul class="rzp-methods" aria-label="Payment methods offered by Razorpay"><li>UPI</li><li>Cards</li><li>Net banking</li></ul><p class="razorpay-status" role="status" aria-live="polite"></p><button type="button" class="btn btn-blue btn-block rzp-pay" data-razorpay-start>Continue with Razorpay</button><button type="button" class="btn btn-light btn-block" data-razorpay-check hidden>Check payment status</button><a class="text-link" data-razorpay-open hidden target="_blank" rel="noopener">Open secure Razorpay checkout</a><button type="button" class="razorpay-cancel" data-razorpay-cancel hidden>Cancel this checkout</button><ul class="rzp-assure"><li>Cancel renewal any time from your account</li><li>License key within 12 hours</li><li>Time starts when you activate</li></ul><details class="razorpay-terms"><summary>Billing terms</summary><p>Paid recurring subscription in INR. The 20% yearly saving is included. The 2-day trial, coupons and returning-subscriber offers are currently available through PayPal only. Monthly plans authorize up to 100 charges; yearly plans up to 10, then billing stops.</p></details>';
  paypal.before(picker);paypal.after(panel,review);
  const status=panel.querySelector('.razorpay-status'),start=panel.querySelector('[data-razorpay-start]'),check=panel.querySelector('[data-razorpay-check]'),link=panel.querySelector('[data-razorpay-open]'),cancelBtn=panel.querySelector('[data-razorpay-cancel]');
  let config=null,paypalConfig=null,provider='review',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
@@ -30,15 +30,12 @@ if(form&&paypal&&url){
   if(!rzpScript)rzpScript=new Promise((resolve,reject)=>{const tag=document.createElement('script');tag.src='https://checkout.razorpay.com/v1/checkout.js';tag.onload=()=>window.Razorpay?resolve():reject(Error('Razorpay could not load.'));tag.onerror=()=>{rzpScript=null;reject(Error('Razorpay could not load. Check your connection and try again.'));};document.head.append(tag);});
   return rzpScript;
  }
- /* After Razorpay reports success, the server still verifies the captured payment before access is granted. */
- async function finishPaid(checkoutId,sel){
-  busy=true;say('Payment received. Confirming it with Razorpay…');paint();
-  for(let attempt=0;attempt<8;attempt++){
-   try{const result=await api('confirm',{checkoutId});if(result.accepted){clearPending();say('Payment confirmed. Taking you to your confirmation page…','ok');location.href=thankYou(result,sel.plan,sel.billing,sel.seats);return;}}catch(error){if(attempt===7){busy=false;paint();say(error.message,'error');return;}}
-   await new Promise(r=>setTimeout(r,4000));
-  }
-  busy=false;check.hidden=false;paint();
-  say('Your payment was received, but confirmation is taking longer than usual. You will get a confirmation email shortly. You can also press "Check payment status".','warn');
+ /* Razorpay reported success: show the confirmation page at once; it finishes the server verification live. */
+ function goThankYou(checkoutId,sel){
+  busy=true;say('Payment received. Opening your confirmation…','ok');paint();
+  try{sessionStorage.removeItem('ajoy.razorpay.pending');sessionStorage.removeItem('ajoy.billing-draft');}catch{}
+  document.dispatchEvent(new Event('ajoy:payment-complete'));
+  location.href=thankYou(null,sel.plan,sel.billing,sel.seats)+'&'+new URLSearchParams({checkout:checkoutId,verify:'1'}).toString();
  }
  /* Buyer closed the window or the payment failed: end the unpaid checkout so nothing is left waiting. */
  function abandon(checkoutId,reason){
@@ -90,11 +87,11 @@ if(form&&paypal&&url){
   if(provider!=='razorpay')return;
   document.querySelector('#trial-line')?.setAttribute('hidden','');document.querySelector('.order-total')?.classList.remove('is-trial');
   for(const id of ['loyalty-summary-row','loyalty-summary','coupon-summary-row'])document.getElementById(id).hidden=true;
-  const session=getAccountSession(),ownsPending=pending?.email===session?.email;start.disabled=busy||!session||!quote||ownsPending;start.textContent=!session?'Register / Login to continue':creating?'Preparing Razorpay checkout…':ownsPending?'Check your existing checkout below':'Continue with Razorpay';
+  const session=getAccountSession(),ownsPending=pending?.email===session?.email;start.disabled=busy||!session||!quote||ownsPending;start.textContent=!session?'Register / Login to continue':creating?'Preparing secure checkout…':ownsPending?'Check your existing checkout below':quote?'Pay '+money(quote.total)+' securely':'Continue with Razorpay';panel.dataset.busy=String(busy);
   if(!ownsPending){check.hidden=true;link.hidden=true;}
   cancelBtn.hidden=check.hidden||busy;
   if(!session)start.disabled=false;
-  const amount=quote?money(quote.total):'—';document.getElementById('summary-total').textContent=amount;panel.querySelector('.razorpay-amount').textContent=quote?amount+' per '+(quote.billing==='yearly'?'year':'month')+' for '+quote.seats+' license(s)':'';
+  const amount=quote?money(quote.total):'—';document.getElementById('summary-total').textContent=amount;const figure=panel.querySelector('.razorpay-amount');if(quote){figure.innerHTML='<span class="rzp-figure"></span><span class="rzp-per"></span>';figure.firstChild.textContent=amount;figure.lastChild.textContent='per '+(quote.billing==='yearly'?'year':'month')+' · '+quote.seats+(quote.seats===1?' license':' licenses');}else figure.innerHTML='<span class="rzp-figure rzp-placeholder">₹ ——</span>';panel.querySelector('.rzp-saving').hidden=!quote||quote.billing!=='yearly';
   if(!quote){for(const id of ['summary-unit','summary-subtotal'])document.getElementById(id).textContent='—';document.querySelector('#annual-summary-row').hidden=true;document.querySelector('#annual-summary').hidden=true;return;}
   document.querySelector('#summary-unit').textContent=money(quote.unitAmount);
   document.querySelector('#summary-subtotal').textContent=money(quote.compareAtUnitAmount*quote.seats);
@@ -151,7 +148,7 @@ if(form&&paypal&&url){
    const rzp=new window.Razorpay({key:config.keyId,subscription_id:result.subscriptionId,name:'Wrapline by Ajoy Tools',
     description:'Wrapline '+(sel.plan==='offline'?'Offline':'Online')+' · '+sel.billing+' · '+sel.seats+' license(s)',
     prefill:{email:getAccountSession().email,name:form.elements.name.value},theme:{color:'#2A64E8'},
-    handler:()=>{paid=true;finishPaid(result.checkoutId,sel);},
+    handler:()=>{paid=true;goThankYou(result.checkoutId,sel);},
     modal:{escape:true,confirm_close:true,ondismiss:()=>{if(!paid)abandon(result.checkoutId,failure);}}});
    rzp.on('payment.failed',event=>{failure=(event?.error?.description||'The bank declined the payment.').replace(/\.?$/,'.');say('Payment failed: '+failure+' Try another card or method in the Razorpay window, or close it to cancel.','error');});
    creating=false;busy=false;paint();say('Complete the payment in the Razorpay window. Closing it cancels this checkout.');

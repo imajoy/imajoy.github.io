@@ -70,8 +70,13 @@ function razorpayUrl_(url){if(!/^https:\/\/(?:rzp\.io|rzp\.co)\/[A-Za-z0-9/_?=&%
 function razorpayVerify_(record){
   var s=razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId));
   if(s.id!==record.subscriptionId||s.plan_id!==record.price.planId||Number(s.quantity)!==record.price.seats||!s.notes||s.notes.checkout_id!==record.id)throw commerceError_('mismatch','Razorpay subscription details do not match this checkout.');
-  var plan=razorpayApi_('/plans/'+encodeURIComponent(s.plan_id));
-  if(!plan.item||plan.item.currency!=='INR'||plan.item.amount!==record.price.unitAmount||plan.period!==record.price.billing||plan.interval!==1)throw commerceError_('mismatch','Razorpay billing terms do not match your confirmed price.');
+  // Plans are immutable in Razorpay, so a verified plan/price pair is cached to save a provider round trip.
+  var cache=CacheService.getScriptCache(),planKey='rzp-plan:'+s.plan_id+':'+record.price.unitAmount+':'+record.price.billing;
+  if(cache.get(planKey)!=='ok'){
+    var plan=razorpayApi_('/plans/'+encodeURIComponent(s.plan_id));
+    if(!plan.item||plan.item.currency!=='INR'||plan.item.amount!==record.price.unitAmount||plan.period!==record.price.billing||plan.interval!==1)throw commerceError_('mismatch','Razorpay billing terms do not match your confirmed price.');
+    cache.put(planKey,'ok',21600);
+  }
   return s;
 }
 function razorpayNotify_(record){
@@ -82,6 +87,8 @@ function razorpayNotify_(record){
 function razorpayConfirm_(id,who){
   var record=razorpayFind_(id);if(!record||who&&who.email!==record.email)throw commerceError_('checkout','This checkout does not belong to your account.');
   if(!record.subscriptionId)throw commerceError_('pending','Your checkout is still being prepared.');
+  // Already verified (usually by the subscription.charged webhook): answer at once. Refunds and revocations update the record.
+  if(who&&record.accepted&&!record.accessRevoked&&record.paidThrough>Date.now()/1000)return razorpayPublic_(record);
   var subscription=razorpayVerify_(record);
   // Authorization/activation alone is not a paid receipt. Read the provider's
   // invoice and captured payment before recording an order or issuing a license.

@@ -1,6 +1,6 @@
 /* Regional pricing and availability.
    Prices are final USD prices per computer (the amount PayPal charges). Three tiers follow what buyers in a
-   region can reasonably pay and how large the Maya community is there. India is shown in rupees and opens later.
+   region can reasonably pay and how large the Maya community is there. India is shown in rupees and paid through Razorpay.
    Countries where tax is due from the first sale (EU, UK, EEA) stay closed until local tax registration is done. */
 const LOW = 'PK BD NP LK EG NG KE GH ET TZ UG ZM ZW SN CM MM KH LA AF'.split(' ');
 const MID = 'ID PH VN BR MX ZA TR TH MY CO AR CL PE UA RS KZ GE AM AZ MA TN DZ JO LB EC DO CR PA GT CN UZ MN JM'.split(' ');
@@ -36,7 +36,7 @@ export function countryCheck(chosen, detected) {
   return { ok: false, detected };
 }
 export const closedMessage = {
-  india: 'Payments for India open soon. Please contact Ajoy to subscribe in the meantime.',
+  india: 'In India, subscribe with Razorpay. The PayPal free trial is not offered in India.',
   tax: 'Sales to your region open soon, once local tax registration is complete. Please contact Ajoy to be notified.',
   blocked: 'Subscriptions are not available in your country.',
   paypal: 'PayPal is not available for your country yet. Please contact Ajoy to subscribe in another way.'

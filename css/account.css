@@ -74,3 +74,54 @@ html[data-theme=dark] .acct-sub[data-state=ended] p{color:#f5a6a0}
 .passkey-controls{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:0 10px}.passkey-row>div:first-child{min-width:0;flex:1}.passkey-row b{overflow-wrap:anywhere}.passkey-row label{display:block;margin-top:12px;font-size:.75rem}.passkey-row input{width:100%;min-width:0;max-width:100%;border:1px solid var(--line);border-radius:8px;padding:8px;background:var(--card);color:var(--ink);font:inherit;margin-top:5px}.passkey-row input:focus-visible{outline:2px solid var(--blue);outline-offset:2px}.passkey-row label~button{margin-right:12px}
 
 .acct-stop{display:block;color:#c4392f!important;text-decoration:underline;font-size:.85rem;text-align:left}
+/* Plan status card under an owned plan's button: state, time left and in-place cancel. */
+.plan-status{--ps:#2A64E8;--ps-soft:rgba(42,100,232,.12);margin-top:14px;padding:16px 18px;border-radius:20px;border:1px solid var(--line);background:var(--t05,rgba(14,18,32,.04));text-align:left;animation:ps-in .55s var(--out,ease) both}
+.plan-status[data-state=active]{--ps:#1C9A6C;--ps-soft:rgba(28,154,108,.13)}
+.plan-status[data-state=cancelled]{--ps:#B7791F;--ps-soft:rgba(214,150,40,.15)}
+.plan-status[data-state=ended]{--ps:#C0453A;--ps-soft:rgba(192,69,58,.12)}
+.plan-status[data-leaving]{animation:ps-out .4s ease both}
+.ps-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.ps-badge{display:inline-flex;align-items:center;gap:8px;padding:5px 11px 5px 9px;border-radius:999px;background:var(--ps-soft);color:var(--ps);font-size:12.5px;letter-spacing:.02em;transition:background-color .4s,color .4s}
+.ps-badge b{font-weight:700}
+.ps-badge i{width:8px;height:8px;border-radius:50%;background:currentColor;box-shadow:0 0 0 0 currentColor}
+.plan-status[data-state=trial] .ps-badge i,.plan-status[data-state=active] .ps-badge i{animation:ps-pulse 2.2s ease-out infinite}
+.ps-days{font-weight:700;font-size:15px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.ps-meter{height:6px;margin:12px 0 10px;border-radius:99px;background:var(--line);overflow:hidden}
+.ps-meter span{display:block;height:100%;border-radius:inherit;background:linear-gradient(90deg,var(--ps),color-mix(in srgb,var(--ps) 60%,#fff));transform:scaleX(0);transform-origin:left;transition:transform 1.1s var(--out,ease),background .4s}
+.ps-text{margin:0;font-size:13.5px;line-height:1.55;color:var(--mute)}
+.ps-cancel{margin-top:8px;padding:6px 0;border:0;background:none;font:600 13.5px var(--sans,inherit);color:var(--mute);text-decoration:underline;text-underline-offset:3px;cursor:pointer;transition:color .2s}
+.ps-cancel:hover,.ps-cancel[aria-expanded=true]{color:#C0453A}
+.ps-confirm{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .32s var(--out,ease),opacity .25s}
+.ps-confirm[data-open]{grid-template-rows:1fr;opacity:1}
+.ps-confirm-inner{overflow:hidden}
+.ps-confirm p{margin:10px 0 12px;font-size:13.5px;line-height:1.55;color:var(--ink)}
+.ps-actions{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:2px}
+.ps-actions button{flex:1 1 120px;min-height:42px;border-radius:999px;font:600 14px var(--sans,inherit);cursor:pointer;transition:transform .2s var(--out,ease),background-color .2s,opacity .2s}
+.ps-keep{border:1px solid var(--line);background:var(--card,#fff);color:var(--ink)}
+.ps-yes{border:1px solid #C0453A;background:#C0453A;color:#fff}
+.ps-yes:hover{background:#A8372D}
+.ps-actions button:active{transform:scale(.97)}
+.ps-actions button:disabled{opacity:.6;cursor:wait}
+.ps-msg{margin:0;font-size:13px;line-height:1.5}
+.ps-msg:not(:empty){margin-top:10px;animation:ps-in .35s var(--out,ease) both}
+.ps-msg[data-kind=ok]{color:#1C7D5B}.ps-msg[data-kind=error]{color:#B73A30}
+.plan-status.ps-changed .ps-badge{animation:ps-pop .5s var(--out,ease)}
+.plan-status :focus-visible{outline:2px solid var(--blue,#326ff0);outline-offset:3px;border-radius:8px}
+.is-owned[data-state=cancelled]{box-shadow:inset 0 0 0 1.5px rgba(214,150,40,.55)}
+/* On the dark Offline card */
+.plan-lead .plan-status{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+.plan-lead .ps-days,.plan-lead .ps-confirm p{color:#fff}
+.plan-lead .ps-text,.plan-lead .ps-cancel{color:#AEB8D6}
+.plan-lead .ps-meter{background:rgba(255,255,255,.14)}
+.plan-lead .ps-keep{background:transparent;color:#fff;border-color:rgba(255,255,255,.3)}
+.plan-lead .plan-status[data-state=active],html[data-theme=dark] .plan-status[data-state=active]{--ps:#5FD9A8;--ps-soft:rgba(47,181,131,.16)}
+.plan-lead .plan-status[data-state=trial],html[data-theme=dark] .plan-status[data-state=trial]{--ps:#8DBBFF;--ps-soft:rgba(61,139,255,.18)}
+.plan-lead .plan-status[data-state=cancelled],html[data-theme=dark] .plan-status[data-state=cancelled]{--ps:#F2B64F;--ps-soft:rgba(242,182,79,.15)}
+.plan-lead .plan-status[data-state=ended],html[data-theme=dark] .plan-status[data-state=ended]{--ps:#F5A6A0;--ps-soft:rgba(245,166,160,.14)}
+.plan-lead .ps-msg[data-kind=ok],html[data-theme=dark] .ps-msg[data-kind=ok]{color:#5FD9A8}
+.plan-lead .ps-msg[data-kind=error],html[data-theme=dark] .ps-msg[data-kind=error]{color:#F5A6A0}
+@keyframes ps-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ps-out{to{opacity:0;transform:translateY(-6px)}}
+@keyframes ps-pulse{70%{box-shadow:0 0 0 7px transparent}100%{box-shadow:0 0 0 0 transparent}}
+@keyframes ps-pop{40%{transform:scale(1.08)}}
+@media (prefers-reduced-motion:reduce){.plan-status,.plan-status *{animation:none!important;transition:none!important}}

@@ -1,5 +1,5 @@
 import '../assets/vendor/webauthn-polyfills-0.1.7/json_serialization.js';
-import {getAccountSession} from './account-session.js?v=20261020-ty1';
+import {getAccountSession} from './account-session.js?v=20261020-ps1';
 const endpoint=window.AJOY_CONFIG?.passkeysUrl;
 const supported=!!(isSecureContext&&window.PublicKeyCredential&&navigator.credentials?.create&&navigator.credentials?.get);
 let configuration,pending;

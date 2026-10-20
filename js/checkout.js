@@ -30,7 +30,7 @@ for(const [button,step] of [[less,-1],[more,1]])button.addEventListener('click',
  quantity.dispatchEvent(new Event('input',{bubbles:true}));quantity.dispatchEvent(new Event('change',{bubbles:true}));
 });
 function selection(){return {plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(quantity.value),country:form.elements.country.value};}
-function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!quote.quoteToken||couponBusy||Boolean(quote?.customerId&&!customerVerified());pay.textContent=!config.paymentsEnabled?'Payments opening soon':'Continue to secure payment';}
+function updateButton(){pay.disabled=!config.paymentsEnabled||!quote||quote.preview||!quote.quoteToken||couponBusy||Boolean(quote?.customerId&&!customerVerified());pay.textContent=!config.paymentsEnabled?'Payments temporarily unavailable':'Continue to secure payment';}
 function showQuote(data){
  quote=data;
  const upsell=document.querySelector('#yearly-upsell');
@@ -117,7 +117,7 @@ couponRemove.addEventListener('click',()=>{
 async function init(){
  let configFailed=false;
  if(apiBase){try{config=await api('/config');}catch{configFailed=true;document.querySelector('#availability').textContent='Subscriptions are temporarily unavailable. Your billing details stay in this browser.';}}
- if(!config.paymentsEnabled&&!configFailed)document.querySelector('#availability').textContent=config.loyalty?.enabled?'Payments are opening soon. You can review your plan and available rewards; no order or charge will be created.':'Payments are opening soon. You can review your plan; no order or charge will be created.';
+ if(!config.paymentsEnabled&&!configFailed)document.querySelector('#availability').textContent=config.loyalty?.enabled?'Payments are temporarily unavailable. You can review your plan and available rewards; no order or charge will be created.':'Payments are temporarily unavailable. You can review your plan; no order or charge will be created.';
  else if(config.paymentsEnabled){
   document.querySelector('#availability').textContent='Review your billing details, then continue to our payment partner to confirm tax and complete your subscription.';
  }

@@ -14,7 +14,7 @@ function clean(value) {
     plan:s.plan,billing:s.billing,seats:Number.isInteger(s.seats)&&s.seats>0&&s.seats<=100?s.seats:1,
     status:['ACTIVE','APPROVED','CANCELLED','SUSPENDED','EXPIRED'].includes(s.status)?s.status:'UNKNOWN',
     endsAt:typeof s.endsAt==='string'&&Number.isFinite(Date.parse(s.endsAt))?s.endsAt:'',trial:!!s.trial,renews:!!s.renews,
-    provider:['paypal','razorpay'].includes(s.provider)?s.provider:'',ref:typeof s.ref==='string'&&/^[-a-f0-9]{36}$/i.test(s.ref)?s.ref:''
+    provider:['paypal','razorpay'].includes(s.provider)?s.provider:'',ref:typeof s.ref==='string'&&(/^[-a-f0-9]{36}$/i.test(s.ref)||/^I-[A-Z0-9]{6,40}$/.test(s.ref))?s.ref:''
   })) : null;
   return { token: value.token, email, expiresAt, limited: !!value.limited, subscriptions };
 }
@@ -39,10 +39,10 @@ window.addEventListener('storage', event => {
   current = cfg.accountOpen ? load() : null;
   window.dispatchEvent(new Event(EVENT));
 });
-export async function accountRequest(body) {
+export async function accountRequest(body, timeout = 20000) {
   if (!cfg.accountOpen || !cfg.sheetUrl) throw new Error('Subscriber sign-in is unavailable.');
   const response = await fetch(cfg.sheetUrl, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ type: 'account', ...body }), signal: AbortSignal.timeout(20000) });
+    body: JSON.stringify({ type: 'account', ...body }), signal: AbortSignal.timeout(timeout) });
   if (!response.ok) throw new Error('Could not reach the account service. Please try again.');
   try { return await response.json(); } catch { throw new Error('The account service could not respond. Please try again.'); }
 }

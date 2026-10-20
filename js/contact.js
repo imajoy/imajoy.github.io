@@ -1,5 +1,5 @@
 /* Guest contact is independent of account verification; a saved receipt confirms delivery. */
-import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ty1';
+import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ps1';
 import {inspectAttachment,readAttachment} from './contact-attachment.js?v=20261019-advanced1';
 const form=document.querySelector('#contact-form');
 if(form){
@@ -7,7 +7,7 @@ if(form){
  const art=document.querySelector('.contact-art'),caption=document.querySelector('#contact-art-caption'),meter=document.querySelector('#contact-draft-progress'),ready=document.querySelector('#contact-ready-count');
  const picker=document.querySelector('#attachment-picker'),fileInput=form.elements.attachment,preview=document.querySelector('#attachment-preview'),media=document.querySelector('#attachment-media'),attachmentStatus=document.querySelector('#attachment-status'),transfer=document.querySelector('#attachment-transfer'),progress=document.querySelector('#attachment-progress'),progressLabel=document.querySelector('#attachment-progress-label');
  const motion=matchMedia('(prefers-reduced-motion:reduce)');
- const topics=['general','support','studio','india','privacy','idea'],topic=new URLSearchParams(location.search).get('topic');
+ const topics=['general','support','studio','billing','privacy','idea'],topic=new URLSearchParams(location.search).get('topic');
  if(topics.includes(topic))form.elements.topic.value=topic;
  let requestId=crypto.randomUUID(),lastPayload='',busy=false,selecting=false,chosenFile=null,chosenInfo=null,objectURL='',fileVersion=0,typingTimer,visible=true;
  let identityMode=getAccountSession()?'account':'guest',wantsAccount=false;

@@ -80,7 +80,7 @@ try{
  });
  await regionPage.goto(new URL('wrapline.html',base).href);
  await regionPage.waitForFunction(()=>sessionStorage.getItem('ajoy.geo')==='IN'&&document.querySelector('[data-amt=online]').textContent.includes('899'));
- assert(lookups.includes('country.is')&&lookups.includes('GeoJS'));assert(await regionPage.locator('#india-availability').isVisible());
+ assert(lookups.includes('country.is')&&lookups.includes('GeoJS'));
  assert.match(await regionPage.locator('[data-buy=online]').getAttribute('href'),/contact.html/);await regional.close();
  // Forced preview is discoverable, uses real account actions and does not consume the cooldown.
  const guest=await context({viewport:{width:390,height:844}}),gp=await guest.newPage();

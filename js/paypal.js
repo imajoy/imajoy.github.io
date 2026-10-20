@@ -1,8 +1,8 @@
 import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261020-steps1';
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
-import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261020-rz1';
+import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261020-ps1';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261020-rz1';
-import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261020-ty1';
+import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261020-ps1';
 import {secureCommerce} from './commerce-gateway.js?v=20261020-country1';
 const settings=window.AJOY_CONFIG||{},form=document.querySelector('#billing-form'),pay=document.querySelector('#pay');
 bindAccountEmail(form?.elements.email,document.querySelector('#email-hint'));

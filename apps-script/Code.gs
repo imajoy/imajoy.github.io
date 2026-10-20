@@ -293,7 +293,7 @@ function addPeriod_(d, billing) { var x = new Date(d.getTime()); if (billing ===
 function subscriptionsFor_(email, onlySub) {
   var list = ordersFor_(email, onlySub).slice(-5).reverse(), t = token_(), out = [];
   list.forEach(function (o) {
-    var item = { plan: o.plan, billing: o.billing, seats: o.seats, status: 'UNKNOWN', endsAt: '', renews: false, trial: false, provider: 'paypal' };
+    var item = { plan: o.plan, billing: o.billing, seats: o.seats, status: 'UNKNOWN', endsAt: '', renews: false, trial: false, provider: 'paypal', ref: o.id };
     if (t) {
       var r = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(o.id), { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t } });
       if (r.getResponseCode() === 200) {
@@ -302,7 +302,13 @@ function subscriptionsFor_(email, onlySub) {
         var next = b.next_billing_time ? new Date(b.next_billing_time) : null;
         var last = b.last_payment && b.last_payment.time ? new Date(b.last_payment.time) : (s.start_time ? new Date(s.start_time) : null);
         if (item.status === 'ACTIVE' && next) { item.endsAt = next.toISOString(); item.renews = true; item.trial = !!o.trialPlan && o.at && (Date.now() - o.at.getTime()) < 2 * 86400000 + 3600000 * 6; }
-        else if (last) { item.endsAt = addPeriod_(last, o.billing).toISOString(); }
+        else {
+          // A trial cancelled before its first payment ends when the trial would have ended.
+          var paid = b.last_payment && b.last_payment.amount && Number(b.last_payment.amount.value) > 0;
+          var started = s.start_time ? new Date(s.start_time) : o.at;
+          if (o.trialPlan && !paid && started) { item.endsAt = new Date(started.getTime() + 2 * 86400000).toISOString(); item.trial = true; }
+          else if (last) item.endsAt = addPeriod_(last, o.billing).toISOString();
+        }
       }
     }
     item._orderTime=o.at.getTime();
@@ -310,6 +316,30 @@ function subscriptionsFor_(email, onlySub) {
   });
   if(typeof razorpaySubscriptions_==='function')out=out.concat(razorpaySubscriptions_(email,onlySub));
   return out.sort(function(a,b){return (b._orderTime||0)-(a._orderTime||0);}).slice(0,5).map(function(item){delete item._orderTime;return item;});
+}
+/* Subscriber-initiated cancellation: stops future charges, access continues until the paid (or trial) period ends. */
+function cancelSubscription_(who, provider, ref) {
+  try {
+    if (provider === 'razorpay' && /^[-a-f0-9]{36}$/i.test(ref) && typeof razorpayStopRenewal_ === 'function') {
+      var stopped = razorpayStopRenewal_(ref, who);
+      return { ok: true, cancelled: true, endsAt: stopped.endsAt || '' };
+    }
+    if (provider !== 'paypal' || !/^I-[A-Z0-9]{6,40}$/.test(ref)) return { ok: false, error: 'invalid', message: 'This subscription could not be found.' };
+    if (!ordersFor_(who.email).some(function (o) { return o.id === ref; })) return { ok: false, error: 'invalid', message: 'This subscription does not belong to your account.' };
+    var t = token_();
+    if (!t) return { ok: false, error: 'unavailable', message: 'PayPal could not be reached. Please try again shortly.' };
+    var current = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(ref), { muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t } });
+    var status = current.getResponseCode() === 200 ? JSON.parse(current.getContentText()).status : '';
+    if (status === 'ACTIVE' || status === 'SUSPENDED') {
+      var r = UrlFetchApp.fetch(base_() + '/v1/billing/subscriptions/' + encodeURIComponent(ref) + '/cancel', { method: 'post', contentType: 'application/json', muteHttpExceptions: true, headers: { Authorization: 'Bearer ' + t }, payload: JSON.stringify({ reason: 'Cancelled by the subscriber from their Wrapline account.' }) });
+      if (r.getResponseCode() !== 204 && r.getResponseCode() !== 200) return { ok: false, error: 'unavailable', message: 'PayPal did not accept the cancellation. Please try again or cancel in your PayPal account.' };
+    }
+    var item = subscriptionsFor_(who.email, ref).filter(function (x) { return x.ref === ref; })[0] || {};
+    try { MailApp.sendEmail({ to: ownerEmail_(), name: 'Wrapline orders', subject: 'Subscription cancelled: ' + ref, body: who.email + ' cancelled their Wrapline PayPal subscription ' + ref + '. Access continues until ' + (item.endsAt ? new Date(item.endsAt).toDateString() : 'the end of the paid period') + '.' }); } catch (e) {}
+    return { ok: true, cancelled: true, endsAt: item.endsAt || '' };
+  } catch (e) {
+    return { ok: false, error: 'unavailable', message: (e && e.message) || 'The subscription could not be cancelled. Please try again.' };
+  }
 }
 /* Accounts are created only after a registration email code has been verified. */
 function safeSheetCell_(value) { return typeof value === 'string' && /^[=+@-]/.test(value) ? "'" + value : value; }
@@ -338,6 +368,11 @@ function handleAccount_(d) {
     var account = { ok: true, email: who.email, limited: !!who.sub, expiresAt: who.expiresAt };
     if (step === 'status') account.subscriptions = subscriptionsFor_(who.email, who.sub);
     return account;
+  }
+  if (step === 'cancel') {
+    var owner = readSession_(d.token);
+    if (!owner) return { ok: false, error: 'expired' };
+    return cancelSubscription_(owner, String(d.provider || ''), String(d.ref || ''));
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: false, error: 'email' };
   if (step !== 'code' && step !== 'verify') return { ok: false, error: 'step' };
@@ -575,7 +610,7 @@ function handleContact_(data) {
   var name=text(data.name),email=text(data.email).toLowerCase(),message=text(data.message),topic=text(data.topic),requestId=text(data.requestId);
   if (text(data.website)) return {ok:false,error:'invalid'};
   if (!name || name.length>80 || email.length>120 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email) || message.length<10 || message.length>4000 ||
-      ['general','support','studio','india','privacy','idea'].indexOf(topic)<0 || !/^[a-zA-Z0-9-]{20,80}$/.test(requestId) || data.consent!==true) return {ok:false,error:'invalid'};
+      ['general','support','studio','billing','india','privacy','idea'].indexOf(topic)<0 || !/^[a-zA-Z0-9-]{20,80}$/.test(requestId) || data.consent!==true) return {ok:false,error:'invalid'};
   var lock=LockService.getScriptLock();
   if (!lock.tryLock(10000)) return {ok:false,error:'busy'};
   var held=true;

@@ -85,3 +85,29 @@ test('the server enforces the two-minute deadline even if a cached code survives
  if(current!==old)assert.equal(app.call({step:'verify',email,code:old}).error,'code');
  assert.equal(app.call({step:'verify',email,code:current}).ok,true);
 });
+test('Subscriber can cancel their own PayPal subscription; access continues to the paid date',()=>{
+ const app=service(),token=app.ctx.makeSession_('buyer@example.com');
+ const paidAt=new Date(Date.now()-5*864e5);
+ app.subscriptions.set('I-TESTBUYER1',{id:'I-TESTBUYER1',status:'ACTIVE',plan_id:'P-high-ONLINE',start_time:paidAt.toISOString(),subscriber:{payer_id:'P1'},billing_info:{last_payment:{time:paidAt.toISOString(),amount:{value:'22.00'}},next_billing_time:new Date(Date.now()+25*864e5).toISOString()}});
+ const before=app.call({step:'status',token}).subscriptions[0];
+ assert.equal(before.ref,'I-TESTBUYER1');assert.equal(before.renews,true);assert.equal(before.provider,'paypal');
+ assert.equal(app.call({step:'cancel',token,provider:'paypal',ref:'I-SOMEONEELSE1'}).ok,false,'cannot cancel another account');
+ assert.equal(app.subscriptions.get('I-TESTBUYER1').status,'ACTIVE');
+ assert.equal(app.call({step:'cancel',token:'bad-token',provider:'paypal',ref:'I-TESTBUYER1'}).error,'expired');
+ const result=app.call({step:'cancel',token,provider:'paypal',ref:'I-TESTBUYER1'});
+ assert.equal(result.ok,true);assert.equal(app.subscriptions.get('I-TESTBUYER1').status,'CANCELLED');
+ const after=app.call({step:'status',token}).subscriptions[0];
+ assert.equal(after.renews,false);assert.equal(after.status,'CANCELLED');
+ const daysLeft=(Date.parse(after.endsAt)-Date.now())/864e5;assert(daysLeft>20&&daysLeft<32,'access runs to the end of the paid month');
+ assert(app.mails.some(m=>/Subscription cancelled/.test(m.subject)));
+});
+test('A cancelled free trial keeps access only until the trial would have ended',()=>{
+ const app=service(),token=app.ctx.makeSession_('buyer@example.com');
+ app.orders.rows[1][7]='online trial';
+ const started=new Date(Date.now()-864e5);
+ app.subscriptions.set('I-TESTBUYER1',{id:'I-TESTBUYER1',status:'ACTIVE',plan_id:'P-high-ONLINE',start_time:started.toISOString(),subscriber:{payer_id:'P1'},billing_info:{next_billing_time:new Date(started.getTime()+2*864e5).toISOString()}});
+ assert.equal(app.call({step:'cancel',token,provider:'paypal',ref:'I-TESTBUYER1'}).ok,true);
+ const after=app.call({step:'status',token}).subscriptions[0];
+ assert.equal(after.trial,true);assert.equal(after.renews,false);
+ assert(Math.abs(Date.parse(after.endsAt)-(started.getTime()+2*864e5))<1000);
+});

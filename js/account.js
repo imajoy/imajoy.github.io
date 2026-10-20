@@ -1,6 +1,6 @@
 import {mountPasskeys,cancelPasskey} from './passkeys.js?v=20261020-fast1';
 /* Email-code sign-in with an immediate cached summary and live subscription refresh. */
-import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261020-ty1';
+import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261020-ps1';
 const cfg = window.AJOY_CONFIG || {};
 if (cfg.accountOpen && cfg.sheetUrl) init();
 function init() {
@@ -10,13 +10,32 @@ function init() {
   const daysLeft = iso => Math.max(0, Math.ceil((new Date(iso) - Date.now()) / 864e5));
   const fmtDate = iso => new Date(iso).toLocaleDateString(undefined, {day:'numeric',month:'short',year:'numeric'});
   const describe = s => {
-    const days = s.endsAt ? daysLeft(s.endsAt) : 0, live = days > 0;
-    if (s.status === 'UNKNOWN') return {state:'unknown',text:'Subscription details are temporarily unavailable.',short:'Account',days:0};
-    if (s.status === 'ACTIVE' && live && s.trial) return {state:'active',text:'Free trial · '+dayWord(days)+' left, then billed automatically on '+fmtDate(s.endsAt),short:days+'d left',days};
-    if (s.status === 'ACTIVE' && live) return {state:'active',text:dayWord(days)+' left · renews '+fmtDate(s.endsAt),short:days+'d left',days};
-    if (live) return {state:'ending',text:'Ends '+fmtDate(s.endsAt)+' ('+dayWord(days)+' left) · not renewing',short:days+'d left',days};
-    return {state:'ended',text:'Ended'+(s.endsAt?' '+fmtDate(s.endsAt):'')+' · renew to keep using Wrapline',short:'Renew',days:0};
+    const days = s.endsAt ? daysLeft(s.endsAt) : 0, live = days > 0, date = s.endsAt ? fmtDate(s.endsAt) : '';
+    if (s.status === 'UNKNOWN') return {state:'unknown',kind:'unknown',text:'Subscription details are temporarily unavailable.',short:'Account',days:0};
+    if (live && s.renews && s.trial) return {state:'active',kind:'trial',text:'Free trial · '+dayWord(days)+' left · first payment on '+date+' unless you cancel',short:days+'d left',days,date};
+    if (live && s.renews) return {state:'active',kind:'active',text:'Active · '+dayWord(days)+' left · renews on '+date,short:days+'d left',days,date};
+    if (live) return {state:'ending',kind:'cancelled',text:(s.trial?'Trial cancelled':'Cancelled')+' · access continues until '+date+' ('+dayWord(days)+' left)',short:days+'d left',days,date};
+    return {state:'ended',kind:'ended',text:'Ended'+(date?' '+date:'')+' · renew to keep using Wrapline',short:'Renew',days:0,date};
   };
+  const canCancel = s => s.renews && s.ref && ['paypal','razorpay'].includes(s.provider) && daysLeft(s.endsAt) > 0;
+  const sameSub = (a,b) => a.provider===b.provider && a.ref===b.ref;
+  /* Cancels future renewals. Access continues until the paid or trial period ends. */
+  async function cancelSubscription(s){
+    const current=getAccountSession();if(!current)throw new Error('Sign in again to manage your subscription.');
+    let result=await accountRequest({step:'cancel',token:current.token,provider:s.provider,ref:s.ref},60000);
+    if(!result.ok&&['step','email'].includes(result.error)){
+      // The account service has not been updated yet: fall back to the provider routes that already exist.
+      if(s.provider==='paypal'){window.open('https://www.paypal.com/myaccount/autopay/','_blank','noopener');return {external:true};}
+      const url=cfg.razorpayUrl;if(!url)throw new Error('Cancellation is unavailable right now. Please contact support.');
+      const response=await fetch(url+'/stop',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({checkoutId:s.ref,accountToken:current.token}),signal:AbortSignal.timeout(60000)});
+      result=await response.json().catch(()=>({}));if(response.ok&&result.ok)result.cancelled=true;
+    }
+    if(!result.ok){if(result.error==='expired'){clearAccountSession();throw new Error('Your session expired. Sign in again.');}throw new Error(result.message||'Your subscription could not be cancelled. Please try again or contact support.');}
+    const latest=getAccountSession();
+    if(latest?.token===current.token&&Array.isArray(latest.subscriptions))setAccountSession({...latest,subscriptions:latest.subscriptions.map(x=>sameSub(x,s)?{...x,renews:false,endsAt:result.endsAt||x.endsAt}:x)});
+    setTimeout(status,1500);
+    return result;
+  }
   const totalDays = list => list.reduce((n,s) => n+describe(s).days,0);
   let registration=false,purpose='',email='',step='email',msg='',busy=false,updating=false,offline=false,generation=0,closing=false,codeDeadline=0,countdownTimer,reauthenticating=false;
   const dlg=document.createElement('dialog');
@@ -56,23 +75,18 @@ function init() {
     if(session){
       body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Your account</p><h2 id="acct-title" tabindex="-1">'+esc(session.email)+'</h2><p class="acct-note acct-sync" role="status">'+(updating?'Updating your subscription details…':offline?'Showing your saved account. Reconnect to update your details.':'Your verified account email is used automatically at checkout.')+'</p>'+
         (subs?.length>1&&totalDays(subs)?'<p class="acct-total">Total across your subscriptions: <b>'+dayWord(totalDays(subs))+' left</b></p>':'')+
-        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Wrapline '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'||d.state==='ending'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+(s.renews&&s.provider==='razorpay'&&s.ref?'<button class="acct-link acct-stop" type="button" data-stop="'+esc(s.ref)+'">Stop automatic renewal</button>':s.renews&&s.provider==='paypal'?'<a class="acct-link acct-stop" href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener">Cancel renewal in PayPal</a>':'')+'</div>';}).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
+        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Wrapline '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+(canCancel(s)?'<button class="acct-link acct-stop" type="button" data-cancel-index="'+subs.indexOf(s)+'">'+(s.trial?'Cancel free trial':'Cancel subscription')+'</button>':'')+'</div>';}).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
         '<div class="acct-passkeys" hidden></div>'+
         (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<p class="acct-note">To use a different email, sign out first.</p><button class="acct-link" type="button" data-out>Sign out</button>';
       body.querySelector('[data-out]').onclick=()=>{generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
       body.querySelector('[data-retry]')?.addEventListener('click',status);
-      for(const stop of body.querySelectorAll('[data-stop]'))stop.addEventListener('click',async()=>{
-        if(stop.dataset.confirm!=='1'){stop.dataset.confirm='1';stop.textContent='Confirm: stop renewal (you keep access until the paid period ends)';return;}
-        const url=window.AJOY_CONFIG?.razorpayUrl,current=getAccountSession();if(!url||!current)return;
-        stop.disabled=true;stop.textContent='Stopping renewal…';
-        try{
-          const response=await fetch(url+'/stop',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({checkoutId:stop.dataset.stop,accountToken:current.token}),signal:AbortSignal.timeout(60000)});
-          const data=await response.json().catch(()=>({}));
-          if(!response.ok||!data.ok)throw new Error(data.message||'Renewal could not be stopped. Please try again or contact support.');
-          stop.replaceWith(Object.assign(document.createElement('p'),{className:'acct-note',textContent:'Automatic renewal stopped. You keep access until '+(data.endsAt?new Date(data.endsAt).toLocaleDateString(undefined,{day:'numeric',month:'short',year:'numeric'}):'the end of your paid period')+'.'}));
-          status();
-        }catch(error){stop.disabled=false;stop.dataset.confirm='';stop.textContent='Stop automatic renewal';announce(error.message,true);}
+      for(const stop of body.querySelectorAll('[data-cancel-index]'))stop.addEventListener('click',async()=>{
+        const sub=subs[Number(stop.dataset.cancelIndex)];if(!sub)return;
+        if(stop.dataset.confirm!=='1'){stop.dataset.confirm='1';stop.textContent='Confirm cancel · access continues until '+fmtDate(sub.endsAt);return;}
+        stop.disabled=true;stop.textContent='Cancelling…';
+        try{const result=await cancelSubscription(sub);if(result.external){stop.disabled=false;stop.dataset.confirm='';stop.textContent=sub.trial?'Cancel free trial':'Cancel subscription';announce('Finish cancelling in the PayPal window that opened.');}}
+        catch(error){stop.disabled=false;stop.dataset.confirm='';stop.textContent=sub.trial?'Cancel free trial':'Cancel subscription';announce(error.message,true);}
       });
       mountAccountPasskeys(session);
       return;
@@ -148,10 +162,58 @@ function init() {
       const a=document.querySelector('[data-buy="'+plan+'"]');if(!a)continue;
       const mine=active?.find(x=>x.s.plan===plan&&(x.d.state==='active'||x.d.state==='ending'))||active?.find(x=>x.s.plan===plan);
       if(!a.dataset.orig)a.dataset.orig=a.textContent;
-      if(!mine){if(a.classList.contains('is-owned'))a.textContent=a.dataset.orig;a.classList.remove('is-owned');continue;}
-      a.classList.add('is-owned');
-      a.textContent=mine.d.state==='ended'?'Renew '+label(plan):mine.d.state==='ending'?'Renew · '+mine.d.short:mine.d.state==='unknown'?'View account':'Your plan · '+mine.d.short;
+      planStatus(a,mine);
+      if(!mine){if(a.classList.contains('is-owned'))a.textContent=a.dataset.orig;a.classList.remove('is-owned');delete a.dataset.state;continue;}
+      a.classList.add('is-owned');a.dataset.state=mine.d.kind;
+      a.textContent=mine.d.state==='ended'?'Renew '+label(plan):mine.d.state==='unknown'?'View account':(mine.d.kind==='trial'?'Free trial · ':'Your plan · ')+mine.d.short;
     }
+  }
+  /* Status card under a plan's button: state, time left, renewal date and an in-place cancel. */
+  const calm=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+  function countTo(node,target){
+    const from=Number(node.dataset.value||0);node.dataset.value=String(target);
+    const write=n=>{node.textContent=target?dayWord(n)+' left':'Ended';};
+    if(calm()||from===target){write(target);return;}
+    const t0=performance.now(),run=now=>{const k=Math.min(1,(now-t0)/700),e=1-Math.pow(1-k,3);write(Math.round(from+(target-from)*e));if(k<1)requestAnimationFrame(run);};requestAnimationFrame(run);
+  }
+  function planStatus(a,mine){
+    let box=a.nextElementSibling?.classList.contains('plan-status')?a.nextElementSibling:null;
+    if(!mine||mine.d.state==='unknown'){
+      if(box&&!box.dataset.leaving){box.dataset.leaving='';const done=()=>box.remove();if(calm())done();else{box.addEventListener('animationend',done,{once:true});setTimeout(done,500);}}
+      return;
+    }
+    if(box&&box.dataset.leaving!==undefined){box.remove();box=null;}
+    const s=mine.s,d=mine.d;
+    if(!box){
+      box=document.createElement('div');box.className='plan-status';
+      box.innerHTML='<div class="ps-head"><span class="ps-badge"><i aria-hidden="true"></i><b></b></span><span class="ps-days" data-value="0"></span></div><div class="ps-meter" aria-hidden="true"><span></span></div><p class="ps-text"></p><button type="button" class="ps-cancel"></button><div class="ps-confirm" hidden><div class="ps-confirm-inner"><p></p><div class="ps-actions"><button type="button" class="ps-keep">Keep my plan</button><button type="button" class="ps-yes">Yes, cancel</button></div></div></div><p class="ps-msg" role="status" aria-live="polite"></p>';
+      a.after(box);
+      const confirmBox=box.querySelector('.ps-confirm'),cancel=box.querySelector('.ps-cancel'),msgNode=box.querySelector('.ps-msg');
+      const toggle=show=>{if(show){confirmBox.hidden=false;requestAnimationFrame(()=>confirmBox.dataset.open='');box.querySelector('.ps-keep').focus();}else{delete confirmBox.dataset.open;const hide=()=>{if(confirmBox.dataset.open===undefined)confirmBox.hidden=true;};calm()?hide():setTimeout(hide,320);cancel.focus();}cancel.setAttribute('aria-expanded',String(show));};
+      cancel.addEventListener('click',()=>{msgNode.textContent='';toggle(confirmBox.hidden);});
+      box.querySelector('.ps-keep').addEventListener('click',()=>toggle(false));
+      box.querySelector('.ps-yes').addEventListener('click',async()=>{
+        const sub=box._sub;if(!sub)return;
+        const yes=box.querySelector('.ps-yes'),keep=box.querySelector('.ps-keep');yes.disabled=keep.disabled=true;yes.textContent='Cancelling…';box.setAttribute('aria-busy','true');
+        try{
+          const result=await cancelSubscription(sub);
+          toggle(false);msgNode.dataset.kind='ok';
+          msgNode.textContent=result.external?'Finish cancelling in the PayPal window that opened.':'Cancelled. You won’t be charged again, and you keep access until '+fmtDate(result.endsAt||sub.endsAt)+'.';
+        }catch(error){msgNode.dataset.kind='error';msgNode.textContent=error.message;}
+        finally{yes.disabled=keep.disabled=false;yes.textContent='Yes, cancel';box.removeAttribute('aria-busy');}
+      });
+    }
+    box._sub=s;
+    const previous=box.dataset.state;box.dataset.state=d.kind;
+    if(previous&&previous!==d.kind&&!calm()){box.classList.remove('ps-changed');void box.offsetWidth;box.classList.add('ps-changed');}
+    box.querySelector('.ps-badge b').textContent={trial:'Free trial',active:'Active',cancelled:s.trial?'Trial cancelled':'Cancelled',ended:'Expired'}[d.kind];
+    countTo(box.querySelector('.ps-days'),d.days);
+    const period=s.trial?2:s.billing==='yearly'?365:31,fill=Math.max(d.days?.04:0,Math.min(1,d.days/period));
+    const bar=box.querySelector('.ps-meter span');requestAnimationFrame(()=>requestAnimationFrame(()=>bar.style.transform='scaleX('+fill.toFixed(3)+')'));
+    box.querySelector('.ps-text').textContent=d.kind==='trial'?'Your first payment is on '+d.date+'. Cancel before then and you won’t be charged.':d.kind==='active'?'Renews automatically on '+d.date+'.':d.kind==='cancelled'?'Won’t renew. Your access continues until '+d.date+'.':'Ended '+(d.date||'')+'. Renew to keep using Wrapline.';
+    const cancel=box.querySelector('.ps-cancel'),can=canCancel(s);cancel.hidden=!can;cancel.textContent=s.trial?'Cancel free trial':'Cancel subscription';
+    box.querySelector('.ps-confirm p').textContent=(s.trial?'Cancel your free trial? You won’t be charged, and you can keep using Wrapline until ':'Cancel automatic renewal? You won’t be charged again, and you keep full access until ')+(d.date||'the end of your period')+'.';
+    if(!can){const c=box.querySelector('.ps-confirm');delete c.dataset.open;c.hidden=true;}
   }
   async function status(){
     const saved=getAccountSession();if(!saved)return;
@@ -166,7 +228,7 @@ function init() {
     finally{updating=false;refresh();if(dlg.open)render();}
   }
   onAccountChange(()=>{refresh();if(dlg.open)render();});
-  document.addEventListener('click',event=>{const a=event.target.closest('.is-owned');if(a&&/Your plan|View account/.test(a.textContent)){event.preventDefault();open();}});
+  document.addEventListener('click',event=>{const a=event.target.closest('.is-owned');if(a&&/Your plan|View account|Free trial/.test(a.textContent)){event.preventDefault();open();}});
   refresh();
   let autoOpen=false;try{autoOpen=sessionStorage.getItem('ajoy.acct.open')==='1';sessionStorage.removeItem('ajoy.acct.open');email=sessionStorage.getItem('ajoy.acct.email')||'';sessionStorage.removeItem('ajoy.acct.email');}catch{}
   if(autoOpen)open();

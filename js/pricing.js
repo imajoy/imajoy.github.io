@@ -1,4 +1,4 @@
-import {availability} from './regions.js?v=20261020-rz1';
+import {availability} from './regions.js?v=20261020-ps1';
 import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261020-rz1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261020-rz1';
@@ -19,8 +19,6 @@ async function render(){
  const inIndia=suggestedCountry()==='IN';
  const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
  const paymentOpen=indiaOpen||(!inIndia&&!!tcfg?.clientId&&availability(suggestedCountry(),tcfg.closedCountries||[]).open);
- const notice=document.querySelector('#india-availability');
- notice.hidden=true;
  document.querySelector('.plan-trial-kicker').hidden=inIndia;
  await Promise.all(['online','offline'].map(async plan=>{
   const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`);

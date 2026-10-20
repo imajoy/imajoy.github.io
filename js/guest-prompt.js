@@ -1,4 +1,4 @@
-import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ty1';
+import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ps1';
 import {canShowGuestPrompt,PROMO_DELAY} from './promotion-policy.js?v=20261019-contact1';
 // Only the two discovery homepages: never interrupt checkout, support or legal reading.
 if(window.AJOY_CONFIG?.accountOpen&&document.body.matches('.studio-page:not(.contact-page),.home-page')){

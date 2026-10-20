@@ -49,11 +49,13 @@ function commercePaypal_(path,method,body,id) {
   var text=response.getContentText();return text?JSON.parse(text):{};
 }
 function commerceHistoricalTrial_(email) {
+  if(typeof razorpayTrialUsedByEmail_==='function'&&razorpayTrialUsedByEmail_(email))return true;
   var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
   if(!sheet||sheet.getLastRow()<2)return false;
   return sheet.getRange(2,1,sheet.getLastRow()-1,12).getValues().some(function(r){return r[3]===mode_()&&String(r[4]).toLowerCase()===email&&(['ACTIVE','APPROVED'].indexOf(r[2])>=0)&&(String(r[7]).indexOf('trial')>=0||isTrialPlan_(String(r[11])));});
 }
 function commerceConflict_(signals,exceptId,usedOnly) {
+  if(typeof razorpayTrialConflict_==='function'&&razorpayTrialConflict_(signals,exceptId,usedOnly))return true;
   return commerceRows_().some(function(r){
     if(r[0]===exceptId||r[1]!==mode_()||r[6]!=='trial')return false;
     var pending=['reserved','created'].indexOf(r[12])>=0&&Date.now()-new Date(r[13]).getTime()<1800000;

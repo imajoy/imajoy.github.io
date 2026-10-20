@@ -126,3 +126,42 @@ html[data-theme=dark] .rzp-assure li::before{background-color:rgba(47,181,131,.1
  .network-actions{gap:12px}.network-actions .btn{padding-inline:18px;font-size:14px}
  .network-chip-device{top:24px}.network-chip-region{bottom:18px}
 }
+/* Trial / pay-now choice */
+.rzp-offer{display:grid;gap:10px;margin:0;padding:18px 24px 4px;border:0;min-width:0}
+.rzp-offer legend{float:left;width:100%;padding:0 0 10px;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.rzp-offer label{position:relative;display:flex;align-items:center;gap:12px;padding:14px 16px;border:1px solid var(--line);border-radius:16px;cursor:pointer;transition:border-color .2s,background-color .2s,box-shadow .2s}
+.rzp-offer label:has(input:checked){border-color:#2A64E8;background:rgba(61,139,255,.06);box-shadow:0 0 0 3px rgba(61,139,255,.14)}
+.rzp-offer label:has(input:disabled){opacity:.6;cursor:not-allowed}
+.rzp-offer input{width:18px;height:18px;flex:none;accent-color:#2A64E8}
+.rzp-offer span{display:grid;gap:3px;min-width:0}
+.rzp-offer b{font-size:15px}
+.rzp-offer small{font-size:12.5px;color:var(--mute);line-height:1.5}
+.rzp-offer em{margin-left:auto;font-style:normal;font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:999px;color:#1C7D5B;background:#E3F5EC}
+.rzp-offer-note{margin:0;font-size:12.5px;color:var(--mute)}
+.rzp-offer-note[hidden],.rzp-offer-note:empty{display:none}
+.razorpay-panel[data-offer=trial] .rzp-figure{color:#1C9A6C}
+/* Discount tag */
+.rzp-deal{display:inline-flex;margin:10px 0 0 8px;padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:700;color:#8a3ffc;background:rgba(138,63,252,.1)}
+/* Coupon */
+.rzp-coupon{margin:14px 24px 0;font-size:14px}
+.rzp-coupon summary{cursor:pointer;color:var(--blue-d,#2A64E8);font-weight:600;list-style:none;display:inline-flex;align-items:center;gap:6px}
+.rzp-coupon summary::-webkit-details-marker{display:none}
+.rzp-coupon summary::before{content:"";width:14px;height:14px;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 5.5V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v2.5a2.5 2.5 0 0 0 0 5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-2.5a2.5 2.5 0 0 0 0-5Z' fill='none' stroke='black' stroke-width='1.4'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M2 5.5V3a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v2.5a2.5 2.5 0 0 0 0 5V13a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1v-2.5a2.5 2.5 0 0 0 0-5Z' fill='none' stroke='black' stroke-width='1.4'/%3E%3C/svg%3E") center/contain no-repeat}
+.rzp-coupon-row{display:flex;gap:8px;align-items:center;margin-top:10px}
+.rzp-coupon-row input{flex:1;min-width:0;height:44px;padding:0 14px;border-radius:12px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 15px var(--sans,inherit);letter-spacing:.06em;text-transform:uppercase}
+.rzp-coupon-row input:focus-visible{outline:2px solid #2A64E8;outline-offset:2px}
+.razorpay-panel .rzp-coupon-row .btn{width:auto;margin:0;height:44px;padding:0 18px;font-size:14px}
+.rzp-coupon-remove{border:0;background:none;color:var(--mute);font:600 13px var(--sans,inherit);text-decoration:underline;cursor:pointer}
+.rzp-coupon-msg{margin:8px 0 0;font-size:13px;color:#1C7D5B}
+.rzp-coupon-msg:empty{display:none}
+.rzp-coupon-msg[data-error=true]{color:#B3352B}
+html[data-theme=dark] .rzp-offer em{color:#5FD9A8;background:rgba(47,181,131,.14)}
+html[data-theme=dark] .rzp-deal{color:#c6a6ff;background:rgba(138,63,252,.18)}
+html[data-theme=dark] .rzp-coupon-msg{color:#5FD9A8}
+html[data-theme=dark] .rzp-coupon-msg[data-error=true]{color:#ff9d94}
+@media(max-width:560px){.rzp-offer{padding-inline:18px}.rzp-coupon{margin-inline:18px}.rzp-deal{margin-left:0}}
+/* The trial choice sits inside the checkout form: undo the form's generic fieldset/legend card styling. */
+.checkout-form .rzp-offer{border:0;border-radius:0;background:none;box-shadow:none;margin:0;padding:18px 24px 4px}
+.checkout-form .rzp-offer legend{float:left;width:100%;margin:0;padding:0 0 10px;border:0;border-radius:0;background:none;box-shadow:none;font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--mute)}
+.checkout-form .rzp-offer:has([required]):not(:has(:invalid)) legend{padding-right:0}
+@media(max-width:560px){.checkout-form .rzp-offer{padding-inline:18px}}

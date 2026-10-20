@@ -8,6 +8,7 @@ export function service({registered=true,mailFails=false}={}){
  const cache=new Map(),mails=[],requests=[],sheets=new Map(),subscriptions=new Map(),transactions=new Map(),plans=new Map(),idempotency=new Map();let sequence=0,locked=false,signatureValid=true;
  const github={private:true,available:true,empty:false,files:new Map(),uploads:0};
  const razorpay={plans:new Map(),subscriptions:new Map(),invoices:new Map(),payments:new Map(),loseCreateResponse:false};
+ const paypalMissing=new Set();
  function table(name,initial=[[]]){
   const rows=initial;
   const sheet={rows,clear:()=>{rows.length=0;return sheet;},setHiddenGridlines:()=>sheet,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},deleteRow:index=>{rows.splice(index-1,1);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
@@ -66,6 +67,7 @@ export function service({registered=true,mailFails=false}={}){
     const plan={...JSON.parse(options.payload),id:'P-REWARD'+(plans.size+1)};plans.set(key,plan);return result(plan,201);
    }
    const id=/\/subscriptions\/(I-[A-Z0-9]+)/.exec(url)?.[1];
+   if(id&&paypalMissing.has(id))return result({name:'RESOURCE_NOT_FOUND',details:[{issue:'INVALID_RESOURCE_ID'}]},404);
    if(url.includes('/transactions?'))return result(transactions.get(id)||{transactions:[],total_items:0,total_pages:0});
    if(url.endsWith('/cancel')){if(subscriptions.has(id))subscriptions.get(id).status='CANCELLED';return result(null,204);}
    if(id)return result(subscriptions.get(id)||{id,status:'ACTIVE',plan_id:'P-high-ONLINE',subscriber:{payer_id:'LEGACY-PAYER'},billing_info:{next_billing_time:new Date(Date.now()+20*864e5).toISOString()}});
@@ -83,5 +85,5 @@ export function service({registered=true,mailFails=false}={}){
  const options={keepHistoryCache:false};
  const rpc=(action,data={})=>{if(!options.keepHistoryCache)for(const k of [...cache.keys()])if(k.startsWith('rh:'))cache.delete(k);return clone(ctx.handleCommerceEnvelope_(envelope({action,...data})));};
  const register=email=>{call({step:'code',email,intent:'register'});const code=mails.at(-1).subject.match(/\d{6}/)[0];return call({step:'verify',email,code});};
- return {options,ctx,github,razorpay,values,mails,requests,cache,sheets,subscriptions,transactions,plans,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
+ return {paypalMissing,options,ctx,github,razorpay,values,mails,requests,cache,sheets,subscriptions,transactions,plans,rows:orders.rows.slice(1),orders,call,rpc,envelope,register,setSignature:value=>signatureValid=value};
 }

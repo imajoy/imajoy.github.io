@@ -110,3 +110,10 @@ test('Recorded subscriptions still require verified transactions even if their s
  app.ctx.UrlFetchApp.fetch=(url,options)=>url.includes('/I-TESTBUYER1/transactions?')?{getResponseCode:()=>403,getContentText:()=>JSON.stringify({name:'NOT_AUTHORIZED'})}:fetch(url,options);
  assert.equal(app.rpc('rewards',selection(app)).error,'provider');
 });
+test('A saved PayPal subscription that PayPal no longer knows (HTTP 404) does not block rewards, coupons or checkout',()=>{
+ const app=service();app.paypalMissing.add('I-TESTBUYER1');
+ const quote=app.rpc('rewards',selection(app));
+ assert.equal(quote.ok,true,quote.message);assert.equal(quote.pricing.percent,0,'a missing subscription earns no reward');
+ const data=selection(app),created=app.rpc('checkout',{...data,expectedTotal:quote.pricing.total,expectedRewardPercent:0});
+ assert.equal(created.ok,true,created.message);
+});

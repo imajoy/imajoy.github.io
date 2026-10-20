@@ -153,3 +153,79 @@ test('Owner test reset clears test purchases for the test account only and refus
  assert.equal(s.app.ctx.razorpayFind_(created.checkoutId).state,'reset');
  s.app.values.set('RAZORPAY_MODE','live');assert.throws(()=>s.app.ctx.resetTestPurchases(),/LIVE mode/);
 });
+test('Razorpay 2-day trial: authorize now, access until trial end, one trial per person, cancel stops the first charge, conversion on day 3',()=>{
+ const s=setup(),hex=c=>c.repeat(64),signals={deviceHash:hex('a'),ipHash:hex('b')};
+ assert.equal(s.rpc('config').trial,true);
+ assert.equal(s.rpc('checkout',s.selection({plan:'offline',offer:'trial',expectedTotal:91698*2,...signals})).error,'selection');
+ const created=s.rpc('checkout',s.selection({offer:'trial',...signals}));assert.equal(created.ok,true,created.message);assert.equal(created.offer,'trial');
+ const sub=s.app.razorpay.subscriptions.get(created.subscriptionId);
+ assert(Math.abs(sub.start_at-(Date.now()/1000+2*86400))<5,'first charge is scheduled for the end of the trial');
+ assert.notEqual(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true,'no access before the mandate is authorized');
+ sub.status='authenticated';sub.paid_count=0;
+ const ok=s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId});assert.equal(ok.accepted,true);assert.equal(ok.offer,'trial');
+ assert(s.app.orders.rows.some(r=>r[1]===sub.id&&r[7]==='online trial'));
+ let item=s.app.call({step:'status',token:s.token}).subscriptions.find(x=>x.provider==='razorpay');
+ assert.equal(item.trial,true);assert.equal(item.renews,true);assert.equal(item.status,'ACTIVE');assert(Math.abs(Date.parse(item.endsAt)/1000-sub.start_at)<2);
+ // One trial per person: same account, and same browser on another account.
+ assert.equal(s.rpc('checkout',s.selection({offer:'trial',...signals})).error,'trial_used');
+ const other=s.app.register('other@example.com');
+ assert.equal(s.rpc('checkout',s.selection({accountToken:other.token,offer:'trial',deviceHash:hex('a'),ipHash:hex('c')})).error,'trial_used');
+ assert.equal(s.app.rpc('eligibility',{accountToken:s.token,deviceHash:hex('d'),ipHash:hex('e'),country:'IN'}).reason,'trial_used','PayPal trial is refused after a Razorpay trial');
+ // Paid checkout still works for the same person.
+ assert.equal(s.rpc('checkout',s.selection({offer:'standard'})).ok,true);
+ // Conversion after the trial.
+ sub.status='active';sub.paid_count=1;sub.current_start=Math.floor(Date.now()/1000);sub.current_end=sub.current_start+30*86400;
+ const invoice={id:'inv_trial',subscription_id:sub.id,payment_id:'pay_trial',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:91698};
+ s.app.razorpay.invoices.set(invoice.id,invoice);s.app.razorpay.payments.set('pay_trial',{id:'pay_trial',invoice_id:invoice.id,status:'captured',captured:true,currency:'INR',amount:91698,amount_refunded:0});
+ assert.equal(webhook(s,{event:'subscription.charged',payload:{subscription:{entity:{id:sub.id}}}}).accepted,true);
+ const record=s.app.ctx.razorpayFind_(created.checkoutId);assert.equal(record.paidThrough,sub.current_end);assert(record.convertedAt);
+ assert(s.app.mails.some(m=>/trial converted/.test(m.subject)));
+ item=s.app.call({step:'status',token:s.token}).subscriptions.find(x=>x.provider==='razorpay'&&x.ref===created.checkoutId);assert.equal(item.trial,false);
+});
+test('Cancelling a Razorpay trial cancels the mandate at once and keeps access until the trial ends',()=>{
+ const s=setup(),created=s.rpc('checkout',s.selection({offer:'trial',deviceHash:'f'.repeat(64),ipHash:'e'.repeat(64)}));
+ const sub=s.app.razorpay.subscriptions.get(created.subscriptionId);sub.status='authenticated';sub.paid_count=0;
+ assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true);
+ assert.equal(s.app.call({step:'cancel',token:s.token,provider:'razorpay',ref:created.checkoutId}).ok,true);
+ assert.equal(sub.status,'cancelled','no payment will be taken');
+ const item=s.app.call({step:'status',token:s.token}).subscriptions.find(x=>x.provider==='razorpay');
+ assert.equal(item.renews,false);assert.equal(item.status,'CANCELLED');assert(Date.parse(item.endsAt)>Date.now()+86400e3);
+ // Closing the Razorpay window after authorizing must not cancel the trial.
+ const again=s.app.register('x@example.com'),c2=s.rpc('checkout',s.selection({accountToken:again.token,offer:'trial',deviceHash:'1'.repeat(64),ipHash:'2'.repeat(64)}));
+ const sub2=s.app.razorpay.subscriptions.get(c2.subscriptionId);sub2.status='authenticated';sub2.paid_count=0;
+ assert.equal(s.rpc('cancel',{accountToken:again.token,checkoutId:c2.checkoutId}).accepted,true);assert.equal(sub2.status,'authenticated');
+});
+function coupons(app,rows){app.ctx.couponSheet_();const sheet=app.sheets.get('Coupons');rows.forEach(r=>sheet.appendRow(r));return sheet;}
+test('Coupons work with Razorpay: discounted period(s) up front, regular price after, country limits respected, one use per buyer',()=>{
+ const s=setup(),future=new Date(Date.now()+30*864e5);
+ coupons(s.app,[['SAVE10',10,1,future,'both','both','','',true,'',''],['USONLY',20,1,future,'both','both','','',true,'','US, GB'],['INDIA25',25,2,future,'both','monthly','','',true,'','IN']]);
+ assert.equal(s.rpc('quote',s.selection({coupon:'USONLY'})).error,'coupon_invalid','country-limited coupon is refused elsewhere');
+ const q=s.rpc('quote',s.selection({coupon:'save10'})).pricing;
+ assert.equal(q.discount.percent,10);assert.equal(q.total,82528);assert.equal(q.recurringTotal,91698);assert.equal(q.upfront,true);
+ const two=s.rpc('quote',s.selection({coupon:'INDIA25',seats:2})).pricing;assert.equal(two.total,Math.round(91698*.75)*2*2,'2 discounted months for 2 licenses, paid today');
+ const created=s.rpc('checkout',s.selection({coupon:'SAVE10',expectedTotal:82528}));assert.equal(created.ok,true,created.message);
+ const sub=s.app.razorpay.subscriptions.get(created.subscriptionId);
+ assert.equal(sub.addons[0].item.amount,82528);const month=new Date();month.setMonth(month.getMonth()+1);assert(Math.abs(sub.start_at-month/1000)<10,'regular billing starts after the discounted month');
+ // Up-front payment taken at authorization.
+ sub.status='authenticated';sub.paid_count=0;sub.current_start=null;sub.current_end=null;
+ const inv={id:'inv_up',subscription_id:sub.id,payment_id:'pay_up',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:82528};
+ s.app.razorpay.invoices.set(inv.id,inv);s.app.razorpay.payments.set('pay_up',{id:'pay_up',invoice_id:inv.id,status:'captured',captured:true,currency:'INR',amount:82528,amount_refunded:0});
+ const ok=s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId});assert.equal(ok.accepted,true,ok.message);
+ assert.equal(s.app.ctx.razorpayFind_(created.checkoutId).paidThrough,sub.start_at);
+ assert.equal(s.app.sheets.get('Coupons').rows[1][7],1,'coupon use is counted');
+ assert.equal(s.rpc('quote',s.selection({coupon:'SAVE10'})).error,'coupon_used');
+ const item=s.app.call({step:'status',token:s.token}).subscriptions.find(x=>x.provider==='razorpay');assert.equal(item.status,'ACTIVE');assert.equal(item.renews,true);
+ // First regular charge at the full price extends access.
+ sub.status='active';sub.current_start=sub.start_at;sub.current_end=sub.start_at+30*86400;
+ const inv2={id:'inv_reg',subscription_id:sub.id,payment_id:'pay_reg',paid_at:sub.start_at+60,status:'paid',currency:'INR',amount_paid:91698};
+ s.app.razorpay.invoices.set(inv2.id,inv2);s.app.razorpay.payments.set('pay_reg',{id:'pay_reg',invoice_id:inv2.id,status:'captured',captured:true,currency:'INR',amount:91698,amount_refunded:0});
+ webhook(s,{event:'subscription.charged',payload:{subscription:{entity:{id:sub.id}}}});
+ assert.equal(s.app.ctx.razorpayFind_(created.checkoutId).paidThrough,sub.current_end);
+});
+test('PayPal coupons respect the Countries column; blank means every country',()=>{
+ const s=setup(),future=new Date(Date.now()+30*864e5);
+ coupons(s.app,[['ALL5',5,1,future,'both','both','','',true,'',''],['INONLY',5,1,future,'both','both','','',true,'','IN']]);
+ const sel={accountToken:s.token,plan:'online',billing:'monthly',seats:1,country:'US',billingCountry:'US',offer:'standard',requestId:randomUUID()};
+ assert.equal(s.app.rpc('rewards',{...sel,coupon:'ALL5'}).pricing.percent,5);
+ assert.equal(s.app.rpc('rewards',{...sel,coupon:'INONLY'}).error,'coupon_invalid');
+});

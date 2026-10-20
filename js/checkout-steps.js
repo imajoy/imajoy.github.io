@@ -8,7 +8,7 @@ export function readBillingDraft(){
   const draft=JSON.parse(sessionStorage.getItem(key)||'null'),session=getAccountSession();
   if(!draft||!session||draft.email!==session.email||!Number.isFinite(draft.at)||draft.at>Date.now()+60000||Date.now()-draft.at>lifetime){sessionStorage.removeItem(key);return null;}
   if(!['online','offline'].includes(draft.plan)||!['monthly','yearly'].includes(draft.billing)||!Number.isInteger(draft.seats)||draft.seats<1||draft.seats>100)return null;
-  const clean={at:draft.at,email:session.email,plan:draft.plan,billing:draft.billing,seats:draft.seats,country:/^[A-Z]{2}$/.test(draft.country||'')?draft.country:'',terms:draft.terms===true,offer:['trial','standard'].includes(draft.offer)?draft.offer:'',coupon:/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(draft.coupon||'')?draft.coupon:'',provider:['paypal','razorpay'].includes(draft.provider)?draft.provider:''};
+  const clean={at:draft.at,email:session.email,plan:draft.plan,billing:draft.billing,seats:draft.seats,country:/^[A-Z]{2}$/.test(draft.country||'')?draft.country:'',terms:draft.terms===true,offer:['trial','standard'].includes(draft.offer)?draft.offer:'',rzpOffer:['trial','standard'].includes(draft.rzpOffer)?draft.rzpOffer:'',coupon:/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(draft.coupon||'')?draft.coupon:'',provider:['paypal','razorpay'].includes(draft.provider)?draft.provider:''};
   for(const [name,max] of Object.entries(fields))clean[name]=typeof draft[name]==='string'?draft[name].slice(0,max):'';
   return clean;
  }catch{return null;}
@@ -18,6 +18,7 @@ function writeBillingDraft(form){
  const session=getAccountSession();if(!session)throw Error('Sign in before continuing.');
  const value={at:Date.now(),email:session.email,plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value,terms:form.elements.terms.checked,provider:document.documentElement.dataset.paymentProvider};
  for(const [name,max] of Object.entries(fields))value[name]=form.elements[name].value.slice(0,max);
+ const previous=readBillingDraft();if(previous?.rzpOffer)value.rzpOffer=previous.rzpOffer;
  document.dispatchEvent(new CustomEvent('ajoy:checkout-draft',{detail:value}));sessionStorage.setItem(key,JSON.stringify(value));
 }
 export function initializeCheckoutSteps(form){

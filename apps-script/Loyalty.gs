@@ -37,7 +37,15 @@ function rewardHistory_(email) {
   if(ids.length>50)throw commerceError_('rewards_unavailable','Your payment history needs review. Please contact Ajoy before subscribing.');
   ids.forEach(function(id){
     if(!/^I-[A-Z0-9]+$/.test(id))throw commerceError_('rewards_unavailable','A saved subscription could not be verified. Please contact Ajoy.');
-    var s=commercePaypal_('/v1/billing/subscriptions/'+encodeURIComponent(id));
+    var s;
+    try{s=commercePaypal_('/v1/billing/subscriptions/'+encodeURIComponent(id));}
+    catch(e){
+      // PayPal no longer knows this subscription (unapproved checkouts are deleted; sandbox/test records can vanish).
+      // It can add no verified paid periods, so it is skipped instead of blocking the buyer's checkout.
+      // Skipping can only lower a reward, never raise one.
+      if(e.providerStatus===404){history.statuses[id]='EXPIRED';if(typeof Logger!=='undefined')Logger.log('Reward history skipped missing PayPal subscription '+id);return;}
+      throw e;
+    }
     var info=rewardPlanInfo_(s.plan_id);
     if(s.id&&s.id!==id||!info)throw commerceError_('rewards_unavailable','A previous subscription plan could not be verified. Please contact Ajoy.');
     history.statuses[id]=s.status;
@@ -81,6 +89,26 @@ function rewardHistory_(email) {
       keys.forEach(function(key,index){if(settled[index])history.used[key]=true;});
     }
   });
+  razorpayHistory_(email,history);
+  return history;
+}
+/* Paid Razorpay subscriptions count toward the same returning-subscriber rewards (test and live data never mix). */
+function razorpayHistory_(email,history){
+  if(typeof razorpayRows_!=='function'||(mode_()==='live')!==(razorpayMode_()==='live'))return history;
+  var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName('RazorpayPayments');
+  var receipts=sheet&&sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues():[];
+  razorpayRows_().forEach(function(r){
+    if(r.mode!==razorpayMode_()||r.email!==email||!r.accepted||!r.subscriptionId)return;
+    var paid=receipts.filter(function(x){return x[1]===r.subscriptionId;}).length;
+    if(paid&&(r.price.billing==='monthly'||r.price.billing==='yearly'))history[r.price.billing]+=paid;
+    (r.price.discount&&r.price.discount.rewardKeys||[]).forEach(function(k){history.used[k]=true;});
+  });
+  return history;
+}
+function rewardHistoryCached_(email){
+  var cache=CacheService.getScriptCache(),key='rh:'+mode_()+':'+email,history=null;
+  try{history=JSON.parse(cache.get(key)||'null');}catch(e){}
+  if(!history){history=rewardHistory_(email);cache.put(key,JSON.stringify(history),300);}
   return history;
 }
 function rewardQuote_(d,who,history) {
@@ -105,9 +133,7 @@ function rewardSelection_(d) {
 function commerceRewards_(d,who) {
   rewardSelection_(d);
   // The price preview reuses a recent payment-history lookup (PayPal calls are slow); checkout always re-checks.
-  var cache=CacheService.getScriptCache(),key='rh:'+mode_()+':'+who.email,history=null;
-  try{history=JSON.parse(cache.get(key)||'null');}catch(e){}
-  if(!history){history=rewardHistory_(who.email);cache.put(key,JSON.stringify(history),300);}
+  var history=rewardHistoryCached_(who.email);
   return {ok:true,pricing:couponApply_(rewardQuote_(d,who,history),d,who.email)};
 }
 function rewardPending_(d,who) {
@@ -160,10 +186,11 @@ function rewardPayPalPlan_(d,quote) {
 
 /* ---------- Coupon codes (managed in the "Coupons" tab of this sheet) ----------
    One row per code. Columns: Code | Percent off | Payments discounted | Expires on | Plan | Billing |
-   Max uses | Used | Active | Note. Plan/Billing: online, offline or both / monthly, yearly or both.
+   Max uses | Used | Active | Note | Countries. Countries: blank = every country, or codes such as IN, US, GB.
+   Coupons work with every payment option (PayPal and Razorpay). Plan/Billing: online, offline or both / monthly, yearly or both.
    Blank Max uses = unlimited. "Times used" is filled in automatically. Active: Yes/No (TRUE/FALSE also accepted). A coupon replaces the returning
    subscriber reward on that checkout (they never stack) and does not apply to the free trial. */
-var COUPON_HEADERS_=['Code','Percent off','Payments discounted','Expires on','Plan','Billing','Max uses','Used','Active','Note'];
+var COUPON_HEADERS_=['Code','Percent off','Payments discounted','Expires on','Plan','Billing','Max uses','Used','Active','Note','Countries'];
 function couponSheet_() {
   var ss=SpreadsheetApp.getActiveSpreadsheet(),sheet=ss.getSheetByName('Coupons');
   if(!sheet){sheet=ss.insertSheet('Coupons');sheet.appendRow(COUPON_HEADERS_);sheet.setFrozenRows(1);}
@@ -177,6 +204,12 @@ function couponUses_(code,email,exceptId) {
     var c=(rewardBuyer_(r).loyalty||{}).coupon;if(!c||couponCode_(c.code)!==code)return;
     var live=r[12]==='accepted'||['reserved','created'].indexOf(r[12])>=0&&Date.now()-new Date(r[13]).getTime()<1800000;
     if(!live)return;total++;if(email&&r[2]===email)mine++;
+  });
+  if(typeof razorpayRows_==='function')razorpayRows_().forEach(function(r){
+    if(r.id===exceptId||r.mode!==razorpayMode_())return;
+    var c=r.price&&r.price.discount&&r.price.discount.coupon;if(!c||couponCode_(c.code)!==code)return;
+    var live=r.accepted||['creating','created'].indexOf(r.state)>=0&&Date.now()-r.createdAt<1800000;
+    if(!live)return;total++;if(email&&r.email===email)mine++;
   });
   return {total:total,mine:mine};
 }
@@ -198,6 +231,9 @@ function couponRule_(raw,d,email) {
   var plan=String(row[4]||'both').trim().toLowerCase(),billing=String(row[5]||'both').trim().toLowerCase();
   if(plan!=='both'&&plan!==d.plan)throw commerceError_('coupon_invalid','This coupon is only for the '+plan.charAt(0).toUpperCase()+plan.slice(1)+' plan.');
   if(billing!=='both'&&billing!==d.billing)throw commerceError_('coupon_invalid','This coupon is only for '+billing+' billing.');
+  var countries=String(row[10]||'').toUpperCase().split(/[^A-Z]+/).filter(function(c){return /^[A-Z]{2}$/.test(c);});
+  var where=d.billingCountry||d.sandboxCountry||d.country||'';
+  if(countries.length&&countries.indexOf(where)<0)throw commerceError_('coupon_invalid','This coupon is not available in your country.');
   var uses=couponUses_(code,email,d.exceptId||'');
   if(uses.mine)throw commerceError_('coupon_used','You have already used this coupon.');
   if(row[6]!==''&&uses.total>=Number(row[6]))throw commerceError_('coupon_used','This coupon has reached its usage limit.');
@@ -215,6 +251,7 @@ function couponRecordUse_(code) {
   try{
     var sheet=couponSheet_(),rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,1).getValues():[];
     var used=0;commerceRows_().forEach(function(r){var c=(rewardBuyer_(r).loyalty||{}).coupon;if(r[1]===mode_()&&r[12]==='accepted'&&c&&couponCode_(c.code)===code)used++;});
+    if(typeof razorpayRows_==='function')razorpayRows_().forEach(function(r){var c=r.price&&r.price.discount&&r.price.discount.coupon;if(r.mode===razorpayMode_()&&r.accepted&&c&&couponCode_(c.code)===code)used++;});
     rows.forEach(function(r,i){if(couponCode_(r[0])===code)sheet.getRange(i+2,8).setValue(used);});
   }catch(e){}
 }

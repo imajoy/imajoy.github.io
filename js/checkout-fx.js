@@ -1,4 +1,4 @@
-import {paymentStep} from './checkout-steps.js?v=20261020-prices1';
+import {paymentStep} from './checkout-steps.js?v=20261020-trial1';
 /* Checkout extras: license pass follows the pointer, total rolls when it changes. */
 const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 const paused = () => reduce.matches || document.documentElement.hasAttribute('data-ui-paused');

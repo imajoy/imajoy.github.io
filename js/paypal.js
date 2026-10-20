@@ -1,5 +1,5 @@
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261020-prices1';
+import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261020-trial1';
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
 import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261020-prices1';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261020-prices1';

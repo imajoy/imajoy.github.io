@@ -33,21 +33,64 @@ function razorpaySelection_(d){
   if(!/^plan_[A-Za-z0-9]+$/.test(planId||''))throw commerceError_('unavailable','This Razorpay subscription plan is not configured yet.');
   if(catalog._priceVersion!==PRICE_VERSION)throw commerceError_('unavailable','Subscription plans are being updated. Please try again shortly.');
   var price=razorpayPrice_(d.plan,d.billing,country);price.total=price.unitAmount*d.seats;price.plan=d.plan;price.billing=d.billing;price.seats=d.seats;price.country=country;price.planId=planId;
+  if(d.offer==='trial'){
+    if(d.plan!=='online')throw commerceError_('selection','Only Online plans offer a trial.');
+    if(!razorpayTrialOn_())throw commerceError_('trial_unavailable','The free trial is not available right now. You can continue with a paid subscription.');
+    price.offer='trial';price.trialDays=RAZORPAY_TRIAL_DAYS_;
+  }
   return price;
+}
+var RAZORPAY_TRIAL_DAYS_=2;
+/* Coupons and returning-subscriber rewards for Razorpay. Razorpay cannot discount only the first charges of a
+   subscription, so the discounted payment(s) are collected up front and the regular price starts after them. */
+function razorpayDiscount_(price,d,who){
+  if(price.offer==='trial')return price;
+  var history;try{history=rewardHistoryCached_(who.email);}catch(e){history={monthly:0,yearly:0,used:{},statuses:{},receipts:[]};}
+  var reward=rewardQuote_({plan:price.plan,billing:price.billing,seats:price.seats,country:'US'},who,history);
+  var coupon=d.coupon?couponRule_(d.coupon,{plan:price.plan,billing:price.billing,country:price.country,billingCountry:price.country,exceptId:d.exceptId||''},who.email):null;
+  var percent=coupon?coupon.percent:reward.percent,payments=coupon?coupon.payments:reward.rewardPayments;
+  if(!percent||!payments)return price;
+  var unit=Math.round(price.unitAmount*(100-percent)/100);
+  price.discount={percent:percent,payments:payments,unitAmount:unit,reward:coupon?'':reward.reward,rewardKeys:coupon?[]:reward.rewardKeys,coupon:coupon};
+  price.recurringTotal=price.unitAmount*price.seats;price.total=unit*price.seats*payments;price.upfront=true;
+  return price;
+}
+function razorpayAddPeriods_(seconds,billing,count){var x=new Date(seconds*1000);if(billing==='yearly')x.setFullYear(x.getFullYear()+count);else x.setMonth(x.getMonth()+count);return Math.floor(x.getTime()/1000);}
+function razorpayTrialOn_(){return props_().getProperty('RAZORPAY_TRIAL')!=='false'&&(props_().getProperty('TRIAL_IDENTITY_SECRET')||'').length>=32;}
+/* Razorpay trials share PayPal's one-trial rule: the same email, browser or network cannot claim another trial. */
+function razorpayTrialConflict_(signals,exceptId,usedOnly){
+  return razorpayRows_().some(function(r){
+    if(r.id===exceptId||r.mode!==razorpayMode_()||!r.trial||!r.price||r.price.offer!=='trial')return false;
+    var pending=!r.accepted&&['creating','created'].indexOf(r.state)>=0&&Date.now()-r.createdAt<1800000;
+    if(usedOnly&&!r.trialUsedAt||!r.trialUsedAt&&!pending)return false;
+    return ['emailHash','deviceHash','ipHash'].some(function(k){return !!signals[k]&&!!r.trial[k]&&signals[k]===r.trial[k];});
+  });
+}
+function razorpayTrialUsedByEmail_(email){return razorpayRows_().some(function(r){return r.mode===razorpayMode_()&&r.email===email&&!!r.trialUsedAt;});}
+function razorpayTrialCheck_(d,email,exceptId){
+  var signals=commerceSignals_(d,email);
+  if(commerceHistoricalTrial_(email)||commerceConflict_(signals,exceptId||'',true))throw commerceError_('trial_used','2-day trial already claimed. You can continue with a paid subscription.');
+  if(!signals.ipHash)throw commerceError_('network_unverified','Your network could not be verified for a trial. Please try again.');
+  if(!signals.deviceHash)throw commerceError_('browser_unverified','Allow site storage to verify this browser for a trial.');
+  if(commerceConflict_(signals,exceptId||''))throw commerceError_('trial_reserved','A trial checkout is already in progress for this browser or network. Resume it or try again in 30 minutes.');
+  return signals;
 }
 function razorpayTable_(){var ss=SpreadsheetApp.getActiveSpreadsheet(),sheet=ss.getSheetByName('RazorpayCheckouts');if(!sheet){sheet=ss.insertSheet('RazorpayCheckouts');sheet.appendRow(['Checkout ID','Verified email','Mode','Record']);sheet.setFrozenRows(1);}return sheet;}
 function razorpayRows_(){var ss=SpreadsheetApp.getActiveSpreadsheet(),sheet=ss.getSheetByName('RazorpayCheckouts');if(!sheet||sheet.getLastRow()<2)return [];return sheet.getRange(2,1,sheet.getLastRow()-1,4).getValues().map(function(r){return JSON.parse(r[3]);});}
 function razorpayWrite_(record){var sheet=razorpayTable_(),ids=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,1).getValues():[],index=ids.findIndex(function(r){return r[0]===record.id;}),row=[record.id,'email:'+record.email,record.mode,JSON.stringify(record)];if(index<0)sheet.appendRow(row);else sheet.getRange(index+2,1,1,4).setValues([row]);}
 function razorpayFind_(id){return razorpayRows_().find(function(r){return r.id===id&&r.mode===razorpayMode_();});}
-function razorpayPublic_(record){return {ok:true,checkoutId:record.id,subscriptionId:record.subscriptionId,url:record.url,pricing:record.price,accepted:!!record.accepted&&!record.accessRevoked&&record.paidThrough>Date.now()/1000,email:record.email,plan:record.price.plan,billing:record.price.billing,seats:record.price.seats,offer:'standard',provider:'razorpay'};}
+function razorpayPublic_(record){return {ok:true,checkoutId:record.id,subscriptionId:record.subscriptionId,url:record.url,pricing:record.price,accepted:!!record.accepted&&!record.accessRevoked&&record.paidThrough>Date.now()/1000,email:record.email,plan:record.price.plan,billing:record.price.billing,seats:record.price.seats,offer:record.price.offer==='trial'?'trial':'standard',trialEndsAt:record.trialEndsAt?new Date(record.trialEndsAt*1000).toISOString():'',provider:'razorpay'};}
 function razorpayCheckout_(d,who){
-  var price=razorpaySelection_(d);
+  var price=razorpayDiscount_(razorpaySelection_(d),d,who);
   if(!/^[-a-f0-9]{36}$/i.test(d.requestId||''))throw commerceError_('selection','Invalid checkout request.');
   if(d.expectedTotal!==price.total)throw commerceError_('price_changed','Your price changed. Review the updated total before paying.');
   return commerceLock_(function(){
+    var mine=razorpayRows_().filter(function(r){return r.mode===razorpayMode_()&&r.email===who.email;});
+    var prior=mine.find(function(r){return r.requestId===d.requestId;})||mine.find(function(r){return !r.accepted&&['creating','created'].indexOf(r.state)>=0&&Date.now()-r.createdAt<1800000&&JSON.stringify(r.price)===JSON.stringify(price);});
+    var signals=price.offer==='trial'?razorpayTrialCheck_(d,who.email,prior?prior.id:''):null;
     var records=razorpayRows_().filter(function(r){return r.mode===razorpayMode_()&&r.email===who.email;}),record=records.find(function(r){return r.requestId===d.requestId;});
     if(record&&JSON.stringify(record.price)!==JSON.stringify(price))throw commerceError_('selection','This request belongs to a different selection. Refresh checkout.');
-    if(!record)record=records.find(function(r){return !r.accepted&&r.state!=='expired'&&r.state!=='cancelled'&&Date.now()-r.createdAt<1800000&&JSON.stringify(r.price)===JSON.stringify(price);});
+    if(!record)record=records.find(function(r){return !r.accepted&&['expired','cancelled','reset','blocked'].indexOf(r.state)<0&&Date.now()-r.createdAt<1800000&&JSON.stringify(r.price)===JSON.stringify(price);});
     if(record&&record.subscriptionId)return razorpayPublic_(record);
     // If creation timed out, never issue another subscription blindly. Find the
     // original by its private checkout note, or leave it for owner reconciliation.
@@ -61,8 +104,18 @@ function razorpayCheckout_(d,who){
       }
       throw commerceError_('provider_pending','Your previous checkout is being reconciled. Contact support before starting another subscription.');
     }
-    record={id:Utilities.getUuid(),requestId:d.requestId,email:who.email,mode:razorpayMode_(),price:price,createdAt:Date.now(),state:'creating',name:clip_(d.name,80),company:clip_(d.company,80),accepted:false};razorpayWrite_(record);
-    var subscription=razorpayApi_('/subscriptions','post',{plan_id:price.planId,quantity:price.seats,total_count:price.billing==='yearly'?10:100,customer_notify:1,notify_info:{notify_email:who.email},expire_by:Math.floor(Date.now()/1000)+1800,notes:{checkout_id:record.id}});
+    record={id:Utilities.getUuid(),requestId:d.requestId,email:who.email,mode:razorpayMode_(),price:price,createdAt:Date.now(),state:'creating',name:clip_(d.name,80),company:clip_(d.company,80),accepted:false};
+    if(signals)record.trial=signals;
+    razorpayWrite_(record);
+    var body={plan_id:price.planId,quantity:price.seats,total_count:price.billing==='yearly'?10:100,customer_notify:1,notify_info:{notify_email:who.email},expire_by:Math.floor(Date.now()/1000)+1800,notes:{checkout_id:record.id}};
+    // Trial: the buyer authorizes the mandate now; Razorpay takes the first payment when the trial ends.
+    if(price.offer==='trial'){body.start_at=Math.floor(Date.now()/1000)+price.trialDays*86400;body.notes.offer='trial';}
+    // Discount: the buyer pays the discounted period(s) now; regular billing starts when they end.
+    if(price.upfront){
+      var n=price.discount.payments;body.start_at=razorpayAddPeriods_(Math.floor(Date.now()/1000),price.billing,n);body.notes.offer=price.discount.coupon?'coupon '+price.discount.coupon.code:'returning reward';
+      body.addons=[{item:{name:'Wrapline '+price.plan+' · first '+(n>1?n+' '+(price.billing==='yearly'?'years':'months'):(price.billing==='yearly'?'year':'month'))+' · '+price.discount.percent+'% off',amount:price.total,currency:'INR'}}];
+    }
+    var subscription=razorpayApi_('/subscriptions','post',body);
     if(!/^sub_[A-Za-z0-9]+$/.test(subscription.id||''))throw commerceError_('provider','Razorpay did not return a subscription.');
     record.subscriptionId=subscription.id;record.url=razorpayUrl_(subscription.short_url);record.state='created';razorpayWrite_(record);return razorpayPublic_(record);
   });
@@ -81,7 +134,8 @@ function razorpayVerify_(record){
   return s;
 }
 function razorpayNotify_(record){
-  var text='Wrapline '+record.price.plan+' · '+record.price.billing+' · '+record.price.seats+' license(s)\nSubscription: '+record.subscriptionId+'\nVerified account: '+record.email+'\nPaid through: '+new Date(record.paidThrough*1000).toISOString();
+  var trial=record.price.offer==='trial'&&!record.convertedAt;
+  var text='Wrapline '+record.price.plan+(trial?' (2-day FREE TRIAL)':'')+' · '+record.price.billing+' · '+record.price.seats+' license(s)\nSubscription: '+record.subscriptionId+'\nVerified account: '+record.email+'\n'+(trial?'Trial ends (first charge): ':'Paid through: ')+new Date(record.paidThrough*1000).toISOString();
   if(!record.ownerNotified){MailApp.sendEmail({to:ownerEmail_(),subject:(record.mode==='test'?'[TEST] ':'')+'Wrapline Razorpay: send the license',body:text+'\n\nVerify this order and send the matching access code to the buyer.'});record.ownerNotified=true;razorpayWrite_(record);}
   if(!record.buyerNotified){MailApp.sendEmail({to:record.email,subject:(record.mode==='test'?'[TEST] ':'')+'Your Wrapline subscription is confirmed',body:text+'\n\nYour access code is sent within 12 hours. Manage future payments with Razorpay or contact support at https://imajoy.github.io/contact.html'});record.buyerNotified=true;razorpayWrite_(record);}
 }
@@ -92,20 +146,28 @@ function razorpayConfirm_(id,who){
   // Already verified (usually by the subscription.charged webhook): answer at once. Refunds and revocations update the record.
   if(who&&record.accepted&&!record.accessRevoked&&record.paidThrough>Date.now()/1000)return razorpayPublic_(record);
   var subscription=razorpayVerify_(record);
+  if(record.price.offer==='trial'&&!record.accepted&&subscription.status==='authenticated'&&Number(subscription.start_at)>Date.now()/1000)return razorpayAcceptTrial_(record.id,subscription);
   // Authorization/activation alone is not a paid receipt. Read the provider's
   // invoice and captured payment before recording an order or issuing a license.
   var invoices=razorpayApi_('/invoices?subscription_id='+encodeURIComponent(record.subscriptionId)+'&count=100');
   if(!Array.isArray(invoices.items))throw commerceError_('provider','Your invoice could not be verified.');
-  var invoice=invoices.items.filter(function(i){return i.subscription_id===record.subscriptionId&&i.status==='paid'&&i.currency==='INR'&&i.amount_paid===record.price.total&&i.payment_id&&Number(i.paid_at)>=Number(subscription.current_start)-300;}).sort(function(a,b){return b.paid_at-a.paid_at;})[0];
+  var regular=record.price.recurringTotal||record.price.total;
+  var invoice=invoices.items.filter(function(i){return i.subscription_id===record.subscriptionId&&i.status==='paid'&&i.currency==='INR'&&(i.amount_paid===record.price.total||i.amount_paid===regular)&&i.payment_id&&Number(i.paid_at)>=Number(subscription.current_start)-300;}).sort(function(a,b){return b.paid_at-a.paid_at;})[0];
   if(!invoice){
     if(!record.accepted&&['cancelled','expired','completed'].indexOf(subscription.status)>=0)commerceLock_(function(){var r=razorpayFind_(id);r.state='expired';razorpayWrite_(r);});
     return record.accepted?razorpayPublic_(record):{ok:true,pending:true,status:subscription.status,checkoutId:id};
   }
   var payment=razorpayApi_('/payments/'+encodeURIComponent(invoice.payment_id));
-  if(payment.id!==invoice.payment_id||payment.status!=='captured'||payment.captured!==true||payment.currency!=='INR'||payment.amount!==record.price.total||Number(payment.amount_refunded||0)>0||payment.invoice_id!==invoice.id)throw commerceError_('mismatch','Your payment is not confirmed as captured for this invoice.');
-  if(!Number.isSafeInteger(subscription.current_end)||subscription.current_end<=Date.now()/1000)throw commerceError_('pending','Your paid billing period is still being confirmed.');
+  if(payment.id!==invoice.payment_id||payment.status!=='captured'||payment.captured!==true||payment.currency!=='INR'||payment.amount!==invoice.amount_paid||Number(payment.amount_refunded||0)>0||payment.invoice_id!==invoice.id)throw commerceError_('mismatch','Your payment is not confirmed as captured for this invoice.');
+  // Up-front discounted periods run until the subscription's first regular charge (start_at).
+  var periodEnd=Number.isSafeInteger(subscription.current_end)?subscription.current_end:record.price.upfront&&subscription.status==='authenticated'?Number(subscription.start_at):NaN;
+  if(!Number.isSafeInteger(periodEnd)||periodEnd<=Date.now()/1000)throw commerceError_('pending','Your paid billing period is still being confirmed.');
   return commerceLock_(function(){
-    var current=razorpayFind_(id);current.accepted=true;current.state='accepted';current.accessRevoked=false;current.providerStatus=subscription.status;current.paidThrough=subscription.current_end;current.paymentId=payment.id;current.invoiceId=invoice.id;razorpayWrite_(current);
+    var current=razorpayFind_(id),converted=current.price.offer==='trial'&&current.trialUsedAt&&!current.convertedAt;
+    current.accepted=true;current.state='accepted';current.accessRevoked=false;current.providerStatus=subscription.status;current.paidThrough=periodEnd;current.paymentId=payment.id;current.invoiceId=invoice.id;
+    if(current.price.offer==='trial'&&!current.convertedAt)current.convertedAt=Date.now();
+    razorpayWrite_(current);
+    if(converted)try{MailApp.sendEmail({to:ownerEmail_(),subject:(current.mode==='test'?'[TEST] ':'')+'Wrapline trial converted to paid: '+current.subscriptionId,body:current.email+' was charged after the 2-day trial. Paid through: '+new Date(current.paidThrough*1000).toISOString()});}catch(e){}
     var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
     if(!sheet){sheet=SpreadsheetApp.getActiveSpreadsheet().insertSheet(ORDERS_SHEET);sheet.appendRow(['Time','Subscription ID','Status','Mode','Buyer email','Name','Country','Plan','Billing','Licenses','Company','Plan ID']);}
     var rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues():[];
@@ -114,6 +176,29 @@ function razorpayConfirm_(id,who){
     if(!receipts){receipts=ss.insertSheet('RazorpayPayments');receipts.appendRow(['Payment ID','Subscription ID','Mode','Verified email','Amount (paise)','Currency','Paid through','Invoice ID']);}
     var seen=receipts.getLastRow()>1?receipts.getRange(2,1,receipts.getLastRow()-1,1).getValues():[];
     if(!seen.some(function(r){return r[0]===payment.id;}))receipts.appendRow([payment.id,current.subscriptionId,current.mode,'email:'+current.email,payment.amount,'INR',new Date(current.paidThrough*1000),invoice.id]);
+    razorpayNotify_(current);
+    if(current.price.discount&&current.price.discount.coupon&&typeof couponRecordUse_==='function')couponRecordUse_(couponCode_(current.price.discount.coupon.code));
+    try{CacheService.getScriptCache().remove('rh:'+mode_()+':'+current.email);}catch(e){}
+    return razorpayPublic_(current);
+  });
+}
+/* Trial authorized: grant access until the trial ends. Eligibility is checked again at activation. */
+function razorpayAcceptTrial_(id,subscription){
+  return commerceLock_(function(){
+    var current=razorpayFind_(id);
+    if(current.accepted)return razorpayPublic_(current);
+    var signals=current.trial||{emailHash:trialHash_('email:'+current.email)};
+    if(commerceHistoricalTrial_(current.email)||commerceConflict_(signals,current.id,true)){
+      try{razorpayApi_('/subscriptions/'+encodeURIComponent(current.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:0});}catch(e){}
+      current.state='blocked';current.providerStatus='cancelled';razorpayWrite_(current);
+      throw commerceError_('trial_used','2-day trial already claimed. This trial was cancelled and you will not be charged. You can continue with a paid subscription.');
+    }
+    current.accepted=true;current.state='accepted';current.accessRevoked=false;current.providerStatus=subscription.status;
+    current.trialEndsAt=Number(subscription.start_at);current.paidThrough=current.trialEndsAt;current.trialUsedAt=Date.now();razorpayWrite_(current);
+    var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
+    if(!sheet){sheet=SpreadsheetApp.getActiveSpreadsheet().insertSheet(ORDERS_SHEET);sheet.appendRow(['Time','Subscription ID','Status','Mode','Buyer email','Name','Country','Plan','Billing','Licenses','Company','Plan ID']);}
+    var rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues():[];
+    if(!rows.some(function(r){return r[1]===current.subscriptionId;}))sheet.appendRow([new Date(),current.subscriptionId,'ACTIVE','razorpay_'+current.mode,current.email,current.name,current.price.country,'online trial',current.price.billing,current.price.seats,current.company,current.price.planId].map(safeSheetCell_));
     razorpayNotify_(current);return razorpayPublic_(current);
   });
 }
@@ -134,7 +219,7 @@ function razorpayWebhook_(d){
     var refund=event.payload&&event.payload.refund&&event.payload.refund.entity;
     if(refund&&refund.payment_id===record.paymentId){var paid=razorpayApi_('/payments/'+encodeURIComponent(record.paymentId));if(Number(paid.amount_refunded)>0)commerceLock_(function(){var r=razorpayFind_(record.id);r.paidThrough=0;r.accessRevoked=true;r.providerStatus='refunded';razorpayWrite_(r);});}
   }
-  if(event.event==='subscription.charged'||event.event==='payment.captured')return razorpayConfirm_(record.id,null);
+  if(event.event==='subscription.charged'||event.event==='payment.captured'||event.event==='subscription.authenticated'&&(record.price.offer==='trial'||record.price.upfront))return razorpayConfirm_(record.id,null);
   return {ok:true};
 }
 function constantTimeEqual_(a,b){if(a.length!==b.length)return false;var x=0;for(var i=0;i<a.length;i++)x|=a.charCodeAt(i)^b.charCodeAt(i);return x===0;}
@@ -142,7 +227,7 @@ function handleRazorpay_(d){
   if(d.operation==='config'){
     var catalog=razorpayCatalog_(),ready=['india','high','mid','low'].every(function(t){return ['online','offline'].every(function(k){return ['monthly','yearly'].every(function(b){return /^plan_[A-Za-z0-9]+$/.test(catalog[t]&&catalog[t][k]&&catalog[t][k][b]||'');});});});
     var keyId=props_().getProperty('RAZORPAY_KEY_ID')||'';
-    return {ok:true,enabled:razorpayEnabled_()&&ready&&catalog._priceVersion===PRICE_VERSION,countries:razorpayCountries_(),mode:razorpayMode_(),currency:'INR',trial:false,promotions:false,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
+    return {ok:true,enabled:razorpayEnabled_()&&ready&&catalog._priceVersion===PRICE_VERSION,countries:razorpayCountries_(),mode:razorpayMode_(),currency:'INR',trial:razorpayTrialOn_(),trialDays:RAZORPAY_TRIAL_DAYS_,promotions:false,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
   }
   if(props_().getProperty('COMMERCE_ENABLED')!=='true'||!razorpayConnected_())throw commerceError_('unavailable','Razorpay is not connected.');
   if(d.operation==='webhook')return razorpayWebhook_(d);
@@ -155,15 +240,15 @@ function handleRazorpay_(d){
       if(typeof billingApply_==='function')billingApply_(d,who);
     }
   if(!razorpayEnabled_())throw commerceError_('unavailable','Razorpay subscriptions are not activated yet.');
-  if(d.operation==='quote'){var price=razorpaySelection_(d);delete price.planId;return {ok:true,pricing:price};}
+  if(d.operation==='quote'){var price=razorpayDiscount_(razorpaySelection_(d),d,who);delete price.planId;return {ok:true,pricing:price};}
   if(d.operation==='checkout')return razorpayCheckout_(d,who);
   throw commerceError_('action','Unknown Razorpay operation.');
 }
 function razorpaySubscriptions_(email,onlySub){
   var list=razorpayRows_().filter(function(r){return r.mode===razorpayMode_()&&r.email===email&&r.accepted&&(!onlySub||r.subscriptionId===onlySub);}).slice(-5).reverse();
   return list.map(function(r){
-    var item={plan:r.price.plan,billing:r.price.billing,seats:r.price.seats,trial:false,status:'UNKNOWN',endsAt:r.paidThrough?new Date(r.paidThrough*1000).toISOString():'',renews:false,provider:'razorpay',ref:r.id,_orderTime:r.createdAt};
-    try{var s=razorpayVerify_(r);item.status=r.accessRevoked?'EXPIRED':s.status==='active'?'ACTIVE':['cancelled','completed','expired'].indexOf(s.status)>=0?'CANCELLED':'SUSPENDED';item.renews=s.status==='active'&&!r.accessRevoked&&!r.stopRequested&&!s.ended_at&&s.status!=='cancelled';}catch(e){}
+    var item={plan:r.price.plan,billing:r.price.billing,seats:r.price.seats,trial:r.price.offer==='trial'&&!r.convertedAt&&r.trialEndsAt>Date.now()/1000,status:'UNKNOWN',endsAt:r.paidThrough?new Date(r.paidThrough*1000).toISOString():'',renews:false,provider:'razorpay',ref:r.id,_orderTime:r.createdAt};
+    try{var s=razorpayVerify_(r);var live=s.status==='active'||s.status==='authenticated'&&(r.price.offer==='trial'||r.price.upfront);item.status=r.accessRevoked?'EXPIRED':live?'ACTIVE':['cancelled','completed','expired'].indexOf(s.status)>=0?'CANCELLED':'SUSPENDED';item.renews=live&&!r.accessRevoked&&!r.stopRequested&&!s.ended_at;}catch(e){}
     return item;
   });
 }
@@ -215,7 +300,7 @@ function razorpayAbandon_(id,who){
   if(record.subscriptionId){
     var s=razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId));
     if(s.notes&&s.notes.checkout_id!==record.id)throw commerceError_('mismatch','Razorpay subscription details do not match this checkout.');
-    if(['active','authenticated'].indexOf(s.status)>=0&&s.paid_count>0)return razorpayConfirm_(id,who);
+    if(['active','authenticated'].indexOf(s.status)>=0&&s.paid_count>0||(record.price.offer==='trial'||record.price.upfront)&&s.status==='authenticated')return razorpayConfirm_(id,who);
     if(['created','authenticated','pending'].indexOf(s.status)>=0)razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:0});
   }
   commerceLock_(function(){var r=razorpayFind_(id);r.state='cancelled';r.providerStatus='cancelled';razorpayWrite_(r);});
@@ -227,6 +312,7 @@ function razorpayStopRenewal_(id,who){
   if(!record||record.email!==who.email||!record.accepted)throw commerceError_('checkout','This subscription does not belong to your account.');
   var s=razorpayVerify_(record);
   if(s.status==='active'&&!record.stopRequested)razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:1});
+  else if(s.status==='authenticated'&&!record.stopRequested)razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:0});
   commerceLock_(function(){var r=razorpayFind_(id);r.stopRequested=true;razorpayWrite_(r);});
   try{MailApp.sendEmail({to:ownerEmail_(),name:'Wrapline orders',subject:'Renewal stopped: '+record.subscriptionId,body:who.email+' stopped renewal of their Wrapline '+record.price.plan+' '+record.price.billing+' subscription ('+record.subscriptionId+'). Access continues until '+(record.paidThrough?new Date(record.paidThrough*1000).toDateString():'the end of the paid period')+'.'});}catch(e){}
   return {ok:true,stopped:true,endsAt:record.paidThrough?new Date(record.paidThrough*1000).toISOString():''};

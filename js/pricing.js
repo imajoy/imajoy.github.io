@@ -19,7 +19,8 @@ async function render(){
  const inIndia=suggestedCountry()==='IN';
  const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
  const paymentOpen=indiaOpen||(!inIndia&&!!tcfg?.clientId&&availability(suggestedCountry(),tcfg.closedCountries||[]).open);
- document.querySelector('.plan-trial-kicker').hidden=inIndia;
+ const rzpTrial=!!razorpayConfig?.trial&&razorpayAvailable(razorpayConfig,suggestedCountry());
+ document.querySelector('.plan-trial-kicker').hidden=inIndia&&!rzpTrial;
  await Promise.all(['online','offline'].map(async plan=>{
   const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`);
   buy.href=`checkout.html?${new URLSearchParams({plan,billing,v:'20261020-billing1'})}`;if(!amount.textContent.trim())amount.textContent='—';offer.hidden=true;comparison.hidden=true;
@@ -31,12 +32,12 @@ async function render(){
    const show=c=>lf?lf(c):money(c,quote.currency);
    animatePrice(amount,quote.unitAmount,show,animatePricing);
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
-   const trial=plan==='online'&&trialPlanId(tcfg,'online',billing,suggestedCountry());
+   const trial=plan==='online'&&(trialPlanId(tcfg,'online',billing,suggestedCountry())||rzpTrial&&(inIndia||!tcfg?.clientId));
    note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Cancel any time.':(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
    if(!buy.classList.contains('is-owned')){
     buy.textContent=!paymentOpen?'Review billing':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
    }
-   if(inIndia)note.textContent=(indiaOpen?'Pay securely with Razorpay. ':'Indicative price. ')+'Billed '+(billing==='yearly'?'annually.':'monthly.');
+   if(inIndia)note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Pay with UPI or card via Razorpay.':(indiaOpen?'Pay securely with Razorpay. ':'Indicative price. ')+'Billed '+(billing==='yearly'?'annually.':'monthly.');
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);
     offer.querySelector('.annual-saving').textContent='Save '+show(quote.annualSavings)+' per year';

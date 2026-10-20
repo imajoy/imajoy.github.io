@@ -13,7 +13,7 @@ try{
   app.ctx.Logger={log(){}};app.ctx.setupRazorpayPlans();
   const handler=createRazorpayHandler({env:k=>({ALLOWED_ORIGINS:base.origin,SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip'}[k]||app.values.get(k)),request:async(url,options)=>url.startsWith('https://api.country.is/')?Response.json({country}):Response.json(JSON.parse(app.ctx.doPost({postData:{contents:options.body}}).text))});
   const context=await browser.newContext({viewport:{width,height:950},reducedMotion:'reduce'}),page=await context.newPage(),errors=[];
-  page.on('pageerror',error=>errors.push(error.message));
+  page.on('pageerror',error=>{errors.push(error.message);if(process.env.DEBUG_ERRORS)console.log('PAGEERROR',error.message);});
   await context.addInitScript(({token,country,theme})=>{if(!sessionStorage.getItem('fixture.accountSeeded')){localStorage.setItem('ajoy.acct',JSON.stringify({token,email:'buyer@example.com',expiresAt:Date.now()+864e5,subscriptions:[]}));sessionStorage.setItem('fixture.accountSeeded','1');}localStorage.setItem('ajoy-theme',theme);localStorage.setItem('ajoy.geo',JSON.stringify({country,at:Date.now()}));}, {token,country,theme});
   await context.route('**/*',async route=>{
    const req=route.request(),url=req.url();
@@ -50,6 +50,14 @@ try{
     await page.getByRole('radio',{name:/Razorpay/}).check();
    }
    await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed'));
+   {
+    // Online plans offer the 2-day trial with Razorpay too (selected by default when eligible): nothing due today.
+    await page.waitForFunction(()=>!document.querySelector('.rzp-offer').hidden&&document.querySelector('.rzp-offer [value=trial]').checked&&/(^|[^0-9,.])0\.00/.test(document.querySelector('#summary-total').textContent));
+    assert.equal(await page.locator('[data-razorpay-start]').textContent(),'Start 2-day free trial');
+    await page.screenshot({path:'/tmp/payment-trial-'+width+'.png',fullPage:true});
+    // The rest of this run checks the paid path; the trial path is covered by the server tests.
+    await page.locator('.rzp-offer [value=standard]').check();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed')&&/916|2,038/.test(document.querySelector('#summary-total').textContent));
+   }
    assert.equal(await page.locator('.paypal-box').isVisible(),false);
    assert.equal(await page.locator('#customer-verification').isVisible(),false);
    assert.equal(await page.locator('.coupon-panel').isVisible(),false);
@@ -104,7 +112,7 @@ try{
   if(country==='IN'){
    await page.evaluate(()=>localStorage.removeItem('ajoy.acct'));
    await page.goto(new URL('wrapline.html',base).href);
-   try{await page.waitForFunction(enabled=>document.querySelector('[data-buy="online"]')?.textContent.includes(enabled?'Subscribe now':'Review billing'),enabled,{timeout:10000});}
+   try{await page.waitForFunction(enabled=>document.querySelector('[data-buy="online"]')?.textContent.includes(enabled?'Start 2-day free trial':'Review billing'),enabled,{timeout:10000});}
    catch(error){console.error({country,enabled,errors,cta:await page.locator('[data-buy="online"]').textContent(),href:await page.locator('[data-buy="online"]').getAttribute('href')});throw error;}
    assert.match(await page.locator('[data-buy="online"]').getAttribute('href'),/checkout\.html/);
    if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('8,803.01'));}

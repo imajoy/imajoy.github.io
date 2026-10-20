@@ -13,7 +13,9 @@ const alreadyOnline=()=>getAccountSession()?.subscriptions?.some(s=>s.plan==='on
 function render(){
   const subscribed=alreadyOnline(),inIndia=country==='IN',known=/^[A-Z]{2}$/.test(country);
   const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
-  billing=known&&trialPlanId(config,'online','monthly',country)?'monthly':known&&trialPlanId(config,'online','yearly',country)?'yearly':'';
+  // Razorpay (INR) offers the same 2-day trial where it is the payment option.
+  const rzpTrial=known&&!!razorpayConfig?.trial&&razorpayAvailable(razorpayConfig,country)&&(inIndia||!trialPlanId(config,'online','monthly',country));
+  billing=rzpTrial?'monthly':known&&trialPlanId(config,'online','monthly',country)?'monthly':known&&trialPlanId(config,'online','yearly',country)?'yearly':'';
   const region=known?availability(country,config?.closedCountries||[]):null;
   const reviewOnly=region&&!region.open&&!razorpayAvailable(razorpayConfig,country);
   const billingPage='checkout.html?plan=online&billing=monthly';
@@ -25,18 +27,23 @@ function render(){
     link.toggleAttribute('data-region-unavailable',Boolean(region&&!region.open&&!subscribed));
     if(reviewOnly&&!subscribed){link.href=billingPage;link.textContent='Review billing';link.removeAttribute('data-region-unavailable');}
     link.dataset.trialReady=String(Boolean(billing&&!subscribed));
-    if(indiaOpen&&!subscribed){link.href=isHome?'#pricing':'wrapline.html#pricing';link.textContent='Explore paid plans';link.removeAttribute('data-region-unavailable');}
+    if(indiaOpen&&!rzpTrial&&!subscribed){link.href=isHome?'#pricing':'wrapline.html#pricing';link.textContent='Explore paid plans';link.removeAttribute('data-region-unavailable');}
+    if(rzpTrial&&!subscribed){link.removeAttribute('data-region-unavailable');}
   }
   const mobileTrial=document.querySelector('.m-cta a:not(.primary)');
-  if(mobileTrial){mobileTrial.href=subscribed?'#pricing':reviewOnly?billingPage:'#trial';mobileTrial.textContent=subscribed?'Your Online plan':reviewOnly?'Review billing':'2-day trial';}
-  if(mobileTrial&&indiaOpen&&!subscribed){mobileTrial.href='#pricing';mobileTrial.textContent='View plans';}
+  if(mobileTrial){
+   mobileTrial.href=subscribed?'#pricing':reviewOnly?billingPage:'#trial';mobileTrial.textContent=subscribed?'Your Online plan':reviewOnly?'Review billing':'2-day trial';
+   // Never show two identical "View plans" buttons side by side.
+   mobileTrial.style.display=(indiaOpen&&!rzpTrial&&!subscribed)||subscribed?'none':'';
+  }
   for(const teaser of document.querySelectorAll('[data-trial-teaser]')){
     if(!teaser.dataset.originalCopy)teaser.dataset.originalCopy=teaser.textContent;
     teaser.textContent=isHome?teaser.dataset.originalCopy:reviewOnly&&!subscribed?'Review your plan and billing details. Payment options appear when available for your country.':teaser.dataset.originalCopy;
-    if(indiaOpen&&!subscribed)teaser.textContent='Paid subscriptions are available with Razorpay in India. The free trial is offered through PayPal in supported countries.';
+    if(rzpTrial&&!subscribed)teaser.textContent='Try the full Online toolkit free for 2 days. Approve with UPI or card through Razorpay; nothing is charged today.';
+    else if(indiaOpen&&!subscribed)teaser.textContent='Paid subscriptions are available with Razorpay in India.';
   }
-  const message=subscribed?'You already have an active Online subscription. View your plan or account.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 2-day trial unless cancelled.':reviewOnly?'You can review your billing details. Payment options will appear when available for your country.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
-  for(const notice of document.querySelectorAll('[data-trial-status]')){notice.hidden=isHome&&inIndia&&!indiaOpen;notice.textContent=indiaOpen?'Paid subscriptions are available with Razorpay. The PayPal free trial is not available in India.':isHome&&inIndia?'':message;}
+  const message=subscribed?'You already have an active Online subscription. View your plan or account.':rzpTrial?'For eligible customers. Verify your email and approve with Razorpay. Nothing is charged today; paid billing starts after 2 days unless you cancel.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 2-day trial unless cancelled.':reviewOnly?'You can review your billing details. Payment options will appear when available for your country.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
+  for(const notice of document.querySelectorAll('[data-trial-status]')){notice.hidden=isHome&&inIndia&&!indiaOpen;notice.textContent=indiaOpen&&!rzpTrial&&!subscribed?'Paid subscriptions are available with Razorpay.':isHome&&inIndia&&!indiaOpen?'':message;}
   if(getAccountSession())closeNudge();
   tryNudge();
 }

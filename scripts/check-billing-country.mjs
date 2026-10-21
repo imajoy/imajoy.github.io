@@ -33,7 +33,7 @@ try{
   await ready();assert.equal(await page.locator('#country').inputValue(),'US');assert(await page.locator('#country').isDisabled());
   await page.evaluate(()=>{const f=document.querySelector('#country');f.disabled=false;f.value='CA';f.dispatchEvent(new Event('change',{bubbles:true}));});
   assert.equal(await page.locator('#country').inputValue(),'US');
-  async function account(token,email){await page.evaluate(async({token,email})=>{const m=await import('./js/account-session.js?v=20261018-n1');if(token){localStorage.setItem('ajoy.acct',JSON.stringify({token,email,expiresAt:Date.now()+864e5,subscriptions:[]}));location.reload();}else m.clearAccountSession();},{token,email});if(token)await page.waitForLoadState('load');}
+  async function account(token,email){await page.evaluate(async({token,email})=>{const m=await import('./js/account-session.js?v=20261020-ps1');if(token){localStorage.setItem('ajoy.acct',JSON.stringify({token,email,expiresAt:Date.now()+864e5,subscriptions:[]}));location.reload();}else m.clearAccountSession();},{token,email});if(token)await page.waitForLoadState('load');}
   status='vpn';await page.reload();await page.getByRole('heading',{name:'Turn off your VPN to continue'}).waitFor();
   assert.equal(await page.locator('.checkout-grid').isVisible(),false);
   await page.evaluate(()=>scrollTo(0,500));assert.equal(await page.locator('.m-total.on').count(),0);
@@ -47,11 +47,11 @@ try{
   status='clear';await page.locator('[data-network-retry]').click();await ready();assert(await page.locator('.checkout-grid').isVisible());
   await account(buyer,'contactmy3dart@gmail.com');await ready();assert(await page.locator('#country').isDisabled());
   status='disabled';app.values.set('BILLING_POLICY_ENABLED','false');
-  await page.evaluate(async({owner})=>{const m=await import('./js/account-session.js?v=20261018-n1');m.setAccountSession({token:owner,email:'contactmy3dart@gmail.com',expiresAt:Date.now()+864e5,subscriptions:[]});},{owner});
+  await page.evaluate(async({owner})=>{const m=await import('./js/account-session.js?v=20261020-ps1');m.setAccountSession({token:owner,email:'contactmy3dart@gmail.com',expiresAt:Date.now()+864e5,subscriptions:[]});},{owner});
   await page.waitForFunction(()=>document.querySelector('#country').disabled===false);
   assert(await page.locator('.checkout-grid').isVisible());
   const before=checks;
-  await page.evaluate(async()=>{const m=await import('./js/account-session.js?v=20261018-n1');m.setAccountSession({...m.getAccountSession(),subscriptions:[]});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));});
+  await page.evaluate(async()=>{const m=await import('./js/account-session.js?v=20261020-ps1');m.setAccountSession({...m.getAccountSession(),subscriptions:[]});await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));});
   assert.equal(checks,before,'same-token account updates must not restart country checks');
   assert.equal(await page.locator('#country').isDisabled(),false);
   assert.deepEqual(errors,[]);await context.close();console.log(`${width}px: server country, tampering, VPN gate, login access, verified tester, logout and retry passed`);

@@ -13,6 +13,5 @@ try{
 }finally{await browser.close();}
 execFileSync('ffmpeg',['-y','-v','error','-framerate',String(fps),'-i',directory+'/%04d.png','-c:v','libx264','-preset','slow','-crf','20','-tune','animation','-g','120','-pix_fmt','yuv420p','-movflags','+faststart','-an','assets/playblast-loop.mp4'],{stdio:'inherit'});
 execFileSync('ffmpeg',['-y','-v','error','-framerate',String(fps),'-i',directory+'/%04d.png','-c:v','libvpx-vp9','-crf','30','-b:v','0','-row-mt','1','-deadline','good','-cpu-used','2','-g','120','-pix_fmt','yuv420p','-an','assets/playblast-loop.webm'],{stdio:'inherit'});
-execFileSync('ffmpeg',['-y','-v','error','-framerate',String(fps),'-i',directory+'/%04d.png','-filter_complex','[0:v]fps=20,scale=576:360:flags=lanczos,split[a][b];[a]palettegen=stats_mode=diff:max_colors=128[p];[b][p]paletteuse=dither=bayer:bayer_scale=4:diff_mode=rectangle','-loop','0','assets/playblast-loop.gif'],{stdio:'inherit'});
 execFileSync('ffmpeg',['-y','-v','error','-i',directory+'/0000.png','-c:v','libwebp','-quality','92','-frames:v','1','assets/playblast-poster.webp'],{stdio:'inherit'});
-console.log(`Built ${seconds}s landscape Playblast MP4/WebM and GIF at ${fps}fps: Load → SH_000 → Maya Cam View → Export → OK.`);
+console.log(`Built ${seconds}s landscape Playblast MP4/WebM at ${fps}fps: Load → SH_000 → Maya Cam View → Export → OK.`);

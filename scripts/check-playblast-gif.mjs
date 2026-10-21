@@ -2,11 +2,10 @@
 import assert from 'node:assert/strict';
 import {execFileSync} from 'node:child_process';
 import {createRequire} from 'node:module';
-for(const extension of ['mp4','webm','gif']){
+for(const extension of ['mp4','webm']){
  const stream=JSON.parse(execFileSync('ffprobe',['-v','error','-count_frames','-show_entries','stream=width,height,nb_read_frames,duration','-of','json',`assets/playblast-loop.${extension}`],{encoding:'utf8'})).streams[0];
- const video=extension!=='gif';assert.equal(stream.width,video?1152:576);assert.equal(stream.height,video?720:360);assert.equal(Number(stream.nb_read_frames),video?960:320,'60fps video, 20fps GIF');if(extension==='mp4')assert(Number(stream.duration)>=15&&Number(stream.duration)<=17);
+ assert.equal(stream.width,1152);assert.equal(stream.height,720);assert.equal(Number(stream.nb_read_frames),960,'60fps video');if(extension==='mp4')assert(Number(stream.duration)>=15&&Number(stream.duration)<=17);
 }
-assert.match(execFileSync('identify',['-verbose','assets/playblast-loop.gif[0]'],{encoding:'utf8'}),/Iterations: 0/);
 const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAYWRIGHT_MODULE||'playwright');
 const base=new URL(process.argv[2]||'http://localhost:8801/');
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox']});
@@ -72,5 +71,5 @@ try{
  }
  const context=await browser.newContext({javaScriptEnabled:false}),page=await context.newPage();await page.goto(new URL('tool-playblast.html',base).href);await page.waitForFunction(()=>document.querySelector('.playblast-screen').complete);
  assert(await page.locator('.playblast-screen').isVisible());assert.equal(await page.locator('video').getAttribute('src'),null);await context.close();
- console.log('Load → camera → Export → OK verified; 60fps video (MP4 + WebM), looping GIF and no-JavaScript still available.');
+ console.log('Load → camera → Export → OK verified; 60fps video (MP4 + WebM) and no-JavaScript still available.');
 }finally{await browser.close();}

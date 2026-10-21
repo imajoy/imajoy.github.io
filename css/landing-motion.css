@@ -29,9 +29,6 @@
 /* Reserve the regional note's space so country detection cannot move the trial terms. */
 .home-page .availability-context{display:grid;align-items:start;min-height:70px;margin-top:18px;font-size:.75rem}
 .home-page .availability-context>*{grid-area:1 / 1;margin:0}
-.home-page .india-availability-inline{display:block;padding:0;border:0;border-radius:0;background:none;box-shadow:none;scroll-margin-top:110px}
-.home-page .india-availability-inline p{font-size:inherit;line-height:1.75;color:var(--mute)}
-.home-page .india-availability-inline a{color:var(--blue-d);text-underline-offset:3px}
 .home-page #stage[data-scene-unavailable]{background:url('../assets/logo-mark.svg') center / 72px 72px no-repeat}
 @media(max-width:680px){.home-page .hero-secondary{min-width:0;width:100%}}
 @media(prefers-reduced-motion:reduce){.home-page .tile.reveal:hover{transform:none;transition:none!important}}

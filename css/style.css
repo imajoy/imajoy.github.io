@@ -163,7 +163,7 @@ em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.0
 .wc.on b{color:#fff}
 .win-field{padding:16px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid #2a3350;margin-bottom:16px}
 .win-field small{display:block;color:#fff;font-weight:600;font-size:13.5px;margin-bottom:10px}
-.field{padding:13px 15px;border-radius:12px;background:#0a1122;border:2px solid #2d6fe8;color:#5c6f99;font-size:15px;letter-spacing:.06em;box-shadow:0 0 22px rgba(47,120,255,.3)}
+.field{padding:13px 15px;border-radius:12px;background:#0a1122;border:2px solid #2d6fe8;color:#8696bb;font-size:15px;letter-spacing:.06em;box-shadow:0 0 22px rgba(47,120,255,.3)}
 .win-bar{height:6px;border-radius:3px;background:#151c2e;margin-bottom:18px;overflow:hidden}
 .win-bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#2f6fe4,#5aa2ff);border-radius:3px}
 .win-foot{display:flex;justify-content:flex-end;gap:8px}
@@ -374,7 +374,7 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .win .wc{transition:border-color .3s,background-color .3s,transform .4s var(--out)}
 .win .wc.on{transform:translateY(-2px)}
 .field{display:flex;align-items:center;min-height:50px;color:#dbe6ff;font-weight:600;letter-spacing:.08em}
-.field:empty::before,.field .ph{color:#5c6f99;font-weight:400}
+.field:empty::before,.field .ph{color:#8696bb;font-weight:400}
 .caret{display:inline-block;width:2px;height:18px;margin-left:2px;background:#6aa8ff;animation:blink 1s steps(1) infinite}
 @keyframes blink{50%{opacity:0}}
 .inst-stage[data-step="3"] .win-bar i{width:100%;transition:width 2.6s .2s ease-in-out}

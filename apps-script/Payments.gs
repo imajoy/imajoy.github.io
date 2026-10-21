@@ -99,7 +99,7 @@ function paymentFromRazorpay_(record,payment,source){
   if(!record||!payment||!payment.id)return false;
   var first=!paymentRows_().some(function(r){return String(r[13])===record.subscriptionId;});
   var keys=first&&record.price.discount&&record.price.discount.rewardKeys||[];
-  return paymentRecord_({date:payment.created_at?new Date(payment.created_at*1000):new Date(),email:record.email,provider:'Razorpay',mode:paymentModeLabel_(record.mode),plan:record.price.plan,billing:record.price.billing,seats:record.price.seats,amount:Number(payment.amount||0)/100,currency:'INR',status:Number(payment.amount_refunded||0)>0?'Refunded':'Paid',rewardKeys:keys,paymentId:payment.id,subscriptionId:record.subscriptionId,source:source||'Webhook',note:record.price.discount&&record.price.discount.coupon?'Coupon '+record.price.discount.coupon.code:''});
+  return paymentRecord_({date:payment.created_at?new Date(payment.created_at*1000):new Date(),email:record.email,provider:'Razorpay',mode:paymentModeLabel_(record.mode),plan:record.price.plan,billing:record.price.billing,seats:record.price.seats,amount:Number(payment.amount||0)/100,currency:payment.currency||record.price.currency||'INR',status:Number(payment.amount_refunded||0)>0?'Refunded':'Paid',rewardKeys:keys,paymentId:payment.id,subscriptionId:record.subscriptionId,source:source||'Webhook',note:record.price.discount&&record.price.discount.coupon?'Coupon '+record.price.discount.coupon.code:''});
 }
 
 /* ---------- One-time import + daily check ----------

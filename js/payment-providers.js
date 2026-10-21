@@ -23,8 +23,10 @@ if(form&&paypal&&url){
  let requestId=crypto.randomUUID();
  const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
  const key=()=>JSON.stringify(choice());
- const money=value=>displayMoney(value,'INR',choice().country);
- const showAmount=(id,value)=>setMoney(document.getElementById(id),value,'INR',choice().country);
+ /* Razorpay charges INR in India and USD elsewhere once the owner has created the USD plans (config.intlCurrency). */
+ const rzpCurrency=()=>quote?.currency||(choice().country!=='IN'&&config?.intlCurrency==='USD'?'USD':'INR');
+ const money=value=>displayMoney(value,rzpCurrency(),choice().country);
+ const showAmount=(id,value)=>setMoney(document.getElementById(id),value,rzpCurrency(),choice().country);
  const say=(text,kind='')=>{status.textContent=text;status.dataset.kind=kind;};
  /* Confirmed quotes are remembered for 10 minutes so the next step shows the price at once.
     Display only: checkout re-sends the expected total and the server refuses any changed price. */
@@ -108,8 +110,8 @@ if(form&&paypal&&url){
  review.querySelector('[data-review-billing]').onclick=reviewDetails;
  form.addEventListener('submit',event=>{if(provider==='review'){event.preventDefault();event.stopImmediatePropagation();reviewDetails();}},true);
  const offerBox=panel.querySelector('.rzp-offer'),offerNote=offerBox.querySelector('.rzp-offer-note');
- const rupees=p=>p%100===0?'\u20b9'+p/100:money(p);
- const checkText=()=>{const p=Number(config?.trialCheckPaise??100);return p>0?'Razorpay takes a '+rupees(p)+' payment-method check now. We refund it automatically.':'Razorpay takes a \u20b95 payment-method check now and refunds it automatically.';};
+ const small=p=>(rzpCurrency()==='USD'?'$':'\u20b9')+(p%100===0?p/100:(p/100).toFixed(2));
+ const checkText=()=>{const usd=rzpCurrency()==='USD',p=Number((usd?config?.trialCheckCents:config?.trialCheckPaise)??100);return p>0?'Razorpay takes a '+small(p)+' payment-method check now. We refund it automatically.':'Razorpay takes a small payment-method check now and refunds it automatically.';};
  const trialAvailable=()=>!!config?.trial&&choice().plan==='online';
  const trialOn=()=>trialAvailable()&&offer==='trial'&&trialCheck.key===trialKey()&&trialCheck.state==='eligible';
  const trialKey=()=>(getAccountSession()?.email||'')+'|'+choice().country;
@@ -119,7 +121,8 @@ if(form&&paypal&&url){
   const k=trialKey();if(!trialAvailable()||!getAccountSession()||trialCheck.key===k&&trialCheck.state)return;
   trialCheck={key:k,state:'checking',message:''};paint();
   try{const memo='ajoy.rzptrial:'+k;let r=null;try{const v=JSON.parse(sessionStorage.getItem(memo)||'null');if(v&&Date.now()-v.at<600000)r=v.r;}catch{}
-   if(!r){r=await secureCommerce('eligibility',{country:choice().country});try{sessionStorage.setItem(memo,JSON.stringify({at:Date.now(),r:{eligible:r.eligible,message:r.message}}));}catch{}}if(trialCheck.key!==k)return;trialCheck={key:k,state:r.eligible?'eligible':'used',message:r.eligible?'':(r.message||'The free trial is not available for this account.')};if(r.eligible){if(!offerTouched&&!coupon)offer='trial';if(offer==='trial'){paint();refresh();return;}}}
+   // Only a "yes" is remembered: a "no" (for example a checkout still in progress) is always re-checked.
+   if(!r){r=await secureCommerce('eligibility',{country:choice().country});if(r.eligible)try{sessionStorage.setItem(memo,JSON.stringify({at:Date.now(),r:{eligible:true}}));}catch{}else try{sessionStorage.removeItem(memo);}catch{}}if(trialCheck.key!==k)return;trialCheck={key:k,state:r.eligible?'eligible':r.reason==='trial_used'?'used':'blocked',message:r.eligible?'':(r.message||'The free trial is not available for this account.')};if(r.eligible){if(!offerTouched&&!coupon)offer='trial';if(offer==='trial'){paint();refresh();return;}}}
   catch(error){if(trialCheck.key===k)trialCheck={key:k,state:'error',message:error.message||'Trial eligibility could not be checked. You can still pay now.'};}
   paint();
  }
@@ -158,7 +161,9 @@ if(form&&paypal&&url){
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{offerTouched=true;offer=radio.value;clubNote=offer==='trial'&&coupon?'The free trial can\u2019t be combined with a coupon, so '+coupon+' is not applied. Choose Pay now to use your coupon instead.':'';if(offer==='trial'&&coupon)couponNote('Coupons apply to paid subscriptions, not the free trial. Choose "Pay now" to use '+coupon+'.');refresh();});
  function paint(){
   if(provider!=='razorpay')return;
-  const methods=panel.querySelector('.rzp-methods'),local=choice().country==='IN',pick=picker.querySelector('[data-rzp-pick]');if(pick)pick.textContent=local?'Pay in INR · UPI, cards or net banking':'Pay in INR · international cards';
+  const methods=panel.querySelector('.rzp-methods'),local=choice().country==='IN',pick=picker.querySelector('[data-rzp-pick]');const cur=rzpCurrency();if(pick)pick.textContent=local?'Pay in INR · UPI, cards or net banking':'Pay in '+cur+' · international cards';
+  const badge=picker.querySelector('.pick-rzp');if(badge)badge.textContent=cur;
+  const headline=panel.querySelector('.rzp-head b');if(headline)headline.textContent='Secure '+cur+' checkout';
   const want=local?'UPI,Cards,Net banking':'International cards';
   if(methods&&methods.dataset.set!==want){methods.dataset.set=want;methods.replaceChildren(...want.split(',').map(t=>Object.assign(document.createElement('li'),{textContent:t})));}
   const showOffer=trialAvailable()&&!!getAccountSession();offerBox.hidden=!showOffer;
@@ -166,7 +171,7 @@ if(form&&paypal&&url){
    const trialRadio=offerBox.querySelector('[value=trial]');trialRadio.disabled=trialCheck.state!=='eligible';
    const shown=offer==='trial'&&trialCheck.state==='eligible'?'trial':'standard';
    for(const radio of offerBox.querySelectorAll('input'))radio.checked=radio.value===shown;
-   offerBox.querySelector('[data-trial-terms]').textContent=trialCheck.state==='checking'?'Checking if your account can start a trial…':trialCheck.state==='eligible'?'₹0 today · first payment on '+dateIn(config.trialDays||2)+' · cancel any time before':trialCheck.state?'Not available for this account':'Checking…';
+   offerBox.querySelector('[data-trial-terms]').textContent=trialCheck.state==='checking'?'Checking if your account can start a trial…':trialCheck.state==='eligible'?money(0)+' today · first payment on '+dateIn(config.trialDays||2)+' · cancel any time before':trialCheck.state==='used'?'Already used on this account':trialCheck.state?'Could not be checked right now':'Checking…';
    offerNote.textContent=clubNote||trialCheck.message;offerNote.hidden=!(clubNote||trialCheck.message);offerNote.dataset.kind=clubNote?'club':'';
    if(!trialCheck.state||trialCheck.key!==trialKey())setTimeout(checkTrial,0);
   }
@@ -177,7 +182,7 @@ if(form&&paypal&&url){
   if(!ownsPending){check.hidden=true;link.hidden=true;}
   cancelBtn.hidden=check.hidden||busy;
   if(!session)start.disabled=false;
-  const shownQuote=quote||(provider==='razorpay'&&Number.isInteger(choice().seats)&&choice().seats>0&&/^[A-Z]{2}$/.test(choice().country)?razorpayEstimate(choice().plan,choice().billing,choice().seats,choice().country):null);
+  const shownQuote=quote||(provider==='razorpay'&&Number.isInteger(choice().seats)&&choice().seats>0&&/^[A-Z]{2}$/.test(choice().country)?razorpayEstimate(choice().plan,choice().billing,choice().seats,choice().country,rzpCurrency()):null);
   const amount=shownQuote?money(shownQuote.total):'—';showAmount('summary-total',shownQuote?(trialing?0:shownQuote.total):null);loyaltyNote(deal);
   const summary=document.querySelector('.order-total');summary?.classList.toggle('is-trial',trialing);
   let line=document.querySelector('#trial-line');

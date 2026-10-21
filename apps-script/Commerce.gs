@@ -60,6 +60,9 @@ function commerceConflict_(signals,exceptId,usedOnly) {
     if(r[0]===exceptId||r[1]!==mode_()||r[6]!=='trial')return false;
     var pending=['reserved','created'].indexOf(r[12])>=0&&Date.now()-new Date(r[13]).getTime()<1800000;
     if(usedOnly&&!r[20]||!r[20]&&!pending)return false;
+    // A buyer's own unfinished (cancelled, failed or abandoned) trial checkout never blocks them from trying again.
+    // A trial actually used (r[20]) still blocks; activation re-checks, so two attempts can never both become trials.
+    if(!r[20]&&signals.emailHash&&r[3]===signals.emailHash)return false;
     return [[3,'emailHash'],[4,'deviceHash'],[5,'ipHash'],[15,'payerHash']].some(function(pair){return !!signals[pair[1]]&&!!r[pair[0]]&&signals[pair[1]]===r[pair[0]];});
   });
 }

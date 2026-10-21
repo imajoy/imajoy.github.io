@@ -70,6 +70,7 @@
   ]
 }
 </script>
+<link rel="stylesheet" href="css/playblast-preview.css?v=20261021-arrive1">
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 </head>
@@ -121,11 +122,22 @@
           <a class="btn btn-light" href="wrapline.html#install"><svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download setup</a>
         </div>
       </div>
-      <figure class="tool-visual loop-graphic reveal" data-tool-motion data-phase="0">
-        <div class="visual-heading"><span>THE WORKFLOW</span><span class="visual-dot" aria-hidden="true"></span></div>
-        <div class="tool-diagram diagram-advanced-ik-fk-switch"><svg viewBox="0 0 640 330" aria-hidden="true" focusable="false"><g class="phase phase-0"><rect x="30" y="30" width="250" height="220" rx="15" class="diagram-box"/><text x="46" y="62" class="diagram-text">IK controls</text></g><g class="phase phase-2"><rect x="360" y="30" width="250" height="220" rx="15" class="diagram-box"/><text x="376" y="62" class="diagram-text">FK controls</text></g><g class="phase phase-0" transform="translate(77 115)"><path d="M0 70L62 5L118 58" class="diagram-bone"/><circle cx="0" cy="70" r="8"/><circle cx="62" cy="5" r="8"/><circle cx="118" cy="58" r="8"/></g><g class="phase phase-2" transform="translate(408 115)"><path d="M0 70L62 5L118 58" class="diagram-bone"/><circle cx="0" cy="70" r="8"/><circle cx="62" cy="5" r="8"/><circle cx="118" cy="58" r="8"/></g><path d="M289 155H350" class="diagram-flow"/><text x="294" y="131" class="diagram-tiny">MATCH</text><path d="M80 292H560" class="diagram-track"/><rect x="93" y="284" width="12" height="12" transform="rotate(45 99 290)" class="diagram-key"/><rect x="199" y="284" width="12" height="12" transform="rotate(45 205 290)" class="diagram-key"/><rect x="358" y="284" width="12" height="12" transform="rotate(45 364 290)" class="diagram-key"/><rect x="517" y="284" width="12" height="12" transform="rotate(45 523 290)" class="diagram-key"/><text x="80" y="274" class="diagram-tiny">SMART BAKE · EXISTING KEYS</text></svg></div>
-        <ol class="workflow-beats" aria-label="Explore the workflow"><li><button type="button" data-tool-step="0" aria-pressed="true" disabled><span>01</span>Select limb controls</button></li><li><button type="button" data-tool-step="1" aria-pressed="false" disabled><span>02</span>Match + switch</button></li><li><button type="button" data-tool-step="2" aria-pressed="false" disabled><span>03</span>Key the chosen scope</button></li></ol>
-        <figcaption>Animated workflow illustration · based on the Wrapline guide</figcaption>
+      <figure class="tool-visual playblast-screens" aria-labelledby="ikfk-preview-title" data-step-times="4.55,11.35,15.75,16.85">
+        <div class="visual-heading"><span id="ikfk-preview-title">IK FK SWITCH / RECORDED IN MAYA</span><span class="visual-dot" aria-hidden="true"></span></div>
+        <div class="playblast-depth" data-playblast-depth>
+          <div class="playblast-arrival">
+            <div class="playblast-float">
+              <div class="playblast-device">
+                <div class="playblast-window" aria-hidden="true"><span class="playblast-window-icon">⇄</span><span>IK_FK Switch</span><span class="playblast-window-shot">ADVANCED SKELETON</span></div>
+                <div class="playblast-media">
+                  <img class="playblast-screen" src="assets/ikfk-switch-poster.webp?v=20261021-rec1" width="720" height="450" fetchpriority="high" alt="IK FK Switch recorded in Maya: Frame switches the current pose, Range with Smart Bake converts only keyed frames, Range Switch matches every frame from f45 to f83, and Timeline works the same over the whole animation.">
+                  <video class="playblast-video" data-playblast-video data-src="assets/ikfk-switch-loop.mp4?v=20261021-rec1" data-webm="assets/ikfk-switch-loop.webm?v=20261021-rec1" width="720" height="450" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <ol class="playblast-screen-steps" aria-label="Preview sequence"><li><span>01</span>Frame</li><li><span>02</span>Smart Bake</li><li><span>03</span>Range</li><li><span>04</span>Timeline</li></ol>
       </figure>
     </div>
   </section>
@@ -166,5 +178,6 @@
 </footer>
 <script src="js/main.js?v=20261019-i1"></script>
 <script type="module" src="js/extras.js?v=20261019-m1"></script>
-<script type="module" src="js/ui-motion.js?v=20261019-s1"></script><script src="js/site-config.js?v=20261020-rz1"></script><script type="module" src="js/account.js?v=20261020-ps2"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/trial-promotion.js?v=20261021-usd1"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script></body>
+<script type="module" src="js/ui-motion.js?v=20261019-s1"></script><script src="js/site-config.js?v=20261020-rz1"></script><script type="module" src="js/account.js?v=20261020-ps2"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/trial-promotion.js?v=20261021-usd1"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script type="module" src="js/playblast-preview.js?v=20261021-steps1"></script>
+</body>
 </html>

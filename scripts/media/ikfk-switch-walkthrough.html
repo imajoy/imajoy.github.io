@@ -1,0 +1,89 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>IK/FK Switch walkthrough source</title><style>
+/* Composes the real Maya recordings (frames extracted by scripts/build-ikfk-switch-video.mjs) into one guided loop. */
+*{box-sizing:border-box}html,body{margin:0;width:720px;height:450px;overflow:hidden;background:#171c25;font-family:Arial,sans-serif;color:#eef4ff}
+.guide{position:relative;height:60px;display:flex;align-items:center;gap:12px;padding:0 22px;background:#171e2b;border-bottom:1px solid #2c3a52;z-index:3}
+.badge{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#315d9a;font-size:12px;color:#d5eaff;flex:none}
+.copy{min-width:0;flex:1}.copy b{display:block;font-size:17px;white-space:nowrap}.copy small{display:block;margin-top:4px;color:#a6bad6;font-size:12px;white-space:nowrap}
+.mode{display:flex;gap:4px;padding:3px;border:1px solid #33435c;border-radius:9px;background:#111722;flex:none}
+.mode span{padding:5px 9px;border-radius:6px;color:#7f93b1;font-size:10px;letter-spacing:.06em}
+.mode span.on{background:#3a7bf0;color:#fff}
+.viewport{position:relative;width:720px;height:390px;overflow:hidden;background:#3c3f44}
+.layer{position:absolute;left:0;top:0;transform-origin:0 0;will-change:transform,opacity}
+.ring{position:absolute;left:0;top:0;width:40px;height:40px;border:2px solid #5bd8ed;border-radius:50%;box-shadow:0 0 0 4px #3d8bff22;pointer-events:none;opacity:0;z-index:2}
+.hint{position:absolute;left:0;top:0;display:flex;align-items:center;gap:6px;padding:5px 9px 5px 6px;border:1px solid #4f6c95;border-radius:9px;background:#141c2bee;color:#dbe9ff;font-size:11px;white-space:nowrap;opacity:0;z-index:2;box-shadow:0 6px 14px #0007}
+.hint kbd{padding:2px 6px;border:1px solid #6f8fbf;border-bottom-width:2px;border-radius:5px;background:#22314a;font:bold 10px Arial,sans-serif;color:#fff}
+.trail{position:absolute;left:0;top:0;height:4px;border-radius:3px;background:linear-gradient(90deg,#5bd8ed00,#5bd8ed);opacity:0;z-index:2;transform-origin:0 50%}
+.end{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);padding:9px 14px;border:1px solid #4f6c95;border-radius:11px;background:#141c2bf0;color:#dbe9ff;font-size:13px;white-space:nowrap;opacity:0;z-index:2;box-shadow:0 8px 18px #0008}
+.end b{color:#7fd3ff}
+</style>
+<div class="guide"><span class="badge" id="badge">01</span><div class="copy"><b id="headline"></b><small id="subline"></small></div><div class="mode" aria-hidden="true"><span data-mode="frame">FRAME</span><span data-mode="range">RANGE</span><span data-mode="timeline">TIMELINE</span></div></div>
+<div class="viewport" id="viewport"><img class="layer" id="a" alt=""><img class="layer" id="b" alt=""><div class="trail" id="trail"></div><div class="ring" id="ring"></div><div class="hint" id="hint"><kbd>Shift</kbd>+ drag on the timeline</div><div class="end" id="end"><b>Timeline</b> works the same way, over the whole animation.</div></div>
+<script>
+const $=id=>document.getElementById(id),clamp=v=>Math.min(1,Math.max(0,v)),cubic=x=>x<.5?4*x*x*x:1-Math.pow(-2*x+2,3)/2,smooth=x=>x*x*(3-2*x);
+const VW=720,VH=390,FPS=30;
+const clips={frame:{w:1008,h:524,dir:'frame',frames:150},range:{w:1236,h:768,dir:'range',frames:680}};
+// Output-time segments mapped onto source time (seconds). Seams crossfade over `fade`.
+const segments=[
+ {clip:'frame',start:0,src:.45,end:4.55},
+ {clip:'range',start:4.55,src:.1,end:6.15},
+ {clip:'range',start:6.15,src:5.2,end:11.35},
+ {clip:'range',start:11.35,src:18.3,end:15.75},
+ {clip:'range',start:15.75,src:22.7,end:16.85,hold:true},
+ {clip:'frame',start:16.85,src:.45,end:17.5,hold:true}
+];
+const fade=.3,DURATION=17.5;
+// Virtual camera keys per clip in source pixels: [outTime,x,y,width]; height follows the 720x390 viewport.
+const cameras={
+ frame:[[0,20,0,968],[.9,20,0,968],[1.6,148,0,860],[2.75,148,0,860],[3.45,20,0,968],[4.6,20,0,968],[16.8,20,0,968],[17.5,20,0,968]],
+ range:[[4.4,0,0,1236],[6.0,0,0,1236],[6.45,0,98,1236],[7.3,0,98,1236],[7.8,236,0,1000],[9.1,236,0,1000],[9.9,0,0,1236],[11.2,0,0,1236],[11.5,0,98,1236],[12.55,0,98,1236],[12.95,236,0,1000],[13.7,236,0,1000],[14.4,0,0,1236],[17,0,0,1236]]
+};
+const camera=(clip,t)=>{const k=cameras[clip];let a=k[0],b=k[k.length-1];if(t<=a[0])return a;if(t>=b[0])return b;for(let i=1;i<k.length;i++)if(t<=k[i][0]){a=k[i-1];b=k[i];break;}const p=cubic(clamp((t-a[0])/(b[0]-a[0])));return [t,a[1]+(b[1]-a[1])*p,a[2]+(b[2]-a[2])*p,a[3]+(b[3]-a[3])*p];};
+const toScreen=(clip,t,x,y)=>{const [,cx,cy,cw]=camera(clip,t),s=VW/cw;return [(x-cx)*s,(y-cy)*s];};
+const clicks=[[.6,'frame',310,160],[2.15,'frame',722,240],[5.65,'range',988,184],[7.95,'range',1075,233],[13.05,'range',934,235]];
+const drags=[[6.35,7.15,'range',674,196,700],[11.9,12.5,'range',674,200,700]];
+const story=[
+ [0,'01','frame','Select any arm or leg control','The tool finds the whole limb from one controller.'],
+ [.6,'01','frame','Ready: R Arm  IK → FK','Frame scope matches the current pose only.'],
+ [2.15,'01','frame','Switch','Matches the pose and flips the IK/FK switch.'],
+ [3.35,'01','frame','Matched on the current frame','Same pose, now driven by FK.'],
+ [4.55,'02','range','Select the limb, then choose Range','Range and Timeline work across many frames.'],
+ [5.65,'02','range','Shift + drag on the timeline','Highlight the frames to convert: f45 – f83.'],
+ [7.45,'02','range','Ready: f45 – f83 · 3 keyed frames','Smart Bake converts only the frames you keyed.'],
+ [7.95,'02','range','Smart Bake','FK → IK on the keyed frames, no extra keys.'],
+ [10.95,'02','range','Smart baked 3 keyed frames','Clean IK curves over the whole range.'],
+ [11.35,'03','range','Shift + drag the same range','Switch matches every frame instead.'],
+ [13.05,'03','range','Switch','Matches each frame from f45 to f83.'],
+ [14.55,'03','range','Matched f45 – f83 · 39 frames','FK → IK on every frame of the range.'],
+ [15.75,'04','timeline','Timeline: the whole animation','Same steps, no range selection needed.'],
+ [16.85,'01','frame','Select any arm or leg control','The tool finds the whole limb from one controller.']
+];
+const cache=new Map();
+const frameUrl=(clip,src)=>`.ikfk-frames/${clips[clip].dir}/${String(Math.min(Math.round(src*FPS),clips[clip].frames-1)+1).padStart(4,'0')}.jpg`;
+const decode=(url,tries=3)=>{const img=new Image();img.src=url;return img.decode().then(()=>img,error=>tries>1?new Promise(r=>setTimeout(r,60)).then(()=>decode(url,tries-1)):Promise.reject(error));};
+const load=url=>{if(!cache.has(url)){cache.set(url,decode(url));while(cache.size>24)cache.delete(cache.keys().next().value);}return cache.get(url);};
+const place=(el,clip,t,src,opacity)=>{const url=frameUrl(clip,src),[,cx,cy,cw]=camera(clip,t),s=VW/cw;if(el.getAttribute('src')!==url)el.setAttribute('src',url);el.style.width=clips[clip].w+'px';el.style.height=clips[clip].h+'px';el.style.transform=`scale(${s}) translate(${-cx}px,${-cy}px)`;el.style.opacity=opacity;return load(url);};
+window.renderFrame=async(t,captionsOnly=false)=>{
+ t=((t%DURATION)+DURATION)%DURATION;
+ let i=segments.findIndex(s=>t<s.end);if(i<0)i=segments.length-1;const seg=segments[i],prev=segments[i-1];
+ const srcOf=(s,tt)=>s.hold?s.src:s.src+(tt-s.start);
+ const waits=[place($('a'),seg.clip,t,srcOf(seg,t),1)];
+ const k=prev?clamp((t-seg.start)/fade):1;
+ if(prev&&k<1)waits.push(place($('b'),prev.clip,t,srcOf(prev,Math.min(t,prev.end+fade)),1-smooth(k)));else $('b').style.opacity=0;
+ // Click ring
+ const c=clicks.find(([ct])=>t>=ct&&t<ct+.5);
+ if(c){const f=(t-c[0])/.5,[x,y]=toScreen(c[1],t,c[2],c[3]);$('ring').style.opacity=(1-f)*(1-f);$('ring').style.transform=`translate(${x-20}px,${y-20}px) scale(${.35+smooth(f)*.9})`;}else $('ring').style.opacity=0;
+ // Shift + drag hint and trail
+ const d=drags.find(([a,b])=>t>=a-.35&&t<b+.5);
+ if(d){const [a,b,clip,x0,x1,y]=d,p=clamp((t-a)/(b-a)),o=Math.min(clamp((t-a+.35)/.25),clamp((b+.5-t)/.3));const [sx0,sy]=toScreen(clip,t,x0,y),[sx1]=toScreen(clip,t,x0+(x1-x0)*smooth(p),y);
+  $('hint').style.opacity=o;$('hint').style.transform=`translate(${Math.max(8,Math.min(VW-210,sx1-100))}px,${Math.max(8,sy-64)}px)`;
+  $('trail').style.opacity=o*.9;$('trail').style.width=Math.abs(sx0-sx1)+'px';$('trail').style.transform=`translate(${Math.min(sx0,sx1)}px,${sy-2}px)`;$('trail').style.background=x1<x0?'linear-gradient(270deg,#5bd8ed00,#5bd8ed)':'';}
+ else{$('hint').style.opacity=0;$('trail').style.opacity=0;}
+ $('end').style.opacity=Math.min(clamp((t-15.95)/.3),clamp((16.85-t)/.3));
+ let s=story[0];for(const row of story)if(t>=row[0])s=row;
+ $('badge').textContent=s[1];$('headline').textContent=s[3];$('subline').textContent=s[4];
+ document.querySelectorAll('[data-mode]').forEach(el=>el.classList.toggle('on',el.dataset.mode===s[2]));
+ if(captionsOnly){waits.forEach(w=>w.catch(()=>{}));return;}
+ await Promise.all(waits);
+};
+window.DURATION=DURATION;
+</script></html>

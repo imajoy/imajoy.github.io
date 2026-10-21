@@ -6,7 +6,8 @@ for(const depth of document.querySelectorAll('[data-playblast-depth]')){
  figure.dataset.previewReady='true';
  let visible=false,failed=false,frame=0,generation=0,entered=false,entering=false;
  const resetTilt=()=>{cancelAnimationFrame(frame);frame=0;depth.style.removeProperty('--tilt-x-px');depth.style.removeProperty('--tilt-y-px');};
- const showStep=()=>{const t=video.currentTime,step=t<2.7?0:t<7.4?1:t<11.4?2:3;steps.forEach((el,i)=>i===step?el.setAttribute('aria-current','step'):el.removeAttribute('aria-current'));};
+ const marks=(figure.dataset.stepTimes||'2.7,7.4,11.4').split(',').map(Number);
+ const showStep=()=>{const t=video.currentTime,step=marks.filter(m=>t>=m).length%steps.length;steps.forEach((el,i)=>i===step?el.setAttribute('aria-current','step'):el.removeAttribute('aria-current'));};
  const sync=()=>{
   const active=visible&&!document.hidden&&!preference.matches;
   figure.dataset.previewActive=String(active);

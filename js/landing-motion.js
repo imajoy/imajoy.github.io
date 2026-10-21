@@ -6,7 +6,7 @@ const touchOnly=matchMedia('(hover: none) and (pointer: coarse)').matches;
 if(canvas&&touchOnly)canvas.setAttribute('data-scene-still','');
 else if(canvas){
  /* Preparing the 3D graphics briefly freezes the page, so it waits until the visitor first moves,
-    scrolls or types, or until 2.5s after the page has loaded, whichever comes first. */
+    scrolls or types, or until 5s after the page has loaded, whichever comes first. */
  let queued=false,ready=false,inView=!('IntersectionObserver'in window);
  const start=()=>import('./scene.bundle.js?v=20261021-lite1').catch(()=>canvas.setAttribute('data-scene-unavailable',''));
  const load=()=>{
@@ -15,9 +15,9 @@ else if(canvas){
   if('requestIdleCallback'in window)requestIdleCallback(start,{timeout:800});else setTimeout(start,0);
  };
  const go=()=>{ready=true;load();};
- const wake=['pointermove','pointerdown','keydown','wheel','scroll'];
+ const wake=['pointermove','pointerdown','keydown','wheel','touchstart']; /* real input only: browsers can fire scroll on their own */
  for(const type of wake)addEventListener(type,go,{capture:true,passive:true});
- const later=()=>setTimeout(go,2500);
+ const later=()=>setTimeout(go,5000);
  if(document.readyState==='complete')later();else addEventListener('load',later,{once:true});
  if(!inView){
   const observer=new IntersectionObserver(entries=>{

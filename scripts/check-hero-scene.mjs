@@ -22,6 +22,6 @@ try{
  const idle=await browser.newContext({viewport:{width:1350,height:900}}),ip=await idle.newPage();
  await idle.route('**/*',r=>new URL(r.request().url()).origin===base.origin?r.continue():r.abort());
  await ip.goto(new URL('wrapline.html',base).href,{waitUntil:'load'});
- await ip.waitForFunction(()=>performance.getEntriesByType('resource').some(e=>/scene\.bundle/.test(e.name)),null,{timeout:6000});await idle.close();
+ await ip.waitForFunction(()=>performance.getEntriesByType('resource').some(e=>/scene\.bundle/.test(e.name)),null,{timeout:9000});await idle.close();
 }finally{await browser.close();}
 console.log('Hero scene passed: touch still (no 3D download), mouse loads on first move, idle loads after the page settles.');

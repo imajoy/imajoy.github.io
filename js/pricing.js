@@ -1,4 +1,4 @@
-import {availability} from './regions.js?v=20261021-fast1';
+import {availability} from './regions.js?v=20261021-usd1';
 import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261020-prices1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261020-prices1';
@@ -39,7 +39,7 @@ async function render(){
    if(!buy.classList.contains('is-owned')){
     buy.textContent=!paymentOpen?'Review billing':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';
    }
-   if(!inIndia&&rzpOpen&&!paypalOpen)note.textContent=(trial?TRIAL_DAYS+'-day free trial, then billed ':'Billed ')+(billing==='yearly'?'annually':'monthly')+'. Pay by card via Razorpay, charged in INR.';
+   if(!inIndia&&rzpOpen&&!paypalOpen)note.textContent=(trial?TRIAL_DAYS+'-day free trial, then billed ':'Billed ')+(billing==='yearly'?'annually':'monthly')+'. Pay by card via Razorpay, charged in '+(razorpayConfig?.intlCurrency==='USD'?'USD':'INR')+'.';
    if(inIndia)note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Pay with UPI or card via Razorpay.':(indiaOpen?'Pay securely with Razorpay. ':'Indicative price. ')+'Billed '+(billing==='yearly'?'annually.':'monthly.');
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);

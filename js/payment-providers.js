@@ -1,7 +1,7 @@
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261020-trial1';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
-import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261021-fast1';
+import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261021-usd1';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ps1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
 import {secureCommerce,browserDeviceId} from './commerce-gateway.js?v=20261020-country1';
@@ -12,7 +12,7 @@ if(form&&paypal&&url){
  const panel=document.createElement('section');panel.className='razorpay-panel';panel.hidden=true;
  const review=document.createElement('section');review.className='billing-review';
  review.innerHTML='<h3>Review your billing details</h3><p data-billing-availability>Checking payment availability…</p><button type="button" class="btn btn-light btn-block" data-review-billing>Review billing details</button><p class="billing-review-status" role="status" aria-live="polite"></p>';
- panel.innerHTML='<div class="rzp-head"><span class="rzp-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></span><div><b>Secure INR checkout</b><small>Processed by Razorpay. Card and bank details never reach this site.</small></div><p class="razorpay-mode" hidden><i aria-hidden="true"></i>Test mode</p></div><fieldset class="rzp-offer" hidden><legend>How would you like to start?</legend><label><input type="radio" name="rzp-offer" value="trial"><span><b>Start 2-day free trial</b><small data-trial-terms>Nothing to pay today</small></span><em>Free</em></label><label><input type="radio" name="rzp-offer" value="standard"><span><b>Pay now</b><small>Your paid subscription starts today</small></span></label><p class="rzp-offer-note" role="status"></p></fieldset><div class="rzp-total"><small data-rzp-label>Recurring amount</small><p class="razorpay-amount" aria-live="polite"></p><p class="rzp-saving" hidden>Includes your 20% yearly saving</p><p class="rzp-check" hidden></p><p class="rzp-deal" hidden></p></div><details class="rzp-coupon"><summary>Have a coupon?</summary><div class="rzp-coupon-row"><input type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Enter code" aria-label="Coupon code"><button type="button" class="btn btn-light btn-sm" data-coupon-apply>Apply</button><button type="button" class="rzp-coupon-remove" data-coupon-remove hidden>Remove</button></div><p class="rzp-coupon-msg" role="status" aria-live="polite"></p></details><ul class="rzp-methods" aria-label="Payment methods offered by Razorpay"><li>UPI</li><li>Cards</li><li>Net banking</li></ul><p class="razorpay-status" role="status" aria-live="polite"></p><button type="button" class="btn btn-blue btn-block rzp-pay" data-razorpay-start>Continue with Razorpay</button><button type="button" class="btn btn-light btn-block" data-razorpay-check hidden>Check payment status</button><a class="text-link" data-razorpay-open hidden target="_blank" rel="noopener">Open secure Razorpay checkout</a><button type="button" class="razorpay-cancel" data-razorpay-cancel hidden>Cancel this checkout</button><ul class="rzp-assure"><li>Cancel renewal any time from your account</li><li>License key within 12 hours</li><li>Time starts when you activate</li></ul><details class="razorpay-terms"><summary>Billing terms</summary><p>Paid recurring subscription in INR. The 20% yearly saving is included. The 2-day trial, coupons and returning-subscriber offers are currently available through PayPal only. Monthly plans authorize up to 100 charges; yearly plans up to 10, then billing stops.</p></details>';
+ panel.innerHTML='<div class="rzp-head"><span class="rzp-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></span><div><b>Secure INR checkout</b><small>Processed by Razorpay. Card and bank details never reach this site.</small></div><p class="razorpay-mode" hidden><i aria-hidden="true"></i>Test mode</p></div><fieldset class="rzp-offer" hidden><legend>How would you like to start?</legend><label><input type="radio" name="rzp-offer" value="trial"><span><b>Start 2-day free trial</b><small data-trial-terms>Nothing to pay today</small></span><em>Free</em></label><label><input type="radio" name="rzp-offer" value="standard"><span><b>Pay now</b><small>Your paid subscription starts today</small></span></label><p class="rzp-offer-note" role="status"></p></fieldset><div class="rzp-total"><small data-rzp-label>Recurring amount</small><p class="razorpay-amount" aria-live="polite"></p><p class="rzp-saving" hidden>Includes your 20% yearly saving</p><p class="rzp-check" hidden></p><p class="rzp-deal" hidden></p></div><details class="rzp-coupon"><summary>Have a coupon?</summary><div class="rzp-coupon-row"><input type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Enter code" aria-label="Coupon code"><button type="button" class="btn btn-light btn-sm" data-coupon-apply>Apply</button><button type="button" class="rzp-coupon-remove" data-coupon-remove hidden>Remove</button></div><p class="rzp-coupon-msg" role="status" aria-live="polite"></p></details><ul class="rzp-methods" aria-label="Payment methods offered by Razorpay"><li>UPI</li><li>Cards</li><li>Net banking</li></ul><p class="razorpay-status" role="status" aria-live="polite"></p><button type="button" class="btn btn-blue btn-block rzp-pay" data-razorpay-start>Continue with Razorpay</button><button type="button" class="btn btn-light btn-block" data-razorpay-check hidden>Check payment status</button><a class="text-link" data-razorpay-open hidden target="_blank" rel="noopener">Open secure Razorpay checkout</a><button type="button" class="razorpay-cancel" data-razorpay-cancel hidden>Cancel this checkout</button><ul class="rzp-assure"><li>Cancel renewal any time from your account</li><li>License key within 12 hours</li><li>Time starts when you activate</li></ul><details class="razorpay-terms"><summary>Billing terms</summary><p>Paid recurring subscription, charged in rupees (INR) in India and in US dollars (USD) elsewhere. The 20% yearly saving is included. The 2-day trial, coupons and returning-subscriber offers are currently available through PayPal only. Monthly plans authorize up to 100 charges; yearly plans up to 10, then billing stops.</p></details>';
  paypal.before(picker);paypal.after(panel,review);
  const status=panel.querySelector('.razorpay-status'),start=panel.querySelector('[data-razorpay-start]'),check=panel.querySelector('[data-razorpay-check]'),link=panel.querySelector('[data-razorpay-open]'),cancelBtn=panel.querySelector('[data-razorpay-cancel]');
  const pageCoupon={input:document.querySelector('#coupon-code'),remove:document.querySelector('#coupon-remove'),status:document.querySelector('#coupon-status')};
@@ -23,8 +23,10 @@ if(form&&paypal&&url){
  let requestId=crypto.randomUUID();
  const choice=()=>({plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value});
  const key=()=>JSON.stringify(choice());
- const money=value=>displayMoney(value,'INR',choice().country);
- const showAmount=(id,value)=>setMoney(document.getElementById(id),value,'INR',choice().country);
+ /* Razorpay charges INR in India and USD elsewhere once the owner has created the USD plans (config.intlCurrency). */
+ const rzpCurrency=()=>quote?.currency||(choice().country!=='IN'&&config?.intlCurrency==='USD'?'USD':'INR');
+ const money=value=>displayMoney(value,rzpCurrency(),choice().country);
+ const showAmount=(id,value)=>setMoney(document.getElementById(id),value,rzpCurrency(),choice().country);
  const say=(text,kind='')=>{status.textContent=text;status.dataset.kind=kind;};
  /* Confirmed quotes are remembered for 10 minutes so the next step shows the price at once.
     Display only: checkout re-sends the expected total and the server refuses any changed price. */
@@ -108,8 +110,8 @@ if(form&&paypal&&url){
  review.querySelector('[data-review-billing]').onclick=reviewDetails;
  form.addEventListener('submit',event=>{if(provider==='review'){event.preventDefault();event.stopImmediatePropagation();reviewDetails();}},true);
  const offerBox=panel.querySelector('.rzp-offer'),offerNote=offerBox.querySelector('.rzp-offer-note');
- const rupees=p=>p%100===0?'\u20b9'+p/100:money(p);
- const checkText=()=>{const raw=config?.trialCheckPaise;if(!Number.isInteger(raw)||raw<0||raw>500)return 'Razorpay may take a refundable payment-method check. Review the exact amount in the Razorpay window before approving.';const p=raw;return p>0?'Razorpay takes a '+rupees(p)+' payment-method check now. We refund it automatically.':'Razorpay takes a \u20b95 payment-method check now and refunds it automatically.';};
+ const small=p=>(rzpCurrency()==='USD'?'$':'\u20b9')+(p%100===0?p/100:(p/100).toFixed(2));
+ const checkText=()=>{const usd=rzpCurrency()==='USD',raw=usd?config?.trialCheckCents:config?.trialCheckPaise;if(!Number.isInteger(raw)||raw<0||raw>500)return 'Razorpay may take a refundable payment-method check. Review the exact amount in the Razorpay window before approving.';return raw>0?'Razorpay takes a '+small(raw)+' payment-method check now. We refund it automatically.':'Razorpay takes a small payment-method check now and refunds it automatically.';};
  const trialAvailable=()=>!!config?.trial&&choice().plan==='online';
  const trialOn=()=>trialAvailable()&&offer==='trial'&&trialCheck.key===trialKey()&&trialCheck.state==='eligible';
  const trialKey=()=>(getAccountSession()?.email||'')+'|'+choice().country;
@@ -119,7 +121,8 @@ if(form&&paypal&&url){
   const k=trialKey();if(!trialAvailable()||!getAccountSession()||trialCheck.key===k&&trialCheck.state)return;
   trialCheck={key:k,state:'checking',message:''};paint();
   try{const memo='ajoy.rzptrial:'+k;let r=null;try{const v=JSON.parse(sessionStorage.getItem(memo)||'null');if(v&&Date.now()-v.at<600000)r=v.r;}catch{}
-   if(!r){r=await secureCommerce('eligibility',{country:choice().country});try{sessionStorage.setItem(memo,JSON.stringify({at:Date.now(),r:{eligible:r.eligible,message:r.message}}));}catch{}}if(trialCheck.key!==k)return;trialCheck={key:k,state:r.eligible?'eligible':'used',message:r.eligible?'':(r.message||'The free trial is not available for this account.')};if(r.eligible){if(!offerTouched&&!coupon)offer='trial';if(offer==='trial'){paint();refresh();return;}}}
+   // Only a "yes" is remembered: a "no" (for example a checkout still in progress) is always re-checked.
+   if(!r){r=await secureCommerce('eligibility',{country:choice().country});if(r.eligible)try{sessionStorage.setItem(memo,JSON.stringify({at:Date.now(),r:{eligible:true}}));}catch{}else try{sessionStorage.removeItem(memo);}catch{}}if(trialCheck.key!==k)return;trialCheck={key:k,state:r.eligible?'eligible':r.reason==='trial_used'?'used':'blocked',message:r.eligible?'':(r.message||'The free trial is not available for this account.')};if(r.eligible){if(!offerTouched&&!coupon)offer='trial';if(offer==='trial'){paint();refresh();return;}}}
   catch(error){if(trialCheck.key===k)trialCheck={key:k,state:'error',message:error.message||'Trial eligibility could not be checked. You can still pay now.'};}
   paint();
  }
@@ -158,7 +161,9 @@ if(form&&paypal&&url){
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{offerTouched=true;offer=radio.value;clubNote=offer==='trial'&&coupon?'The free trial can\u2019t be combined with a coupon, so '+coupon+' is not applied. Choose Pay now to use your coupon instead.':'';if(offer==='trial'&&coupon)couponNote('Coupons apply to paid subscriptions, not the free trial. Choose "Pay now" to use '+coupon+'.');refresh();});
  function paint(){
   if(provider!=='razorpay')return;
-  const methods=panel.querySelector('.rzp-methods'),local=choice().country==='IN',pick=picker.querySelector('[data-rzp-pick]');if(pick)pick.textContent=local?'Pay in INR · UPI, cards or net banking':'Pay in INR · international cards';
+  const methods=panel.querySelector('.rzp-methods'),local=choice().country==='IN',pick=picker.querySelector('[data-rzp-pick]');const cur=rzpCurrency();if(pick)pick.textContent=local?'Pay in INR · UPI, cards or net banking':'Pay in '+cur+' · international cards';
+  const badge=picker.querySelector('.pick-rzp');if(badge)badge.textContent=cur;
+  const headline=panel.querySelector('.rzp-head b');if(headline)headline.textContent='Secure '+cur+' checkout';
   const want=local?'UPI,Cards,Net banking':'International cards';
   if(methods&&methods.dataset.set!==want){methods.dataset.set=want;methods.replaceChildren(...want.split(',').map(t=>Object.assign(document.createElement('li'),{textContent:t})));}
   const showOffer=trialAvailable()&&!!getAccountSession();offerBox.hidden=!showOffer;
@@ -166,7 +171,7 @@ if(form&&paypal&&url){
    const trialRadio=offerBox.querySelector('[value=trial]');trialRadio.disabled=trialCheck.state!=='eligible';
    const shown=offer==='trial'&&trialCheck.state==='eligible'?'trial':'standard';
    for(const radio of offerBox.querySelectorAll('input'))radio.checked=radio.value===shown;
-   offerBox.querySelector('[data-trial-terms]').textContent=trialCheck.state==='checking'?'Checking if your account can start a trial…':trialCheck.state==='eligible'?'₹0 today · first payment on '+dateIn(config.trialDays||2)+' · cancel any time before':trialCheck.state?'Not available for this account':'Checking…';
+   offerBox.querySelector('[data-trial-terms]').textContent=trialCheck.state==='checking'?'Checking if your account can start a trial…':trialCheck.state==='eligible'?money(0)+' today · first payment on '+dateIn(config.trialDays||2)+' · cancel any time before':trialCheck.state==='used'?'Already used on this account':trialCheck.state?'Could not be checked right now':'Checking…';
    offerNote.textContent=clubNote||trialCheck.message;offerNote.hidden=!(clubNote||trialCheck.message);offerNote.dataset.kind=clubNote?'club':'';
    if(!trialCheck.state||trialCheck.key!==trialKey())setTimeout(checkTrial,0);
   }
@@ -177,7 +182,7 @@ if(form&&paypal&&url){
   if(!ownsPending){check.hidden=true;link.hidden=true;}
   cancelBtn.hidden=check.hidden||busy;
   if(!session)start.disabled=false;
-  const shownQuote=quote||(provider==='razorpay'&&Number.isInteger(choice().seats)&&choice().seats>0&&/^[A-Z]{2}$/.test(choice().country)?razorpayEstimate(choice().plan,choice().billing,choice().seats,choice().country):null);
+  const shownQuote=quote||(provider==='razorpay'&&Number.isInteger(choice().seats)&&choice().seats>0&&/^[A-Z]{2}$/.test(choice().country)?razorpayEstimate(choice().plan,choice().billing,choice().seats,choice().country,rzpCurrency()):null);
   const amount=shownQuote?money(shownQuote.total):'—';showAmount('summary-total',shownQuote?(trialing?0:shownQuote.total):null);loyaltyNote(deal);
   const summary=document.querySelector('.order-total');summary?.classList.toggle('is-trial',trialing);
   let line=document.querySelector('#trial-line');
@@ -193,7 +198,7 @@ if(form&&paypal&&url){
   const savings=(shownQuote.compareAtUnitAmount-shownQuote.unitAmount)*shownQuote.seats;
   document.querySelector('#annual-summary-row').hidden=shownQuote.billing!=='yearly';showAmount('summary-annual',-savings);
   const annual=document.querySelector('#annual-summary');annual.hidden=shownQuote.billing!=='yearly';annual.textContent='20% off yearly · '+money(shownQuote.unitAmount/12)+' per license/month, billed annually.';
-  document.querySelector('#quote-note').textContent='Razorpay charges INR. Converted local-currency amounts and the USD equivalent are estimates. Review the confirmed recurring amount before authorizing.';
+  document.querySelector('#quote-note').textContent='Razorpay charges '+rzpCurrency()+'. Converted local-currency amounts are estimates. Review the confirmed recurring amount before authorizing.';
   document.querySelector('#availability').textContent='Review your billing details, then authorize securely with Razorpay.';
  }
  async function api(operation,body={}){

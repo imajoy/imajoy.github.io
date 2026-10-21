@@ -19,7 +19,7 @@ export function service({registered=true,mailFails=false}={}){
  const lock={tryLock:()=>{if(locked)return false;locked=true;return true;},waitLock:()=>{if(locked)throw Error('Nested lock');locked=true;},releaseLock:()=>locked=false};
  const blob=value=>({getBytes:()=>[...Buffer.from(value)],getDataAsString:()=>Buffer.from(value).toString()});
  const result=(body,status=200)=>({getResponseCode:()=>status,getContentText:()=>body===null?'':JSON.stringify(body)});
- const ctx=createContext({console,PropertiesService:{getScriptProperties:()=>({getProperty:k=>values.get(k)||null,setProperty:(k,v)=>values.set(k,v)})},
+ const ctx=createContext({console,PropertiesService:{getScriptProperties:()=>({getProperty:k=>values.get(k)||null,setProperty:(k,v)=>values.set(k,v),deleteProperty:k=>values.delete(k)})},
   Utilities:{getUuid:randomUUID,DigestAlgorithm:{SHA_1:'sha1'},computeDigest:(algorithm,bytes)=>[...createHash(algorithm).update(Buffer.from(bytes)).digest()],base64Decode:text=>[...Buffer.from(text,'base64')],base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:bytes=>Buffer.from(bytes).toString('base64url'),base64DecodeWebSafe:text=>[...Buffer.from(text,'base64url')],newBlob:blob,computeHmacSha256Signature:(text,key)=>[...createHmac('sha256',key).update(text).digest()]},
   LockService:{getScriptLock:()=>lock},CacheService:{getScriptCache:()=>({get:k=>cache.get(k)||null,put:(k,v)=>cache.set(k,v),remove:k=>cache.delete(k)})},
   SpreadsheetApp:{WrapStrategy:{CLIP:'CLIP'},getActiveSpreadsheet:()=>({getSheetByName:name=>sheets.get(name)||null,insertSheet:name=>table(name,[])})},
@@ -28,6 +28,7 @@ export function service({registered=true,mailFails=false}={}){
    requests.push({url,options});
    if(url.startsWith('https://api.razorpay.com/v1/')){
     const u=new URL(url),path=u.pathname.replace('/v1',''),body=options.payload?JSON.parse(options.payload):null;
+    if(path==='/plans'&&options.method==='post'&&razorpay.refuseCurrency&&body.item.currency===razorpay.refuseCurrency)return result({error:{description:'Currency not enabled'}},400);
     if(path==='/plans'&&options.method==='post'){const id='plan_test'+(razorpay.plans.size+1),plan={...body,id};razorpay.plans.set(id,plan);return result(plan,201);}
     if(path.startsWith('/plans/'))return result(razorpay.plans.get(path.split('/').pop())||{},razorpay.plans.has(path.split('/').pop())?200:404);
     if(path==='/subscriptions'&&options.method==='post'){

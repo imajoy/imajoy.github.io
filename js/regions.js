@@ -55,7 +55,11 @@ export function regionalPrice(plan, billing, seats, country) {
 /* Instant Razorpay (INR, paise) price shown while the server confirms the real quote. Must match
    razorpayPrice_ in Razorpay.gs (a test checks this). Checkout always charges the server's confirmed amount. */
 const RAZORPAY_MONTHLY_PAISE = { IN: 91698, low: 91698, mid: 142698, high: 203898 };
-export function razorpayEstimate(plan, billing, seats, country) {
+export function razorpayEstimate(plan, billing, seats, country, currency = 'INR') {
+  if (currency === 'USD') {
+    const t = USD[tierFor(country)][plan], m = Math.round(t.monthly * 100), unit = billing === 'yearly' ? Math.round(t.yearly * 100) : m;
+    return { currency: 'USD', unitAmount: unit, monthlyAmount: m, compareAtUnitAmount: billing === 'yearly' ? m * 12 : m, total: unit * seats, recurringTotal: unit * seats, plan, billing, seats, estimate: true };
+  }
   const monthly = (country === 'IN' ? RAZORPAY_MONTHLY_PAISE.IN : RAZORPAY_MONTHLY_PAISE[tierFor(country)]) * (plan === 'offline' ? 2 : 1);
   const unit = billing === 'yearly' ? Math.round(monthly * 12 * 0.8) : monthly;
   return { currency: 'INR', unitAmount: unit, monthlyAmount: monthly, compareAtUnitAmount: billing === 'yearly' ? monthly * 12 : monthly, total: unit * seats, recurringTotal: unit * seats, plan, billing, seats, estimate: true };

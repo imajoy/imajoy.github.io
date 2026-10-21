@@ -233,7 +233,7 @@ test('RAZORPAY_ALLOWED_COUNTRIES=ALL opens Razorpay internationally except close
  const s=setup();s.app.values.set('RAZORPAY_ALLOWED_COUNTRIES','ALL');
  const config=s.rpc('config');assert.deepEqual(config.countries,['*']);assert(config.closedCountries.includes('GB'));assert(!config.closedCountries.includes('IN'));
  for(const c of ['IN','US','PK','BR'])assert.equal(s.rpc('quote',s.selection({country:c,billingCountry:c})).ok,true,c+' is open');
- assert.equal(s.rpc('quote',s.selection({country:'PK',billingCountry:'PK'})).pricing.currency,'INR');
+ assert.equal(s.rpc('quote',s.selection({country:'PK',billingCountry:'PK'})).pricing.currency,'USD','outside India Razorpay charges US dollars');assert.equal(s.rpc('quote',s.selection()).pricing.currency,'INR','India stays in rupees');
  for(const c of ['GB','DE','RU','IR'])assert.equal(s.rpc('quote',s.selection({country:c,billingCountry:c})).error,'region',c+' stays closed');
  s.app.values.set('RAZORPAY_ALLOWED_COUNTRIES','IN');assert.deepEqual(s.rpc('config').countries,['IN']);assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).error,'region');
 });
@@ -269,4 +269,47 @@ test('Trial payment-method check: ₹1 upfront, refunded automatically once the 
  s.app.values.set('RAZORPAY_TRIAL_CHECK_PAISE','0');assert.equal(s.rpc('config').trialCheckPaise,0);
  const other=s.app.register('zero@example.com'),c2=s.rpc('checkout',s.selection({accountToken:other.token,offer:'trial',deviceHash:'c'.repeat(64),ipHash:'d'.repeat(64)}));
  assert.equal(s.app.razorpay.subscriptions.get(c2.subscriptionId).addons,undefined,'Razorpay default refundable ₹5 check');
+});
+
+test('Dollar plans: buyers outside India pay USD at PayPal prices; India stays INR; the payment is recorded in USD',()=>{
+ const s=setup();s.app.values.set('RAZORPAY_ALLOWED_COUNTRIES','ALL');
+ const config=s.rpc('config');assert.equal(config.intlCurrency,'USD');
+ const us=s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).pricing;
+ assert.equal(us.currency,'USD');assert.equal(us.unitAmount,Math.round(s.app.ctx.PRICES.high.online.monthly*100));
+ const created=s.rpc('checkout',s.selection({country:'US',billingCountry:'US',expectedTotal:us.total}));assert.equal(created.ok,true,created.message);
+ const sub=s.app.razorpay.subscriptions.get(created.subscriptionId);assert.equal(s.app.razorpay.plans.get(sub.plan_id).item.currency,'USD');
+ sub.status='active';
+ s.app.razorpay.invoices.set('inv_usd',{id:'inv_usd',subscription_id:sub.id,payment_id:'pay_usd',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'USD',amount_paid:us.total});
+ s.app.razorpay.payments.set('pay_usd',{id:'pay_usd',invoice_id:'inv_usd',status:'captured',captured:true,currency:'USD',amount:us.total,amount_refunded:0});
+ assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true);
+ const row=s.app.sheets.get('Payments').rows.slice(1).find(r=>r[12]==='pay_usd');assert.equal(row[8],'USD');assert.equal(row[7],us.total/100);
+});
+test('Switching to dollar plans never removes working plans: a refused currency keeps INR, a later run completes the switch',()=>{
+ const s=setup();s.app.values.set('RAZORPAY_ALLOWED_COUNTRIES','ALL');
+ // Simulate an account set up before dollar plans existed.
+ s.app.values.set('RAZORPAY_INTL_CURRENCY','INR');s.app.values.delete('RAZORPAY_PLANS_test');s.app.ctx.setupRazorpayPlans();
+ assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).pricing.currency,'INR');
+ s.app.values.delete('RAZORPAY_INTL_CURRENCY');s.app.razorpay.refuseCurrency='USD';
+ assert.throws(()=>s.app.ctx.setupRazorpayPlans(),/international payments/);
+ assert.equal(s.rpc('config').enabled,true,'checkout still works');assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).pricing.currency,'INR');
+ s.app.razorpay.refuseCurrency='';s.app.ctx.setupRazorpayPlans();
+ assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).pricing.currency,'USD');assert.equal(s.rpc('quote',s.selection()).pricing.currency,'INR');
+ assert.equal(s.app.values.has('RAZORPAY_PLANS_STAGED_test'),false);
+});
+test('The instant USD price shown on the payment page matches the server for every region',async()=>{
+ const {razorpayEstimate}=await import('../js/regions.js');const s=setup();
+ for(const country of ['US','BR','LK'])for(const plan of ['online','offline'])for(const billing of ['monthly','yearly']){
+  const server=s.app.ctx.razorpayPrice_(plan,billing,country,'USD'),local=razorpayEstimate(plan,billing,2,country,'USD');
+  assert.equal(local.unitAmount,server.unitAmount,country+' '+plan+' '+billing);assert.equal(local.compareAtUnitAmount,server.compareAtUnitAmount);
+ }
+});
+test('A cancelled, failed or still-open trial checkout never blocks the same buyer; it still blocks someone else on that browser',()=>{
+ const s=setup(),sig={deviceHash:'7'.repeat(64),ipHash:'8'.repeat(64)};
+ const first=s.rpc('checkout',s.selection({offer:'trial',...sig}));assert.equal(first.ok,true,first.message);
+ assert.equal(s.app.rpc('eligibility',{accountToken:s.token,...sig,country:'IN'}).eligible,true,'own open checkout does not block');
+ s.rpc('cancel',{accountToken:s.token,checkoutId:first.checkoutId});
+ assert.equal(s.app.rpc('eligibility',{accountToken:s.token,...sig,country:'IN'}).eligible,true,'after cancelling, the trial is still available');
+ assert.equal(s.rpc('checkout',s.selection({offer:'trial',...sig})).ok,true);
+ const other=s.app.register('someone@example.com');
+ assert.equal(s.app.rpc('eligibility',{accountToken:other.token,...sig,country:'IN'}).reason,'trial_reserved','another account on the same browser waits');
 });

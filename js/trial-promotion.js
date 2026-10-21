@@ -1,7 +1,7 @@
 /* Clear, contextual offers. Promotions never authorize a trial or change a paid selection. */
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261020-prices1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
-import {availability,closedMessage} from './regions.js?v=20261021-fast1';
+import {availability,closedMessage} from './regions.js?v=20261021-usd1';
 import {getAccountSession,onAccountChange} from './account-session.js?v=20261020-ps1';
 import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261018-p1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
@@ -13,7 +13,7 @@ const alreadyOnline=()=>getAccountSession()?.subscriptions?.some(s=>s.plan==='on
 function render(){
   const subscribed=alreadyOnline(),inIndia=country==='IN',known=/^[A-Z]{2}$/.test(country);
   const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
-  // Razorpay (INR) offers the same 2-day trial where it is the payment option.
+  // Razorpay offers the same 2-day trial where it is the payment option.
   const region=known?availability(country,config?.closedCountries||[]):null;
   // Where PayPal is not offered (India, or no PayPal support), the trial runs through Razorpay.
   const rzpTrial=known&&!!razorpayConfig?.trial&&razorpayAvailable(razorpayConfig,country)&&(inIndia||!region?.open||!trialPlanId(config,'online','monthly',country));

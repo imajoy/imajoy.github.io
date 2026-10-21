@@ -66,10 +66,10 @@ try{
     assert.equal(await page.locator('[data-razorpay-start]').textContent(),'Start 2-day free trial');
     const check=await page.locator('.rzp-check').textContent();
     if(legacy){assert.match(check,/Review the exact amount/);assert(!check.includes('₹1'));assert(!check.includes('We refund'));}
-    else assert.match(check,/₹1 payment-method check/);
+    else assert.match(check,country==='IN'?/₹1 payment-method check/:/\$1 payment-method check/);
     await page.screenshot({path:'/tmp/payment-trial-'+width+'.png',fullPage:true});
     // The rest of this run checks the paid path; the trial path is covered by the server tests.
-    await page.locator('.rzp-offer [value=standard]').check();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed')&&/916|2,038/.test(document.querySelector('#summary-total').textContent));
+    await page.locator('.rzp-offer [value=standard]').check();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed')&&/916|22\.44/.test(document.querySelector('#summary-total').textContent));
    }
    assert.equal(await page.locator('.paypal-box').isVisible(),false);
    assert.equal(await page.locator('#customer-verification').isVisible(),false);
@@ -88,7 +88,7 @@ try{
     await page.locator('.razorpay-panel [data-coupon-remove]').click();await page.waitForFunction(()=>/916\.98/.test(document.querySelector('#summary-total').textContent)&&document.querySelector('.razorpay-status').textContent.includes('Price confirmed'));
     assert.equal(await page.locator('.rzp-offer-note').isVisible(),false,'notice clears with the coupon');
    }
-   assert.match(await page.locator('#summary-total').textContent(),country==='IN'?/916\.98/:/2,038\.98/);
+   assert.match(await page.locator('#summary-total').textContent(),country==='IN'?/916\.98/:/22\.44/);
    await page.getByRole('link',{name:'Edit billing details',exact:true}).first().click();await page.waitForURL('**/checkout.html');
    await page.locator('#customer-verification').waitFor({state:'visible'});
    await page.waitForFunction(()=>/reward/.test(document.querySelector('#loyalty-status').textContent));
@@ -96,7 +96,7 @@ try{
    await page.selectOption('#billing','yearly');
    await page.waitForFunction(()=>document.documentElement.dataset.billingBlocked==='false');
    await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');
-   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('8,803.01')||document.querySelector('#summary-total').textContent.includes('19,574.21'));
+   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('8,803.01')||document.querySelector('#summary-total').textContent.includes('215.22'));
    assert.equal(await page.locator('#annual-summary-row').isVisible(),true);
    if(country==='IN'){
     await page.locator('.razorpay-panel').screenshot({path:'/tmp/razorpay-checkout-'+width+'.png'});

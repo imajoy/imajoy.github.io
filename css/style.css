@@ -4,10 +4,10 @@
   --bg:#E9EDF3;
   --bg2:#F5F7FB;
   --ink:#0E1220;
-  --mute:#5B6376;
+  --mute:#586072;
   --line:#D3D9E4;
   --blue:#3D8BFF;
-  --blue-d:#2A64E8;
+  --blue-d:#265BD4;
   --navy:#0B1126;
   --coral:#FF7A5C;
   --card:#fff;--card2:#fff;--pill:rgba(255,255,255,.88);--pillbd:rgba(255,255,255,.9);
@@ -142,7 +142,7 @@ em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.0
 .steps li::before{content:"";position:absolute;left:5px;top:9px;width:12px;height:12px;background:var(--blue);transform:rotate(45deg);border-radius:2px}
 .steps li::after{content:"";position:absolute;left:10.5px;top:26px;bottom:-1px;width:1px;background:var(--line)}
 .steps li:last-child::after{display:none}
-.steps h4{font-size:18px;letter-spacing:-.02em;line-height:1.35;margin-bottom:2px}
+.steps :is(h3,h4){font-size:18px;letter-spacing:-.02em;line-height:1.35;margin-bottom:2px}
 .steps p{color:var(--mute);font-size:16px}
 .dl .fine{margin-top:14px}
 
@@ -355,9 +355,9 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .steps li.done::after{background:var(--blue)}
 .steps li.active::before{transform:rotate(45deg) scale(1.35);animation:ping 1.8s ease-out infinite}
 @keyframes ping{0%{box-shadow:0 0 0 0 rgba(61,139,255,.55)}100%{box-shadow:0 0 0 12px rgba(61,139,255,0)}}
-.steps h4{font-size:21px;color:var(--mute);margin:0;transition:color .3s,transform .35s var(--out)}
-.steps li.active h4,.steps li.done h4{color:var(--ink)}
-.steps li:hover h4{transform:translateX(5px)}
+.steps :is(h3,h4){font-size:21px;color:var(--mute);margin:0;transition:color .3s,transform .35s var(--out)}
+.steps li.active :is(h3,h4),.steps li.done :is(h3,h4){color:var(--ink)}
+.steps li:hover :is(h3,h4){transform:translateX(5px)}
 .steps .n{display:inline-block;width:1.7em;font:600 .62em var(--sans);letter-spacing:.04em;color:var(--blue-d);vertical-align:.18em}
 
 .dropfile{position:absolute;z-index:5;left:50%;top:14px;display:flex;align-items:center;gap:12px;padding:12px 18px 12px 12px;border-radius:16px;background:var(--card2);box-shadow:var(--shadow);font-size:14px;font-weight:600;color:var(--ink);opacity:0;transform:translate(-50%,-70px) scale(.9);transition:transform .9s var(--out),opacity .5s}
@@ -389,7 +389,7 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .confetti.go i{animation:pop 1.3s var(--out) forwards}
 @keyframes pop{0%{opacity:1;transform:translate(0,0) rotate(0)}100%{opacity:0;transform:translate(var(--x),var(--y)) rotate(var(--r))}}
 
-@media(max-width:980px){.pillbar .nav{margin-right:0}.steps h4{font-size:19px}}
+@media(max-width:980px){.pillbar .nav{margin-right:0}.steps :is(h3,h4){font-size:19px}}
 @media(max-width:520px){.theme{width:38px;height:38px}.pillbar{gap:10px;padding-left:14px}.dropfile{display:none}}
 
 @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.js .reveal{opacity:1;transform:none}.js .w>span{transform:none}.progress{display:none}.float-chip{opacity:1;transform:none}}

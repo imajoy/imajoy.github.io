@@ -29,6 +29,7 @@
 /* Reserve the regional note's space so country detection cannot move the trial terms. */
 .home-page .availability-context{display:grid;align-items:start;min-height:70px;margin-top:18px;font-size:.75rem}
 .home-page .availability-context>*{grid-area:1 / 1;margin:0}
+.home-page #stage[data-scene-still]{background:url('../assets/scene-still.webp?v=20261021-lite1') center bottom / contain no-repeat}
 .home-page #stage[data-scene-unavailable]{background:url('../assets/logo-mark.svg') center / 72px 72px no-repeat}
 @media(max-width:680px){.home-page .hero-secondary{min-width:0;width:100%}}
 @media(prefers-reduced-motion:reduce){.home-page .tile.reveal:hover{transform:none;transition:none!important}}

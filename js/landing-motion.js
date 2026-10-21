@@ -1,21 +1,30 @@
-/* The static hero content paints before the optional 3D illustration is loaded. */
+/* The static hero content paints before the optional 3D illustration is loaded.
+   Touch screens get a still render of the same scene: the 3D only moves with a mouse,
+   so phones would download and build it just to draw one frame. */
 const canvas=document.querySelector('.home-page #stage');
-if(canvas){
- let queued=false;
+const touchOnly=matchMedia('(hover: none) and (pointer: coarse)').matches;
+if(canvas&&touchOnly)canvas.setAttribute('data-scene-still','');
+else if(canvas){
+ /* Preparing the 3D graphics briefly freezes the page, so it waits until the visitor first moves,
+    scrolls or types, or until 2.5s after the page has loaded, whichever comes first. */
+ let queued=false,ready=false,inView=!('IntersectionObserver'in window);
+ const start=()=>import('./scene.bundle.js?v=20261021-lite1').catch(()=>canvas.setAttribute('data-scene-unavailable',''));
  const load=()=>{
-  if(queued)return;queued=true;
-  requestAnimationFrame(()=>requestAnimationFrame(()=>{
-   const start=()=>import('./scene.js?v=20261019-s1').catch(()=>canvas.setAttribute('data-scene-unavailable',''));
-   if('requestIdleCallback'in window)requestIdleCallback(start,{timeout:1500});
-   else setTimeout(start,0);
-  }));
+  if(queued||!ready||!inView)return;queued=true;
+  for(const type of wake)removeEventListener(type,go,true);
+  if('requestIdleCallback'in window)requestIdleCallback(start,{timeout:800});else setTimeout(start,0);
  };
- if('IntersectionObserver'in window){
+ const go=()=>{ready=true;load();};
+ const wake=['pointermove','pointerdown','keydown','wheel','scroll'];
+ for(const type of wake)addEventListener(type,go,{capture:true,passive:true});
+ const later=()=>setTimeout(go,2500);
+ if(document.readyState==='complete')later();else addEventListener('load',later,{once:true});
+ if(!inView){
   const observer=new IntersectionObserver(entries=>{
-   if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();load();}
+   if(entries.some(entry=>entry.isIntersecting)){observer.disconnect();inView=true;load();}
   },{rootMargin:'100px'});
   observer.observe(canvas);
- }else load();
+ }
 }
 
 // Float only while the promotion is visible and the browser tab is active.

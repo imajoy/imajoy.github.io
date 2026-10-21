@@ -1,9 +1,11 @@
-import * as THREE from './vendor/three.module.min.js';
+import * as THREE from './vendor/three.module.min.js'; /* bundled into scene.bundle.js by scripts/build-scene.mjs */
 /* Hero stage: a clay animator character, floating tool tiles, soft light.
    The character's arm is solved with two-bone IK, so it really reaches
    for the Ajoy tile that follows your cursor. */
-(function () {
+(async function () {
   'use strict';
+  /* Setup runs in short steps so the page stays responsive while the scene is built. */
+  var pause = function () { return new Promise(function (r) { setTimeout(r, 0); }); };
   var canvas = document.getElementById('stage');
   if (!canvas) return;
   var preference = window.matchMedia('(prefers-reduced-motion: reduce)');
@@ -35,6 +37,7 @@ import * as THREE from './vendor/three.module.min.js';
   sun.shadow.bias = -0.0004;
   scene.add(sun);
   var fill = new THREE.PointLight(0x9fc0ff, 0.5 * Math.PI, 40, 1); fill.position.set(-7, 4, 6); scene.add(fill);
+  await pause();
 
   function mat(c, r, m) { return new THREE.MeshStandardMaterial({ color: c, roughness: r == null ? 0.55 : r, metalness: m || 0.04 }); }
   function shadowed(o) { o.traverse(function (n) { if (n.isMesh) { n.castShadow = true; n.receiveShadow = true; } }); return o; }
@@ -124,6 +127,7 @@ import * as THREE from './vendor/three.module.min.js';
   }
   var armR = arm(1), armL = arm(-1);
   shadowed(hero);
+  await pause();
 
   /* two-bone IK in the shoulder's parent frame */
   var UP = new THREE.Vector3(0, -1, 0);
@@ -197,10 +201,12 @@ import * as THREE from './vendor/three.module.min.js';
     var t = new THREE.CanvasTexture(c); t.anisotropy = 4; return t;
   }
 
-  var tiles = [], lines = [];
+  var tiles = [], lines = [], tileShape = null;
   function makeTile(o) {
     var g = new THREE.Group();
-    var body = roundedBox(o.s, o.s, 0.22, o.s * 0.26, mat(o.body, 0.32, 0.02));
+    /* Every tile shares one bevelled shape, scaled to size (building nine was the slowest part of setup). */
+    if (!tileShape) tileShape = roundedBox(1, 1, 0.22, 0.26).geometry;
+    var body = new THREE.Mesh(tileShape, mat(o.body, 0.32, 0.02)); body.scale.set(o.s, o.s, 1);
     g.add(body);
     var face = new THREE.Mesh(new THREE.PlaneGeometry(o.s * 0.66, o.s * 0.66),
       new THREE.MeshBasicMaterial({ map: glyph(o.glyph, o.ink), transparent: true }));
@@ -222,7 +228,9 @@ import * as THREE from './vendor/three.module.min.js';
     { s: 0.8, x: -4.6, y: 4.9, z: -2.0, body: 0x232b45, ink: '#ffffff', glyph: 'keys', ph: 2.0 },
     { s: 0.8, x: 5.8, y: 3.3, z: -1.8, body: 0xffffff, ink: '#48d1c9', glyph: 'revert', ph: 1.7 }
   ];
-  defs.forEach(function (d) {
+  for (var di = 0; di < defs.length; di++) {
+    var d = defs[di];
+    if (di % 3 === 2) await pause();
     var t = makeTile(d);
     tiles.push(t);
     var geo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
@@ -231,7 +239,8 @@ import * as THREE from './vendor/three.module.min.js';
     var dot = new THREE.Mesh(new THREE.SphereGeometry(0.055, 12, 10), new THREE.MeshBasicMaterial({ color: 0x3d8bff }));
     scene.add(dot);
     lines.push({ ln: ln, dot: dot, tile: t });
-  });
+  }
+  await pause();
 
   /* ---------- input + layout ---------- */
   var px = 0, py = 0, spx = 0, spy = 0, visible = true, narrow = false;
@@ -354,7 +363,10 @@ import * as THREE from './vendor/three.module.min.js';
       }
     }
   }
-  update(0.016); renderer.render(scene, camera);
+  update(0.016);
+  /* Prepare shaders in the background where supported, so the first frame does not freeze the page. */
+  if (renderer.compileAsync) { try { await renderer.compileAsync(scene, camera); } catch (e) {} }
+  renderer.render(scene, camera);
   if (!interactionOnly) scheduleFrame();
   preference.addEventListener('change', function () { reduce = preference.matches; if (!reduce && !interactionOnly) scheduleFrame(); });
   document.addEventListener('visibilitychange', function () { if (!document.hidden && !interactionOnly) scheduleFrame(); });

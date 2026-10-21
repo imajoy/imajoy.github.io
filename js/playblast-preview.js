@@ -3,6 +3,7 @@
 for(const depth of document.querySelectorAll('[data-playblast-depth]')){
  const video=depth.querySelector('[data-playblast-video]'),preference=matchMedia('(prefers-reduced-motion: reduce)'),pointer=matchMedia('(hover: hover) and (pointer: fine)');
  const figure=depth.closest('figure'),steps=[...figure.querySelectorAll('.playblast-screen-steps li')];
+ figure.dataset.previewReady='true';
  let visible=false,failed=false,frame=0,generation=0,entered=false,entering=false;
  const resetTilt=()=>{cancelAnimationFrame(frame);frame=0;depth.style.removeProperty('--tilt-x-px');depth.style.removeProperty('--tilt-y-px');};
  const showStep=()=>{const t=video.currentTime,step=t<2.7?0:t<7.4?1:t<11.4?2:3;steps.forEach((el,i)=>i===step?el.setAttribute('aria-current','step'):el.removeAttribute('aria-current'));};
@@ -11,8 +12,8 @@ for(const depth of document.querySelectorAll('[data-playblast-depth]')){
   figure.dataset.previewActive=String(active);
   if(active&&!entered){entered=true;figure.dataset.previewEntered='true';entering=getComputedStyle(depth.querySelector('.playblast-arrival')).animationName==='playblast-unfold';}
   if(preference.matches){entering=false;delete figure.dataset.previewEntered;}
-  // Fetch during the brief entrance, but start playback after it settles.
-  if(active&&!failed&&!video.getAttribute('src')){video.muted=true;video.preload='auto';video.src=video.dataset.webm&&video.canPlayType('video/webm; codecs="vp9"')?video.dataset.webm:video.dataset.src;}
+  // Load the video only after the entrance settles, so the fade never competes with the download.
+  if(active&&!failed&&!entering&&!video.getAttribute('src')){video.muted=true;video.preload='auto';video.src=video.dataset.webm&&video.canPlayType('video/webm; codecs="vp9"')?video.dataset.webm:video.dataset.src;}
   const play=active&&!failed&&!entering,token=++generation;
   if(!play){video.pause();depth.dataset.playing='false';resetTilt();return;}
   video.play().then(()=>{if(token===generation&&visible&&!document.hidden&&!preference.matches&&!failed){depth.dataset.playing='true';showStep();}else if(token===generation){video.pause();}}).catch(()=>{if(token===generation)depth.dataset.playing='false';});

@@ -4,14 +4,21 @@
 .playblast-depth{position:relative;padding:22px 18px 32px}
 .playblast-depth::after{content:"";position:absolute;inset:auto 12% 6px;height:18px;border-radius:50%;background:#194fa02b;filter:blur(12px);z-index:-1}
 .playblast-arrival{transform-origin:50% 65%}
-.playblast-screens[data-preview-entered] .playblast-arrival{animation:playblast-unfold .6s cubic-bezier(.22,1,.36,1) backwards}
+.playblast-screens[data-preview-entered] .playblast-arrival{animation:playblast-unfold .6s cubic-bezier(.22,1,.36,1) backwards;will-change:transform,opacity}
 .playblast-screens[data-preview-entered] .visual-heading{animation:playblast-heading-in .25s ease-out backwards}
 .playblast-screens[data-preview-entered] .playblast-screen-steps li{animation:playblast-step-in .28s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:.06s}
 .playblast-screens[data-preview-entered] .playblast-screen-steps li:nth-child(2){animation-delay:.10s}
 .playblast-screens[data-preview-entered] .playblast-screen-steps li:nth-child(3){animation-delay:.14s}
 .playblast-screens[data-preview-entered] .playblast-screen-steps li:nth-child(4){animation-delay:.18s}
 .playblast-screens[data-preview-active="false"] :is(.playblast-arrival,.visual-heading,.playblast-screen-steps li){animation-play-state:paused}
-@keyframes playblast-unfold{from{opacity:0;transform:translate3d(0,14px,0) scale(.985)}to{opacity:1;transform:none}}
+@keyframes playblast-unfold{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:translate3d(0,0,0)}}
+/* Hidden from the very first paint (no flash, then fade); a failsafe shows it if the script never runs. */
+@media(prefers-reduced-motion:no-preference){
+ html.js .playblast-screens:not([data-preview-entered]) :is(.playblast-arrival,.visual-heading,.playblast-screen-steps li){opacity:0;animation:playblast-failsafe 0s 3s forwards}
+ html.js .playblast-screens:not([data-preview-entered]) .playblast-arrival{will-change:transform,opacity;transform:translate3d(0,12px,0)}
+ html.js .playblast-screens[data-preview-ready]:not([data-preview-entered]) :is(.playblast-arrival,.visual-heading,.playblast-screen-steps li){animation:none}
+}
+@keyframes playblast-failsafe{to{opacity:1}}
 @keyframes playblast-heading-in{from{opacity:0;transform:translateX(-6px)}to{opacity:1;transform:none}}
 @keyframes playblast-step-in{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 .playblast-float{position:relative}

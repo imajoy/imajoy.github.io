@@ -24,7 +24,7 @@ try{
  await source.evaluate(()=>renderFrame(13.3));assert.equal(await source.locator('#success').isVisible(),false);assert.match(await source.locator('#headline').textContent(),/Preview saved/);await source.close();
  for(const [width,reduced,fail,dark] of [[1280,false,false,false],[768,false,false,false],[390,false,false,true],[320,false,false,false],[320,true,false,false],[390,false,true,false]]){
   const context=await browser.newContext({viewport:{width,height:1000},reducedMotion:reduced?'reduce':'no-preference'}),page=await context.newPage(),errors=[];let mediaRequests=0;
-  await context.addInitScript(()=>{window.previewVideoStarts=[];document.addEventListener('playing',event=>{if(event.target.matches('[data-playblast-video]'))window.previewVideoStarts.push(document.querySelector('.playblast-arrival').getAnimations().some(animation=>animation.playState==='running'));},true);window.previewEntrances=[];document.addEventListener('animationstart',event=>{if(event.animationName.startsWith('playblast-')&&event.animationName!=='playblast-hover')window.previewEntrances.push(event.animationName);});});
+  await context.addInitScript(()=>{window.previewVideoStarts=[];document.addEventListener('playing',event=>{if(event.target.matches('[data-playblast-video]'))window.previewVideoStarts.push(document.querySelector('.playblast-arrival').getAnimations().some(animation=>animation.playState==='running'));},true);window.previewEntrances=[];window.previewPreEntryOpacity=[];const watch=()=>{const f=document.querySelector('.playblast-screens');if(f&&!f.dataset.previewEntered)window.previewPreEntryOpacity.push(getComputedStyle(f.querySelector('.playblast-arrival')).opacity);if(!f||!f.dataset.previewEntered)requestAnimationFrame(watch);};requestAnimationFrame(watch);document.addEventListener('animationstart',event=>{if(event.animationName.startsWith('playblast-')&&event.animationName!=='playblast-hover')window.previewEntrances.push(event.animationName);});});
   if(width===1280){const client=await context.newCDPSession(page);await client.send('Emulation.setCPUThrottlingRate',{rate:4});}
   if(dark)await context.addInitScript(()=>localStorage.setItem('ajoy-theme','dark'));
   page.on('pageerror',e=>errors.push(e.message));
@@ -36,6 +36,7 @@ try{
   if(!reduced){
    await page.waitForFunction(()=>window.previewEntrances.filter(name=>name==='playblast-step-in').length===4);
    assert.equal(await page.locator('.playblast-screens').getAttribute('data-preview-entered'),'true');
+   assert(await page.evaluate(()=>window.previewPreEntryOpacity.length>0&&window.previewPreEntryOpacity.every(o=>o==='0')),'no visible flash before the entrance fade');
    assert.equal(await page.evaluate(()=>window.previewEntrances.filter(name=>name==='playblast-unfold').length),1,'one 3D entrance per page load');
    assert.deepEqual(await page.locator('.playblast-screen-steps li').evaluateAll(elements=>elements.map(el=>getComputedStyle(el).animationDelay)),['0.06s','0.1s','0.14s','0.18s']);
    await page.waitForFunction(()=>document.querySelector('.playblast-arrival').getAnimations().every(animation=>animation.playState==='finished'));

@@ -23,7 +23,8 @@ try{
  await source.evaluate(()=>renderFrame(13.3));assert.equal(await source.locator('#success').isVisible(),false);assert.match(await source.locator('#headline').textContent(),/Preview saved/);await source.close();
  for(const [width,reduced,fail,dark] of [[1280,false,false,false],[768,false,false,false],[390,false,false,true],[320,false,false,false],[320,true,false,false],[390,false,true,false]]){
   const context=await browser.newContext({viewport:{width,height:1000},reducedMotion:reduced?'reduce':'no-preference'}),page=await context.newPage(),errors=[];let mediaRequests=0;
-  await context.addInitScript(()=>{window.previewEntrances=[];document.addEventListener('animationstart',event=>{if(event.animationName.startsWith('playblast-')&&event.animationName!=='playblast-hover')window.previewEntrances.push(event.animationName);});});
+  await context.addInitScript(()=>{window.previewVideoStarts=[];document.addEventListener('playing',event=>{if(event.target.matches('[data-playblast-video]'))window.previewVideoStarts.push(document.querySelector('.playblast-arrival').getAnimations().some(animation=>animation.playState==='running'));},true);window.previewEntrances=[];document.addEventListener('animationstart',event=>{if(event.animationName.startsWith('playblast-')&&event.animationName!=='playblast-hover')window.previewEntrances.push(event.animationName);});});
+  if(width===1280){const client=await context.newCDPSession(page);await client.send('Emulation.setCPUThrottlingRate',{rate:4});}
   if(dark)await context.addInitScript(()=>localStorage.setItem('ajoy-theme','dark'));
   page.on('pageerror',e=>errors.push(e.message));
   await context.route('**/*',route=>{const url=route.request().url();if(new URL(url).origin!==base.origin)return route.abort();if(url.includes('playblast-loop.mp4')){mediaRequests++;if(fail)return route.fulfill({status:404,body:''});}return route.continue();});
@@ -35,7 +36,7 @@ try{
    await page.waitForFunction(()=>window.previewEntrances.filter(name=>name==='playblast-step-in').length===4);
    assert.equal(await page.locator('.playblast-screens').getAttribute('data-preview-entered'),'true');
    assert.equal(await page.evaluate(()=>window.previewEntrances.filter(name=>name==='playblast-unfold').length),1,'one 3D entrance per page load');
-   assert.deepEqual(await page.locator('.playblast-screen-steps li').evaluateAll(elements=>elements.map(el=>getComputedStyle(el).animationDelay)),['0.25s','0.34s','0.43s','0.52s']);
+   assert.deepEqual(await page.locator('.playblast-screen-steps li').evaluateAll(elements=>elements.map(el=>getComputedStyle(el).animationDelay)),['0.06s','0.1s','0.14s','0.18s']);
    await page.waitForFunction(()=>document.querySelector('.playblast-arrival').getAnimations().every(animation=>animation.playState==='finished'));
   }else{assert.equal(await page.locator('.playblast-screens').getAttribute('data-preview-entered'),null);assert.deepEqual(await page.evaluate(()=>window.previewEntrances),[]);}
   assert.equal(await page.locator('.diagram-playblast').count(),0);assert.equal(await page.locator('.playblast-screen-steps li').count(),4);
@@ -48,9 +49,10 @@ try{
   const matrix=await page.locator('.playblast-device').evaluate(el=>getComputedStyle(el).transform);assert.match(matrix,/matrix3d/,'actual perspective transform');
   if(reduced){assert.equal(mediaRequests,0);assert.equal(await video.getAttribute('src'),null);assert.equal(await page.locator('.playblast-float').evaluate(el=>getComputedStyle(el).animationName),'none');}
   if(!reduced&&!fail){
+   assert(await page.evaluate(()=>window.previewVideoStarts.length>0&&window.previewVideoStarts.every(running=>!running)),'walkthrough begins after entrance settles');
    assert.equal(await video.evaluate(el=>getComputedStyle(el).opacity),'1','video fully covers the poster without double images');
    if(width===1280){await depth.hover({position:{x:30,y:30}});await page.waitForTimeout(200);assert.notEqual(await depth.evaluate(el=>el.style.getPropertyValue('--tilt-x')),'');}
-   if(width===1280){await page.waitForFunction(()=>document.querySelector('video').currentTime>=7.3);assert.equal(await page.locator('.playblast-screen-steps li[aria-current="step"]').textContent(),'03Export');}
+   if(width===1280){await page.waitForFunction(()=>document.querySelector('.playblast-screen-steps li[aria-current="step"]')?.textContent==='03Export');assert(await video.evaluate(el=>el.currentTime>=7.2&&el.currentTime<11.25));}
    await page.evaluate(()=>scrollTo(0,document.body.scrollHeight));await page.waitForFunction(()=>document.querySelector('[data-playblast-video]').paused);assert.equal(await depth.getAttribute('data-playing'),'false');
    await depth.scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('[data-playblast-depth]').dataset.playing==='true');assert(Math.abs((await depth.boundingBox()).height-bounds.height)<1,'stable layout');
   }

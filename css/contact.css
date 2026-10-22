@@ -9,7 +9,7 @@
 .contact-assurance{box-shadow:none}.contact-form .contact-field:focus-within>label{color:var(--blue-d)}
 .contact-attachment{margin:24px 0}.attachment-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}.attachment-heading h3{font-size:.875rem;line-height:1.4}.attachment-heading>span{font-size:.625rem;letter-spacing:.04em;color:var(--mute);background:var(--bg);padding:4px 8px;border-radius:999px}.contact-attachment>p{font-size:.6875rem;color:var(--mute);line-height:1.7}
 .contact-form .attachment-picker{position:relative;display:flex;align-items:center;gap:16px;min-height:112px;margin:12px 0 0;padding:22px;border:1px dashed var(--line);border-radius:20px;background:var(--bg);cursor:pointer;transition:border-color 200ms,background-color 200ms,box-shadow 200ms}.contact-form .attachment-picker input[type=file]{position:absolute;inset:0;width:100%;height:100%;min-height:0;padding:0;margin:0;opacity:0;cursor:pointer}.attachment-picker:focus-within,.attachment-picker[data-dragging]{outline:2px solid var(--blue);outline-offset:3px;border-color:var(--blue);background:#3d8bff0b;box-shadow:0 0 0 6px #3d8bff09}.attachment-upload-icon{display:grid;place-items:center;width:43px;height:43px;flex:none;border:1px solid #3d8bff22;border-radius:14px;background:#3d8bff0d;color:var(--blue-d)}.attachment-upload-icon svg{width:23px;height:23px}.attachment-picker b{display:block;font-size:.8125rem;font-weight:600}.attachment-picker small{display:block;font-size:.6875rem;font-weight:400;color:var(--mute);line-height:1.6;margin-top:5px}
-.attachment-preview{position:relative;display:grid;grid-template-columns:72px minmax(0,1fr) 32px;align-items:center;gap:12px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:18px;background:var(--bg)}.attachment-preview[hidden],.attachment-transfer[hidden]{display:none}.attachment-media{display:grid;place-items:center;min-width:0;width:72px;height:64px;overflow:hidden;border-radius:11px;background:var(--card);font-size:.625rem;font-weight:600;color:var(--blue-d)}.attachment-media :is(img,video){width:100%;height:100%;object-fit:cover}.attachment-media video{object-fit:contain}.attachment-file-info{min-width:0}.attachment-file-info b{display:block;overflow-wrap:anywhere;font-size:.75rem;line-height:1.5}.attachment-file-info span{display:block;font-size:.625rem;color:var(--mute);margin-top:4px;line-height:1.6}.attachment-preview button{width:32px;height:32px;background:var(--card);border:1px solid var(--line);border-radius:50%;color:var(--ink);font:22px var(--sans);cursor:pointer}.attachment-status{min-height:1.7em;margin-top:7px;font-size:.6875rem}.attachment-status[data-error=true]{color:#b13344}.attachment-status[data-error=true]::before{content:'! ';font-weight:700}.attachment-transfer{margin-top:10px}.attachment-transfer progress{display:block;width:100%;height:5px;accent-color:var(--blue)}.attachment-transfer span{display:block;font-size:.6875rem;color:var(--mute);margin-top:7px}.contact-form[aria-busy=true] .attachment-picker{opacity:.6;cursor:wait}.contact-form[aria-busy=true] .btn::before{animation:contact-send-pulse 1.4s ease-in-out infinite;opacity:1}
+.attachment-preview{position:relative;display:grid;grid-template-columns:72px minmax(0,1fr) 32px;align-items:center;gap:12px;margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:18px;background:var(--bg)}.attachment-preview[hidden],.attachment-transfer[hidden]{display:none}.attachment-media{display:grid;place-items:center;min-width:0;width:72px;height:64px;overflow:hidden;border-radius:11px;background:var(--card);font-size:.625rem;font-weight:600;color:var(--blue-d)}.attachment-media :is(img,video){width:100%;height:100%;object-fit:cover}.attachment-media video{object-fit:contain}.attachment-file-info{min-width:0}.attachment-file-info b{display:block;overflow-wrap:anywhere;font-size:.75rem;line-height:1.5}.attachment-file-info span{display:block;font-size:.625rem;color:var(--mute);margin-top:4px;line-height:1.6}.attachment-preview button{width:32px;height:32px;background:var(--card);border:1px solid var(--line);border-radius:50%;color:var(--ink);font:22px var(--sans);cursor:pointer}.attachment-status{min-height:1.7em;margin-top:7px;font-size:.6875rem}.attachment-status[data-error=true]{color:#b13344}.attachment-status[data-error=true]::before{content:'! ';font-weight:700}.attachment-transfer{margin-top:10px}.attachment-transfer progress{display:block;width:100%;height:5px;accent-color:var(--blue)}.attachment-transfer span{display:block;font-size:.6875rem;color:var(--mute);margin-top:7px}.contact-form[aria-busy=true] .attachment-picker{opacity:.6;cursor:wait}
 @media(prefers-reduced-motion:no-preference){
  .contact-art[data-motion-active] .art-paper{animation:contact-paper-float 7s ease-in-out infinite}.contact-art[data-motion-active] .art-plane{animation:contact-plane-float 5s ease-in-out infinite}.contact-art[data-motion-active] .art-spark{animation:contact-spark 4s ease-in-out infinite}.contact-art[data-typing][data-motion-active] .art-pencil{animation:contact-pencil-write 700ms ease-in-out infinite}.contact-art[data-typing] .art-written{animation:contact-ink-write 1.5s ease-in-out infinite alternate}.contact-art[data-state=sending][data-motion-active] .art-plane{animation:contact-plane-send 2s ease-in-out infinite}.contact-art[data-state=sent][data-motion-active] .art-plane{animation:contact-plane-arrive 700ms ease-out both}.attachment-preview:not([hidden]){animation:contact-file-arrive 280ms cubic-bezier(.16,1,.3,1) backwards}.attachment-picker[data-dragging] .attachment-upload-icon{animation:contact-upload-bob 800ms ease-in-out infinite}
 }
@@ -23,3 +23,88 @@
 @media(prefers-reduced-motion:no-preference){.contact-form[data-typing] .typing-dots i{animation:contact-typing-dot 850ms ease-in-out infinite}.contact-form[data-typing] .typing-dots i:nth-child(2){animation-delay:140ms}.contact-form[data-typing] .typing-dots i:nth-child(3){animation-delay:280ms}}
 @keyframes contact-typing-dot{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-2px)}}
 @media(prefers-reduced-motion:reduce){.typing-dots{visibility:hidden}}
+
+/* ---------- Send button: sending, sent and error states ---------- */
+.contact-send{--send-ease:cubic-bezier(.22,1,.36,1);transition:background-color .45s var(--send-ease),color .45s,box-shadow .45s,transform .3s var(--send-ease)}
+.contact-send .send-label{display:inline-block}
+.contact-send .send-label.is-new{animation:send-label-in .42s var(--send-ease) both}
+.contact-send .send-icon{position:relative;display:inline-grid;place-items:center;width:20px;height:20px;flex:none}
+.contact-send .send-icon>*{grid-area:1/1}
+.contact-send .send-icon svg{width:17px;height:17px;transition:opacity .25s,transform .35s var(--send-ease)}
+.contact-send .send-check{opacity:0;transform:scale(.6)}
+.contact-send .send-check path{stroke-dasharray:22;stroke-dashoffset:22}
+.contact-send .send-dots{display:inline-flex;gap:3px;opacity:0;transition:opacity .2s}
+.contact-send .send-dots i{width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.35}
+.contact-send .send-bar{position:absolute;left:0;right:0;bottom:0;height:3px;overflow:hidden;opacity:0;transition:opacity .3s}
+.contact-send .send-bar::before{content:"";position:absolute;inset:0 auto 0 -40%;width:40%;border-radius:3px;background:linear-gradient(90deg,transparent,#7fb4ff,#5bd8ed,transparent)}
+.contact-send .send-ripple{position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0}
+/* Sending: the arrow takes off, dots tick, a light runs along the edge */
+.contact-send[data-state=sending]{cursor:progress;transform:none}
+.contact-send[data-state=sending] .send-plane{animation:send-launch .7s cubic-bezier(.55,0,.75,.2) forwards}
+.contact-send[data-state=sending] .send-dots{opacity:1;transition-delay:.45s}
+.contact-send[data-state=sending] .send-dots i{animation:send-dot 1.1s ease-in-out infinite}
+.contact-send[data-state=sending] .send-dots i:nth-child(2){animation-delay:.15s}
+.contact-send[data-state=sending] .send-dots i:nth-child(3){animation-delay:.3s}
+.contact-send[data-state=sending] .send-bar{opacity:1}
+.contact-send[data-state=sending] .send-bar::before{animation:send-bar 1.25s ease-in-out infinite}
+.contact-send[data-state=sending]::after{animation:send-sheen 1.6s ease-in-out infinite}
+/* Sent: turns green, the tick draws itself, a soft ring spreads out */
+.contact-send[data-state=sent]{background:#1b7958;color:#fff;box-shadow:0 12px 30px rgba(27,121,88,.32);animation:send-pop .5s var(--send-ease)}
+.contact-send[data-state=sent] .send-plane{opacity:0;transform:translate(10px,-10px) scale(.5)}
+.contact-send[data-state=sent] .send-check{opacity:1;transform:none}
+.contact-send[data-state=sent] .send-check path{animation:send-draw .45s .12s var(--send-ease) forwards}
+.contact-send[data-state=sent] .send-ripple{animation:send-ripple .9s var(--send-ease)}
+/* Error: a gentle shake, then ready to retry */
+.contact-send[data-state=error]{animation:send-shake .45s ease}
+html[data-theme=dark] .contact-send[data-state=sent]{background:#2fb583;color:#06231a}
+@keyframes send-label-in{from{opacity:0;transform:translateY(9px);filter:blur(2px)}to{opacity:1;transform:none;filter:none}}
+@keyframes send-launch{0%{transform:none;opacity:1}25%{transform:translate(-3px,3px)}100%{transform:translate(30px,-30px) scale(.7);opacity:0}}
+@keyframes send-dot{0%,100%{opacity:.3;transform:translateY(0)}40%{opacity:1;transform:translateY(-3px)}}
+@keyframes send-bar{from{left:-40%}to{left:100%}}
+@keyframes send-sheen{from{transform:translateX(-120%) skewX(-18deg)}to{transform:translateX(520%) skewX(-18deg)}}
+@keyframes send-pop{0%{transform:scale(.98)}55%{transform:scale(1.025)}100%{transform:none}}
+@keyframes send-draw{to{stroke-dashoffset:0}}
+@keyframes send-ripple{from{opacity:.55;box-shadow:0 0 0 0 rgba(47,181,131,.55)}to{opacity:0;box-shadow:0 0 0 18px rgba(47,181,131,0)}}
+@keyframes send-shake{0%,100%{transform:none}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+
+/* ---------- Receipt card after a message is sent ---------- */
+.contact-status:has(.contact-receipt){min-height:0}
+.contact-receipt{position:relative;display:grid;grid-template-columns:48px minmax(0,1fr);gap:16px;align-items:start;margin-top:4px;padding:18px 20px;border:1px solid #bfe6d4;border-radius:20px;background:linear-gradient(135deg,#effaf5,#f7fcfa);box-shadow:0 14px 34px -18px rgba(27,121,88,.45);animation:receipt-in .6s cubic-bezier(.22,1,.36,1) both;overflow:hidden}
+.receipt-badge{position:relative;display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:#1b7958;color:#fff;animation:receipt-badge .55s .12s cubic-bezier(.34,1.56,.64,1) both}
+.receipt-badge svg{width:24px;height:24px}
+.receipt-badge path{stroke-dasharray:22;stroke-dashoffset:22;animation:send-draw .45s .45s cubic-bezier(.22,1,.36,1) forwards}
+.receipt-badge::after{content:"";position:absolute;inset:-6px;border-radius:50%;border:2px solid #2fb583;opacity:0;animation:receipt-ring .9s .35s ease-out}
+.receipt-spark{position:absolute;left:24px;top:24px;width:5px;height:5px;margin:-2.5px;border-radius:50%;background:var(--c,#2fb583);opacity:0;animation:receipt-spark .8s .4s cubic-bezier(.22,1,.36,1) forwards}
+.contact-receipt b{display:block;font-size:1rem;color:#124d39;margin:2px 0 4px;animation:receipt-line .5s .25s cubic-bezier(.22,1,.36,1) both}
+.contact-receipt p{margin:0;font-size:.8125rem;line-height:1.7;color:#2c4c41;animation:receipt-line .5s .33s cubic-bezier(.22,1,.36,1) both}
+.contact-receipt p+p{animation-delay:.41s;margin-top:8px}
+.receipt-ref{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.receipt-ref code{padding:4px 9px;border-radius:8px;background:#fff;border:1px solid #cfe9dd;font:600 .6875rem/1.4 ui-monospace,SFMono-Regular,Menlo,monospace;color:#124d39;overflow-wrap:anywhere}
+.receipt-copy{border:1px solid #9fd5bf;background:#fff;color:#1b7958;border-radius:999px;padding:4px 12px;font:600 .6875rem/1.4 var(--sans);cursor:pointer;transition:background .2s,transform .2s}
+.receipt-copy:hover{background:#e3f5ec;transform:translateY(-1px)}
+.receipt-copy[data-copied]{background:#1b7958;color:#fff;border-color:#1b7958}
+.contact-receipt.is-leaving{animation:receipt-out .35s ease forwards}
+html[data-theme=dark] .contact-receipt{border-color:#25523f;background:linear-gradient(135deg,#0f2a21,#10241f);box-shadow:none}
+html[data-theme=dark] .contact-receipt b{color:#bff0da}html[data-theme=dark] .contact-receipt p{color:#9fcdb9}
+html[data-theme=dark] .receipt-badge{background:#2fb583;color:#06231a}
+html[data-theme=dark] .receipt-ref code{background:#0a1d17;border-color:#25523f;color:#bff0da}
+html[data-theme=dark] .receipt-copy{background:#0a1d17;border-color:#2c6b52;color:#7fe0b5}
+@keyframes receipt-in{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@keyframes receipt-out{to{opacity:0;transform:translateY(-6px) scale(.98)}}
+@keyframes receipt-badge{from{transform:scale(0) rotate(-30deg)}to{transform:none}}
+@keyframes receipt-ring{0%{opacity:.8;transform:scale(.8)}100%{opacity:0;transform:scale(1.5)}}
+@keyframes receipt-spark{0%{opacity:1;transform:none}100%{opacity:0;transform:rotate(var(--a)) translateX(34px) scale(.4)}}
+@keyframes receipt-line{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){
+ .contact-send,.contact-send *,.contact-send::after,.contact-receipt,.contact-receipt *,.contact-receipt *::after{animation:none!important;transition:none!important}
+ .contact-send[data-state=sent] .send-check path,.receipt-badge path{stroke-dashoffset:0}
+ .contact-send[data-state=sending] .send-plane{opacity:0}
+ .receipt-spark{display:none}
+}
+
+/* Status notes: quiet while sending, a clear card when something needs attention */
+.contact-form[aria-busy=true] .contact-status{color:var(--mute);animation:receipt-line .4s ease both}
+.contact-status[data-error=true]:not(:empty){position:relative;padding:14px 18px 14px 50px;border:1px solid #f1c7c2;border-radius:18px;background:#fff6f5;color:#8a2d23;animation:receipt-in .5s cubic-bezier(.22,1,.36,1) both}
+.contact-status[data-error=true]:not(:empty)::before{content:'!';position:absolute;left:16px;top:14px;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:#c2412f;color:#fff;font:700 .75rem/1 var(--sans)}
+html[data-theme=dark] .contact-status[data-error=true]:not(:empty){border-color:#5a2a25;background:#2a1311;color:#ffc2b8}
+@media(prefers-reduced-motion:reduce){.contact-status{animation:none!important}}

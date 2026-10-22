@@ -70,6 +70,7 @@
   ]
 }
 </script>
+<link rel="stylesheet" href="css/reviews.css?v=20261022-rv1">
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 </head>
@@ -114,6 +115,7 @@
         <a class="crumb" href="wrapline.html#tools"><svg class="ico" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg>All 13 tools</a>
         <p class="cat-pill">Scene</p>
         <h1 class="intro"><span class="ln"><span>Hotkey Manager</span></span></h1>
+        <a class="tool-rating" href="#reviews" data-rating-badge hidden></a>
         <p class="lead intro-fade">Inspect custom Maya commands and their assigned keys, back them up or share them, and preview an imported hotkey setup before applying it.</p>
         <p class="tool-trial-invite"><span>2-DAY FREE TRIAL</span> This tool + the full Online toolkit.</p>
         <div class="actions intro-fade">
@@ -146,6 +148,33 @@
     </div>
   </section>
 
+  <section class="block tool-reviews" id="reviews" aria-labelledby="reviews-heading" data-reviews data-tool="hotkey-manager" data-tool-name="Hotkey Manager">
+    <div class="wrap">
+      <div class="rv-head"><p class="eyebrow">REVIEWS</p><h2 id="reviews-heading">What artists say about <em>Hotkey Manager</em>.</h2><p>Ratings and reviews are public. Anyone with a Wrapline account can rate this tool.</p></div>
+      <div class="rv-layout">
+        <aside class="rv-summary" aria-label="Rating summary">
+          <div class="rv-score" aria-live="polite"><span class="rv-skeleton"></span><span class="rv-skeleton short"></span></div>
+          <div class="rv-bars"></div>
+          <button type="button" class="btn btn-dark rv-write"><span class="send-label">Write a review</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16v4ZM13.5 6.5l4 4"/></svg></button>
+          <p class="rv-note">One review per account. You can edit or remove it any time.</p>
+        </aside>
+        <div class="rv-main">
+          <form class="rv-form" data-rating="0" novalidate hidden aria-label="Your review of Hotkey Manager">
+            <fieldset class="rv-star-field"><legend>Your rating <span class="required-star" aria-hidden="true">*</span></legend><div class="rv-star-row"><div class="rv-star-input"><label class="rv-star" data-value="1"><input type="radio" name="rating" value="1" required aria-label="1 star"><span></span></label><label class="rv-star" data-value="2"><input type="radio" name="rating" value="2" required aria-label="2 stars"><span></span></label><label class="rv-star" data-value="3"><input type="radio" name="rating" value="3" required aria-label="3 stars"><span></span></label><label class="rv-star" data-value="4"><input type="radio" name="rating" value="4" required aria-label="4 stars"><span></span></label><label class="rv-star" data-value="5"><input type="radio" name="rating" value="5" required aria-label="5 stars"><span></span></label></div><span class="rv-rating-text" aria-live="polite">Choose a rating</span></div></fieldset>
+            <label for="rv-name">Name shown with your review <span class="required-star" aria-hidden="true">*</span></label><input type="text" id="rv-name" name="name" minlength="2" maxlength="40" required autocomplete="nickname" placeholder="e.g. Riya K, Lead animator">
+            <label for="rv-text">Your review <span class="required-star" aria-hidden="true">*</span></label><textarea id="rv-text" name="text" minlength="10" maxlength="1500" required placeholder="What did it help you do? Anything you would improve?"></textarea><span class="rv-count" aria-hidden="true">0 / 1500</span>
+            <div class="rv-actions"><button class="btn btn-dark rv-submit" type="submit" data-state="idle"><span class="send-label">Post review</span><span class="send-icon" aria-hidden="true"><span class="send-star"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9Z"/></svg></span><svg class="send-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.3 4.3L19 7"/></svg><span class="send-dots"><i></i><i></i><i></i></span></span></button><button type="button" class="rv-cancel">Cancel</button><button type="button" class="rv-remove" hidden>Remove my review</button></div>
+            <p class="rv-status" role="status" aria-live="polite"></p>
+            <p class="rv-privacy">Your name, stars and review are public. Your email stays private.</p>
+          </form>
+          <div class="rv-list"></div>
+          <button type="button" class="rv-more" hidden>Show more reviews</button>
+        </div>
+      </div>
+      <noscript><p class="rv-note">Turn on JavaScript to read and write reviews.</p></noscript>
+    </div>
+  </section>
+
   <section class="block tool-more">
     <div class="wrap">
       <div class="pn reveal"><a class="rel" href="tool-layer-prefix-remover.html"><span class="ic cat-scene"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg></span><span>Layer Prefix Remover</span></a><a class="rel" href="tool-revert-to-last-saved.html"><span class="ic cat-scene"><svg viewBox="0 0 24 24"><use href="#i-revert"/></svg></span><span>Revert to Last Saved</span></a></div>
@@ -166,5 +195,6 @@
 </footer>
 <script src="js/main.js?v=20261019-i1"></script>
 <script type="module" src="js/extras.js?v=20261019-m1"></script>
-<script type="module" src="js/ui-motion.js?v=20261020-field-check1"></script><script src="js/site-config.js?v=20261020-rz1"></script><script type="module" src="js/account.js?v=20261020-ps2"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/trial-promotion.js?v=20261021-usd1"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script></body>
+<script type="module" src="js/ui-motion.js?v=20261020-field-check1"></script><script src="js/site-config.js?v=20261020-rz1"></script><script type="module" src="js/account.js?v=20261020-ps2"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/trial-promotion.js?v=20261021-usd1"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script type="module" src="js/reviews.js?v=20261022-rv1"></script>
+</body>
 </html>

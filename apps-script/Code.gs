@@ -31,6 +31,7 @@ function doPost(e) {
     if (data.type === 'commerce') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleCommerceEnvelope_(data))); }
     if (data.type === 'order') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify({ r: 'secure_checkout_required' })); }
     if (data.type === 'trial') return out.setContent('secure_checkout_required');
+    if (data.type === 'reviews') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleReviews_(data))); }
     if (data.type === 'account') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleAccount_(data))); }
     return out.setContent(saveLead_(String(data.email || '')));
   } catch (err) {

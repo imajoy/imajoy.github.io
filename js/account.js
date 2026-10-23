@@ -234,6 +234,9 @@ function init() {
   document.addEventListener('click',event=>{const a=event.target.closest('.is-owned');if(a&&/Your plan|View account|Free trial/.test(a.textContent)){event.preventDefault();open();}});
   refresh();
   let autoOpen=false;try{autoOpen=sessionStorage.getItem('ajoy.acct.open')==='1';sessionStorage.removeItem('ajoy.acct.open');email=sessionStorage.getItem('ajoy.acct.email')||'';sessionStorage.removeItem('ajoy.acct.email');}catch{}
+  // Links from the Wrapline Setup window in Maya: imajoy.github.io/#register opens Register / Login at once;
+  // #register=you@site.com also fills in the email. The address after # never reaches any server.
+  try{const m=/^#register(?:=(.*))?$/.exec(location.hash);if(m){const wanted=decodeURIComponent(m[1]||'').trim().toLowerCase();if(wanted.length<=120&&/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(wanted))email=wanted;autoOpen=true;history.replaceState(null,'',location.pathname+location.search);}}catch{}
   if(autoOpen)open();
   status();
 }

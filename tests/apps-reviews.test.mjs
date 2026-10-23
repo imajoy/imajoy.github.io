@@ -36,7 +36,7 @@ test('hidden reviews leave the page but the author still sees and keeps them hid
 });
 test('rejects bad input, unknown tools, formulas and floods',()=>{
  const s=service(),token=s.ctx.makeSession_('artist@example.com'),tool='rivet';
- for(const bad of [{rating:0},{rating:6},{rating:4.5},{text:'short'},{text:'x'.repeat(1501)},{name:'A'},{name:'Visit https://spam.example'}])
+ for(const bad of [{rating:0},{rating:6},{rating:4.5},{text:'x'.repeat(1501)},{name:''},{name:'   '},{name:'Visit https://spam.example'}])
   assert.equal(call(s,{tool,op:'save',...good,...bad,accountToken:token}).error,'invalid');
  assert.equal(call(s,{tool:'../Orders',op:'list'}).error,'invalid');
  call(s,{tool,op:'save',...good,text:'=HYPERLINK("http://x","click me please")',accountToken:token});
@@ -44,4 +44,27 @@ test('rejects bad input, unknown tools, formulas and floods',()=>{
  assert.equal(call(s,{tool,op:'list'}).reviews[0].text.startsWith('='),true,'shown without the escape mark');
  for(let i=0;i<19;i++)call(s,{tool,op:'save',...good,accountToken:token});
  assert.equal(call(s,{tool,op:'save',...good,accountToken:token}).error,'limit');
+});
+test('the written review is optional and a one-letter name is fine',()=>{
+ const s=service(),token=s.ctx.makeSession_('artist@example.com');
+ const saved=call(s,{tool:'rivet',op:'save',rating:4,text:'',name:'A',accountToken:token});
+ assert.equal(saved.ok,true);assert.equal(saved.reviews[0].text,'');assert.equal(saved.reviews[0].name,'A');
+ assert.equal(call(s,{tool:'playblast',op:'save',rating:5,text:'ok',name:'Jo',accountToken:token}).ok,true);
+});
+test('Wrapline reviews: one average across every tool, per-tool stats and recent written reviews, never emails',()=>{
+ const s=service();
+ assert.deepEqual(call(s,{tool:'all',op:'list'}).count,0);
+ call(s,{tool:'rivet',op:'save',...good,accountToken:s.ctx.makeSession_('a@example.com')});
+ call(s,{tool:'rivet',op:'save',rating:4,text:'',name:'Sam',accountToken:s.ctx.makeSession_('b@example.com')});
+ call(s,{tool:'playblast',op:'save',rating:3,text:'Fine for dailies.',name:'Lee',accountToken:s.ctx.makeSession_('c@example.com')});
+ const all=call(s,{tool:'all',op:'list'});
+ assert.equal(all.ok,true);assert.equal(all.count,3);assert.equal(all.average,4);assert.deepEqual(all.distribution,[0,0,1,1,1]);
+ assert.equal(all.tools.length,13);
+ assert.deepEqual(all.tools.find(t=>t.tool==='rivet'),{tool:'rivet',count:2,average:4.5});
+ assert.equal(all.reviews.length,2,'only reviews with text are quoted');assert.equal(all.reviews[0].tool!==undefined,true);
+ assert.equal(JSON.stringify(all).includes('@example.com'),false);
+ s.sheets.get('Reviews').rows[1][6]='Hidden';s.cache.clear();
+ assert.equal(call(s,{tool:'all',op:'list'}).count,2,'hidden reviews do not count');
+ call(s,{tool:'rivet',op:'delete',accountToken:s.ctx.makeSession_('b@example.com')});
+ assert.equal(call(s,{tool:'all',op:'list'}).count,1,'a change refreshes the Wrapline summary at once');
 });

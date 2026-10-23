@@ -1,0 +1,25 @@
+/* Wrapline reviews on the landing page (shares the star, bar and card styles in reviews.css). */
+.wl-reviews[hidden]{display:none}
+.wlr-main{display:grid;gap:28px;min-width:0}
+.wl-reviews .wlr-title{font-size:.8125rem;font-weight:600;letter-spacing:.02em;color:var(--mute);margin:0 0 12px}
+.wlr-tools{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,250px),1fr));gap:10px}
+.wlr-tool{animation:rv-card-in .55s calc(var(--i,0)*40ms) var(--rv-ease) both}
+.wlr-tool-link{display:flex;flex-direction:column;gap:6px;height:100%;padding:14px 16px;border:1px solid var(--line);border-radius:16px;background:var(--card);color:var(--ink);text-decoration:none;transition:transform .25s var(--rv-ease),box-shadow .25s,border-color .25s}
+.wlr-tool-link:hover{transform:translateY(-2px);border-color:color-mix(in srgb,var(--rv-gold) 50%,var(--line));box-shadow:0 12px 26px -18px rgba(14,18,32,.35)}
+.wlr-tool-link:focus-visible{outline:2px solid var(--blue);outline-offset:3px}
+.wlr-tool-link b{font-size:.875rem;font-weight:600}
+.wlr-tool-score{display:flex;align-items:center;gap:7px;font-size:.75rem;color:var(--mute)}
+.wlr-tool-score strong{color:var(--ink);font-size:.8125rem;font-variant-numeric:tabular-nums}
+.wlr-tool-none{font-size:.75rem;color:var(--mute)}
+.wlr-quotes .rv-list{gap:14px}
+.wlr-tag{margin-left:auto;padding:4px 10px;border-radius:999px;background:color-mix(in srgb,var(--rv-gold) 14%,transparent);color:var(--ink);font-size:.6875rem;font-weight:600;text-decoration:none;white-space:nowrap}
+.wlr-tag:hover{background:color-mix(in srgb,var(--rv-gold) 26%,transparent)}
+.wl-reviews[data-state=loading] .wlr-tools{min-height:120px}
+
+/* Hero chip */
+.wl-hero-rating{--rv-gold:#f5a524;--rv-ease:cubic-bezier(.22,1,.36,1);margin:18px 0 0}
+.wl-hero-rating:hover{transform:translateY(-1px);box-shadow:0 10px 22px -14px rgba(14,18,32,.35)}
+
+@media(max-width:860px){.wlr-tools{grid-template-columns:1fr 1fr}}
+@media(max-width:520px){.wlr-tools{gap:8px}.wlr-tool-link{padding:12px;border-radius:14px}.wlr-tool-link b{font-size:.8125rem}.wlr-tool-score .rv-stars{display:none}.wlr-tag{display:none}}
+@media(prefers-reduced-motion:reduce){.wlr-tool,.wlr-tool-link,.wl-hero-rating{animation:none!important;transition:none!important}}

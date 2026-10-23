@@ -22,7 +22,7 @@ if(section){
   const units=[[31536000,'year'],[2592000,'month'],[604800,'week'],[86400,'day'],[3600,'hour'],[60,'minute']];
   for(const [n,u] of units)if(s>=n){const v=Math.floor(s/n);return `${v} ${u}${v>1?'s':''} ago`;}return 'just now';};
  const hue=text=>{let h=0;for(const c of text)h=(h*31+c.charCodeAt(0))%360;return h;};
- const initials=name=>name.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';
+ const initials=(name='')=>name.split(/\s+/).filter(Boolean).slice(0,2).map(w=>w[0].toUpperCase()).join('')||'?';
  const plural=(n,w)=>`${n} ${w}${n===1?'':'s'}`;
 
  function countUp(node,to,decimals){
@@ -58,7 +58,7 @@ if(section){
   const who=el('div','rv-who');who.append(el('b','',r.name));
   const meta=el('span','rv-meta');meta.append(starRow(r.rating,'rv-stars rv-stars-sm'),el('time','',ago(r.date)));meta.querySelector('time').dateTime=r.date;who.append(meta);
   head.append(avatar,who);if(own)head.append(el('span','rv-you',r.hidden?'Your review · hidden':'Your review'));
-  card.append(head,el('p','rv-text',r.text));
+  card.append(head);if(r.text)card.append(el('p','rv-text',r.text));
   if(own&&r.hidden)card.append(el('p','rv-hidden-note','The maker has hidden this review from the page. Only you can see it.'));
   return card;
  }
@@ -91,7 +91,7 @@ if(section){
 
  /* ---------- writing ---------- */
  const setRating=value=>{stars.forEach(s=>s.checked=Number(s.value)===value);ratingText.textContent=value?words[value]:'Choose a rating';form.dataset.rating=String(value||0);};
- const updateCount=()=>{const n=textInput.value.trim().length;counter.textContent=`${n} / 1500`;counter.dataset.low=String(n>0&&n<10);};
+ const updateCount=()=>{const n=textInput.value.trim().length;counter.textContent=`${n} / 1500`;};
  function openForm(){
   const mine=data?.mine;form.hidden=false;section.dataset.writing='true';
   setRating(mine?.rating||0);textInput.value=mine?.text||'';
@@ -116,7 +116,7 @@ if(section){
  textInput.addEventListener('input',updateCount);
 
  const setSend=(state,text)=>{submit.dataset.state=state;if(text){submitLabel.textContent=text;submitLabel.classList.remove('is-new');void submitLabel.offsetWidth;submitLabel.classList.add('is-new');}};
- const errors={signin:'Please sign in again to post your review.',invalid:'Please choose a rating, write at least 10 characters and a name of 2–40 characters (no links).',limit:'You’ve made a lot of changes today. Please try again tomorrow.',busy:'The review service is busy. Please try again in a moment.'};
+ const errors={signin:'Please sign in again to post your review.',invalid:'Please choose a star rating and add the name to show with your review.',limit:'You’ve made a lot of changes today. Please try again tomorrow.',busy:'The review service is busy. Please try again in a moment.'};
 
  async function send(op){
   if(busy)return;const rating=Number(form.dataset.rating||0);

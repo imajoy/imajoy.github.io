@@ -66,6 +66,32 @@ function readReviews_(tool) {
   return data;
 }
 
+/* Wrapline reviews: every visible review across all thirteen tools, for the landing page. Email is never included. */
+function readAllReviews_() {
+  var cache = CacheService.getScriptCache(), hit = cache.get(reviewCacheKey_('all'));
+  if (hit) return JSON.parse(hit);
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(REVIEWS_SHEET), dist = [0, 0, 0, 0, 0], tools = {}, recent = [];
+  REVIEW_TOOLS_.forEach(function (t) { tools[t] = { count: 0, total: 0 }; });
+  if (sheet && sheet.getLastRow() > 1) {
+    sheet.getRange(2, 1, sheet.getLastRow() - 1, REVIEW_HEADERS_.length).getValues().forEach(function (r) {
+      var rating = Number(r[2]), tool = String(r[1]);
+      if (!tools[tool] || String(r[6]) !== 'Visible' || !(rating >= 1 && rating <= 5)) return;
+      dist[rating - 1]++; tools[tool].count++; tools[tool].total += rating;
+      var updated = r[8] instanceof Date ? r[8] : (r[0] instanceof Date ? r[0] : new Date(r[0]));
+      recent.push({ tool: tool, rating: rating, text: String(r[3]).replace(/^'/, ''), name: String(r[4]).replace(/^'/, ''), date: updated.toISOString() });
+    });
+  }
+  recent.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
+  var count = 0, total = 0, perTool = REVIEW_TOOLS_.map(function (t) {
+    count += tools[t].count; total += tools[t].total;
+    return { tool: t, count: tools[t].count, average: tools[t].count ? Math.round(tools[t].total / tools[t].count * 10) / 10 : 0 };
+  });
+  var data = { tool: 'all', count: count, average: count ? Math.round(total / count * 10) / 10 : 0, distribution: dist, tools: perTool,
+    reviews: recent.filter(function (r) { return r.text; }).slice(0, 6) };
+  try { cache.put(reviewCacheKey_('all'), JSON.stringify(data), 300); } catch (e) {}
+  return data;
+}
+
 /* The signed-in reviewer's own review for this tool (shown to them even when hidden). */
 function myReview_(tool, email) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(REVIEWS_SHEET);
@@ -78,9 +104,10 @@ function myReview_(tool, email) {
 
 function handleReviews_(d) {
   try {
+    var op = String(d.op || 'list');
+    if (String(d.tool) === 'all' && op === 'list') { var all = readAllReviews_(); all.ok = true; return all; }
     var tool = reviewTool_(d.tool);
     if (!tool) return { ok: false, error: 'invalid' };
-    var op = String(d.op || 'list');
     var who = d.accountToken ? readSession_(d.accountToken) : null;
     if (op === 'list') {
       var out = readReviews_(tool); out.ok = true;
@@ -99,7 +126,8 @@ function handleReviews_(d) {
         if (existing) sheet.deleteRow(existing.row);
       } else if (op === 'save') {
         var rating = Number(d.rating), text = String(d.text || '').replace(/\s+\n/g, '\n').trim(), name = String(d.name || '').replace(/\s+/g, ' ').trim();
-        if (!(rating >= 1 && rating <= 5 && Math.round(rating) === rating) || text.length < 10 || text.length > 1500 || name.length < 2 || name.length > 40 || /https?:\/\/|www\./i.test(name)) return { ok: false, error: 'invalid' };
+        /* The written review is optional; only the star rating and a display name are needed. */
+        if (!(rating >= 1 && rating <= 5 && Math.round(rating) === rating) || text.length > 1500 || !name || name.length > 40 || /https?:\/\/|www\./i.test(name)) return { ok: false, error: 'invalid' };
         var now = new Date();
         if (existing) {
           sheet.getRange(existing.row, 3, 1, 3).setValues([[rating, safeSheetCell_(text), safeSheetCell_(name)]]);
@@ -109,7 +137,7 @@ function handleReviews_(d) {
         }
       } else return { ok: false, error: 'invalid' };
       cache.put(limitKey, String(used + 1), 86400);
-      cache.remove(reviewCacheKey_(tool));
+      cache.remove(reviewCacheKey_(tool)); cache.remove(reviewCacheKey_('all'));
     } finally { lock.releaseLock(); }
     var fresh = readReviews_(tool), mineNow = myReview_(tool, email);
     fresh.ok = true; fresh.signedIn = true;

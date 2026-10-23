@@ -188,6 +188,7 @@
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/license-motion.css?v=20261019-motion1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
+<link rel="stylesheet" href="css/reviews.css?v=20261023-rv2"><link rel="stylesheet" href="css/wrapline-reviews.css?v=20261023-rv2">
 </head>
 <body class="home-page">
 <div class="progress" id="progress" aria-hidden="true"></div>
@@ -246,6 +247,7 @@
         </a>
         <a class="btn btn-light hero-secondary" href="#trial" data-trial-cta>Explore the 4-day free trial</a>
       </div>
+      <a class="tool-rating wl-hero-rating intro-fade" href="#reviews" data-wrapline-rating hidden></a>
       <p class="hero-trial-summary intro-fade"><strong>After your 4-day trial:</strong> your selected plan bills automatically unless you cancel before the trial ends. <a href="#pricing">View plans and pricing</a>.</p>
 
     </div>
@@ -393,6 +395,25 @@
     </div>
   </section>
 
+
+  <!-- WRAPLINE REVIEWS: one score across all thirteen tools -->
+  <section class="block tool-reviews wl-reviews" id="reviews" aria-labelledby="wl-reviews-heading" data-wrapline-reviews data-state="loading" hidden>
+    <div class="wrap">
+      <div class="rv-head"><p class="eyebrow">WRAPLINE REVIEWS</p><h2 id="wl-reviews-heading">Rated by the artists <em>who use it.</em></h2><p>One score across all thirteen tools, from public reviews on each tool’s page.</p></div>
+      <div class="rv-layout">
+        <aside class="rv-summary" aria-label="Wrapline rating summary">
+          <div class="rv-score" aria-live="polite"><span class="rv-skeleton"></span><span class="rv-skeleton short"></span></div>
+          <div class="rv-bars"></div>
+          <p class="rv-note">Rate a tool from its own page. Anyone with a Wrapline account can post one review per tool.</p>
+        </aside>
+        <div class="wlr-main">
+          <p class="wlr-title">Every tool, rated</p>
+          <ul class="wlr-tools" aria-label="Average rating for each tool"></ul>
+          <div class="wlr-quotes" hidden><p class="wlr-title">Latest reviews</p><div class="rv-list"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
 
   <!-- PRICING -->
   <section class="block" id="pricing">
@@ -542,6 +563,7 @@
 <script src="js/main.js?v=20261019-i1"></script>
 <script type="module" src="js/extras.js?v=20261023-p5"></script>
 <script type="module" src="js/pricing.js?v=20261023-p7"></script>
+<script type="module" src="js/wrapline-reviews.js?v=20261023-rv2"></script>
 <script type="module" src="js/landing-motion.js?v=20261021-lite2"></script>
 <script type="module" src="js/tool-card-motion.js?v=20261019-lock1"></script>
 

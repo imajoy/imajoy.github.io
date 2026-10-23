@@ -55,5 +55,38 @@ try{
  await p.waitForFunction(()=>document.querySelector('.rv-average')?.textContent==='4.0');
  assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no sideways scrolling');
  await p.locator('#reviews').screenshot({path:'/tmp/reviews-phone.png'});await ctx.close();
+
+ // The written review is optional: rating + a short name is enough, and no length rules are shown
+ ctx=await context({token});p=await ctx.newPage();errors=[];p.on('pageerror',e=>errors.push(e.message));
+ await p.goto(new URL('tool-playblast.html',base).href);await p.waitForFunction(()=>document.querySelector('[data-reviews]').dataset.state==='ready');
+ assert.equal(await p.locator('label[for=rv-text] .required-star').count(),0,'review text has no required star');
+ assert.equal(await p.locator('#rv-text').evaluate(t=>t.required||t.minLength>0),false);
+ await p.locator('.rv-write').click();await p.locator('.rv-star[data-value="5"]').click();await p.fill('#rv-name','J');await p.fill('#rv-text','');
+ await p.locator('.rv-submit').click();await p.waitForFunction(()=>document.querySelector('.rv-form').hidden&&document.querySelectorAll('.rv-card').length===1);
+ assert.equal(await p.locator('.rv-card .rv-text').count(),0,'a star-only review shows no empty paragraph');
+ assert.equal((await p.content()).includes('10 characters'),false);assert.deepEqual(errors,[]);await ctx.close();
+ // Landing page: one Wrapline score across all tools, every tool listed, latest written reviews
+ for(const [width,dark] of [[1280,false],[390,true]]){
+  ctx=await context({width,dark});p=await ctx.newPage();errors=[];p.on('pageerror',e=>errors.push(e.message));
+  await p.goto(new URL('wrapline.html',base).href);
+  await p.waitForFunction(()=>document.querySelector('[data-wrapline-reviews]').dataset.state==='ready');
+  await p.locator('#reviews').scrollIntoViewIfNeeded();
+  await p.waitForFunction(()=>document.querySelector('.wl-reviews .rv-average')?.textContent==='4.3');
+  assert.match(await p.locator('.wl-reviews .rv-total').textContent(),/3 reviews across all tools/);
+  assert.equal(await p.locator('.wlr-tool').count(),13);
+  assert.match(await p.locator('.wlr-tool').first().textContent(),/Playblast.*5\.0/s,'best rated tool first');
+  assert.match(await p.locator('.wlr-tool',{hasText:'Rivet'}).textContent(),/4\.0.*\(2\)/s);
+  assert.match(await p.locator('.wlr-tool',{hasText:'Rivet'}).locator('a').getAttribute('href'),/tool-rivet\.html#reviews/);
+  assert.equal(await p.locator('.wlr-quotes .rv-card').count(),2,'only written reviews are quoted');
+  assert.match(await p.locator('[data-wrapline-rating]').textContent(),/4\.3.*Wrapline reviews.*3 reviews/s);
+  assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no sideways scrolling');
+  await p.locator('#reviews').screenshot({path:`/tmp/wrapline-reviews-${width}.png`});
+  assert.deepEqual(errors,[]);await ctx.close();
+ }
+ // Before the new Apps Script is deployed ('all' unknown), the page adds up each tool instead
+ {const old=app.ctx.handleReviews_;app.ctx.handleReviews_=d=>d.tool==='all'?{ok:false,error:'invalid'}:old(d);
+  ctx=await context();p=await ctx.newPage();await p.goto(new URL('wrapline.html',base).href);
+  await p.waitForFunction(()=>document.querySelector('[data-wrapline-reviews]').dataset.state==='ready');
+  await p.waitForFunction(()=>document.querySelector('.wl-reviews .rv-average')?.textContent==='4.3');await ctx.close();app.ctx.handleReviews_=old;}
 }finally{await browser.close();}
-console.log('Reviews passed: public list and badge, sign-in prompt, star picker, post, edit, remove, text-only rendering, phone layout.');
+console.log('Reviews passed: public list and badge, sign-in prompt, star picker, post, edit, remove, text-only rendering, phone layout, optional text, Wrapline reviews on the landing page.');

@@ -1,6 +1,6 @@
 /* "Buy me a coffee" pop-up for the download, thank-you and tool pages (never the landing page).
    Clicking it opens our own support page (support.html), where people give any amount in USD (PayPal) or INR (Razorpay, India).
-   It appears after a few seconds or once the visitor has scrolled a little, and comes back on the next visit after it is closed (it stays away only for the rest of that visit). */
+   It appears after a few seconds or once the visitor has scrolled a little, and stays away for a day after it is closed. */
 const KEY='ajoy.coffee';
 const target='support.html';
 
@@ -54,9 +54,9 @@ function setup(){
   root.dataset.state='out';setTimeout(()=>root.remove(),calm?0:1000);
   removeEventListener('scroll',onScroll);clearTimeout(timer);
  }
- root.querySelector('.coffee-x-btn').addEventListener('click',()=>leave(0));
+ root.querySelector('.coffee-x-btn').addEventListener('click',()=>leave(1));
  for(const a of root.querySelectorAll('[data-coffee-link]'))a.addEventListener('click',()=>setTimeout(()=>leave(3),400));
- addEventListener('keydown',e=>{if(e.key==='Escape'&&shown&&!gone&&!document.querySelector('dialog[open]'))leave(0);});
+ addEventListener('keydown',e=>{if(e.key==='Escape'&&shown&&!gone&&!document.querySelector('dialog[open]'))leave(1);});
 
  const onScroll=()=>{if(scrollY>Math.max(240,innerHeight*0.2))show();};
  addEventListener('scroll',onScroll,{passive:true});

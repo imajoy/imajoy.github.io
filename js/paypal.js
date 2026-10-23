@@ -161,7 +161,7 @@ if(form&&pay){
    try{
     const result=await secureCommerce('rewards',sentCoupon?{...c,coupon:sentCoupon}:c);
     if(operation!==rewardRevision||getAccountSession()?.token!==token||keyOf()!==rewardKey)return;
-    const p=result.pricing,okPercent=p&&(p.coupon?Number.isInteger(p.percent)&&p.percent>=1&&p.percent<=90:[0,5,10].includes(p.percent));
+    const p=result.pricing,okPercent=p&&(p.coupon?Number.isInteger(p.percent)&&p.percent>=1&&p.percent<=100:[0,5,10].includes(p.percent));
     if(!p||!Number.isInteger(p.total)||!okPercent)throw new Error('Your price could not be confirmed. Please try again.');
     rewardQuote=result.pricing;
    }catch(error){

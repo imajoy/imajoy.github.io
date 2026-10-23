@@ -215,7 +215,7 @@ function rewardPayPalPlan_(d,quote) {
 /* ---------- Coupon codes (managed in the "Coupons" tab of this sheet) ----------
    One row per code. Columns: Code | Percent off | Payments discounted | Expires on | Plan | Billing |
    Max uses | Used | Active | Note | Countries. Countries: blank = every country, or codes such as IN, US, GB.
-   Coupons work with every payment option (PayPal and Razorpay). Plan/Billing: online, offline or both / monthly, yearly or both.
+   Coupons work with every payment option (PayPal and Razorpay). Plan: Basic, Premium or both (online/offline still work). Billing: monthly, yearly or both. Percent off 1-100: 100 makes the discounted months free ($0).
    Blank Max uses = unlimited. "Times used" is filled in automatically. Active: Yes/No (TRUE/FALSE also accepted). A coupon replaces the returning
    subscriber reward on that checkout (they never stack) and does not apply to the free trial. */
 var COUPON_HEADERS_=['Code','Percent off','Payments discounted','Expires on','Plan','Billing','Max uses','Used','Active','Note','Countries'];
@@ -241,6 +241,19 @@ function couponUses_(code,email,exceptId) {
   });
   return {total:total,mine:mine};
 }
+/* Percent off: 1-100 (a cell formatted as a percentage, such as 100%, is read correctly too). */
+function couponPercent_(value) {
+  if(typeof value==='number'&&value>0&&value<1)return Math.round(value*100);
+  return Number(String(value).replace('%','').trim());
+}
+/* Plan column: Basic / Premium / both (the older names online / offline still work). */
+function couponPlan_(value) {
+  var v=String(value||'both').trim().toLowerCase();
+  if(v==='both'||v==='all'||v==='basic and premium')return 'both';
+  if(v==='basic'||v==='online')return 'online';
+  if(v==='premium'||v==='offline')return 'offline';
+  return null;
+}
 function couponRule_(raw,d,email) {
   var code=couponCode_(raw);
   if(!/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(code))throw commerceError_('coupon_invalid','Enter a valid coupon code.');
@@ -248,16 +261,17 @@ function couponRule_(raw,d,email) {
   var row=rows.filter(function(r){return couponCode_(r[0])===code;})[0];
   var active=row&&(row[8]===true||String(row[8]).trim().toUpperCase()==='TRUE'||String(row[8]).trim().toUpperCase()==='YES');
   if(!row||!active)throw commerceError_('coupon_invalid','This coupon code is not valid.');
-  var percent=Number(row[1]),payments=row[2]===''?1:Number(row[2]);
-  if(!Number.isInteger(percent)||percent<1||percent>90||!Number.isInteger(payments)||payments<1||payments>24)throw commerceError_('coupon_invalid','This coupon is not set up correctly. Please contact Ajoy.');
+  var percent=couponPercent_(row[1]),payments=row[2]===''?1:Number(row[2]);
+  if(!Number.isInteger(percent)||percent<1||percent>100||!Number.isInteger(payments)||payments<1||payments>24)throw commerceError_('coupon_invalid','This coupon is not set up correctly. Please contact Ajoy.');
   if(row[3]!==''){
     var end=row[3] instanceof Date?new Date(row[3].getTime()):new Date(String(row[3]));
     if(isNaN(end.getTime()))throw commerceError_('coupon_invalid','This coupon is not set up correctly. Please contact Ajoy.');
     if(!(row[3] instanceof Date)||end.getHours()===0&&end.getMinutes()===0)end.setHours(23,59,59,999);
     if(end.getTime()<Date.now())throw commerceError_('coupon_expired','This coupon has expired.');
   }
-  var plan=String(row[4]||'both').trim().toLowerCase(),billing=String(row[5]||'both').trim().toLowerCase();
-  if(plan!=='both'&&plan!==d.plan)throw commerceError_('coupon_invalid','This coupon is only for the '+plan.charAt(0).toUpperCase()+plan.slice(1)+' plan.');
+  var plan=couponPlan_(row[4]),billing=String(row[5]||'both').trim().toLowerCase();
+  if(plan===null)throw commerceError_('coupon_invalid','This coupon is not set up correctly. Please contact Ajoy.');
+  if(plan!=='both'&&plan!==d.plan)throw commerceError_('coupon_invalid','This coupon is only for the '+planLabel_(plan)+' plan.');
   if(billing!=='both'&&billing!==d.billing)throw commerceError_('coupon_invalid','This coupon is only for '+billing+' billing.');
   var countries=String(row[10]||'').toUpperCase().split(/[^A-Z]+/).filter(function(c){return /^[A-Z]{2}$/.test(c);});
   var where=d.billingCountry||d.sandboxCountry||d.country||'';

@@ -178,7 +178,7 @@ if(form&&paypal&&url){
   const trialing=trialOn(),deal=!trialing&&quote?.discount;panel.dataset.offer=trialing?'trial':'standard';
   document.querySelector('#trial-line')?.setAttribute('hidden','');document.querySelector('.order-total')?.classList.remove('is-trial');
   for(const id of ['loyalty-summary-row','loyalty-summary','coupon-summary-row'])document.getElementById(id).hidden=true;
-  const session=getAccountSession(),ownsPending=pending?.email===session?.email;start.disabled=busy||!session||!quote||ownsPending;start.textContent=!session?'Register / Login to continue':creating?'Preparing secure checkout…':ownsPending?'Check your existing checkout below':quote&&trialing?'Start 4-day free trial':quote?'Pay '+money(quote.total)+' securely':'Continue with Razorpay';panel.dataset.busy=String(busy);
+  const session=getAccountSession(),ownsPending=pending?.email===session?.email;start.disabled=busy||!session||!quote||ownsPending;start.textContent=!session?'Register / Login to continue':creating?'Preparing secure checkout…':ownsPending?'Check your existing checkout below':quote&&trialing?'Start 4-day free trial':quote&&quote.freePeriod?'Start your free period':quote?'Pay '+money(quote.total)+' securely':'Continue with Razorpay';panel.dataset.busy=String(busy);
   if(!ownsPending){check.hidden=true;link.hidden=true;}
   cancelBtn.hidden=check.hidden||busy;
   if(!session)start.disabled=false;

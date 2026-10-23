@@ -18,7 +18,7 @@ try{
    if(url.includes('/commerce/rewards')){
     calls++;if(failures-->0)return route.fulfill({status:503,json:{ok:false,error:'unavailable',message:'Fixture: price service temporarily unavailable.'}});
     if(hold)await new Promise(resolve=>release=resolve);
-    const c=JSON.parse(r.postData()),unitAmount=c.billing==='yearly'?21522:2244,percent=c.coupon?10:5;
+    const c=JSON.parse(r.postData()),unitAmount=c.billing==='yearly'?21522:2244,percent=c.coupon==='FREE100'?100:c.coupon?10:5;
     return route.fulfill({json:{ok:true,pricing:{currency:'USD',unitAmount,total:Math.round(unitAmount*c.seats*(1-percent/100)),discountAmount:Math.round(unitAmount*c.seats*percent/100),percent,seats:c.seats,billing:c.billing,rewardPayments:1,...(c.coupon?{coupon:{code:c.coupon,percent}}:{})}}});
    }
    if(url.includes('www.paypal.com/sdk/js'))return route.fulfill({contentType:'text/javascript',body:'window.paypal={Buttons(options){window.fixturePayPal=options;return {render(selector){document.querySelector(selector).innerHTML="<button type=button data-fixture-paypal>PayPal Subscribe</button>";return Promise.resolve();}}}};'});
@@ -41,6 +41,10 @@ try{
   assert(calls>=2,'selecting Standard must recover a missing/failed verified price');
   await page.locator('[name="checkout-offer"][value="trial"]').check();await page.locator('[data-fixture-paypal]').waitFor();
   if(await page.locator('.pp-coupon').count()&&!(await page.locator('.pp-coupon').evaluate(d=>d.open)))await page.locator('.pp-coupon summary').click();
+  await page.locator('#coupon-code').fill('FREE100');await page.locator('#coupon-apply').click();
+  await page.waitForFunction(()=>/\$?0\.00/.test(document.querySelector('#summary-total').textContent)&&document.querySelector('#loyalty-summary').textContent.includes('100% off'));
+  assert.doesNotMatch(await page.locator('#coupon-status').textContent(),/could not be confirmed/i);
+  await page.locator('#coupon-remove').click();await page.waitForFunction(()=>!document.querySelector('#summary-total').textContent.includes('0.00'));
   await page.locator('#coupon-code').fill('OFFER10');await page.locator('#coupon-apply').click();
   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('20.20'));await page.locator('[data-fixture-paypal]').waitFor();
   hold=true;await page.locator('#coupon-remove').click();

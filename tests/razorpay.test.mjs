@@ -222,6 +222,26 @@ test('Coupons work with Razorpay: discounted period(s) up front, regular price a
  webhook(s,{event:'subscription.charged',payload:{subscription:{entity:{id:sub.id}}}});
  assert.equal(s.app.ctx.razorpayFind_(created.checkoutId).paidThrough,sub.current_end);
 });
+
+test('A 100% coupon on Razorpay: nothing is charged for the free months, access starts once the card is authorized, regular price after',()=>{
+ const s=setup(),future=new Date(Date.now()+30*864e5);
+ coupons(s.app,[['FREE2',100,2,future,'Basic','monthly','','',true,'','']]);
+ const q=s.rpc('quote',s.selection({coupon:'free2'})).pricing;
+ assert.equal(q.total,0);assert.equal(q.freePeriod,true);assert.equal(q.recurringTotal,89900);assert.equal(q.discount.percent,100);
+ assert.equal(s.rpc('quote',s.selection({coupon:'FREE2',plan:'offline'})).error,'coupon_invalid','a Basic coupon is refused on Premium');
+ assert.equal(s.rpc('checkout',s.selection({coupon:'FREE2',expectedTotal:89900})).error,'price_changed');
+ const created=s.rpc('checkout',s.selection({coupon:'FREE2',expectedTotal:0}));assert.equal(created.ok,true,created.message);
+ const sub=s.app.razorpay.subscriptions.get(created.subscriptionId);
+ const two=new Date();two.setMonth(two.getMonth()+2);assert(Math.abs(sub.start_at-two/1000)<10,'regular billing starts after the free months');
+ assert.equal(sub.addons.length,1);assert(sub.addons[0].item.amount<=500,'only the small refundable card check is taken');
+ assert.match(sub.addons[0].item.name,/check/i);
+ sub.status='authenticated';sub.paid_count=0;sub.current_start=null;sub.current_end=null;
+ const ok=s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId});assert.equal(ok.accepted,true,ok.message);
+ assert.equal(s.app.ctx.razorpayFind_(created.checkoutId).paidThrough,sub.start_at);
+ assert.equal(s.app.sheets.get('Coupons').rows[1][7],1,'coupon use is counted');
+ assert.equal(s.rpc('quote',s.selection({coupon:'FREE2'})).error,'coupon_used');
+ const orders=s.app.sheets.get('Orders').rows;assert.equal(orders[orders.length-1][7],'online','a real plan row, not a trial');
+});
 test('PayPal coupons respect the Countries column; blank means every country',()=>{
  const s=setup(),future=new Date(Date.now()+30*864e5);
  coupons(s.app,[['ALL5',5,1,future,'both','both','','',true,'',''],['INONLY',5,1,future,'both','both','','',true,'','IN']]);

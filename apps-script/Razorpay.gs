@@ -32,9 +32,10 @@ function razorpayCatalog_(){return JSON.parse(props_().getProperty('RAZORPAY_PLA
    USD plans; until then the existing INR plans keep working. Script property RAZORPAY_INTL_CURRENCY=INR keeps INR. */
 function razorpayIntlCurrency_(){return (props_().getProperty('RAZORPAY_INTL_CURRENCY')||'USD').toUpperCase()==='INR'?'INR':'USD';}
 function razorpayCurrencyFor_(country,catalog){return country!=='IN'&&razorpayIntlCurrency_()==='USD'&&(catalog||razorpayCatalog_())._intlCurrency==='USD'?'USD':'INR';}
+function razorpayYearlyPercent_(plan){return plan==='offline'?20:15;}
 function razorpayPrice_(plan,billing,country,currency,full){
-  // full: Premium yearly at its regular price, for accounts that already used the first-year saving.
-  full=!!full&&plan==='offline'&&billing==='yearly';
+  // full: yearly at its regular price, for accounts that already used the first-year saving on that plan.
+  full=!!full&&billing==='yearly';
   if((currency||'INR')==='USD'){
     var t=PRICES[tierFor_(country)][plan],m=Math.round(t.monthly*100);
     if(full){var f=Math.round(t.full*100);return {currency:'USD',unitAmount:f,monthlyAmount:m,compareAtUnitAmount:f,fullPrice:true};}
@@ -43,7 +44,7 @@ function razorpayPrice_(plan,billing,country,currency,full){
   var india=country==='IN',monthly=india?(plan==='offline'?189991:89900):{low:91698,mid:142698,high:203898}[tierFor_(country)]*(plan==='offline'?2:1);
   var list=india?(plan==='offline'?2279900:1078800):monthly*12;
   if(full)return {currency:'INR',unitAmount:list,monthlyAmount:monthly,compareAtUnitAmount:list,fullPrice:true};
-  return {currency:'INR',unitAmount:billing==='yearly'?Math.round(list*.8):monthly,monthlyAmount:monthly,compareAtUnitAmount:billing==='yearly'?list:monthly};
+  return {currency:'INR',unitAmount:billing==='yearly'?Math.round(list*(100-razorpayYearlyPercent_(plan))/100):monthly,monthlyAmount:monthly,compareAtUnitAmount:billing==='yearly'?list:monthly};
 }
 function razorpaySelection_(d,who){
   if(!razorpayEnabled_())throw commerceError_('unavailable','Razorpay subscriptions are not activated yet.');
@@ -51,13 +52,14 @@ function razorpaySelection_(d,who){
   if(d.sandboxCountry&&razorpayMode_()!=='test')throw commerceError_('region','Test country settings cannot be used for live payments.');
   var country=d.sandboxCountry||d.country;
   if(!razorpayCountryAllowed_(country)||country!==d.billingCountry)throw commerceError_('region','Razorpay is not available for your verified billing country.');
-  var key=country==='IN'?'india':tierFor_(country),catalog=razorpayCatalog_(),full=!!who&&d.plan==='offline'&&d.billing==='yearly'&&premiumYearlyUsed_(who.email),planId=catalog[key]&&catalog[key][d.plan]&&catalog[key][d.plan][full?'yearlyFull':d.billing];
+  var key=country==='IN'?'india':tierFor_(country),catalog=razorpayCatalog_(),full=!!who&&d.billing==='yearly'&&yearlyOfferUsed_(who.email,d.plan),planId=catalog[key]&&catalog[key][d.plan]&&catalog[key][d.plan][full?'yearlyFull':d.billing];
   if(!/^plan_[A-Za-z0-9]+$/.test(planId||''))throw commerceError_('unavailable','This Razorpay subscription plan is not configured yet.');
   if(catalog._priceVersion!==PRICE_VERSION)throw commerceError_('unavailable','Subscription plans are being updated. Please try again shortly.');
   var price=razorpayPrice_(d.plan,d.billing,country,razorpayCurrencyFor_(country,catalog),full);price.total=price.unitAmount*d.seats;price.plan=d.plan;price.billing=d.billing;price.seats=d.seats;price.country=country;price.planId=planId;
   if(d.offer==='trial'){
     if(d.plan!=='online')throw commerceError_('selection','Only Basic plans offer a trial.');
     if(!razorpayTrialOn_())throw commerceError_('trial_unavailable','The free trial is not available right now. You can continue with a paid subscription.');
+    if(d.billing==='yearly'&&who&&yearlyOfferUsed_(who.email,'online'))throw commerceError_('selection','Your first-year yearly saving on Basic has already been used. Start the trial with monthly billing, or subscribe yearly at the regular price.');
     price.offer='trial';price.trialDays=RAZORPAY_TRIAL_DAYS_;
   }
   return price;
@@ -334,7 +336,7 @@ function setupRazorpayPlans(){
     // so a refused currency never leaves checkout without plans. Re-running resumes where it stopped.
     var stageKey='RAZORPAY_PLANS_STAGED_'+razorpayMode_(),staged=JSON.parse(props_().getProperty(stageKey)||'{}');
     if(staged._currency!==intl||staged._priceVersion!==PRICE_VERSION)staged={_currency:intl,_priceVersion:PRICE_VERSION};
-    ['high','mid','low'].forEach(function(tier){staged[tier]=staged[tier]||{};['online','offline'].forEach(function(kind){staged[tier][kind]=staged[tier][kind]||{};(kind==='offline'?['monthly','yearly','yearlyFull']:['monthly','yearly']).forEach(function(billing){
+    ['high','mid','low'].forEach(function(tier){staged[tier]=staged[tier]||{};['online','offline'].forEach(function(kind){staged[tier][kind]=staged[tier][kind]||{};['monthly','yearly','yearlyFull'].forEach(function(billing){
       if(staged[tier][kind][billing])return;
       var country={high:'US',mid:'BR',low:'LK'}[tier],period=billing==='yearlyFull'?'yearly':billing,price=razorpayPrice_(kind,period,country,intl,billing==='yearlyFull'),plan;
       try{plan=razorpayApi_('/plans','post',{period:period,interval:1,item:{name:'Wrapline '+planLabel_(kind)+' '+billing+' ('+tier+', '+intl+')',amount:price.unitAmount,currency:price.currency},notes:{product:'wrapline',tier:tier}});}
@@ -346,7 +348,7 @@ function setupRazorpayPlans(){
     catalog.high=staged.high;catalog.mid=staged.mid;catalog.low=staged.low;catalog._intlCurrency=intl;
     props_().setProperty('RAZORPAY_PLANS_'+razorpayMode_(),JSON.stringify(catalog));props_().deleteProperty(stageKey);
   }
-  ['india','high','mid','low'].forEach(function(tier){catalog[tier]=catalog[tier]||{};['online','offline'].forEach(function(kind){catalog[tier][kind]=catalog[tier][kind]||{};(kind==='offline'?['monthly','yearly','yearlyFull']:['monthly','yearly']).forEach(function(billing){
+  ['india','high','mid','low'].forEach(function(tier){catalog[tier]=catalog[tier]||{};['online','offline'].forEach(function(kind){catalog[tier][kind]=catalog[tier][kind]||{};['monthly','yearly','yearlyFull'].forEach(function(billing){
     if(catalog[tier][kind][billing])return;
     var country={india:'IN',high:'US',mid:'BR',low:'LK'}[tier],period=billing==='yearlyFull'?'yearly':billing,price=razorpayPrice_(kind,period,country,tier==='india'?'INR':intl,billing==='yearlyFull');
     var plan=razorpayApi_('/plans','post',{period:period,interval:1,item:{name:'Wrapline '+planLabel_(kind)+' '+billing+' ('+tier+')',amount:price.unitAmount,currency:price.currency},notes:{product:'wrapline',tier:tier}});

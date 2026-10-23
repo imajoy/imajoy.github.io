@@ -57,7 +57,7 @@ try{
  await page.goto(new URL('wrapline.html',base).href);await page.locator('[data-amt=online]').scrollIntoViewIfNeeded();
  await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent.includes('29.99'));
  await page.locator('[data-bill=yearly]').click();await page.waitForFunction(()=>document.querySelector('[data-amt=online] span[aria-hidden]'));
- await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent.includes('287.90'));
+ await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent.includes('305.90'));
  await page.locator('[data-bill=monthly]').click();await page.locator('[data-bill=yearly]').click();await page.locator('[data-bill=monthly]').click();
  await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent==='$29.99');
  // License illustration resumes on entry, pauses offscreen, and respects motion preferences.

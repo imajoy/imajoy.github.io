@@ -35,18 +35,18 @@ test('Razorpay requires verified accounts, exact server/billing country and conf
 });
 test('Razorpay prices are server-owned INR amounts with annual 20% savings and bounded quantities',()=>{
  const s=setup();const quote=s.rpc('quote',s.selection({billing:'yearly',seats:3,amount:1})).pricing;
- assert.equal(quote.unitAmount,863040);assert.equal(quote.total,2589120);assert.equal(quote.planId,undefined);
+ assert.equal(quote.unitAmount,916980);assert.equal(quote.total,2750940);assert.equal(quote.planId,undefined);
  assert.equal(s.rpc('quote',s.selection({seats:0})).error,'selection');
  assert.equal(s.rpc('quote',s.selection({seats:101})).error,'selection');
  assert.equal(s.rpc('checkout',s.selection({expectedTotal:1})).error,'price_changed');
  assert.equal(s.app.razorpay.subscriptions.size,0);
 });
 test('Plan setup is resumable; checkout retries and lost creation responses cannot create duplicate subscriptions',()=>{
- const s=setup();assert.equal(s.app.razorpay.plans.size,20);s.app.ctx.setupRazorpayPlans();assert.equal(s.app.razorpay.plans.size,20);
+ const s=setup();assert.equal(s.app.razorpay.plans.size,24);s.app.ctx.setupRazorpayPlans();assert.equal(s.app.razorpay.plans.size,24);
  const data=s.selection(),one=s.rpc('checkout',data);assert.equal(one.ok,true,JSON.stringify(one));
  assert.equal(s.rpc('checkout',data).subscriptionId,one.subscriptionId);
  assert.equal(s.rpc('checkout',s.selection()).subscriptionId,one.subscriptionId);assert.equal(s.app.razorpay.subscriptions.size,1);
- assert.equal(s.rpc('checkout',{...data,billing:'yearly',expectedTotal:863040}).error,'selection');
+ assert.equal(s.rpc('checkout',{...data,billing:'yearly',expectedTotal:916980}).error,'selection');
  const other=setup(),lost=other.selection();other.app.razorpay.loseCreateResponse=true;
  assert.equal(other.rpc('checkout',lost).ok,false);const recovered=other.rpc('checkout',lost);
  assert.equal(recovered.ok,true);assert.equal(other.app.razorpay.subscriptions.size,1);
@@ -136,7 +136,7 @@ test('Closing the Razorpay window or a failed payment cancels only the unpaid ch
 test('A subscriber can stop automatic renewal; access continues to the end of the paid period',()=>{
  const s=setup(),created=s.rpc('checkout',s.selection());paid(s,created);
  assert(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted);
- const unpaid=s.rpc('checkout',s.selection({billing:'yearly',expectedTotal:863040}));assert.equal(s.rpc('stop',{accountToken:s.token,checkoutId:unpaid.checkoutId}).error,'checkout');
+ const unpaid=s.rpc('checkout',s.selection({billing:'yearly',expectedTotal:916980}));assert.equal(s.rpc('stop',{accountToken:s.token,checkoutId:unpaid.checkoutId}).error,'checkout');
  const stopped=s.rpc('stop',{accountToken:s.token,checkoutId:created.checkoutId});assert(stopped.stopped,JSON.stringify(stopped));assert(Date.parse(stopped.endsAt)>Date.now());
  assert.deepEqual(s.app.razorpay.cancelled.at(-1),{id:created.subscriptionId,atCycleEnd:true});
  const subs=s.app.ctx.razorpaySubscriptions_('buyer@example.com');assert.equal(subs[0].renews,false);assert.equal(subs[0].provider,'razorpay');assert.equal(subs[0].ref,created.checkoutId);

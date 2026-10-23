@@ -1,7 +1,7 @@
 import {initializeCheckoutSteps} from './checkout-steps.js?v=20261020-trial1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {initializeBillingCountry} from './billing-country.js?v=20261021-fast2';
-import {premiumYearlyUsed} from './regions.js?v=20261023-p6';
+import {YEARLY_PERCENT,yearlyOfferUsed} from './regions.js?v=20261023-p7';
 import {api,apiBase,getQuote,getCouponQuote,previewPrice} from './commerce.js?v=20261020-prices1';
 import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261020-prices1';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
@@ -37,9 +37,11 @@ const showAmount=(id,amount,currency)=>setMoney(document.getElementById(id),amou
 function showQuote(data){
  quote=data;
  const upsell=document.querySelector('#yearly-upsell');
- upsell.hidden=data.billing!=='monthly'||data.plan==='offline'&&premiumYearlyUsed();
+ const pct=YEARLY_PERCENT[data.plan]||15;
+ upsell.hidden=data.billing!=='monthly'||yearlyOfferUsed(data.plan);
+ document.querySelector('.upsell-badge').textContent=pct+'% OFF';
  if(!upsell.hidden){
-  const yearlySaving=(data.monthlyAmount*12-Math.round(data.monthlyAmount*12*.8))*data.seats;
+  const yearlySaving=(data.monthlyAmount*12-Math.round(data.monthlyAmount*12*(100-pct)/100))*data.seats;
   document.querySelector('#yearly-upsell-copy').textContent='Save '+money(yearlySaving,data.currency)+' across '+data.seats+' license'+(data.seats===1?'':'s')+' over a year, compared with 12 standard monthly payments. Annual billing.';
  }
  showAmount('summary-unit',data.unitAmount,data.currency);
@@ -51,7 +53,8 @@ function showQuote(data){
  annual.hidden=!(data.billing==='yearly'&&data.annualSavings>0);
  if(data.billing==='yearly'&&data.annualSavings>0){
   showAmount('summary-annual',-data.annualSavings,data.currency);
-  annual.textContent='20% off yearly · '+money(data.unitAmount/12,data.currency)+' per license/month, billed annually.';
+  document.querySelector('[data-saving-percent]')&&(document.querySelector('[data-saving-percent]').textContent=pct+'%');
+  annual.textContent=pct+'% off your first yearly plan · '+money(data.unitAmount/12,data.currency)+' per license/month, billed annually.';
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)annual.animate([{opacity:.2,translate:'0 6px'},{opacity:1,translate:'0 0'}],{duration:450,easing:'ease-out'});
  }
  document.querySelector('#coupon-summary-row').hidden=!data.coupon;
@@ -63,7 +66,7 @@ function showQuote(data){
  if(loyalty?.discountAmount){
   showAmount('summary-loyalty',-loyalty.discountAmount,data.currency);
   document.querySelector('#loyalty-percent').textContent=loyalty.percent+'%';
-  document.querySelector('#loyalty-summary').textContent='One-time '+loyalty.percent+'% loyalty reward applied to your '+(data.billing==='yearly'?'first yearly renewal':'monthly payment '+loyalty.nextPayment)+'. '+(data.billing==='yearly'?'This is additional to the 20% yearly saving. ':'')+'Rewards and coupons do not stack.';
+  document.querySelector('#loyalty-summary').textContent='One-time '+loyalty.percent+'% loyalty reward applied to your '+(data.billing==='yearly'?'first yearly renewal':'monthly payment '+loyalty.nextPayment)+'. '+(data.billing==='yearly'?'This is taken off the regular yearly price. ':'')+'Rewards and coupons do not stack.';
  }
  showCustomerReward(data);
  document.querySelector('#quote-note').textContent=data.preview?data.currency==='USD'?'Local-currency amounts are estimates. PayPal charges USD; your bank may use its own rate.':'Prices shown in INR. The USD equivalent is an estimate. Review the confirmed currency before approving payment.':'Price confirmed for your billing country. Review the confirmed total before payment.';

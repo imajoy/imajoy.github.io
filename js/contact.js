@@ -1,5 +1,5 @@
 /* Guest contact is independent of account verification; a saved receipt confirms delivery. */
-import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p5';
+import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
 import {inspectAttachment,readAttachment} from './contact-attachment.js?v=20261019-advanced1';
 const form=document.querySelector('#contact-form');
 if(form){

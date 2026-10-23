@@ -1,7 +1,7 @@
 /* The 4-day free trial: Basic plan only, monthly and yearly. It exists only when the PayPal plans include trial plans
    (created by setupPlans in apps-script/Code.gs). The buyer approves with PayPal now and PayPal takes the first payment
    after the trial, so no code or manual step is needed. */
-import { tierFor, availability } from './regions.js?v=20261023-p6';
+import { tierFor, availability } from './regions.js?v=20261023-p7';
 const url = window.AJOY_CONFIG && window.AJOY_CONFIG.paypalConfigUrl;
 export const TRIAL_DAYS = 4;
 let pending = null;

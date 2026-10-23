@@ -1,22 +1,21 @@
 # Activate the 23 October 2026 subscription catalog (v4)
 
 Catalog `2026-10-23-v4` replaces v3. Free trial is now **4 days** (Online only).
-Yearly billing is 20% off twelve monthly payments (the list price).
+Yearly billing: Basic 15% off, Premium 20% off the list price, for an account's first yearly subscription of that plan.
 Plan names shown to customers: **Basic** (stored as `online`) and **Premium** (stored as `offline`).
-**Premium yearly: the 20% saving is for an account's first Premium yearly subscription only.** Any later
-Premium yearly subscription on the same account pays the full price: $599 / $469 / $229 (High / Mid / Low)
-and ₹22,799 in India. PayPal full-price plans are created on demand at checkout; `setupRazorpayPlans()`
-creates the Razorpay `yearlyFull` plans. Basic yearly keeps its 20% saving.
+**The yearly saving is one-time per plan and account.** Any later yearly subscription of the same plan pays the
+full price. Premium: $599 / $469 / $229 (High / Mid / Low), ₹22,799 in India. Basic: $359.88 / $199 / $95.88, ₹10,788. PayPal full-price plans are created on demand at checkout; `setupRazorpayPlans()`
+creates the Razorpay `yearlyFull` plans.
 The PayPal 4-day trial plans now use a 4-day trial cycle (they were 2 days before this catalog).
 Follow the same four steps below (Apps Script files, `setupPlans()`, `setupRazorpayPlans()`,
 new deployment). Also set the Script property `TRIAL_DAYS` to 4 if you ever set it by hand.
 
 | Region / gateway | Online monthly | Online yearly | Offline monthly | Offline yearly |
 | --- | ---: | ---: | ---: | ---: |
-| High / PayPal USD | $29.99 | $287.90 | $49.92 | $479.20 |
-| Mid / PayPal USD | $16.59 | $159.20 | $39.09 | $375.20 |
-| Low / PayPal USD | $7.99 | $76.70 | $19.09 | $183.20 |
-| India / Razorpay INR | ₹899.00 | ₹8,630.40 | ₹1,899.91 | ₹18,239.20 |
+| High / PayPal USD | $29.99 | $305.90 | $49.92 | $479.20 |
+| Mid / PayPal USD | $16.59 | $169.15 | $39.09 | $375.20 |
+| Low / PayPal USD | $7.99 | $81.50 | $19.09 | $183.20 |
+| India / Razorpay INR | ₹899.00 | ₹9,169.80 | ₹1,899.91 | ₹18,239.20 |
 
 ---
 

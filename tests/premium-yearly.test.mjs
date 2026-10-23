@@ -21,9 +21,9 @@ test('First Premium yearly subscription keeps the 20% saving; later Premium year
  assert.equal(app.subscriptions.get(ok.subscriptionId).plan_id,plan.id);
  app.rpc('checkout',selection(app,{expectedTotal:59900}));assert.equal(app.plans.size,1,'the full-price plan is reused');
 });
-test('Only Premium yearly is affected: Basic yearly and Premium monthly keep their prices', ()=>{
+test('Each plan uses up its own yearly saving: Basic 15%, Premium 20%; monthly prices never change', ()=>{
  const app=service();usedPremiumYearly(app);
- assert.equal(app.rpc('rewards',selection(app,{plan:'online'})).pricing.unitAmount,28790);
+ assert.equal(app.rpc('rewards',selection(app,{plan:'online'})).pricing.unitAmount,30590,'Basic yearly is 15% off until it is used');
  assert.equal(app.rpc('rewards',selection(app,{billing:'monthly'})).pricing.unitAmount,4992);
  assert.equal(app.rpc('rewards',selection(app,{country:'BR',billingCountry:'BR'})).pricing.unitAmount,46900);
 });
@@ -42,4 +42,16 @@ test('Premium yearly full price also applies to Razorpay, in rupees',()=>{
  assert.equal(quote().unitAmount,1823920);
  app.orders.rows.push([new Date(),'sub_USED1','ACTIVE','razorpay_test','buyer@example.com','Buyer','IN','offline','yearly',1,'','plan_x']);
  const full=quote();assert.equal(full.unitAmount,2279900);assert.equal(full.compareAtUnitAmount,2279900);assert.equal(full.fullPrice,true);
+});
+test('Basic yearly: first subscription 15% off, later ones the full price; the trial cannot reuse the saving',()=>{
+ const first=service();
+ const quote=first.rpc('rewards',selection(first,{plan:'online'})).pricing;assert.equal(quote.unitAmount,30590);assert.equal(quote.fullPrice,false);
+ const app=service();app.orders.rows[1][7]='online';app.orders.rows[1][8]='yearly';
+ app.subscriptions.set('I-TESTBUYER1',{id:'I-TESTBUYER1',status:'CANCELLED',plan_id:'P-high-ONLINE',create_time:'2023-01-01T00:00:00Z'});app.transactions.set('I-TESTBUYER1',{transactions:[]});
+ const again=app.rpc('rewards',selection(app,{plan:'online'})).pricing;assert.equal(again.fullPrice,true);assert.equal(again.unitAmount,35988);
+ assert.equal(app.rpc('rewards',selection(app,{plan:'offline'})).pricing.unitAmount,47920,'Premium yearly is unaffected by a Basic order');
+ const hash=c=>c.repeat(64);
+ assert.equal(app.rpc('checkout',selection(app,{plan:'online',offer:'trial',deviceHash:hash('a'),ipHash:hash('b')})).error,'selection');
+ const token=app.ctx.makeSession_('buyer@example.com');
+ assert.deepEqual(app.call({step:'identity',token}).yearlyOfferUsed,{online:true,offline:false});
 });

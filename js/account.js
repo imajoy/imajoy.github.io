@@ -1,6 +1,6 @@
 import {mountPasskeys,cancelPasskey} from './passkeys.js?v=20261020-fast1';
 /* Email-code sign-in with an immediate cached summary and live subscription refresh. */
-import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p5';
+import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
 const cfg = window.AJOY_CONFIG || {};
 if (cfg.accountOpen && cfg.sheetUrl) init();
 function init() {

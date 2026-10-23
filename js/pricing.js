@@ -1,5 +1,5 @@
-import {availability,premiumYearlyUsed} from './regions.js?v=20261023-p6';
-import {onAccountChange} from './account-session.js?v=20261023-p5';
+import {availability,yearlyOfferUsed,YEARLY_PERCENT} from './regions.js?v=20261023-p7';
+import {onAccountChange} from './account-session.js?v=20261023-p7';
 import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261020-prices1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261023-p5';
@@ -42,7 +42,7 @@ async function render(){
    }
    if(!inIndia&&rzpOpen&&!paypalOpen)note.textContent=(trial?TRIAL_DAYS+'-day free trial, then billed ':'Billed ')+(billing==='yearly'?'annually':'monthly')+'. Pay by card via Razorpay, charged in '+(razorpayConfig?.intlCurrency==='USD'?'USD':'INR')+'.';
    if(inIndia)note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Pay with UPI or card via Razorpay.':(indiaOpen?'Pay securely with Razorpay. ':'Indicative price. ')+'Billed '+(billing==='yearly'?'annually.':'monthly.');
-   if(plan==='offline'&&billing==='yearly'&&premiumYearlyUsed())note.textContent='Regular yearly price. The first-year 20% saving on Premium has already been used on this account. Billed annually.';
+   if(billing==='yearly'&&yearlyOfferUsed(plan))note.textContent='Regular yearly price. The first-year '+YEARLY_PERCENT[plan]+'% saving on '+(plan==='offline'?'Premium':'Basic')+' has already been used on this account. Billed annually.';
    if(billing==='yearly'&&quote.annualSavings>0){
     offer.hidden=false;comparison.hidden=false;comparison.querySelector('.annual-original').textContent=show(quote.compareAtUnitAmount);
     offer.querySelector('.annual-saving').textContent='Save '+show(quote.annualSavings)+' per year';
@@ -53,16 +53,16 @@ async function render(){
  }));
  if(current===revision)animatePricing=false;
 }
-/* "20% OFF" badges. Premium's saving is for an account's first Premium yearly subscription only. */
+/* Yearly-saving badges (Basic 15%, Premium 20%). The saving is for an account's first yearly subscription of each plan. */
 const badgeMotion=!matchMedia('(prefers-reduced-motion: reduce)').matches&&'IntersectionObserver' in window;
 const badges=[...document.querySelectorAll('.plan-discount')];
-const isPremium=badge=>!!badge.closest('.plan')?.querySelector('[data-buy="offline"]');
+const planOf=badge=>badge.closest('.plan')?.querySelector('[data-buy="offline"]')?'offline':'online';
 function playBadge(badge){
  if(!badgeMotion||badge.hidden)return;
  badge.dataset.live='wait';void badge.offsetWidth;
  requestAnimationFrame(()=>{badge.dataset.live='go';});
 }
-function syncBadges(){for(const badge of badges)badge.hidden=isPremium(badge)&&premiumYearlyUsed();}
+function syncBadges(){for(const badge of badges)badge.hidden=yearlyOfferUsed(planOf(badge));}
 if(badgeMotion){
  const seen=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting){seen.unobserve(entry.target);playBadge(entry.target);}},{threshold:.6});
  for(const badge of badges){badge.dataset.live='wait';seen.observe(badge);}

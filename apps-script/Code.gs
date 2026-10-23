@@ -367,7 +367,7 @@ function handleAccount_(d) {
     var who = readSession_(d.token);
     if (!who) return { ok: false, error: 'expired' };
     if (!registeredEmail_(who.email)) return { ok: false, error: 'not_registered' };
-    var account = { ok: true, email: who.email, limited: !!who.sub, expiresAt: who.expiresAt, premiumYearlyUsed: premiumYearlyUsed_(who.email) };
+    var account = { ok: true, email: who.email, limited: !!who.sub, expiresAt: who.expiresAt, premiumYearlyUsed: premiumYearlyUsed_(who.email), yearlyOfferUsed: { online: yearlyOfferUsed_(who.email, 'online'), offline: yearlyOfferUsed_(who.email, 'offline') } };
     if (step === 'status') account.subscriptions = subscriptionsFor_(who.email, who.sub);
     return account;
   }
@@ -412,7 +412,7 @@ function handleAccount_(d) {
     if (!registeredEmail_(email) && intent !== 'register') return { ok: false, error: 'not_registered' };
     registerAccount_(email);
     var token = makeSession_(email), identity = readSession_(token);
-    return { ok: true, email: email, token: token, expiresAt: identity.expiresAt, subscriptions: null, premiumYearlyUsed: premiumYearlyUsed_(email) };
+    return { ok: true, email: email, token: token, expiresAt: identity.expiresAt, subscriptions: null, premiumYearlyUsed: premiumYearlyUsed_(email), yearlyOfferUsed: { online: yearlyOfferUsed_(email, 'online'), offline: yearlyOfferUsed_(email, 'offline') } };
   } finally { lock.releaseLock(); }
 }
 
@@ -473,27 +473,28 @@ var LEGACY_PRICES = {
   low: { online: { monthly: 9, yearly: 86 }, offline: { monthly: 18, yearly: 173 } }
 };
 var PRICES = {
-  high: { online: { monthly: 29.99, yearly: 287.90 }, offline: { monthly: 49.92, yearly: 479.20, full: 599.00 } },
-  mid:  { online: { monthly: 16.59, yearly: 159.20 }, offline: { monthly: 39.09, yearly: 375.20, full: 469.00 } },
-  low:  { online: { monthly: 7.99, yearly: 76.70 }, offline: { monthly: 19.09, yearly: 183.20, full: 229.00 } }
+  high: { online: { monthly: 29.99, yearly: 305.90, full: 359.88 }, offline: { monthly: 49.92, yearly: 479.20, full: 599.00 } },
+  mid:  { online: { monthly: 16.59, yearly: 169.15, full: 199.00 }, offline: { monthly: 39.09, yearly: 375.20, full: 469.00 } },
+  low:  { online: { monthly: 7.99, yearly: 81.50, full: 95.88 }, offline: { monthly: 19.09, yearly: 183.20, full: 229.00 } }
 };
 
 /* Customer-facing plan names. The stored plan keys stay 'online' and 'offline'. */
 function planLabel_(plan) { return plan === 'offline' ? 'Premium' : 'Basic'; }
-/* The 20% yearly saving on Premium is for an account's first Premium yearly subscription only.
-   Any approved Premium yearly order (PayPal or Razorpay) in the current mode uses it up, even if later cancelled. */
-function premiumYearlyUsed_(email) {
+/* The yearly saving (15% Basic, 20% Premium) is for an account's first yearly subscription of that plan only.
+   Any approved yearly order of that plan (PayPal or Razorpay) in the current mode uses it up, even if later cancelled. */
+function premiumYearlyUsed_(email) { return yearlyOfferUsed_(email, 'offline'); }
+function yearlyOfferUsed_(email, plan) {
   email = String(email || '').trim().toLowerCase();
   if (!email) return false;
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
   if (sheet && sheet.getLastRow() > 1) {
     var modes = [mode_(), 'razorpay_' + (typeof razorpayMode_ === 'function' ? razorpayMode_() : 'test')];
     var found = sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues().some(function (r) {
-      return String(r[4]).trim().toLowerCase() === email && modes.indexOf(String(r[3])) >= 0 && String(r[7]).split(' ')[0] === 'offline' && String(r[8]) === 'yearly' && String(r[2]) !== 'NOT_FOUND';
+      return String(r[4]).trim().toLowerCase() === email && modes.indexOf(String(r[3])) >= 0 && String(r[7]).split(' ')[0] === plan && String(r[8]) === 'yearly' && String(r[2]) !== 'NOT_FOUND';
     });
     if (found) return true;
   }
-  if (typeof razorpayRows_ === 'function' && razorpayRows_().some(function (r) { return r.mode === razorpayMode_() && r.email === email && r.accepted && r.price && r.price.plan === 'offline' && r.price.billing === 'yearly'; })) return true;
+  if (typeof razorpayRows_ === 'function' && razorpayRows_().some(function (r) { return r.mode === razorpayMode_() && r.email === email && r.accepted && r.price && r.price.plan === plan && r.price.billing === 'yearly'; })) return true;
   return false;
 }
 

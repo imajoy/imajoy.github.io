@@ -1,5 +1,5 @@
 /* No client amount or trial-eligibility claim authorizes a subscription. */
-import {getAccountSession,clearAccountSession,openAccount} from './account-session.js?v=20261023-p5';
+import {getAccountSession,clearAccountSession,openAccount} from './account-session.js?v=20261023-p7';
 const cfg=window.AJOY_CONFIG||{};
 let device;
 export function browserDeviceId(){

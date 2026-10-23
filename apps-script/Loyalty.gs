@@ -116,8 +116,8 @@ function rewardHistoryCached_(email){
 }
 function rewardQuote_(d,who,history) {
   var country=d.sandboxCountry||d.country;
-  // Premium yearly is 20% off only for an account's first Premium yearly subscription; later ones pay the full price.
-  var full=d.plan==='offline'&&d.billing==='yearly'&&premiumYearlyUsed_(who.email);
+  // The yearly saving (Basic 15%, Premium 20%) is for an account's first yearly subscription of that plan; later ones pay the full price.
+  var full=d.billing==='yearly'&&yearlyOfferUsed_(who.email,d.plan);
   var amount=Math.round(PRICES[tierFor_(country)][d.plan][full?'full':d.billing]*100);
   var next=history[d.billing]+1,reward='',percent=0;
   if(d.billing==='monthly'&&(next===2||next===3)){reward=next===2?'monthly_second':'monthly_third';percent=5;}

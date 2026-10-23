@@ -23,9 +23,9 @@ test('Active checkout verifies paid transactions: monthly payments 2 and 3 recei
 test('Second annual payment gets 10% off the yearly catalog rate once, with no monthly history cross-over',()=>{
  for(const [paid,percent] of [[0,0],[1,10],[2,0]]){
   const app=service();history(app,paid,'yearly');const data=selection(app,{billing:'yearly',seats:3}),quote=app.rpc('rewards',data);
-  assert.equal(quote.pricing.percent,percent);assert.equal(quote.pricing.total,(percent?25911:28790)*3);
+  assert.equal(quote.pricing.percent,percent);assert.equal(quote.pricing.total,(percent?32389:35988)*3);
   const created=app.rpc('checkout',data);assert(created.ok,JSON.stringify(created));
-  if(percent){const plan=[...app.plans.values()][0];assert.equal(plan.billing_cycles[0].total_cycles,1);assert.equal(plan.billing_cycles[0].pricing_scheme.fixed_price.value,'259.11');assert.equal(plan.billing_cycles[1].pricing_scheme.fixed_price.value,'287.90');}
+  if(percent){const plan=[...app.plans.values()][0];assert.equal(plan.billing_cycles[0].total_cycles,1);assert.equal(plan.billing_cycles[0].pricing_scheme.fixed_price.value,'323.89');assert.equal(plan.billing_cycles[1].pricing_scheme.fixed_price.value,'359.88');}
  }
  const app=service();history(app,2);assert.equal(app.rpc('rewards',selection(app,{billing:'yearly'})).pricing.percent,0);
 });
@@ -63,7 +63,7 @@ test('Identity, environment and provider failures cannot invent rewards; stale d
 
 test('Annual reward consumption survives refunds, duplicate confirmations and duplicate transaction IDs',()=>{
  const app=service();history(app,1,'yearly');const created=app.rpc('checkout',selection(app,{billing:'yearly'}));assert(approve(app,created).accepted);
- const tx=receipt('ANNUAL-REWARD','COMPLETED','259.11');app.transactions.set(created.subscriptionId,{transactions:[tx,{...tx}]});
+ const tx=receipt('ANNUAL-REWARD','COMPLETED','323.89');app.transactions.set(created.subscriptionId,{transactions:[tx,{...tx}]});
  assert.equal(app.rpc('rewards',selection(app,{billing:'yearly'})).pricing.nextPayment,3,'duplicate transaction cannot count twice');
  const mails=app.mails.length;assert(approve(app,created).accepted);assert.equal(app.mails.length,mails);
  tx.status='REFUNDED';app.transactions.get(created.subscriptionId).transactions=[tx];

@@ -1,5 +1,5 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
-import {getAccountSession} from './account-session.js?v=20261023-p5';
+import {getAccountSession} from './account-session.js?v=20261023-p7';
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
 const plan=q.get('plan')==='offline'?'Premium':'Basic',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
 let seats=parseInt(q.get('seats'),10);seats=seats>0&&seats<=100?seats:1;

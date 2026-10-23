@@ -4,8 +4,9 @@ const require=createRequire(import.meta.url),{chromium}=require(process.env.PLAY
 const base=new URL(process.argv[2]||'http://localhost:8799/');
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox']});
 const open=async(path,{used=false,reduced=false}={})=>{
+ const flags=used;
  const context=await browser.newContext({viewport:{width:1280,height:900},timezoneId:'America/New_York',locale:'en-US',reducedMotion:reduced?'reduce':'no-preference'});
- if(used)await context.addInitScript(()=>localStorage.setItem('ajoy.acct',JSON.stringify({token:'x'.repeat(40),email:'buyer@example.com',expiresAt:Date.now()+864e5,subscriptions:[],premiumYearlyUsed:true})));
+ if(used)await context.addInitScript(f=>localStorage.setItem('ajoy.acct',JSON.stringify({token:'x'.repeat(40),email:'buyer@example.com',expiresAt:Date.now()+864e5,subscriptions:[],yearlyOfferUsed:f})),typeof flags==='object'?flags:{online:false,offline:true});
  const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(new URL(path,base).href);return {context,page,errors};
 };
@@ -32,6 +33,7 @@ try{
   const names=await page.locator('.plans .plan h3').allTextContents();assert.deepEqual(names.map(s=>s.trim()),['Basic','Premium']);
   const body=await page.locator('body').innerText();assert(!/\bOnline plan\b|\bOffline plan\b/.test(body),'old plan names are gone');
   assert.equal(await page.locator('.plan-discount').count(),2);
+  assert.deepEqual((await page.locator('.plan-discount .discount-label').allTextContents()).map(s=>s.trim()),['15% OFF','20% OFF']);
   // First-time Premium yearly: 20% off, badge visible and animated.
   await page.locator('[data-bill=yearly]').click();
   await page.waitForFunction(()=>document.querySelector('[data-amt=offline]').textContent.includes('479.20'));
@@ -47,18 +49,27 @@ try{
   await page.locator('#pricing').scrollIntoViewIfNeeded();
   await page.locator('[data-bill=yearly]').click();
   await page.waitForFunction(()=>document.querySelector('[data-amt=offline]').textContent.includes('599'));
-  assert.equal(await page.locator('[data-amt=online]').textContent().then(s=>s.includes('287.90')),true,'Basic yearly keeps 20%');
+  assert.equal(await page.locator('[data-amt=online]').textContent().then(s=>s.includes('305.90')),true,'Basic yearly keeps 20%');
   const hidden=await page.locator('.plan-discount').evaluateAll(a=>a.map(x=>x.hidden));assert.deepEqual(hidden,[false,true],'only the Premium badge is gone');
   assert.equal(await page.locator('[data-annual=offline]').isHidden(),true);
   assert.match(await page.locator('[data-note=offline]').textContent(),/already been used/);
   await page.locator('[data-bill=monthly]').click();await page.waitForFunction(()=>document.querySelector('[data-amt=offline]').textContent.includes('49.92'));
   await context.close();
  }
+ // Basic's first yearly plan is used up: Basic goes to the regular price and loses its badge; Premium keeps 20%.
+ {
+  const {context,page}=await open('wrapline.html',{used:{online:true,offline:false}});
+  await page.locator('#pricing').scrollIntoViewIfNeeded();await page.locator('[data-bill=yearly]').click();
+  await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent.includes('359.88'));
+  assert(await page.locator('[data-amt=offline]').textContent().then(s=>s.includes('479.20')),'Premium keeps its first-year 20%');
+  assert.deepEqual(await page.locator('.plan-discount').evaluateAll(a=>a.map(x=>x.hidden)),[true,false]);
+  assert.match(await page.locator('[data-note=online]').textContent(),/15% saving on Basic has already been used/);await context.close();
+ }
  // Reduced motion: the badge text stays readable and static.
  {
   const {context,page}=await open('wrapline.html',{reduced:true});
   await page.locator('#pricing').scrollIntoViewIfNeeded();
-  const state=await page.locator('.plan-discount b').first().evaluate(b=>({anim:getComputedStyle(b).animationName,op:getComputedStyle(b.querySelector('.discount-typing span')).opacity,text:b.textContent.replace(/\s+/g,'').includes('20%OFF')}));
+  const state=await page.locator('.plan-discount b').first().evaluate(b=>({anim:getComputedStyle(b).animationName,op:getComputedStyle(b.querySelector('.discount-typing span')).opacity,text:b.textContent.replace(/\s+/g,'').includes('15%OFF')}));
   assert.equal(state.anim,'none');assert.equal(state.op,'1');assert.equal(state.text,true);await context.close();
  }
  console.log('Trial buttons open pricing; Basic/Premium names; first-time Premium yearly 20% (badge animation) and full price after use passed.');

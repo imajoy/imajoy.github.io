@@ -1,8 +1,8 @@
 /* Clear, contextual offers. Promotions never authorize a trial or change a paid selection. */
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261023-p5';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
-import {availability,closedMessage,premiumYearlyUsed} from './regions.js?v=20261023-p6';
-import {getAccountSession,onAccountChange} from './account-session.js?v=20261023-p5';
+import {availability,closedMessage,YEARLY_PERCENT,yearlyOfferUsed} from './regions.js?v=20261023-p7';
+import {getAccountSession,onAccountChange} from './account-session.js?v=20261023-p7';
 import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261019-contact1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
 const isHome=Boolean(document.querySelector('.trial-showcase'));
@@ -56,10 +56,10 @@ if(form){
   const control=document.querySelector('[data-offer-yearly]');
   const sync=()=>{
     const yearly=form.elements.billing.value==='yearly';
-    // Premium's yearly saving is for an account's first Premium yearly subscription only.
-    const premium=form.elements.plan.value==='offline',spent=premium&&premiumYearlyUsed(),aside=document.querySelector('.offer-checkout');
+    // The yearly saving is for an account's first yearly subscription of each plan (Basic 15%, Premium 20%).
+    const plan=form.elements.plan.value,pct=YEARLY_PERCENT[plan]||15,name=plan==='offline'?'Premium':'Basic',spent=yearlyOfferUsed(plan),aside=document.querySelector('.offer-checkout');
     if(aside)aside.hidden=spent;
-    document.querySelector('[data-offer-heading]').textContent=yearly?(premium?'Your first Premium year includes 20% savings.':'Your yearly plan includes 20% savings.'):(premium?'Save 20% on your first Premium year.':'Save 20% with yearly billing.');
+    document.querySelector('[data-offer-heading]').textContent=yearly?'Your first '+name+' year includes '+pct+'% savings.':'Save '+pct+'% on your first '+name+' year.';
     document.querySelector('[data-offer-copy]').textContent=yearly?'Compared with 12 standard monthly payments. Review the annual total below.':'Same 13 tools. A lower price than paying monthly for a year.';
     control.hidden=yearly;
   };

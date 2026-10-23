@@ -90,6 +90,7 @@ function commercePlan_(plan,billing,country,offer) {
 function commerceCreate_(d,who) {
   if(['online','offline'].indexOf(d.plan)<0||['monthly','yearly'].indexOf(d.billing)<0||['trial','standard'].indexOf(d.offer)<0||!Number.isInteger(d.seats)||d.seats<1||d.seats>100||!/^[-a-f0-9]{36}$/i.test(d.requestId||''))throw commerceError_('selection','Review your plan and quantity.');
   if(d.offer==='trial'&&d.plan!=='online')throw commerceError_('selection','Only Basic plans offer a trial.');
+  if(d.offer==='trial'&&d.billing==='yearly'&&yearlyOfferUsed_(who.email,'online'))throw commerceError_('selection','Your first-year yearly saving on Basic has already been used. Start the trial with monthly billing, or subscribe yearly at the regular price.');
   var checkoutCountry=d.country;
   if(d.sandboxCountry){
     if(props_().getProperty('PAYPAL_MODE')!=='sandbox')throw commerceError_('unavailable','A Sandbox country simulation requires PAYPAL_MODE=sandbox in Apps Script and cannot use Live merchant settings.');

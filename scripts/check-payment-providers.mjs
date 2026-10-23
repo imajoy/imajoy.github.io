@@ -96,7 +96,7 @@ try{
    await page.selectOption('#billing','yearly');
    await page.waitForFunction(()=>document.documentElement.dataset.billingBlocked==='false');
    await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');
-   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('8,630.40')||document.querySelector('#summary-total').textContent.includes('287.90'));
+   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('9,169.80')||document.querySelector('#summary-total').textContent.includes('305.90'));
    assert.equal(await page.locator('#annual-summary-row').isVisible(),true);
    if(country==='IN'){
     await page.locator('.razorpay-panel').screenshot({path:'/tmp/razorpay-checkout-'+width+'.png'});
@@ -146,7 +146,7 @@ try{
    try{await page.waitForFunction(enabled=>document.querySelector('[data-buy="online"]')?.textContent.includes(enabled?'Start 4-day free trial':'Review billing'),enabled,{timeout:10000});}
    catch(error){console.error({country,enabled,errors,cta:await page.locator('[data-buy="online"]').textContent(),href:await page.locator('[data-buy="online"]').getAttribute('href')});throw error;}
    assert.match(await page.locator('[data-buy="online"]').getAttribute('href'),/checkout\.html/);
-   if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('8,630.40'));}
+   if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('9,169.80'));}
   }
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);
   console.log(`${country}, Razorpay ${enabled?'enabled':'disabled'}, ${width}px ${theme}${legacy?' legacy config':''}: provider gates and checkout passed`);

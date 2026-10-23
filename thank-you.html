@@ -38,11 +38,11 @@
           <span class="ty-pass-chip" id="ty-billing">Monthly</span>
         </div>
         <p class="ty-pass-plan" id="ty-plan">Basic plan</p>
-        <div class="ty-key" aria-label="Your license key is on its way"><span>XXXX</span><span>XXXX</span><span>XXXX</span><span>XXXX</span></div>
+        <div class="ty-key" id="ty-key" aria-label="Your license key is on its way"><span>XXXX</span><span>XXXX</span><span>XXXX</span><span>XXXX</span></div>
         <dl class="ty-pass-meta">
           <div><dt>Licenses</dt><dd id="ty-seats">1 license</dd></div>
           <div><dt>Paid with</dt><dd id="ty-provider">—</dd></div>
-          <div><dt>Key expected by</dt><dd id="ty-eta">—</dd></div>
+          <div id="ty-eta-row"><dt>Key expected by</dt><dd id="ty-eta">—</dd></div>
         </dl>
         <div class="ty-pass-foot"><span class="ty-pulse" aria-hidden="true"></span><span id="ty-pass-note">License key is being prepared</span></div>
       </article>
@@ -50,13 +50,13 @@
       <h2 class="ty-next-title">What happens next</h2>
       <ol class="ty-timeline">
         <li data-step="done"><span class="ty-dot" aria-hidden="true"></span><div><b id="ty-step-pay">Payment received</b><p>Just now</p></div></li>
-        <li data-step="current"><span class="ty-dot" aria-hidden="true"></span><div><b>License key arrives within 12 hours</b><p>We email it to your verified address. Check spam if it hasn't arrived.</p></div></li>
-        <li><span class="ty-dot" aria-hidden="true"></span><div><b>Install Wrapline in Maya</b><p>Drag the setup file into the Maya viewport and choose Basic (online mode) or Premium (offline mode).</p></div></li>
-        <li data-step="key"><span class="ty-dot" aria-hidden="true"></span><div><b>Your license time starts when you activate</b><p>Enter your key in Maya. Your subscription period begins then, not before.</p></div></li>
+        <li data-step="current" id="ty-step-key"><span class="ty-dot" aria-hidden="true"></span><div><b>License key arrives within 12 hours</b><p>We email it to your verified address. Check spam if it hasn't arrived.</p></div></li>
+        <li id="ty-step-install"><span class="ty-dot" aria-hidden="true"></span><div><b>Install Wrapline in Maya</b><p>Drag the setup file into the Maya viewport and choose Basic (online mode) or Premium (offline mode).</p></div></li>
+        <li data-step="key" id="ty-step-start"><span class="ty-dot" aria-hidden="true"></span><div><b>Your license time starts when you activate</b><p>Enter your key in Maya. Your subscription period begins then, not before.</p></div></li>
       </ol>
     </aside>
   </div>
 </main>
 <footer class="commerce-footer">© 2026 AJOY <a href="license.html">License terms</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></footer>
-<script type="module" src="js/thank-you.js?v=20261023-p5"></script>
+<script type="module" src="js/thank-you.js?v=20261023-p6"></script>
 </body></html>

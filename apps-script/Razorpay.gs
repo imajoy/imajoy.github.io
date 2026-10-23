@@ -24,7 +24,12 @@ function razorpayApi_(path,method,body){
   var options={method:method||'get',muteHttpExceptions:true,headers:{Authorization:'Basic '+Utilities.base64Encode(key+':'+secret)}};
   if(body){options.contentType='application/json';options.payload=JSON.stringify(body);}
   var response=UrlFetchApp.fetch('https://api.razorpay.com/v1'+path,options),status=response.getResponseCode();
-  if(status<200||status>=300)throw commerceError_('provider','Razorpay could not complete this request. Check your subscription before retrying.');
+  if(status<200||status>=300){
+    var err=commerceError_('provider','Razorpay could not complete this request. Check your subscription before retrying.');
+    // The provider's own reason is kept for the owner's logs only; buyers always see the general message above.
+    try{var why=JSON.parse(response.getContentText()).error||{};err.detail='HTTP '+status+': '+(why.description||why.code||'no reason given');}catch(e){err.detail='HTTP '+status;}
+    throw err;
+  }
   try{return JSON.parse(response.getContentText());}catch(e){throw commerceError_('provider','Razorpay returned an invalid response.');}
 }
 function razorpayCatalog_(){return JSON.parse(props_().getProperty('RAZORPAY_PLANS_'+razorpayMode_())||'{}');}
@@ -382,7 +387,9 @@ function setupRazorpayPlans(){
   ['india','high','mid','low'].forEach(function(tier){catalog[tier]=catalog[tier]||{};['online','offline'].forEach(function(kind){catalog[tier][kind]=catalog[tier][kind]||{};['monthly','yearly','yearlyFull'].forEach(function(billing){
     if(catalog[tier][kind][billing])return;
     var country={india:'IN',high:'US',mid:'BR',low:'LK'}[tier],period=billing==='yearlyFull'?'yearly':billing,price=razorpayPrice_(kind,period,country,tier==='india'?'INR':intl,billing==='yearlyFull');
-    var plan=razorpayApi_('/plans','post',{period:period,interval:1,item:{name:'Wrapline '+planLabel_(kind)+' '+billing+' ('+tier+')',amount:price.unitAmount,currency:price.currency},notes:{product:'wrapline',tier:tier}});
+    var plan;
+    try{plan=razorpayApi_('/plans','post',{period:period,interval:1,item:{name:'Wrapline '+planLabel_(kind)+' '+billing+' ('+tier+')',amount:price.unitAmount,currency:price.currency},notes:{product:'wrapline',tier:tier}});}
+    catch(e){throw new Error('Razorpay refused the '+tier+' '+planLabel_(kind)+' '+billing+' plan ('+price.currency+' '+(price.unitAmount/100).toFixed(2)+'). Razorpay said: '+(e.detail||e.message)+'. Plans already made are kept; fix this and run setupRazorpayPlans again.');}
     if(!/^plan_[A-Za-z0-9]+$/.test(plan.id||''))throw new Error('Razorpay did not return a plan ID.');
     catalog[tier][kind][billing]=plan.id;props_().setProperty('RAZORPAY_PLANS_'+razorpayMode_(),JSON.stringify(catalog));
   });});});

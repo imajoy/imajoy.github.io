@@ -59,6 +59,8 @@ if(form){
     // The yearly saving is for an account's first yearly subscription of each plan (Basic 15%, Premium 20%).
     const plan=form.elements.plan.value,pct=YEARLY_PERCENT[plan]||15,name=plan==='offline'?'Premium':'Basic',spent=yearlyOfferUsed(plan),aside=document.querySelector('.offer-checkout');
     if(aside)aside.hidden=spent;
+    const stamp=document.querySelector('.offer-stamp');if(stamp)stamp.firstChild.textContent=pct;
+    const pick=document.querySelector('#choose-yearly');if(pick)pick.textContent='Switch to yearly · save '+pct+'%';
     document.querySelector('[data-offer-heading]').textContent=yearly?'Your first '+name+' year includes '+pct+'% savings.':'Save '+pct+'% on your first '+name+' year.';
     document.querySelector('[data-offer-copy]').textContent=yearly?'Compared with 12 standard monthly payments. Review the annual total below.':'Same 13 tools. A lower price than paying monthly for a year.';
     control.hidden=yearly;

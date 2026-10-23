@@ -367,7 +367,8 @@ function handleAccount_(d) {
     var who = readSession_(d.token);
     if (!who) return { ok: false, error: 'expired' };
     if (!registeredEmail_(who.email)) return { ok: false, error: 'not_registered' };
-    var account = { ok: true, email: who.email, limited: !!who.sub, expiresAt: who.expiresAt, premiumYearlyUsed: premiumYearlyUsed_(who.email), yearlyOfferUsed: { online: yearlyOfferUsed_(who.email, 'online'), offline: yearlyOfferUsed_(who.email, 'offline') } };
+    var account = { ok: true, email: who.email, limited: !!who.sub, expiresAt: who.expiresAt, premiumYearlyUsed: false, yearlyOfferUsed: { online: false, offline: false } };
+    var flags = yearlyUsedFlags_(who.email); account.premiumYearlyUsed = flags.offline; account.yearlyOfferUsed = flags;
     if (step === 'status') account.subscriptions = subscriptionsFor_(who.email, who.sub);
     return account;
   }
@@ -411,8 +412,8 @@ function handleAccount_(d) {
     cache.remove('code:' + email); cache.remove('intent:' + email);
     if (!registeredEmail_(email) && intent !== 'register') return { ok: false, error: 'not_registered' };
     registerAccount_(email);
-    var token = makeSession_(email), identity = readSession_(token);
-    return { ok: true, email: email, token: token, expiresAt: identity.expiresAt, subscriptions: null, premiumYearlyUsed: premiumYearlyUsed_(email), yearlyOfferUsed: { online: yearlyOfferUsed_(email, 'online'), offline: yearlyOfferUsed_(email, 'offline') } };
+    var token = makeSession_(email), identity = readSession_(token), flags2 = yearlyUsedFlags_(email);
+    return { ok: true, email: email, token: token, expiresAt: identity.expiresAt, subscriptions: null, premiumYearlyUsed: flags2.offline, yearlyOfferUsed: flags2 };
   } finally { lock.releaseLock(); }
 }
 
@@ -483,20 +484,25 @@ function planLabel_(plan) { return plan === 'offline' ? 'Premium' : 'Basic'; }
 /* The yearly saving (15% Basic, 20% Premium) is for an account's first yearly subscription of that plan only.
    Any approved yearly order of that plan (PayPal or Razorpay) in the current mode uses it up, even if later cancelled. */
 function premiumYearlyUsed_(email) { return yearlyOfferUsed_(email, 'offline'); }
-function yearlyOfferUsed_(email, plan) {
+/* Both plans' yearly-saving flags from one pass over the Orders tab and the Razorpay records (this used to be three passes). */
+function yearlyUsedFlags_(email) {
   email = String(email || '').trim().toLowerCase();
-  if (!email) return false;
+  var out = { online: false, offline: false };
+  if (!email) return out;
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
   if (sheet && sheet.getLastRow() > 1) {
     var modes = [mode_(), 'razorpay_' + (typeof razorpayMode_ === 'function' ? razorpayMode_() : 'test')];
-    var found = sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues().some(function (r) {
-      return String(r[4]).trim().toLowerCase() === email && modes.indexOf(String(r[3])) >= 0 && String(r[7]).split(' ')[0] === plan && String(r[8]) === 'yearly' && String(r[2]) !== 'NOT_FOUND';
+    sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues().forEach(function (r) {
+      var plan = String(r[7]).split(' ')[0];
+      if (String(r[4]).trim().toLowerCase() === email && modes.indexOf(String(r[3])) >= 0 && plan in out && String(r[8]) === 'yearly' && String(r[2]) !== 'NOT_FOUND') out[plan] = true;
     });
-    if (found) return true;
   }
-  if (typeof razorpayRows_ === 'function' && razorpayRows_().some(function (r) { return r.mode === razorpayMode_() && r.email === email && r.accepted && r.price && r.price.plan === plan && r.price.billing === 'yearly'; })) return true;
-  return false;
+  if (typeof razorpayRows_ === 'function') razorpayRows_().forEach(function (r) {
+    if (r.mode === razorpayMode_() && r.email === email && r.accepted && r.price && r.price.billing === 'yearly' && r.price.plan in out) out[r.price.plan] = true;
+  });
+  return out;
 }
+function yearlyOfferUsed_(email, plan) { return !!yearlyUsedFlags_(email)[plan]; }
 
 function paypalPost_(path, body, t, reqId) {
   var r = UrlFetchApp.fetch(base_() + path, {

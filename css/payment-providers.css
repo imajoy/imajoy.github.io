@@ -240,3 +240,4 @@ html[data-theme=dark] .rzp-offer-note[data-kind=club]{color:#f0bd62;background:r
 .rzp-check{margin:10px 0 0;padding:8px 12px;border-radius:12px;font-size:12.5px;line-height:1.5;color:#1F4FBF;background:#E6EEFF}
 .rzp-check[hidden]{display:none}
 html[data-theme=dark] .rzp-check{color:#8DBBFF;background:rgba(61,139,255,.14)}
+html[data-checkout-step=billing] .checkout-form .coupon-panel{display:none!important}

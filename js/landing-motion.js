@@ -8,7 +8,7 @@ else if(canvas){
  /* Preparing the 3D graphics briefly freezes the page, so it waits until the visitor first moves,
     scrolls or types, or until 5s after the page has loaded, whichever comes first. */
  let queued=false,ready=false,inView=!('IntersectionObserver'in window);
- const start=()=>import('./scene.bundle.js?v=20261021-lite1').catch(()=>canvas.setAttribute('data-scene-unavailable',''));
+ const start=()=>import('./scene.bundle.js?v=20261023-fit1').catch(()=>canvas.setAttribute('data-scene-unavailable',''));
  const load=()=>{
   if(queued||!ready||!inView)return;queued=true;
   for(const type of wake)removeEventListener(type,go,true);

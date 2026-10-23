@@ -253,6 +253,15 @@ import * as THREE from './vendor/three.module.min.js'; /* bundled into scene.bun
   }, { passive: true });
 
   var tanH = Math.tan(THREE.MathUtils.degToRad(15));
+  var heroSection = canvas.closest('.hero'), copyEl = heroSection && heroSection.querySelector('.hero-copy');
+  /* Where the left-aligned hero text ends (px from the canvas's left edge), so the 3D scene can use the space that is left. */
+  function copyRight() {
+    var base = canvas.getBoundingClientRect().left, right = 0, range = document.createRange();
+    function add(r) { if (r && r.width) right = Math.max(right, r.right - base); }
+    copyEl.querySelectorAll('h1, .lead, .hero-trial-summary').forEach(function (n) { range.selectNodeContents(n); add(range.getBoundingClientRect()); });
+    copyEl.querySelectorAll('.trial-banner, .hero-actions .btn, .wl-hero-rating:not([hidden])').forEach(function (n) { add(n.getBoundingClientRect()); });
+    return right;
+  }
   function resize() {
     var w = canvas.clientWidth, h = canvas.clientHeight;
     if (!w || !h) return;
@@ -260,10 +269,19 @@ import * as THREE from './vendor/three.module.min.js'; /* bundled into scene.bun
     var aspect = w / h;
     camera.aspect = aspect;
     narrow = aspect < 1.1 || window.innerHeight > window.innerWidth; /* tall windows (tablets in portrait) use the centred framing */
-    var split = !narrow && w > 980;
-    var halfW = narrow ? 4.7 : (split ? 5.2 : 5.6);
-    var dist = Math.max(11, halfW / (tanH * aspect * (split ? 0.5 : 1)));
-    if (split) camera.setViewOffset(w, h, -w * 0.22, 0, w, h); else camera.clearViewOffset();
+    var leftCopy = !!copyEl && /^(left|start)$/.test(getComputedStyle(copyEl).textAlign);
+    var split = !narrow && leftCopy;
+    var halfW = narrow ? 4.7 : 5.6, dist;
+    if (split) {
+      /* Fit the whole scene (about 11.5 world units wide; the far-right tile may touch the screen edge) into the space right of the text, never larger than the usual size. */
+      var free = Math.max(w * 0.3, w - copyRight() - 8), ppu = Math.min(w / 20.8, free / 11);
+      dist = Math.max(11, h / (2 * tanH * ppu));
+      var centreX = w - free / 2 - 4;
+      camera.setViewOffset(w, h, -(centreX - w / 2 - 0.3 * ppu), 0, w, h);
+    } else {
+      dist = Math.max(11, halfW / (tanH * aspect));
+      camera.clearViewOffset();
+    }
     var visH = 2 * dist * tanH;
     var feet = 0.36;
     var centerY = feet + (narrow ? 0.35 : 0.42) * visH;
@@ -280,6 +298,8 @@ import * as THREE from './vendor/three.module.min.js'; /* bundled into scene.bun
     if (clock) { update(0); renderer.render(scene, camera); }
   }
   window.addEventListener('resize', resize);
+  /* The text block changes size when fonts, the rating chip or the offer banner load: refit the scene. */
+  if (copyEl && window.ResizeObserver) { var fitFrame = 0; new ResizeObserver(function () { cancelAnimationFrame(fitFrame); fitFrame = requestAnimationFrame(resize); }).observe(copyEl); }
   resize();
 
   if ('IntersectionObserver' in window) {

@@ -61,7 +61,7 @@ if(form&&pay){
    line.hidden=false;line.textContent='4-day free trial, subject to final PayPal account eligibility. Then '+displayPrice(price*100)+' per '+(c.billing==='yearly'?'year':'month')+'. Cancel in PayPal before billing starts.';
   }else{if(line)line.hidden=true;if(wasTrial)setMoney(total,usdUnit(tierFor(c.country),c.plan,c.billing)*100*c.seats,'USD',c.country);}
   fine.textContent=trialOn?'One trial per customer, browser, network and verified PayPal payer account. We check your payment account before granting access. Your first subscription payment follows the 4-day trial unless cancelled.':'Charged in US dollars by PayPal. Review the subscription price before approving. Your license is sent within 12 hours after server confirmation.';
-  if(couponBox)couponBox.hidden=!session||!eligibility||!rewardsSupported();
+  if(couponBox)couponBox.hidden=!paymentStep||!session||!eligibility||!rewardsSupported(); /* coupons live on the payment step only */
   renderReward();
   const needsPrice=selectedOffer==='standard'&&rewardsSupported(),priceReady=!!rewardQuote&&!rewardBusy&&rewardKey===keyOf();
   const waiting=!!session&&!!cfg&&!!eligibility&&available&&needsPrice&&!priceReady;

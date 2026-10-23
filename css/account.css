@@ -135,3 +135,15 @@ html[data-theme=dark] .acct-sub[data-state=ended] p{color:#f5a6a0}
 .ps-manage:hover::after{transform:translateX(3px)}
 .plan-lead .ps-manage{color:#8DBBFF}
 html[data-theme=dark] .ps-manage{color:#8DBBFF}
+
+/* Waiting state: a spinner beside the message and a sliding bar, shown while a code is sent or checked. */
+.acct-bar{height:3px;margin:10px 0 2px;border-radius:3px;overflow:hidden;background:var(--t08,#e5e9f0);opacity:0;transition:opacity .2s}
+.acct-bar i{display:block;width:38%;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--blue,#2563eb),#6aa5ff);transform:translateX(-110%)}
+.acct-body[aria-busy=true] .acct-bar{opacity:1}
+.acct-body[aria-busy=true] .acct-bar i{animation:acct-slide 1.15s cubic-bezier(.4,0,.2,1) infinite}
+.acct-body[aria-busy=true] .acct-msg:not([data-error=true]){display:flex;align-items:center;gap:10px;color:var(--ink,inherit)}
+.acct-body[aria-busy=true] .acct-msg:not([data-error=true])::before{content:"";flex:none;width:16px;height:16px;border-radius:50%;border:2px solid var(--line,#d8deea);border-top-color:var(--blue,#2563eb);animation:acct-spin .75s linear infinite}
+.acct-body[aria-busy=true] .acct-form [type=submit]{opacity:.7;cursor:progress}
+@keyframes acct-spin{to{transform:rotate(360deg)}}
+@keyframes acct-slide{to{transform:translateX(370%)}}
+@media(prefers-reduced-motion:reduce){.acct-body[aria-busy=true] .acct-bar i{animation:none;transform:none;width:100%;opacity:.6}.acct-body[aria-busy=true] .acct-msg::before{animation:none}}

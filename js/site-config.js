@@ -5,9 +5,6 @@ window.AJOY_CONFIG = Object.freeze({
   commerceUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/commerce',
   razorpayUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/razorpay',
   /* Length of the PayPal trial shown on the site. Licenses are issued after server approval. */
-  /* "Buy me a coffee" pop-up on the download, thank-you and tool pages (not the landing page).
-     Put your Buy Me a Coffee page here, for example 'https://buymeacoffee.com/yourname'. Empty = no pop-up. */
-  coffeeUrl: '',
   trialDays: 4,
   /* Old trial-code request form (replaced by the 4-day PayPal trial on the Basic plan). Keep false. */
   trialOpen: false,

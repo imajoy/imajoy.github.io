@@ -1,19 +1,14 @@
 /* "Buy me a coffee" pop-up for the download, thank-you and tool pages (never the landing page).
-   The link comes from AJOY_CONFIG.coffeeUrl (a buymeacoffee.com address). With no link set, nothing is shown.
+   Clicking it opens our own support page (support.html), where people give any amount in USD (PayPal) or INR (Razorpay, India).
    It appears after a few seconds or once the visitor has scrolled a little, and stays away for two weeks after it is closed. */
-const cfg=window.AJOY_CONFIG||{};
 const KEY='ajoy.coffee';
-const local=['localhost','127.0.0.1','[::1]'].includes(location.hostname);
-let url=typeof cfg.coffeeUrl==='string'?cfg.coffeeUrl.trim():'';
-if(!url&&local)url='https://buymeacoffee.com/preview'; /* only so the design can be checked on a local test server */
-let target=null;
-try{const u=new URL(url);if(u.protocol==='https:'&&/^(www\.)?buymeacoffee\.com$/.test(u.hostname))target=u.href;}catch{}
+const target='support.html';
 
 const quiet=()=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'null');return !!v&&Date.now()<v.until;}catch{return false;}};
 const rest=days=>{try{localStorage.setItem(KEY,JSON.stringify({until:Date.now()+days*864e5}));}catch{}};
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-if(target&&!quiet()&&!document.querySelector('.coffee'))setup();
+if(!quiet()&&!document.querySelector('.coffee'))setup();
 
 function setup(){
  const root=document.createElement('aside');
@@ -30,10 +25,10 @@ function setup(){
    <ellipse cx="20" cy="43" rx="3.2" ry="2" fill="#ff8fa3" opacity=".7"/><ellipse cx="44" cy="43" rx="3.2" ry="2" fill="#ff8fa3" opacity=".7"/>
   </svg></a>
   <div class="coffee-copy"><b>Enjoying Wrapline?</b><span>Say thanks with a coffee. Give as much or as little as you like.</span>
-   <a class="coffee-go" data-coffee-link target="_blank" rel="noopener">Buy me a coffee <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
+   <a class="coffee-go" data-coffee-link>Buy me a coffee <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
   <button class="coffee-x-btn" type="button" aria-label="Close this message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
  </div></div></div></div>`;
- for(const a of root.querySelectorAll('[data-coffee-link]')){a.href=target;a.target='_blank';a.rel='noopener';}
+ for(const a of root.querySelectorAll('[data-coffee-link]')){a.href=target;}
  const card=root.querySelector('.coffee-card');
  let hearts,shown=false,gone=false;
 

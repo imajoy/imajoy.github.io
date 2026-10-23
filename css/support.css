@@ -1,0 +1,90 @@
+/* Support page ("Buy me a coffee") and the thank-you greeting that plays after a donation. */
+.support-page{--sp-warm:#ff9b54;--sp-warm2:#ffcf8a;--sp-ink:#3a1d05;--sp-ease:cubic-bezier(.22,1,.36,1);--sp-bounce:cubic-bezier(.34,1.56,.64,1);
+ background:radial-gradient(900px 520px at 12% -8%,color-mix(in srgb,var(--sp-warm2) 42%,transparent),transparent 70%),radial-gradient(700px 480px at 100% 30%,color-mix(in srgb,var(--blue,#3d8bff) 14%,transparent),transparent 70%),var(--bg)}
+.sp-main{padding:72px 0 80px}
+.sp-grid{display:grid;grid-template-columns:1.02fr .98fr;gap:56px;align-items:center}.sp-grid>*{min-width:0}
+.sp-story h1{max-width:12em}.sp-story h1 em{font-family:var(--serif,inherit);font-style:italic;font-weight:400;color:color-mix(in srgb,var(--sp-warm) 70%,#b4561b)}
+.sp-lead{color:var(--mute);font-size:1.0625rem;line-height:1.7;max-width:34em;margin:6px 0 22px}
+.sp-points{list-style:none;margin:0;padding:0;display:grid;gap:11px;font-size:.9375rem}
+.sp-points li{display:flex;gap:12px;align-items:flex-start;line-height:1.5}.sp-points span{flex:none;width:8px;height:8px;margin-top:.55em;border-radius:50%;background:var(--sp-warm);box-shadow:0 0 0 4px color-mix(in srgb,var(--sp-warm) 22%,transparent)}
+
+/* The mug on the page: its coffee level rises with the amount you choose. */
+.sp-mug{width:168px;height:168px;margin:0 0 18px -10px}
+.sp-mug svg,.sp-bigmug svg{width:100%;height:100%;display:block;overflow:visible}
+.mug-liquid{transform:translate3d(0,calc(62px + (1 - var(--lvl,.5)) * 98px),0);transition:transform .7s var(--sp-ease)}
+.mug-wave{animation:mug-wave 3.2s linear infinite}.mug-wave+.mug-wave{animation-duration:4.6s;animation-direction:reverse;opacity:.55}
+@keyframes mug-wave{to{transform:translate3d(-56px,0,0)}}
+.mug-steam path{fill:none;stroke:color-mix(in srgb,var(--sp-warm) 65%,#fff);stroke-width:3;stroke-linecap:round;stroke-dasharray:18;stroke-dashoffset:18;opacity:0;animation:mug-steam 3s ease-in-out infinite}
+.mug-steam path:nth-child(2){animation-delay:.6s}.mug-steam path:nth-child(3){animation-delay:1.2s}
+@keyframes mug-steam{0%{stroke-dashoffset:18;opacity:0;transform:translate3d(0,5px,0)}35%{opacity:.9}100%{stroke-dashoffset:-18;opacity:0;transform:translate3d(0,-9px,0)}}
+.sp-mug .mug-body{animation:mug-bob 5s ease-in-out infinite;transform-origin:50% 88%}
+@keyframes mug-bob{0%,100%{transform:translate3d(0,0,0) rotate(-1deg)}50%{transform:translate3d(0,-5px,0) rotate(1.5deg)}}
+
+.sp-card{padding:30px;border-radius:28px;background:var(--card,#fff);border:1px solid color-mix(in srgb,var(--sp-warm) 30%,var(--line));box-shadow:0 30px 60px -34px color-mix(in srgb,var(--sp-warm) 60%,#0e1220),0 10px 24px -18px rgba(14,18,32,.3)}
+.sp-card h2{font-size:1.25rem;letter-spacing:-.025em;margin:0 0 16px}
+.sp-chips{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.sp-chip{position:relative;display:grid;gap:3px;justify-items:center;padding:13px 6px 11px;border-radius:18px;border:1px solid var(--line);background:var(--card2,#fff);color:var(--ink);cursor:pointer;font:inherit;transition:transform .35s var(--sp-bounce),border-color .25s,background-color .25s,box-shadow .35s var(--sp-ease)}
+.sp-chip b{font-size:1.125rem;letter-spacing:-.02em;font-variant-numeric:tabular-nums}.sp-chip small{font-size:.6875rem;color:var(--mute);line-height:1.3;text-align:center}
+.sp-chip:hover{transform:translate3d(0,-3px,0);border-color:color-mix(in srgb,var(--sp-warm) 60%,var(--line))}
+.sp-chip[aria-checked=true]{border-color:var(--sp-warm);background:color-mix(in srgb,var(--sp-warm2) 28%,var(--card,#fff));box-shadow:0 12px 24px -16px color-mix(in srgb,var(--sp-warm) 90%,#000);transform:translate3d(0,-2px,0)}
+.sp-chip:focus-visible,.sp-card :is(input,textarea):focus-visible,.sp-switch button:focus-visible{outline:2px solid var(--blue,#3d8bff);outline-offset:2px}
+.sp-field{display:grid;gap:7px;margin-bottom:14px}.sp-field>span:first-child{font-size:.8125rem;font-weight:600}
+.sp-field input,.sp-field textarea{width:100%;box-sizing:border-box;padding:13px 15px;border-radius:14px;border:1px solid var(--line);background:var(--card2,#fff);color:var(--ink);font:inherit;font-size:.9375rem;resize:vertical}
+.sp-money{position:relative;display:block}.sp-money b{position:absolute;left:16px;top:50%;translate:0 -50%;color:var(--mute);font-weight:600;pointer-events:none}.sp-money input{padding-left:36px;font-size:1.125rem;font-weight:600;font-variant-numeric:tabular-nums}
+.sp-hint{margin:-6px 0 14px;font-size:.75rem;color:var(--mute)}.sp-hint[data-error=true]{color:var(--commerce-error,#a42e22)}
+.sp-pay{min-height:56px;margin-top:6px;position:relative}
+.sp-pay[data-busy=true]{opacity:.6;pointer-events:none;transition:opacity .2s}
+.sp-rzp{width:100%;justify-content:center;padding:15px 20px;font-size:1rem;font-weight:700;background:linear-gradient(135deg,var(--sp-warm2),var(--sp-warm));color:var(--sp-ink);border:0;box-shadow:0 14px 26px -16px color-mix(in srgb,var(--sp-warm) 95%,#000);transition:transform .35s var(--sp-ease),box-shadow .35s var(--sp-ease)}
+.sp-rzp:hover{transform:translate3d(0,-2px,0)}.sp-rzp:disabled{opacity:.55;cursor:not-allowed;transform:none}
+.sp-loading{display:flex;align-items:center;gap:10px;margin:0;padding:14px 4px;font-size:.8125rem;color:var(--mute)}
+.sp-loading i{width:16px;height:16px;border-radius:50%;border:2px solid var(--line);border-top-color:var(--sp-warm);animation:sp-spin .8s linear infinite}
+@keyframes sp-spin{to{transform:rotate(360deg)}}
+.sp-msg{min-height:1.5em;margin:10px 0 0;font-size:.8125rem;line-height:1.6;color:var(--mute)}.sp-msg[data-error=true]{color:var(--commerce-error,#a42e22)}
+.sp-switch{margin:4px 0 0;font-size:.8125rem;color:var(--mute)}.sp-switch button{border:0;background:none;padding:0;color:var(--blue-d,#2a64e8);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.sp-fine{margin:16px 0 0;font-size:.6875rem;line-height:1.7;color:var(--mute)}
+
+/* ---------- Thank-you greeting: the cup fills, a heart appears, beans and hearts burst, the words arrive ---------- */
+.sp-thanks{position:fixed;inset:0;z-index:200;display:grid;place-items:center;padding:24px;overflow:auto;
+ background:radial-gradient(700px 500px at 50% 38%,color-mix(in srgb,var(--sp-warm2) 55%,transparent),transparent 70%),color-mix(in srgb,var(--bg,#e9edf3) 90%,#000 2%);
+ backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);animation:th-in .5s ease both}
+@keyframes th-in{from{opacity:0}to{opacity:1}}
+.sp-thanks[data-leaving]{animation:th-out .4s ease forwards}@keyframes th-out{to{opacity:0}}
+.th-box{position:relative;width:min(520px,100%);text-align:center;display:grid;justify-items:center;gap:6px}
+.sp-bigmug{position:relative;width:min(260px,62vw);aspect-ratio:1;animation:th-mug-in .9s .05s var(--sp-bounce) both}
+@keyframes th-mug-in{from{transform:translate3d(0,40px,0) scale(.55);opacity:0}to{transform:none;opacity:1}}
+.sp-bigmug .mug-body{transform-origin:50% 88%;animation:th-cheers .8s 3.05s var(--sp-bounce) both}
+@keyframes th-cheers{0%{transform:none}35%{transform:translate3d(0,-16px,0) rotate(-7deg)}70%{transform:translate3d(0,2px,0) rotate(3deg)}100%{transform:none}}
+/* the pour: a thin stream falls from above while the level rises */
+.th-pour{transform-origin:50% 0;transform:scaleY(0);animation:th-pour 2.9s .55s ease-in-out both}
+@keyframes th-pour{0%{transform:scaleY(0)}12%{transform:scaleY(1)}84%{transform:scaleY(1)}100%{transform:scaleY(0);transform-origin:50% 100%}}
+.th-pour rect{animation:th-wobble .5s ease-in-out infinite alternate}@keyframes th-wobble{from{transform:translate3d(-.8px,0,0)}to{transform:translate3d(.8px,0,0)}}
+.sp-bigmug .mug-liquid{--lvl:0;animation:th-fill 2.3s .75s cubic-bezier(.45,.05,.3,1) forwards}
+@keyframes th-fill{to{--lvl:.86;transform:translate3d(0,calc(62px + (1 - .86) * 98px),0)}}
+.sp-bigmug .mug-liquid{transform:translate3d(0,170px,0);transition:none}
+.th-latte{transform-box:fill-box;transform-origin:center;transform:scale(0);animation:th-pop .7s 3.05s var(--sp-bounce) forwards}
+@keyframes th-pop{to{transform:scale(1)}}
+.sp-bigmug .mug-steam path{animation-delay:3.1s;animation-iteration-count:infinite}
+.sp-bigmug .mug-steam path:nth-child(2){animation-delay:3.7s}.sp-bigmug .mug-steam path:nth-child(3){animation-delay:4.3s}
+.sp-bigmug .mug-steam{opacity:0;animation:th-show .4s 3s forwards}@keyframes th-show{to{opacity:1}}
+.th-burst{position:absolute;left:50%;top:44%;width:0;height:0;pointer-events:none}
+.th-burst i{position:absolute;left:0;top:0;width:var(--s,12px);height:var(--s,12px);margin:calc(var(--s,12px) / -2);opacity:0;color:var(--c,#7a4a24);animation:th-fly 1.9s var(--d,3.1s) cubic-bezier(.2,.8,.3,1) forwards}
+.th-burst i svg{width:100%;height:100%;display:block}
+@keyframes th-fly{0%{transform:translate3d(0,0,0) rotate(0) scale(.3);opacity:0}8%{opacity:1}60%{transform:translate3d(var(--x),var(--y),0) rotate(var(--r)) scale(1);opacity:1}100%{transform:translate3d(calc(var(--x) * 1.12),calc(var(--y) + 70px),0) rotate(calc(var(--r) * 1.4)) scale(.9);opacity:0}}
+.th-eyebrow{margin:14px 0 0;font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:color-mix(in srgb,var(--sp-warm) 70%,#b4561b);opacity:0;animation:th-fade .6s 3.2s both}
+.th-title{margin:2px 0 0;font-size:clamp(1.75rem,5.4vw,2.5rem);line-height:1.15;letter-spacing:-.04em;font-weight:600}
+.th-title span{display:inline-block;opacity:0;transform:translate3d(0,16px,0);filter:blur(6px);animation:th-word .7s calc(3.3s + var(--i) * .07s) var(--sp-ease) forwards;white-space:pre}
+@keyframes th-word{to{opacity:1;transform:none;filter:blur(0)}}
+.th-line{margin:8px 0 0;max-width:30em;color:var(--mute);font-size:1rem;line-height:1.7;opacity:0;animation:th-fade .8s 4.1s both}
+.th-meta{margin:2px 0 0;font-size:.8125rem;color:var(--mute);opacity:0;animation:th-fade .8s 4.3s both}.th-meta b{color:var(--ink)}
+.th-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin-top:18px;opacity:0;animation:th-fade .8s 4.5s both}
+.th-actions .btn{border-radius:999px}
+@keyframes th-fade{from{opacity:0;transform:translate3d(0,10px,0)}to{opacity:1;transform:none}}
+
+@media(max-width:860px){.sp-grid{grid-template-columns:1fr;gap:34px}.sp-main{padding-top:40px}.sp-mug{width:132px;height:132px}.sp-story h1{max-width:none}}
+@media(max-width:480px){.sp-chips{grid-template-columns:repeat(2,minmax(0,1fr))}.sp-card{padding:22px;border-radius:24px}}
+@media(prefers-reduced-motion:reduce){
+ .support-page *,.sp-thanks *{animation:none!important;transition:none!important}
+ .sp-thanks .mug-liquid{transform:translate3d(0,calc(62px + (1 - .86) * 98px),0)}
+ .sp-thanks .th-latte{transform:none}.sp-thanks .th-pour,.sp-thanks .th-burst{display:none}
+ .th-title span,.th-eyebrow,.th-line,.th-meta,.th-actions,.sp-thanks .mug-steam{opacity:1;transform:none;filter:none}
+}

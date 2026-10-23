@@ -209,6 +209,7 @@ function handleCommerceEnvelope_(envelope) {
     if(d.action==='passkeys')return handlePasskeys_(d);
     if(d.action==='billing_context'&&typeof billingContext_==='function')return billingContext_(d);
     if(d.action==='razorpay'&&typeof handleRazorpay_==='function')return handleRazorpay_(d);
+    if(d.action==='maya_access'&&typeof mayaAccess_==='function')return mayaAccess_(d);  // Wrapline in Maya: Basic access by email (Maya.gs)
     if(props_().getProperty('COMMERCE_ENABLED')!=='true')throw commerceError_('unavailable','Secure checkout is not activated.');
     if((d.action==='checkout'||d.action==='webhook')&&!Number.isFinite(Date.parse(props_().getProperty('COMMERCE_ENFORCE_FROM')||'')))throw commerceError_('unavailable','The trial activation cutoff is not configured.');
     if(d.action==='webhook')return commerceWebhook_(d);

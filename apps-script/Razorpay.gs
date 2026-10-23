@@ -356,6 +356,7 @@ function setupRazorpayPlans(){
   }
   var intl=razorpayIntlCurrency_();
   if((catalog._intlCurrency||'INR')!==intl){
+   try{
     // Build every new international plan first; the working plans are replaced only when all exist,
     // so a refused currency never leaves checkout without plans. Re-running resumes where it stopped.
     var stageKey='RAZORPAY_PLANS_STAGED_'+razorpayMode_(),staged=JSON.parse(props_().getProperty(stageKey)||'{}');
@@ -371,6 +372,12 @@ function setupRazorpayPlans(){
     props_().setProperty('RAZORPAY_PLANS_HISTORY_INTL_'+razorpayMode_(),JSON.stringify({high:catalog.high,mid:catalog.mid,low:catalog.low,currency:catalog._intlCurrency||'INR'}));
     catalog.high=staged.high;catalog.mid=staged.mid;catalog.low=staged.low;catalog._intlCurrency=intl;
     props_().setProperty('RAZORPAY_PLANS_'+razorpayMode_(),JSON.stringify(catalog));props_().deleteProperty(stageKey);
+   }catch(refused){
+    // The account cannot charge in USD yet: keep international prices in INR so India and every other country still work.
+    if(intl!=='USD')throw refused;
+    Logger.log('Razorpay refused USD plans, so international prices stay in INR. Turn on international payments / multi-currency in Razorpay and run this again to switch to USD.');
+    intl='INR';catalog._intlCurrency='INR';props_().setProperty('RAZORPAY_PLANS_'+razorpayMode_(),JSON.stringify(catalog));props_().deleteProperty('RAZORPAY_PLANS_STAGED_'+razorpayMode_());
+   }
   }
   ['india','high','mid','low'].forEach(function(tier){catalog[tier]=catalog[tier]||{};['online','offline'].forEach(function(kind){catalog[tier][kind]=catalog[tier][kind]||{};['monthly','yearly','yearlyFull'].forEach(function(billing){
     if(catalog[tier][kind][billing])return;

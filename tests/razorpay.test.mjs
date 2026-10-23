@@ -310,11 +310,19 @@ test('Switching to dollar plans never removes working plans: a refused currency 
  s.app.values.set('RAZORPAY_INTL_CURRENCY','INR');s.app.values.delete('RAZORPAY_PLANS_test');s.app.ctx.setupRazorpayPlans();
  assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).pricing.currency,'INR');
  s.app.values.delete('RAZORPAY_INTL_CURRENCY');s.app.razorpay.refuseCurrency='USD';
- assert.throws(()=>s.app.ctx.setupRazorpayPlans(),/international payments/);
+ s.app.ctx.setupRazorpayPlans();/* no error: USD is refused, so international prices stay in INR */
  assert.equal(s.rpc('config').enabled,true,'checkout still works');assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).pricing.currency,'INR');
  s.app.razorpay.refuseCurrency='';s.app.ctx.setupRazorpayPlans();
  assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).pricing.currency,'USD');assert.equal(s.rpc('quote',s.selection()).pricing.currency,'INR');
  assert.equal(s.app.values.has('RAZORPAY_PLANS_STAGED_test'),false);
+});
+test('After a price update, a refused USD currency still builds every plan in INR so checkout opens (India included)',()=>{
+ const s=setup();s.app.values.set('RAZORPAY_ALLOWED_COUNTRIES','ALL');
+ s.app.values.set('RAZORPAY_PLANS_test',JSON.stringify({_priceVersion:'old'}));s.app.values.delete('RAZORPAY_INTL_CURRENCY');s.app.razorpay.refuseCurrency='USD';
+ assert.equal(s.rpc('config').enabled,false,'old catalog: closed until plans are rebuilt');
+ s.app.ctx.setupRazorpayPlans();
+ const config=s.rpc('config');assert.equal(config.enabled,true);assert.equal(config.intlCurrency,'INR');
+ assert.equal(s.rpc('quote',s.selection()).pricing.currency,'INR');assert.equal(s.rpc('quote',s.selection({country:'US',billingCountry:'US'})).pricing.currency,'INR');
 });
 test('The instant USD price shown on the payment page matches the server for every region',async()=>{
  const {razorpayEstimate}=await import('../js/regions.js');const s=setup();

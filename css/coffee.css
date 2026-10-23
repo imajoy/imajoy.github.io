@@ -1,0 +1,79 @@
+/* "Buy me a coffee" pop-up. A little mug swoops in along an arc, lands with a bounce, and then floats.
+   Only transform and opacity animate. Shown on the download, thank-you and tool pages (never the landing page). */
+.coffee{--cf-ease:cubic-bezier(.22,1,.36,1);--cf-bounce:cubic-bezier(.34,1.56,.64,1);--cf-warm:#ff9b54;--cf-warm2:#ffcf8a;--cf-cup:#fff7ec;
+ position:fixed;right:max(16px,env(safe-area-inset-right));bottom:max(16px,env(safe-area-inset-bottom));z-index:60;width:min(348px,calc(100vw - 32px));pointer-events:none;font:inherit}
+.coffee[data-state=in],.coffee[data-state=idle]{pointer-events:auto}
+.coffee[hidden]{display:none}
+
+/* Swoop: x and y use different easings, so the mug travels on a curve instead of a straight line. */
+.coffee-x{will-change:transform}
+.coffee-y{will-change:transform}
+.coffee[data-state=hidden] .coffee-x{transform:translate3d(46vw,0,0);opacity:0}
+.coffee[data-state=hidden] .coffee-y{transform:translate3d(0,-60vh,0)}
+.coffee[data-state=in] .coffee-x,.coffee[data-state=idle] .coffee-x{animation:cf-x 1.15s cubic-bezier(.2,.7,.2,1) both}
+.coffee[data-state=in] .coffee-y,.coffee[data-state=idle] .coffee-y{animation:cf-y 1.15s var(--cf-bounce) both}
+@keyframes cf-x{0%{transform:translate3d(46vw,0,0);opacity:0}12%{opacity:1}100%{transform:none;opacity:1}}
+@keyframes cf-y{0%{transform:translate3d(0,-60vh,0)}100%{transform:none}}
+
+/* Float: a slow bob with a tiny sway, plus the mug bobbing out of step with its card. */
+.coffee[data-state=idle] .coffee-float{animation:cf-float 4.6s ease-in-out 1.2s infinite}
+@keyframes cf-float{0%,100%{transform:translate3d(0,0,0) rotate(0)}30%{transform:translate3d(0,-7px,0) rotate(.5deg)}70%{transform:translate3d(0,-3px,0) rotate(-.5deg)}}
+
+.coffee-card{position:relative;display:flex;align-items:center;gap:14px;padding:14px 38px 14px 14px;border-radius:24px;background:var(--card,#fff);color:var(--ink,#0e1220);
+ border:1px solid color-mix(in srgb,var(--cf-warm) 38%,var(--line,#d3d9e4));box-shadow:0 22px 48px -24px color-mix(in srgb,var(--cf-warm) 70%,#0e1220),0 8px 20px -12px rgba(14,18,32,.28);
+ transform-origin:0 100%;animation:cf-unfurl .7s .75s var(--cf-bounce) both}
+@keyframes cf-unfurl{0%{transform:scale(.3,.55);opacity:0}100%{transform:none;opacity:1}}
+.coffee[data-state=hidden] .coffee-card{animation:none;opacity:0}
+
+.coffee-mug{flex:none;position:relative;width:68px;height:68px;margin:-6px 0 -6px -2px;border-radius:50%;display:grid;place-items:center;
+ background:radial-gradient(circle at 50% 38%,color-mix(in srgb,var(--cf-warm2) 55%,transparent),transparent 72%);text-decoration:none}
+.coffee-mug svg{width:60px;height:60px;overflow:visible;transform-origin:50% 86%;transition:transform .55s var(--cf-bounce)}
+.coffee[data-state=idle] .coffee-mug svg{animation:cf-mug 3.6s ease-in-out 1.4s infinite}
+@keyframes cf-mug{0%,100%{transform:translate3d(0,0,0) rotate(-2deg)}50%{transform:translate3d(0,-3px,0) rotate(2.5deg)}}
+
+/* Steam curls up in three staggered wisps; the eyes blink now and then. */
+.cf-steam path{fill:none;stroke:color-mix(in srgb,var(--cf-warm) 70%,#fff);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:14;stroke-dashoffset:14;opacity:0}
+.coffee[data-state=idle] .cf-steam path{animation:cf-steam 2.8s ease-in-out infinite}
+.cf-steam path:nth-child(2){animation-delay:.55s!important}.cf-steam path:nth-child(3){animation-delay:1.1s!important}
+@keyframes cf-steam{0%{stroke-dashoffset:14;opacity:0;transform:translate3d(0,4px,0)}35%{opacity:.95}100%{stroke-dashoffset:-14;opacity:0;transform:translate3d(0,-7px,0)}}
+.cf-eye{transform-box:fill-box;transform-origin:center}
+.coffee[data-state=idle] .cf-eye{animation:cf-blink 5.2s 2s infinite}
+@keyframes cf-blink{0%,92%,100%{transform:scaleY(1)}95.5%{transform:scaleY(.1)}}
+
+.coffee-copy{min-width:0;display:grid;gap:3px}
+.coffee-copy b{font-size:.9375rem;letter-spacing:-.015em;line-height:1.25}
+.coffee-copy span{font-size:.78125rem;line-height:1.5;color:var(--mute,#586072)}
+.coffee-go{justify-self:start;margin-top:7px;display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:999px;background:linear-gradient(135deg,var(--cf-warm2),var(--cf-warm));
+ color:#3a1d05;font-weight:700;font-size:.8125rem;text-decoration:none;box-shadow:0 8px 18px -10px color-mix(in srgb,var(--cf-warm) 90%,#000);transition:transform .35s var(--cf-ease),box-shadow .35s var(--cf-ease)}
+.coffee-go svg{width:14px;height:14px;transition:transform .35s var(--cf-bounce)}
+.coffee-go:hover{transform:translate3d(0,-2px,0);box-shadow:0 12px 22px -10px color-mix(in srgb,var(--cf-warm) 95%,#000)}
+.coffee-go:hover svg{transform:translate3d(3px,0,0) scale(1.15)}
+.coffee-go:focus-visible,.coffee-x-btn:focus-visible,.coffee-mug:focus-visible{outline:2px solid var(--blue,#3d8bff);outline-offset:3px}
+
+.coffee-x-btn{position:absolute;top:8px;right:8px;width:26px;height:26px;border-radius:50%;border:0;background:transparent;color:var(--mute,#586072);cursor:pointer;display:grid;place-items:center;transition:background-color .25s ease,transform .35s var(--cf-bounce)}
+.coffee-x-btn svg{width:12px;height:12px}
+.coffee-x-btn:hover{background:var(--t08,rgba(14,18,32,.08));transform:rotate(90deg)}
+
+/* Hearts drift up from the cup now and then (made by the script). */
+.cf-heart{position:absolute;left:34px;bottom:46px;width:14px;height:14px;pointer-events:none;color:#ff6f91;opacity:0;animation:cf-heart 2.6s ease-out forwards}
+.cf-heart svg{width:100%;height:100%;display:block}
+@keyframes cf-heart{0%{transform:translate3d(0,0,0) scale(.4);opacity:0}15%{opacity:1}100%{transform:translate3d(var(--dx,0),-74px,0) scale(1) rotate(var(--rot,0));opacity:0}}
+
+/* Hover: the mug tips as if cheering. */
+@media(hover:hover) and (pointer:fine){
+ .coffee-card:hover .coffee-mug svg{animation:none;transform:rotate(-14deg) scale(1.1) translate3d(0,-2px,0)}
+}
+
+/* Leaving: the card folds back into the mug, which floats up and pops. */
+.coffee[data-state=out] .coffee-card{animation:cf-fold .42s var(--cf-ease) forwards}
+.coffee[data-state=out] .coffee-float{animation:cf-away .7s .25s cubic-bezier(.5,0,.75,0) forwards}
+@keyframes cf-fold{to{transform:scale(.25,.5);opacity:0}}
+@keyframes cf-away{to{transform:translate3d(0,-120px,0) scale(.5);opacity:0}}
+
+@media(max-width:520px){.coffee{right:12px;left:12px;width:auto;bottom:max(12px,env(safe-area-inset-bottom))}.coffee-card{border-radius:20px}}
+@media print{.coffee{display:none!important}}
+@media(prefers-reduced-motion:reduce){
+ .coffee *,.coffee::before{animation:none!important;transition:none!important}
+ .coffee[data-state=hidden] .coffee-x,.coffee[data-state=hidden] .coffee-y{transform:none}
+ .coffee[data-state=out]{opacity:0}
+}

@@ -9,7 +9,7 @@ Visitors in any country can open the billing page and review the displayed plan 
 - Paid recurring Online/Offline subscriptions, monthly/yearly, 1–100 licenses. All Razorpay charges are **INR**, including approved international buyers. PayPal remains USD.
 - India: Online ₹899/month or ₹8,630.40/year; Offline ₹1,798/month or ₹17,260.80/year, per license. Other approved countries use regional Online monthly prices ₹899/₹1,399/₹1,999; Offline is twice that. Annual pricing is twelve months less 20%. Review the amounts in `razorpayPrice_` before creating Live plans.
 - Razorpay subscriptions authorize up to 100 monthly or 10 annual charges, then stop. Review the schedule on hosted checkout. Owner license delivery remains manual with confirmation/reminder emails; Maya's activation service is unchanged.
-- The **2-day trial, coupons and returning-subscriber promotional schedules remain PayPal-only**. Razorpay offers paid plans with the yearly saving, without pretending to redeem PayPal promotions. Razorpay receipts do not advance PayPal loyalty rewards.
+- The **4-day trial, coupons and returning-subscriber promotional schedules remain PayPal-only**. Razorpay offers paid plans with the yearly saving, without pretending to redeem PayPal promotions. Razorpay receipts do not advance PayPal loyalty rewards.
 - The server requires a matching plan, quantity, checkout note, INR invoice and captured payment before recording paid access. Subscription activation or browser approval alone is not a receipt. No card details enter the website or Sheet.
 
 ## 1. Confirm account capabilities

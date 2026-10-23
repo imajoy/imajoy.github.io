@@ -75,7 +75,7 @@ function commerceEligibility_(d,who) {
   var own=commerceRows_().filter(function(r){return r[1]===mode_()&&r[2]===who.email&&r[6]==='trial'&&['reserved','created'].indexOf(r[12])>=0&&r[4]===signals.deviceHash&&r[5]===signals.ipHash&&Date.now()-new Date(r[13]).getTime()<1800000;})[0];
   var claimed=commerceHistoricalTrial_(who.email)||commerceConflict_(signals,'',true);
   var reason=claimed?'trial_used':!signals.ipHash?'network_unverified':!signals.deviceHash?'browser_unverified':commerceConflict_(signals,own?own[0]:'')?'trial_reserved':'eligible';
-  var messages={trial_used:'2-day trial already claimed. You can continue with a paid subscription.',trial_reserved:'A trial checkout is already in progress for this browser or network. Resume it or try again after its reservation expires.',network_unverified:'Trial eligibility requires a verified network. Standard subscriptions remain available once your location is confirmed.',browser_unverified:'Trial eligibility requires a saved browser identifier. Allow site storage and try again.',eligible:'Trial eligibility is checked again when PayPal approves your account.'};
+  var messages={trial_used:'4-day trial already claimed. You can continue with a paid subscription.',trial_reserved:'A trial checkout is already in progress for this browser or network. Resume it or try again after its reservation expires.',network_unverified:'Trial eligibility requires a verified network. Standard subscriptions remain available once your location is confirmed.',browser_unverified:'Trial eligibility requires a saved browser identifier. Allow site storage and try again.',eligible:'Trial eligibility is checked again when PayPal approves your account.'};
   return {ok:true,rewardsVersion:1,eligible:reason==='eligible',reason:reason,message:messages[reason]};
 }
 function commercePlan_(plan,billing,country,offer) {
@@ -116,7 +116,7 @@ function commerceCreate_(d,who) {
       return existing;
     }
     if(d.offer==='trial'){
-      if(commerceHistoricalTrial_(who.email)||commerceConflict_(signals,'',true))throw commerceError_('trial_used','2-day trial already claimed. You can continue with a paid subscription.');
+      if(commerceHistoricalTrial_(who.email)||commerceConflict_(signals,'',true))throw commerceError_('trial_used','4-day trial already claimed. You can continue with a paid subscription.');
       if(!signals.ipHash)throw commerceError_('network_unverified','Your network could not be verified for a trial. Please try again.');
       if(!signals.deviceHash)throw commerceError_('browser_unverified','Allow site storage to verify this browser for a trial.');
       if(commerceConflict_(signals,''))throw commerceError_('trial_reserved','A trial checkout is already in progress for this browser or network. Resume it or try again after its reservation expires.');
@@ -158,7 +158,7 @@ function commerceConfirm_(id,who) {
   });
   if(blocked){
     commerceCancel_(row[11]);
-    var message=blockedReason==='trial_used'?'2-day trial already claimed. This additional trial subscription was cancelled. You can continue with a paid subscription.':blockedReason==='trial_expired'?'This trial checkout expired and the subscription was cancelled. Start a new checkout to try again.':blockedReason==='trial_reserved'?'Another trial checkout is already in progress. This additional subscription was cancelled.':'Trial eligibility could not be verified and this subscription was cancelled. Please contact support.';
+    var message=blockedReason==='trial_used'?'4-day trial already claimed. This additional trial subscription was cancelled. You can continue with a paid subscription.':blockedReason==='trial_expired'?'This trial checkout expired and the subscription was cancelled. Start a new checkout to try again.':blockedReason==='trial_reserved'?'Another trial checkout is already in progress. This additional subscription was cancelled.':'Trial eligibility could not be verified and this subscription was cancelled. Please contact support.';
     throw commerceError_(blockedReason,message);
   }
   if(!row[16]){

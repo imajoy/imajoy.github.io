@@ -2,11 +2,12 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {service} from './helpers/apps-service.mjs';
 import {regionalPrice,USD} from '../js/regions.js';
-const legacy={high:{online:{monthly:22,yearly:211},offline:{monthly:44,yearly:422}},mid:{online:{monthly:14,yearly:134},offline:{monthly:28,yearly:269}},low:{online:{monthly:9,yearly:86},offline:{monthly:18,yearly:173}}};
-test('Online and Offline monthly/yearly prices rise exactly 2%, with integer cents and matching server quotes',()=>{
+const table={high:{online:{monthly:2999,yearly:28790},offline:{monthly:4992,yearly:47920}},mid:{online:{monthly:1659,yearly:15920},offline:{monthly:3909,yearly:37520}},low:{online:{monthly:799,yearly:7670},offline:{monthly:1909,yearly:18320}}};
+const india={online:{monthly:89900,yearly:863040},offline:{monthly:189991,yearly:1823920}};
+test('Catalog prices match the 23 October 2026 table, with integer cents and matching server quotes',()=>{
  const app=service();
  for(const [tier,country] of [['high','US'],['mid','BR'],['low','LK']])for(const plan of ['online','offline'])for(const billing of ['monthly','yearly']){
-  const expected=Math.round(legacy[tier][plan][billing]*102);
+  const expected=table[tier][plan][billing];
   assert.equal(regionalPrice(plan,billing,1,country).unitAmount,expected);
   assert.equal(Math.round(USD[tier][plan][billing]*100),expected);
   const quote=app.ctx.rewardQuote_({country,plan,billing,seats:3},{},{monthly:0,yearly:0,used:{}});
@@ -14,8 +15,9 @@ test('Online and Offline monthly/yearly prices rise exactly 2%, with integer cen
  }
  for(const plan of ['online','offline'])for(const billing of ['monthly','yearly']){
   const browser=regionalPrice(plan,billing,1,'IN'),server=app.ctx.razorpayPrice_(plan,billing,'IN');
-  assert.equal(browser.unitAmount,server.unitAmount);assert.equal(browser.unitAmount,Math.round((billing==='yearly'?863040:89900)*(plan==='offline'?2:1)*1.02));
+  assert.equal(browser.unitAmount,server.unitAmount);assert.equal(browser.unitAmount,india[plan][billing]);
  }
+ assert.equal(regionalPrice('online','yearly',1,'IN').compareAtUnitAmount,1078800);
 });
 test('PayPal setup replaces old plans once, preserves old history/trial IDs and never changes existing subscriptions',()=>{
  const app=service();app.ctx.Logger={log(){}};
@@ -39,7 +41,7 @@ test('Razorpay replaces a legacy catalog with new plans and keeps immutable old 
  const old={india:{online:{monthly:'plan_old'}}};app.values.set('RAZORPAY_PLANS_test',JSON.stringify(old));app.razorpay.plans.set('plan_old',{id:'plan_old',item:{amount:89900,currency:'INR'}});
  app.ctx.setupRazorpayPlans();const catalog=JSON.parse(app.values.get('RAZORPAY_PLANS_test'));
  assert.equal(catalog._priceVersion,app.ctx.PRICE_VERSION);assert.equal(app.razorpay.plans.size,17);
- assert.equal(app.razorpay.plans.get('plan_old').item.amount,89900);assert.equal(app.razorpay.plans.get(catalog.india.online.monthly).item.amount,91698);
+ assert.equal(app.razorpay.plans.get('plan_old').item.amount,89900);assert.equal(app.razorpay.plans.get(catalog.india.online.monthly).item.amount,89900);
  app.ctx.setupRazorpayPlans();assert.equal(app.razorpay.plans.size,17);assert.equal(app.razorpay.subscriptions.size,0);
 });
 test('Interrupted PayPal catalog setup resumes created plans and retains archived historical prices',()=>{

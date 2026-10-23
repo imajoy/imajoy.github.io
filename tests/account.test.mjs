@@ -105,9 +105,9 @@ test('A cancelled free trial keeps access only until the trial would have ended'
  const app=service(),token=app.ctx.makeSession_('buyer@example.com');
  app.orders.rows[1][7]='online trial';
  const started=new Date(Date.now()-864e5);
- app.subscriptions.set('I-TESTBUYER1',{id:'I-TESTBUYER1',status:'ACTIVE',plan_id:'P-high-ONLINE',start_time:started.toISOString(),subscriber:{payer_id:'P1'},billing_info:{next_billing_time:new Date(started.getTime()+2*864e5).toISOString()}});
+ app.subscriptions.set('I-TESTBUYER1',{id:'I-TESTBUYER1',status:'ACTIVE',plan_id:'P-high-ONLINE',start_time:started.toISOString(),subscriber:{payer_id:'P1'},billing_info:{next_billing_time:new Date(started.getTime()+4*864e5).toISOString()}});
  assert.equal(app.call({step:'cancel',token,provider:'paypal',ref:'I-TESTBUYER1'}).ok,true);
  const after=app.call({step:'status',token}).subscriptions[0];
  assert.equal(after.trial,true);assert.equal(after.renews,false);
- assert(Math.abs(Date.parse(after.endsAt)-(started.getTime()+2*864e5))<1000);
+ assert(Math.abs(Date.parse(after.endsAt)-(started.getTime()+4*864e5))<1000);
 });

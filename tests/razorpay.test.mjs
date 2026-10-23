@@ -8,10 +8,10 @@ function setup(){
  for(const [k,v] of Object.entries({RAZORPAY_MODE:'test',RAZORPAY_ENABLED:'true',RAZORPAY_KEY_ID:'rzp_test_fixture',RAZORPAY_KEY_SECRET:'private-razorpay-test-secret',RAZORPAY_WEBHOOK_SECRET:'private-webhook-test-secret',RAZORPAY_ALLOWED_COUNTRIES:'IN US GB RU'}))app.values.set(k,v);
  app.ctx.Logger={log(){}};app.ctx.setupRazorpayPlans();
  const rpc=(operation,data={})=>app.rpc('razorpay',{operation,...data});
- const selection=(overrides={})=>({accountToken:token,plan:'online',billing:'monthly',seats:1,country:'IN',billingCountry:'IN',requestId:randomUUID(),expectedTotal:91698,...overrides});
+ const selection=(overrides={})=>({accountToken:token,plan:'online',billing:'monthly',seats:1,country:'IN',billingCountry:'IN',requestId:randomUUID(),expectedTotal:89900,...overrides});
  return {app,token,rpc,selection};
 }
-function paid(s,created,{amount=91698,status='captured',refunded=0}={}){
+function paid(s,created,{amount=89900,status='captured',refunded=0}={}){
  const sub=s.app.razorpay.subscriptions.get(created.subscriptionId);sub.status='active';
  const invoice={id:'inv_fixture1',subscription_id:sub.id,payment_id:'pay_fixture1',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:amount};
  const payment={id:invoice.payment_id,invoice_id:invoice.id,status,captured:status==='captured',currency:'INR',amount,amount_refunded:refunded};
@@ -35,7 +35,7 @@ test('Razorpay requires verified accounts, exact server/billing country and conf
 });
 test('Razorpay prices are server-owned INR amounts with annual 20% savings and bounded quantities',()=>{
  const s=setup();const quote=s.rpc('quote',s.selection({billing:'yearly',seats:3,amount:1})).pricing;
- assert.equal(quote.unitAmount,880301);assert.equal(quote.total,2640903);assert.equal(quote.planId,undefined);
+ assert.equal(quote.unitAmount,863040);assert.equal(quote.total,2589120);assert.equal(quote.planId,undefined);
  assert.equal(s.rpc('quote',s.selection({seats:0})).error,'selection');
  assert.equal(s.rpc('quote',s.selection({seats:101})).error,'selection');
  assert.equal(s.rpc('checkout',s.selection({expectedTotal:1})).error,'price_changed');
@@ -46,7 +46,7 @@ test('Plan setup is resumable; checkout retries and lost creation responses cann
  const data=s.selection(),one=s.rpc('checkout',data);assert.equal(one.ok,true,JSON.stringify(one));
  assert.equal(s.rpc('checkout',data).subscriptionId,one.subscriptionId);
  assert.equal(s.rpc('checkout',s.selection()).subscriptionId,one.subscriptionId);assert.equal(s.app.razorpay.subscriptions.size,1);
- assert.equal(s.rpc('checkout',{...data,billing:'yearly',expectedTotal:880301}).error,'selection');
+ assert.equal(s.rpc('checkout',{...data,billing:'yearly',expectedTotal:863040}).error,'selection');
  const other=setup(),lost=other.selection();other.app.razorpay.loseCreateResponse=true;
  assert.equal(other.rpc('checkout',lost).ok,false);const recovered=other.rpc('checkout',lost);
  assert.equal(recovered.ok,true);assert.equal(other.app.razorpay.subscriptions.size,1);
@@ -136,7 +136,7 @@ test('Closing the Razorpay window or a failed payment cancels only the unpaid ch
 test('A subscriber can stop automatic renewal; access continues to the end of the paid period',()=>{
  const s=setup(),created=s.rpc('checkout',s.selection());paid(s,created);
  assert(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted);
- const unpaid=s.rpc('checkout',s.selection({billing:'yearly',expectedTotal:880301}));assert.equal(s.rpc('stop',{accountToken:s.token,checkoutId:unpaid.checkoutId}).error,'checkout');
+ const unpaid=s.rpc('checkout',s.selection({billing:'yearly',expectedTotal:863040}));assert.equal(s.rpc('stop',{accountToken:s.token,checkoutId:unpaid.checkoutId}).error,'checkout');
  const stopped=s.rpc('stop',{accountToken:s.token,checkoutId:created.checkoutId});assert(stopped.stopped,JSON.stringify(stopped));assert(Date.parse(stopped.endsAt)>Date.now());
  assert.deepEqual(s.app.razorpay.cancelled.at(-1),{id:created.subscriptionId,atCycleEnd:true});
  const subs=s.app.ctx.razorpaySubscriptions_('buyer@example.com');assert.equal(subs[0].renews,false);assert.equal(subs[0].provider,'razorpay');assert.equal(subs[0].ref,created.checkoutId);
@@ -153,13 +153,13 @@ test('Owner test reset clears test purchases for the test account only and refus
  assert.equal(s.app.ctx.razorpayFind_(created.checkoutId).state,'reset');
  s.app.values.set('RAZORPAY_MODE','live');assert.throws(()=>s.app.ctx.resetTestPurchases(),/LIVE mode/);
 });
-test('Razorpay 2-day trial: authorize now, access until trial end, one trial per person, cancel stops the first charge, conversion on day 3',()=>{
+test('Razorpay 4-day trial: authorize now, access until trial end, one trial per person, cancel stops the first charge, conversion on day 3',()=>{
  const s=setup(),hex=c=>c.repeat(64),signals={deviceHash:hex('a'),ipHash:hex('b')};
  assert.equal(s.rpc('config').trial,true);
- assert.equal(s.rpc('checkout',s.selection({plan:'offline',offer:'trial',expectedTotal:91698*2,...signals})).error,'selection');
+ assert.equal(s.rpc('checkout',s.selection({plan:'offline',offer:'trial',expectedTotal:189991,...signals})).error,'selection');
  const created=s.rpc('checkout',s.selection({offer:'trial',...signals}));assert.equal(created.ok,true,created.message);assert.equal(created.offer,'trial');
  const sub=s.app.razorpay.subscriptions.get(created.subscriptionId);
- assert(Math.abs(sub.start_at-(Date.now()/1000+2*86400))<5,'first charge is scheduled for the end of the trial');
+ assert(Math.abs(sub.start_at-(Date.now()/1000+4*86400))<5,'first charge is scheduled for the end of the trial');
  assert.notEqual(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true,'no access before the mandate is authorized');
  sub.status='authenticated';sub.paid_count=0;
  const ok=s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId});assert.equal(ok.accepted,true);assert.equal(ok.offer,'trial');
@@ -175,8 +175,8 @@ test('Razorpay 2-day trial: authorize now, access until trial end, one trial per
  assert.equal(s.rpc('checkout',s.selection({offer:'standard'})).ok,true);
  // Conversion after the trial.
  sub.status='active';sub.paid_count=1;sub.current_start=Math.floor(Date.now()/1000);sub.current_end=sub.current_start+30*86400;
- const invoice={id:'inv_trial',subscription_id:sub.id,payment_id:'pay_trial',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:91698};
- s.app.razorpay.invoices.set(invoice.id,invoice);s.app.razorpay.payments.set('pay_trial',{id:'pay_trial',invoice_id:invoice.id,status:'captured',captured:true,currency:'INR',amount:91698,amount_refunded:0});
+ const invoice={id:'inv_trial',subscription_id:sub.id,payment_id:'pay_trial',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:89900};
+ s.app.razorpay.invoices.set(invoice.id,invoice);s.app.razorpay.payments.set('pay_trial',{id:'pay_trial',invoice_id:invoice.id,status:'captured',captured:true,currency:'INR',amount:89900,amount_refunded:0});
  assert.equal(webhook(s,{event:'subscription.charged',payload:{subscription:{entity:{id:sub.id}}}}).accepted,true);
  const record=s.app.ctx.razorpayFind_(created.checkoutId);assert.equal(record.paidThrough,sub.current_end);assert(record.convertedAt);
  assert(s.app.mails.some(m=>/trial converted/.test(m.subject)));
@@ -201,15 +201,15 @@ test('Coupons work with Razorpay: discounted period(s) up front, regular price a
  coupons(s.app,[['SAVE10',10,1,future,'both','both','','',true,'',''],['USONLY',20,1,future,'both','both','','',true,'','US, GB'],['INDIA25',25,2,future,'both','monthly','','',true,'','IN']]);
  assert.equal(s.rpc('quote',s.selection({coupon:'USONLY'})).error,'coupon_invalid','country-limited coupon is refused elsewhere');
  const q=s.rpc('quote',s.selection({coupon:'save10'})).pricing;
- assert.equal(q.discount.percent,10);assert.equal(q.total,82528);assert.equal(q.recurringTotal,91698);assert.equal(q.upfront,true);
- const two=s.rpc('quote',s.selection({coupon:'INDIA25',seats:2})).pricing;assert.equal(two.total,Math.round(91698*.75)*2*2,'2 discounted months for 2 licenses, paid today');
- const created=s.rpc('checkout',s.selection({coupon:'SAVE10',expectedTotal:82528}));assert.equal(created.ok,true,created.message);
+ assert.equal(q.discount.percent,10);assert.equal(q.total,80910);assert.equal(q.recurringTotal,89900);assert.equal(q.upfront,true);
+ const two=s.rpc('quote',s.selection({coupon:'INDIA25',seats:2})).pricing;assert.equal(two.total,Math.round(89900*.75)*2*2,'2 discounted months for 2 licenses, paid today');
+ const created=s.rpc('checkout',s.selection({coupon:'SAVE10',expectedTotal:80910}));assert.equal(created.ok,true,created.message);
  const sub=s.app.razorpay.subscriptions.get(created.subscriptionId);
- assert.equal(sub.addons[0].item.amount,82528);const month=new Date();month.setMonth(month.getMonth()+1);assert(Math.abs(sub.start_at-month/1000)<10,'regular billing starts after the discounted month');
+ assert.equal(sub.addons[0].item.amount,80910);const month=new Date();month.setMonth(month.getMonth()+1);assert(Math.abs(sub.start_at-month/1000)<10,'regular billing starts after the discounted month');
  // Up-front payment taken at authorization.
  sub.status='authenticated';sub.paid_count=0;sub.current_start=null;sub.current_end=null;
- const inv={id:'inv_up',subscription_id:sub.id,payment_id:'pay_up',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:82528};
- s.app.razorpay.invoices.set(inv.id,inv);s.app.razorpay.payments.set('pay_up',{id:'pay_up',invoice_id:inv.id,status:'captured',captured:true,currency:'INR',amount:82528,amount_refunded:0});
+ const inv={id:'inv_up',subscription_id:sub.id,payment_id:'pay_up',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:80910};
+ s.app.razorpay.invoices.set(inv.id,inv);s.app.razorpay.payments.set('pay_up',{id:'pay_up',invoice_id:inv.id,status:'captured',captured:true,currency:'INR',amount:80910,amount_refunded:0});
  const ok=s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId});assert.equal(ok.accepted,true,ok.message);
  assert.equal(s.app.ctx.razorpayFind_(created.checkoutId).paidThrough,sub.start_at);
  assert.equal(s.app.sheets.get('Coupons').rows[1][7],1,'coupon use is counted');
@@ -217,8 +217,8 @@ test('Coupons work with Razorpay: discounted period(s) up front, regular price a
  const item=s.app.call({step:'status',token:s.token}).subscriptions.find(x=>x.provider==='razorpay');assert.equal(item.status,'ACTIVE');assert.equal(item.renews,true);
  // First regular charge at the full price extends access.
  sub.status='active';sub.current_start=sub.start_at;sub.current_end=sub.start_at+30*86400;
- const inv2={id:'inv_reg',subscription_id:sub.id,payment_id:'pay_reg',paid_at:sub.start_at+60,status:'paid',currency:'INR',amount_paid:91698};
- s.app.razorpay.invoices.set(inv2.id,inv2);s.app.razorpay.payments.set('pay_reg',{id:'pay_reg',invoice_id:inv2.id,status:'captured',captured:true,currency:'INR',amount:91698,amount_refunded:0});
+ const inv2={id:'inv_reg',subscription_id:sub.id,payment_id:'pay_reg',paid_at:sub.start_at+60,status:'paid',currency:'INR',amount_paid:89900};
+ s.app.razorpay.invoices.set(inv2.id,inv2);s.app.razorpay.payments.set('pay_reg',{id:'pay_reg',invoice_id:inv2.id,status:'captured',captured:true,currency:'INR',amount:89900,amount_refunded:0});
  webhook(s,{event:'subscription.charged',payload:{subscription:{entity:{id:sub.id}}}});
  assert.equal(s.app.ctx.razorpayFind_(created.checkoutId).paidThrough,sub.current_end);
 });
@@ -241,7 +241,7 @@ test('A confirmed Razorpay payment is written to the Payments tab in rupees; a r
  const s=setup(),created=s.rpc('checkout',s.selection());paid(s,created);
  assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:created.checkoutId}).accepted,true);
  const rows=s.app.sheets.get('Payments').rows.slice(1);assert.equal(rows.length,1);
- assert.deepEqual([rows[0][1],rows[0][2],rows[0][3],rows[0][7],rows[0][8],rows[0][9],rows[0][12]],['buyer@example.com','Razorpay','Test',916.98,'INR','Paid','pay_fixture1']);
+ assert.deepEqual([rows[0][1],rows[0][2],rows[0][3],rows[0][7],rows[0][8],rows[0][9],rows[0][12]],['buyer@example.com','Razorpay','Test',899,'INR','Paid','pay_fixture1']);
  const record=s.app.ctx.razorpayFind_(created.checkoutId);
  webhook(s,{event:'refund.processed',payload:{refund:{entity:{id:'rfnd_1',payment_id:'pay_fixture1'}},subscription:{entity:{id:record.subscriptionId}}}});
  assert.equal(s.app.sheets.get('Payments').rows[1][9],'Refunded');

@@ -5,8 +5,8 @@ window.AJOY_CONFIG = Object.freeze({
   commerceUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/commerce',
   razorpayUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/razorpay',
   /* Length of the PayPal trial shown on the site. Licenses are issued after server approval. */
-  trialDays: 2,
-  /* Old trial-code request form (replaced by the 2-day PayPal trial on the Online plan). Keep false. */
+  trialDays: 4,
+  /* Old trial-code request form (replaced by the 4-day PayPal trial on the Online plan). Keep false. */
   trialOpen: false,
   /* Subscriber sign-in (plan and time left). Turn on (true) only after the newest apps-script/Code.gs is deployed. */
   accountOpen: true,

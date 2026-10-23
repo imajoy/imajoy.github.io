@@ -37,8 +37,9 @@ function razorpayPrice_(plan,billing,country,currency){
     var t=PRICES[tierFor_(country)][plan],m=Math.round(t.monthly*100);
     return {currency:'USD',unitAmount:billing==='yearly'?Math.round(t.yearly*100):m,monthlyAmount:m,compareAtUnitAmount:billing==='yearly'?m*12:m};
   }
-  var monthly=(country==='IN'?91698:{low:91698,mid:142698,high:203898}[tierFor_(country)])*(plan==='offline'?2:1);
-  return {currency:'INR',unitAmount:billing==='yearly'?Math.round(monthly*12*.8):monthly,monthlyAmount:monthly,compareAtUnitAmount:billing==='yearly'?monthly*12:monthly};
+  var india=country==='IN',monthly=india?(plan==='offline'?189991:89900):{low:91698,mid:142698,high:203898}[tierFor_(country)]*(plan==='offline'?2:1);
+  var list=india?(plan==='offline'?2279900:1078800):monthly*12;
+  return {currency:'INR',unitAmount:billing==='yearly'?Math.round(list*.8):monthly,monthlyAmount:monthly,compareAtUnitAmount:billing==='yearly'?list:monthly};
 }
 function razorpaySelection_(d){
   if(!razorpayEnabled_())throw commerceError_('unavailable','Razorpay subscriptions are not activated yet.');
@@ -57,7 +58,7 @@ function razorpaySelection_(d){
   }
   return price;
 }
-var RAZORPAY_TRIAL_DAYS_=2;
+var RAZORPAY_TRIAL_DAYS_=4;
 /* Coupons and returning-subscriber rewards for Razorpay. Razorpay cannot discount only the first charges of a
    subscription, so the discounted payment(s) are collected up front and the regular price starts after them. */
 function razorpayDiscount_(price,d,who){
@@ -92,7 +93,7 @@ function razorpayTrialConflict_(signals,exceptId,usedOnly){
 function razorpayTrialUsedByEmail_(email){return razorpayRows_().some(function(r){return r.mode===razorpayMode_()&&r.email===email&&!!r.trialUsedAt;});}
 function razorpayTrialCheck_(d,email,exceptId){
   var signals=commerceSignals_(d,email);
-  if(commerceHistoricalTrial_(email)||commerceConflict_(signals,exceptId||'',true))throw commerceError_('trial_used','2-day trial already claimed. You can continue with a paid subscription.');
+  if(commerceHistoricalTrial_(email)||commerceConflict_(signals,exceptId||'',true))throw commerceError_('trial_used','4-day trial already claimed. You can continue with a paid subscription.');
   if(!signals.ipHash)throw commerceError_('network_unverified','Your network could not be verified for a trial. Please try again.');
   if(!signals.deviceHash)throw commerceError_('browser_unverified','Allow site storage to verify this browser for a trial.');
   if(commerceConflict_(signals,exceptId||''))throw commerceError_('trial_reserved','A trial checkout is already in progress for this browser or network. Resume it or try again in 30 minutes.');
@@ -158,7 +159,7 @@ function razorpayVerify_(record){
 }
 function razorpayNotify_(record){
   var trial=record.price.offer==='trial'&&!record.convertedAt;
-  var text='Wrapline '+record.price.plan+(trial?' (2-day FREE TRIAL)':'')+' · '+record.price.billing+' · '+record.price.seats+' license(s)\nSubscription: '+record.subscriptionId+'\nVerified account: '+record.email+'\n'+(trial?'Trial ends (first charge): ':'Paid through: ')+new Date(record.paidThrough*1000).toISOString();
+  var text='Wrapline '+record.price.plan+(trial?' (4-day FREE TRIAL)':'')+' · '+record.price.billing+' · '+record.price.seats+' license(s)\nSubscription: '+record.subscriptionId+'\nVerified account: '+record.email+'\n'+(trial?'Trial ends (first charge): ':'Paid through: ')+new Date(record.paidThrough*1000).toISOString();
   if(!record.ownerNotified){MailApp.sendEmail({to:ownerEmail_(),subject:(record.mode==='test'?'[TEST] ':'')+'Wrapline Razorpay: send the license',body:text+'\n\nVerify this order and send the matching access code to the buyer.'});record.ownerNotified=true;razorpayWrite_(record);}
   if(!record.buyerNotified){MailApp.sendEmail({to:record.email,subject:(record.mode==='test'?'[TEST] ':'')+'Your Wrapline subscription is confirmed',body:text+'\n\nYour access code is sent within 12 hours. Manage future payments with Razorpay or contact support at https://imajoy.github.io/contact.html'});record.buyerNotified=true;razorpayWrite_(record);}
 }
@@ -190,7 +191,7 @@ function razorpayConfirm_(id,who){
     current.accepted=true;current.state='accepted';current.accessRevoked=false;current.providerStatus=subscription.status;current.paidThrough=periodEnd;current.paymentId=payment.id;current.invoiceId=invoice.id;
     if(current.price.offer==='trial'&&!current.convertedAt)current.convertedAt=Date.now();
     razorpayWrite_(current);
-    if(converted)try{MailApp.sendEmail({to:ownerEmail_(),subject:(current.mode==='test'?'[TEST] ':'')+'Wrapline trial converted to paid: '+current.subscriptionId,body:current.email+' was charged after the 2-day trial. Paid through: '+new Date(current.paidThrough*1000).toISOString()});}catch(e){}
+    if(converted)try{MailApp.sendEmail({to:ownerEmail_(),subject:(current.mode==='test'?'[TEST] ':'')+'Wrapline trial converted to paid: '+current.subscriptionId,body:current.email+' was charged after the 4-day trial. Paid through: '+new Date(current.paidThrough*1000).toISOString()});}catch(e){}
     var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
     if(!sheet){sheet=SpreadsheetApp.getActiveSpreadsheet().insertSheet(ORDERS_SHEET);sheet.appendRow(['Time','Subscription ID','Status','Mode','Buyer email','Name','Country','Plan','Billing','Licenses','Company','Plan ID']);}
     var rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues():[];
@@ -215,7 +216,7 @@ function razorpayAcceptTrial_(id,subscription){
     if(commerceHistoricalTrial_(current.email)||commerceConflict_(signals,current.id,true)){
       try{razorpayApi_('/subscriptions/'+encodeURIComponent(current.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:0});}catch(e){}
       current.state='blocked';current.providerStatus='cancelled';razorpayWrite_(current);
-      throw commerceError_('trial_used','2-day trial already claimed. This trial was cancelled and you will not be charged. You can continue with a paid subscription.');
+      throw commerceError_('trial_used','4-day trial already claimed. This trial was cancelled and you will not be charged. You can continue with a paid subscription.');
     }
     current.accepted=true;current.state='accepted';current.accessRevoked=false;current.providerStatus=subscription.status;
     current.trialEndsAt=Number(subscription.start_at);current.paidThrough=current.trialEndsAt;current.trialUsedAt=Date.now();razorpayWrite_(current);

@@ -86,7 +86,7 @@ test('Cancellation and refunds never reset an already-used trial',()=>{
  assert.equal(app.rpc('checkout',selection(account.token,{deviceHash:hash(7),ipHash:hash(8)})).error,'trial_used');
 });
 test('Legacy trial imports keep PayPal payer history so changing email cannot reset the reward',()=>{
- const app=service();app.orders.rows[1][7]='online (2-day trial)';app.orders.rows[1][11]='P-high-TRIAL';app.ctx.backfillTrialHistory();
+ const app=service();app.orders.rows[1][7]='online (4-day trial)';app.orders.rows[1][11]='P-high-TRIAL';app.ctx.backfillTrialHistory();
  const account=app.register('different@example.com');const second=approved(app,account.token,{deviceHash:hash(20),ipHash:hash(21)},'LEGACY-PAYER');
  assert.equal(second.confirmed.error,'trial_used');
 });
@@ -99,8 +99,8 @@ test('A new trial created outside the server-managed checkout is cancelled by a 
 test('A consumed trial clearly says already claimed, including when network verification is unavailable',()=>{
  const app=service(),token=app.ctx.makeSession_('buyer@example.com');assert(approved(app,token).confirmed.accepted);
  const result=app.rpc('eligibility',selection(token,{ipHash:'',deviceHash:''}));
- assert.equal(result.reason,'trial_used');assert.equal(result.eligible,false);assert.match(result.message,/2-day trial already claimed/);
- const rejected=app.rpc('checkout',selection(token));assert.equal(rejected.error,'trial_used');assert.match(rejected.message,/2-day trial already claimed/);
+ assert.equal(result.reason,'trial_used');assert.equal(result.eligible,false);assert.match(result.message,/4-day trial already claimed/);
+ const rejected=app.rpc('checkout',selection(token));assert.equal(rejected.error,'trial_used');assert.match(rejected.message,/4-day trial already claimed/);
  assert.equal(app.rpc('checkout',selection(token,{offer:'standard'})).ok,true);
 });
 test('An unfinished checkout and missing verification never claim that a trial was already used',()=>{

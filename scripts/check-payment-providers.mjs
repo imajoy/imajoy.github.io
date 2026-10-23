@@ -61,15 +61,15 @@ try{
    }
    await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed'));
    {
-    // Online plans offer the 2-day trial with Razorpay too (selected by default when eligible): nothing due today.
+    // Online plans offer the 4-day trial with Razorpay too (selected by default when eligible): nothing due today.
     await page.waitForFunction(()=>!document.querySelector('.rzp-offer').hidden&&document.querySelector('.rzp-offer [value=trial]').checked&&/(^|[^0-9,.])0\.00/.test(document.querySelector('#summary-total').textContent));
-    assert.equal(await page.locator('[data-razorpay-start]').textContent(),'Start 2-day free trial');
+    assert.equal(await page.locator('[data-razorpay-start]').textContent(),'Start 4-day free trial');
     const check=await page.locator('.rzp-check').textContent();
     if(legacy){assert.match(check,/Review the exact amount/);assert(!check.includes('₹1'));assert(!check.includes('We refund'));}
     else assert.match(check,country==='IN'?/₹1 payment-method check/:/\$1 payment-method check/);
     await page.screenshot({path:'/tmp/payment-trial-'+width+'.png',fullPage:true});
     // The rest of this run checks the paid path; the trial path is covered by the server tests.
-    await page.locator('.rzp-offer [value=standard]').check();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed')&&/916|22\.44/.test(document.querySelector('#summary-total').textContent));
+    await page.locator('.rzp-offer [value=standard]').check();await page.waitForFunction(()=>document.querySelector('.razorpay-status').textContent.includes('Price confirmed')&&/899|29\.99/.test(document.querySelector('#summary-total').textContent));
    }
    assert.equal(await page.locator('.paypal-box').isVisible(),false);
    assert.equal(await page.locator('#customer-verification').isVisible(),false);
@@ -83,12 +83,12 @@ try{
     await page.waitForFunction(()=>/SAVE10 applied: 10% off/.test(document.querySelector('.rzp-coupon-msg').textContent));
     assert.match(await page.locator('.rzp-offer-note').textContent(),/can.t be combined with the free trial/);
     assert.equal(await page.locator('.rzp-offer [value=standard]').isChecked(),true);
-    assert.match(await page.locator('#summary-total').textContent(),/825\.28/);
+    assert.match(await page.locator('#summary-total').textContent(),/809\.10/);
     assert.equal(await page.locator('#coupon-summary-row').isVisible(),true);
-    await page.locator('.razorpay-panel [data-coupon-remove]').click();await page.waitForFunction(()=>/916\.98/.test(document.querySelector('#summary-total').textContent)&&document.querySelector('.razorpay-status').textContent.includes('Price confirmed'));
+    await page.locator('.razorpay-panel [data-coupon-remove]').click();await page.waitForFunction(()=>/899\.00/.test(document.querySelector('#summary-total').textContent)&&document.querySelector('.razorpay-status').textContent.includes('Price confirmed'));
     assert.equal(await page.locator('.rzp-offer-note').isVisible(),false,'notice clears with the coupon');
    }
-   assert.match(await page.locator('#summary-total').textContent(),country==='IN'?/916\.98/:/22\.44/);
+   assert.match(await page.locator('#summary-total').textContent(),country==='IN'?/899\.00/:/29\.99/);
    await page.getByRole('link',{name:'Edit billing details',exact:true}).first().click();await page.waitForURL('**/checkout.html');
    await page.locator('#customer-verification').waitFor({state:'visible'});
    await page.waitForFunction(()=>/reward/.test(document.querySelector('#loyalty-status').textContent));
@@ -96,7 +96,7 @@ try{
    await page.selectOption('#billing','yearly');
    await page.waitForFunction(()=>document.documentElement.dataset.billingBlocked==='false');
    await page.locator('[data-continue-payment]').click();await page.waitForURL('**/payment.html');
-   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('8,803.01')||document.querySelector('#summary-total').textContent.includes('215.22'));
+   await page.waitForFunction(()=>document.querySelector('#summary-total').textContent.includes('8,630.40')||document.querySelector('#summary-total').textContent.includes('287.90'));
    assert.equal(await page.locator('#annual-summary-row').isVisible(),true);
    if(country==='IN'){
     await page.locator('.razorpay-panel').screenshot({path:'/tmp/razorpay-checkout-'+width+'.png'});
@@ -143,10 +143,10 @@ try{
   if(country==='IN'){
    await page.evaluate(()=>localStorage.removeItem('ajoy.acct'));
    await page.goto(new URL('wrapline.html',base).href);
-   try{await page.waitForFunction(enabled=>document.querySelector('[data-buy="online"]')?.textContent.includes(enabled?'Start 2-day free trial':'Review billing'),enabled,{timeout:10000});}
+   try{await page.waitForFunction(enabled=>document.querySelector('[data-buy="online"]')?.textContent.includes(enabled?'Start 4-day free trial':'Review billing'),enabled,{timeout:10000});}
    catch(error){console.error({country,enabled,errors,cta:await page.locator('[data-buy="online"]').textContent(),href:await page.locator('[data-buy="online"]').getAttribute('href')});throw error;}
    assert.match(await page.locator('[data-buy="online"]').getAttribute('href'),/checkout\.html/);
-   if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('8,803.01'));}
+   if(enabled){await page.locator('[data-bill="yearly"]').click();await page.waitForFunction(()=>document.querySelector('[data-amt="online"]').textContent.includes('8,630.40'));}
   }
   assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));assert.deepEqual(errors,[]);
   console.log(`${country}, Razorpay ${enabled?'enabled':'disabled'}, ${width}px ${theme}${legacy?' legacy config':''}: provider gates and checkout passed`);

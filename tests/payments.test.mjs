@@ -3,10 +3,10 @@ import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
 import {service} from './helpers/apps-service.mjs';
 const selection=(app,extra={})=>({accountToken:app.ctx.makeSession_('buyer@example.com'),plan:'online',billing:'monthly',seats:1,country:'US',billingCountry:'US',offer:'standard',requestId:randomUUID(),...extra});
-const receipt=(id,status='COMPLETED',value='22.44',time)=>({id,status,time,amount_with_breakdown:{gross_amount:{value,currency_code:'USD'}}});
+const receipt=(id,status='COMPLETED',value='29.99',time)=>({id,status,time,amount_with_breakdown:{gross_amount:{value,currency_code:'USD'}}});
 function paidHistory(app,count){
  app.subscriptions.set('I-TESTBUYER1',{id:'I-TESTBUYER1',status:'ACTIVE',plan_id:app.orders.rows[1][11],create_time:'2026-01-01T00:00:00Z'});
- app.transactions.set('I-TESTBUYER1',{transactions:Array.from({length:count},(_,i)=>receipt('PAID-'+i,'COMPLETED','22.44',`2026-${String(i+1).padStart(2,'0')}-02T00:00:00Z`))});
+ app.transactions.set('I-TESTBUYER1',{transactions:Array.from({length:count},(_,i)=>receipt('PAID-'+i,'COMPLETED','29.99',`2026-${String(i+1).padStart(2,'0')}-02T00:00:00Z`))});
 }
 function withTriggers(app){const triggers=[];app.ctx.Logger={log(){}};app.ctx.ScriptApp={getProjectTriggers:()=>triggers,newTrigger:name=>({timeBased:()=>({everyDays:()=>({atHour:()=>({create:()=>{triggers.push({getHandlerFunction:()=>name});}})})})})};return triggers;}
 const payments=app=>app.sheets.get('Payments')?.rows.slice(1)||[];
@@ -17,7 +17,7 @@ test('History import fills the Payments tab once, switches rewards to it and ins
  const before=app.rpc('rewards',selection(app));assert.equal(before.pricing.percent,5,'old method: 2nd monthly payment is 5% off');
  const note=app.ctx.buildPaymentHistory();assert.match(note,/1 PayPal and 0 Razorpay payment/);
  assert.equal(payments(app).length,1);const row=payments(app)[0];
- assert.deepEqual([row[1],row[2],row[3],row[4],row[5],row[7],row[8],row[9],row[10],row[12],row[13],row[14]],['buyer@example.com','PayPal','Test','Online','Monthly',22.44,'USD','Paid','Yes','PAID-0','I-TESTBUYER1','History import']);
+ assert.deepEqual([row[1],row[2],row[3],row[4],row[5],row[7],row[8],row[9],row[10],row[12],row[13],row[14]],['buyer@example.com','PayPal','Test','Online','Monthly',29.99,'USD','Paid','Yes','PAID-0','I-TESTBUYER1','History import']);
  assert.equal(app.values.get('PAYMENT_LEDGER'),'on');assert.equal(triggers.length,1);
  app.ctx.buildPaymentHistory();assert.equal(payments(app).length,1,'running again adds nothing');assert.equal(triggers.length,1);
  const calls=paypalCalls(app);
@@ -31,7 +31,7 @@ test('A missing old PayPal subscription is skipped by the import instead of fail
 });
 test('Signed PayPal sale notifications add a row once; refunds stop it counting but keep a used reward used',()=>{
  const app=service();withTriggers(app);paidHistory(app,0);app.ctx.buildPaymentHistory();
- const sale=(id,t)=>({headers:{},event:{id:'EV-'+id,event_type:'PAYMENT.SALE.COMPLETED',resource:{id,billing_agreement_id:'I-TESTBUYER1',state:'completed',create_time:t,amount:{total:'22.44',currency:'USD'}}}});
+ const sale=(id,t)=>({headers:{},event:{id:'EV-'+id,event_type:'PAYMENT.SALE.COMPLETED',resource:{id,billing_agreement_id:'I-TESTBUYER1',state:'completed',create_time:t,amount:{total:'29.99',currency:'USD'}}}});
  app.rpc('webhook',sale('SALE-1','2026-09-02T00:00:00Z'));app.rpc('webhook',sale('SALE-1','2026-09-02T00:00:00Z'));
  assert.equal(payments(app).length,1,'duplicates are ignored');
  assert.equal(app.rpc('rewards',selection(app)).pricing.percent,5);
@@ -42,12 +42,12 @@ test('Signed PayPal sale notifications add a row once; refunds stop it counting 
 test('Owner rows: a Manual payment counts, "Counts for rewards = No" is ignored, other emails never mix',()=>{
  const app=service();withTriggers(app);paidHistory(app,0);app.ctx.buildPaymentHistory();
  const sheet=app.ctx.paymentsSheet_();
- sheet.appendRow([new Date('2026-08-05'),'buyer@example.com','Manual','Test','Online','Monthly',1,22.44,'USD','Paid','No','','BANK-1','','Manual','Bank transfer']);
+ sheet.appendRow([new Date('2026-08-05'),'buyer@example.com','Manual','Test','Online','Monthly',1,29.99,'USD','Paid','No','','BANK-1','','Manual','Bank transfer']);
  assert.equal(app.rpc('rewards',selection(app)).pricing.percent,0);
  sheet.rows[sheet.rows.length-1][10]='Yes';
- sheet.appendRow([new Date('2026-08-05'),'someone@else.com','Manual','Test','Online','Monthly',1,22.44,'USD','Paid','Yes','','BANK-2','','Manual','']);
+ sheet.appendRow([new Date('2026-08-05'),'someone@else.com','Manual','Test','Online','Monthly',1,29.99,'USD','Paid','Yes','','BANK-2','','Manual','']);
  assert.equal(app.rpc('rewards',selection(app)).pricing.percent,5);
- sheet.appendRow([new Date('2026-09-05'),'buyer@example.com','Manual','Test','Online','Monthly',1,22.44,'USD','Paid','Yes','2nd monthly 5%, 3rd monthly 5%','BANK-3','','Manual','']);
+ sheet.appendRow([new Date('2026-09-05'),'buyer@example.com','Manual','Test','Online','Monthly',1,29.99,'USD','Paid','Yes','2nd monthly 5%, 3rd monthly 5%','BANK-3','','Manual','']);
  assert.equal(app.rpc('rewards',selection(app)).pricing.percent,0,'both monthly rewards are already used');
 });
 test('Payments are written straight under the header even when the guide on the right makes the sheet taller',()=>{
@@ -81,9 +81,9 @@ test('Discounted introductory receipts qualify and subsequent full periods requi
  app.ctx.paymentFromPaypalSale_('I-TESTBUYER1',{id:'PAST',create_time:'2026-01-02T00:00:00Z',amount:{total:'22.00',currency:'USD'}},'Regression');
  const checkout=app.rpc('checkout',selection(app));assert(checkout.ok,JSON.stringify(checkout));
  const sale=(id,value,month)=>app.ctx.paymentFromPaypalSale_(checkout.subscriptionId,{id,create_time:`2026-${month}-02T00:00:00Z`,amount:{total:value,currency:'USD'}},'Regression');
- sale('INTRO-1','21.32','02');sale('INTRO-2','21.32','03');sale('UNDERPAID-REGULAR','21.32','04');
+ sale('INTRO-1','28.49','02');sale('INTRO-2','28.49','03');sale('UNDERPAID-REGULAR','28.49','04');
  assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,3);
- sale('FULL-REGULAR','22.44','04');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,4);
+ sale('FULL-REGULAR','29.99','04');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,4);
  app.ctx.paymentRefund_('INTRO-1');assert.equal(app.ctx.paymentHistory_('buyer@example.com').monthly,3);
  assert(app.ctx.paymentHistory_('buyer@example.com').used.monthly_second);
 });

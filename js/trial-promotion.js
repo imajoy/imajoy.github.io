@@ -1,7 +1,7 @@
 /* Clear, contextual offers. Promotions never authorize a trial or change a paid selection. */
-import {loadTrialConfig,trialPlanId} from './trial.js?v=20261020-prices1';
+import {loadTrialConfig,trialPlanId} from './trial.js?v=20261023-p4';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
-import {availability,closedMessage} from './regions.js?v=20261021-usd1';
+import {availability,closedMessage} from './regions.js?v=20261023-p4';
 import {getAccountSession,onAccountChange} from './account-session.js?v=20261020-ps1';
 import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261019-contact1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
@@ -13,7 +13,7 @@ const alreadyOnline=()=>getAccountSession()?.subscriptions?.some(s=>s.plan==='on
 function render(){
   const subscribed=alreadyOnline(),inIndia=country==='IN',known=/^[A-Z]{2}$/.test(country);
   const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
-  // Razorpay offers the same 2-day trial where it is the payment option.
+  // Razorpay offers the same 4-day trial where it is the payment option.
   const region=known?availability(country,config?.closedCountries||[]):null;
   // Where PayPal is not offered (India, or no PayPal support), the trial runs through Razorpay.
   const rzpTrial=known&&!!razorpayConfig?.trial&&razorpayAvailable(razorpayConfig,country)&&(inIndia||!region?.open||!trialPlanId(config,'online','monthly',country));
@@ -24,7 +24,7 @@ function render(){
   for(const link of document.querySelectorAll('[data-trial-cta]')){
     link.href=subscribed?'wrapline.html#pricing':billing?'checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial',v:'20261018-p1'}):fallback;
     // Keep the word trial when configuration/location cannot be confirmed.
-    link.textContent=subscribed?'View your Online plan':billing?'Start my 2-day free trial':region&&!region.open?'Review billing':'Explore the 2-day free trial';
+    link.textContent=subscribed?'View your Online plan':billing?'Start my 4-day free trial':region&&!region.open?'Review billing':'Explore the 4-day free trial';
     link.toggleAttribute('data-region-unavailable',Boolean(region&&!region.open&&!subscribed));
     if(reviewOnly&&!subscribed){link.href=billingPage;link.textContent='Review billing';link.removeAttribute('data-region-unavailable');}
     link.dataset.trialReady=String(Boolean(billing&&!subscribed));
@@ -33,17 +33,17 @@ function render(){
   }
   const mobileTrial=document.querySelector('.m-cta a:not(.primary)');
   if(mobileTrial){
-   mobileTrial.href=subscribed?'#pricing':reviewOnly?billingPage:'#trial';mobileTrial.textContent=subscribed?'Your Online plan':reviewOnly?'Review billing':'2-day trial';
+   mobileTrial.href=subscribed?'#pricing':reviewOnly?billingPage:'#trial';mobileTrial.textContent=subscribed?'Your Online plan':reviewOnly?'Review billing':'4-day trial';
    // Never show two identical "View plans" buttons side by side.
    mobileTrial.style.display=(indiaOpen&&!rzpTrial&&!subscribed)||subscribed?'none':'';
   }
   for(const teaser of document.querySelectorAll('[data-trial-teaser]')){
     if(!teaser.dataset.originalCopy)teaser.dataset.originalCopy=teaser.textContent;
     teaser.textContent=isHome?teaser.dataset.originalCopy:reviewOnly&&!subscribed?'Review your plan and billing details. Payment options appear when available for your country.':teaser.dataset.originalCopy;
-    if(rzpTrial&&!subscribed)teaser.textContent='Try the full Online toolkit free for 2 days. Approve with '+(inIndia?'UPI or card':'your card')+' through Razorpay; nothing is charged today.';
+    if(rzpTrial&&!subscribed)teaser.textContent='Try the full Online toolkit free for 4 days. Approve with '+(inIndia?'UPI or card':'your card')+' through Razorpay; nothing is charged today.';
     else if(indiaOpen&&!subscribed)teaser.textContent='Paid subscriptions are available with Razorpay in India.';
   }
-  const message=subscribed?'You already have an active Online subscription. View your plan or account.':rzpTrial?'For eligible customers. Verify your email and approve with Razorpay. Nothing is charged today; paid billing starts after 2 days unless you cancel.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 2-day trial unless cancelled.':reviewOnly?'You can review your billing details. Payment options will appear when available for your country.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
+  const message=subscribed?'You already have an active Online subscription. View your plan or account.':rzpTrial?'For eligible customers. Verify your email and approve with Razorpay. Nothing is charged today; paid billing starts after 4 days unless you cancel.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 4-day trial unless cancelled.':reviewOnly?'You can review your billing details. Payment options will appear when available for your country.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
   for(const notice of document.querySelectorAll('[data-trial-status]')){notice.hidden=isHome&&inIndia&&!indiaOpen;notice.textContent=indiaOpen&&!rzpTrial&&!subscribed?'Paid subscriptions are available with Razorpay.':isHome&&inIndia&&!indiaOpen?'':message;}
   if(getAccountSession())closeNudge();
   tryNudge();
@@ -88,7 +88,7 @@ function tryNudge(){
   opening=true;
   nudge=document.createElement('aside');nudge.className='trial-nudge';
   nudge.setAttribute('role','region');nudge.setAttribute('aria-labelledby','trial-nudge-title');
-  nudge.innerHTML='<button type="button" class="offer-close" aria-label="Dismiss free trial offer">×</button><div class="nudge-art" aria-hidden="true"><span class="nudge-orbit"></span><div class="nudge-pass"><span>WRAPLINE / ONLINE</span><b>2<span>days</span></b><small>FREE TRIAL</small></div><span class="nudge-tool nudge-tool-one">IK / FK</span><span class="nudge-tool nudge-tool-two">EXPORT</span></div><div class="nudge-copy"><p class="offer-eyebrow">13 MAYA TOOLS. ONE FREE TRIAL.</p><h2 id="trial-nudge-title">Your next project.<br><em>Try it free for 2 days.</em></h2><p>All 13 Maya tools. Your own scenes. See what fits your workflow.</p><a class="btn btn-blue" href="'+('checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial'}))+'">Explore my free trial <svg class="offer-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L18 6M6 6h12v12"/></svg></a><p class="nudge-terms">Eligible customers only. Verified email and PayPal approval required. Renews into a paid subscription after 2 days unless cancelled.</p><button class="offer-later" type="button">Maybe later</button></div>';
+  nudge.innerHTML='<button type="button" class="offer-close" aria-label="Dismiss free trial offer">×</button><div class="nudge-art" aria-hidden="true"><span class="nudge-orbit"></span><div class="nudge-pass"><span>WRAPLINE / ONLINE</span><b>2<span>days</span></b><small>FREE TRIAL</small></div><span class="nudge-tool nudge-tool-one">IK / FK</span><span class="nudge-tool nudge-tool-two">EXPORT</span></div><div class="nudge-copy"><p class="offer-eyebrow">13 MAYA TOOLS. ONE FREE TRIAL.</p><h2 id="trial-nudge-title">Your next project.<br><em>Try it free for 4 days.</em></h2><p>All 13 Maya tools. Your own scenes. See what fits your workflow.</p><a class="btn btn-blue" href="'+('checkout.html?'+new URLSearchParams({plan:'online',billing,offer:'trial'}))+'">Explore my free trial <svg class="offer-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L18 6M6 6h12v12"/></svg></a><p class="nudge-terms">Eligible customers only. Verified email and PayPal approval required. Renews into a paid subscription after 4 days unless cancelled.</p><button class="offer-later" type="button">Maybe later</button></div>';
   const native=typeof nudge.showPopover==='function';
   if(native)nudge.setAttribute('popover','auto');
   document.body.append(nudge);

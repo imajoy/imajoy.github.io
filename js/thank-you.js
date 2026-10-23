@@ -8,7 +8,7 @@ $('ty-plan').textContent=plan+' plan';$('ty-billing').textContent=billing;$('ty-
 if(provider)$('ty-provider').textContent=provider;else $('ty-provider').parentElement.hidden=true;
 const eta=new Date(Date.now()+12*3600e3);
 $('ty-eta').textContent=eta.toLocaleString(undefined,{weekday:'short',hour:'numeric',minute:'2-digit'});
-const trialLead=()=>'Your 2-day Wrapline trial is approved. Your first payment is taken after the trial unless you cancel.'+(provider==='Razorpay'?' The small payment-method check Razorpay took is refunded to you automatically.':'');
+const trialLead=()=>'Your 4-day Wrapline trial is approved. Your first payment is taken after the trial unless you cancel.'+(provider==='Razorpay'?' The small payment-method check Razorpay took is refunded to you automatically.':'');
 if(trial){
  $('ty-status').textContent='Free trial started';$('ty-step-pay').textContent='Trial approved';
  $('ty-lead').textContent=trialLead();

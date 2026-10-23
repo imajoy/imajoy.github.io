@@ -55,11 +55,11 @@ try{
  assert.equal(app.sheets.get('Contacts').rows.length,3);assert.equal(app.github.uploads,1);
  // Price changes visibly interpolate, settle exactly and survive rapid toggles.
  await page.goto(new URL('wrapline.html',base).href);await page.locator('[data-amt=online]').scrollIntoViewIfNeeded();
- await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent.includes('22'));
+ await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent.includes('29.99'));
  await page.locator('[data-bill=yearly]').click();await page.waitForFunction(()=>document.querySelector('[data-amt=online] span[aria-hidden]'));
- await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent.includes('215.22'));
+ await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent.includes('287.90'));
  await page.locator('[data-bill=monthly]').click();await page.locator('[data-bill=yearly]').click();await page.locator('[data-bill=monthly]').click();
- await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent==='$22.44');
+ await page.waitForFunction(()=>document.querySelector('[data-amt=online]').textContent==='$29.99');
  // License illustration resumes on entry, pauses offscreen, and respects motion preferences.
  await page.locator('.card-stage').scrollIntoViewIfNeeded();await page.waitForFunction(()=>document.querySelector('.card-stage').hasAttribute('data-license-active'));
  assert.equal(await page.locator('.license-seat').count(),3);
@@ -79,7 +79,7 @@ try{
   return route.abort();
  });
  await regionPage.goto(new URL('wrapline.html',base).href);
- await regionPage.waitForFunction(()=>sessionStorage.getItem('ajoy.geo')==='IN'&&document.querySelector('[data-amt=online]').textContent.includes('916.98'));
+ await regionPage.waitForFunction(()=>sessionStorage.getItem('ajoy.geo')==='IN'&&document.querySelector('[data-amt=online]').textContent.includes('899'));
  assert(lookups.includes('country.is')&&lookups.includes('GeoJS'));
  assert.match(await regionPage.locator('[data-buy=online]').getAttribute('href'),/^checkout\.html\?plan=online/,'India buys through checkout (Razorpay), not a contact form');await regional.close();
  // Forced preview is discoverable, uses real account actions and does not consume the cooldown.

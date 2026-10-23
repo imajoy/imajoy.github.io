@@ -1,4 +1,20 @@
-# Activate the 20 October 2026 subscription catalog
+# Activate the 23 October 2026 subscription catalog (v4)
+
+Catalog `2026-10-23-v4` replaces v3. Free trial is now **4 days** (Online only).
+Yearly billing is 20% off twelve monthly payments (the list price).
+Follow the same four steps below (Apps Script files, `setupPlans()`, `setupRazorpayPlans()`,
+new deployment). Also set the Script property `TRIAL_DAYS` to 4 if you ever set it by hand.
+
+| Region / gateway | Online monthly | Online yearly | Offline monthly | Offline yearly |
+| --- | ---: | ---: | ---: | ---: |
+| High / PayPal USD | $29.99 | $287.90 | $49.92 | $479.20 |
+| Mid / PayPal USD | $16.59 | $159.20 | $39.09 | $375.20 |
+| Low / PayPal USD | $7.99 | $76.70 | $19.09 | $183.20 |
+| India / Razorpay INR | ₹899.00 | ₹8,630.40 | ₹1,899.91 | ₹18,239.20 |
+
+---
+
+# Previous: 20 October 2026 subscription catalog (v3)
 
 Website prices and authoritative server prices now use catalog `2026-10-20-v3`.
 Online and Offline, monthly and yearly, increase by 2%, rounded to the currency's

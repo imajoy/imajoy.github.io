@@ -78,7 +78,7 @@ function planTier_(planId) {
   var reward=rewardPlanInfo_(planId);
   return reward?reward.tier:'';
 }
-/* True when this PayPal plan is one of the 2-day-trial plans (Online only). */
+/* True when this PayPal plan is one of the 4-day-trial plans (Online only). */
 function isTrialPlan_(planId) {
   var saved = props_().getProperty('PLANS_' + mode_());
   if (!saved || !planId) return false;
@@ -209,11 +209,11 @@ function handleOrder_(d) {
     var flags = priceFlags_(planTier_(planId), clip_(d.country, 2).toUpperCase(), detected, payer);
     if (detected && detected !== clip_(d.country, 2).toUpperCase() && flags.length === 0) flags.push('Billing country (' + clip_(d.country, 2) + ') differs from the connection country (' + detected + '), but the price is not lower.');
     if (trial && [email, String(paypalEmail).toLowerCase()].filter(Boolean).some(function(e){return commerceHistoricalTrial_(e);})) flags.push('REPEAT FREE TRIAL: this email already has an earlier order. Consider cancelling this subscription in PayPal.');
-    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10) + (trial ? ' (2-day trial)' : ''), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, detected, payer, flags.length ? 'CHECK' : 'ok', '', ''].map(safeSheetCell_));
+    sheet.appendRow([new Date(), subId, status, mode_(), email, clip_(d.name, 80), clip_(d.country, 2), clip_(d.plan, 10) + (trial ? ' (4-day trial)' : ''), clip_(d.billing, 10), Number(d.seats) || 1, clip_(d.company, 80), planId, detected, payer, flags.length ? 'CHECK' : 'ok', '', ''].map(safeSheetCell_));
     var orderRow = sheet.getLastRow();
 
     var test = mode_() !== 'live';
-    var planText = 'Wrapline ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)' + (trial ? ' · 2-day free trial, then billed automatically' : '');
+    var planText = 'Wrapline ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)' + (trial ? ' · 4-day free trial, then billed automatically' : '');
     var tag = test ? '[TEST] ' : '';
     var owner = ownerEmail_();
 
@@ -223,7 +223,7 @@ function handleOrder_(d) {
       subject: tag + (flags.length && verified ? 'CHECK PRICE, then send the license key' : verified ? 'New order: send the license key' : 'CHECK THIS ORDER (' + status + ')'),
       body: 'Plan: ' + planText + '\nSubscription ID: ' + subId + '\nPayPal status: ' + status + '\nBuyer email (form): ' + email + '\nPayPal email: ' + paypalEmail +
         '\nName: ' + clip_(d.name, 80) + '\nBilling country: ' + clip_(d.country, 2) + '\nConnection country: ' + (detected || 'unknown') + '\nPayPal buyer country: ' + (payer || 'not reported (check the payment in PayPal > Activity)') + '\nCompany: ' + clip_(d.company, 80) +
-        (flags.length ? '\n\nPRICE CHECK NEEDED BEFORE YOU SEND THE KEY:\n- ' + flags.join('\n- ') + '\nIf the buyer is not in the region of the price they paid, cancel the subscription in PayPal or ask them to subscribe again at the right price.' : '') + (trial ? '\n\nFREE TRIAL: send a license that works for the trial. The first payment is taken automatically after 2 days unless the buyer cancels in PayPal.' : '') + '\n\nPromise made to the buyer: license key within 12 hours.\nMark "License sent?" in the Orders tab when done.'
+        (flags.length ? '\n\nPRICE CHECK NEEDED BEFORE YOU SEND THE KEY:\n- ' + flags.join('\n- ') + '\nIf the buyer is not in the region of the price they paid, cancel the subscription in PayPal or ask them to subscribe again at the right price.' : '') + (trial ? '\n\nFREE TRIAL: send a license that works for the trial. The first payment is taken automatically after 4 days unless the buyer cancels in PayPal.' : '') + '\n\nPromise made to the buyer: license key within 12 hours.\nMark "License sent?" in the Orders tab when done.'
     }); emailLog.push('owner: sent'); } catch (err) { emailLog.push('owner FAILED: ' + String(err).slice(0, 120)); }
 
     /* The buyer only gets a confirmation when PayPal confirms the subscription. */
@@ -234,7 +234,7 @@ function handleOrder_(d) {
         '<p>Your Wrapline subscription is confirmed.</p>' +
         '<table style="border-collapse:collapse;width:100%;margin:14px 0"><tr><td style="padding:8px 0;color:#667">Plan</td><td style="text-align:right"><b>' + esc_(planText) + '</b></td></tr>' +
         '<tr><td style="padding:8px 0;color:#667;border-top:1px solid #e3e6ee">Subscription ID</td><td style="text-align:right;border-top:1px solid #e3e6ee"><b>' + esc_(subId) + '</b></td></tr></table>' +
-        (trial ? '<p><b>Your 2-day free trial has started.</b> Your first payment is taken automatically when it ends, unless you cancel before then in PayPal. You can cancel any time.</p>' : '') +
+        (trial ? '<p><b>Your 4-day free trial has started.</b> Your first payment is taken automatically when it ends, unless you cancel before then in PayPal. You can cancel any time.</p>' : '') +
         '<p><b>Your license key will arrive within 12 hours</b> at this email address.</p>' +
         '<p>Questions? Reply to this email or write to ' + replyTo_() + '.</p>' +
         '<p style="color:#667;font-size:13px">Wrapline by Ajoy Tools: production tools for Maya.</p></div>';
@@ -303,12 +303,12 @@ function subscriptionsFor_(email, onlySub) {
         item.status = s.status || 'UNKNOWN';
         var next = b.next_billing_time ? new Date(b.next_billing_time) : null;
         var last = b.last_payment && b.last_payment.time ? new Date(b.last_payment.time) : (s.start_time ? new Date(s.start_time) : null);
-        if (item.status === 'ACTIVE' && next) { item.endsAt = next.toISOString(); item.renews = true; item.trial = !!o.trialPlan && o.at && (Date.now() - o.at.getTime()) < 2 * 86400000 + 3600000 * 6; }
+        if (item.status === 'ACTIVE' && next) { item.endsAt = next.toISOString(); item.renews = true; item.trial = !!o.trialPlan && o.at && (Date.now() - o.at.getTime()) < 4 * 86400000 + 3600000 * 6; }
         else {
           // A trial cancelled before its first payment ends when the trial would have ended.
           var paid = b.last_payment && b.last_payment.amount && Number(b.last_payment.amount.value) > 0;
           var started = s.start_time ? new Date(s.start_time) : o.at;
-          if (o.trialPlan && !paid && started) { item.endsAt = new Date(started.getTime() + 2 * 86400000).toISOString(); item.trial = true; }
+          if (o.trialPlan && !paid && started) { item.endsAt = new Date(started.getTime() + 4 * 86400000).toISOString(); item.trial = true; }
           else if (last) item.endsAt = addPeriod_(last, o.billing).toISOString();
         }
       }
@@ -418,13 +418,13 @@ function handleAccount_(d) {
 
 /* ---------- 2b) free trial requests ----------
    Logs the request in the "Trials" tab, emails you to create a trial code, and emails the visitor a receipt.
-   Trial length comes from the Script property TRIAL_DAYS (default 2). Keep it the same as trialDays in js/site-config.js. */
+   Trial length comes from the Script property TRIAL_DAYS (default 4). Keep it the same as trialDays in js/site-config.js. */
 function handleTrial_(d) {
   if (d.website) return 'ok'; /* hidden field filled in: a bot */
   var email = clip_(d.email, 120).trim().toLowerCase();
   if (!/^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$/.test(email)) return 'invalid';
   var name = clip_(d.name, 80);
-  var days = Number(props_().getProperty('TRIAL_DAYS')) || 2;
+  var days = Number(props_().getProperty('TRIAL_DAYS')) || 4;
   var lock = LockService.getScriptLock();
   lock.waitLock(15000);
   try {
@@ -466,16 +466,16 @@ function handleTrial_(d) {
    Run setupPlans from the editor (select it, click Run). It creates 18 USD plans:
    3 regional tiers x Online/Offline x Monthly/Yearly, plus 6 Online trial plans, and writes the result to a "Plans" tab.
    Copy the single JSON cell from that tab into the Supabase secret PAYPAL_PLANS. */
-var PRICE_VERSION = '2026-10-20-v3';
+var PRICE_VERSION = '2026-10-23-v4';
 var LEGACY_PRICES = {
   high: { online: { monthly: 22, yearly: 211 }, offline: { monthly: 44, yearly: 422 } },
   mid: { online: { monthly: 14, yearly: 134 }, offline: { monthly: 28, yearly: 269 } },
   low: { online: { monthly: 9, yearly: 86 }, offline: { monthly: 18, yearly: 173 } }
 };
 var PRICES = {
-  high: { online: { monthly: 22.44, yearly: 215.22 }, offline: { monthly: 44.88, yearly: 430.44 } },
-  mid:  { online: { monthly: 14.28, yearly: 136.68 }, offline: { monthly: 28.56, yearly: 274.38 } },
-  low:  { online: { monthly: 9.18, yearly: 87.72 }, offline: { monthly: 18.36, yearly: 176.46 } }
+  high: { online: { monthly: 29.99, yearly: 287.90 }, offline: { monthly: 49.92, yearly: 479.20 } },
+  mid:  { online: { monthly: 16.59, yearly: 159.20 }, offline: { monthly: 39.09, yearly: 375.20 } },
+  low:  { online: { monthly: 7.99, yearly: 76.70 }, offline: { monthly: 19.09, yearly: 183.20 } }
 };
 
 function paypalPost_(path, body, t, reqId) {
@@ -524,15 +524,15 @@ function setupPlans() {
       });
     });
   });
-  /* Online plans with a 2-day free trial. The buyer approves in PayPal now and is first charged after the trial. */
+  /* Online plans with a 4-day free trial. The buyer approves in PayPal now and is first charged after the trial. */
   ['high', 'mid', 'low'].forEach(function (tier) {
     result.tiers[tier].onlineTrial = result.tiers[tier].onlineTrial || {};
     ['monthly', 'yearly'].forEach(function (period) {
       if (result.tiers[tier].onlineTrial[period]) return;
       var plan = paypalPost_('/v1/billing/plans', {
         product_id: productId,
-        name: 'Wrapline online ' + period + ' with 2-day trial (' + tier + ')',
-        description: 'Wrapline online license, 2-day free trial, then billed ' + period + '.',
+        name: 'Wrapline online ' + period + ' with 4-day trial (' + tier + ')',
+        description: 'Wrapline online license, 4-day free trial, then billed ' + period + '.',
         status: 'ACTIVE',
         billing_cycles: [
           { frequency: { interval_unit: 'DAY', interval_count: 2 }, tenure_type: 'TRIAL', sequence: 1, total_cycles: 1,
@@ -561,7 +561,7 @@ function setupPlans() {
   });
   ['high', 'mid', 'low'].forEach(function (tier) {
     ['monthly', 'yearly'].forEach(function (period) {
-      rows.push([labels[tier], 'Online + 2-day trial', period === 'yearly' ? 'Yearly' : 'Monthly', PRICES[tier].online[period], result.tiers[tier].onlineTrial[period]]);
+      rows.push([labels[tier], 'Online + 4-day trial', period === 'yearly' ? 'Yearly' : 'Monthly', PRICES[tier].online[period], result.tiers[tier].onlineTrial[period]]);
     });
   });
   var json = JSON.stringify({ tiers: result.tiers });

@@ -12,10 +12,12 @@ const CLOSED_OTHER = 'RU BY IR KP SY CU'.split(' ');
 const NO_PAYPAL = 'AF BD NP PK MM ET ZW BI CF TD KM CG CD DJ ER GQ GW IQ LY SO SS SD YE LS LR ML MR NE SL ST BT GN HT TJ TM UZ VE TL KI NR TV PW MH FM SB VU WS TO PG SR'.split(' ');
 /* USD prices per computer. Annual plans retain their catalog rounding. */
 export const USD = {
-  high: { online: { monthly: 22.44, yearly: 215.22 }, offline: { monthly: 44.88, yearly: 430.44 } },
-  mid:  { online: { monthly: 14.28, yearly: 136.68 }, offline: { monthly: 28.56, yearly: 274.38 } },
-  low:  { online: { monthly: 9.18, yearly: 87.72 }, offline: { monthly: 18.36, yearly: 176.46 } }
+  high: { online: { monthly: 29.99, yearly: 287.90 }, offline: { monthly: 49.92, yearly: 479.20 } },
+  mid:  { online: { monthly: 16.59, yearly: 159.20 }, offline: { monthly: 39.09, yearly: 375.20 } },
+  low:  { online: { monthly: 7.99, yearly: 76.70 }, offline: { monthly: 19.09, yearly: 183.20 } }
 };
+/* India (Razorpay), in paise. list = the twelve-month list price; yearly billing is 20% off it. */
+export const INDIA = { online: { monthly: 89900, list: 1078800 }, offline: { monthly: 189991, list: 2279900 } };
 export const tierFor = c => LOW.includes(c) ? 'low' : MID.includes(c) ? 'mid' : 'high';
 /* open:true means the PayPal button is offered. reason explains a closed region. */
 export function availability(c, extraClosed = []) {
@@ -43,9 +45,8 @@ export const closedMessage = {
 };
 /* Display price in minor units (cents or paise) so money() can format it. */
 export function regionalPrice(plan, billing, seats, country) {
-  const m = plan === 'offline' ? 2 : 1;
   if (country === 'IN') {
-    const monthly = 91698 * m, compare = billing === 'yearly' ? monthly * 12 : monthly;
+    const monthly = INDIA[plan].monthly, compare = billing === 'yearly' ? INDIA[plan].list : monthly;
     const unit = billing === 'yearly' ? Math.round(compare * .8) : monthly;
     return { currency: 'INR', unitAmount: unit, monthlyAmount: monthly, compareAtUnitAmount: compare };
   }
@@ -54,13 +55,15 @@ export function regionalPrice(plan, billing, seats, country) {
 }
 /* Instant Razorpay (INR, paise) price shown while the server confirms the real quote. Must match
    razorpayPrice_ in Razorpay.gs (a test checks this). Checkout always charges the server's confirmed amount. */
-const RAZORPAY_MONTHLY_PAISE = { IN: 91698, low: 91698, mid: 142698, high: 203898 };
+const RAZORPAY_MONTHLY_PAISE = { IN: 89900, low: 91698, mid: 142698, high: 203898 };
 export function razorpayEstimate(plan, billing, seats, country, currency = 'INR') {
   if (currency === 'USD') {
     const t = USD[tierFor(country)][plan], m = Math.round(t.monthly * 100), unit = billing === 'yearly' ? Math.round(t.yearly * 100) : m;
     return { currency: 'USD', unitAmount: unit, monthlyAmount: m, compareAtUnitAmount: billing === 'yearly' ? m * 12 : m, total: unit * seats, recurringTotal: unit * seats, plan, billing, seats, estimate: true };
   }
-  const monthly = (country === 'IN' ? RAZORPAY_MONTHLY_PAISE.IN : RAZORPAY_MONTHLY_PAISE[tierFor(country)]) * (plan === 'offline' ? 2 : 1);
-  const unit = billing === 'yearly' ? Math.round(monthly * 12 * 0.8) : monthly;
-  return { currency: 'INR', unitAmount: unit, monthlyAmount: monthly, compareAtUnitAmount: billing === 'yearly' ? monthly * 12 : monthly, total: unit * seats, recurringTotal: unit * seats, plan, billing, seats, estimate: true };
+  const india = country === 'IN';
+  const monthly = india ? INDIA[plan].monthly : RAZORPAY_MONTHLY_PAISE[tierFor(country)] * (plan === 'offline' ? 2 : 1);
+  const list = india ? INDIA[plan].list : monthly * 12;
+  const unit = billing === 'yearly' ? Math.round(list * 0.8) : monthly;
+  return { currency: 'INR', unitAmount: unit, monthlyAmount: monthly, compareAtUnitAmount: billing === 'yearly' ? list : monthly, total: unit * seats, recurringTotal: unit * seats, plan, billing, seats, estimate: true };
 }

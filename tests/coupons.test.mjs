@@ -8,7 +8,7 @@ import {handleRequest} from '../supabase/functions/storefront/handler.js';
 const code='TEST-OWNER-10',future=new Date(Date.now()+86400000).toISOString();
 const makeRule=extra=>({active:true,percent:10,expiresAt:future,billing:['monthly'],...extra});
 const registry=async rule=>({[await couponHash(code)]:rule});
-test('Regional price table: yearly is 12 months less about 20%, offline is double, tiers never invert',async()=>{
+test('Regional price table: yearly is 12 months less about 20%, offline costs more than online, tiers never invert',async()=>{
  globalThis.window={AJOY_CONFIG:{apiBase:''}};
  const {previewPrice}=await import('../js/commerce.js');
  const {availability,tierFor}=await import('../js/regions.js');
@@ -19,7 +19,7 @@ test('Regional price table: yearly is 12 months less about 20%, offline is doubl
   assert(Math.abs(y.unitAmount-m.unitAmount*12*.8)<=100,country+' yearly is about 20% off');
   assert(y.annualSavings>0);
  }
- for(const country of ['US','BR','PK']){assert.equal(previewPrice('offline','monthly',1,country).unitAmount,previewPrice('online','monthly',1,country).unitAmount*2);}
+ for(const country of ['US','BR','PK']){assert(previewPrice('offline','monthly',1,country).unitAmount>previewPrice('online','monthly',1,country).unitAmount);assert(previewPrice('offline','yearly',1,country).unitAmount>previewPrice('online','yearly',1,country).unitAmount);}
  assert(previewPrice('online','monthly',1,'US').unitAmount>previewPrice('online','monthly',1,'BR').unitAmount);
  assert(previewPrice('online','monthly',1,'BR').unitAmount>previewPrice('online','monthly',1,'PK').unitAmount);
  assert.equal(tierFor('US'),'high');assert.equal(tierFor('BR'),'mid');assert.equal(tierFor('PK'),'low');

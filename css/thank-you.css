@@ -107,3 +107,5 @@ html[data-theme=dark] .ty-pass{box-shadow:0 30px 60px -24px rgba(0,0,0,.7),inset
   .ty-check circle,.ty-check path{stroke-dashoffset:0}
   .ty-timeline li{opacity:1}
 }
+
+.ty-key.ty-mail{display:grid;gap:6px;letter-spacing:0}.ty-key.ty-mail small{font-family:inherit;font-weight:600;font-size:11px;line-height:1;letter-spacing:.08em;text-transform:uppercase;opacity:.7}.ty-key.ty-mail b{font:600 clamp(15px,1.8vw,19px)/1.25 var(--mono,ui-monospace,monospace);word-break:break-all}

@@ -16,7 +16,10 @@ if(trial){
 if(provider==='PayPal')$('ty-fine').innerHTML='Need help? <a href="contact.html">Contact support</a>. To stop automatic renewal, open <b>Account</b> on the Wrapline page or cancel in your <a href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener">PayPal account</a>.';
 /* Basic needs no license key: it signs in with the email registered on this site. Premium keeps its key. */
 if(plan==='Basic'){
- $('ty-key').hidden=true;$('ty-eta-row').hidden=true;$('ty-pass-note').textContent='No license key needed · sign in with your email';
+ const who=getAccountSession()?.email,keyBox=$('ty-key');
+ if(who){keyBox.replaceChildren();const label=document.createElement('small'),mail=document.createElement('b');label.textContent='Sign in to Wrapline with';mail.textContent=who;keyBox.append(label,mail);keyBox.classList.add('ty-mail');keyBox.setAttribute('aria-label','Your activation email');}
+ else keyBox.hidden=true;
+ $('ty-eta-row').hidden=true;$('ty-pass-note').textContent='No license key needed · sign in with your email';
  const keyStep=$('ty-step-key');keyStep.dataset.step='';keyStep.querySelector('b').textContent='Download the setup file';keyStep.querySelector('p').textContent='Use the Download setup button. No license key is needed for Basic.';
  const install=$('ty-step-install');install.dataset.step='current';install.querySelector('b').textContent='Install Wrapline in Maya';install.querySelector('p').textContent='Drag the setup file into the Maya viewport and choose Basic.';
  const start=$('ty-step-start');start.removeAttribute('data-step');start.querySelector('b').textContent='Sign in with your registered email';start.querySelector('p').textContent='Enter the same email you used on this website. Wrapline unlocks automatically while your plan is active.';

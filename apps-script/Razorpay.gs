@@ -32,27 +32,31 @@ function razorpayCatalog_(){return JSON.parse(props_().getProperty('RAZORPAY_PLA
    USD plans; until then the existing INR plans keep working. Script property RAZORPAY_INTL_CURRENCY=INR keeps INR. */
 function razorpayIntlCurrency_(){return (props_().getProperty('RAZORPAY_INTL_CURRENCY')||'USD').toUpperCase()==='INR'?'INR':'USD';}
 function razorpayCurrencyFor_(country,catalog){return country!=='IN'&&razorpayIntlCurrency_()==='USD'&&(catalog||razorpayCatalog_())._intlCurrency==='USD'?'USD':'INR';}
-function razorpayPrice_(plan,billing,country,currency){
+function razorpayPrice_(plan,billing,country,currency,full){
+  // full: Premium yearly at its regular price, for accounts that already used the first-year saving.
+  full=!!full&&plan==='offline'&&billing==='yearly';
   if((currency||'INR')==='USD'){
     var t=PRICES[tierFor_(country)][plan],m=Math.round(t.monthly*100);
-    return {currency:'USD',unitAmount:billing==='yearly'?Math.round(t.yearly*100):m,monthlyAmount:m,compareAtUnitAmount:billing==='yearly'?m*12:m};
+    if(full){var f=Math.round(t.full*100);return {currency:'USD',unitAmount:f,monthlyAmount:m,compareAtUnitAmount:f,fullPrice:true};}
+    return {currency:'USD',unitAmount:billing==='yearly'?Math.round(t.yearly*100):m,monthlyAmount:m,compareAtUnitAmount:billing==='yearly'?Math.round((t.full||t.monthly*12)*100):m};
   }
   var india=country==='IN',monthly=india?(plan==='offline'?189991:89900):{low:91698,mid:142698,high:203898}[tierFor_(country)]*(plan==='offline'?2:1);
   var list=india?(plan==='offline'?2279900:1078800):monthly*12;
+  if(full)return {currency:'INR',unitAmount:list,monthlyAmount:monthly,compareAtUnitAmount:list,fullPrice:true};
   return {currency:'INR',unitAmount:billing==='yearly'?Math.round(list*.8):monthly,monthlyAmount:monthly,compareAtUnitAmount:billing==='yearly'?list:monthly};
 }
-function razorpaySelection_(d){
+function razorpaySelection_(d,who){
   if(!razorpayEnabled_())throw commerceError_('unavailable','Razorpay subscriptions are not activated yet.');
   if(['online','offline'].indexOf(d.plan)<0||['monthly','yearly'].indexOf(d.billing)<0||!Number.isInteger(d.seats)||d.seats<1||d.seats>100)throw commerceError_('selection','Review your plan and license quantity.');
   if(d.sandboxCountry&&razorpayMode_()!=='test')throw commerceError_('region','Test country settings cannot be used for live payments.');
   var country=d.sandboxCountry||d.country;
   if(!razorpayCountryAllowed_(country)||country!==d.billingCountry)throw commerceError_('region','Razorpay is not available for your verified billing country.');
-  var key=country==='IN'?'india':tierFor_(country),catalog=razorpayCatalog_(),planId=catalog[key]&&catalog[key][d.plan]&&catalog[key][d.plan][d.billing];
+  var key=country==='IN'?'india':tierFor_(country),catalog=razorpayCatalog_(),full=!!who&&d.plan==='offline'&&d.billing==='yearly'&&premiumYearlyUsed_(who.email),planId=catalog[key]&&catalog[key][d.plan]&&catalog[key][d.plan][full?'yearlyFull':d.billing];
   if(!/^plan_[A-Za-z0-9]+$/.test(planId||''))throw commerceError_('unavailable','This Razorpay subscription plan is not configured yet.');
   if(catalog._priceVersion!==PRICE_VERSION)throw commerceError_('unavailable','Subscription plans are being updated. Please try again shortly.');
-  var price=razorpayPrice_(d.plan,d.billing,country,razorpayCurrencyFor_(country,catalog));price.total=price.unitAmount*d.seats;price.plan=d.plan;price.billing=d.billing;price.seats=d.seats;price.country=country;price.planId=planId;
+  var price=razorpayPrice_(d.plan,d.billing,country,razorpayCurrencyFor_(country,catalog),full);price.total=price.unitAmount*d.seats;price.plan=d.plan;price.billing=d.billing;price.seats=d.seats;price.country=country;price.planId=planId;
   if(d.offer==='trial'){
-    if(d.plan!=='online')throw commerceError_('selection','Only Online plans offer a trial.');
+    if(d.plan!=='online')throw commerceError_('selection','Only Basic plans offer a trial.');
     if(!razorpayTrialOn_())throw commerceError_('trial_unavailable','The free trial is not available right now. You can continue with a paid subscription.');
     price.offer='trial';price.trialDays=RAZORPAY_TRIAL_DAYS_;
   }
@@ -105,7 +109,7 @@ function razorpayWrite_(record){var sheet=razorpayTable_(),ids=sheet.getLastRow(
 function razorpayFind_(id){return razorpayRows_().find(function(r){return r.id===id&&r.mode===razorpayMode_();});}
 function razorpayPublic_(record){return {ok:true,checkoutId:record.id,subscriptionId:record.subscriptionId,url:record.url,pricing:record.price,accepted:!!record.accepted&&!record.accessRevoked&&record.paidThrough>Date.now()/1000,email:record.email,plan:record.price.plan,billing:record.price.billing,seats:record.price.seats,offer:record.price.offer==='trial'?'trial':'standard',trialEndsAt:record.trialEndsAt?new Date(record.trialEndsAt*1000).toISOString():'',provider:'razorpay'};}
 function razorpayCheckout_(d,who){
-  var price=razorpayDiscount_(razorpaySelection_(d),d,who);
+  var price=razorpayDiscount_(razorpaySelection_(d,who),d,who);
   if(!/^[-a-f0-9]{36}$/i.test(d.requestId||''))throw commerceError_('selection','Invalid checkout request.');
   if(d.expectedTotal!==price.total)throw commerceError_('price_changed','Your price changed. Review the updated total before paying.');
   return commerceLock_(function(){
@@ -137,7 +141,7 @@ function razorpayCheckout_(d,who){
     // Discount: the buyer pays the discounted period(s) now; regular billing starts when they end.
     if(price.upfront){
       var n=price.discount.payments;body.start_at=razorpayAddPeriods_(Math.floor(Date.now()/1000),price.billing,n);body.notes.offer=price.discount.coupon?'coupon '+price.discount.coupon.code:'returning reward';
-      body.addons=[{item:{name:'Wrapline '+price.plan+' · first '+(n>1?n+' '+(price.billing==='yearly'?'years':'months'):(price.billing==='yearly'?'year':'month'))+' · '+price.discount.percent+'% off',amount:price.total,currency:price.currency}}];
+      body.addons=[{item:{name:'Wrapline '+planLabel_(price.plan)+' · first '+(n>1?n+' '+(price.billing==='yearly'?'years':'months'):(price.billing==='yearly'?'year':'month'))+' · '+price.discount.percent+'% off',amount:price.total,currency:price.currency}}];
     }
     var subscription=razorpayApi_('/subscriptions','post',body);
     if(!/^sub_[A-Za-z0-9]+$/.test(subscription.id||''))throw commerceError_('provider','Razorpay did not return a subscription.');
@@ -159,7 +163,7 @@ function razorpayVerify_(record){
 }
 function razorpayNotify_(record){
   var trial=record.price.offer==='trial'&&!record.convertedAt;
-  var text='Wrapline '+record.price.plan+(trial?' (4-day FREE TRIAL)':'')+' · '+record.price.billing+' · '+record.price.seats+' license(s)\nSubscription: '+record.subscriptionId+'\nVerified account: '+record.email+'\n'+(trial?'Trial ends (first charge): ':'Paid through: ')+new Date(record.paidThrough*1000).toISOString();
+  var text='Wrapline '+planLabel_(record.price.plan)+(trial?' (4-day FREE TRIAL)':'')+' · '+record.price.billing+' · '+record.price.seats+' license(s)\nSubscription: '+record.subscriptionId+'\nVerified account: '+record.email+'\n'+(trial?'Trial ends (first charge): ':'Paid through: ')+new Date(record.paidThrough*1000).toISOString();
   if(!record.ownerNotified){MailApp.sendEmail({to:ownerEmail_(),subject:(record.mode==='test'?'[TEST] ':'')+'Wrapline Razorpay: send the license',body:text+'\n\nVerify this order and send the matching access code to the buyer.'});record.ownerNotified=true;razorpayWrite_(record);}
   if(!record.buyerNotified){MailApp.sendEmail({to:record.email,subject:(record.mode==='test'?'[TEST] ':'')+'Your Wrapline subscription is confirmed',body:text+'\n\nYour access code is sent within 12 hours. Manage future payments with Razorpay or contact support at https://imajoy.github.io/contact.html'});record.buyerNotified=true;razorpayWrite_(record);}
 }
@@ -283,7 +287,7 @@ function handleRazorpay_(d){
       if(typeof billingApply_==='function')billingApply_(d,who);
     }
   if(!razorpayEnabled_())throw commerceError_('unavailable','Razorpay subscriptions are not activated yet.');
-  if(d.operation==='quote'){var price=razorpayDiscount_(razorpaySelection_(d),d,who);delete price.planId;return {ok:true,pricing:price};}
+  if(d.operation==='quote'){var price=razorpayDiscount_(razorpaySelection_(d,who),d,who);delete price.planId;return {ok:true,pricing:price};}
   if(d.operation==='checkout')return razorpayCheckout_(d,who);
   throw commerceError_('action','Unknown Razorpay operation.');
 }
@@ -330,10 +334,10 @@ function setupRazorpayPlans(){
     // so a refused currency never leaves checkout without plans. Re-running resumes where it stopped.
     var stageKey='RAZORPAY_PLANS_STAGED_'+razorpayMode_(),staged=JSON.parse(props_().getProperty(stageKey)||'{}');
     if(staged._currency!==intl||staged._priceVersion!==PRICE_VERSION)staged={_currency:intl,_priceVersion:PRICE_VERSION};
-    ['high','mid','low'].forEach(function(tier){staged[tier]=staged[tier]||{};['online','offline'].forEach(function(kind){staged[tier][kind]=staged[tier][kind]||{};['monthly','yearly'].forEach(function(billing){
+    ['high','mid','low'].forEach(function(tier){staged[tier]=staged[tier]||{};['online','offline'].forEach(function(kind){staged[tier][kind]=staged[tier][kind]||{};(kind==='offline'?['monthly','yearly','yearlyFull']:['monthly','yearly']).forEach(function(billing){
       if(staged[tier][kind][billing])return;
-      var country={high:'US',mid:'BR',low:'LK'}[tier],price=razorpayPrice_(kind,billing,country,intl),plan;
-      try{plan=razorpayApi_('/plans','post',{period:billing,interval:1,item:{name:'Wrapline '+kind+' '+billing+' ('+tier+', '+intl+')',amount:price.unitAmount,currency:price.currency},notes:{product:'wrapline',tier:tier}});}
+      var country={high:'US',mid:'BR',low:'LK'}[tier],period=billing==='yearlyFull'?'yearly':billing,price=razorpayPrice_(kind,period,country,intl,billing==='yearlyFull'),plan;
+      try{plan=razorpayApi_('/plans','post',{period:period,interval:1,item:{name:'Wrapline '+planLabel_(kind)+' '+billing+' ('+tier+', '+intl+')',amount:price.unitAmount,currency:price.currency},notes:{product:'wrapline',tier:tier}});}
       catch(e){throw new Error('Razorpay refused a '+intl+' plan. Turn on international payments / multi-currency in your Razorpay account, then run setupRazorpayPlans again. Your current plans keep working.');}
       if(!/^plan_[A-Za-z0-9]+$/.test(plan.id||''))throw new Error('Razorpay did not return a plan ID.');
       staged[tier][kind][billing]=plan.id;props_().setProperty(stageKey,JSON.stringify(staged));
@@ -342,10 +346,10 @@ function setupRazorpayPlans(){
     catalog.high=staged.high;catalog.mid=staged.mid;catalog.low=staged.low;catalog._intlCurrency=intl;
     props_().setProperty('RAZORPAY_PLANS_'+razorpayMode_(),JSON.stringify(catalog));props_().deleteProperty(stageKey);
   }
-  ['india','high','mid','low'].forEach(function(tier){catalog[tier]=catalog[tier]||{};['online','offline'].forEach(function(kind){catalog[tier][kind]=catalog[tier][kind]||{};['monthly','yearly'].forEach(function(billing){
+  ['india','high','mid','low'].forEach(function(tier){catalog[tier]=catalog[tier]||{};['online','offline'].forEach(function(kind){catalog[tier][kind]=catalog[tier][kind]||{};(kind==='offline'?['monthly','yearly','yearlyFull']:['monthly','yearly']).forEach(function(billing){
     if(catalog[tier][kind][billing])return;
-    var country={india:'IN',high:'US',mid:'BR',low:'LK'}[tier],price=razorpayPrice_(kind,billing,country,tier==='india'?'INR':intl);
-    var plan=razorpayApi_('/plans','post',{period:billing,interval:1,item:{name:'Wrapline '+kind+' '+billing+' ('+tier+')',amount:price.unitAmount,currency:price.currency},notes:{product:'wrapline',tier:tier}});
+    var country={india:'IN',high:'US',mid:'BR',low:'LK'}[tier],period=billing==='yearlyFull'?'yearly':billing,price=razorpayPrice_(kind,period,country,tier==='india'?'INR':intl,billing==='yearlyFull');
+    var plan=razorpayApi_('/plans','post',{period:period,interval:1,item:{name:'Wrapline '+planLabel_(kind)+' '+billing+' ('+tier+')',amount:price.unitAmount,currency:price.currency},notes:{product:'wrapline',tier:tier}});
     if(!/^plan_[A-Za-z0-9]+$/.test(plan.id||''))throw new Error('Razorpay did not return a plan ID.');
     catalog[tier][kind][billing]=plan.id;props_().setProperty('RAZORPAY_PLANS_'+razorpayMode_(),JSON.stringify(catalog));
   });});});

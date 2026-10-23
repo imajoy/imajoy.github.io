@@ -2,6 +2,12 @@
 
 Catalog `2026-10-23-v4` replaces v3. Free trial is now **4 days** (Online only).
 Yearly billing is 20% off twelve monthly payments (the list price).
+Plan names shown to customers: **Basic** (stored as `online`) and **Premium** (stored as `offline`).
+**Premium yearly: the 20% saving is for an account's first Premium yearly subscription only.** Any later
+Premium yearly subscription on the same account pays the full price: $599 / $469 / $229 (High / Mid / Low)
+and ₹22,799 in India. PayPal full-price plans are created on demand at checkout; `setupRazorpayPlans()`
+creates the Razorpay `yearlyFull` plans. Basic yearly keeps its 20% saving.
+The PayPal 4-day trial plans now use a 4-day trial cycle (they were 2 days before this catalog).
 Follow the same four steps below (Apps Script files, `setupPlans()`, `setupRazorpayPlans()`,
 new deployment). Also set the Script property `TRIAL_DAYS` to 4 if you ever set it by hand.
 

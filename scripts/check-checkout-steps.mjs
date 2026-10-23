@@ -30,7 +30,7 @@ try{
   assert.equal(new URL(page.url()).search,'');assert.equal(await page.locator('.billing-entry').isVisible(),false);assert(await page.locator('.payment-billing-summary').textContent().then(t=>t.includes('Private street 42')));
   assert(await page.locator('.payment-picker').isVisible());assert.equal(await page.locator('[value="razorpay"]').isVisible(),false);assert(await page.locator('[name="checkout-offer"][value="standard"]').isChecked());
   const draft=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('ajoy.billing-draft')));
-  await page.evaluate(async()=>{const m=await import('./js/account-session.js?v=20261020-ps1');m.setAccountSession({...m.getAccountSession(),subscriptions:[]});});
+  await page.evaluate(async()=>{const m=await import('./js/account-session.js?v=20261023-p5');m.setAccountSession({...m.getAccountSession(),subscriptions:[]});});
   assert.equal(await page.evaluate(()=>JSON.parse(sessionStorage.getItem('ajoy.billing-draft')).email),'buyer@example.com');
 
   assert.equal(draft.name,'Private buyer');assert.equal(draft.token,undefined);assert.equal(draft.terms,true);

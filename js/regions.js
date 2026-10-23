@@ -12,12 +12,19 @@ const CLOSED_OTHER = 'RU BY IR KP SY CU'.split(' ');
 const NO_PAYPAL = 'AF BD NP PK MM ET ZW BI CF TD KM CG CD DJ ER GQ GW IQ LY SO SS SD YE LS LR ML MR NE SL ST BT GN HT TJ TM UZ VE TL KI NR TV PW MH FM SB VU WS TO PG SR'.split(' ');
 /* USD prices per computer. Annual plans retain their catalog rounding. */
 export const USD = {
-  high: { online: { monthly: 29.99, yearly: 287.90 }, offline: { monthly: 49.92, yearly: 479.20 } },
-  mid:  { online: { monthly: 16.59, yearly: 159.20 }, offline: { monthly: 39.09, yearly: 375.20 } },
-  low:  { online: { monthly: 7.99, yearly: 76.70 }, offline: { monthly: 19.09, yearly: 183.20 } }
+  high: { online: { monthly: 29.99, yearly: 287.90 }, offline: { monthly: 49.92, yearly: 479.20, full: 599.00 } },
+  mid:  { online: { monthly: 16.59, yearly: 159.20 }, offline: { monthly: 39.09, yearly: 375.20, full: 469.00 } },
+  low:  { online: { monthly: 7.99, yearly: 76.70 }, offline: { monthly: 19.09, yearly: 183.20, full: 229.00 } }
 };
 /* India (Razorpay), in paise. list = the twelve-month list price; yearly billing is 20% off it. */
 export const INDIA = { online: { monthly: 89900, list: 1078800 }, offline: { monthly: 189991, list: 2279900 } };
+/* Premium yearly is 20% off only for an account's first Premium yearly subscription. The server decides
+   (premiumYearlyUsed on the signed-in account); this just mirrors it so the prices shown match what is charged. */
+export function premiumYearlyUsed() {
+  try { return !!JSON.parse(localStorage.getItem('ajoy.acct') || 'null')?.premiumYearlyUsed; } catch { return false; }
+}
+const premiumFull = (plan, billing) => plan === 'offline' && billing === 'yearly' && premiumYearlyUsed();
+export function usdUnit(tier, plan, billing) { const t = USD[tier][plan]; return premiumFull(plan, billing) ? t.full : t[billing]; }
 export const tierFor = c => LOW.includes(c) ? 'low' : MID.includes(c) ? 'mid' : 'high';
 /* open:true means the PayPal button is offered. reason explains a closed region. */
 export function availability(c, extraClosed = []) {
@@ -47,23 +54,24 @@ export const closedMessage = {
 export function regionalPrice(plan, billing, seats, country) {
   if (country === 'IN') {
     const monthly = INDIA[plan].monthly, compare = billing === 'yearly' ? INDIA[plan].list : monthly;
-    const unit = billing === 'yearly' ? Math.round(compare * .8) : monthly;
+    const unit = billing === 'yearly' ? (premiumFull(plan, billing) ? compare : Math.round(compare * .8)) : monthly;
     return { currency: 'INR', unitAmount: unit, monthlyAmount: monthly, compareAtUnitAmount: compare };
   }
-  const t = USD[tierFor(country)][plan], monthly = Math.round(t.monthly * 100), compare = billing === 'yearly' ? monthly * 12 : monthly;
-  return { currency: 'USD', unitAmount: Math.round(t[billing] * 100), monthlyAmount: monthly, compareAtUnitAmount: compare };
+  const t = USD[tierFor(country)][plan], monthly = Math.round(t.monthly * 100), unitAmount = Math.round(usdUnit(tierFor(country), plan, billing) * 100);
+  const compare = premiumFull(plan, billing) ? unitAmount : billing === 'yearly' ? Math.round((t.full ?? t.monthly * 12) * 100) : monthly;
+  return { currency: 'USD', unitAmount, monthlyAmount: monthly, compareAtUnitAmount: compare };
 }
 /* Instant Razorpay (INR, paise) price shown while the server confirms the real quote. Must match
    razorpayPrice_ in Razorpay.gs (a test checks this). Checkout always charges the server's confirmed amount. */
 const RAZORPAY_MONTHLY_PAISE = { IN: 89900, low: 91698, mid: 142698, high: 203898 };
 export function razorpayEstimate(plan, billing, seats, country, currency = 'INR') {
   if (currency === 'USD') {
-    const t = USD[tierFor(country)][plan], m = Math.round(t.monthly * 100), unit = billing === 'yearly' ? Math.round(t.yearly * 100) : m;
-    return { currency: 'USD', unitAmount: unit, monthlyAmount: m, compareAtUnitAmount: billing === 'yearly' ? m * 12 : m, total: unit * seats, recurringTotal: unit * seats, plan, billing, seats, estimate: true };
+    const t = USD[tierFor(country)][plan], m = Math.round(t.monthly * 100), unit = billing === 'yearly' ? Math.round(usdUnit(tierFor(country), plan, billing) * 100) : m;
+    return { currency: 'USD', unitAmount: unit, monthlyAmount: m, compareAtUnitAmount: premiumFull(plan, billing) ? unit : billing === 'yearly' ? Math.round((t.full ?? t.monthly * 12) * 100) : m, total: unit * seats, recurringTotal: unit * seats, plan, billing, seats, estimate: true };
   }
   const india = country === 'IN';
   const monthly = india ? INDIA[plan].monthly : RAZORPAY_MONTHLY_PAISE[tierFor(country)] * (plan === 'offline' ? 2 : 1);
   const list = india ? INDIA[plan].list : monthly * 12;
-  const unit = billing === 'yearly' ? Math.round(list * 0.8) : monthly;
+  const unit = billing === 'yearly' ? (premiumFull(plan, billing) ? list : Math.round(list * 0.8)) : monthly;
   return { currency: 'INR', unitAmount: unit, monthlyAmount: monthly, compareAtUnitAmount: billing === 'yearly' ? list : monthly, total: unit * seats, recurringTotal: unit * seats, plan, billing, seats, estimate: true };
 }

@@ -47,7 +47,7 @@ if(form){
   const completed=fields.filter(el=>el.validity.valid).length;
   document.querySelector('.billing-completion').style.setProperty('--completion',String(fields.length?completed/fields.length:0));
   document.querySelector('#billing-completion-text').textContent=`${completed} of ${fields.length} required details complete`;
-  document.querySelector('#pass-plan').textContent=form.elements.plan.value==='offline'?'Offline':'Online';
+  document.querySelector('#pass-plan').textContent=form.elements.plan.value==='offline'?'Premium':'Basic';
   const seats=Number(form.elements.seats.value);
   document.querySelector('#pass-seats').textContent=Number.isInteger(seats)&&seats>0&&seats<=100?`${seats} license${seats===1?'':'s'}`:'Choose quantity';
  };

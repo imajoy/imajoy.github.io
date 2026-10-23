@@ -40,9 +40,9 @@ test('Razorpay replaces a legacy catalog with new plans and keeps immutable old 
  app.values.set('RAZORPAY_MODE','test');app.values.set('RAZORPAY_KEY_ID','rzp_test_fixture');app.values.set('RAZORPAY_KEY_SECRET','private-test-secret');
  const old={india:{online:{monthly:'plan_old'}}};app.values.set('RAZORPAY_PLANS_test',JSON.stringify(old));app.razorpay.plans.set('plan_old',{id:'plan_old',item:{amount:89900,currency:'INR'}});
  app.ctx.setupRazorpayPlans();const catalog=JSON.parse(app.values.get('RAZORPAY_PLANS_test'));
- assert.equal(catalog._priceVersion,app.ctx.PRICE_VERSION);assert.equal(app.razorpay.plans.size,17);
+ assert.equal(catalog._priceVersion,app.ctx.PRICE_VERSION);assert.equal(app.razorpay.plans.size,21);
  assert.equal(app.razorpay.plans.get('plan_old').item.amount,89900);assert.equal(app.razorpay.plans.get(catalog.india.online.monthly).item.amount,89900);
- app.ctx.setupRazorpayPlans();assert.equal(app.razorpay.plans.size,17);assert.equal(app.razorpay.subscriptions.size,0);
+ app.ctx.setupRazorpayPlans();assert.equal(app.razorpay.plans.size,21);assert.equal(app.razorpay.subscriptions.size,0);
 });
 test('Interrupted PayPal catalog setup resumes created plans and retains archived historical prices',()=>{
  const app=service();app.ctx.Logger={log(){}};

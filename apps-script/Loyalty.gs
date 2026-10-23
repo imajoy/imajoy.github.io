@@ -116,7 +116,9 @@ function rewardHistoryCached_(email){
 }
 function rewardQuote_(d,who,history) {
   var country=d.sandboxCountry||d.country;
-  var amount=Math.round(PRICES[tierFor_(country)][d.plan][d.billing]*100);
+  // Premium yearly is 20% off only for an account's first Premium yearly subscription; later ones pay the full price.
+  var full=d.plan==='offline'&&d.billing==='yearly'&&premiumYearlyUsed_(who.email);
+  var amount=Math.round(PRICES[tierFor_(country)][d.plan][full?'full':d.billing]*100);
   var next=history[d.billing]+1,reward='',percent=0;
   if(d.billing==='monthly'&&(next===2||next===3)){reward=next===2?'monthly_second':'monthly_third';percent=5;}
   if(d.billing==='yearly'&&next===2){reward='yearly_return';percent=10;}
@@ -124,7 +126,7 @@ function rewardQuote_(d,who,history) {
   var keys=reward?[reward]:[];
   if(reward==='monthly_second'&&!history.used.monthly_third)keys.push('monthly_third');
   var discounted=Math.round(amount*(100-percent)/100);
-  return {currency:'USD',unitAmount:amount,discountedUnitAmount:discounted,seats:d.seats,total:discounted*d.seats,discountAmount:(amount-discounted)*d.seats,percent:percent,reward:reward,rewardKeys:keys,rewardPayments:keys.length,nextPayment:next,plan:d.plan,billing:d.billing};
+  return {currency:'USD',unitAmount:amount,discountedUnitAmount:discounted,seats:d.seats,total:discounted*d.seats,discountAmount:(amount-discounted)*d.seats,percent:percent,reward:reward,rewardKeys:keys,rewardPayments:keys.length,nextPayment:next,plan:d.plan,billing:d.billing,fullPrice:full};
 }
 function rewardSelection_(d) {
   if(['online','offline'].indexOf(d.plan)<0||['monthly','yearly'].indexOf(d.billing)<0||!Number.isInteger(d.seats)||d.seats<1||d.seats>100)throw commerceError_('selection','Review your plan, billing period and license quantity.');
@@ -172,6 +174,21 @@ function rewardReserve_(who,quote,history,exceptId) {
   });
   if(conflict)throw commerceError_('reward_reserved','This reward is already attached to another checkout. Complete it, or cancel that subscription in PayPal before starting again.');
 }
+/* Standard PayPal plan at the full Premium yearly price, for accounts that already used the first-year saving. */
+function fullPricePayPalPlan_(d,quote) {
+  var tier=tierFor_(d.sandboxCountry||d.country),saved=JSON.parse(props_().getProperty('LOYALTY_PLANS_'+mode_())||'{}'),key=[tier,d.plan,d.billing,'full',quote.unitAmount].join('-');
+  if(saved[key])return saved[key].id;
+  var catalog=JSON.parse(props_().getProperty('PLANS_'+mode_())||'{}');
+  if(!catalog.productId)throw commerceError_('unavailable','The PayPal product is not configured. Please contact Ajoy.');
+  var plan=commercePaypal_('/v1/billing/plans','post',{
+    product_id:catalog.productId,name:'Wrapline '+planLabel_(d.plan)+' '+d.billing+' full price ('+tier+')',description:'Wrapline '+planLabel_(d.plan)+' license, billed '+d.billing+' at the full price.',status:'ACTIVE',quantity_supported:true,
+    billing_cycles:[{frequency:{interval_unit:'YEAR',interval_count:1},tenure_type:'REGULAR',sequence:1,total_cycles:0,pricing_scheme:{fixed_price:{value:(quote.unitAmount/100).toFixed(2),currency_code:'USD'}}}],
+    payment_preferences:{auto_bill_outstanding:true,setup_fee_failure_action:'CONTINUE',payment_failure_threshold:3}
+  },'ajoy-fullprice-'+mode_()+'-'+key);
+  if(!/^P-[A-Z0-9-]+$/.test(plan.id||''))throw commerceError_('provider','PayPal did not return a plan.');
+  commerceLock_(function(){var latest=JSON.parse(props_().getProperty('LOYALTY_PLANS_'+mode_())||'{}');latest[key]={id:plan.id,tier:tier,plan:d.plan,billing:d.billing,unitAmount:quote.unitAmount};props_().setProperty('LOYALTY_PLANS_'+mode_(),JSON.stringify(latest));});
+  return plan.id;
+}
 function rewardPayPalPlan_(d,quote) {
   var tier=tierFor_(d.sandboxCountry||d.country),saved=JSON.parse(props_().getProperty('LOYALTY_PLANS_'+mode_())||'{}');
   var key=[tier,d.plan,d.billing,quote.percent,quote.unitAmount,quote.rewardPayments,quote.coupon?'coupon':'v1'].join('-');
@@ -182,7 +199,7 @@ function rewardPayPalPlan_(d,quote) {
   // PayPal supports paid introductory (TRIAL tenure) cycles. Only the promised introductory
   // payments are reduced; the unlimited REGULAR phase restores the catalog rate.
   var plan=commercePaypal_('/v1/billing/plans','post',{
-    product_id:catalog.productId,name:'Wrapline '+d.plan+' '+d.billing+(quote.coupon?' coupon ':' returning reward ')+quote.percent+'% ('+tier+')',
+    product_id:catalog.productId,name:'Wrapline '+planLabel_(d.plan)+' '+d.billing+(quote.coupon?' coupon ':' returning reward ')+quote.percent+'% ('+tier+')',
     description:quote.rewardPayments+' payment(s) with '+quote.percent+(quote.coupon?'% coupon savings':'% returning subscriber savings')+'; then the standard '+d.billing+' rate.',status:'ACTIVE',quantity_supported:true,
     billing_cycles:[
       {frequency:frequency,tenure_type:'TRIAL',sequence:1,total_cycles:quote.rewardPayments,pricing_scheme:{fixed_price:{value:(quote.discountedUnitAmount/100).toFixed(2),currency_code:'USD'}}},

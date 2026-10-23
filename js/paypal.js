@@ -1,9 +1,9 @@
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261020-trial1';
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
-import {tierFor,availability,closedMessage,countryCheck,USD} from './regions.js?v=20261023-p4';
-import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261023-p4';
-import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261020-ps1';
+import {tierFor,availability,closedMessage,countryCheck,usdUnit} from './regions.js?v=20261023-p6';
+import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261023-p5';
+import {getAccountSession,onAccountChange,openAccount,bindAccountEmail} from './account-session.js?v=20261023-p5';
 import {secureCommerce} from './commerce-gateway.js?v=20261020-country1';
 const settings=window.AJOY_CONFIG||{},form=document.querySelector('#billing-form'),pay=document.querySelector('#pay');
 bindAccountEmail(form?.elements.email,document.querySelector('#email-hint'));
@@ -57,9 +57,9 @@ if(form&&pay){
   if(trialOn){
    setMoney(total,0,'USD',c.country);
    if(!line){line=document.createElement('p');line.id='trial-line';line.className='trial-line';summary?.after(line);}
-   const price=USD[tierFor(c.country)].online[c.billing]*c.seats;
+   const price=usdUnit(tierFor(c.country),'online',c.billing)*c.seats;
    line.hidden=false;line.textContent='4-day free trial, subject to final PayPal account eligibility. Then '+displayPrice(price*100)+' per '+(c.billing==='yearly'?'year':'month')+'. Cancel in PayPal before billing starts.';
-  }else{if(line)line.hidden=true;if(wasTrial)setMoney(total,USD[tierFor(c.country)][c.plan][c.billing]*100*c.seats,'USD',c.country);}
+  }else{if(line)line.hidden=true;if(wasTrial)setMoney(total,usdUnit(tierFor(c.country),c.plan,c.billing)*100*c.seats,'USD',c.country);}
   fine.textContent=trialOn?'One trial per customer, browser, network and verified PayPal payer account. We check your payment account before granting access. Your first subscription payment follows the 4-day trial unless cancelled.':'Charged in US dollars by PayPal. Review the subscription price before approving. Your license is sent within 12 hours after server confirmation.';
   if(couponBox)couponBox.hidden=!session||!eligibility||!rewardsSupported();
   renderReward();
@@ -75,7 +75,7 @@ if(form&&pay){
  /* Same card layout as the Razorpay option: what is due today, then the recurring amount. */
  function paintHead(){
   const c=choice();if(!/^[A-Z]{2}$/.test(c.country)||!Number.isInteger(c.seats)||c.seats<1){box.querySelector('.pp-figure').textContent='—';box.querySelector('.pp-per').textContent='';return;}
-  const per=c.billing==='yearly'?'year':'month',regular=USD[tierFor(c.country)][c.plan][c.billing]*100*c.seats;
+  const per=c.billing==='yearly'?'year':'month',regular=usdUnit(tierFor(c.country),c.plan,c.billing)*100*c.seats;
   box.querySelector('[data-pp-label]').textContent=trialOn||rewardQuote?.percent?'Due today':'Recurring amount';
   box.querySelector('.pp-figure').textContent=trialOn?displayPrice(0):total.textContent&&total.textContent!=='—'?total.textContent:displayPrice(regular);
   box.querySelector('.pp-per').textContent=trialOn?'then '+displayPrice(regular)+' per '+per+' after 4 days':'per '+per+' · '+c.seats+(c.seats===1?' license':' licenses');

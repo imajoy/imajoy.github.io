@@ -1,6 +1,6 @@
 /* Public tool reviews: anyone can read, a signed-in account can post one review per tool (edit or remove later).
    Data lives in the private Sheet; the email is never sent back to the page. Text is always rendered as text. */
-import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ps1';
+import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p5';
 
 const section=document.querySelector('[data-reviews]');
 if(section){

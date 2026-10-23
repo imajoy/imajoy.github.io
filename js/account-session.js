@@ -16,7 +16,7 @@ function clean(value) {
     endsAt:typeof s.endsAt==='string'&&Number.isFinite(Date.parse(s.endsAt))?s.endsAt:'',trial:!!s.trial,renews:!!s.renews,
     provider:['paypal','razorpay'].includes(s.provider)?s.provider:'',ref:typeof s.ref==='string'&&(/^[-a-f0-9]{36}$/i.test(s.ref)||/^I-[A-Z0-9]{6,40}$/.test(s.ref))?s.ref:''
   })) : null;
-  return { token: value.token, email, expiresAt, limited: !!value.limited, subscriptions };
+  return { token: value.token, email, expiresAt, limited: !!value.limited, subscriptions, premiumYearlyUsed: !!value.premiumYearlyUsed };
 }
 function load() {
   try { return clean(JSON.parse(localStorage.getItem(KEY) || 'null')); } catch { return null; }

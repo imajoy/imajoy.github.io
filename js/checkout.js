@@ -1,6 +1,7 @@
 import {initializeCheckoutSteps} from './checkout-steps.js?v=20261020-trial1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {initializeBillingCountry} from './billing-country.js?v=20261021-fast2';
+import {premiumYearlyUsed} from './regions.js?v=20261023-p6';
 import {api,apiBase,getQuote,getCouponQuote,previewPrice} from './commerce.js?v=20261020-prices1';
 import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261020-prices1';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
@@ -36,7 +37,7 @@ const showAmount=(id,amount,currency)=>setMoney(document.getElementById(id),amou
 function showQuote(data){
  quote=data;
  const upsell=document.querySelector('#yearly-upsell');
- upsell.hidden=data.billing!=='monthly';
+ upsell.hidden=data.billing!=='monthly'||data.plan==='offline'&&premiumYearlyUsed();
  if(!upsell.hidden){
   const yearlySaving=(data.monthlyAmount*12-Math.round(data.monthlyAmount*12*.8))*data.seats;
   document.querySelector('#yearly-upsell-copy').textContent='Save '+money(yearlySaving,data.currency)+' across '+data.seats+' license'+(data.seats===1?'':'s')+' over a year, compared with 12 standard monthly payments. Annual billing.';
@@ -47,8 +48,8 @@ function showQuote(data){
  showAmount('summary-total',data.subtotal,data.currency);
  const annual=document.querySelector('#annual-summary');
  document.querySelector('#annual-summary-row').hidden=!(data.billing==='yearly'&&data.annualSavings>0);
- annual.hidden=data.billing!=='yearly';
- if(data.billing==='yearly'){
+ annual.hidden=!(data.billing==='yearly'&&data.annualSavings>0);
+ if(data.billing==='yearly'&&data.annualSavings>0){
   showAmount('summary-annual',-data.annualSavings,data.currency);
   annual.textContent='20% off yearly · '+money(data.unitAmount/12,data.currency)+' per license/month, billed annually.';
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches)annual.animate([{opacity:.2,translate:'0 6px'},{opacity:1,translate:'0 0'}],{duration:450,easing:'ease-out'});
@@ -72,7 +73,7 @@ document.addEventListener('ajoy:currency-ready',()=>{if(quote)showQuote(quote);}
 async function render(){
  clearTimeout(quantityTimer);
  const r=++quoteRevision,s=selection();quote=null;updateButton();syncQuantity();
- document.querySelector('#summary-plan').textContent=s.plan==='online'?'Online':'Offline';
+ document.querySelector('#summary-plan').textContent=s.plan==='online'?'Basic':'Premium';
  document.querySelector('#summary-billing').textContent=s.billing==='yearly'?'Yearly':'Monthly';
  document.querySelector('#summary-seats').textContent=quantity.value!==''?String(s.seats):'—';
  clearAmounts();

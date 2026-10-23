@@ -42,7 +42,7 @@ test('Razorpay prices are server-owned INR amounts with annual 20% savings and b
  assert.equal(s.app.razorpay.subscriptions.size,0);
 });
 test('Plan setup is resumable; checkout retries and lost creation responses cannot create duplicate subscriptions',()=>{
- const s=setup();assert.equal(s.app.razorpay.plans.size,16);s.app.ctx.setupRazorpayPlans();assert.equal(s.app.razorpay.plans.size,16);
+ const s=setup();assert.equal(s.app.razorpay.plans.size,20);s.app.ctx.setupRazorpayPlans();assert.equal(s.app.razorpay.plans.size,20);
  const data=s.selection(),one=s.rpc('checkout',data);assert.equal(one.ok,true,JSON.stringify(one));
  assert.equal(s.rpc('checkout',data).subscriptionId,one.subscriptionId);
  assert.equal(s.rpc('checkout',s.selection()).subscriptionId,one.subscriptionId);assert.equal(s.app.razorpay.subscriptions.size,1);

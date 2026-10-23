@@ -1,7 +1,7 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
-import {getAccountSession} from './account-session.js?v=20261020-ps1';
+import {getAccountSession} from './account-session.js?v=20261023-p5';
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
-const plan=q.get('plan')==='offline'?'Offline':'Online',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
+const plan=q.get('plan')==='offline'?'Premium':'Basic',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
 let seats=parseInt(q.get('seats'),10);seats=seats>0&&seats<=100?seats:1;
 const provider=q.get('provider')==='razorpay'?'Razorpay':q.get('provider')==='paypal'?'PayPal':'',trial=q.get('offer')==='trial';
 $('ty-plan').textContent=plan+' plan';$('ty-billing').textContent=billing;$('ty-seats').textContent=seats+(seats===1?' license':' licenses');

@@ -1,8 +1,8 @@
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261020-trial1';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
-import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261023-p4';
-import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261020-ps1';
+import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261023-p6';
+import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p5';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
 import {secureCommerce,browserDeviceId} from './commerce-gateway.js?v=20261020-country1';
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;
@@ -171,7 +171,7 @@ if(form&&paypal&&url){
    const trialRadio=offerBox.querySelector('[value=trial]');trialRadio.disabled=trialCheck.state!=='eligible';
    const shown=offer==='trial'&&trialCheck.state==='eligible'?'trial':'standard';
    for(const radio of offerBox.querySelectorAll('input'))radio.checked=radio.value===shown;
-   offerBox.querySelector('[data-trial-terms]').textContent=trialCheck.state==='checking'?'Checking if your account can start a trial…':trialCheck.state==='eligible'?money(0)+' today · first payment on '+dateIn(config.trialDays||2)+' · cancel any time before':trialCheck.state==='used'?'Already used on this account':trialCheck.state?'Could not be checked right now':'Checking…';
+   offerBox.querySelector('[data-trial-terms]').textContent=trialCheck.state==='checking'?'Checking if your account can start a trial…':trialCheck.state==='eligible'?money(0)+' today · first payment on '+dateIn(config.trialDays||4)+' · cancel any time before':trialCheck.state==='used'?'Already used on this account':trialCheck.state?'Could not be checked right now':'Checking…';
    offerNote.textContent=clubNote||trialCheck.message;offerNote.hidden=!(clubNote||trialCheck.message);offerNote.dataset.kind=clubNote?'club':'';
    if(!trialCheck.state||trialCheck.key!==trialKey())setTimeout(checkTrial,0);
   }
@@ -196,8 +196,8 @@ if(form&&paypal&&url){
   showAmount('summary-unit',shownQuote.unitAmount);
   showAmount('summary-subtotal',shownQuote.compareAtUnitAmount*shownQuote.seats);
   const savings=(shownQuote.compareAtUnitAmount-shownQuote.unitAmount)*shownQuote.seats;
-  document.querySelector('#annual-summary-row').hidden=shownQuote.billing!=='yearly';showAmount('summary-annual',-savings);
-  const annual=document.querySelector('#annual-summary');annual.hidden=shownQuote.billing!=='yearly';annual.textContent='20% off yearly · '+money(shownQuote.unitAmount/12)+' per license/month, billed annually.';
+  document.querySelector('#annual-summary-row').hidden=shownQuote.billing!=='yearly'||savings<=0;showAmount('summary-annual',-savings);
+  const annual=document.querySelector('#annual-summary');annual.hidden=shownQuote.billing!=='yearly'||savings<=0;annual.textContent='20% off yearly · '+money(shownQuote.unitAmount/12)+' per license/month, billed annually.';
   document.querySelector('#quote-note').textContent='Razorpay charges '+rzpCurrency()+'. Converted local-currency amounts are estimates. Review the confirmed recurring amount before authorizing.';
   document.querySelector('#availability').textContent='Review your billing details, then authorize securely with Razorpay.';
  }
@@ -251,7 +251,7 @@ if(form&&paypal&&url){
    if(!/^sub_[A-Za-z0-9]+$/.test(result.subscriptionId||''))throw Error('Razorpay did not return a subscription.');
    let paid=false,failure='';
    const rzp=new window.Razorpay({key:config.keyId,subscription_id:result.subscriptionId,name:'Wrapline by Ajoy Tools',
-    description:(trialing?'4-day free trial · then ':'')+'Wrapline '+(sel.plan==='offline'?'Offline':'Online')+' · '+sel.billing+' · '+sel.seats+' license(s)',
+    description:(trialing?'4-day free trial · then ':'')+'Wrapline '+(sel.plan==='offline'?'Premium':'Basic')+' · '+sel.billing+' · '+sel.seats+' license(s)',
     prefill:{email:getAccountSession().email,name:form.elements.name.value},theme:{color:'#2A64E8'},
     handler:()=>{paid=true;goThankYou(result.checkoutId,sel);},
     modal:{escape:true,confirm_close:true,ondismiss:()=>{if(!paid)abandon(result.checkoutId,failure);}}});

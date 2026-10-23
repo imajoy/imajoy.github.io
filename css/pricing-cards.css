@@ -18,17 +18,24 @@
 .plans .plan-lead:hover{box-shadow:0 30px 80px -20px #0d1a4166,0 0 0 1px #659dff25,inset 0 1px 0 #afceff33}
 .plan-heading{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;margin-bottom:18px}
 .plans .plan h3{font-size:2rem;line-height:1.15;letter-spacing:-.045em;margin:0}
-.plan-discount{display:flex;flex-direction:column;gap:4px;align-items:flex-end;text-align:right;flex:none;color:var(--plan-gold);padding-top:3px}
-.plan-discount b{font-size:.6875rem;font-weight:600;letter-spacing:.12em}.plan-discount small{font-size:.5625rem;font-weight:400;letter-spacing:.025em}
+.plan-discount{display:flex;flex-direction:column;gap:5px;align-items:flex-end;text-align:right;flex:none;color:var(--plan-gold);padding-top:3px}
+.plan-discount[hidden]{display:none}
+.plan-discount b{position:relative;display:inline-flex;align-items:center;overflow:hidden;font-size:.6875rem;font-weight:650;letter-spacing:.12em;padding:5px 11px 5px 12px;border-radius:999px;border:1px solid #f2b7054d;background:linear-gradient(135deg,#f2b70524,#f2b7050a);box-shadow:0 0 0 0 #f2b70500,inset 0 1px 0 #ffffff1f}
+.plan-discount small{font-size:.5625rem;font-weight:400;letter-spacing:.025em}
 .discount-label{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
-.discount-typing{white-space:pre}.discount-typing>span{display:inline-block}
-/* All characters share a clock: type in, hold, fade out, then replay. */
+.discount-typing{white-space:pre;position:relative}.discount-typing>span{display:inline-block}
+/* 20% OFF: the letters pop in one by one, a light sweeps across the badge, then it breathes with a soft glow. */
 @media(prefers-reduced-motion:no-preference){
- @supports(animation-timing-function:linear(0,1)){
-  .discount-typing>span{animation:plan-discount-type 5.2s infinite;animation-timing-function:linear(0,0 var(--type-at),1 calc(var(--type-at) + 4%),1 80%,0 90%,0)}
- }
+ .plan-discount[data-live=wait] .discount-typing>span{opacity:0}
+ .plan-discount[data-live=go] .discount-typing>span{animation:plan-discount-pop .62s cubic-bezier(.2,1.5,.4,1) both;animation-delay:calc(var(--n,0)*70ms + 120ms)}
+ .plan-discount[data-live=go] b,.plan-discount[data-live=idle] b{animation:plan-discount-glow 3.6s ease-in-out 1.1s infinite}
+ .plan-discount[data-live=go] b::after,.plan-discount[data-live=idle] b::after{content:'';position:absolute;inset:-2px;background:linear-gradient(105deg,transparent 38%,#fff8c8aa 50%,transparent 62%);transform:translateX(-130%);animation:plan-discount-sweep 3.6s ease-in-out 1.1s infinite;pointer-events:none}
+ .plan-discount[data-live=idle] .discount-typing>span{animation:none;opacity:1}
 }
-@keyframes plan-discount-type{from{opacity:0;transform:translateY(2px)}to{opacity:1;transform:translateY(0)}}
+.discount-typing>span:nth-child(1){--n:0}.discount-typing>span:nth-child(2){--n:1}.discount-typing>span:nth-child(3){--n:2}.discount-typing>span:nth-child(4){--n:3}.discount-typing>span:nth-child(5){--n:4}.discount-typing>span:nth-child(6){--n:5}.discount-typing>span:nth-child(7){--n:6}
+@keyframes plan-discount-pop{0%{opacity:0;transform:translateY(8px) scale(.4) rotate(-8deg)}60%{opacity:1;transform:translateY(-2px) scale(1.25) rotate(2deg)}100%{opacity:1;transform:none}}
+@keyframes plan-discount-sweep{0%{transform:translateX(-130%)}38%,100%{transform:translateX(130%)}}
+@keyframes plan-discount-glow{0%,100%{box-shadow:0 0 0 0 #f2b70500,inset 0 1px 0 #ffffff1f}45%{box-shadow:0 0 18px 2px #f2b70540,inset 0 1px 0 #ffffff33}}
 .plans .plan .for{color:var(--plan-copy);font-size:.875rem;line-height:1.8;min-height:3.6em;margin:0;max-width:31em}
 .price-stack{position:relative;margin-top:30px}
 .plan-lead .price-stack::before{content:'';position:absolute;inset:-35px -12px -30px;background:radial-gradient(ellipse at 40% 55%,#3b7eff1c,transparent 70%);z-index:-1;pointer-events:none}

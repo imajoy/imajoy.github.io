@@ -89,7 +89,7 @@ function commercePlan_(plan,billing,country,offer) {
 }
 function commerceCreate_(d,who) {
   if(['online','offline'].indexOf(d.plan)<0||['monthly','yearly'].indexOf(d.billing)<0||['trial','standard'].indexOf(d.offer)<0||!Number.isInteger(d.seats)||d.seats<1||d.seats>100||!/^[-a-f0-9]{36}$/i.test(d.requestId||''))throw commerceError_('selection','Review your plan and quantity.');
-  if(d.offer==='trial'&&d.plan!=='online')throw commerceError_('selection','Only Online plans offer a trial.');
+  if(d.offer==='trial'&&d.plan!=='online')throw commerceError_('selection','Only Basic plans offer a trial.');
   var checkoutCountry=d.country;
   if(d.sandboxCountry){
     if(props_().getProperty('PAYPAL_MODE')!=='sandbox')throw commerceError_('unavailable','A Sandbox country simulation requires PAYPAL_MODE=sandbox in Apps Script and cannot use Live merchant settings.');
@@ -108,6 +108,7 @@ function commerceCreate_(d,who) {
   }
   if(prior)planId=prior[10];
   else if(pricing&&pricing.percent)planId=rewardPayPalPlan_(d,pricing);
+  else if(pricing&&pricing.fullPrice)planId=fullPricePayPalPlan_(d,pricing);
   var row=commerceLock_(function(){
     var existing=commerceRows_().filter(function(r){return r[1]===mode_()&&r[2]===who.email&&(r[17]===d.requestId||prior&&r[0]===prior[0]||d.offer==='trial'&&r[6]==='trial'&&['reserved','created'].indexOf(r[12])>=0&&r[4]===signals.deviceHash&&r[5]===signals.ipHash&&Date.now()-new Date(r[13]).getTime()<1800000);})[0];
     if(existing){

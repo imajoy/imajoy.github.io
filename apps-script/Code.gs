@@ -78,7 +78,7 @@ function planTier_(planId) {
   var reward=rewardPlanInfo_(planId);
   return reward?reward.tier:'';
 }
-/* True when this PayPal plan is one of the 4-day-trial plans (Online only). */
+/* True when this PayPal plan is one of the 4-day-trial plans (Basic only). */
 function isTrialPlan_(planId) {
   var saved = props_().getProperty('PLANS_' + mode_());
   if (!saved || !planId) return false;
@@ -213,7 +213,7 @@ function handleOrder_(d) {
     var orderRow = sheet.getLastRow();
 
     var test = mode_() !== 'live';
-    var planText = 'Wrapline ' + (d.plan === 'offline' ? 'Offline' : 'Online') + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)' + (trial ? ' · 4-day free trial, then billed automatically' : '');
+    var planText = 'Wrapline ' + planLabel_(d.plan) + ' · ' + (d.billing === 'yearly' ? 'Yearly' : 'Monthly') + ' · ' + (Number(d.seats) || 1) + ' license(s)' + (trial ? ' · 4-day free trial, then billed automatically' : '');
     var tag = test ? '[TEST] ' : '';
     var owner = ownerEmail_();
 
@@ -367,7 +367,7 @@ function handleAccount_(d) {
     var who = readSession_(d.token);
     if (!who) return { ok: false, error: 'expired' };
     if (!registeredEmail_(who.email)) return { ok: false, error: 'not_registered' };
-    var account = { ok: true, email: who.email, limited: !!who.sub, expiresAt: who.expiresAt };
+    var account = { ok: true, email: who.email, limited: !!who.sub, expiresAt: who.expiresAt, premiumYearlyUsed: premiumYearlyUsed_(who.email) };
     if (step === 'status') account.subscriptions = subscriptionsFor_(who.email, who.sub);
     return account;
   }
@@ -412,7 +412,7 @@ function handleAccount_(d) {
     if (!registeredEmail_(email) && intent !== 'register') return { ok: false, error: 'not_registered' };
     registerAccount_(email);
     var token = makeSession_(email), identity = readSession_(token);
-    return { ok: true, email: email, token: token, expiresAt: identity.expiresAt, subscriptions: null };
+    return { ok: true, email: email, token: token, expiresAt: identity.expiresAt, subscriptions: null, premiumYearlyUsed: premiumYearlyUsed_(email) };
   } finally { lock.releaseLock(); }
 }
 
@@ -464,7 +464,7 @@ function handleTrial_(d) {
 
 /* ---------- 3) one-time plan creation ----------
    Run setupPlans from the editor (select it, click Run). It creates 18 USD plans:
-   3 regional tiers x Online/Offline x Monthly/Yearly, plus 6 Online trial plans, and writes the result to a "Plans" tab.
+   3 regional tiers x Basic/Premium x Monthly/Yearly, plus 6 Basic trial plans, and writes the result to a "Plans" tab.
    Copy the single JSON cell from that tab into the Supabase secret PAYPAL_PLANS. */
 var PRICE_VERSION = '2026-10-23-v4';
 var LEGACY_PRICES = {
@@ -473,10 +473,29 @@ var LEGACY_PRICES = {
   low: { online: { monthly: 9, yearly: 86 }, offline: { monthly: 18, yearly: 173 } }
 };
 var PRICES = {
-  high: { online: { monthly: 29.99, yearly: 287.90 }, offline: { monthly: 49.92, yearly: 479.20 } },
-  mid:  { online: { monthly: 16.59, yearly: 159.20 }, offline: { monthly: 39.09, yearly: 375.20 } },
-  low:  { online: { monthly: 7.99, yearly: 76.70 }, offline: { monthly: 19.09, yearly: 183.20 } }
+  high: { online: { monthly: 29.99, yearly: 287.90 }, offline: { monthly: 49.92, yearly: 479.20, full: 599.00 } },
+  mid:  { online: { monthly: 16.59, yearly: 159.20 }, offline: { monthly: 39.09, yearly: 375.20, full: 469.00 } },
+  low:  { online: { monthly: 7.99, yearly: 76.70 }, offline: { monthly: 19.09, yearly: 183.20, full: 229.00 } }
 };
+
+/* Customer-facing plan names. The stored plan keys stay 'online' and 'offline'. */
+function planLabel_(plan) { return plan === 'offline' ? 'Premium' : 'Basic'; }
+/* The 20% yearly saving on Premium is for an account's first Premium yearly subscription only.
+   Any approved Premium yearly order (PayPal or Razorpay) in the current mode uses it up, even if later cancelled. */
+function premiumYearlyUsed_(email) {
+  email = String(email || '').trim().toLowerCase();
+  if (!email) return false;
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
+  if (sheet && sheet.getLastRow() > 1) {
+    var modes = [mode_(), 'razorpay_' + (typeof razorpayMode_ === 'function' ? razorpayMode_() : 'test')];
+    var found = sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues().some(function (r) {
+      return String(r[4]).trim().toLowerCase() === email && modes.indexOf(String(r[3])) >= 0 && String(r[7]).split(' ')[0] === 'offline' && String(r[8]) === 'yearly' && String(r[2]) !== 'NOT_FOUND';
+    });
+    if (found) return true;
+  }
+  if (typeof razorpayRows_ === 'function' && razorpayRows_().some(function (r) { return r.mode === razorpayMode_() && r.email === email && r.accepted && r.price && r.price.plan === 'offline' && r.price.billing === 'yearly'; })) return true;
+  return false;
+}
 
 function paypalPost_(path, body, t, reqId) {
   var r = UrlFetchApp.fetch(base_() + path, {
@@ -511,8 +530,8 @@ function setupPlans() {
         if (result.tiers[tier][kind][period]) return;
         var plan = paypalPost_('/v1/billing/plans', {
           product_id: productId,
-          name: 'Wrapline ' + kind + ' ' + period + ' (' + tier + ')',
-          description: 'Wrapline ' + kind + ' license, billed ' + period + '.',
+          name: 'Wrapline ' + planLabel_(kind) + ' ' + period + ' (' + tier + ')',
+          description: 'Wrapline ' + planLabel_(kind) + ' license, billed ' + period + '.',
           status: 'ACTIVE',
           billing_cycles: [{ frequency: { interval_unit: period === 'yearly' ? 'YEAR' : 'MONTH', interval_count: 1 }, tenure_type: 'REGULAR', sequence: 1, total_cycles: 0,
             pricing_scheme: { fixed_price: { value: String(PRICES[tier][kind][period]), currency_code: 'USD' } } }],
@@ -524,18 +543,18 @@ function setupPlans() {
       });
     });
   });
-  /* Online plans with a 4-day free trial. The buyer approves in PayPal now and is first charged after the trial. */
+  /* Basic plans with a 4-day free trial. The buyer approves in PayPal now and is first charged after the trial. */
   ['high', 'mid', 'low'].forEach(function (tier) {
     result.tiers[tier].onlineTrial = result.tiers[tier].onlineTrial || {};
     ['monthly', 'yearly'].forEach(function (period) {
       if (result.tiers[tier].onlineTrial[period]) return;
       var plan = paypalPost_('/v1/billing/plans', {
         product_id: productId,
-        name: 'Wrapline online ' + period + ' with 4-day trial (' + tier + ')',
-        description: 'Wrapline online license, 4-day free trial, then billed ' + period + '.',
+        name: 'Wrapline Basic ' + period + ' with 4-day trial (' + tier + ')',
+        description: 'Wrapline Basic license, 4-day free trial, then billed ' + period + '.',
         status: 'ACTIVE',
         billing_cycles: [
-          { frequency: { interval_unit: 'DAY', interval_count: 2 }, tenure_type: 'TRIAL', sequence: 1, total_cycles: 1,
+          { frequency: { interval_unit: 'DAY', interval_count: 4 }, tenure_type: 'TRIAL', sequence: 1, total_cycles: 1,
             pricing_scheme: { fixed_price: { value: '0', currency_code: 'USD' } } },
           { frequency: { interval_unit: period === 'yearly' ? 'YEAR' : 'MONTH', interval_count: 1 }, tenure_type: 'REGULAR', sequence: 2, total_cycles: 0,
             pricing_scheme: { fixed_price: { value: String(PRICES[tier].online[period]), currency_code: 'USD' } } }
@@ -555,13 +574,13 @@ function setupPlans() {
   ['high', 'mid', 'low'].forEach(function (tier) {
     ['online', 'offline'].forEach(function (kind) {
       ['monthly', 'yearly'].forEach(function (period) {
-        rows.push([labels[tier], kind === 'online' ? 'Online' : 'Offline', period === 'yearly' ? 'Yearly' : 'Monthly', PRICES[tier][kind][period], result.tiers[tier][kind][period]]);
+        rows.push([labels[tier], planLabel_(kind), period === 'yearly' ? 'Yearly' : 'Monthly', PRICES[tier][kind][period], result.tiers[tier][kind][period]]);
       });
     });
   });
   ['high', 'mid', 'low'].forEach(function (tier) {
     ['monthly', 'yearly'].forEach(function (period) {
-      rows.push([labels[tier], 'Online + 4-day trial', period === 'yearly' ? 'Yearly' : 'Monthly', PRICES[tier].online[period], result.tiers[tier].onlineTrial[period]]);
+      rows.push([labels[tier], 'Basic + 4-day trial', period === 'yearly' ? 'Yearly' : 'Monthly', PRICES[tier].online[period], result.tiers[tier].onlineTrial[period]]);
     });
   });
   var json = JSON.stringify({ tiers: result.tiers });

@@ -188,7 +188,7 @@ function particle(kind,i){
  return el;
 }
 function thank(res){
- try{localStorage.setItem('ajoy.coffee',JSON.stringify({until:Date.now()+365*864e5}));}catch{}
+ try{localStorage.setItem('ajoy.coffee',JSON.stringify({until:Date.now()+30*864e5}));}catch{}
  const name=(res.name||'').trim();
  const head=name?`You just made my day, ${name}.`:'You just made my day.';
  const root=document.createElement('div');

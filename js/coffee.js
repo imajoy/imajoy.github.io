@@ -1,11 +1,12 @@
 /* "Buy me a coffee" pop-up for the download, thank-you and tool pages (never the landing page).
    Clicking it opens our own support page (support.html), where people give any amount in USD (PayPal) or INR (Razorpay, India).
-   It appears after a few seconds or once the visitor has scrolled a little, and stays away for two weeks after it is closed. */
+   It appears after a few seconds or once the visitor has scrolled a little, and comes back on the next visit after it is closed (it stays away only for the rest of that visit). */
 const KEY='ajoy.coffee';
 const target='support.html';
 
-const quiet=()=>{try{const v=JSON.parse(localStorage.getItem(KEY)||'null');return !!v&&Date.now()<v.until;}catch{return false;}};
-const rest=days=>{try{localStorage.setItem(KEY,JSON.stringify({until:Date.now()+days*864e5}));}catch{}};
+const quiet=()=>{try{if(sessionStorage.getItem(KEY))return true;const v=JSON.parse(localStorage.getItem(KEY)||'null');return !!v&&Date.now()<v.until;}catch{return false;}};
+/* days=0: only for this visit (new visit = shows again). days>0: stay away that long. */
+const rest=days=>{try{if(days>0)localStorage.setItem(KEY,JSON.stringify({until:Date.now()+days*864e5}));else sessionStorage.setItem(KEY,'1');}catch{}};
 const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 if(!quiet()&&!document.querySelector('.coffee'))setup();
@@ -53,11 +54,11 @@ function setup(){
   root.dataset.state='out';setTimeout(()=>root.remove(),calm?0:1000);
   removeEventListener('scroll',onScroll);clearTimeout(timer);
  }
- root.querySelector('.coffee-x-btn').addEventListener('click',()=>leave(14));
- for(const a of root.querySelectorAll('[data-coffee-link]'))a.addEventListener('click',()=>setTimeout(()=>leave(30),400));
- addEventListener('keydown',e=>{if(e.key==='Escape'&&shown&&!gone&&!document.querySelector('dialog[open]'))leave(14);});
+ root.querySelector('.coffee-x-btn').addEventListener('click',()=>leave(0));
+ for(const a of root.querySelectorAll('[data-coffee-link]'))a.addEventListener('click',()=>setTimeout(()=>leave(3),400));
+ addEventListener('keydown',e=>{if(e.key==='Escape'&&shown&&!gone&&!document.querySelector('dialog[open]'))leave(0);});
 
- const onScroll=()=>{if(scrollY>Math.max(240,innerHeight*0.35))show();};
+ const onScroll=()=>{if(scrollY>Math.max(240,innerHeight*0.2))show();};
  addEventListener('scroll',onScroll,{passive:true});
- const timer=setTimeout(()=>{if(!document.querySelector('dialog[open]'))show();else setTimeout(show,6000);},9000);
+ const timer=setTimeout(()=>{if(!document.querySelector('dialog[open]'))show();else setTimeout(show,6000);},4000);
 }

@@ -35,15 +35,14 @@ html[data-theme=dark] :is(.guide-index,.guide-notes .eyebrow){color:color-mix(in
 @media(max-width:680px){.tool-hero{padding-bottom:50px}.tool-visual{padding:20px 15px 16px;border-radius:24px}.tool-diagram{margin-top:15px}.workflow-beats button{padding:9px 7px;font-size:.625rem}.guide-features,.guide-workflow,.guide-notes{grid-template-columns:1fr}.guide-feature{padding:27px}.guide-workflow{margin:60px 0;gap:35px}.guide-notes{padding:27px;gap:30px}.guide-index{margin-bottom:20px}.tool-guide .wrap{padding-inline:20px}}
 @media(prefers-reduced-motion:reduce){.tool-visual .phase,.workflow-beats button{transition:none}}
 
-/* Hover: the numbered feature cards lift, pick up the tool's colour and glow; steps light their number. Mouse only.
+/* Hover: the numbered feature cards lift, get a soft neutral shadow (no colour tint, so text stays easy to read); steps light their number. Mouse only.
    Only transform and opacity animate (smooth on the GPU). The selectors are strong enough to beat the page's reveal transition. */
 @media(hover:hover) and (pointer:fine){
  html .guide-feature,html .guide-feature.reveal,html.js .guide-feature.reveal{position:relative;isolation:isolate;transition:transform .42s cubic-bezier(.22,1,.36,1),border-color .3s ease,opacity .9s var(--out,ease);backface-visibility:hidden}
  .guide-feature::before,.guide-feature::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .42s cubic-bezier(.22,1,.36,1);z-index:-1}
- .guide-feature::before{background:radial-gradient(520px circle at 85% 0%,color-mix(in srgb,var(--g2,#3d8bff) 16%,transparent),transparent 62%)}
- .guide-feature::after{box-shadow:0 24px 50px -26px color-mix(in srgb,var(--g2,#3d8bff) 55%,transparent)}
+ .guide-feature::after{box-shadow:0 22px 40px -28px rgba(14,18,32,.35)}
  html .guide-feature:hover,html.js .guide-feature.reveal:hover{transform:translate3d(0,-6px,0);border-color:color-mix(in srgb,var(--g2,#3d8bff) 48%,var(--line))}
- .guide-feature:hover::before,.guide-feature:hover::after{opacity:1}
+ .guide-feature:hover::after{opacity:1}
  html .guide-feature .guide-index{transition:transform .42s cubic-bezier(.22,1,.36,1)}
  html .guide-feature:hover .guide-index{transform:translate3d(6px,0,0)}
  html .guide-feature h3{transition:color .35s ease}

@@ -17,6 +17,16 @@ function init() {
     if (live) return {state:'ending',kind:'cancelled',text:(s.trial?'Trial cancelled':'Cancelled')+' · access continues until '+date+' ('+dayWord(days)+' left)',short:days+'d left',days,date};
     return {state:'ended',kind:'ended',text:'Ended'+(date?' '+date:'')+' · renew to keep using Wrapline',short:'Renew',days:0,date};
   };
+  function subscriptionCard(s,index){
+    const d=describe(s),badge=d.state==='ending'?'Renewal off':d.state==='ended'?'Ended':d.state==='unknown'?'Unavailable':s.trial?'Trial active':'Active';
+    const detail=d.state==='ending'?'Access until '+d.date+'. No further renewals.':d.state==='active'?(s.trial?'First payment on ':'Renews on ')+d.date+(s.trial?' unless you cancel.':'.'):d.text;
+    const seats=Number(s.seats||1);
+    return '<section class="acct-sub" data-state="'+d.state+'" aria-label="Wrapline '+label(s.plan)+' subscription"><div class="acct-sub-head"><div><b>Wrapline '+label(s.plan)+'</b><span class="acct-sub-meta">'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+seats+(seats===1?' license':' licenses')+'</span></div><span class="acct-sub-badge">'+badge+'</span></div>'+
+      (d.days>0?'<div class="acct-access"><strong>'+d.days+'</strong><span>'+(d.days===1?'day':'days')+' of access left</span></div>':'')+'<p class="acct-sub-detail">'+esc(detail)+'</p><div class="acct-sub-actions">'+
+      (d.state==='ended'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+s.plan+'&amp;billing='+s.billing+'">Renew plan</a>':'')+
+      (d.days>0&&s.ref?'<a class="acct-link acct-history" href="thank-you.html?subscription='+encodeURIComponent(s.ref)+'">View confirmation <span aria-hidden="true">→</span></a>':'')+
+      (canCancel(s)?'<button class="acct-link acct-stop" type="button" data-cancel-index="'+index+'">'+(s.trial?'Cancel free trial':'Cancel subscription')+'</button>':'')+'</div></section>';
+  }
   const canCancel = s => s.renews && s.ref && ['paypal','razorpay'].includes(s.provider) && daysLeft(s.endsAt) > 0;
   const sameSub = (a,b) => a.provider===b.provider && a.ref===b.ref;
   /* Cancels future renewals. Access continues until the paid or trial period ends. */
@@ -71,15 +81,15 @@ function init() {
   function render() {
     clearInterval(countdownTimer);
     const session=reauthenticating?null:getAccountSession(),subs=session?.subscriptions;
-    body.dataset.stage=session?'account':step;body.setAttribute('aria-busy',String(busy));
+    body.dataset.stage=session?'account':step;dlg.querySelector('.acct-close').setAttribute('aria-label',session?'Close account':'Close sign-in');body.setAttribute('aria-busy',String(busy));
     if(session){
       body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Your account</p><h2 id="acct-title" tabindex="-1">'+esc(session.email)+'</h2><p class="acct-note acct-sync" role="status">'+(updating?'Updating your subscription details…':offline?'Showing your saved account. Reconnect to update your details.':'Your verified account email is used automatically at checkout.')+'</p>'+
         (subs?.length>1&&totalDays(subs)?'<p class="acct-total">Total across your subscriptions: <b>'+dayWord(totalDays(subs))+' left</b></p>':'')+
-        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(s=>{const d=describe(s);return '<div class="acct-sub" data-state="'+d.state+'"><b>Wrapline '+label(s.plan)+'</b><span>'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+Number(s.seats||1)+' license(s)</span><p>'+esc(d.text)+'</p>'+(d.state==='ended'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+(s.plan==='offline'?'offline':'online')+'&amp;billing='+(s.billing==='yearly'?'yearly':'monthly')+'">Renew</a>':'')+(d.days>0&&s.ref?'<a class="acct-link acct-history" href="thank-you.html?subscription='+encodeURIComponent(s.ref)+'">View confirmation</a>':'')+(canCancel(s)?'<button class="acct-link acct-stop" type="button" data-cancel-index="'+subs.indexOf(s)+'">'+(s.trial?'Cancel free trial':'Cancel subscription')+'</button>':'')+'</div>';}).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
+        (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(subscriptionCard).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
-        '<p class="acct-history-link"><a href="thank-you.html?history=1">Purchases &amp; invoices</a></p>'+
+        '<a class="acct-history-link" href="thank-you.html?history=1"><span class="acct-receipt-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Zm3 5h6M9 12h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>Purchases &amp; invoices</b><small>View your confirmations and receipts</small></span><span aria-hidden="true">→</span></a>'+
         '<div class="acct-passkeys" hidden></div>'+
-        (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<p class="acct-note">To use a different email, sign out first.</p><button class="acct-link" type="button" data-out>Sign out</button>';
+        (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<div class="acct-footer"><p class="acct-note">Switching accounts?<br>Sign out to use another email.</p><button class="acct-link" type="button" data-out>Sign out <span aria-hidden="true">→</span></button></div>';
       body.querySelector('[data-out]').onclick=()=>{generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
       body.querySelector('[data-retry]')?.addEventListener('click',status);
       for(const stop of body.querySelectorAll('[data-cancel-index]'))stop.addEventListener('click',async()=>{

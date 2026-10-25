@@ -72,13 +72,13 @@ test('Captured checkout is owner-bound, idempotent, records private receipts and
  assert.equal(s.rpc('confirm',{accountToken:other.token,checkoutId:c.checkoutId}).error,'checkout');
  assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:c.checkoutId}).accepted,true);
  assert.equal(s.rpc('confirm',{accountToken:s.token,checkoutId:c.checkoutId}).accepted,true);
- assert.equal(s.app.orders.rows.length,3);assert.equal(s.app.mails.length,2);assert.equal(s.app.sheets.get('RazorpayPayments').rows.length,2);
+ assert.equal(s.app.orders.rows.length,3);assert.equal(s.app.mails.length,3);assert.equal(s.app.mails.filter(m=>/invoice/i.test(m.subject)).length,1);assert.equal(s.app.sheets.get('RazorpayPayments').rows.length,2);
  const status=s.app.call({step:'status',token:s.token});assert(status.subscriptions.some(sub=>sub.status==='ACTIVE'&&sub.plan==='online'&&sub.seats===1));
 });
 test('Signed webhook grants access without browser confirmation and duplicate deliveries do not duplicate receipts or emails',()=>{
  const s=setup(),c=s.rpc('checkout',s.selection()),p=paid(s,c),event={event:'subscription.charged',payload:{subscription:{entity:p.sub}}};
  assert.equal(s.rpc('webhook',{rawBody:JSON.stringify(event),webhookSignature:'0'.repeat(64)}).error,'signature');
- assert.equal(webhook(s,event).accepted,true);assert.equal(webhook(s,event).accepted,true);assert.equal(s.app.mails.length,2);assert.equal(s.app.sheets.get('RazorpayPayments').rows.length,2);
+ assert.equal(webhook(s,event).accepted,true);assert.equal(webhook(s,event).accepted,true);assert.equal(s.app.mails.length,3);assert.equal(s.app.mails.filter(m=>/invoice/i.test(m.subject)).length,1,'one invoice even when the webhook repeats');assert.equal(s.app.sheets.get('RazorpayPayments').rows.length,2);
  const packet=s.app.envelope({action:'razorpay',operation:'webhook',rawBody:JSON.stringify(event),webhookSignature:'x'});packet.signature='forged';assert.equal(s.app.ctx.handleCommerceEnvelope_(packet).error,'signature');
 });
 test('Cancelling after a captured payment retains that paid period; unpaid expired checkout permits a fresh attempt',()=>{

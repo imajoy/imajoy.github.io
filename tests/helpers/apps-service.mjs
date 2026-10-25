@@ -20,7 +20,7 @@ export function service({registered=true,mailFails=false}={}){
  const blob=value=>({getBytes:()=>[...Buffer.from(value)],getDataAsString:()=>Buffer.from(value).toString()});
  const result=(body,status=200)=>({getResponseCode:()=>status,getContentText:()=>body===null?'':JSON.stringify(body)});
  const ctx=createContext({console,PropertiesService:{getScriptProperties:()=>({getProperty:k=>values.get(k)||null,setProperty:(k,v)=>values.set(k,v),deleteProperty:k=>values.delete(k)})},
-  Utilities:{getUuid:randomUUID,DigestAlgorithm:{SHA_1:'sha1'},computeDigest:(algorithm,bytes)=>[...createHash(algorithm).update(Buffer.from(bytes)).digest()],base64Decode:text=>[...Buffer.from(text,'base64')],base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:bytes=>Buffer.from(bytes).toString('base64url'),base64DecodeWebSafe:text=>[...Buffer.from(text,'base64url')],newBlob:blob,computeHmacSha256Signature:(text,key)=>[...createHmac('sha256',key).update(text).digest()]},
+  Utilities:{formatDate:(date,zone,pattern)=>{const d=new Date(date.getTime()+19800000),M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return pattern.replace('yyyy',d.getUTCFullYear()).replace('MMM',M[d.getUTCMonth()]).replace('MM',String(d.getUTCMonth()+1).padStart(2,'0')).replace('d ',d.getUTCDate()+' ');},getUuid:randomUUID,DigestAlgorithm:{SHA_1:'sha1'},computeDigest:(algorithm,bytes)=>[...createHash(algorithm).update(Buffer.from(bytes)).digest()],base64Decode:text=>[...Buffer.from(text,'base64')],base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:bytes=>Buffer.from(bytes).toString('base64url'),base64DecodeWebSafe:text=>[...Buffer.from(text,'base64url')],newBlob:blob,computeHmacSha256Signature:(text,key)=>[...createHmac('sha256',key).update(text).digest()]},
   LockService:{getScriptLock:()=>lock},CacheService:{getScriptCache:()=>({get:k=>cache.get(k)||null,put:(k,v)=>cache.set(k,v),remove:k=>cache.delete(k)})},
   SpreadsheetApp:{WrapStrategy:{CLIP:'CLIP'},getActiveSpreadsheet:()=>({getSheetByName:name=>sheets.get(name)||null,insertSheet:name=>table(name,[])})},
   MailApp:{sendEmail:message=>{if(mailFails)throw Error('Mail service unavailable');mails.push(message);}},Session:{getEffectiveUser:()=>({getEmail:()=> 'owner@example.com'})},
@@ -80,7 +80,7 @@ export function service({registered=true,mailFails=false}={}){
    return result({},404);
   }},ContentService:{MimeType:{JSON:'json'},createTextOutput:()=>({setMimeType(){return this;},setContent(text){this.text=text;return this;}})}
  });
- for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs','Billing.gs','Payments.gs','Reviews.gs','Donations.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
+ for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs','Billing.gs','Payments.gs','Reviews.gs','Donations.gs','Invoices.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
  ctx.archivePayPalCatalog_({tiers});
  const currentTiers=JSON.parse(JSON.stringify(tiers).replaceAll('P-','P-CURRENT-'));
  values.set('PLANS_sandbox',JSON.stringify({productId:'PROD-TEST',tiers:currentTiers,priceVersion:ctx.PRICE_VERSION,prices:ctx.PRICES}));

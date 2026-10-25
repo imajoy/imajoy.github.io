@@ -43,6 +43,8 @@ function paymentRecord_(p){
   var used=rows.reduce(function(n,r,i){return r[0]!==''||r[1]!==''||r[12]!==''?i+1:n;},0);
   sheet.getRange(used+2,1,1,PAYMENT_HEADERS_.length).setValues([[p.date||new Date(),String(p.email).toLowerCase(),p.provider,p.mode,paymentTitle_(p.plan),paymentTitle_(p.billing),Number(p.seats)||1,Number(p.amount)||0,p.currency||'',p.status||'Paid','Yes',keys.map(function(k){return REWARD_LABELS_[k]||k;}).join(', '),String(p.paymentId),String(p.subscriptionId||''),p.source||'Webhook',p.note||''].map(safeSheetCell_)]);
   try{CacheService.getScriptCache().remove('rh:'+mode_()+':'+String(p.email).toLowerCase());}catch(e){}
+  // A new subscription payment (first charge or renewal) gets an invoice email. Old payments found by a history import do not.
+  if(p.source==='Webhook'&&typeof invoiceSend_==='function'&&p.date&&Date.now()-new Date(p.date).getTime()<3*86400000){try{invoiceSend_(p);}catch(e){Logger.log('Invoice: '+e.message);}}
   return true;
 }
 function paymentRefund_(paymentId){

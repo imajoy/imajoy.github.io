@@ -1,11 +1,12 @@
 import {availability,yearlyOfferUsed,YEARLY_PERCENT} from './regions.js?v=20261023-p7';
-import {onAccountChange} from './account-session.js?v=20261023-p7';
+import {getAccountSession,onAccountChange} from './account-session.js?v=20261023-p7';
 import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261020-prices1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261023-p5';
 import {localFormatter} from './fx.js?v=20261020-local1';
 import {animatePrice,settlePrices} from './price-motion.js?v=20261019-motion1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
+import {subscriptionPromotion} from './subscription-promotion.js?v=20261025-cta1';
 const toggle=document.querySelector('.toggle');
 let billing='monthly',revision=0,animatePricing=false,razorpayConfig=null;
 function chooseBilling(value){
@@ -23,7 +24,7 @@ async function render(){
  const rzpOpen=razorpayAvailable(razorpayConfig,suggestedCountry());
  const paymentOpen=indiaOpen||paypalOpen||rzpOpen;
  const rzpTrial=!!razorpayConfig?.trial&&razorpayAvailable(razorpayConfig,suggestedCountry());
- document.querySelector('.plan-trial-kicker').hidden=inIndia&&!rzpTrial;
+ document.querySelector('.plan-trial-kicker').hidden=subscriptionPromotion(getAccountSession()).kind!=='new'||inIndia&&!rzpTrial;
  await Promise.all(['online','offline'].map(async plan=>{
   const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`);
   buy.href=`checkout.html?${new URLSearchParams({plan,billing,v:'20261020-billing1'})}`;if(!amount.textContent.trim())amount.textContent='—';offer.hidden=true;comparison.hidden=true;
@@ -35,7 +36,7 @@ async function render(){
    const show=c=>lf?lf(c):money(c,quote.currency);
    animatePrice(amount,quote.unitAmount,show,animatePricing);
    amount.closest('.price').querySelector('[data-per]').textContent=`per computer, per ${billing==='yearly'?'year':'month'}`;
-   const trial=plan==='online'&&(paypalOpen&&trialPlanId(tcfg,'online',billing,suggestedCountry())||rzpTrial);
+   const trial=subscriptionPromotion(getAccountSession()).kind==='new'&&plan==='online'&&(paypalOpen&&trialPlanId(tcfg,'online',billing,suggestedCountry())||rzpTrial);
    note.textContent=trial?TRIAL_DAYS+'-day free trial, then billed '+(billing==='yearly'?'annually':'monthly')+'. Cancel any time.':(billing==='yearly'?'Billed annually. ':'Billed monthly. ');
    if(!buy.classList.contains('is-owned')){
     buy.textContent=!paymentOpen?'Review billing':trial?'Start '+TRIAL_DAYS+'-day free trial':'Subscribe now';

@@ -2,18 +2,22 @@
 import {loadTrialConfig,trialPlanId} from './trial.js?v=20261023-p5';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {availability,closedMessage,YEARLY_PERCENT,yearlyOfferUsed} from './regions.js?v=20261023-p7';
-import {getAccountSession,onAccountChange} from './account-session.js?v=20261023-p7';
+import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
 import {canShowTrialNudge,PROMO_DELAY} from './promotion-policy.js?v=20261019-contact1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
+import {subscriptionPromotion} from './subscription-promotion.js?v=20261025-cta1';
 const isHome=Boolean(document.querySelector('.trial-showcase'));
 const home=isHome?'#trial':'wrapline.html#trial';
 /* Trial buttons open the pricing section (never the billing page directly); the plan card there starts checkout. */
 const pricingHref=isHome?'#pricing':'wrapline.html#pricing';
 const isDiscovery=Boolean(document.querySelector('.tool-page'));
 let config=null,country=cachedGeo(),settled=false,billing='',nudge=null,razorpayConfig=null;
-const alreadyOnline=()=>getAccountSession()?.subscriptions?.some(s=>s.plan==='online'&&s.status==='ACTIVE'&&Date.parse(s.endsAt)>Date.now());
+const memberLabel=kind=>kind==='trial'?'Manage my trial':kind==='paid'?'Manage my subscription':kind==='past'?'Explore plans':'View my account';
+const accountHref='wrapline.html#register';
 function render(){
-  const subscribed=alreadyOnline(),inIndia=country==='IN',known=/^[A-Z]{2}$/.test(country);
+  const member=subscriptionPromotion(getAccountSession()),subscribed=member.kind!=='new',manage=subscribed&&member.kind!=='past',inIndia=country==='IN',known=/^[A-Z]{2}$/.test(country);
+  const summary=document.querySelector('.hero-trial-summary');
+  if(summary)summary.hidden=subscribed&&(member.kind!=='trial'||!member.subscription.renews);
   const indiaOpen=inIndia&&razorpayAvailable(razorpayConfig,'IN');
   // Razorpay offers the same 4-day trial where it is the payment option.
   const region=known?availability(country,config?.closedCountries||[]):null;
@@ -24,9 +28,10 @@ function render(){
   const billingPage='checkout.html?plan=online&billing=monthly';
   const fallback=region&&!region.open?billingPage:pricingHref;
   for(const link of document.querySelectorAll('[data-trial-cta]')){
-    link.href=subscribed||billing?pricingHref:fallback;
+    link.href=manage?accountHref:subscribed||billing?pricingHref:fallback;
+    link.toggleAttribute('data-manage-subscription',manage);
     // Keep the word trial when configuration/location cannot be confirmed.
-    link.textContent=subscribed?'View your Basic plan':billing?'Start my 4-day free trial':region&&!region.open?'Review billing':'Explore the 4-day free trial';
+    link.textContent=subscribed?memberLabel(member.kind):billing?'Start my 4-day free trial':region&&!region.open?'Review billing':'Explore the 4-day free trial';
     link.toggleAttribute('data-region-unavailable',Boolean(region&&!region.open&&!subscribed));
     if(reviewOnly&&!subscribed){link.href=billingPage;link.textContent='Review billing';link.removeAttribute('data-region-unavailable');}
     link.dataset.trialReady=String(Boolean(billing&&!subscribed));
@@ -35,9 +40,10 @@ function render(){
   }
   const mobileTrial=document.querySelector('.m-cta a:not(.primary)');
   if(mobileTrial){
-   mobileTrial.href=subscribed?'#pricing':reviewOnly?billingPage:'#trial';mobileTrial.textContent=subscribed?'Your Basic plan':reviewOnly?'Review billing':'4-day trial';
+   mobileTrial.toggleAttribute('data-manage-subscription',manage);
+   mobileTrial.href=manage?accountHref:subscribed?'#pricing':reviewOnly?billingPage:'#trial';mobileTrial.textContent=subscribed?(member.kind==='past'?'Explore plans':'My account'):reviewOnly?'Review billing':'4-day trial';
    // Never show two identical "View plans" buttons side by side.
-   mobileTrial.style.display=(indiaOpen&&!rzpTrial&&!subscribed)||subscribed?'none':'';
+   mobileTrial.style.display=(indiaOpen&&!rzpTrial&&!subscribed)?'none':'';
   }
   for(const teaser of document.querySelectorAll('[data-trial-teaser]')){
     if(!teaser.dataset.originalCopy)teaser.dataset.originalCopy=teaser.textContent;
@@ -45,11 +51,28 @@ function render(){
     if(rzpTrial&&!subscribed)teaser.textContent='Try the full Basic toolkit free for 4 days. Approve with '+(inIndia?'UPI or card':'your card')+' through Razorpay; nothing is charged today.';
     else if(indiaOpen&&!subscribed)teaser.textContent='Paid subscriptions are available with Razorpay in India.';
   }
-  const message=subscribed?'You already have an active Basic subscription. View your plan or account.':rzpTrial?'For eligible customers. Verify your email and approve with Razorpay. Nothing is charged today; paid billing starts after 4 days unless you cancel.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 4-day trial unless cancelled.':reviewOnly?'You can review your billing details. Payment options will appear when available for your country.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
-  for(const notice of document.querySelectorAll('[data-trial-status]')){notice.hidden=isHome&&inIndia&&!indiaOpen;notice.textContent=indiaOpen&&!rzpTrial&&!subscribed?'Paid subscriptions are available with Razorpay.':isHome&&inIndia&&!indiaOpen?'':message;}
+  const memberMessage=member.kind==='trial'?'Your trial is already active. Manage it or download Wrapline to get started.':member.kind==='paid'?'Your subscription is active. Manage your plan or keep creating with Wrapline.':member.kind==='past'?'Welcome back. Explore paid plans to continue using Wrapline.':'Check your account for your latest subscription details.';
+  if(subscribed)for(const teaser of document.querySelectorAll('[data-trial-teaser]'))teaser.textContent=memberMessage;
+  const message=subscribed?memberMessage:rzpTrial?'For eligible customers. Verify your email and approve with Razorpay. Nothing is charged today; paid billing starts after 4 days unless you cancel.':billing?'For eligible customers. Verify your email and approve in PayPal. Paid billing follows the 4-day trial unless cancelled.':reviewOnly?'You can review your billing details. Payment options will appear when available for your country.':region&&!region.open?closedMessage[region.reason]:settled?'Trial availability is confirmed at checkout. Verified registration and PayPal approval are required.':'Checking trial availability. Verified registration and PayPal approval are required.';
+  for(const notice of document.querySelectorAll('[data-trial-status]')){notice.hidden=!subscribed&&isHome&&inIndia&&!indiaOpen;notice.textContent=indiaOpen&&!rzpTrial&&!subscribed?'Paid subscriptions are available with Razorpay.':!subscribed&&isHome&&inIndia&&!indiaOpen?'':message;}
+  const banner=document.querySelector('.trial-banner');
+  if(banner){
+    const parts=[banner.querySelector('.trial-banner-seal b'),banner.querySelector('.trial-banner-seal small'),banner.querySelector('.offer-eyebrow'),banner.querySelector('strong'),banner.querySelector('.trial-banner-copy > span:last-child')];
+    if(!banner._guest)banner._guest={copy:parts.map(el=>el.textContent),href:banner.getAttribute('href'),label:banner.getAttribute('aria-label')};
+    const copy=subscribed?[['past','unknown'].includes(member.kind)?'13':'✓',member.kind==='trial'?'TRIAL':member.kind==='paid'?'ACTIVE':'TOOLS',member.kind==='trial'?'YOUR TRIAL IS ACTIVE':member.kind==='paid'?'YOUR WRAPLINE SUBSCRIPTION':'WELCOME BACK',memberLabel(member.kind),memberMessage]:banner._guest.copy;
+    parts.forEach((el,i)=>{el.textContent=copy[i];});
+    banner.href=subscribed?(manage?accountHref:pricingHref):banner._guest.href;
+    banner.setAttribute('aria-label',subscribed?memberLabel(member.kind):banner._guest.label);
+    banner.toggleAttribute('data-manage-subscription',manage);
+  }
   if(getAccountSession())closeNudge();
   tryNudge();
 }
+document.addEventListener('click',event=>{
+ const link=event.target.closest('[data-manage-subscription]');
+ if(!link||event.button!==0||event.metaKey||event.ctrlKey||event.shiftKey||event.altKey)return;
+ event.preventDefault();openAccount();
+});
 // Choose the visible interval without replacing the form's pricing or payment code.
 const form=document.querySelector('#billing-form');
 if(form){

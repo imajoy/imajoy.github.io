@@ -222,15 +222,17 @@ $('sp-mug').innerHTML=mugSVG(false);
 $('sp-amount').addEventListener('input',onAmount);
 $('sp-rzp').addEventListener('click',openRazorpay);
 const tzIndia=()=>{try{return /^Asia\/(Calcutta|Kolkata)$/.test(Intl.DateTimeFormat().resolvedOptions().timeZone);}catch{return false;}};
-state.india=(cachedGeo&&cachedGeo()==='IN')||tzIndia();
-setCurrency('USD');
+/* Work out the visitor's country before choosing a currency: the live lookup is trusted when it answers;
+   otherwise the country saved earlier this visit, and only as a last resort the computer's time zone. */
+const guess=(cachedGeo&&cachedGeo())||'';
 (async()=>{
- try{
-  const conf=await call('config',{});
-  if(conf&&conf.error==='closed'){hideLoading();$('sp-pay').textContent='';say(conf.message||'Donations are paused right now. Thank you for thinking of it!');return;}
-  state.inrReady=!!(conf&&conf.ok&&conf.inr);
- }catch{state.inrReady=false;}
- if(!state.india){try{const g=await detectGeo();state.india=g==='IN'||(g&&g.country==='IN');}catch{}}
- renderSwitch();
- if(state.india&&state.inrReady&&!state.chosen)setCurrency('INR');
+ const [conf,geo]=await Promise.all([
+  call('config',{}).catch(()=>null),
+  detectGeo().catch(()=>'')
+ ]);
+ if(conf&&conf.error==='closed'){hideLoading();$('sp-pay').textContent='';renderChips();say(conf.message||'Donations are paused right now. Thank you for thinking of it!');return;}
+ state.inrReady=!!(conf&&conf.ok&&conf.inr);
+ const country=(typeof geo==='string'&&geo)||guess;
+ state.india=country?country==='IN':tzIndia();
+ setCurrency(state.india&&state.inrReady?'INR':'USD');
 })();

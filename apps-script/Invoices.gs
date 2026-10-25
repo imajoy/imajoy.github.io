@@ -54,3 +54,21 @@ function invoiceSend_(p) {
   sheet.appendRow([number, date, p.email, plan, paymentTitle_(p.billing), Number(p.seats) || 1, Number(p.amount), p.currency || '', p.provider, test ? 'Test' : 'Live', String(p.paymentId), String(p.subscriptionId || '')].map(safeSheetCell_));
   return number;
 }
+
+/* Read-only history. The signed account token, never a browser email, selects rows. */
+function invoiceArchive_(who) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(INVOICES_SHEET_);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  var allowedSub = who.sub || '';
+  if (allowedSub && /^[-a-f0-9]{36}$/i.test(allowedSub)) {
+    var checkout = typeof razorpayFind_ === 'function' ? razorpayFind_(allowedSub) : null;
+    allowedSub = checkout && checkout.email === who.email ? checkout.subscriptionId : '';
+    if (!allowedSub) return [];
+  }
+  return sheet.getRange(2, 1, sheet.getLastRow() - 1, INVOICE_HEADERS_.length).getValues()
+    .filter(function (r) { return String(r[2]).trim().toLowerCase() === who.email && (!allowedSub || String(r[11]) === allowedSub); })
+    .slice(-200).reverse().map(function (r) {
+      var date = r[1] instanceof Date ? r[1] : new Date(r[1]);
+      return { number: String(r[0]), date: isNaN(date.getTime()) ? '' : date.toISOString(), plan: String(r[3]), seller: props_().getProperty('INVOICE_SELLER_NAME') || 'Ajoy Tools', billing: String(r[4]), seats: Number(r[5]) || 1, amount: Number(r[6]) || 0, currency: String(r[7]), provider: String(r[8]), mode: String(r[9]), paymentId: String(r[10]), subscriptionId: String(r[11]) };
+    });
+}

@@ -147,3 +147,4 @@ html[data-theme=dark] .ps-manage{color:#8DBBFF}
 @keyframes acct-spin{to{transform:rotate(360deg)}}
 @keyframes acct-slide{to{transform:translateX(370%)}}
 @media(prefers-reduced-motion:reduce){.acct-body[aria-busy=true] .acct-bar i{animation:none;transform:none;width:100%;opacity:.6}.acct-body[aria-busy=true] .acct-msg::before{animation:none}}
+.acct-history-link{margin:16px 0 2px}.acct-history-link a,.acct-history{color:var(--blue-d);font-weight:650;text-underline-offset:3px}.acct-history{display:inline-flex;min-height:44px;align-items:center;margin:8px 0;justify-self:start}.acct-history-link a{display:inline-flex;min-height:44px;align-items:center}

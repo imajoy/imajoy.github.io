@@ -30,3 +30,13 @@ test('history imports, old payments, refunds and donations never send an invoice
  s.ctx.doPost({postData:{contents:JSON.stringify({type:'donation',step:'paypal-verify',orderId:'5O190127TN364715T'})}});
  assert.equal(invoices(s).length,0);assert.equal(s.sheets.get('Invoices'),undefined);
 });
+
+test('invoice history belongs to the verified account and survives a closed confirmation page',()=>{
+ const s=service();s.register('buyer@example.com');s.register('other@example.com');
+ s.ctx.paymentRecord_(pay());
+ const buyer=s.ctx.handleAccount_({step:'history',token:s.ctx.makeSession_('buyer@example.com')});
+ assert.equal(buyer.ok,true);assert.equal(buyer.invoices.length,1);assert.match(buyer.invoices[0].number,/^WL-/);
+ assert.equal(buyer.invoices[0].amount,899);
+ assert.deepEqual(s.ctx.handleAccount_({step:'history',token:s.ctx.makeSession_('other@example.com')}).invoices,[]);
+ assert.equal(s.ctx.handleAccount_({step:'history',token:'forged'}).error,'expired');
+});

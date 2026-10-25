@@ -124,3 +124,28 @@ html[data-theme=dark] .ty-pass{box-shadow:0 30px 60px -24px rgba(0,0,0,.7),inset
 @keyframes ty-grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @keyframes ty-mailin{from{opacity:0;filter:blur(6px);transform:translateY(6px)}to{opacity:1;filter:none;transform:none}}
 @media (prefers-reduced-motion:reduce){.ty-pass{transition:none}}
+/* Verified purchase archive: invoices remain readable after the checkout tab closes. */
+.ty-history-link{align-self:center;color:var(--blue-d);font-weight:650;text-underline-offset:3px}
+.ty-archive{margin-top:48px;max-width:900px}
+.ty-archive h2{font-size:clamp(24px,3vw,36px);letter-spacing:-.04em}
+.ty-archive>p{color:var(--mute);margin:8px 0 20px;line-height:1.6}
+.ty-archive[data-ready=true]{animation:ty-archive-in .5s ease-out both}
+.ty-invoice{border:1px solid var(--line);border-radius:16px;background:var(--card);margin:12px 0;box-shadow:0 12px 28px -24px #152b5d55}
+.ty-archive[data-ready=true] .ty-invoice{animation:ty-invoice-in .42s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--invoice-index)*70ms)}
+.ty-invoice summary{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 22px;list-style:none}
+.ty-invoice summary::-webkit-details-marker{display:none}
+.ty-invoice summary b{overflow-wrap:anywhere}.ty-invoice summary span{font-weight:700;white-space:nowrap}
+.ty-invoice-body{padding:0 22px 22px;transform-origin:top}.ty-invoice[open] .ty-invoice-body{animation:ty-paper-open .38s ease-out both}.ty-invoice-body p{display:flex;justify-content:space-between;gap:20px;border-top:1px solid var(--line);padding:11px 0;overflow-wrap:anywhere}
+.ty-invoice-body p span{color:var(--mute)}.ty-invoice-body p b{text-align:right}.ty-print{margin-top:15px}
+.ty-timeline[hidden],.ty-archive[hidden]{display:none}
+@keyframes ty-archive-in{from{opacity:.55;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes ty-invoice-in{from{opacity:0;transform:perspective(800px) rotateX(-6deg) translateY(10px) scale(.97)}to{opacity:1;transform:none}}
+@keyframes ty-paper-open{from{opacity:.4;transform:translateY(-6px) scaleY(.97)}to{opacity:1;transform:none}}
+@media(max-width:560px){.ty-invoice summary,.ty-invoice-body{padding-inline:16px}.ty-invoice-body p{display:block}.ty-invoice-body p span,.ty-invoice-body p b{display:block;text-align:left}}
+@media(prefers-reduced-motion:reduce){.ty-archive[data-ready=true],.ty-archive[data-ready=true] .ty-invoice,.ty-invoice[open] .ty-invoice-body{animation:none}}
+@media print{
+ body:has(.ty-print-target) .commerce-header,body:has(.ty-print-target) .ty-hero,body:has(.ty-print-target) .ty-side,body:has(.ty-print-target) .commerce-footer,body:has(.ty-print-target) .ty-archive>p,body:has(.ty-print-target) .ty-archive h2,body:has(.ty-print-target) .ty-invoice:not(.ty-print-target),body:has(.ty-print-target) .ty-print{display:none!important}
+ body:has(.ty-print-target) .ty-main{padding:0;background:#fff}
+ body:has(.ty-print-target) .ty-archive{margin:0;max-width:none}
+ body:has(.ty-print-target) .ty-invoice{border:0;box-shadow:none;color:#111;break-inside:avoid}
+}

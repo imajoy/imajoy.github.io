@@ -370,6 +370,12 @@ function registerAccount_(email) {
 function handleAccount_(d) {
   var email = clip_(d.email, 120).trim().toLowerCase();
   var step = String(d.step || '');
+  if (step === 'history') {
+    var viewer = readSession_(d.token);
+    if (!viewer) return { ok: false, error: 'expired' };
+    if (!registeredEmail_(viewer.email)) return { ok: false, error: 'not_registered' };
+    return { ok: true, email: viewer.email, subscriptions: subscriptionsFor_(viewer.email, viewer.sub), invoices: invoiceArchive_(viewer) };
+  }
   if (step === 'status' || step === 'identity') {
     var who = readSession_(d.token);
     if (!who) return { ok: false, error: 'expired' };

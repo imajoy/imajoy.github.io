@@ -63,3 +63,9 @@ Update Code.gs, preserve the other files/properties and web app URL, then Deploy
 ## Optional passkey sign-in
 
 Add Passkeys.gs, update Commerce.gs and deploy the new Supabase passkeys function using [the passkey setup guide](../supabase/PASSKEYS.md). It reuses the existing account Sheet and signing secret. Users verify their email once to enroll, then can log in with a device/password-manager passkey without email codes. Email-code sign-in remains the recovery option. Backend deployment is required; GitHub publication alone does not activate passkeys.
+
+## Reopen confirmations and invoices
+
+The account dialog now links to **Purchases & invoices** and to each active subscription's confirmation. The protected `account` action `step: history` in `Code.gs` returns subscriptions and invoice rows for the email in the signed session token; `Invoices.gs` supplies the read-only invoice archive. The website never accepts an email supplied by the browser as invoice ownership. Archived invoices remain available to the verified account after a subscription ends.
+
+Publish **both `Code.gs` and `Invoices.gs`** to the existing Apps Script project, then choose **Deploy → Manage deployments → Edit → New version → Deploy**. Keep the current URL and permissions. The GitHub Pages update alone does not activate the account history endpoint. Until this deployment, verified confirmations reopen through the existing account status service and the invoice section points buyers to their email. Invoices already emailed remain in customers' inboxes; this archive lists rows that exist in the `Invoices` sheet.

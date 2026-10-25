@@ -1,5 +1,5 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
-import {getAccountSession} from './account-session.js?v=20261023-p7';
+import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
 const plan=q.get('plan')==='offline'?'Premium':'Basic',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
 let seats=parseInt(q.get('seats'),10);seats=seats>0&&seats<=100?seats:1;
@@ -31,6 +31,48 @@ if(plan==='Basic'){
 try{sessionStorage.removeItem('ajoy.acct.open');}catch{}
 
 const state=(name,status,lead)=>{main.dataset.tyState=name;if(status)$('ty-status').textContent=status;if(lead)$('ty-lead').textContent=lead;};
+const archiveMode=q.has('history')||q.has('subscription');
+if(!archiveMode)state('confirmed');
+if(archiveMode){
+ state('verifying','Checking your account','Loading your purchases and invoices securely…');
+ $('ty-title').textContent='Your Wrapline purchases.';
+ const session=getAccountSession(),archive=$('ty-archive');archive.hidden=false;
+ if(!session){
+  state('problem','Sign in to continue','Open Wrapline, choose Register / Login, then return to your account to view purchases and invoices.');
+  document.querySelector('.ty-side').hidden=true;$('ty-archive-note').textContent='Your purchase history is available after sign-in.';
+ }else accountRequest({step:'history',token:session.token},45000).then(async data=>{
+  if(!data.ok&&['step','email'].includes(data.error)){const legacy=await accountRequest({step:'status',token:session.token},45000);data={...legacy,invoices:[],archivePending:true};}
+  if(!data.ok||data.email!==session.email||!Array.isArray(data.subscriptions)||!Array.isArray(data.invoices))throw Error('history');
+  const selected=(q.get('subscription')?data.subscriptions.find(s=>s.ref===q.get('subscription')):data.subscriptions.find(s=>Date.parse(s.endsAt)>Date.now()&&s.status!=='UNKNOWN'));
+  const active=selected&&Number.isFinite(Date.parse(selected.endsAt))&&Date.parse(selected.endsAt)>Date.now()&&selected.status!=='UNKNOWN';
+  if(active){
+   state('confirmed','Subscription active','Your confirmation remains here while this subscription is active. Your invoices are listed below.');
+   $('ty-plan').textContent=(selected.plan==='offline'?'Premium':'Basic')+' plan';$('ty-billing').textContent=selected.billing==='yearly'?'Yearly':'Monthly';
+   $('ty-seats').textContent=selected.seats+(selected.seats===1?' license':' licenses');$('ty-provider').textContent=selected.provider==='razorpay'?'Razorpay':'PayPal';
+   $('ty-step-pay').textContent='Subscription confirmed';$('ty-key').hidden=true;$('ty-eta-row').hidden=true;document.querySelector('.ty-timeline').hidden=true;
+   document.querySelector('.ty-next-title').textContent='Access through '+new Date(selected.endsAt).toLocaleDateString(undefined,{dateStyle:'long'});
+   $('ty-pass-note').textContent='Your purchase remains linked to your verified account';
+  }else{
+   state('confirmed','Your purchase history',data.subscriptions.length?'Your subscription has ended. You can still view your past invoices below.':'No active subscription. Any invoices on your account appear below.');
+   document.querySelector('.ty-side').hidden=true;
+  }
+  const box=$('ty-invoices');box.replaceChildren();
+  for(const inv of data.invoices){
+   const details=document.createElement('details');details.className='ty-invoice';details.style.setProperty('--invoice-index',String(Math.min(box.children.length,5)));
+   const summary=document.createElement('summary'),title=document.createElement('b'),total=document.createElement('span');
+   title.textContent='Invoice '+inv.number+(inv.mode==='Test'?' · TEST':'');total.textContent=new Intl.NumberFormat(undefined,{style:'currency',currency:/^[A-Z]{3}$/.test(inv.currency)?inv.currency:'USD'}).format(inv.amount);
+   summary.append(title,total);details.append(summary);
+   const body=document.createElement('div');body.className='ty-invoice-body';
+   for(const [label,value] of [['Seller',inv.seller||'Ajoy Tools'],['Date',inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—'],['Billed to',session.email],['Item',inv.plan],['Billing',inv.billing],['Licenses',String(inv.seats)],['Paid with',inv.provider],['Payment ID',inv.paymentId],['Total paid',total.textContent]]){
+    const row=document.createElement('p'),name=document.createElement('span'),text=document.createElement('b');name.textContent=label;text.textContent=value;row.append(name,text);body.append(row);
+   }
+   const print=document.createElement('button');print.type='button';print.className='btn btn-light ty-print';print.textContent='Print invoice';print.addEventListener('click',()=>{details.open=true;details.classList.add('ty-print-target');window.addEventListener('afterprint',()=>details.classList.remove('ty-print-target'),{once:true});window.print();});
+   body.append(print);details.append(body);box.append(details);
+  }
+  if('IntersectionObserver' in window){const reveal=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){archive.dataset.ready='true';reveal.disconnect();}},{threshold:.12});reveal.observe(archive);}else archive.dataset.ready='true';
+  $('ty-archive-note').textContent=data.archivePending?'Online invoices are being connected. Your existing invoices remain in your verified email inbox.':data.invoices.length?'Invoices are also sent to your verified email after each payment.':'No paid invoices yet. Trial payments appear here after they are collected.';
+ }).catch(()=>{state('problem','History unavailable','We could not verify your purchase history. Please retry later or contact support.');document.querySelector('.ty-side').hidden=true;$('ty-archive-note').textContent='Your emailed invoices remain available in your inbox.';});
+}
 const checkout=q.get('checkout'),url=window.AJOY_CONFIG?.razorpayUrl,session=getAccountSession();
 if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkout||'')&&url&&session){
  state('verifying','Payment received · verifying with Razorpay','Razorpay has your payment. We are confirming it securely. This usually takes a few seconds; you can stay on this page.');

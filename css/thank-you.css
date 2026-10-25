@@ -109,3 +109,18 @@ html[data-theme=dark] .ty-pass{box-shadow:0 30px 60px -24px rgba(0,0,0,.7),inset
 }
 
 .ty-key.ty-mail{display:grid;gap:6px;letter-spacing:0}.ty-key.ty-mail small{font-family:inherit;font-weight:600;font-size:11px;line-height:1;letter-spacing:.08em;text-transform:uppercase;opacity:.7}.ty-key.ty-mail b{font:600 clamp(15px,1.8vw,19px)/1.25 var(--mono,ui-monospace,monospace);word-break:break-all}
+
+.ty-mail-row{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ty-copy{flex:none;font:600 13px/1 inherit;font-family:inherit;color:#fff;padding:9px 14px;border-radius:999px;border:1px solid rgba(255,255,255,.4);background:rgba(255,255,255,.16);cursor:pointer;transition:background .2s,transform .2s,color .2s}
+.ty-copy:hover{background:rgba(255,255,255,.28)}.ty-copy:active{transform:scale(.95)}.ty-copy:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.ty-copy.is-ok{background:#fff;color:#14803f;animation:ty-pop .35s cubic-bezier(.34,1.56,.64,1)}
+.ty-sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.ty-key.ty-mail b{animation:ty-mailin .8s .5s cubic-bezier(.16,1,.3,1) both}
+.ty-pass{transition:transform .25s ease-out;transform-style:preserve-3d}
+.ty-timeline li[data-step=done] .ty-dot,.ty-timeline li[data-step=current] .ty-dot{animation:ty-pop .6s .6s cubic-bezier(.34,1.56,.64,1) both}
+.ty-timeline li[data-step=done]:not(:last-child)::before{transform-origin:top;animation:ty-grow .9s .8s cubic-bezier(.16,1,.3,1) both}
+.ty-hero .ty-actions .btn{transition:transform .2s,box-shadow .2s}.ty-hero .ty-actions .btn:hover{transform:translateY(-2px)}
+@keyframes ty-pop{0%{transform:scale(.4)}100%{transform:scale(1)}}
+@keyframes ty-grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes ty-mailin{from{opacity:0;filter:blur(6px);transform:translateY(6px)}to{opacity:1;filter:none;transform:none}}
+@media (prefers-reduced-motion:reduce){.ty-pass{transition:none}}

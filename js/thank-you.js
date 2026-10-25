@@ -17,7 +17,10 @@ if(provider==='PayPal')$('ty-fine').innerHTML='Need help? <a href="contact.html"
 /* Basic needs no license key: it signs in with the email registered on this site. Premium keeps its key. */
 if(plan==='Basic'){
  const who=getAccountSession()?.email,keyBox=$('ty-key');
- if(who){keyBox.replaceChildren();const label=document.createElement('small'),mail=document.createElement('b');label.textContent='Sign in to Wrapline with';mail.textContent=who;keyBox.append(label,mail);keyBox.classList.add('ty-mail');keyBox.setAttribute('aria-label','Your activation email');}
+ if(who){keyBox.replaceChildren();const label=document.createElement('small'),mail=document.createElement('b');label.textContent='Sign in to Wrapline with';mail.textContent=who;const row=document.createElement('div'),btn=document.createElement('button'),live=document.createElement('span');row.className='ty-mail-row';btn.type='button';btn.className='ty-copy';btn.setAttribute('aria-label','Copy email address');btn.textContent='Copy';live.className='ty-sr';live.setAttribute('role','status');
+ let tm;const flash=ok=>{btn.textContent=ok?'Copied ✓':'Press Ctrl+C';btn.classList.toggle('is-ok',ok);live.textContent=ok?'Email copied':'Select and copy the email';clearTimeout(tm);tm=setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('is-ok');live.textContent='';},2200);};
+ btn.addEventListener('click',async()=>{let ok=false;try{await navigator.clipboard.writeText(who);ok=true;}catch{try{const r=document.createRange();r.selectNodeContents(mail);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);ok=document.execCommand('copy');if(ok)sel.removeAllRanges();}catch{}}flash(ok);});
+ row.append(mail,btn);keyBox.append(label,row,live);keyBox.classList.add('ty-mail');keyBox.setAttribute('aria-label','Your activation email');}
  else keyBox.hidden=true;
  $('ty-eta-row').hidden=true;$('ty-pass-note').textContent='No license key needed · sign in with your email';
  const keyStep=$('ty-step-key');keyStep.dataset.step='';keyStep.querySelector('b').textContent='Download the setup file';keyStep.querySelector('p').textContent='Use the Download setup button. No license key is needed for Basic.';
@@ -48,3 +51,7 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
  };
  poll();
 }
+/* gentle 3D tilt on the pass card (pointer devices only, off for reduced motion) */
+(()=>{const card=document.querySelector('.ty-pass');if(!card||!matchMedia('(hover:hover)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ card.addEventListener('pointermove',e=>{const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;card.style.transform=`perspective(900px) rotateY(${x*6}deg) rotateX(${-y*6}deg)`;});
+ card.addEventListener('pointerleave',()=>{card.style.transform='';});})();

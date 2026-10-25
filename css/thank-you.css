@@ -144,7 +144,7 @@ html[data-theme=dark] .ty-pass{box-shadow:0 30px 60px -24px rgba(0,0,0,.7),inset
 @media(max-width:560px){.ty-invoice summary,.ty-invoice-body{padding-inline:16px}.ty-invoice-body p{display:block}.ty-invoice-body p span,.ty-invoice-body p b{display:block;text-align:left}}
 @media(prefers-reduced-motion:reduce){.ty-archive[data-ready=true],.ty-archive[data-ready=true] .ty-invoice,.ty-invoice[open] .ty-invoice-body{animation:none}}
 @media print{
- body:has(.ty-print-target) .commerce-header,body:has(.ty-print-target) .ty-hero,body:has(.ty-print-target) .ty-side,body:has(.ty-print-target) .commerce-footer,body:has(.ty-print-target) .ty-archive>p,body:has(.ty-print-target) .ty-archive h2,body:has(.ty-print-target) .ty-invoice:not(.ty-print-target),body:has(.ty-print-target) .ty-print{display:none!important}
+ body:has(.ty-print-target) .commerce-header,body:has(.ty-print-target) .ty-hero,body:has(.ty-print-target) .ty-side,body:has(.ty-print-target) .commerce-footer,body:has(.ty-print-target) .ty-archive>p,body:has(.ty-print-target) .ty-archive h2,body:has(.ty-print-target) .ty-invoice:not(.ty-print-target),body:has(.ty-print-target) .ty-print,body:has(.ty-print-target) #ty-invoice-retry{display:none!important}
  body:has(.ty-print-target) .ty-main{padding:0;background:#fff}
  body:has(.ty-print-target) .ty-archive{margin:0;max-width:none}
  body:has(.ty-print-target) .ty-invoice{border:0;box-shadow:none;color:#111;break-inside:avoid}

@@ -9,7 +9,7 @@ const sub={plan:'online',billing:'monthly',seats:1,status:'ACTIVE',endsAt:new Da
 try{
  for(const width of [390,1280]){
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:width===390?'reduce':'no-preference'});
-  await context.addInitScript(({token,sub})=>localStorage.setItem('ajoy.acct',JSON.stringify({token,email:'buyer@example.com',expiresAt:Date.now()+864e5,subscriptions:[sub]})),{token,sub});
+  await context.addInitScript(({token,sub})=>{sessionStorage.setItem('ajoy.coffee','1');localStorage.setItem('ajoy.acct',JSON.stringify({token,email:'buyer@example.com',expiresAt:Date.now()+864e5,subscriptions:[sub]}));},{token,sub});
   let currentSub=sub,legacy=false;
   await context.route('**/*',route=>{
    const url=route.request().url();if(new URL(url).origin===base.origin)return route.continue();
@@ -27,17 +27,31 @@ try{
   assert(await page.locator('.ty-print').isVisible());assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
   await page.waitForFunction(()=>[document.querySelector('.ty-pass'),...document.querySelectorAll('.ty-timeline li')].every(el=>Number(getComputedStyle(el).opacity)>.99));
   await page.screenshot({path:'/tmp/thank-you-restored-'+width+'.png',fullPage:true});
+  assert.equal(await page.locator('#ty-step-install').getAttribute('data-step'),'');
+  await page.getByLabel('I installed Wrapline in Maya',{exact:true}).check();
+  assert.equal(await page.locator('#ty-step-install').getAttribute('data-step'),'done');
+  assert(await page.getByLabel('I downloaded the setup file',{exact:true}).isChecked());
+  await page.getByLabel('I signed in to Wrapline in Maya',{exact:true}).check();
+  assert.equal(await page.locator('.ty-next-title').textContent(),'Setup complete');
+  await page.locator('.ty-side').screenshot({path:'/tmp/setup-complete-'+width+'.png'});
   await page.reload();await page.getByText('Invoice WL-202610-0001').waitFor();
+  assert.equal(await page.locator('#ty-step-install').getAttribute('data-step'),'done','installation completion survives reopening');
+  assert(await page.getByLabel('I signed in to Wrapline in Maya',{exact:true}).isChecked());
   await page.getByRole('button',{name:'Refresh invoices',exact:true}).click();await page.getByRole('button',{name:'Refresh invoices',exact:true}).waitFor();
   assert.equal(await page.locator('.ty-invoice').count(),1,'refresh does not duplicate invoices');
   currentSub={...sub,plan:'offline'};
   await page.goto(new URL('thank-you.html?subscription='+ref,base).href);await page.getByText('Invoice WL-202610-0001').waitFor();
   assert.equal(await page.locator('#ty-plan').textContent(),'Premium plan');
+  assert.equal(await page.getByLabel('I activated Wrapline in Maya',{exact:true}).isChecked(),false,'Basic setup must not mark Premium activation complete');
   assert.equal(await page.locator('#ty-key').getAttribute('aria-label'),'Your license key details');
   assert.match(await page.locator('#ty-step-key').textContent(),/key sent to your verified email/);
   currentSub=sub;
   await page.goto(new URL('thank-you.html?provider=razorpay&plan=online&billing=monthly',base).href);await page.getByText('Invoice WL-202610-0001').waitFor();
   assert(await page.locator('.ty-timeline').isVisible(),'normal checkout keeps original design and loads invoices');
+  assert(await page.getByLabel('I signed in to Wrapline in Maya',{exact:true}).isChecked());
+  await page.getByLabel('I installed Wrapline in Maya',{exact:true}).uncheck();
+  assert.equal(await page.locator('#ty-step-install').getAttribute('data-step'),'current');
+  assert.equal(await page.getByLabel('I signed in to Wrapline in Maya',{exact:true}).isChecked(),false);
   currentSub={...sub,status:'EXPIRED',endsAt:new Date(Date.now()-864e5).toISOString()};
   await page.goto(new URL('thank-you.html?subscription='+ref,base).href);await page.getByText('Invoice WL-202610-0001').waitFor();
   assert(await page.locator('.ty-side').isHidden(),'confirmation ends with subscription, invoice remains');

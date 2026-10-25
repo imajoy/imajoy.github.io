@@ -149,3 +149,9 @@ html[data-theme=dark] .ty-pass{box-shadow:0 30px 60px -24px rgba(0,0,0,.7),inset
  body:has(.ty-print-target) .ty-archive{margin:0;max-width:none}
  body:has(.ty-print-target) .ty-invoice{border:0;box-shadow:none;color:#111;break-inside:avoid}
 }
+
+/* Completion is explicitly confirmed by the visitor, not inferred from payment. */
+.ty-step-confirm{display:flex;align-items:center;gap:8px;margin-top:10px;font-size:13px;line-height:1.5;cursor:pointer;color:var(--ink)}
+.ty-step-confirm input{width:18px;height:18px;flex:none;accent-color:#1c9a6c;cursor:pointer}
+.ty-step-confirm input:focus-visible{outline:2px solid var(--blue-d);outline-offset:3px}
+.ty-setup-note{margin-top:8px;color:var(--mute);font-size:12px;line-height:1.6}

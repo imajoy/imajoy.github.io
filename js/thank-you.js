@@ -1,5 +1,6 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
 import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
+import {mountSetupProgress} from './setup-progress.js?v=20261025-setup1';
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
 const plan=q.get('plan')==='offline'?'Premium':'Basic',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
 let seats=parseInt(q.get('seats'),10);seats=seats>0&&seats<=100?seats:1;
@@ -21,7 +22,7 @@ function renderPlan(basic){
  $('ty-key').classList.remove('ty-mail');$('ty-key').hidden=false;$('ty-eta-row').hidden=false;
  $('ty-step-key').dataset.step='current';$('ty-step-install').removeAttribute('data-step');$('ty-step-start').dataset.step='key';
  $('ty-key').setAttribute('aria-label','Your license key details');
- if(!basic)return;
+ if(!basic){mountSetupProgress(false);return;}
 
  const who=getAccountSession()?.email,keyBox=$('ty-key');
  if(who){keyBox.replaceChildren();const label=document.createElement('small'),mail=document.createElement('b');label.textContent='Sign in to Wrapline with';mail.textContent=who;const row=document.createElement('div'),btn=document.createElement('button'),live=document.createElement('span');row.className='ty-mail-row';btn.type='button';btn.className='ty-copy';btn.setAttribute('aria-label','Copy email address');btn.textContent='Copy';live.className='ty-sr';live.setAttribute('role','status');
@@ -33,7 +34,7 @@ function renderPlan(basic){
  const keyStep=$('ty-step-key');keyStep.dataset.step='';keyStep.querySelector('b').textContent='Download the setup file';keyStep.querySelector('p').textContent='Use the Download setup button. No license key is needed for Basic.';
  const install=$('ty-step-install');install.dataset.step='current';install.querySelector('b').textContent='Install Wrapline in Maya';install.querySelector('p').textContent='Drag the setup file into the Maya viewport and choose Basic.';
  const start=$('ty-step-start');start.removeAttribute('data-step');start.querySelector('b').textContent='Sign in with your registered email';start.querySelector('p').textContent='Enter the same email you used on this website. Wrapline unlocks automatically while your plan is active.';
- keyStep.dataset.step='done';install.dataset.step='current';
+ mountSetupProgress(true);
 }
 renderPlan(plan==='Basic');
 try{sessionStorage.removeItem('ajoy.acct.open');}catch{}

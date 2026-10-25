@@ -15,6 +15,12 @@ var DEFAULT_REPLY = 'contactmy3dart@gmail.com';
 /* Optional Script properties: OWNER_EMAIL = where YOUR order reminders go (default: the Google account that owns this script);
    REPLY_TO = the address buyers see and can reply to (default below). */
 function ownerEmail_() { return props_().getProperty('OWNER_EMAIL') || Session.getEffectiveUser().getEmail(); }
+/* Automatic emails nobody should answer (sign-in codes). Google only lets Workspace accounts send from a real no-reply
+   address; on a normal Gmail account the option is ignored, so the sender name and the text say it is automatic. */
+function sendNoReply_(message) {
+  try { MailApp.sendEmail(Object.assign({ noReply: true }, message)); }
+  catch (err) { MailApp.sendEmail(message); }
+}
 function replyTo_() { return props_().getProperty('REPLY_TO') || DEFAULT_REPLY; }
 
 function props_() { return PropertiesService.getScriptProperties(); }
@@ -397,8 +403,8 @@ function handleAccount_(d) {
       var code = String(Math.floor(100000 + Math.random() * 900000));
       var expiresAt=Date.now()+120000;
       cache.put('code:' + email, JSON.stringify({hash:hashCode_(email,code),expiresAt:expiresAt}), 120); cache.remove('tries:' + email);
-      try { MailApp.sendEmail({ to: email, name: 'Wrapline by Ajoy Tools', replyTo: replyTo_(), subject: 'Your Wrapline sign-in code: ' + code,
-        body: 'Your sign-in code is ' + code + '\n\nIt expires in 2 minutes. If you did not ask for it, you can ignore this email.\n\nWrapline' }); }
+      try { sendNoReply_({ to: email, name: 'Wrapline (no-reply)', subject: 'Your Wrapline sign-in code: ' + code,
+        body: 'Your sign-in code is ' + code + '\n\nIt expires in 2 minutes. If you did not ask for it, you can ignore this email.\n\nThis is an automatic message from Wrapline. Please do not reply to it. For help, write to ' + replyTo_() + '.' }); }
       catch (err) { cache.remove('code:' + email); return { ok: false, error: 'mail' }; }
       return { ok: true, registered: registered, intent: intent, expiresAt:expiresAt, expiresIn:Math.max(0,Math.ceil((expiresAt-Date.now())/1000)) };
     }

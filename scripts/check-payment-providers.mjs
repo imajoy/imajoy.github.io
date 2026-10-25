@@ -122,10 +122,10 @@ try{
     const invoice={id:'inv_browser',subscription_id:sub.id,payment_id:'pay_browser',paid_at:Math.floor(Date.now()/1000),status:'paid',currency:'INR',amount_paid:amount};
     app.razorpay.invoices.set(invoice.id,invoice);app.razorpay.payments.set(invoice.payment_id,{id:invoice.payment_id,invoice_id:invoice.id,status:'captured',captured:true,currency:'INR',amount,amount_refunded:0});
     await fire('paid');await page.waitForURL('**/thank-you.html?**');await page.waitForFunction(()=>document.querySelector('.ty-main').dataset.tyState==='confirmed');
-    assert.match(await page.locator('main').textContent(),/within 12 hours/);assert.match(await page.locator('main').textContent(),/starts when you activate/);
+    assert.match(await page.locator('main').textContent(),/No license key needed/);assert.match(await page.locator('main').textContent(),/Wrapline unlocks automatically/);
     assert.equal(await page.locator('#ty-provider').textContent(),'Razorpay');assert.equal(await page.locator('#ty-billing').textContent(),'Yearly');
     await page.waitForTimeout(1200);await page.screenshot({path:'/tmp/thank-you-'+width+'.png',fullPage:true});
-    assert.equal(app.orders.rows.length,3);assert.equal(app.mails.length,2);
+    assert.equal(app.orders.rows.length,3);assert.equal(app.mails.length,3);
    }else{
     await page.getByRole('radio',{name:/PayPal/}).check();
     await page.locator('.paypal-box').waitFor({state:'visible'});assert.equal(await page.locator('.razorpay-panel').isVisible(),false);

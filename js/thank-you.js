@@ -117,3 +117,14 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
 (()=>{const card=document.querySelector('.ty-pass');if(!card||!matchMedia('(hover:hover)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  card.addEventListener('pointermove',e=>{const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;card.style.transform=`perspective(900px) rotateY(${x*6}deg) rotateX(${-y*6}deg)`;});
  card.addEventListener('pointerleave',()=>{card.style.transform='';});})();
+
+/* Buyers tick off their own steps: the site cannot see whether Maya is set up, so they mark it themselves. Remembered in this browser. */
+(()=>{const KEY='ajoy.ty.done',steps=['ty-step-install','ty-step-start'].map($).filter(Boolean);if(steps.length<2)return;
+ let saved={};try{saved=JSON.parse(localStorage.getItem(KEY)||'{}')||{};}catch{}
+ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(saved));}catch{}};
+ const paint=()=>{const [a,b]=steps;const aDone=!!saved[a.id],bDone=!!saved[b.id];
+  a.dataset.step=aDone?'done':'current';b.dataset.step=bDone?'done':aDone?'current':'';
+  steps.forEach(li=>{let btn=li.querySelector('.ty-mark');const done=li.dataset.step==='done';
+   if(!btn){btn=document.createElement('button');btn.type='button';btn.className='ty-mark';li.querySelector('div').append(btn);btn.addEventListener('click',()=>{if(li===b&&!saved[a.id])saved[a.id]=1;saved[li.id]=saved[li.id]?0:1;if(!saved[li.id]&&li===a)saved[b.id]=0;save();paint();});}
+   btn.textContent=done?'Done ✓ (undo)':'Mark as done';btn.classList.toggle('is-done',done);btn.setAttribute('aria-pressed',String(done));});};
+ paint();})();

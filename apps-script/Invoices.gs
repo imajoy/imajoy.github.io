@@ -37,20 +37,20 @@ function invoiceSend_(p) {
   var sheet = invoiceSheet_(), last = sheet.getLastRow();
   if (last >= 2 && sheet.getRange(2, 11, last - 1, 1).getValues().some(function (r) { return String(r[0]) === String(p.paymentId); })) return '';
   var date = p.date instanceof Date ? p.date : new Date(), number = invoiceNumber_(sheet, date);
-  var plan = 'Wrapline ' + planLabel_(p.plan === 'offline' || /premium/i.test(p.plan) ? 'offline' : 'online') + ' · ' + (/year/i.test(p.billing) ? 'Yearly' : 'Monthly') + (Number(p.seats) > 1 ? ' · ' + Number(p.seats) + ' licenses' : '');
+  var plan = 'Wrapline Pro ' + planLabel_(p.plan === 'offline' || /premium/i.test(p.plan) ? 'offline' : 'online') + ' · ' + (/year/i.test(p.billing) ? 'Yearly' : 'Monthly') + (Number(p.seats) > 1 ? ' · ' + Number(p.seats) + ' licenses' : '');
   var test = String(p.mode).toLowerCase() === 'test', tag = test ? '[TEST] ' : '';
   var props = props_(), seller = props.getProperty('INVOICE_SELLER_NAME') || 'Ajoy Tools', extra = (props.getProperty('INVOICE_SELLER_DETAILS') || '').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
   var when = Utilities.formatDate(date, 'Asia/Calcutta', 'd MMM yyyy'), total = invoiceMoney_(p.amount, p.currency || 'INR');
   var row = function (a, b, strong) { return '<tr><td style="padding:10px 0;color:#667;border-top:1px solid #e3e6ee">' + esc_(a) + '</td><td style="padding:10px 0;text-align:right;border-top:1px solid #e3e6ee">' + (strong ? '<b>' + esc_(b) + '</b>' : esc_(b)) + '</td></tr>'; };
   var html = '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#14182a">' +
     '<table style="width:100%"><tr><td><h2 style="margin:0">Invoice</h2><div style="color:#667;font-size:13px">' + esc_(number) + '</div></td><td style="text-align:right;font-size:13px;color:#667">' + esc_(when) + '</td></tr></table>' +
-    '<p style="margin:18px 0 4px"><b>' + esc_(seller) + '</b><br><span style="color:#667;font-size:13px">Wrapline, production tools for Maya' + extra.map(function (l) { return '<br>' + esc_(l); }).join('') + '</span></p>' +
+    '<p style="margin:18px 0 4px"><b>' + esc_(seller) + '</b><br><span style="color:#667;font-size:13px">Wrapline Pro, production tools for Maya' + extra.map(function (l) { return '<br>' + esc_(l); }).join('') + '</span></p>' +
     '<p style="margin:14px 0 4px;color:#667;font-size:13px">Billed to</p><p style="margin:0"><b>' + esc_(p.email) + '</b></p>' +
     '<table style="border-collapse:collapse;width:100%;margin:18px 0 6px">' + row('Item', plan, false) + row('Paid with', p.provider + (test ? ' (test payment)' : ''), false) + row('Payment ID', String(p.paymentId), false) +
     (p.subscriptionId ? row('Subscription', String(p.subscriptionId), false) : '') + row('Total paid', total, true) + '</table>' +
     '<p style="color:#667;font-size:13px">Thank you for subscribing. Keep this email as your receipt. Questions? Reply to this email or write to ' + esc_(replyTo_()) + '.</p></div>';
   var text = 'Invoice ' + number + ' (' + when + ')\n' + seller + (extra.length ? '\n' + extra.join('\n') : '') + '\n\nBilled to: ' + p.email + '\nItem: ' + plan + '\nPaid with: ' + p.provider + '\nPayment ID: ' + p.paymentId + '\nTotal paid: ' + total + '\n\nQuestions? ' + replyTo_();
-  MailApp.sendEmail({ to: String(p.email), name: 'Wrapline by Ajoy Tools', replyTo: replyTo_(), subject: tag + 'Your Wrapline invoice ' + number, htmlBody: html, body: text });
+  MailApp.sendEmail({ to: String(p.email), name: 'Wrapline Pro by Ajoy Tools', replyTo: replyTo_(), subject: tag + 'Your Wrapline Pro invoice ' + number, htmlBody: html, body: text });
   sheet.appendRow([number, date, p.email, plan, paymentTitle_(p.billing), Number(p.seats) || 1, Number(p.amount), p.currency || '', p.provider, test ? 'Test' : 'Live', String(p.paymentId), String(p.subscriptionId || '')].map(safeSheetCell_));
   return number;
 }

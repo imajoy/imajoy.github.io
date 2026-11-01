@@ -181,7 +181,7 @@ function fullPricePayPalPlan_(d,quote) {
   var catalog=JSON.parse(props_().getProperty('PLANS_'+mode_())||'{}');
   if(!catalog.productId)throw commerceError_('unavailable','The PayPal product is not configured. Please contact Ajoy.');
   var plan=commercePaypal_('/v1/billing/plans','post',{
-    product_id:catalog.productId,name:'Wrapline '+planLabel_(d.plan)+' '+d.billing+' full price ('+tier+')',description:'Wrapline '+planLabel_(d.plan)+' license, billed '+d.billing+' at the full price.',status:'ACTIVE',quantity_supported:true,
+    product_id:catalog.productId,name:'Wrapline Pro '+planLabel_(d.plan)+' '+d.billing+' full price ('+tier+')',description:'Wrapline Pro '+planLabel_(d.plan)+' license, billed '+d.billing+' at the full price.',status:'ACTIVE',quantity_supported:true,
     billing_cycles:[{frequency:{interval_unit:'YEAR',interval_count:1},tenure_type:'REGULAR',sequence:1,total_cycles:0,pricing_scheme:{fixed_price:{value:(quote.unitAmount/100).toFixed(2),currency_code:'USD'}}}],
     payment_preferences:{auto_bill_outstanding:true,setup_fee_failure_action:'CONTINUE',payment_failure_threshold:3}
   },'ajoy-fullprice-'+mode_()+'-'+key);
@@ -199,7 +199,7 @@ function rewardPayPalPlan_(d,quote) {
   // PayPal supports paid introductory (TRIAL tenure) cycles. Only the promised introductory
   // payments are reduced; the unlimited REGULAR phase restores the catalog rate.
   var plan=commercePaypal_('/v1/billing/plans','post',{
-    product_id:catalog.productId,name:'Wrapline '+planLabel_(d.plan)+' '+d.billing+(quote.coupon?' coupon ':' returning reward ')+quote.percent+'% ('+tier+')',
+    product_id:catalog.productId,name:'Wrapline Pro '+planLabel_(d.plan)+' '+d.billing+(quote.coupon?' coupon ':' returning reward ')+quote.percent+'% ('+tier+')',
     description:quote.rewardPayments+' payment(s) with '+quote.percent+(quote.coupon?'% coupon savings':'% returning subscriber savings')+'; then the standard '+d.billing+' rate.',status:'ACTIVE',quantity_supported:true,
     billing_cycles:[
       {frequency:frequency,tenure_type:'TRIAL',sequence:1,total_cycles:quote.rewardPayments,pricing_scheme:{fixed_price:{value:(quote.discountedUnitAmount/100).toFixed(2),currency_code:'USD'}}},

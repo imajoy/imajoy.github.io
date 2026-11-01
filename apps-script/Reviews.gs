@@ -66,7 +66,7 @@ function readReviews_(tool) {
   return data;
 }
 
-/* Wrapline reviews: every visible review across all thirteen tools, for the landing page. Email is never included. */
+/* Wrapline Pro reviews: every visible review across all thirteen tools, for the landing page. Email is never included. */
 function readAllReviews_() {
   var cache = CacheService.getScriptCache(), hit = cache.get(reviewCacheKey_('all'));
   if (hit) return JSON.parse(hit);

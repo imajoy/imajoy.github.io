@@ -1,4 +1,4 @@
-/* Wrapline in Maya: Basic plan access by registered email.
+/* Wrapline Pro in Maya: Basic plan access by registered email.
    Called only by the Supabase "activate" function through the signed commerce envelope (action "maya_access"),
    never directly by the browser or by Maya. Read-only: it never creates accounts, rows or charges.
 

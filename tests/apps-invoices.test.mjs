@@ -8,8 +8,8 @@ test('a new subscription payment gets one invoice email, numbered, and is logged
  const s=service();s.ctx.Logger={log(){}};
  assert.equal(s.ctx.paymentRecord_(pay()),true);
  const mails=invoices(s);assert.equal(mails.length,1);assert.equal(mails[0].to,'buyer@example.com');
- assert.match(mails[0].subject,/^Your Wrapline invoice WL-\d{6}-0001$/);
- assert.match(mails[0].htmlBody,/₹899\.00/);assert.match(mails[0].htmlBody,/Wrapline Basic · Monthly/);assert.match(mails[0].htmlBody,/pay_INV000000001/);
+ assert.match(mails[0].subject,/^Your Wrapline Pro invoice WL-\d{6}-0001$/);
+ assert.match(mails[0].htmlBody,/₹899\.00/);assert.match(mails[0].htmlBody,/Wrapline Pro Basic · Monthly/);assert.match(mails[0].htmlBody,/pay_INV000000001/);
  assert.equal(s.sheets.get('Invoices').rows.length,2);
  s.ctx.paymentRecord_(pay());assert.equal(invoices(s).length,1,'same payment never invoiced twice');
  s.ctx.paymentRecord_(pay({paymentId:'pay_INV000000002'}));assert.match(invoices(s)[1].subject,/-0002$/,'renewals get the next number');

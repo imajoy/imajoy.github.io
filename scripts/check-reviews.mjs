@@ -73,12 +73,12 @@ try{
   await p.locator('#reviews').scrollIntoViewIfNeeded();
   await p.waitForFunction(()=>document.querySelector('.wl-reviews .rv-average')?.textContent==='4.3');
   assert.match(await p.locator('.wl-reviews .rv-total').textContent(),/3 reviews across all tools/);
-  assert.equal(await p.locator('.wlr-tool').count(),13);
+  assert.equal(await p.locator('.wlr-tool').count(),9);
   assert.match(await p.locator('.wlr-tool').first().textContent(),/Playblast.*5\.0/s,'best rated tool first');
   assert.match(await p.locator('.wlr-tool',{hasText:'Rivet'}).textContent(),/4\.0.*\(2\)/s);
   assert.match(await p.locator('.wlr-tool',{hasText:'Rivet'}).locator('a').getAttribute('href'),/tool-rivet\.html#reviews/);
   assert.equal(await p.locator('.wlr-quotes .rv-card').count(),2,'only written reviews are quoted');
-  assert.match(await p.locator('[data-wrapline-rating]').textContent(),/4\.3.*Wrapline reviews.*3 reviews/s);
+  assert.match(await p.locator('[data-wrapline-rating]').textContent(),/4\.3.*Wrapline Pro reviews.*3 reviews/s);
   assert(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'no sideways scrolling');
   await p.locator('#reviews').screenshot({path:`/tmp/wrapline-reviews-${width}.png`});
   assert.deepEqual(errors,[]);await ctx.close();

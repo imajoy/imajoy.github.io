@@ -2,7 +2,7 @@
 
 The user explicitly asked to retain these two homepage animations:
 
-- The Export, Animation, Rigging and Scene cards in `#tools`: brief staggered row entrances, gently floating icons, and hover/focus feedback. All 13 names, descriptions, icons and guide links must stay visible and usable.
+- The Export, Animation, Rigging and Scene cards in `#tools`: brief staggered row entrances, gently floating icons, and hover/focus feedback. All 9 Wrapline Pro names (the four free tools live on wrapline-free.html), descriptions, icons and guide links must stay visible and usable.
 - The four-step installer illustration in `#stage-install`: download, drag into Maya, type the example access code, install, show success, and repeat automatically while visible.
 
 Treat these as required product behavior during design, performance, cleanup and SEO work. Do not remove them as decorative clutter or disable them with broad homepage motion overrides unless the user explicitly requests that change. Preserve reduced-motion support and offscreen/background pausing. Never make tool text depend on JavaScript adding a reveal class; missing scripts must leave the content visible.
@@ -13,7 +13,7 @@ When changing these files or shared motion rules, run `node scripts/check-protec
 
 ## Product terminology
 
-**Ajoy Tools** is the maker brand. **Wrapline** is its Maya toolkit (shown as "Wrapline by Ajoy Tools"); future products for other software will also sit under Ajoy Tools. Use Wrapline for the toolkit, its menu, shelf, installer (`Wrapline_Setup.py`), plans and emails; keep Ajoy Tools for the publisher/organisation.
+**Ajoy Tools** is the maker brand. **Wrapline** is its free Maya toolkit (IK / FK Snap, Multi Swapper, UDIM Preview, Layer Prefix Remover; page wrapline-free.html; free for everyone, all rights reserved, donations via support.html) and **Wrapline Pro** is the paid Maya toolkit (wrapline.html, 9 tools). Former text: Wrapline is its Maya toolkit (shown as "Wrapline by Ajoy Tools"); future products for other software will also sit under Ajoy Tools. Use Wrapline for the toolkit, its menu, shelf, installer (`Wrapline_Setup.py`), plans and emails; keep Ajoy Tools for the publisher/organisation.
 
 
 Wrapline **FBX Exporter** and **Alembic Exporter** are AJOY's scripts. Their dependencies, **fbxmaya** and **AbcExport**, are Maya's built-in plug-ins. Explain that the Maya plug-ins can be enabled in the Plug-in Manager without a separate download; do not describe AJOY's exporter scripts as bundled with Maya. FFmpeg is a separate download used by **Audio Exporter**.

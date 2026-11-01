@@ -1,11 +1,10 @@
-/* Wrapline Pro reviews on the landing page: one average across all thirteen tools, each tool's own score,
+/* Wrapline Pro reviews on the landing page: one average across all nine tools, each tool's own score,
    and the latest written reviews. Read-only; reviews are written on each tool's page. Text is always rendered as text. */
 const section=document.querySelector('[data-wrapline-reviews]');
 const chip=document.querySelector('[data-wrapline-rating]');
 const TOOLS=[['advanced-ik-fk-switch','Advanced IK FK Switch'],['alembic-exporter','Alembic Exporter'],['audio-exporter','Audio Exporter'],
- ['fbx-exporter','FBX Exporter'],['hotkey-manager','Hotkey Manager'],['ik-fk-snap','IK / FK Snap'],['layer-prefix-remover','Layer Prefix Remover'],
- ['multi-swapper','Multi Swapper'],['playblast','Playblast'],['rebake-ik-space','Rebake IK Space'],['revert-to-last-saved','Revert to Last Saved'],
- ['rivet','Rivet'],['udim-preview','UDIM Preview']];
+ ['fbx-exporter','FBX Exporter'],['hotkey-manager','Hotkey Manager'],['playblast','Playblast'],['rebake-ik-space','Rebake IK Space'],['revert-to-last-saved','Revert to Last Saved'],
+ ['rivet','Rivet']];
 const NAMES=Object.fromEntries(TOOLS);
 const CACHE='ajoy.reviews.all';
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');

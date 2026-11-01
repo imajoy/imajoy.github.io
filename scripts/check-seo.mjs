@@ -15,7 +15,7 @@ const verificationFiles=readdirSync(root).filter(name=>/^google[a-f0-9]+\.html$/
 for(const name of verificationFiles)assert.equal(read(name).trim(),'google-site-verification: '+name,`${name}: invalid Google verification file`);
 const htmlPages=readdirSync(root).filter(name=>name.endsWith('.html')&&!verificationFiles.includes(name));
 const publicPages=htmlPages.filter(name=>!tags(read(name),'meta').some(tag=>tag.name==='robots'&&/\bnoindex\b/.test(tag.content)));
-const tools=publicPages.filter(name=>name.startsWith('tool-'));
+const freeTools=['tool-ik-fk-snap.html','tool-multi-swapper.html','tool-udim-preview.html','tool-layer-prefix-remover.html'];const tools=publicPages.filter(name=>name.startsWith('tool-')&&!freeTools.includes(name));
 const sitemap=read('sitemap.xml');
 assert.match(sitemap,/<urlset\s+xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9">/);
 const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match=>decode(match[1]));
@@ -36,11 +36,13 @@ for(const filename of publicPages){
  if(filename==='index.html'){
   const org=nodes.find(node=>node['@type']==='Organization');assert.equal(org?.name,'Ajoy Tools');
   const products=nodes.find(node=>node['@type']==='ItemList');assert(products?.itemListElement.some(item=>item.url===base+'wrapline.html'),'Ajoy Tools home must list Wrapline');
+ }else if(filename==='wrapline-free.html'){
+  const app=nodes.find(node=>node['@type']==='SoftwareApplication');assert.equal(app.name,'Wrapline');assert.equal(app.isAccessibleForFree,true);assert.equal(app.featureList.length,freeTools.length);
  }else if(filename==='wrapline.html'){
   const app=nodes.find(node=>node['@type']==='SoftwareApplication');assert(app,'SoftwareApplication missing');assert.equal(app.name,'Wrapline Pro');assert.equal(app.operatingSystem,'Windows');assert.match(app.softwareRequirements,/Maya 2023/);assert.equal(app.featureList.length,tools.length);
   const list=nodes.find(node=>node['@type']==='ItemList');assert.equal(list.numberOfItems,tools.length);assert.deepEqual(new Set(list.itemListElement.map(item=>item.url)),new Set(tools.map(name=>base+name)));
  }else{
-  const breadcrumb=nodes.find(node=>node['@type']==='BreadcrumbList');assert(breadcrumb&&[base,base+'wrapline.html'].includes(breadcrumb.itemListElement[0].item),`${filename}: breadcrumb must start at a home page`);assert.equal(breadcrumb.itemListElement.at(-1).item,expected);
+  const breadcrumb=nodes.find(node=>node['@type']==='BreadcrumbList');assert(breadcrumb&&[base,base+'wrapline.html',base+'wrapline-free.html'].includes(breadcrumb.itemListElement[0].item),`${filename}: breadcrumb must start at a home page`);assert.equal(breadcrumb.itemListElement.at(-1).item,expected);
  }
  for(const link of tags(html,'a')){
   if(!link.href||/^(mailto:|tel:|#)/.test(link.href))continue;

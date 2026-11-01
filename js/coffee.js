@@ -13,7 +13,7 @@ if(!quiet()&&!document.querySelector('.coffee'))setup();
 
 function setup(){
  const root=document.createElement('aside');
- root.className='coffee';root.dataset.state='hidden';root.setAttribute('aria-label','Support Wrapline');
+ root.className='coffee';root.dataset.state='hidden';root.setAttribute('aria-label','Support Wrapline Pro');
  root.innerHTML=`<div class="coffee-x"><div class="coffee-y"><div class="coffee-float"><div class="coffee-card">
   <a class="coffee-mug" data-coffee-link aria-label="Buy me a coffee" tabindex="-1"><svg viewBox="0 0 64 64" aria-hidden="true">
    <g class="cf-steam"><path d="M25 17c-3-3 3-5 0-9"/><path d="M33 16c-3-3 3-5 0-9"/><path d="M41 17c-3-3 3-5 0-9"/></g>
@@ -25,7 +25,7 @@ function setup(){
    <path d="M28 44q4 4 8 0" fill="none" stroke="#3a1d05" stroke-width="2.2" stroke-linecap="round"/>
    <ellipse cx="20" cy="43" rx="3.2" ry="2" fill="#ff8fa3" opacity=".7"/><ellipse cx="44" cy="43" rx="3.2" ry="2" fill="#ff8fa3" opacity=".7"/>
   </svg></a>
-  <div class="coffee-copy"><b>Enjoying Wrapline?</b><span>Say thanks with a coffee. Give as much or as little as you like.</span>
+  <div class="coffee-copy"><b>Enjoying Wrapline Pro?</b><span>Say thanks with a coffee. Give as much or as little as you like.</span>
    <a class="coffee-go" data-coffee-link>Buy me a coffee <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
   <button class="coffee-x-btn" type="button" aria-label="Close this message"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
  </div></div></div></div>`;

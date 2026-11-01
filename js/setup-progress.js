@@ -4,7 +4,7 @@ export function mountSetupProgress(basic){
  const session=getAccountSession();
  if(!session)return;
  const rows=['ty-step-key','ty-step-install','ty-step-start'].map(id=>document.getElementById(id));
- const labels=basic?['I downloaded the setup file','I installed Wrapline in Maya','I signed in to Wrapline in Maya']:['I received my license key','I installed Wrapline in Maya','I activated Wrapline in Maya'];
+ const labels=basic?['I downloaded the setup file','I installed Wrapline Pro in Maya','I signed in to Wrapline Pro in Maya']:['I received my license key','I installed Wrapline Pro in Maya','I activated Wrapline Pro in Maya'];
  const key='ajoy.setup.'+encodeURIComponent(session.email)+'.'+(basic?'basic':'premium');
  let completed=0,storageOK=true;
  try{const saved=JSON.parse(localStorage.getItem(key)||'null');if(saved?.version===1&&Number.isInteger(saved.completed)&&saved.completed>=0&&saved.completed<=3)completed=saved.completed;}catch{storageOK=false;}

@@ -1,4 +1,4 @@
-/* Wrapline reviews on the landing page: one average across all thirteen tools, each tool's own score,
+/* Wrapline Pro reviews on the landing page: one average across all thirteen tools, each tool's own score,
    and the latest written reviews. Read-only; reviews are written on each tool's page. Text is always rendered as text. */
 const section=document.querySelector('[data-wrapline-reviews]');
 const chip=document.querySelector('[data-wrapline-rating]');
@@ -48,8 +48,8 @@ function countUp(node,to){
 
 function render(data){
  if(chip){
-  if(data.count){chip.replaceChildren(starRow(data.average,'rv-stars rv-stars-sm'),el('b','',data.average.toFixed(1)),el('span','',`Wrapline reviews · ${plural(data.count,'review')}`));
-   chip.setAttribute('aria-label',`Wrapline is rated ${data.average.toFixed(1)} out of 5 from ${plural(data.count,'review')}. Read the reviews`);chip.hidden=false;}
+  if(data.count){chip.replaceChildren(starRow(data.average,'rv-stars rv-stars-sm'),el('b','',data.average.toFixed(1)),el('span','',`Wrapline Pro reviews · ${plural(data.count,'review')}`));
+   chip.setAttribute('aria-label',`Wrapline Pro is rated ${data.average.toFixed(1)} out of 5 from ${plural(data.count,'review')}. Read the reviews`);chip.hidden=false;}
   else chip.hidden=true;
  }
  if(!section)return;
@@ -57,7 +57,7 @@ function render(data){
  score.replaceChildren();bars.replaceChildren();
  if(!data.count){
   summary.dataset.empty='true';
-  score.append(el('b','rv-empty-title','No reviews yet'),el('p','rv-empty-text','Used a Wrapline tool? Be the first to rate it on the tool’s page.'));
+  score.append(el('b','rv-empty-title','No reviews yet'),el('p','rv-empty-text','Used a Wrapline Pro tool? Be the first to rate it on the tool’s page.'));
  }else{
   delete summary.dataset.empty;
   const avg=el('b','rv-average','0.0');score.append(avg,starRow(data.average,'rv-stars rv-stars-lg'),el('span','rv-total',`Average of ${plural(data.count,'review')} across all tools`));countUp(avg,data.average);

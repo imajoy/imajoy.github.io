@@ -254,8 +254,8 @@ if(form&&paypal&&url){
    }
    if(!/^sub_[A-Za-z0-9]+$/.test(result.subscriptionId||''))throw Error('Razorpay did not return a subscription.');
    let paid=false,failure='';
-   const rzp=new window.Razorpay({key:config.keyId,subscription_id:result.subscriptionId,name:'Wrapline by Ajoy Tools',
-    description:(trialing?'4-day free trial · then ':'')+'Wrapline '+(sel.plan==='offline'?'Premium':'Basic')+' · '+sel.billing+' · '+sel.seats+' license(s)',
+   const rzp=new window.Razorpay({key:config.keyId,subscription_id:result.subscriptionId,name:'Wrapline Pro by Ajoy Tools',
+    description:(trialing?'4-day free trial · then ':'')+'Wrapline Pro '+(sel.plan==='offline'?'Premium':'Basic')+' · '+sel.billing+' · '+sel.seats+' license(s)',
     prefill:{email:getAccountSession().email,name:form.elements.name.value},theme:{color:'#2A64E8'},
     handler:()=>{paid=true;goThankYou(result.checkoutId,sel);},
     modal:{escape:true,confirm_close:true,ondismiss:()=>{if(!paid)abandon(result.checkoutId,failure);}}});

@@ -9,12 +9,12 @@ $('ty-plan').textContent=plan+' plan';$('ty-billing').textContent=billing;$('ty-
 if(provider)$('ty-provider').textContent=provider;else $('ty-provider').parentElement.hidden=true;
 const eta=new Date(Date.now()+12*3600e3);
 $('ty-eta').textContent=eta.toLocaleString(undefined,{weekday:'short',hour:'numeric',minute:'2-digit'});
-const trialLead=()=>'Your 4-day Wrapline trial is approved. Your first payment is taken after the trial unless you cancel.'+(provider==='Razorpay'?' The small payment-method check Razorpay took is refunded to you automatically.':'');
+const trialLead=()=>'Your 4-day Wrapline Pro trial is approved. Your first payment is taken after the trial unless you cancel.'+(provider==='Razorpay'?' The small payment-method check Razorpay took is refunded to you automatically.':'');
 if(trial){
  $('ty-status').textContent='Free trial started';$('ty-step-pay').textContent='Trial approved';
  $('ty-lead').textContent=trialLead();
 }
-if(provider==='PayPal')$('ty-fine').innerHTML='Need help? <a href="contact.html">Contact support</a>. To stop automatic renewal, open <b>Account</b> on the Wrapline page or cancel in your <a href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener">PayPal account</a>.';
+if(provider==='PayPal')$('ty-fine').innerHTML='Need help? <a href="contact.html">Contact support</a>. To stop automatic renewal, open <b>Account</b> on the Wrapline Pro page or cancel in your <a href="https://www.paypal.com/myaccount/autopay/" target="_blank" rel="noopener">PayPal account</a>.';
 const originalSteps=Object.fromEntries(['ty-key','ty-step-key','ty-step-install','ty-step-start','ty-pass-note'].map(id=>[id,$(id).innerHTML]));
 /* Basic needs no license key: it signs in with the email registered on this site. Premium keeps its key. */
 function renderPlan(basic){
@@ -25,15 +25,15 @@ function renderPlan(basic){
  if(!basic){mountSetupProgress(false);return;}
 
  const who=getAccountSession()?.email,keyBox=$('ty-key');
- if(who){keyBox.replaceChildren();const label=document.createElement('small'),mail=document.createElement('b');label.textContent='Sign in to Wrapline with';mail.textContent=who;const row=document.createElement('div'),btn=document.createElement('button'),live=document.createElement('span');row.className='ty-mail-row';btn.type='button';btn.className='ty-copy';btn.setAttribute('aria-label','Copy email address');btn.textContent='Copy';live.className='ty-sr';live.setAttribute('role','status');
+ if(who){keyBox.replaceChildren();const label=document.createElement('small'),mail=document.createElement('b');label.textContent='Sign in to Wrapline Pro with';mail.textContent=who;const row=document.createElement('div'),btn=document.createElement('button'),live=document.createElement('span');row.className='ty-mail-row';btn.type='button';btn.className='ty-copy';btn.setAttribute('aria-label','Copy email address');btn.textContent='Copy';live.className='ty-sr';live.setAttribute('role','status');
  let tm;const flash=ok=>{btn.textContent=ok?'Copied ✓':'Press Ctrl+C';btn.classList.toggle('is-ok',ok);live.textContent=ok?'Email copied':'Select and copy the email';clearTimeout(tm);tm=setTimeout(()=>{btn.textContent='Copy';btn.classList.remove('is-ok');live.textContent='';},2200);};
  btn.addEventListener('click',async()=>{let ok=false;try{await navigator.clipboard.writeText(who);ok=true;}catch{try{const r=document.createRange();r.selectNodeContents(mail);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);ok=document.execCommand('copy');if(ok)sel.removeAllRanges();}catch{}}flash(ok);});
  row.append(mail,btn);keyBox.append(label,row,live);keyBox.classList.add('ty-mail');keyBox.setAttribute('aria-label','Your activation email');}
  else keyBox.hidden=true;
  $('ty-eta-row').hidden=true;$('ty-pass-note').textContent='No license key needed · sign in with your email';
  const keyStep=$('ty-step-key');keyStep.dataset.step='';keyStep.querySelector('b').textContent='Download the setup file';keyStep.querySelector('p').textContent='Use the Download setup button. No license key is needed for Basic.';
- const install=$('ty-step-install');install.dataset.step='current';install.querySelector('b').textContent='Install Wrapline in Maya';install.querySelector('p').textContent='Drag the setup file into the Maya viewport and choose Basic.';
- const start=$('ty-step-start');start.removeAttribute('data-step');start.querySelector('b').textContent='Sign in with your registered email';start.querySelector('p').textContent='Enter the same email you used on this website. Wrapline unlocks automatically while your plan is active.';
+ const install=$('ty-step-install');install.dataset.step='current';install.querySelector('b').textContent='Install Wrapline Pro in Maya';install.querySelector('p').textContent='Drag the setup file into the Maya viewport and choose Basic.';
+ const start=$('ty-step-start');start.removeAttribute('data-step');start.querySelector('b').textContent='Sign in with your registered email';start.querySelector('p').textContent='Enter the same email you used on this website. Wrapline Pro unlocks automatically while your plan is active.';
  mountSetupProgress(true);
 }
 renderPlan(plan==='Basic');
@@ -49,7 +49,7 @@ function loadArchive(){
  const session=getAccountSession(),archive=$('ty-archive'),retry=$('ty-invoice-retry');archive.hidden=false;
  $('ty-archive-note').textContent='Loading your invoices…';
  if(!session){
-  state('problem','Sign in to continue','Open Wrapline, choose Register / Login, then return to your account to view purchases and invoices.');
+  state('problem','Sign in to continue','Open Wrapline Pro, choose Register / Login, then return to your account to view purchases and invoices.');
   document.querySelector('.ty-side').hidden=true;$('ty-invoices').replaceChildren();$('ty-archive-note').textContent='Your purchase history is available after sign-in.';
  return;
  }

@@ -15,13 +15,13 @@ function init() {
     if (live && s.renews && s.trial) return {state:'active',kind:'trial',text:'Free trial · '+dayWord(days)+' left · first payment on '+date+' unless you cancel',short:days+'d left',days,date};
     if (live && s.renews) return {state:'active',kind:'active',text:'Active · '+dayWord(days)+' left · renews on '+date,short:days+'d left',days,date};
     if (live) return {state:'ending',kind:'cancelled',text:(s.trial?'Trial cancelled':'Cancelled')+' · access continues until '+date+' ('+dayWord(days)+' left)',short:days+'d left',days,date};
-    return {state:'ended',kind:'ended',text:'Ended'+(date?' '+date:'')+' · renew to keep using Wrapline',short:'Renew',days:0,date};
+    return {state:'ended',kind:'ended',text:'Ended'+(date?' '+date:'')+' · renew to keep using Wrapline Pro',short:'Renew',days:0,date};
   };
   function subscriptionCard(s,index){
     const d=describe(s),badge=d.state==='ending'?'Renewal off':d.state==='ended'?'Ended':d.state==='unknown'?'Unavailable':s.trial?'Trial active':'Active';
     const detail=d.state==='ending'?'Access until '+d.date+'. No further renewals.':d.state==='active'?(s.trial?'First payment on ':'Renews on ')+d.date+(s.trial?' unless you cancel.':'.'):d.text;
     const seats=Number(s.seats||1);
-    return '<section class="acct-sub" data-state="'+d.state+'" aria-label="Wrapline '+label(s.plan)+' subscription"><div class="acct-sub-head"><div><b>Wrapline '+label(s.plan)+'</b><span class="acct-sub-meta">'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+seats+(seats===1?' license':' licenses')+'</span></div><span class="acct-sub-badge">'+badge+'</span></div>'+
+    return '<section class="acct-sub" data-state="'+d.state+'" aria-label="Wrapline Pro '+label(s.plan)+' subscription"><div class="acct-sub-head"><div><b>Wrapline Pro '+label(s.plan)+'</b><span class="acct-sub-meta">'+(s.billing==='yearly'?'Yearly':'Monthly')+' · '+seats+(seats===1?' license':' licenses')+'</span></div><span class="acct-sub-badge">'+badge+'</span></div>'+
       (d.days>0?'<div class="acct-access"><strong>'+d.days+'</strong><span>'+(d.days===1?'day':'days')+' of access left</span></div>':'')+'<p class="acct-sub-detail">'+esc(detail)+'</p><div class="acct-sub-actions">'+
       (d.state==='ended'?'<a class="btn btn-dark btn-sm" href="checkout.html?plan='+s.plan+'&amp;billing='+s.billing+'">Renew plan</a>':'')+
       (d.days>0&&s.ref?'<a class="acct-link acct-history" href="thank-you.html?subscription='+encodeURIComponent(s.ref)+'">View confirmation <span aria-hidden="true">→</span></a>':'')+
@@ -224,9 +224,9 @@ function init() {
     countTo(box.querySelector('.ps-days'),d.days);
     const period=s.trial?2:s.billing==='yearly'?365:31,fill=Math.max(d.days?.04:0,Math.min(1,d.days/period));
     const bar=box.querySelector('.ps-meter span');requestAnimationFrame(()=>requestAnimationFrame(()=>bar.style.transform='scaleX('+fill.toFixed(3)+')'));
-    box.querySelector('.ps-text').textContent=d.kind==='trial'?'Your first payment is on '+d.date+'. Cancel before then and you won’t be charged.':d.kind==='active'?'Renews automatically on '+d.date+'.':d.kind==='cancelled'?'Won’t renew. Your access continues until '+d.date+'.':'Ended '+(d.date||'')+'. Renew to keep using Wrapline.';
+    box.querySelector('.ps-text').textContent=d.kind==='trial'?'Your first payment is on '+d.date+'. Cancel before then and you won’t be charged.':d.kind==='active'?'Renews automatically on '+d.date+'.':d.kind==='cancelled'?'Won’t renew. Your access continues until '+d.date+'.':'Ended '+(d.date||'')+'. Renew to keep using Wrapline Pro.';
     const cancel=box.querySelector('.ps-cancel'),can=canCancel(s);cancel.hidden=!can;cancel.textContent=s.trial?'Cancel free trial':'Cancel subscription';
-    box.querySelector('.ps-confirm p').textContent=(s.trial?'Cancel your free trial? You won’t be charged, and you can keep using Wrapline until ':'Cancel automatic renewal? You won’t be charged again, and you keep full access until ')+(d.date||'the end of your period')+'.';
+    box.querySelector('.ps-confirm p').textContent=(s.trial?'Cancel your free trial? You won’t be charged, and you can keep using Wrapline Pro until ':'Cancel automatic renewal? You won’t be charged again, and you keep full access until ')+(d.date||'the end of your period')+'.';
     if(!can){const c=box.querySelector('.ps-confirm');delete c.dataset.open;c.hidden=true;}
   }
   async function status(){
@@ -245,7 +245,7 @@ function init() {
   document.addEventListener('click',event=>{const a=event.target.closest('.is-owned');if(a&&/Your plan|View account|Free trial/.test(a.textContent)){event.preventDefault();open();}});
   refresh();
   let autoOpen=false;try{autoOpen=sessionStorage.getItem('ajoy.acct.open')==='1';sessionStorage.removeItem('ajoy.acct.open');email=sessionStorage.getItem('ajoy.acct.email')||'';sessionStorage.removeItem('ajoy.acct.email');}catch{}
-  // Links from the Wrapline Setup window in Maya: imajoy.github.io/#register opens Register / Login at once;
+  // Links from the Wrapline Pro Setup window in Maya: imajoy.github.io/#register opens Register / Login at once;
   // #register=you@site.com also fills in the email. The address after # never reaches any server.
   try{const m=/^#register(?:=(.*))?$/.exec(location.hash);if(m){const wanted=decodeURIComponent(m[1]||'').trim().toLowerCase();if(wanted.length<=120&&/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(wanted))email=wanted;autoOpen=true;history.replaceState(null,'',location.pathname+location.search);}}catch{}
   if(autoOpen)open();

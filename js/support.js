@@ -115,7 +115,7 @@ async function drawPayPal(){
      if(!valid(state.amount,'USD')){say('Please enter an amount between $1 and $2,000 first.',true);return actions.reject();}
      say('');
     },
-    createOrder:(_d,actions)=>actions.order.create({purchase_units:[{description:'Buy me a coffee (Wrapline)',custom_id:'coffee',amount:{currency_code:'USD',value:state.amount.toFixed(2)}}],application_context:{shipping_preference:'NO_SHIPPING'}}),
+    createOrder:(_d,actions)=>actions.order.create({purchase_units:[{description:'Buy me a coffee (Wrapline Pro)',custom_id:'coffee',amount:{currency_code:'USD',value:state.amount.toFixed(2)}}],application_context:{shipping_preference:'NO_SHIPPING'}}),
     onApprove:async(data,actions)=>{
      busy(true);say('Finishing up…');
      try{await actions.order.capture();}catch{busy(false);say('PayPal could not finish that payment. You have not been charged.',true);return;}
@@ -143,7 +143,7 @@ async function openRazorpay(){
   if(!order.ok){busy(false);say(order.message||'Razorpay is not available right now.',true);return;}
   if(!window.Razorpay){busy(false);say('Razorpay could not be loaded. Please reload and try again.',true);return;}
   const rz=new window.Razorpay({
-   key:order.keyId,order_id:order.orderId,amount:order.amount,currency:'INR',name:'Wrapline',description:'Buy me a coffee',
+   key:order.keyId,order_id:order.orderId,amount:order.amount,currency:'INR',name:'Wrapline Pro',description:'Buy me a coffee',
    prefill:{name:who().name},theme:{color:'#e58a3e'},
    handler:resp=>{busy(true);say('Confirming your payment…');confirm('rzp-verify',{orderId:resp.razorpay_order_id,paymentId:resp.razorpay_payment_id,signature:resp.razorpay_signature});},
    modal:{ondismiss:()=>{busy(false);say('No problem. Nothing was charged.');}}
@@ -171,7 +171,7 @@ const LINES=[
  'That coffee just turned into late-night fixes and small improvements.',
  'It is kind people like you who keep one-person projects going.',
  'I will drink this one slowly and think of you.',
- 'Your kindness is now part of Wrapline. Thank you.'
+ 'Your kindness is now part of Wrapline Pro. Thank you.'
 ];
 function particle(kind,i){
  const el=document.createElement('i');
@@ -205,7 +205,7 @@ function thank(res){
  const amt=document.createElement('b');amt.textContent=money(res.amount,res.currency);
  meta.append(amt,res.currency==='INR'?' received through Razorpay. Your receipt is in your email.':' received through PayPal. Your receipt is in your email.');
  const actions=document.createElement('div');actions.className='th-actions';
- const home=document.createElement('a');home.className='btn btn-dark';home.href='wrapline.html';home.textContent='Back to Wrapline';
+ const home=document.createElement('a');home.className='btn btn-dark';home.href='wrapline.html';home.textContent='Back to Wrapline Pro';
  const more=document.createElement('button');more.type='button';more.className='btn btn-light';more.textContent='Close';
  actions.append(home,more);
  box.append(mug,burst,eyebrow,title,line,meta,actions);root.append(box);

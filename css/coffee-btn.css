@@ -1,0 +1,32 @@
+/* "Buy me a coffee" button. A tiny mug with rising steam; on hover the mug fills and tips toward you,
+   a warm ring travels round the edge, and a click sends hearts and beans out of the cup. */
+.cfb{--cfb-bg:#FFF6EC;--cfb-ink:#5B3414;--cfb-line:#F1D3B3;--cfb-warm:#FF9B54;--cfb-deep:#A8643A;
+ position:relative;isolation:isolate;display:inline-flex;align-items:center;gap:10px;padding:12px 22px 12px 14px;border-radius:999px;
+ font-family:inherit;font-weight:600;font-size:15px;line-height:1;color:var(--cfb-ink);text-decoration:none;background:var(--cfb-bg);
+ border:1px solid var(--cfb-line);box-shadow:0 10px 24px -14px rgba(168,100,58,.55);cursor:pointer;
+ transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s ease}
+.cfb::before{content:"";position:absolute;inset:-2px;border-radius:inherit;z-index:-1;padding:2px;
+ background:conic-gradient(from var(--cfb-a,0deg),transparent 0 62%,var(--cfb-warm) 78%,#FFD29A 86%,transparent 96%);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;opacity:0;transition:opacity .3s}
+.cfb:hover,.cfb:focus-visible{transform:translateY(-2px);box-shadow:0 16px 30px -14px rgba(255,155,84,.7)}
+.cfb:hover::before,.cfb:focus-visible::before{opacity:1;animation:cfb-orbit 1.6s linear infinite}
+.cfb:focus-visible{outline:2px solid var(--cfb-warm);outline-offset:3px}
+.cfb:active{transform:translateY(0) scale(.97)}
+.cfb-mug{position:relative;flex:none;width:30px;height:30px;transition:transform .45s cubic-bezier(.34,1.56,.64,1)}
+.cfb-mug svg{width:100%;height:100%;overflow:visible}
+.cfb:hover .cfb-mug{transform:rotate(-10deg) translateY(-1px)}
+.cfb-fill{transform:translateY(7px);transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.cfb:hover .cfb-fill,.cfb:focus-visible .cfb-fill{transform:translateY(0)}
+.cfb-steam path{fill:none;stroke:var(--cfb-deep);stroke-width:1.6;stroke-linecap:round;opacity:0;stroke-dasharray:10;stroke-dashoffset:10;animation:cfb-steam 2.6s ease-in-out infinite}
+.cfb-steam path:nth-child(2){animation-delay:.8s}.cfb-steam path:nth-child(3){animation-delay:1.6s}
+.cfb-eye{transform-box:fill-box;transform-origin:center;animation:cfb-blink 5s infinite}
+.cfb-label{position:relative}
+.cfb-pop{position:absolute;left:24px;top:6px;pointer-events:none;font-size:13px;line-height:1;animation:cfb-pop .9s cubic-bezier(.22,1,.36,1) forwards}
+@property --cfb-a{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes cfb-orbit{to{--cfb-a:360deg}}
+@keyframes cfb-steam{0%{opacity:0;stroke-dashoffset:10;transform:translateY(2px)}35%{opacity:.75}100%{opacity:0;stroke-dashoffset:-10;transform:translateY(-5px)}}
+@keyframes cfb-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+@keyframes cfb-pop{0%{opacity:0;transform:translate(0,0) scale(.4) rotate(0)}20%{opacity:1}100%{opacity:0;transform:translate(var(--x),var(--y)) scale(1.1) rotate(var(--r))}}
+html[data-theme=dark] .cfb{--cfb-bg:#2A1D14;--cfb-ink:#FFE3C8;--cfb-line:#5A3A24;--cfb-deep:#E8B48A;box-shadow:0 10px 24px -14px rgba(0,0,0,.7)}
+.cfb.cfb-lg{padding:16px 28px 16px 18px;font-size:16.5px}.cfb.cfb-lg .cfb-mug{width:36px;height:36px}
+@media(prefers-reduced-motion:reduce){.cfb,.cfb-mug,.cfb-fill{transition:none}.cfb-steam path,.cfb-eye,.cfb:hover::before{animation:none}.cfb-steam path{opacity:.5;stroke-dashoffset:0}}

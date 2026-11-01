@@ -1,8 +1,8 @@
-/* User-confirmed setup progress, never proof of activation or subscription access. */
+/* Setup progress: ticked by the buyer, or by the live Maya check (Basic) when Wrapline Pro is active with this email. */
 import {getAccountSession} from './account-session.js?v=20261023-p7';
 export function mountSetupProgress(basic){
  const session=getAccountSession();
- if(!session)return;
+ if(!session)return null;
  const rows=['ty-step-key','ty-step-install','ty-step-start'].map(id=>document.getElementById(id));
  const labels=basic?['I downloaded the setup file','I installed Wrapline Pro in Maya','I signed in to Wrapline Pro in Maya']:['I received my license key','I installed Wrapline Pro in Maya','I activated Wrapline Pro in Maya'];
  const key='ajoy.setup.'+encodeURIComponent(session.email)+'.'+(basic?'basic':'premium');
@@ -25,7 +25,9 @@ export function mountSetupProgress(basic){
  function sync(){
   rows.forEach((row,index)=>{inputs[index].checked=index<completed;row.dataset.step=index<completed?'done':index===completed?'current':'';});
   document.querySelector('.ty-next-title').textContent=completed===3?'Setup complete':'Your setup checklist';
-  note.textContent='Mark the steps you’ve completed. '+(storageOK?'Saved in this browser; installation isn’t detected automatically.':'Progress cannot be saved in this browser.');
+  note.textContent=detected||('Mark the steps you’ve completed. '+(storageOK?'Saved in this browser.':'Progress cannot be saved in this browser.'));
  }
+ let detected='';
  sync();
+ return {complete(text){detected=text||'';completed=3;try{localStorage.setItem(key,JSON.stringify({version:1,completed}));}catch{}sync();}};
 }

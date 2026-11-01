@@ -1,6 +1,7 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
 import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
-import {mountSetupProgress} from './setup-progress.js?v=20261025-setup1';
+import {mountSetupProgress} from './setup-progress.js?v=20261101-auto1';
+let progress=null;
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
 const plan=q.get('plan')==='offline'?'Premium':'Basic',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
 let seats=parseInt(q.get('seats'),10);seats=seats>0&&seats<=100?seats:1;
@@ -22,7 +23,7 @@ function renderPlan(basic){
  $('ty-key').classList.remove('ty-mail');$('ty-key').hidden=false;$('ty-eta-row').hidden=false;
  $('ty-step-key').dataset.step='current';$('ty-step-install').removeAttribute('data-step');$('ty-step-start').dataset.step='key';
  $('ty-key').setAttribute('aria-label','Your license key details');
- if(!basic){mountSetupProgress(false);return;}
+ if(!basic){progress=mountSetupProgress(false);return;}
 
  const who=getAccountSession()?.email,keyBox=$('ty-key');
  if(who){keyBox.replaceChildren();const label=document.createElement('small'),mail=document.createElement('b');label.textContent='Sign in to Wrapline Pro with';mail.textContent=who;const row=document.createElement('div'),btn=document.createElement('button'),live=document.createElement('span');row.className='ty-mail-row';btn.type='button';btn.className='ty-copy';btn.setAttribute('aria-label','Copy email address');btn.textContent='Copy';live.className='ty-sr';live.setAttribute('role','status');
@@ -34,10 +35,29 @@ function renderPlan(basic){
  const keyStep=$('ty-step-key');keyStep.dataset.step='';keyStep.querySelector('b').textContent='Download the setup file';keyStep.querySelector('p').textContent='Use the Download setup button. No license key is needed for Basic.';
  const install=$('ty-step-install');install.dataset.step='current';install.querySelector('b').textContent='Install Wrapline Pro in Maya';install.querySelector('p').textContent='Drag the setup file into the Maya viewport and choose Basic.';
  const start=$('ty-step-start');start.removeAttribute('data-step');start.querySelector('b').textContent='Sign in with your registered email';start.querySelector('p').textContent='Enter the same email you used on this website. Wrapline Pro unlocks automatically while your plan is active.';
- mountSetupProgress(true);
+ progress=mountSetupProgress(true);
 }
 renderPlan(plan==='Basic');
 try{sessionStorage.removeItem('ajoy.acct.open');}catch{}
+/* Basic: tick every step as soon as Wrapline Pro is active in Maya with this email. Asked live from the
+   server (only about the signed-in account), every few seconds while this page is open, so it turns green by itself. */
+if(plan==='Basic'&&getAccountSession()?.token){
+ const url=(window.AJOY_CONFIG?.commerceUrl||'').replace(/\/commerce\/?$/,'/maya-status');
+ const install=$('ty-step-install'),start=$('ty-step-start');let tries=0;
+ const mark=n=>{if(progress)return progress.complete('Detected in Maya: Wrapline Pro is active with your email on '+n+(n===1?' computer.':' computers.'));install.dataset.step='done';start.dataset.step='done';$('ty-pass-note').textContent='Active in Maya · signed in with your email';};
+ const check=async()=>{
+  if(document.hidden){setTimeout(check,4000);return;}
+  try{
+   const session=getAccountSession();if(!session?.token)return;
+   const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({accountToken:session.token}),signal:AbortSignal.timeout(30000)});
+   const data=await response.json().catch(()=>({}));
+   if(data.ok&&data.installed)return mark(Number(data.computers)||1);
+   if(response.status===401)return;
+  }catch{}
+  if(++tries<240)setTimeout(check,tries<10?6000:15000);
+ };
+ if(/^https:\/\//.test(url))check();
+}
 
 const state=(name,status,lead)=>{main.dataset.tyState=name;if(status)$('ty-status').textContent=status;if(lead)$('ty-lead').textContent=lead;};
 const archiveMode=q.has('history')||q.has('subscription');

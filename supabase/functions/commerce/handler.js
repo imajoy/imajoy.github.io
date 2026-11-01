@@ -64,16 +64,25 @@ export async function handleCommerceRequest(req,env,request=fetch,networkOf=crea
   if(!result.ok||!response||typeof response.ok!=='boolean')throw fail('The account service is unavailable.',503);
   if(!response.ok)return json(response,response.error==='signin_required'?401:response.error==='unavailable'?503:409);
   if(path==='download'){
-   const base=env('SUPABASE_URL'),key=env('SUPABASE_SERVICE_ROLE_KEY'),bucket=env('INSTALLER_BUCKET'),object=env('INSTALLER_OBJECT');
-   if(!base||!key||!bucket||!object)throw fail('The registered download is not connected yet.',503);
-   const encoded=[bucket,...object.split('/')].map(encodeURIComponent).join('/');
-   const signed=await request(base.replace(/\/$/,'')+'/storage/v1/object/sign/'+encoded,{method:'POST',headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:60}),signal:AbortSignal.timeout(10000)});
-   const file=await signed.json();if(!signed.ok||typeof file.signedURL!=='string')throw fail('The installer is temporarily unavailable.',503);
-   const signedPath=file.signedURL.startsWith('/object/sign/')?'/storage/v1'+file.signedURL:file.signedURL;
+   // Two products: the free Wrapline (product "free") and Wrapline Pro (default). Wrapline.bat uploads both.
+   const free=data.product==='free';
+   const base=env('SUPABASE_URL'),key=env('SUPABASE_SERVICE_ROLE_KEY'),bucket=env('INSTALLER_BUCKET'),legacy=env('INSTALLER_OBJECT')||'';
+   if(!base||!key||!bucket)throw fail('The registered download is not connected yet.',503);
+   // Wrapline_Setup.py in the bucket is an older copy of the paid Setup, so it is never handed out as the free one.
+   const objects=free?['Wrapline_Free_Setup.py']:['Wrapline_Pro_Setup.py',...(legacy&&legacy!=='Wrapline_Setup.py'&&legacy!=='Wrapline_Free_Setup.py'?[legacy]:[])];
+   let signedPath='';
+   for(const object of objects){
+    const encoded=[bucket,...object.split('/')].map(encodeURIComponent).join('/');
+    const signed=await request(base.replace(/\/$/,'')+'/storage/v1/object/sign/'+encoded,{method:'POST',headers:{apikey:key,Authorization:'Bearer '+key,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:60}),signal:AbortSignal.timeout(10000)});
+    const file=await signed.json().catch(()=>({}));
+    if(signed.ok&&typeof file.signedURL==='string'){signedPath=file.signedURL.startsWith('/object/sign/')?'/storage/v1'+file.signedURL:file.signedURL;break;}
+   }
+   if(!signedPath)return json({ok:false,error:free?'free_not_ready':'unavailable',message:free?'The free Wrapline download opens very soon.':'The installer is temporarily unavailable.'},503);
    if(!signedPath.startsWith('/storage/v1/object/sign/'))throw fail('Invalid installer response.',503);
    const parsed=new URL(signedPath,base);if(parsed.origin!==new URL(base).origin)throw fail('Invalid installer response.',503);
-   parsed.searchParams.set('download','Wrapline_Setup.py');
-   return json({ok:true,url:parsed.href});
+   const name=free?'Wrapline_Setup.py':'Wrapline_Pro_Setup.py';
+   parsed.searchParams.set('download',name);
+   return json({ok:true,url:parsed.href,name});
   }
   return json(response);
  }catch(error){return json({ok:false,error:'unavailable',message:error.status?error.message:'The service could not complete the request. Please try again.'},error.status||503);}

@@ -10,7 +10,7 @@ function setup(){
   calls.push({url,options});
   if(url.startsWith('https://api.country.is/'))return Response.json({country:'US'});
   if(url===values.SHEET_WEB_APP_URL)return Response.json(app.ctx.handleCommerceEnvelope_(JSON.parse(options.body)));
-  if(url.includes('/storage/v1/object/sign/')){assert.equal(options.headers.apikey,'private-service-role');assert.equal(JSON.parse(options.body).expiresIn,60);return Response.json({signedURL:'/object/sign/installers/Wrapline_Setup.py?token=SIGNED&download=Wrapline_Setup.py'});}
+  if(url.includes('/storage/v1/object/sign/')){assert.equal(options.headers.apikey,'private-service-role');assert.equal(JSON.parse(options.body).expiresIn,60);const object=decodeURIComponent(url.split('/').pop());if(!(values.STORED||['Wrapline_Pro_Setup.py','Wrapline_Free_Setup.py']).includes(object))return Response.json({error:'not_found'},{status:400});return Response.json({signedURL:'/object/sign/installers/'+object+'?token=SIGNED'});}
   throw Error('Unexpected upstream '+url);
  };
  const req=(path,body={},headers={})=>new Request('https://project.supabase.co/functions/v1/commerce/'+path,{method:'POST',headers:{Origin:origin,'Content-Type':'application/json','cf-connecting-ip':'203.0.113.12',...headers},body:JSON.stringify({accountToken:account.token,deviceId:'11111111-1111-4111-8111-111111111111',...body})});
@@ -34,10 +34,19 @@ test('Missing or untrusted IP headers cannot authorize a trial; equivalent IPv6 
 });
 test('Download verifies a registered account before issuing a 60-second private storage URL',async()=>{
  const s=setup(),result=await handleCommerceRequest(s.req('download'),s.env,s.upstream),data=await result.json();
- assert.equal(data.url,'https://project.supabase.co/storage/v1/object/sign/installers/Wrapline_Setup.py?token=SIGNED&download=Wrapline_Setup.py');
+ assert.equal(data.url,'https://project.supabase.co/storage/v1/object/sign/installers/Wrapline_Pro_Setup.py?token=SIGNED&download=Wrapline_Pro_Setup.py');
+ const free=await (await handleCommerceRequest(s.req('download',{product:'free'}),s.env,s.upstream)).json();
+ assert.equal(free.url,'https://project.supabase.co/storage/v1/object/sign/installers/Wrapline_Free_Setup.py?token=SIGNED&download=Wrapline_Setup.py');
  const start=s.calls.length;const rejected=await handleCommerceRequest(s.req('download',{accountToken:'invalid-signed-session-token'}),s.env,s.upstream);
  assert.equal(rejected.status,401);assert(!s.calls.slice(start).some(c=>c.url.includes('/storage/')));
  assert(!JSON.stringify(data).includes(s.values.SUPABASE_SERVICE_ROLE_KEY));
+});
+test('Wrapline Pro falls back to the configured older object; the free download never hands out the old paid Wrapline_Setup.py',async()=>{
+ const s=setup();s.values.STORED=['AjoyTools_Setup.py','Wrapline_Setup.py'];s.values.INSTALLER_OBJECT='AjoyTools_Setup.py';
+ const pro=await (await handleCommerceRequest(s.req('download'),s.env,s.upstream)).json();
+ assert.equal(pro.url,'https://project.supabase.co/storage/v1/object/sign/installers/AjoyTools_Setup.py?token=SIGNED&download=Wrapline_Pro_Setup.py');
+ const free=await handleCommerceRequest(s.req('download',{product:'free'}),s.env,s.upstream);
+ assert.equal(free.status,503);assert.equal((await free.json()).error,'free_not_ready');
 });
 test('Unauthenticated, untrusted-origin and disabled requests never create a subscription or installer URL',async()=>{
  const s=setup();assert.equal((await handleCommerceRequest(s.req('checkout',{accountToken:''}),s.env,s.upstream)).status,401);

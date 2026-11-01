@@ -32,6 +32,7 @@ for(const filename of publicPages){
  assert.equal(meta(head,'og:url'),expected);assert.equal(meta(head,'og:title'),title);assert.equal(meta(head,'og:description'),description);assert.equal(meta(head,'twitter:title'),title);assert.equal(meta(head,'twitter:description'),description);
  const scripts=[...head.matchAll(/<script\b[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/gi)];assert(scripts.length,`${filename}: structured data missing`);
  const nodes=scripts.flatMap(match=>{const json=JSON.parse(match[1]);assert.equal(json['@context'],'https://schema.org');return json['@graph']||[json];});
+ const ogImage=meta(head,'og:image');assert(ogImage.startsWith(base+'assets/og/'),`${filename}: og:image must be a site image`);assert(existsSync(resolve(root,ogImage.slice(base.length))),`${filename}: og:image file missing`);assert.equal(meta(head,'twitter:image'),ogImage);assert.equal(meta(head,'twitter:card'),'summary_large_image');assert(meta(head,'og:image:alt').length>5);assert.match(meta(head,'robots'),/\bindex\b/);
  const webpage=nodes.find(node=>node['@type']==='WebPage');assert.equal(webpage?.url,expected);assert.equal(webpage.description,description);
  if(filename==='index.html'){
   const org=nodes.find(node=>node['@type']==='Organization');assert.equal(org?.name,'Ajoy Tools');

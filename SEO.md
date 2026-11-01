@@ -1,6 +1,8 @@
 # Search and sharing
 
-The public site has 16 indexable pages: the homepage, 13 individual tool guides, Privacy and License. Each has a unique title and description, a self-referencing HTTPS canonical URL, matching Open Graph/Twitter metadata and static JSON-LD. Search engines receive this content in HTML without executing pricing or account JavaScript.
+The public site has 20 indexable pages: the Ajoy Tools homepage, Wrapline (free, `wrapline-free.html`) with its 4 tool guides, Wrapline Pro (`wrapline.html`) with its 9 tool guides, Support, Contact, Privacy and License. Each has a unique title and description, `robots: index, follow, max-image-preview:large`, a self-referencing HTTPS canonical URL, matching Open Graph/Twitter metadata with a 1200×630 share image (`assets/og/*.jpg`, large Twitter card), static JSON-LD (WebPage with primaryImageOfPage, breadcrumbs, SoftwareApplication with offers on both toolkit pages) and a sitemap entry with `lastmod`. Checkout, payment, download, thank-you and 404 pages are `noindex`. Search engines receive this content in HTML without executing pricing or account JavaScript.
+
+Share images are generated from the page titles; regenerate them if a tool is renamed.
 
 Run the dependency-free regression check after editing pages:
 

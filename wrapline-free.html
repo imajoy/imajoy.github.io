@@ -145,6 +145,7 @@
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 <link rel="stylesheet" href="css/reviews.css?v=20261023-rv2">
 <link rel="stylesheet" href="css/coffee.css?v=20261023-c1"><link rel="stylesheet" href="css/coffee-btn.css?v=20261101-cb2"><link rel="stylesheet" href="css/free.css?v=20261101-f4">
+<link rel="stylesheet" href="css/scroll-fx.css?v=20261101-sx1">
 </head>
 <body class="home-page">
 <div class="progress" id="progress" aria-hidden="true"></div>
@@ -216,10 +217,10 @@
         <p class="sub">Small tools that remove everyday friction in Maya. Open any tool to read its guide.</p>
       </div>
       <div class="ft-grid">
-        <a class="ft-card reveal" href="tool-ik-fk-snap.html" style="--c1:#9C8CFF;--c2:#6B5CFF"><span class="ft-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-ik"/></svg></span><span class="ft-cat">Animation</span><h3>IK / FK Snap</h3><p>Match arm IK and FK poses without a jump, with saved rig presets.</p><span class="ft-go">Read the guide <span aria-hidden="true">→</span></span></a>
-        <a class="ft-card reveal" href="tool-multi-swapper.html" style="--c1:#B49CFF;--c2:#7C5CFF"><span class="ft-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-swap"/></svg></span><span class="ft-cat">Animation</span><h3>Multi Swapper</h3><p>Move animation onto locators and back, keeping only the frames you keyed.</p><span class="ft-go">Read the guide <span aria-hidden="true">→</span></span></a>
-        <a class="ft-card reveal" href="tool-udim-preview.html" style="--c1:#FF9F82;--c2:#FF7A5C"><span class="ft-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-udim"/></svg></span><span class="ft-cat">Scene</span><h3>UDIM Preview</h3><p>Generate texture tile previews at the quality you choose.</p><span class="ft-go">Read the guide <span aria-hidden="true">→</span></span></a>
-        <a class="ft-card reveal" href="tool-layer-prefix-remover.html" style="--c1:#FFB46B;--c2:#F2894F"><span class="ft-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg></span><span class="ft-cat">Scene</span><h3>Layer Prefix Remover</h3><p>Remove or replace a prefix on display and legacy render layers.</p><span class="ft-go">Read the guide <span aria-hidden="true">→</span></span></a>
+        <a class="ft-card" href="tool-ik-fk-snap.html" style="--c1:#9C8CFF;--c2:#6B5CFF"><span class="ft-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-ik"/></svg></span><span class="ft-cat">Animation</span><h3>IK / FK Snap</h3><p>Match arm IK and FK poses without a jump, with saved rig presets.</p><span class="ft-go">Read the guide <span aria-hidden="true">→</span></span></a>
+        <a class="ft-card" href="tool-multi-swapper.html" style="--c1:#B49CFF;--c2:#7C5CFF"><span class="ft-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-swap"/></svg></span><span class="ft-cat">Animation</span><h3>Multi Swapper</h3><p>Move animation onto locators and back, keeping only the frames you keyed.</p><span class="ft-go">Read the guide <span aria-hidden="true">→</span></span></a>
+        <a class="ft-card" href="tool-udim-preview.html" style="--c1:#FF9F82;--c2:#FF7A5C"><span class="ft-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-udim"/></svg></span><span class="ft-cat">Scene</span><h3>UDIM Preview</h3><p>Generate texture tile previews at the quality you choose.</p><span class="ft-go">Read the guide <span aria-hidden="true">→</span></span></a>
+        <a class="ft-card" href="tool-layer-prefix-remover.html" style="--c1:#FFB46B;--c2:#F2894F"><span class="ft-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg></span><span class="ft-cat">Scene</span><h3>Layer Prefix Remover</h3><p>Remove or replace a prefix on display and legacy render layers.</p><span class="ft-go">Read the guide <span aria-hidden="true">→</span></span></a>
       </div>
     </div>
   </section>
@@ -240,9 +241,9 @@
         <p class="sub">Free, with no card and no subscription. You only need an email address.</p>
       </div>
       <ol class="ft-steps">
-        <li class="reveal"><span class="ft-num">01</span><h3>Sign in with your email</h3><p>Register or sign in with a one-time code sent to your inbox. It takes a few seconds.</p></li>
-        <li class="reveal"><span class="ft-num">02</span><h3>Download the setup file</h3><p>Get the free Wrapline setup file. It’s small and installs everything for you.</p></li>
-        <li class="reveal"><span class="ft-num">03</span><h3>Drag it into Maya</h3><p>Drop the file into the Maya viewport. The Wrapline menu and shelf appear, ready to use.</p></li>
+        <li><span class="ft-num">01</span><h3>Sign in with your email</h3><p>Register or sign in with a one-time code sent to your inbox. It takes a few seconds.</p></li>
+        <li><span class="ft-num">02</span><h3>Download the setup file</h3><p>Get the free Wrapline setup file. It’s small and installs everything for you.</p></li>
+        <li><span class="ft-num">03</span><h3>Drag it into Maya</h3><p>Drop the file into the Maya viewport. The Wrapline menu and shelf appear, ready to use.</p></li>
       </ol>
       <div class="ft-get-cta">
         <a class="btn btn-dark ft-download" href="#get" data-free-download><svg class="ico" viewBox="0 0 24 24"><use href="#i-fbx"/></svg>Download Wrapline</a>
@@ -255,7 +256,7 @@
   <!-- COFFEE -->
   <section class="block ft-coffee" id="coffee" aria-labelledby="coffee-title">
     <div class="wrap">
-      <div class="ft-coffee-card reveal">
+      <div class="ft-coffee-card">
         <div class="ft-mug" aria-hidden="true">
           <svg viewBox="0 0 200 200" focusable="false">
             <g class="ft-steam"><path d="M78 58q-12-16 0-32"/><path d="M100 58q-12-16 0-32"/><path d="M122 58q-12-16 0-32"/></g>
@@ -285,7 +286,7 @@
   <!-- PRO -->
   <section class="block" id="pro" aria-labelledby="pro-title">
     <div class="wrap">
-      <div class="free-pro reveal">
+      <div class="free-pro">
         <div>
           <p class="eyebrow">WANT MORE?</p>
           <h2 id="pro-title">Upgrade to <em>Wrapline Pro.</em></h2>
@@ -341,5 +342,5 @@
 <script type="module" src="js/tool-card-motion.js?v=20261019-lock1"></script>
 
 <script type="module" src="js/workflows.js?v=20261018-a1"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/faq.js?v=20261019-s1"></script><script type="module" src="js/ui-motion.js?v=20261023-p5"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script type="module" src="js/license-motion.js?v=20261019-motion1"></script>
-<script type="module" src="js/account.js?v=20261025-cards1"></script><script type="module" src="js/free-download.js?v=20261101-fd1"></script><script type="module" src="js/coffee-button.js?v=20261101-cb1"></script><script type="module" src="js/coffee.js?v=20261101-f2"></script></body>
+<script type="module" src="js/account.js?v=20261025-cards1"></script><script type="module" src="js/free-download.js?v=20261101-fd1"></script><script type="module" src="js/coffee-button.js?v=20261101-cb1"></script><script type="module" src="js/coffee.js?v=20261101-f2"></script><script src="js/scroll-fx.js?v=20261101-sx1" defer></script></body>
 </html>

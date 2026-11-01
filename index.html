@@ -18,7 +18,7 @@
 <link rel="preload" href="assets/fonts/instrument-serif-italic-5.3.0.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v=20261021-a11y2">
 <link rel="stylesheet" href="css/polish.css?v=20261021-audit1"><link rel="stylesheet" href="css/account.css?v=20261025-cards1">
-<link rel="stylesheet" href="css/studio.css?v=20261101-pro4">
+<link rel="stylesheet" href="css/studio.css?v=20261101-cmp1">
 <link rel="stylesheet" href="css/maker-previews.css?v=20261019-preview1">
 <link rel="canonical" href="https://imajoy.github.io/">
 <meta property="og:type" content="website">
@@ -100,6 +100,7 @@
 </script>
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
+<link rel="stylesheet" href="css/scroll-fx.css?v=20261101-sx1">
 </head>
 <body class="studio-page">
 <a class="skip" href="#main">Skip to content</a>
@@ -130,20 +131,20 @@
         <p class="s-lead">Ajoy Tools builds focused production tools for 3D artists and studios. Each tool has its own name and its own home. Start with <b>Wrapline</b>, free for Autodesk Maya, and upgrade to <b>Wrapline Pro</b> for the full toolkit.</p>
         <div class="s-actions">
           <a class="btn btn-dark" href="wrapline.html">Explore Wrapline Pro</a>
-          <a class="btn btn-light" href="#tools">See all tools</a>
+          <a class="btn btn-light" href="wrapline-free.html">Get Wrapline free</a>
         </div>
       </div>
 
-      <div class="s-shelf">
+      <div class="s-shelf" data-sfx-parallax="-0.05">
         <div class="s-shelf-grid">
           <a class="s-slot is-free" href="wrapline-free.html" aria-label="Explore Wrapline, the free toolkit for Autodesk Maya">
-            <span class="s-logo s-logo-w" aria-hidden="true">W</span>
+            <span class="s-logo s-logo-w" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg></span>
             <b>Wrapline</b>
             <small>Free · Autodesk Maya</small>
             <span class="s-live s-soon">Free</span>
           </a>
           <a class="s-slot is-live is-pro" href="wrapline.html" aria-label="Explore Wrapline Pro for Autodesk Maya">
-            <span class="s-logo s-logo-w s-logo-pro" aria-hidden="true">W</span>
+            <span class="s-logo s-logo-w s-logo-pro" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg></span>
             <b>Wrapline Pro</b>
             <small>Autodesk Maya · Premium tools</small>
             <span class="s-live s-pro-tag">Pro</span>
@@ -169,7 +170,7 @@
         <!-- To add a tool later: copy this <article>, change the name, software, text and link. -->
         <article class="s-card s-card-live s-card-pro">
           <div class="s-card-top">
-            <span class="s-logo s-logo-w s-logo-lg s-logo-pro" aria-hidden="true">W</span>
+            <span class="s-logo s-logo-w s-logo-lg s-logo-pro" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg></span>
             <div>
               <h3>Wrapline Pro</h3>
               <p class="s-for">The complete paid toolkit · Autodesk Maya · Windows</p>
@@ -191,7 +192,7 @@
 
         <article class="s-card s-card-free">
           <div class="s-card-top">
-            <span class="s-logo s-logo-w s-logo-lg" aria-hidden="true">W</span>
+            <span class="s-logo s-logo-w s-logo-lg" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg></span>
             <div>
               <h3>Wrapline</h3>
               <p class="s-for">For Autodesk Maya</p>
@@ -223,6 +224,38 @@
             <a class="btn btn-light" href="contact.html">Get updates</a>
             <a class="text-link" href="contact.html?topic=idea">Suggest a tool</a>
           </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- FREE OR PRO -->
+  <section class="s-compare" id="compare" aria-labelledby="compare-title">
+    <div class="wrap">
+      <div class="s-head s-head-center">
+        <p class="s-eyebrow">Free or Pro?</p>
+        <h2 id="compare-title">Start free. <em>Grow into Pro.</em></h2>
+        <p>Every Ajoy Tools artist can start with Wrapline at no cost. When you need the full pipeline, Premium brings every tool together.</p>
+      </div>
+      <div class="s-cmp-grid">
+        <article class="s-cmp">
+          <div class="s-cmp-top"><span class="s-logo s-logo-w" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg></span><div><h3>Wrapline</h3><p>Free for everyone</p></div></div>
+          <p class="s-cmp-count"><b>4</b> tools</p>
+          <ul><li class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>IK / FK Snap, Multi Swapper</span></li><li class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>UDIM Preview, Layer Prefix Remover</span></li><li class="is-off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12h10"/></svg><span>The 9 Pro tools</span></li><li class="is-off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12h10"/></svg><span>Works offline</span></li></ul>
+          <a class="btn btn-light" href="wrapline-free.html">Get Wrapline free</a>
+        </article>
+        <article class="s-cmp">
+          <div class="s-cmp-top"><span class="s-logo s-logo-w s-logo-pro" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg></span><div><h3>Wrapline Pro Basic</h3><p>Online, always up to date</p></div></div>
+          <p class="s-cmp-count"><b>9</b> tools</p>
+          <ul><li class="is-off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12h10"/></svg><span>The 4 Wrapline tools</span></li><li class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>9 Pro tools: exporters, Playblast, Rivet and more</span></li><li class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Always the newest version</span></li><li class="is-off"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 12h10"/></svg><span>Works offline</span></li></ul>
+          <a class="btn btn-dark" href="wrapline.html#pricing">See Basic</a>
+        </article>
+        <article class="s-cmp s-cmp-best">
+          <span class="s-cmp-tag">Every tool</span>
+          <div class="s-cmp-top"><span class="s-logo s-logo-w s-logo-pro" aria-hidden="true"><svg viewBox="0 0 32 32" aria-hidden="true" focusable="false"><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg></span><div><h3>Wrapline Pro Premium</h3><p>Offline, for studios</p></div></div>
+          <p class="s-cmp-count"><b>13</b> tools</p>
+          <ul><li class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>The 4 Wrapline tools</span></li><li class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>All 9 Pro tools</span></li><li class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>Works offline after install</span></li><li class=""><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg><span>You decide when to update</span></li></ul>
+          <a class="btn btn-gold" href="wrapline.html#pricing">See Premium</a>
         </article>
       </div>
     </div>
@@ -293,8 +326,8 @@
         </div>
         <div class="s-point">
           <span class="s-num">02</span>
-          <h3>Licensed per computer</h3>
-          <p>Subscriptions come with an access code for the number of computers you license, and you choose monthly or yearly billing.</p>
+          <h3>Free to start, Pro when you need it</h3>
+          <p>Wrapline is free for everyone. Wrapline Pro is licensed per computer, monthly or yearly, and Premium includes every tool.</p>
         </div>
         <div class="s-point">
           <span class="s-num">03</span>
@@ -323,7 +356,7 @@
   <div class="wrap s-foot">
     <div class="s-foot-brand"><img src="assets/ajoy-mark.svg" alt="" width="24" height="24"><p>Ajoy Tools<br><span>© <span id="year">2026</span> AJOY. All rights reserved.</span></p></div>
     <nav class="s-foot-links" aria-label="Footer">
-      <a href="wrapline.html">Wrapline Pro</a>
+      <a href="wrapline-free.html">Wrapline</a><a href="wrapline.html">Wrapline Pro</a><a href="support.html">Support</a>
       <a href="license.html">License</a>
       <a href="privacy.html">Privacy</a>
       <a href="contact.html">Contact</a>
@@ -332,5 +365,5 @@
 </footer>
 
 <script src="js/studio.js?v=20261019-complete1"></script><script src="js/maker-previews.js?v=20261019-preview1"></script><script src="js/site-config.js?v=20261023-p4"></script><script type="module" src="js/account.js?v=20261025-cards1"></script><script type="module" src="js/guest-prompt.js?v=20261019-account2"></script>
-<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script></body>
+<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script src="js/scroll-fx.js?v=20261101-sx1" defer></script></body>
 </html>

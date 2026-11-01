@@ -162,3 +162,23 @@ html[data-theme=dark] .s-pro-tag,html[data-theme=dark] .s-badge-pro{color:#3A260
 a.s-slot.is-free{text-decoration:none;color:var(--ink)}
 a.s-slot.is-free:focus-visible{outline:3px solid var(--blue,#2a64e8);outline-offset:5px}
 a.s-slot.is-free b,a.s-slot.is-free small{text-decoration:none}
+/* Wrapline mark inside the logo tiles */
+.s-logo svg{width:62%;height:62%}
+/* Free or Pro comparison */
+.s-compare{padding:40px 0 110px}
+.s-head-center{margin-inline:auto;text-align:center}
+.s-cmp-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;align-items:stretch}
+.s-cmp{position:relative;display:flex;flex-direction:column;gap:18px;padding:30px;border-radius:28px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow)}
+.s-cmp-top{display:flex;align-items:center;gap:14px}.s-cmp-top h3{font-size:21px;margin:0}.s-cmp-top p{font-size:14px;color:var(--mute);margin:2px 0 0}
+.s-cmp-top .s-logo{width:48px;height:48px;border-radius:14px;flex:none}
+.s-cmp-count{font-size:15px;color:var(--mute)}.s-cmp-count b{font-size:46px;letter-spacing:-.04em;color:var(--ink);margin-right:6px;font-weight:700}
+.s-cmp ul{display:grid;gap:11px;list-style:none;padding:0;margin:0 0 6px}
+.s-cmp li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;line-height:1.45}
+.s-cmp li svg{flex:none;width:20px;height:20px;padding:3px;border-radius:50%;fill:none;stroke:#1B7958;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;background:rgba(47,181,131,.14)}
+.s-cmp li.is-off{color:var(--mute);opacity:.7}.s-cmp li.is-off svg{stroke:var(--mute);background:var(--t05)}
+.s-cmp .btn{margin-top:auto;justify-content:center}
+.s-cmp-best{color:#fff;background:radial-gradient(110% 90% at 90% 0%,#2B3F86 0%,#131B3F 55%,#0A0F26 100%);border-color:rgba(242,182,79,.6);box-shadow:0 30px 60px -28px rgba(20,30,90,.85)}
+.s-cmp-best h3,.s-cmp-best .s-cmp-count b{color:#fff}.s-cmp-best .s-cmp-top p,.s-cmp-best .s-cmp-count{color:rgba(255,255,255,.7)}
+.s-cmp-best li svg{stroke:#3A2606;background:linear-gradient(135deg,#FFE29A,#F2B64F)}
+.s-cmp-tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);padding:6px 14px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#3A2606;background:linear-gradient(135deg,#FFE29A,#F2B64F);box-shadow:0 8px 20px -10px rgba(242,182,79,.9);white-space:nowrap}
+@media(max-width:900px){.s-cmp-grid{grid-template-columns:1fr}.s-compare{padding:20px 0 80px}}

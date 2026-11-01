@@ -159,3 +159,6 @@ html[data-theme=dark] .s-soon,html[data-theme=dark] .s-badge-soon{color:#8DBBFF;
 .s-card-pro .s-facts li{background:rgba(255,255,255,.1)}
 @media(max-width:520px){.s-slot.is-free,.s-slot.is-pro{aspect-ratio:auto;padding:46px 8px 18px;min-height:190px}.s-slot.is-free .s-logo,.s-slot.is-pro .s-logo{width:50px;height:50px;font-size:24px;border-radius:15px}.s-slot b{font-size:17px}.s-slot small{font-size:12px}.s-shelf{padding:18px}.s-shelf-grid{gap:12px}}
 html[data-theme=dark] .s-pro-tag,html[data-theme=dark] .s-badge-pro{color:#3A2606;background:linear-gradient(135deg,#FFE29A,#F2B64F)}
+a.s-slot.is-free{text-decoration:none;color:var(--ink)}
+a.s-slot.is-free:focus-visible{outline:3px solid var(--blue,#2a64e8);outline-offset:5px}
+a.s-slot.is-free b,a.s-slot.is-free small{text-decoration:none}

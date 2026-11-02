@@ -1,12 +1,17 @@
-/* Wrapline Pro reviews on the landing page: one average across all nine tools, each tool's own score,
-   and the latest written reviews. Read-only; reviews are written on each tool's page. Text is always rendered as text. */
+/* Wrapline reviews on a landing page: one average across the product's tools, each tool's own score,
+   and the latest written reviews. The section's data-product picks the tools: "pro" (nine Wrapline Pro tools, default)
+   or "free" (four free Wrapline tools), so the two products never mix their scores.
+   Read-only; reviews are written on each tool's page. Text is always rendered as text. */
 const section=document.querySelector('[data-wrapline-reviews]');
 const chip=document.querySelector('[data-wrapline-rating]');
-const TOOLS=[['advanced-ik-fk-switch','Advanced IK FK Switch'],['alembic-exporter','Alembic Exporter'],['audio-exporter','Audio Exporter'],
+const PRODUCT=(section||chip)?.dataset.product==='free'?'free':'pro';
+const LABEL=PRODUCT==='free'?'Wrapline':'Wrapline Pro';
+const TOOLS=PRODUCT==='free'?[['ik-fk-snap','IK / FK Snap'],['multi-swapper','Multi Swapper'],['udim-preview','UDIM Preview'],['layer-prefix-remover','Layer Prefix Remover']]
+ :[['advanced-ik-fk-switch','Advanced IK FK Switch'],['alembic-exporter','Alembic Exporter'],['audio-exporter','Audio Exporter'],
  ['fbx-exporter','FBX Exporter'],['hotkey-manager','Hotkey Manager'],['playblast','Playblast'],['rebake-ik-space','Rebake IK Space'],['revert-to-last-saved','Revert to Last Saved'],
  ['rivet','Rivet']];
 const NAMES=Object.fromEntries(TOOLS);
-const CACHE='ajoy.reviews.all';
+const CACHE='ajoy.reviews.product.'+PRODUCT;
 const reduce=matchMedia('(prefers-reduced-motion: reduce)');
 
 const el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text!=null)n.textContent=text;return n;};
@@ -24,7 +29,7 @@ async function post(tool){
  const result=await response.json();if(!response.ok||!result.ok)throw Error(result.error||'unavailable');return result;
 }
 
-/* Until the Apps Script with the combined summary is deployed, add up each tool's public list instead. */
+/* Add up each of this product's tools (each list is cached by the service for five minutes). */
 async function combine(){
  const lists=await Promise.all(TOOLS.map(([tool])=>post(tool).catch(()=>null)));
  if(lists.every(l=>!l))throw Error('unavailable');
@@ -36,9 +41,7 @@ async function combine(){
  return {count,average:count?Math.round(total/count*10)/10:0,distribution,tools,reviews:reviews.filter(r=>r.text).slice(0,6)};
 }
 
-async function fetchAll(){
- try{return await post('all');}catch(error){if(error.message==='invalid')return combine();throw error;}
-}
+const fetchAll=combine;
 
 function countUp(node,to){
  if(reduce.matches||!to){node.textContent=to.toFixed(1);return;}
@@ -47,8 +50,8 @@ function countUp(node,to){
 
 function render(data){
  if(chip){
-  if(data.count){chip.replaceChildren(starRow(data.average,'rv-stars rv-stars-sm'),el('b','',data.average.toFixed(1)),el('span','',`Wrapline Pro reviews · ${plural(data.count,'review')}`));
-   chip.setAttribute('aria-label',`Wrapline Pro is rated ${data.average.toFixed(1)} out of 5 from ${plural(data.count,'review')}. Read the reviews`);chip.hidden=false;}
+  if(data.count){chip.replaceChildren(starRow(data.average,'rv-stars rv-stars-sm'),el('b','',data.average.toFixed(1)),el('span','',`${LABEL} reviews · ${plural(data.count,'review')}`));
+   chip.setAttribute('aria-label',`${LABEL} is rated ${data.average.toFixed(1)} out of 5 from ${plural(data.count,'review')}. Read the reviews`);chip.hidden=false;}
   else chip.hidden=true;
  }
  if(!section)return;
@@ -56,7 +59,7 @@ function render(data){
  score.replaceChildren();bars.replaceChildren();
  if(!data.count){
   summary.dataset.empty='true';
-  score.append(el('b','rv-empty-title','No reviews yet'),el('p','rv-empty-text','Used a Wrapline Pro tool? Be the first to rate it on the tool’s page.'));
+  score.append(el('b','rv-empty-title','No reviews yet'),el('p','rv-empty-text',PRODUCT==='free'?'Used a free Wrapline tool? Be the first to rate it on the tool’s page.':'Used a Wrapline Pro tool? Be the first to rate it on the tool’s page.'));
  }else{
   delete summary.dataset.empty;
   const avg=el('b','rv-average','0.0');score.append(avg,starRow(data.average,'rv-stars rv-stars-lg'),el('span','rv-total',`Average of ${plural(data.count,'review')} across all tools`));countUp(avg,data.average);

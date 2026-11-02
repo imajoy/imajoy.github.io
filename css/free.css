@@ -94,3 +94,42 @@ html[data-theme=dark] .ft-coffee-card{background:linear-gradient(135deg,#2A1D14,
 .ft-grid .ft-card:nth-child(2){transition-delay:0s}.js .ft-grid .ft-card.reveal:not(.in):nth-child(2){transition-delay:.08s}.js .ft-grid .ft-card.reveal:not(.in):nth-child(3){transition-delay:.16s}.js .ft-grid .ft-card.reveal:not(.in):nth-child(4){transition-delay:.24s}
 .free-pro h2 em{color:#FFE29A}
 @media(max-width:430px){.pillbar:has(.nav-pro)>.maker-home{display:none}}
+
+/* ---------- Free download: waiting state, progress card, success pop ---------- */
+.ft-download{position:relative;overflow:visible;isolation:isolate}
+.ft-download .fd-spin{display:none;width:16px;height:16px;margin-left:10px;border-radius:50%;border:2px solid currentColor;border-right-color:transparent;animation:fd-spin .7s linear infinite}
+.ft-download.is-busy{cursor:progress;background:linear-gradient(110deg,#2A2340 0%,#4B3C8F 45%,#2A2340 90%);background-size:220% 100%;animation:fd-shine 1.6s linear infinite}
+.ft-download.is-busy .fd-spin{display:inline-block}
+.ft-download.is-busy .ico{animation:fd-drop 1s cubic-bezier(.5,0,.5,1) infinite}
+.ft-download.is-done{background:#1B7958;transition:background .3s}
+.fd-confetti{position:absolute;left:50%;top:50%;width:7px;height:10px;border-radius:2px;pointer-events:none;z-index:2;animation:fd-pop .9s cubic-bezier(.2,.8,.3,1) forwards}
+.ft-status[data-state]{text-align:left;position:relative;overflow:hidden}
+.ft-status[data-state=working]{background:rgba(124,92,255,.08);border-color:rgba(124,92,255,.32)}
+.ft-status[data-state=error]{background:rgba(229,72,77,.08);border-color:rgba(229,72,77,.35)}
+.ft-status[data-state=error] .fd-title{color:#C2353A}html[data-theme=dark] .ft-status[data-state=error] .fd-title{color:#FF8A8D}
+.ft-status[data-state=working] .fd-title{color:#5B44E0}html[data-theme=dark] .ft-status[data-state=working] .fd-title{color:#B9A9FF}
+.fd-head{display:flex;align-items:center;gap:10px}
+.fd-title{margin:0!important;font-size:15px}
+.fd-line{margin:6px 0 0;font-weight:500}
+.fd-line.is-swap{animation:fd-swap .45s cubic-bezier(.2,.8,.3,1)}
+.fd-hint{margin:8px 0 0;font-size:13px;color:var(--mute)}
+.fd-again{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.fd-orb{display:inline-flex;gap:4px}
+.fd-orb i{width:7px;height:7px;border-radius:50%;background:linear-gradient(135deg,#9C8CFF,#FF9F82);animation:fd-bounce 1s ease-in-out infinite}
+.fd-orb i:nth-child(2){animation-delay:.15s}.fd-orb i:nth-child(3){animation-delay:.3s}
+.fd-bar{display:block;height:6px;margin-top:12px;border-radius:99px;background:rgba(124,92,255,.15);overflow:hidden}
+.fd-bar i{display:block;height:100%;width:12%;border-radius:inherit;background:linear-gradient(90deg,#9C8CFF,#FF9F82,#FFB46B);animation:fd-load 6s cubic-bezier(.1,.7,.2,1) forwards}
+.fd-tick{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:#2FB583;animation:fd-pop-in .5s cubic-bezier(.3,1.6,.5,1)}
+.fd-tick svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;animation:fd-draw .45s .2s ease-out forwards}
+@keyframes fd-spin{to{transform:rotate(360deg)}}
+@keyframes fd-shine{to{background-position:-220% 0}}
+@keyframes fd-drop{0%,100%{transform:translateY(-1px)}50%{transform:translateY(3px)}}
+@keyframes fd-pop{0%{transform:translate(-50%,-50%) scale(.4);opacity:1}100%{transform:translate(calc(-50% + var(--x)),calc(-50% + var(--y) + 40px)) rotate(var(--r));opacity:0}}
+@keyframes fd-swap{from{opacity:0;transform:translateY(8px);filter:blur(3px)}to{opacity:1;transform:none;filter:none}}
+@keyframes fd-bounce{0%,100%{transform:translateY(0);opacity:.55}50%{transform:translateY(-5px);opacity:1}}
+@keyframes fd-load{0%{width:8%}40%{width:55%}100%{width:92%}}
+@keyframes fd-pop-in{from{transform:scale(0)}to{transform:scale(1)}}
+@keyframes fd-draw{to{stroke-dashoffset:0}}
+@media (prefers-reduced-motion:reduce){.ft-download.is-busy,.ft-download.is-busy .ico,.fd-orb i,.fd-line.is-swap,.fd-tick,.fd-tick svg{animation:none}.fd-tick svg{stroke-dashoffset:0}.fd-bar i{animation:none;width:60%}.ft-download .fd-spin{animation-duration:2s}}
+.free-pro-note{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.55);border:1px dashed rgba(201,147,42,.55);font-size:14px;line-height:1.55}
+html[data-theme=dark] .free-pro-note{background:rgba(255,255,255,.05)}

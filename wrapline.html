@@ -182,10 +182,10 @@
 <link rel="stylesheet" href="css/license-motion.css?v=20261019-motion1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 <link rel="stylesheet" href="css/reviews.css?v=20261023-rv2"><link rel="stylesheet" href="css/wrapline-reviews.css?v=20261023-rv2">
-<link rel="stylesheet" href="css/pro.css?v=20261101-p3">
-<link rel="stylesheet" href="css/scroll-fx.css?v=20261101-sx1">
+<link rel="stylesheet" href="css/pro.css?v=20261102-p4">
+<link rel="stylesheet" href="css/scroll-fx.css?v=20261101-sx1"><link rel="stylesheet" href="css/vibe-scroll.css?v=20261102-vb1">
 </head>
-<body class="home-page">
+<body class="home-page" data-vibe="pro">
 <div class="progress" id="progress" aria-hidden="true"></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -340,6 +340,8 @@
     </div>
   </section>
 
+  <div class="vb-ribbon" data-vibe-ribbon="1" aria-hidden="true"><div class="vb-track"><span>export by shot</span><span>ik ↔ fk, no pop</span><span>rebake spaces</span><span>rivet anything</span><span>playblast in one click</span><span>studio-grade, no cap</span></div></div>
+
   <!-- INSTALL -->
   <section class="block" id="install">
     <div class="wrap install">
@@ -402,12 +404,14 @@
     </div>
   </section>
 
+  <div class="vb-ribbon is-alt" data-vibe-ribbon="-1" aria-hidden="true"><div class="vb-track"><span>4-day free trial</span><span>basic for the 9 pro tools</span><span>premium for all 13</span><span>cancel any time</span><span>your workflow, leveled up</span></div></div>
+
   <!-- PRICING -->
   <section class="block" id="pricing">
     <div class="wrap">
       <div class="head center">
         <h2>Licensing for <em>studios.</em></h2>
-        <p class="sub">Basic includes the 9 Pro tools. Premium includes all 13: the 9 Pro tools plus the 4 Wrapline tools, all working offline.</p>
+        <p class="sub">Basic includes the 9 Pro tools; on Basic, get the 4 free tools by also downloading <a href="wrapline-free.html">free Wrapline</a>. Premium includes all 13: the 9 Pro tools plus the 4 Wrapline tools, all working offline.</p>
         <div class="toggle" role="group" aria-label="Billing period">
           <button type="button" class="on" data-bill="monthly" aria-pressed="true">Monthly</button>
           <button type="button" data-bill="yearly" aria-pressed="false">Yearly <span class="annual-badge">Save up to 20%</span></button>
@@ -425,6 +429,7 @@
           <p class="note" data-note="online">Billed monthly. Cancel any time.</p>
           <ul class="ticks">
             <li>All 9 Pro tools</li>
+            <li class="pl-free-note">Free tools: download <a href="wrapline-free.html">free Wrapline</a> too</li>
             <li>Always the newest version, updated for you</li>
             <li>Needs internet each time Maya starts</li>
             <li>After-sale support by email</li>
@@ -503,6 +508,7 @@
       </div>
       <div class="faq" data-faq-motion>
         <details open><summary>Which versions of Maya does it support?</summary><p>Autodesk Maya 2023, 2024, 2025 and 2026, on Windows.</p></details>
+        <details><summary>Do I get the free Wrapline tools with Wrapline Pro?</summary><p>With <b>Premium</b>, yes: all 13 tools are included, the 9 Pro tools plus IK / FK Snap, Multi Swapper, UDIM Preview and Layer Prefix Remover. <b>Basic</b> includes the 9 Pro tools only, so to use the 4 free tools on Basic, also download <a href="wrapline-free.html">free Wrapline</a>. It’s free, and both toolkits work side by side in Maya.</p></details>
         <details><summary>What is the difference between Basic and Premium?</summary><p>Both plans need internet for initial installation. Basic checks your subscription each time Maya starts and always runs the newest version. Premium works without internet once installed, and you choose when to update from the Wrapline Pro menu. Premium also includes the 4 Wrapline tools (IK / FK Snap, Multi Swapper, UDIM Preview and Layer Prefix Remover), so all 13 tools install together and work offline.</p></details>
         <details><summary>What happens if I stop paying?</summary><p>Access is tied to an active subscription. When it ends, your code is turned off and the tools stop working. See the license for the full terms.</p></details>
         <details><summary>Can I assign hotkeys to the tools?</summary><p>Yes. Right-click any tool in the Wrapline Pro menu or on the shelf and choose Assign Hotkey. Maya tells you if the combination is already in use.</p></details>
@@ -551,11 +557,11 @@
 <script src="js/main.js?v=20261019-i1"></script>
 <script type="module" src="js/extras.js?v=20261023-p5"></script>
 <script type="module" src="js/pricing.js?v=20261025-cta1"></script>
-<script type="module" src="js/wrapline-reviews.js?v=20261101-rv3"></script>
+<script type="module" src="js/wrapline-reviews.js?v=20261102-rv4"></script>
 <script type="module" src="js/landing-motion.js?v=20261021-lite2"></script>
 <script type="module" src="js/tool-card-motion.js?v=20261019-lock1"></script>
 
 <script type="module" src="js/account.js?v=20261025-cards1"></script>
 <script type="module" src="js/workflows.js?v=20261018-a1"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/faq.js?v=20261019-s1"></script><script type="module" src="js/ui-motion.js?v=20261023-p5"></script><script type="module" src="js/trial-promotion.js?v=20261025-cta1"></script><script type="module" src="js/guest-prompt.js?v=20261019-account2"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script type="module" src="js/license-motion.js?v=20261019-motion1"></script>
-<script src="js/scroll-fx.js?v=20261101-sx1" defer></script></body>
+<script src="js/scroll-fx.js?v=20261101-sx1" defer></script><script src="js/vibe-scroll.js?v=20261102-vb1" defer></script></body>
 </html>

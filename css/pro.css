@@ -50,3 +50,4 @@ html[data-theme=dark] .pro-aurora{background:radial-gradient(40% 35% at 78% 30%,
 @keyframes pro-twinkle{0%,100%{opacity:0;transform:scale(.4)}45%{opacity:.95;transform:scale(1)}60%{opacity:.2}}
 @media(max-width:980px){.pro-sparks{display:none}}
 @media(prefers-reduced-motion:reduce){.pro-word,.pro-chip::after,.pro-aurora,.hero h1 em,.pro-sparks i,.closing h2{animation:none}.pro-chip::after{display:none}.bento-pro .tile::after{display:none}}
+.ticks li.pl-free-note{color:var(--mute);font-size:.94em}.ticks li.pl-free-note a{color:inherit;font-weight:700;text-decoration:underline;text-underline-offset:3px}

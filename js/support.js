@@ -65,7 +65,7 @@ function onAmount(){
  const hint=$('sp-range'),lim=LIMITS[state.cur],empty=$('sp-amount').value.trim()==='';
  hint.textContent=(!empty&&!valid(n,state.cur))?`Please enter between ${money(lim.min,state.cur)} and ${money(lim.max,state.cur)}, with at most two decimals.`:`Anything from ${money(lim.min,state.cur)} to ${money(lim.max,state.cur)}.`;
  hint.dataset.error=(!empty&&!valid(n,state.cur))?'true':'false';
- const rz=$('sp-rzp');rz.textContent=valid(n,state.cur)?`Donate ${money(n,state.cur)} with Razorpay`:'Donate with Razorpay';
+ const rz=$('sp-rzp');rz.textContent=valid(n,state.cur)?`Send ${money(n,state.cur)} of coffee love ☕💛`:'Send some coffee love ☕💛';
  paintMug();
 }
 function setCurrency(cur,keepAmount){

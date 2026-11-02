@@ -1,0 +1,25 @@
+/* Site-wide hover feedback (loaded on every page). Mouse/pen only, so phones never get "stuck" hover states.
+   It uses the separate `translate` and `scale` properties, so it never fights an element's own transform animations,
+   and :where() keeps specificity at zero so a page's own hover styles always win. Off for reduced motion. */
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+ /* buttons and pills: lift with a soft shadow */
+ :where(.btn,.cfb,.nav-cta,.pill,.s-pill,button.rv-write,.rv-more,.tabs button,.workflow-choices button):not(:disabled):hover{translate:0 -2px;box-shadow:0 12px 26px -14px rgba(30,40,90,.45)}
+ :where(.btn,.cfb,.nav-cta,.pill,.s-pill):not(:disabled):active{translate:0 0;scale:.98}
+ /* cards and panels: rise, with a faint ring */
+ :where(.s-card,.s-cmp,.s-point,.s-contact-card,.s-slot,.mp-card,.plan,.ft-card,.ft-steps li,.free-pro,.tool-free,.rights-note,.rv-card,.rv-summary,.wlr-tool-link,.contact-card,.sp-card,.policy-highlights article,.guide-notes,.cardlike,.step-card,.faq-card):hover{translate:0 -4px;box-shadow:0 22px 44px -24px rgba(30,40,90,.38),0 0 0 1px rgba(124,92,255,.18)}
+ /* chips and tags: little pop */
+ :where(.chipl,.wlr-tag,.rv-tag,.tag,.chip):hover{translate:0 -2px;scale:1.05}
+ /* icons inside cards: playful tilt */
+ :where(.s-card,.s-cmp,.ft-card,.plan,.tile,.mp-card):hover :where(.ft-ic,.s-logo,.ic,.plan-logo){rotate:-6deg;scale:1.1}
+ /* FAQ rows slide a little */
+ :where(.faq summary,details>summary):hover{translate:4px 0}
+ /* nav and footer links */
+ :where(nav a,.site-header a,footer a,.pill-nav a):hover{translate:0 -1px}
+ :where(footer a):hover{translate:3px 0}
+ /* text links that are not buttons: underline draws in */
+ :where(main p a,main li a,.text-link,.tl-link):not(.btn):not(.cfb):hover{text-decoration-line:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+ /* images and figures: tiny zoom */
+ :where(figure.tool-visual,.maker-preview,.shot img,.thumb img):hover{scale:1.015}
+ /* smooth the movement; elements with a scroll "reveal" keep their own slower entrance timing */
+ :is(.btn,.cfb,.chipl,.wlr-tag,.s-card,.s-cmp,.s-point,.s-contact-card,.s-slot,.mp-card,.plan,.ft-card,.ft-steps li,.free-pro,.tool-free,.rv-card,.rv-summary,.wlr-tool-link,.contact-card,.sp-card,.faq summary,footer a,nav a):not(.reveal,[data-sfx],.sfx-in){transition:translate .35s cubic-bezier(.2,.8,.3,1),scale .35s cubic-bezier(.2,.8,.3,1),rotate .35s cubic-bezier(.2,.8,.3,1),transform .35s cubic-bezier(.2,.8,.3,1),box-shadow .35s ease,background-color .25s ease,background .25s ease,color .25s ease,border-color .25s ease,opacity .25s ease}
+}

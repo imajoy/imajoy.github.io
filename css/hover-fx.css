@@ -17,7 +17,7 @@
  :where(nav a,.site-header a,footer a,.pill-nav a):hover{translate:0 -1px}
  :where(footer a):hover{translate:3px 0}
  /* text links that are not buttons: underline draws in */
- :where(main p a,main li a,.text-link,.tl-link):not(.btn):not(.cfb):hover{text-decoration-line:underline;text-decoration-thickness:2px;text-underline-offset:4px}
+ :where(main p a,main li a:not([class]),.text-link,.tl-link):not(.btn,.cfb,.wlr-tool-link,.wlr-tag,.ft-card,.s-card,.s-slot,.chipl):hover{text-decoration-line:underline;text-decoration-thickness:2px;text-underline-offset:4px}
  /* images and figures: tiny zoom */
  :where(figure.tool-visual,.maker-preview,.shot img,.thumb img):hover{scale:1.015}
  /* smooth the movement; elements with a scroll "reveal" keep their own slower entrance timing */

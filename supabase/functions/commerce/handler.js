@@ -68,8 +68,9 @@ export async function handleCommerceRequest(req,env,request=fetch,networkOf=crea
    const free=data.product==='free';
    const base=env('SUPABASE_URL'),key=env('SUPABASE_SERVICE_ROLE_KEY'),bucket=env('INSTALLER_BUCKET'),legacy=env('INSTALLER_OBJECT')||'';
    if(!base||!key||!bucket)throw fail('The registered download is not connected yet.',503);
-   // Wrapline_Setup.py in the bucket is an older copy of the paid Setup, so it is never handed out as the free one.
-   const objects=free?['Wrapline_Free_Setup.py']:['Wrapline_Pro_Setup.py',...(legacy&&legacy!=='Wrapline_Setup.py'&&legacy!=='Wrapline_Free_Setup.py'?[legacy]:[])];
+   // The free Setup is Wrapline_Setup.py in the bucket (the older Wrapline_Free_Setup.py name is still tried second).
+   // The paid Setup is always Wrapline_Pro_Setup.py, so the two can never be mixed up.
+   const objects=free?['Wrapline_Setup.py','Wrapline_Free_Setup.py']:['Wrapline_Pro_Setup.py',...(legacy&&legacy!=='Wrapline_Setup.py'&&legacy!=='Wrapline_Free_Setup.py'?[legacy]:[])];
    let signedPath='';
    for(const object of objects){
     const encoded=[bucket,...object.split('/')].map(encodeURIComponent).join('/');

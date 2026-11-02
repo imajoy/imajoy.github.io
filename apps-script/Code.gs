@@ -294,7 +294,7 @@ function ordersFor_(email, onlySub) {
   var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 12).getValues(), out = [];
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
-    if (String(r[4]).trim().toLowerCase() === email && /^I-/.test(String(r[1])) && r[3] === mode_()) if (!onlySub || String(r[1]) === onlySub) out.push({ id: String(r[1]), plan: String(r[7]).split(' ')[0], billing: String(r[8]), seats: Number(r[9]) || 1, at: r[0] instanceof Date ? r[0] : new Date(r[0]), trialPlan: String(r[7]).indexOf('trial') >= 0 });
+    if (sheetEmail_(r[4]) === email && /^I-/.test(String(r[1])) && r[3] === mode_()) if (!onlySub || String(r[1]) === onlySub) out.push({ id: String(r[1]), plan: String(r[7]).split(' ')[0], billing: String(r[8]), seats: Number(r[9]) || 1, at: r[0] instanceof Date ? r[0] : new Date(r[0]), trialPlan: String(r[7]).indexOf('trial') >= 0 });
   }
   return out;
 }
@@ -356,15 +356,25 @@ function registeredEmail_(email) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Accounts');
   if (sheet && sheet.getLastRow() > 1) {
     var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues();
-    if (rows.some(function(r) { return String(r[0]).toLowerCase() === email && !!r[1]; })) return true;
+    if (rows.some(function(r) { return sheetEmail_(r[0]) === email && !!r[1]; })) return true;
   }
-  return ordersFor_(email).length > 0;
+  if (ordersFor_(email).length > 0) return true;
+  // A Razorpay buyer counts as registered too (their purchase is kept on the RazorpayCheckouts tab, not Orders).
+  if (typeof razorpayRows_ === 'function') {
+    try { if (razorpayRows_().some(function(r) { return sheetEmail_(r.email) === email && r.accepted; })) return true; } catch (e) {}
+  }
+  return false;
+}
+/* An email as stored in a Sheet cell, made comparable: no spaces or invisible characters, no leading ' (added to
+   stop formulas), lower case. */
+function sheetEmail_(value) {
+  return String(value == null ? '' : value).replace(/[\s\u200b-\u200d\u2060\ufeff]/g, '').replace(/^'/, '').toLowerCase();
 }
 function registerAccount_(email) {
   var ss = SpreadsheetApp.getActiveSpreadsheet(), sheet = ss.getSheetByName('Accounts');
   if (!sheet) { sheet = ss.insertSheet('Accounts'); sheet.appendRow(['Email', 'Verified at', 'Account ID']); sheet.setFrozenRows(1); }
   var rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues() : [];
-  var existing = rows.filter(function(r) { return String(r[0]).toLowerCase() === email && !!r[1]; })[0];
+  var existing = rows.filter(function(r) { return sheetEmail_(r[0]) === email && !!r[1]; })[0];
   if (!existing) sheet.appendRow([email, new Date(), Utilities.getUuid()].map(safeSheetCell_));
 }
 function handleAccount_(d) {

@@ -323,7 +323,7 @@ function handleRazorpay_(d){
   throw commerceError_('action','Unknown Razorpay operation.');
 }
 function razorpaySubscriptions_(email,onlySub){
-  var list=razorpayRows_().filter(function(r){return r.mode===razorpayMode_()&&r.email===email&&r.accepted&&(!onlySub||r.subscriptionId===onlySub);}).slice(-5).reverse();
+  var list=razorpayRows_().filter(function(r){return r.mode===razorpayMode_()&&sheetEmail_(r.email)===email&&r.accepted&&(!onlySub||r.subscriptionId===onlySub);}).slice(-5).reverse();
   return list.map(function(r){
     var item={plan:r.price.plan,billing:r.price.billing,seats:r.price.seats,trial:r.price.offer==='trial'&&!r.convertedAt&&r.trialEndsAt>Date.now()/1000,status:'UNKNOWN',endsAt:r.paidThrough?new Date(r.paidThrough*1000).toISOString():'',renews:false,provider:'razorpay',ref:r.id,_orderTime:r.createdAt};
     try{var s=razorpayVerify_(r);var live=s.status==='active'||s.status==='authenticated'&&(r.price.offer==='trial'||r.price.upfront||r.price.freePeriod);item.status=r.accessRevoked?'EXPIRED':live?'ACTIVE':['cancelled','completed','expired'].indexOf(s.status)>=0?'CANCELLED':'SUSPENDED';item.renews=live&&!r.accessRevoked&&!r.stopRequested&&!s.ended_at;}catch(e){}

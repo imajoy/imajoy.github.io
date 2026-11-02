@@ -16,7 +16,7 @@
 var MAYA_CACHE_SECONDS_ = 300;  // the same email asked again within 5 minutes gets the saved answer (fast Maya start)
 
 function mayaAccess_(d) {
-  var email = String(d.email || '').trim().toLowerCase();
+  var email = sheetEmail_(d.email);
   if (email.length > 120 || !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: true, registered: false };
   var cache = CacheService.getScriptCache(), key = 'maya:' + mode_() + ':' + email;
   if (!d.fresh) {

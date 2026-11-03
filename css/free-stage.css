@@ -1,0 +1,111 @@
+/* Free Wrapline "get it" stage: sign in -> download -> drag into Maya -> menu and shelf appear.
+   Pure decoration (aria-hidden); the real steps are the cards below it. js/free-stage.js sets data-step (0-3) and loops
+   while the stage is on screen. Without JavaScript or with reduced motion it shows the finished scene. */
+.fs{container-type:size;position:relative;margin:0 auto 34px;max-width:820px;aspect-ratio:16/9.4;border-radius:26px;overflow:hidden;isolation:isolate;
+ background:radial-gradient(90% 80% at 20% 0%,#2b2f5e 0%,#151830 55%,#0d0f1f 100%);box-shadow:0 40px 80px -40px rgba(60,50,160,.55),0 0 0 1px rgba(156,140,255,.25);color:#eef0ff;font-family:inherit;user-select:none}
+.fs *{box-sizing:border-box}
+.fs-orb{position:absolute;border-radius:50%;filter:blur(40px);opacity:.55;z-index:-1;animation:fs-float 9s ease-in-out infinite}
+.fs-orb.a{width:240px;height:240px;left:-60px;bottom:-60px;background:#6B5CFF}.fs-orb.b{width:200px;height:200px;right:-40px;top:-50px;background:#FF8A6B;animation-delay:-4s}
+@keyframes fs-float{0%,100%{transform:translate(0,0)}50%{transform:translate(24px,-18px)}}
+
+/* ---- Maya mock ---- */
+.fs-maya{position:absolute;inset:6% 5% 6% 5%;border-radius:14px;background:#262a33;box-shadow:0 30px 60px -30px #000,0 0 0 1px #3a3f4c;overflow:hidden;display:flex;flex-direction:column;transition:filter .7s,opacity .7s,transform .7s}
+.fs[data-step="0"] .fs-maya,.fs[data-step="1"] .fs-maya{filter:blur(3px) brightness(.55);transform:scale(.97)}
+.fs-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:#1d2028;font-size:11px;color:#aab0c4;white-space:nowrap}
+.fs-bar i{width:9px;height:9px;border-radius:50%;background:#ff6b6b}.fs-bar i+i{background:#ffc857}.fs-bar i+i+i{background:#4cd480;margin-right:6px}
+.fs-bar b{font-weight:500;margin-right:10px}
+.fs-bar .fs-wl{position:relative;color:#fff;font-weight:700;padding:2px 9px;border-radius:7px;background:linear-gradient(135deg,#7C5CFF,#FF8A6B);display:none}
+.fs[data-step="3"] .fs-bar .fs-wl{display:inline-block;animation:fs-menu .6s cubic-bezier(.3,1.5,.5,1) both}
+@keyframes fs-menu{from{transform:translateY(-14px) scale(.6);opacity:0}to{transform:none;opacity:1}}
+.fs-shelf{display:flex;gap:7px;align-items:center;padding:7px 12px;background:#2d313b;border-bottom:1px solid #1d2028;min-height:42px}
+.fs-shelf .g{width:22px;height:22px;border-radius:6px;background:#3a3f4c;flex:none}
+.fs-shelf .t{width:30px;height:30px;border-radius:9px;display:none;place-items:center;color:#fff;box-shadow:0 8px 18px -8px rgba(0,0,0,.7)}
+.fs-shelf .t svg{width:17px;height:17px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fs-shelf .t:nth-of-type(1){background:linear-gradient(145deg,#9C8CFF,#6B5CFF)}.fs-shelf .t:nth-of-type(2){background:linear-gradient(145deg,#B49CFF,#7C5CFF)}
+.fs-shelf .t:nth-of-type(3){background:linear-gradient(145deg,#FF9F82,#FF7A5C)}.fs-shelf .t:nth-of-type(4){background:linear-gradient(145deg,#FFB46B,#F2894F)}
+.fs[data-step="3"] .fs-shelf .t{display:grid;animation:fs-pop .55s cubic-bezier(.3,1.7,.5,1) both}
+.fs[data-step="3"] .fs-shelf .t:nth-of-type(1){animation-delay:.5s}.fs[data-step="3"] .fs-shelf .t:nth-of-type(2){animation-delay:.65s}
+.fs[data-step="3"] .fs-shelf .t:nth-of-type(3){animation-delay:.8s}.fs[data-step="3"] .fs-shelf .t:nth-of-type(4){animation-delay:.95s}
+@keyframes fs-pop{from{transform:scale(0) rotate(-30deg);opacity:0}to{transform:none;opacity:1}}
+.fs-view{position:relative;flex:1;background:
+ linear-gradient(#0000 0 0),
+ radial-gradient(70% 60% at 50% 55%,#3a4257 0%,#2a2f3c 60%,#232731 100%);overflow:hidden}
+.fs-grid{position:absolute;left:-20%;right:-20%;bottom:-8%;height:64%;transform:perspective(380px) rotateX(62deg);transform-origin:50% 100%;
+ background-image:linear-gradient(#ffffff22 1px,transparent 1px),linear-gradient(90deg,#ffffff22 1px,transparent 1px);background-size:36px 36px}
+.fs-cube{position:absolute;left:50%;top:44%;width:74px;height:74px;margin:-37px 0 0 -37px;transform-style:preserve-3d;transform:rotateX(-24deg) rotateY(38deg);animation:fs-spin 12s linear infinite}
+.fs-cube i{position:absolute;inset:0;border:1.5px solid #cfd6ee;background:rgba(190,200,235,.14)}
+.fs-cube i:nth-child(1){transform:translateZ(37px)}.fs-cube i:nth-child(2){transform:rotateY(90deg) translateZ(37px)}.fs-cube i:nth-child(3){transform:rotateY(180deg) translateZ(37px)}
+.fs-cube i:nth-child(4){transform:rotateY(-90deg) translateZ(37px)}.fs-cube i:nth-child(5){transform:rotateX(90deg) translateZ(37px)}.fs-cube i:nth-child(6){transform:rotateX(-90deg) translateZ(37px)}
+@keyframes fs-spin{to{transform:rotateX(-24deg) rotateY(398deg)}}
+.fs-dropzone{position:absolute;inset:14px;border-radius:14px;border:2px dashed rgba(156,140,255,.0);display:grid;place-items:center;font-size:13px;font-weight:700;color:#cfc7ff;opacity:0}
+.fs[data-step="2"] .fs-dropzone{animation:fs-zone 3.2s ease both}
+@keyframes fs-zone{0%{opacity:0}15%,60%{opacity:1;border-color:rgba(156,140,255,.9);background:rgba(124,92,255,.12)}100%{opacity:0;border-color:transparent}}
+
+/* ---- floating cards ---- */
+.fs-card{position:absolute;left:50%;top:50%;width:min(340px,78%);padding:18px;border-radius:18px;background:rgba(21,24,48,.92);backdrop-filter:blur(8px);box-shadow:0 30px 60px -24px #000,0 0 0 1px rgba(156,140,255,.35);
+ transform:translate(-50%,-46%) scale(.9);opacity:0;pointer-events:none;transition:opacity .45s,transform .55s cubic-bezier(.2,.9,.3,1.2)}
+.fs[data-step="0"] .fs-signin,.fs[data-step="1"] .fs-dl{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.fs-card h4{margin:0 0 12px;font-size:14px;font-weight:800;display:flex;align-items:center;gap:8px;color:#fff}
+.fs-card h4 svg{width:22px;height:22px}
+.fs-field{height:38px;border-radius:10px;background:#0d0f1f;border:1.5px solid #6B5CFF;display:flex;align-items:center;padding:0 11px;font-size:13px;color:#fff;overflow:hidden}
+.fs-type{display:inline-block;overflow:hidden;white-space:nowrap;width:0;border-right:2px solid #9C8CFF}
+.fs[data-step="0"] .fs-type{animation:fs-type 1.3s .4s steps(19) forwards,fs-caret .6s step-end infinite}
+@keyframes fs-type{to{width:19ch}}@keyframes fs-caret{50%{border-color:transparent}}
+.fs-code{display:flex;gap:7px;margin-top:12px;justify-content:center}
+.fs-code i{width:30px;height:38px;border-radius:9px;background:#0d0f1f;border:1.5px solid #3a3f6e;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:16px;color:#fff}
+.fs-code i::after{content:attr(data-d);opacity:0;transform:scale(.4)}
+.fs[data-step="0"] .fs-code i::after{animation:fs-digit .3s forwards}
+.fs-code i:nth-child(1)::after{animation-delay:1.9s!important}.fs-code i:nth-child(2)::after{animation-delay:2.05s!important}.fs-code i:nth-child(3)::after{animation-delay:2.2s!important}
+.fs-code i:nth-child(4)::after{animation-delay:2.35s!important}.fs-code i:nth-child(5)::after{animation-delay:2.5s!important}.fs-code i:nth-child(6)::after{animation-delay:2.65s!important}
+@keyframes fs-digit{to{opacity:1;transform:none}}
+.fs-ok{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:12.5px;font-weight:700;color:#5FD9A8;opacity:0;transform:translateY(6px)}
+.fs[data-step="0"] .fs-ok{animation:fs-in .5s 3.2s forwards}.fs-ok svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+@keyframes fs-in{to{opacity:1;transform:none}}
+.fs-fileRow{display:flex;align-items:center;gap:12px}
+.fs-file{width:44px;height:52px;border-radius:10px;background:linear-gradient(145deg,#9C8CFF,#6B5CFF);display:grid;place-items:center;flex:none;box-shadow:0 10px 22px -10px #6B5CFF;position:relative}
+.fs-file::after{content:"";position:absolute;right:0;top:0;border-width:0 12px 12px 0;border-style:solid;border-color:transparent #151830 rgba(255,255,255,.35) transparent;border-radius:0 10px 0 0}
+.fs-file svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.fs-fname b{display:block;font-size:13.5px;color:#fff}.fs-fname small{font-size:11.5px;color:#9fa6d4}
+.fs-track{height:7px;border-radius:99px;background:#0d0f1f;margin-top:14px;overflow:hidden}
+.fs-track i{display:block;height:100%;width:0;border-radius:inherit;background:linear-gradient(90deg,#9C8CFF,#FF9F82,#FFB46B)}
+.fs[data-step="1"] .fs-track i{animation:fs-load 2.3s .3s cubic-bezier(.3,.6,.3,1) forwards}
+@keyframes fs-load{to{width:100%}}
+.fs-pct{display:flex;justify-content:space-between;font-size:11.5px;color:#9fa6d4;margin-top:8px}
+.fs-pct b{color:#5FD9A8;opacity:0}.fs[data-step="1"] .fs-pct b{animation:fs-in .4s 2.7s forwards}
+
+/* ---- the file chip that flies into Maya, and the final menu ---- */
+.fs-fly{position:absolute;z-index:4;left:56%;top:0;margin-top:-60px;display:flex;align-items:center;gap:10px;padding:9px 14px 9px 9px;border-radius:14px;background:#fff;color:#14162b;font-size:12px;font-weight:700;box-shadow:0 22px 40px -14px #000;opacity:0;white-space:nowrap}
+.fs-fly .fs-file{width:30px;height:34px;border-radius:8px;box-shadow:none}.fs-fly .fs-file::after{display:none}.fs-fly .fs-file svg{width:15px;height:15px}
+.fs-fly small{display:block;font-weight:500;color:#6a7090;font-size:10.5px}
+.fs[data-step="2"] .fs-fly{animation:fs-fly 3.2s cubic-bezier(.5,0,.2,1) forwards}
+@keyframes fs-fly{0%{opacity:0;transform:translate(0,0) rotate(8deg)}12%{opacity:1}55%{opacity:1;transform:translate(-14cqw,68cqh) rotate(-6deg) scale(1.05)}
+ 72%{opacity:1;transform:translate(-14cqw,69cqh) rotate(0) scale(.82)}100%{opacity:0;transform:translate(-14cqw,70cqh) rotate(0) scale(.2)}}
+.fs-ripple{position:absolute;left:50%;top:60%;width:20px;height:20px;margin:-10px;border-radius:50%;border:2px solid #9C8CFF;opacity:0;z-index:3}
+.fs[data-step="2"] .fs-ripple{animation:fs-ripple 1s 2.1s ease-out forwards}
+@keyframes fs-ripple{0%{opacity:.9;transform:scale(1)}100%{opacity:0;transform:scale(14)}}
+.fs-menu{position:absolute;left:49%;top:15.5%;z-index:3;min-width:176px;padding:8px;border-radius:12px;background:#fff;color:#14162b;box-shadow:0 26px 50px -18px #000;opacity:0;transform:translateY(-8px) scale(.96);transform-origin:20% 0;pointer-events:none}
+.fs[data-step="3"] .fs-menu{animation:fs-dd .5s .35s cubic-bezier(.2,.9,.3,1.2) forwards}
+@keyframes fs-dd{to{opacity:1;transform:none}}
+.fs-menu li{list-style:none;display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:8px;font-size:12px;font-weight:600;opacity:0;transform:translateX(-8px)}
+.fs[data-step="3"] .fs-menu li{animation:fs-li .35s forwards}.fs[data-step="3"] .fs-menu li:nth-child(1){animation-delay:.6s}.fs[data-step="3"] .fs-menu li:nth-child(2){animation-delay:.75s}
+.fs[data-step="3"] .fs-menu li:nth-child(3){animation-delay:.9s}.fs[data-step="3"] .fs-menu li:nth-child(4){animation-delay:1.05s}
+@keyframes fs-li{to{opacity:1;transform:none}}
+.fs-menu li i{width:9px;height:9px;border-radius:50%;background:linear-gradient(135deg,#7C5CFF,#FF8A6B)}
+.fs-menu ul{margin:0;padding:0}
+.fs-chip{position:absolute;z-index:5;right:7%;bottom:9%;display:flex;align-items:center;gap:8px;padding:9px 14px;border-radius:999px;background:#2FB583;color:#fff;font-size:12.5px;font-weight:800;box-shadow:0 14px 28px -12px rgba(47,181,131,.8);opacity:0;transform:translateY(14px) scale(.8)}
+.fs[data-step="3"] .fs-chip{animation:fs-chip .6s 1.5s cubic-bezier(.3,1.6,.5,1) forwards}
+@keyframes fs-chip{to{opacity:1;transform:none}}.fs-chip svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round}
+.fs-dots{position:absolute;z-index:6;left:50%;bottom:10px;transform:translateX(-50%);display:flex;gap:7px}
+.fs-dots i{width:7px;height:7px;border-radius:99px;background:rgba(255,255,255,.28);transition:width .4s,background .3s}
+.fs[data-step="0"] .fs-dots i:nth-child(1),.fs[data-step="1"] .fs-dots i:nth-child(2),.fs[data-step="2"] .fs-dots i:nth-child(3),.fs[data-step="3"] .fs-dots i:nth-child(4){width:22px;background:#fff}
+
+/* the three step cards light up in sync */
+.ft-steps li{transition:box-shadow .4s,translate .4s,background-color .4s}
+.ft-steps li.fs-on{box-shadow:0 22px 44px -24px rgba(124,92,255,.55),0 0 0 2px rgba(124,92,255,.45)}
+
+/* no JavaScript or reduced motion: show the finished scene */
+.fs:not([data-step]) .fs-maya{filter:none}
+.fs:not([data-step]) .fs-shelf .t{display:grid}.fs:not([data-step]) .fs-bar .fs-wl{display:inline-block}
+.fs:not([data-step]) .fs-menu,.fs:not([data-step]) .fs-menu li,.fs:not([data-step]) .fs-chip{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.fs *{animation:none!important;transition:none!important}.fs .fs-cube{animation:none!important}}
+@media (max-width:640px){.fs{aspect-ratio:4/4.3;border-radius:20px}.fs-bar b:nth-of-type(n+4){display:none}.fs-menu{left:34%;top:17%}.fs-fly{left:48%}}

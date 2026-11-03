@@ -1,0 +1,42 @@
+/* Drag & Drop tool page diagram (looping, pure CSS) and the "also included" strip on the Wrapline Pro page. */
+.diagram-dragdrop svg{width:100%;height:auto;display:block}
+.diagram-dragdrop .dd-win{fill:#1b1e26;stroke:#3a3f4c}
+.diagram-dragdrop .dd-bar{fill:#272b35}
+.diagram-dragdrop .dd-wintext{fill:#aab0c4;font:600 11px var(--sans)}
+.diagram-dragdrop .dd-floor{fill:none;stroke:rgba(255,255,255,.13);stroke-width:1}
+.diagram-dragdrop .dd-zone{fill:rgba(42,100,232,.1);stroke:#6DAAFF;stroke-width:2;stroke-dasharray:9 8;opacity:0;animation:ddzone 7s ease-in-out infinite}
+.diagram-dragdrop .dd-zonetext{fill:#cfe0ff;font:700 14px var(--sans);opacity:0;animation:ddzone 7s ease-in-out infinite}
+@keyframes ddzone{0%{opacity:0}6%,28%{opacity:1}36%,100%{opacity:0}}
+.diagram-dragdrop .dd-file rect{fill:url(#ddg,#2A64E8);fill:#2A64E8;filter:drop-shadow(0 8px 10px rgba(0,0,0,.45))}
+.diagram-dragdrop .dd-file.f2 rect{fill:#7C5CFF}.diagram-dragdrop .dd-file.f3 rect{fill:#2FB5AE}
+.diagram-dragdrop .dd-file text{fill:#fff;font:800 14px var(--sans)}
+.diagram-dragdrop .dd-file{opacity:0;animation:ddf1 7s cubic-bezier(.5,0,.2,1) infinite}
+.diagram-dragdrop .dd-file.f2{animation-name:ddf2}.diagram-dragdrop .dd-file.f3{animation-name:ddf3}
+@keyframes ddf1{0%{opacity:0;transform:translate(-30px,40px) rotate(-12deg)}4%{opacity:1}28%{opacity:1;transform:translate(210px,150px) rotate(-4deg)}36%{opacity:0;transform:translate(214px,158px) scale(.5)}100%{opacity:0}}
+@keyframes ddf2{0%{opacity:0;transform:translate(-60px,70px) rotate(10deg)}6%{opacity:1}29%{opacity:1;transform:translate(284px,128px) rotate(3deg)}37%{opacity:0;transform:translate(288px,136px) scale(.5)}100%{opacity:0}}
+@keyframes ddf3{0%{opacity:0;transform:translate(-20px,100px) rotate(-6deg)}8%{opacity:1}30%{opacity:1;transform:translate(356px,152px) rotate(5deg)}38%{opacity:0;transform:translate(360px,160px) scale(.5)}100%{opacity:0}}
+.diagram-dragdrop .dd-panel{opacity:0;transform-origin:320px 170px;animation:ddpanel 7s cubic-bezier(.2,.9,.3,1.1) infinite}
+.diagram-dragdrop .dd-panel>rect{fill:rgba(22,25,34,.94);stroke:#4a5170}
+.diagram-dragdrop .dd-h{fill:#fff;font:800 13px var(--sans)}
+@keyframes ddpanel{0%,35%{opacity:0;transform:scale(.92)}40%,70%{opacity:1;transform:none}76%,100%{opacity:0;transform:scale(.97)}}
+.diagram-dragdrop .dd-row{opacity:0;animation:ddrow 7s ease-out infinite}
+.diagram-dragdrop .dd-row.r2{animation-delay:.25s}.diagram-dragdrop .dd-row.r3{animation-delay:.5s}
+.diagram-dragdrop .dd-row>rect:first-child{fill:#2a2f3b}.diagram-dragdrop .dd-row text{fill:#dfe6ff;font:700 12px var(--sans)}
+.diagram-dragdrop .dd-pill{fill:#2A64E8}.diagram-dragdrop .dd-row.r2 .dd-pill{fill:#7C5CFF}.diagram-dragdrop .dd-row.r3 .dd-pill{fill:#2FB5AE}
+.diagram-dragdrop .dd-row .dd-pt{fill:#fff;font-size:11px}
+@keyframes ddrow{0%,41%{opacity:0;transform:translateX(-10px)}47%,100%{opacity:1;transform:none}}
+.diagram-dragdrop .dd-go{opacity:0;animation:ddgo 7s ease-in-out infinite}
+.diagram-dragdrop .dd-go rect{fill:#FFB84D}.diagram-dragdrop .dd-go text{fill:#2b1d00;font:800 11px var(--sans)}
+@keyframes ddgo{0%,52%{opacity:0}56%,100%{opacity:1}62%{transform:scale(1.06) translate(-9px,-1px)}68%{transform:none}}
+.diagram-dragdrop .dd-done{opacity:0;animation:dddone 7s ease-in-out infinite}
+.diagram-dragdrop .dd-done rect{fill:#2FB583;filter:drop-shadow(0 10px 14px rgba(47,181,131,.55))}.diagram-dragdrop .dd-done text{fill:#fff;font:800 14px var(--sans)}
+@keyframes dddone{0%,76%{opacity:0;transform:translateY(8px)}82%,94%{opacity:1;transform:none}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.diagram-dragdrop .dd-file,.diagram-dragdrop .dd-zone,.diagram-dragdrop .dd-zonetext,.diagram-dragdrop .dd-done{display:none}.diagram-dragdrop .dd-panel,.diagram-dragdrop .dd-row,.diagram-dragdrop .dd-go{animation:none;opacity:1}}
+
+/* "also included" strip under the Wrapline Pro tool cards */
+.tools-extra{display:flex;align-items:center;gap:14px;max-width:880px;margin:26px auto 0;padding:14px 20px;border-radius:999px;border:1px dashed color-mix(in srgb,var(--blue) 45%,var(--line));background:color-mix(in srgb,var(--card,#fff) 70%,transparent);font-size:.95rem;color:var(--mute)}
+.tools-extra .ic{flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,#2FB5AE,#2A64E8)}
+.tools-extra .ic svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.tools-extra b a{color:var(--ink);text-underline-offset:3px}
+.tools-extra em{font-style:normal;font-weight:700;color:var(--blue-d,var(--blue));margin-right:.25em}
+@media(max-width:640px){.tools-extra{border-radius:22px;align-items:flex-start;padding:14px 16px}}

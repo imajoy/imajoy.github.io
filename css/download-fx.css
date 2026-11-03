@@ -2,7 +2,8 @@
    Pure decoration layered on the data-state machine in download.css / js/download.js. */
 @property --r{syntax:'<length>';inherits:true;initial-value:150px}
 @property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
-.dl2{position:relative;isolation:isolate;overflow-x:clip}
+.dl2{position:relative;isolation:isolate;overflow-x:clip;max-width:880px}
+.dl2>.dl-card,.dl2>.requirements,.dl2>.download-fine,.dl2>.offer-inline{max-width:600px;margin-inline:auto}
 
 /* entrance: everything rises in turn (individual `translate` so it never fights other transforms) */
 :where(.dl2)>*{animation:dlrise .9s both cubic-bezier(.16,1,.3,1)}
@@ -10,16 +11,6 @@
 :where(.dl2)>:nth-child(6){animation-delay:.28s}:where(.dl2)>:nth-child(7){animation-delay:.36s}:where(.dl2)>:nth-child(n+8){animation-delay:.44s}
 @keyframes dlrise{from{opacity:0;translate:0 26px;filter:blur(6px)}}
 
-/* aurora */
-.dl-aurora{position:absolute;left:50%;top:-70px;width:min(1200px,100vw);height:560px;translate:-50% 0;overflow:hidden;pointer-events:none;z-index:-1;-webkit-mask-image:linear-gradient(#000 55%,transparent),linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(#000 55%,transparent),linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-composite:intersect}
-.dl-aurora i{position:absolute;width:420px;height:420px;border-radius:50%;filter:blur(70px);opacity:.42;background:var(--c);animation:dlaur var(--t) ease-in-out infinite alternate}
-.dl-aurora i:nth-child(1){--c:#3D8BFF;--t:11s;left:8%;top:10%}
-.dl-aurora i:nth-child(2){--c:#8F6BFF;--t:14s;right:6%;top:0;animation-delay:-4s}
-.dl-aurora i:nth-child(3){--c:#FF8A6B;--t:17s;left:38%;top:40%;width:340px;height:340px;opacity:.28;animation-delay:-8s}
-@keyframes dlaur{to{translate:70px 50px;scale:1.18}}
-[data-state=working] .dl-aurora i{animation-duration:3.5s}
-[data-state=done] .dl-aurora i{--c:#2FB5AE;transition:background .8s}
-html[data-theme=dark] .dl-aurora i{opacity:.3}
 
 /* stage gets a little more room for the orbit */
 .dl-stage{width:300px;height:300px;perspective:900px;margin-bottom:34px}
@@ -90,8 +81,66 @@ html[data-theme=dark] .dl-aurora i{opacity:.3}
 
 @media(max-width:520px){.dl-stage{width:260px;height:260px;scale:.86;margin-block:-14px}.dl-aurora i{width:300px;height:300px}}
 @media(prefers-reduced-motion:reduce){
- :where(.dl2)>*,.dl-aurora i,.dl-orbit,.dl-orb span,.dl-glow,.dl-stage::after,.p-idle .btn-blue::after,.dl-mfile,.dl-mview::before,.dl-steps li,.dl-steps li::before,.dl-steps li::after{animation:none!important}
+ :where(.dl2)>*,.dl-bg .b,.dl-bg i,.dl-orbit,.dl-orb span,.dl-glow,.dl-stage::after,.p-idle .btn-blue::after,.dl-mfile,.dl-mview::before,.dl-steps li,.dl-steps li::before,.dl-steps li::after{animation:none!important}
  [data-state=working] .dl-orb,[data-state=done] .dl-orb,[data-state=working] .dl2 h1,[data-state=working] .dl-card::before{animation:none!important}
  .dl-steps li{opacity:1}.dl-steps li::before{display:none}.dl-steps li::after{scale:1}
  .dl-mok{opacity:1;animation:none}.dl-mfile{display:none}.dl-tilt{transition:none}
 }
+
+/* ===== page-wide background (fixed, full screen) in the Wrapline Pro palette ===== */
+.dl-page{--dl-a:#2A64E8;--dl-b:#7C5CFF;--dl-c:#E6B04A;--dl-d:#FF8A6B}
+.dl-bg{position:fixed;inset:0;z-index:-1;overflow:hidden;pointer-events:none}
+.dl-bg .b{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45;background:var(--c);animation:dlaur var(--t) ease-in-out infinite alternate}
+.dl-bg .b1{--c:var(--dl-a);--t:13s;width:52vmax;height:52vmax;left:-14vmax;top:-18vmax}
+.dl-bg .b2{--c:var(--dl-b);--t:17s;width:46vmax;height:46vmax;right:-14vmax;top:-8vmax;animation-delay:-5s}
+.dl-bg .b3{--c:var(--dl-d);--t:21s;width:38vmax;height:38vmax;left:30vw;bottom:-22vmax;opacity:.28;animation-delay:-9s}
+.dl-bg .b4{--c:var(--dl-c);--t:19s;width:26vmax;height:26vmax;right:6vw;bottom:-8vmax;opacity:.2;animation-delay:-3s}
+@keyframes dlaur{to{translate:6vmax 4vmax;scale:1.15}}
+.dl-bg .dots{position:absolute;inset:0;background:radial-gradient(circle,color-mix(in srgb,var(--ink) 22%,transparent) 1.2px,transparent 1.6px) 0 0/28px 28px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000,transparent 78%);mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000,transparent 78%);opacity:.55;animation:dldots 40s linear infinite}
+@keyframes dldots{to{background-position:28px 56px}}
+.dl-bg i{position:absolute;left:var(--x);bottom:-20px;width:var(--z);height:var(--z);border-radius:50%;background:#fff;box-shadow:0 0 12px 3px color-mix(in srgb,var(--dl-a) 55%,transparent);opacity:0;animation:dlspark var(--t) var(--d) linear infinite}
+html[data-theme=light] .dl-bg i{background:var(--dl-a);box-shadow:0 0 10px 2px color-mix(in srgb,var(--dl-b) 45%,transparent)}
+@keyframes dlspark{0%{opacity:0;translate:0 0}10%{opacity:.9}90%{opacity:.6}100%{opacity:0;translate:30px -110vh}}
+.dl-page:has([data-state=working]) .dl-bg .b{animation-duration:4s}
+.dl-page:has([data-state=done]) .dl-bg .b1{--c:#2FB5AE}.dl-page:has([data-state=done]) .dl-bg .b2{--c:#3D8BFF}
+.dl-bg .b{transition:background .9s}
+
+/* glass cards that sit on the new background */
+.dl2 .dl-card,.dl2 .requirements,.dl2 .offer-inline{background:color-mix(in srgb,var(--card,#fff) 68%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);border:1px solid color-mix(in srgb,#fff 55%,var(--line));box-shadow:0 34px 70px -42px color-mix(in srgb,var(--dl-a) 70%,transparent),inset 0 1px 0 rgba(255,255,255,.5)}
+html[data-theme=dark] .dl2 .dl-card,html[data-theme=dark] .dl2 .requirements,html[data-theme=dark] .dl2 .offer-inline{border-color:color-mix(in srgb,#fff 12%,transparent);box-shadow:0 34px 70px -42px #000,inset 0 1px 0 rgba(255,255,255,.08)}
+.dl2 h1{background:linear-gradient(100deg,var(--ink) 20%,var(--dl-a) 60%,var(--dl-b));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+[data-state=working] .dl2 h1{background:linear-gradient(90deg,var(--ink) 42%,var(--dl-a) 50%,var(--ink) 58%) 0 0/260% 100%;-webkit-background-clip:text;background-clip:text}
+.dl2:not([data-state=done]) .dl-prog{stroke:url(#dlg)}
+.dl-face.dl-front{background:linear-gradient(145deg,#6DAAFF,#2A64E8 60%,#7C5CFF)}
+
+/* ===== journey scene (Pro colours over css/free-stage.css) ===== */
+.dl-journey{margin:64px auto 10px;text-align:center}
+.dl-eyebrow{font:800 12px var(--sans);letter-spacing:.14em;color:var(--dl-a);margin:0 0 8px}
+.dl-journey h2{font-size:clamp(1.6rem,3.4vw,2.3rem);letter-spacing:-.04em;margin:0 0 26px;font-weight:600}
+.fs.fs-pro{background:radial-gradient(90% 80% at 20% 0%,#1d2c63 0%,#101833 55%,#090d1c 100%);box-shadow:0 50px 90px -44px rgba(42,100,232,.7),0 0 0 1px rgba(109,170,255,.3)}
+.fs-pro .fs-orb.a{background:#2A64E8}.fs-pro .fs-orb.b{background:#E6B04A;opacity:.4}
+.fs-pro .fs-file{background:linear-gradient(145deg,#6DAAFF,#2A64E8);box-shadow:0 10px 22px -10px #2A64E8}
+.fs-pro .fs-track i{background:linear-gradient(90deg,#6DAAFF,#7C5CFF,#E6B04A)}
+.fs-pro .fs-card{box-shadow:0 30px 60px -24px #000,0 0 0 1px rgba(109,170,255,.4)}
+.fs-pro .fs-field{border-color:#3D8BFF}.fs-pro .fs-type{border-right-color:#6DAAFF}
+.fs-pro .fs-bar .fs-wl{background:linear-gradient(135deg,#2A64E8,#7C5CFF 60%,#E6B04A)}
+.fs-pro .fs-ripple{border-color:#6DAAFF}
+.fs-pro .fs-dropzone{color:#cfe0ff}
+@keyframes fs-zone-pro{0%{opacity:0}15%,60%{opacity:1;border-color:rgba(109,170,255,.9);background:rgba(42,100,232,.14)}100%{opacity:0;border-color:transparent}}
+.fs-pro[data-step="2"] .fs-dropzone{animation-name:fs-zone-pro}
+.fs.fs-pro .fs-maya .fs-shelf .t{width:30px;height:30px;font:800 11px var(--sans);letter-spacing:.02em;color:#fff;background:linear-gradient(145deg,hsl(var(--h) 85% 62%),hsl(calc(var(--h) + 24) 80% 50%))}
+.fs.fs-pro[data-step="3"] .fs-maya .fs-shelf .t.t{animation-delay:calc(.45s + var(--i) * .09s)}
+.fs.fs-pro[data-step="3"] .fs-menu ul li{animation-delay:calc(.55s + var(--i) * .1s)}
+.fs-pro .fs-menu{min-width:206px}
+.fs-pro .fs-menu li i{background:hsl(var(--h) 85% 58%)}
+.fs-pro .fs-chip{background:#2A64E8;box-shadow:0 14px 28px -12px rgba(42,100,232,.9)}
+.fs-pro:not([data-step]) .fs-shelf .t{display:grid}
+.dl-steps4{list-style:none;margin:22px 0 0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.dl-steps4 li{display:flex;align-items:center;justify-content:center;gap:8px;padding:12px 8px;border-radius:999px;font-weight:700;font-size:.875rem;color:var(--mute);background:color-mix(in srgb,var(--card,#fff) 60%,transparent);border:1px solid var(--line);transition:all .35s}
+.dl-steps4 li b{font:800 11px var(--sans);color:var(--dl-a);opacity:.8}
+.dl-steps4 li.on{color:#fff;background:linear-gradient(135deg,var(--dl-a),var(--dl-b));border-color:transparent;box-shadow:0 16px 30px -16px var(--dl-a);scale:1.04}
+.dl-steps4 li.on b{color:#fff}
+@media(max-width:640px){.dl-steps4{grid-template-columns:1fr 1fr}.fs.fs-pro .fs-maya .fs-shelf .t{width:24px;height:24px;font-size:9px;border-radius:7px}.fs-pro .fs-shelf .g{display:none}.fs-pro .fs-shelf{gap:5px}.fs-pro .fs-menu li{padding:3px 8px;font-size:11px}.fs-pro .fs-menu{min-width:176px}}
+@media(prefers-reduced-motion:reduce){.dl-bg i{display:none}.dl-steps4 li{transition:none}}
+.dl2 .sub{margin-inline:auto;max-width:34em}
+.fs-pro .fs-shelf .g{display:none}

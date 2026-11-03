@@ -1,0 +1,97 @@
+/* Download page extras: aurora, orbiting tools, tilt, step checklist, sweep border, "drop it in Maya" demo.
+   Pure decoration layered on the data-state machine in download.css / js/download.js. */
+@property --r{syntax:'<length>';inherits:true;initial-value:150px}
+@property --ang{syntax:'<angle>';inherits:false;initial-value:0deg}
+.dl2{position:relative;isolation:isolate;overflow-x:clip}
+
+/* entrance: everything rises in turn (individual `translate` so it never fights other transforms) */
+:where(.dl2)>*{animation:dlrise .9s both cubic-bezier(.16,1,.3,1)}
+:where(.dl2)>:nth-child(3){animation-delay:.05s}:where(.dl2)>:nth-child(4){animation-delay:.12s}:where(.dl2)>:nth-child(5){animation-delay:.2s}
+:where(.dl2)>:nth-child(6){animation-delay:.28s}:where(.dl2)>:nth-child(7){animation-delay:.36s}:where(.dl2)>:nth-child(n+8){animation-delay:.44s}
+@keyframes dlrise{from{opacity:0;translate:0 26px;filter:blur(6px)}}
+
+/* aurora */
+.dl-aurora{position:absolute;left:50%;top:-70px;width:min(1200px,100vw);height:560px;translate:-50% 0;overflow:hidden;pointer-events:none;z-index:-1;-webkit-mask-image:linear-gradient(#000 55%,transparent),linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);-webkit-mask-composite:source-in;mask-image:linear-gradient(#000 55%,transparent),linear-gradient(90deg,transparent,#000 22%,#000 78%,transparent);mask-composite:intersect}
+.dl-aurora i{position:absolute;width:420px;height:420px;border-radius:50%;filter:blur(70px);opacity:.42;background:var(--c);animation:dlaur var(--t) ease-in-out infinite alternate}
+.dl-aurora i:nth-child(1){--c:#3D8BFF;--t:11s;left:8%;top:10%}
+.dl-aurora i:nth-child(2){--c:#8F6BFF;--t:14s;right:6%;top:0;animation-delay:-4s}
+.dl-aurora i:nth-child(3){--c:#FF8A6B;--t:17s;left:38%;top:40%;width:340px;height:340px;opacity:.28;animation-delay:-8s}
+@keyframes dlaur{to{translate:70px 50px;scale:1.18}}
+[data-state=working] .dl-aurora i{animation-duration:3.5s}
+[data-state=done] .dl-aurora i{--c:#2FB5AE;transition:background .8s}
+html[data-theme=dark] .dl-aurora i{opacity:.3}
+
+/* stage gets a little more room for the orbit */
+.dl-stage{width:300px;height:300px;perspective:900px;margin-bottom:34px}
+.dl-tilt{position:relative;display:grid;place-items:center;transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .25s ease-out}
+.dl-glow{position:absolute;width:190px;height:190px;border-radius:50%;background:radial-gradient(circle,rgba(61,139,255,.55),transparent 68%);filter:blur(10px);animation:dlglow 3.2s ease-in-out infinite}
+@keyframes dlglow{50%{scale:1.25;opacity:.6}}
+[data-state=done] .dl-glow{background:radial-gradient(circle,rgba(47,181,174,.6),transparent 68%)}
+
+/* orbiting tools */
+.dl-orbit{position:absolute;inset:0;pointer-events:none;animation:dlorbit 46s linear infinite}
+@keyframes dlorbit{to{rotate:360deg}}
+.dl-orb{position:absolute;left:50%;top:50%;width:40px;height:40px;margin:-20px;transform:rotate(var(--a)) translateX(var(--r))}
+.dl-orb span{display:grid;place-items:center;width:100%;height:100%;border-radius:13px;font:800 12px/1 var(--sans);letter-spacing:.02em;color:#fff;rotate:calc(var(--a) * -1);background:linear-gradient(145deg,hsl(var(--h) 85% 62%),hsl(calc(var(--h) + 24) 80% 50%));box-shadow:0 10px 22px -8px hsl(var(--h) 80% 45% / .7),inset 0 1px 0 rgba(255,255,255,.45);animation:dlcounter 46s linear infinite,dlbob 3.4s ease-in-out calc(var(--i) * -.4s) infinite}
+@keyframes dlcounter{to{rotate:calc(-360deg - var(--a))}}
+@keyframes dlbob{50%{scale:1.1}}
+/* working: tools get pulled into the tile one after another */
+[data-state=working] .dl-orb{animation:dlsuck 1.5s calc(var(--i) * .16s) cubic-bezier(.6,0,.9,.5) infinite}
+@keyframes dlsuck{0%{--r:150px;opacity:0;scale:.4}15%{opacity:1;scale:1}80%{opacity:1}100%{--r:28px;opacity:0;scale:.3}}
+/* done: they pop back out and sit in a ring */
+[data-state=done] .dl-orb{animation:dlpop .9s calc(var(--i) * .05s) cubic-bezier(.34,1.56,.64,1) both}
+@keyframes dlpop{from{--r:20px;opacity:0;scale:.2}}
+
+/* sparkle ticks around the ring while idle */
+.dl-stage::after{content:"";position:absolute;inset:14px;border-radius:50%;border:1.5px dashed color-mix(in srgb,var(--blue) 35%,transparent);animation:dlorbit 60s linear infinite reverse;pointer-events:none}
+
+/* button: shine sweep + magnetic pull (vars set by js/download-fx.js) */
+.dl-panel .btn-blue{position:relative;overflow:hidden;translate:var(--mx,0) var(--my,0);transition:translate .2s ease-out,box-shadow .25s}
+.p-idle .btn-blue::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);skew:-18deg;animation:dlshine2 3.6s ease-in-out 1s infinite;pointer-events:none}
+@keyframes dlshine2{0%{left:-40%}45%,100%{left:140%}}
+
+/* card: a colour sweep runs round the edge while working */
+.dl-card{position:relative}
+.dl-card::before{content:"";position:absolute;inset:-2px;border-radius:inherit;padding:2px;background:conic-gradient(from var(--ang),transparent 0 55%,#3D8BFF,#8F6BFF,#FF8A6B,transparent 95%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#000 0 0) content-box exclude,linear-gradient(#000 0 0);opacity:0;transition:opacity .4s;pointer-events:none}
+[data-state=working] .dl-card::before{opacity:1;animation:dlspin 1.6s linear infinite}
+[data-state=done] .dl-card::before{opacity:1;background:conic-gradient(#2FB5AE,#8DBBFF,#2FB5AE);animation:none}
+@keyframes dlspin{to{--ang:360deg}}
+[data-state=working] .dl2 h1{background:linear-gradient(90deg,var(--ink) 42%,var(--blue) 50%,var(--ink) 58%) 0 0/260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:dltext 1.7s linear infinite}
+@keyframes dltext{to{background-position:-260% 0}}
+[data-state=done] .dl2 h1{animation:dlheadpop .7s cubic-bezier(.34,1.56,.64,1)}
+@keyframes dlheadpop{from{scale:.9;opacity:.2}}
+
+/* steps checklist */
+.dl-steps{list-style:none;margin:6px 0 0;padding:0;display:grid;gap:10px;text-align:left}
+.dl-steps li{position:relative;padding-left:32px;font-size:.95rem;color:var(--mute);opacity:.45;animation:dlstepon .4s calc(var(--s) * .85s) both}
+.dl-steps li::before,.dl-steps li::after{content:"";position:absolute;left:0;top:.1em;width:20px;height:20px;border-radius:50%}
+.dl-steps li::before{border:2.5px solid color-mix(in srgb,var(--blue) 25%,transparent);border-top-color:var(--blue);animation:dlrot .7s linear infinite,dlringoff .25s calc(var(--s) * .85s + .75s) forwards}
+.dl-steps li:last-child::before{animation:dlrot .7s linear infinite}
+.dl-steps li::after{background:#2FB5AE url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23fff' stroke-width='3.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center/70% no-repeat;scale:0;animation:dltick .4s calc(var(--s) * .85s + .75s) cubic-bezier(.34,1.8,.5,1) forwards}
+.dl-steps li:last-child::after{display:none}
+@keyframes dlstepon{to{opacity:1;color:var(--ink)}}
+@keyframes dlrot{to{rotate:360deg}}
+@keyframes dlringoff{to{opacity:0;scale:.4}}
+@keyframes dltick{to{scale:1}}
+
+/* done: a tiny "drop it in Maya" loop */
+.dl-maya{margin:0 0 18px;border-radius:16px;overflow:hidden;background:#17191F;box-shadow:0 18px 36px -22px rgba(0,0,0,.6);text-align:left}
+.dl-mbar{display:flex;align-items:center;gap:6px;padding:8px 12px;background:#242730;color:#9AA3B5;font:600 11px var(--sans)}
+.dl-mbar i{width:9px;height:9px;border-radius:50%;background:#FF6B5C}.dl-mbar i:nth-child(2){background:#FFC24D}.dl-mbar i:nth-child(3){background:#35D07F}
+.dl-mbar b{margin-left:auto;font-weight:700;letter-spacing:.04em}
+.dl-mview{position:relative;height:118px;overflow:hidden;background:linear-gradient(#1D2028,#262A35)}
+.dl-mgrid{position:absolute;left:-20%;right:-20%;bottom:-8px;height:70%;background:linear-gradient(rgba(125,150,255,.35) 1px,transparent 1px) 0 0/100% 18px,linear-gradient(90deg,rgba(125,150,255,.35) 1px,transparent 1px) 0 0/26px 100%;transform:perspective(160px) rotateX(58deg);transform-origin:50% 100%}
+.dl-mfile{position:absolute;left:50%;top:50%;margin:-17px;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font:800 11px var(--sans);color:#fff;background:linear-gradient(145deg,#6DAAFF,#2A64E8);box-shadow:0 10px 20px rgba(61,139,255,.5);animation:dlfile 3s cubic-bezier(.5,0,.2,1) infinite}
+@keyframes dlfile{0%{translate:-170px 40px;rotate:-14deg;opacity:0;scale:1}10%{opacity:1}42%{translate:0 -6px;rotate:0deg;scale:1.2}52%{translate:0 8px;scale:.9}58%{translate:0 0;scale:1}72%{scale:1;opacity:1}82%,100%{scale:0;opacity:0}}
+.dl-mview::before{content:"";position:absolute;left:50%;top:50%;width:34px;height:34px;margin:-17px;border-radius:50%;border:2px solid #6DAAFF;opacity:0;animation:dlripple 3s infinite}
+@keyframes dlripple{0%,50%{opacity:0;scale:1}54%{opacity:.9}72%,100%{opacity:0;scale:4.2}}
+.dl-mok{position:absolute;left:50%;top:50%;translate:-50% -50%;white-space:nowrap;padding:9px 16px;border-radius:999px;font:700 13px var(--sans);color:#06201E;background:#5BDCD4;box-shadow:0 12px 26px -8px rgba(47,181,174,.8);opacity:0;animation:dlmok 3s infinite}
+@keyframes dlmok{0%,56%{opacity:0;scale:.6}64%{opacity:1;scale:1.08}70%{scale:1}90%{opacity:1}100%{opacity:0}}
+
+@media(max-width:520px){.dl-stage{width:260px;height:260px;scale:.86;margin-block:-14px}.dl-aurora i{width:300px;height:300px}}
+@media(prefers-reduced-motion:reduce){
+ :where(.dl2)>*,.dl-aurora i,.dl-orbit,.dl-orb span,.dl-glow,.dl-stage::after,.p-idle .btn-blue::after,.dl-mfile,.dl-mview::before,.dl-steps li,.dl-steps li::before,.dl-steps li::after{animation:none!important}
+ [data-state=working] .dl-orb,[data-state=done] .dl-orb,[data-state=working] .dl2 h1,[data-state=working] .dl-card::before{animation:none!important}
+ .dl-steps li{opacity:1}.dl-steps li::before{display:none}.dl-steps li::after{scale:1}
+ .dl-mok{opacity:1;animation:none}.dl-mfile{display:none}.dl-tilt{transition:none}
+}

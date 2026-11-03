@@ -1,6 +1,6 @@
 # Search and sharing
 
-The public site has 21 indexable pages: the Ajoy Tools homepage, Wrapline (free, `wrapline-free.html`) with its 4 tool guides, Wrapline Pro (`wrapline.html`) with its 9 tool guides plus the included Drag & Drop guide (`tool-drag-drop.html`, not counted among the 9), Support, Contact, Privacy and License. Each has a unique title and description, `robots: index, follow, max-image-preview:large`, a self-referencing HTTPS canonical URL, matching Open Graph/Twitter metadata with a 1200×630 share image (`assets/og/*.jpg`, large Twitter card), static JSON-LD (WebPage with primaryImageOfPage, breadcrumbs, SoftwareApplication with offers on both toolkit pages) and a sitemap entry with `lastmod`. Checkout, payment, download, thank-you and 404 pages are `noindex`. Search engines receive this content in HTML without executing pricing or account JavaScript.
+The public site has 21 indexable pages: the Ajoy Tools homepage, Wrapline (free, `wrapline-free.html`) with its 4 tool guides, Wrapline Pro (`wrapline.html`) with its 10 tool guides, Support, Contact, Privacy and License. Each has a unique title and description, `robots: index, follow, max-image-preview:large`, a self-referencing HTTPS canonical URL, matching Open Graph/Twitter metadata with a 1200×630 share image (`assets/og/*.jpg`, large Twitter card), static JSON-LD (WebPage with primaryImageOfPage, breadcrumbs, SoftwareApplication with offers on both toolkit pages) and a sitemap entry with `lastmod`. Checkout, payment, download, thank-you and 404 pages are `noindex`. Search engines receive this content in HTML without executing pricing or account JavaScript.
 
 Share images are generated from the page titles; regenerate them if a tool is renamed.
 
@@ -14,7 +14,7 @@ The check covers titles/descriptions, one main heading, canonical/social URL con
 
 ## Structured data and honest claims
 
-The homepage describes Wrapline (publisher: Ajoy Tools) as a Windows `SoftwareApplication` requiring Autodesk Maya 2023–2026. It lists all 13 tools, dependencies and the publisher. Individual guides have WebPage and BreadcrumbList markup. Audio Exporter and Advanced IK FK Switch descriptions mention their actual FFmpeg and Advanced Skeleton requirements.
+The homepage describes Wrapline (publisher: Ajoy Tools) as a Windows `SoftwareApplication` requiring Autodesk Maya 2023–2026. It lists all 14 tools, dependencies and the publisher. Individual guides have WebPage and BreadcrumbList markup. Audio Exporter and Advanced IK FK Switch descriptions mention their actual FFmpeg and Advanced Skeleton requirements.
 
 There are no fabricated star ratings, review counts or studio endorsements. No fixed global offer is declared: country availability, regional pricing, billing interval, quantity and one-time rewards affect checkout, and Sandbox configuration does not establish Live purchase availability. SoftwareApplication markup without offers/ratings is descriptive; it does **not** promise eligibility for Google's software-app rich results. Do not insert `price: 0` for a paid toolkit merely because the installer is free or an eligible trial exists.
 

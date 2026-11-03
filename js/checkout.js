@@ -77,7 +77,7 @@ async function render(){
  clearTimeout(quantityTimer);
  const r=++quoteRevision,s=selection();quote=null;updateButton();syncQuantity();
  document.querySelector('#summary-plan').textContent=s.plan==='online'?'Basic':'Premium';
- for(const li of document.querySelectorAll('[data-summary-tools]'))li.textContent=s.plan==='online'?'All 9 Wrapline Pro tools':'All 13 tools: 9 Pro + 4 Wrapline, offline';
+ for(const li of document.querySelectorAll('[data-summary-tools]'))li.textContent=s.plan==='online'?'All 10 Wrapline Pro tools':'All 14 tools: 10 Pro + 4 Wrapline, offline';
  document.querySelector('#summary-billing').textContent=s.billing==='yearly'?'Yearly':'Monthly';
  document.querySelector('#summary-seats').textContent=quantity.value!==''?String(s.seats):'—';
  clearAmounts();

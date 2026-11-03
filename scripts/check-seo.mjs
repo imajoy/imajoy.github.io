@@ -15,8 +15,7 @@ const verificationFiles=readdirSync(root).filter(name=>/^google[a-f0-9]+\.html$/
 for(const name of verificationFiles)assert.equal(read(name).trim(),'google-site-verification: '+name,`${name}: invalid Google verification file`);
 const htmlPages=readdirSync(root).filter(name=>name.endsWith('.html')&&!verificationFiles.includes(name));
 const publicPages=htmlPages.filter(name=>!tags(read(name),'meta').some(tag=>tag.name==='robots'&&/\bnoindex\b/.test(tag.content)));
-const freeTools=['tool-ik-fk-snap.html','tool-multi-swapper.html','tool-udim-preview.html','tool-layer-prefix-remover.html'];const extraTools=['tool-drag-drop.html'];const tools=publicPages.filter(name=>name.startsWith('tool-')&&!freeTools.includes(name)&&!extraTools.includes(name));
-for(const extra of extraTools){assert(publicPages.includes(extra),`${extra}: included extra page missing`);assert(read('wrapline.html').includes(`href="${extra}"`),`wrapline.html must link ${extra}`);}
+const freeTools=['tool-ik-fk-snap.html','tool-multi-swapper.html','tool-udim-preview.html','tool-layer-prefix-remover.html'];const tools=publicPages.filter(name=>name.startsWith('tool-')&&!freeTools.includes(name));
 const sitemap=read('sitemap.xml');
 assert.match(sitemap,/<urlset\s+xmlns="http:\/\/www.sitemaps.org\/schemas\/sitemap\/0.9">/);
 const urls=[...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match=>decode(match[1]));

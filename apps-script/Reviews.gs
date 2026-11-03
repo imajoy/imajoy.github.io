@@ -4,7 +4,7 @@
    "Hidden" in the Reviews tab to take one down (the page updates within about five minutes). */
 var REVIEWS_SHEET = 'Reviews';
 var REVIEW_HEADERS_ = ['Date', 'Tool', 'Rating', 'Review', 'Name shown', 'Account email (private)', 'Status', 'Review ID', 'Updated'];
-var REVIEW_TOOLS_ = ['advanced-ik-fk-switch', 'alembic-exporter', 'audio-exporter', 'fbx-exporter', 'hotkey-manager', 'ik-fk-snap',
+var REVIEW_TOOLS_ = ['advanced-ik-fk-switch', 'alembic-exporter', 'audio-exporter', 'drag-drop', 'fbx-exporter', 'hotkey-manager', 'ik-fk-snap',
   'layer-prefix-remover', 'multi-swapper', 'playblast', 'rebake-ik-space', 'revert-to-last-saved', 'rivet', 'udim-preview'];
 
 function reviewsSheet_() {
@@ -66,7 +66,7 @@ function readReviews_(tool) {
   return data;
 }
 
-/* Wrapline Pro reviews: every visible review across all thirteen tools, for the landing page. Email is never included. */
+/* Wrapline Pro reviews: every visible review across all fourteen tools, for the landing page. Email is never included. */
 function readAllReviews_() {
   var cache = CacheService.getScriptCache(), hit = cache.get(reviewCacheKey_('all'));
   if (hit) return JSON.parse(hit);

@@ -33,10 +33,6 @@
 @keyframes dddone{0%,76%{opacity:0;transform:translateY(8px)}82%,94%{opacity:1;transform:none}100%{opacity:0}}
 @media(prefers-reduced-motion:reduce){.diagram-dragdrop .dd-file,.diagram-dragdrop .dd-zone,.diagram-dragdrop .dd-zonetext,.diagram-dragdrop .dd-done{display:none}.diagram-dragdrop .dd-panel,.diagram-dragdrop .dd-row,.diagram-dragdrop .dd-go{animation:none;opacity:1}}
 
-/* "also included" strip under the Wrapline Pro tool cards */
-.tools-extra{display:flex;align-items:center;gap:14px;max-width:880px;margin:26px auto 0;padding:14px 20px;border-radius:999px;border:1px dashed color-mix(in srgb,var(--blue) 45%,var(--line));background:color-mix(in srgb,var(--card,#fff) 70%,transparent);font-size:.95rem;color:var(--mute)}
-.tools-extra .ic{flex:none;width:36px;height:36px;border-radius:11px;display:grid;place-items:center;background:linear-gradient(145deg,#2FB5AE,#2A64E8)}
-.tools-extra .ic svg{width:20px;height:20px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
-.tools-extra b a{color:var(--ink);text-underline-offset:3px}
-.tools-extra em{font-style:normal;font-weight:700;color:var(--blue-d,var(--blue));margin-right:.25em}
-@media(max-width:640px){.tools-extra{border-radius:22px;align-items:flex-start;padding:14px 16px}}
+/* Drag & Drop is the third Scene tool: give it a full-width row under the other two */
+.tl-2 li:nth-child(3){grid-column:1/-1;border-top:1px solid var(--t09)}
+@media(max-width:640px){.tl-2 li:nth-child(3){grid-column:auto}}

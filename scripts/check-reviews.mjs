@@ -73,7 +73,7 @@ try{
   await p.locator('#reviews').scrollIntoViewIfNeeded();
   await p.waitForFunction(()=>document.querySelector('.wl-reviews .rv-average')?.textContent==='4.3');
   assert.match(await p.locator('.wl-reviews .rv-total').textContent(),/3 reviews across all tools/);
-  assert.equal(await p.locator('.wlr-tool').count(),9);
+  assert.equal(await p.locator('.wlr-tool').count(),10);
   assert.match(await p.locator('.wlr-tool').first().textContent(),/Playblast.*5\.0/s,'best rated tool first');
   assert.match(await p.locator('.wlr-tool',{hasText:'Rivet'}).textContent(),/4\.0.*\(2\)/s);
   assert.match(await p.locator('.wlr-tool',{hasText:'Rivet'}).locator('a').getAttribute('href'),/tool-rivet\.html#reviews/);

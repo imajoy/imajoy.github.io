@@ -1,5 +1,5 @@
 /* Wrapline reviews on a landing page: one average across the product's tools, each tool's own score,
-   and the latest written reviews. The section's data-product picks the tools: "pro" (nine Wrapline Pro tools, default)
+   and the latest written reviews. The section's data-product picks the tools: "pro" (ten Wrapline Pro tools, default)
    or "free" (four free Wrapline tools), so the two products never mix their scores.
    Read-only; reviews are written on each tool's page. Text is always rendered as text. */
 const section=document.querySelector('[data-wrapline-reviews]');
@@ -8,7 +8,7 @@ const PRODUCT=(section||chip)?.dataset.product==='free'?'free':'pro';
 const LABEL=PRODUCT==='free'?'Wrapline':'Wrapline Pro';
 const TOOLS=PRODUCT==='free'?[['ik-fk-snap','IK / FK Snap'],['multi-swapper','Multi Swapper'],['udim-preview','UDIM Preview'],['layer-prefix-remover','Layer Prefix Remover']]
  :[['advanced-ik-fk-switch','Advanced IK FK Switch'],['alembic-exporter','Alembic Exporter'],['audio-exporter','Audio Exporter'],
- ['fbx-exporter','FBX Exporter'],['hotkey-manager','Hotkey Manager'],['playblast','Playblast'],['rebake-ik-space','Rebake IK Space'],['revert-to-last-saved','Revert to Last Saved'],
+ ['drag-drop','Drag & Drop'],['fbx-exporter','FBX Exporter'],['hotkey-manager','Hotkey Manager'],['playblast','Playblast'],['rebake-ik-space','Rebake IK Space'],['revert-to-last-saved','Revert to Last Saved'],
  ['rivet','Rivet']];
 const NAMES=Object.fromEntries(TOOLS);
 const CACHE='ajoy.reviews.product.'+PRODUCT;

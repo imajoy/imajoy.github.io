@@ -85,7 +85,7 @@ if(form){
     const stamp=document.querySelector('.offer-stamp');if(stamp)stamp.firstChild.textContent=pct;
     const pick=document.querySelector('#choose-yearly');if(pick)pick.textContent='Switch to yearly · save '+pct+'%';
     document.querySelector('[data-offer-heading]').textContent=yearly?'Your first '+name+' year includes '+pct+'% savings.':'Save '+pct+'% on your first '+name+' year.';
-    document.querySelector('[data-offer-copy]').textContent=yearly?'Compared with 12 standard monthly payments. Review the annual total below.':'Same 9 tools. A lower price than paying monthly for a year.';
+    document.querySelector('[data-offer-copy]').textContent=yearly?'Compared with 12 standard monthly payments. Review the annual total below.':'Same 10 tools. A lower price than paying monthly for a year.';
     control.hidden=yearly;
   };
   control?.addEventListener('click',()=>{form.elements.billing.value='yearly';form.elements.billing.dispatchEvent(new Event('change',{bubbles:true}));});
@@ -118,7 +118,7 @@ function tryNudge(){
   opening=true;
   nudge=document.createElement('aside');nudge.className='trial-nudge';
   nudge.setAttribute('role','region');nudge.setAttribute('aria-labelledby','trial-nudge-title');
-  nudge.innerHTML='<button type="button" class="offer-close" aria-label="Dismiss free trial offer">×</button><div class="nudge-art" aria-hidden="true"><span class="nudge-orbit"></span><div class="nudge-pass"><span>WRAPLINE PRO / BASIC</span><b>4<span>days</span></b><small>FREE TRIAL</small></div><span class="nudge-tool nudge-tool-one">IK / FK</span><span class="nudge-tool nudge-tool-two">EXPORT</span></div><div class="nudge-copy"><p class="offer-eyebrow">9 MAYA TOOLS. ONE FREE TRIAL.</p><h2 id="trial-nudge-title">Your next project.<br><em>Try it free for 4 days.</em></h2><p>All 9 Maya tools. Your own scenes. See what fits your workflow.</p><a class="btn btn-blue" href="'+pricingHref+'">Explore my free trial <svg class="offer-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L18 6M6 6h12v12"/></svg></a><p class="nudge-terms">Eligible customers only. Verified email and PayPal approval required. Renews into a paid subscription after 4 days unless cancelled.</p><button class="offer-later" type="button">Maybe later</button></div>';
+  nudge.innerHTML='<button type="button" class="offer-close" aria-label="Dismiss free trial offer">×</button><div class="nudge-art" aria-hidden="true"><span class="nudge-orbit"></span><div class="nudge-pass"><span>WRAPLINE PRO / BASIC</span><b>4<span>days</span></b><small>FREE TRIAL</small></div><span class="nudge-tool nudge-tool-one">IK / FK</span><span class="nudge-tool nudge-tool-two">EXPORT</span></div><div class="nudge-copy"><p class="offer-eyebrow">9 MAYA TOOLS. ONE FREE TRIAL.</p><h2 id="trial-nudge-title">Your next project.<br><em>Try it free for 4 days.</em></h2><p>All 10 Maya tools. Your own scenes. See what fits your workflow.</p><a class="btn btn-blue" href="'+pricingHref+'">Explore my free trial <svg class="offer-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 18L18 6M6 6h12v12"/></svg></a><p class="nudge-terms">Eligible customers only. Verified email and PayPal approval required. Renews into a paid subscription after 4 days unless cancelled.</p><button class="offer-later" type="button">Maybe later</button></div>';
   const native=typeof nudge.showPopover==='function';
   if(native)nudge.setAttribute('popover','auto');
   document.body.append(nudge);

@@ -59,7 +59,7 @@ test('Wrapline reviews: one average across every tool, per-tool stats and recent
  call(s,{tool:'playblast',op:'save',rating:3,text:'Fine for dailies.',name:'Lee',accountToken:s.ctx.makeSession_('c@example.com')});
  const all=call(s,{tool:'all',op:'list'});
  assert.equal(all.ok,true);assert.equal(all.count,3);assert.equal(all.average,4);assert.deepEqual(all.distribution,[0,0,1,1,1]);
- assert.equal(all.tools.length,13);
+ assert.equal(all.tools.length,14);
  assert.deepEqual(all.tools.find(t=>t.tool==='rivet'),{tool:'rivet',count:2,average:4.5});
  assert.equal(all.reviews.length,2,'only reviews with text are quoted');assert.equal(all.reviews[0].tool!==undefined,true);
  assert.equal(JSON.stringify(all).includes('@example.com'),false);

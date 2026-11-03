@@ -21,7 +21,7 @@ async function open(width,mode='normal'){
 }
 async function visibleTools(page){
  const rows=page.locator('#tools .tl li');
- assert.equal(await rows.count(),9,'Every tool must remain in its category.');
+ assert.equal(await rows.count(),10,'Every tool must remain in its category.');
  assert(await rows.evaluateAll(elements=>elements.every(row=>
   Number(getComputedStyle(row).opacity)>=.5&&getComputedStyle(row.closest('.tile')).opacity==='1'&&
   row.getBoundingClientRect().height>20&&row.querySelector('.ic')&&

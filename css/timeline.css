@@ -25,3 +25,4 @@
  .tl-on main>section:not(.s-hero):not(.tl-seen)>.wrap{opacity:0;transform:translateY(54px)}
 }
 @media(max-width:720px){.tl-name,.tl-bar .tl-end{display:none}.tl-bar{bottom:12px}.tl-curve{opacity:.8}}
+.tl-curve{display:none}

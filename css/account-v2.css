@@ -83,3 +83,11 @@ html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
 @media(max-width:420px){.acct-otp{gap:6px}.acct-otp>i{height:54px}}
 @media(prefers-reduced-motion:reduce){.acct-tick{animation:none;stroke-dashoffset:0}.acct-confetti{display:none}.acct-otp>i{transition:none}}
 .acct-body h2:focus,.acct-body h2:focus-visible{outline:none}
+
+/* no visible submit button: auto-send. The button stays in the page (hidden) for Enter, screen readers and tests. */
+.acct-form .btn[type=submit]{position:absolute;width:1px;height:1px;margin:0;padding:0;min-height:0;overflow:hidden;opacity:0;box-shadow:none}
+.acct-form{gap:12px}
+.acct-auto{margin:2px 0 0;font-size:.8125rem;line-height:1.5;color:var(--mute);display:flex;align-items:center;gap:8px}
+.acct-auto::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ac1);animation:acct-pulse 1.8s ease-in-out infinite;flex:none}
+@keyframes acct-pulse{50%{transform:scale(1.7);opacity:.4}}
+@media(prefers-reduced-motion:reduce){.acct-auto::before{animation:none}}

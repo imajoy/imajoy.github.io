@@ -1,0 +1,66 @@
+/* Home v6: centred hero with the Maya window rising out of the page, tool marquee, and ONE orchestrated load sequence.
+   The page stays hidden for a beat (html.n-pre) until fonts and styles are ready, then html.n-go plays everything in order. */
+
+/* ---- layout: centred ---- */
+.h-hero{padding:150px 0 90px;min-height:0;text-align:center}
+.h-hero-grid{display:grid;grid-template-columns:minmax(0,1fr);justify-items:center;gap:0}
+.h-copy{display:contents}
+.h-eyebrow{order:1}.h-hero h1{order:2}.h-lead{order:3}.h-hero .h-actions{order:4}.h-stage{order:5}.h-facts{order:6}
+.h-hero h1{font-size:clamp(46px,8.4vw,124px);line-height:.96;letter-spacing:-.055em;margin:26px 0 26px;max-width:13em}
+.h-hero h1 .h-line{display:block}
+.h-lead{max-width:36em;margin-inline:auto;font-size:clamp(17px,1.5vw,20px)}
+.h-hero .h-actions{justify-content:center;margin-top:30px}
+.h-stage{width:min(1040px,100%);margin-top:64px}
+.h-facts{justify-content:center;margin-top:56px;width:min(760px,100%);gap:clamp(28px,6vw,80px)}
+.h-facts div{text-align:center}
+.h-gate{inset:96px 22px 22px}
+.h-beam{background:conic-gradient(from 180deg at 50% 0%,transparent 0 8%,rgba(90,140,255,.22) 14%,transparent 21%,transparent 36%,rgba(255,176,96,.2) 42%,transparent 49%,transparent 100%);transform-origin:50% 0}
+html[data-theme=dark] .h-beam{background:conic-gradient(from 180deg at 50% 0%,transparent 0 8%,rgba(90,140,255,.34) 14%,transparent 22%,transparent 36%,rgba(255,170,90,.28) 42%,transparent 50%,transparent 100%)}
+.h-tile.t1{left:-4%;top:-46px}.h-tile.t5{left:30%;top:-70px}.h-tile.t2{right:-3%;top:-30px}.h-tile.t3{left:-6%;top:44%}.h-tile.t4{right:-2%;bottom:-40px}
+
+/* ---- marquee ---- */
+.n-marq{position:relative;z-index:0;padding:8px 0 130px;overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent);mask:linear-gradient(90deg,transparent,#000 12%,#000 88%,transparent)}
+.n-track{display:grid;gap:14px}
+.n-row{list-style:none;margin:0;padding:0;display:flex;gap:14px;width:max-content;animation:n-drift 60s linear infinite}
+.n-row.rev{animation-direction:reverse;animation-duration:70s}
+.n-row li{flex:none;display:flex;align-items:center;gap:12px;padding:10px 20px 10px 10px;border-radius:99px;background:var(--card);border:1px solid var(--line);font-weight:600;font-size:15px;color:var(--ink);box-shadow:0 10px 24px -18px rgba(14,30,80,.5)}
+.n-row b{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;font:800 11px var(--sans);color:#fff;background:linear-gradient(145deg,hsl(var(--h) 80% 62%),hsl(calc(var(--h) + 26) 72% 46%))}
+.n-marq:hover .n-row{animation-play-state:paused}
+@keyframes n-drift{to{transform:translate3d(-50%,0,0)}}
+
+/* ---- load sequence ---- */
+.n-pre .site-header,.n-pre .home,.n-pre .site-footer{visibility:hidden}
+/* old one-off entrances off; the sequence below replaces them */
+.home .h-line>span,.home .h-lead,.home .h-hero .h-actions,.home .h-facts,.home .h-demo,.home .h-sel::after,.home .h-handle,.home .g-c,.home .g-hud,.home .h-eyebrow,.home .h-rec{animation:none}
+.home .h-tile{animation:tile-float 7s ease-in-out infinite}
+@media(prefers-reduced-motion:no-preference){
+ .n-go .pillbar{animation:n-drop .9s var(--out) both}
+ .n-go .h-beam{animation:n-fade 2s .1s both}
+ .n-go .h-orb{animation:n-fade 2.2s .1s both}
+ .n-go .g-c{animation:g-in 1.1s .3s var(--out) both}.n-go .g-hud{animation:fade-in .8s 1s both}
+ .n-go .h-eyebrow{animation:n-up .9s .2s var(--out) both}
+ .n-go .h-rec{animation:rec 1.6s steps(1) infinite}
+ .n-go .h-line>span{animation:line-up 1.15s .35s var(--out) both}
+ .n-go .h-line+.h-line>span{animation-delay:.5s}
+ .n-go .h-sel::after{animation:sel-draw .7s 1.5s var(--out) both}
+ .n-go .h-handle{animation:pop .35s 2s var(--out) both}
+ .n-go .h-lead{animation:n-up 1s .85s var(--out) both}
+ .n-go .h-hero .h-actions{animation:n-up 1s 1s var(--out) both}
+ .n-go .h-stage{animation:n-stage 1.6s 1.05s cubic-bezier(.2,.8,.2,1) both}
+ .n-go .h-facts{animation:n-up 1s 1.9s var(--out) both}
+ .n-go .h-tile{animation:n-pop .8s var(--out) both,tile-float 7s ease-in-out infinite}
+ .n-go .h-tile.t1{animation-delay:2.1s,0s}.n-go .h-tile.t5{animation-delay:2.25s,-5.6s}.n-go .h-tile.t2{animation-delay:2.4s,-1.4s}.n-go .h-tile.t3{animation-delay:2.55s,-2.8s}.n-go .h-tile.t4{animation-delay:2.7s,-4.2s}
+ .n-go .n-marq{animation:n-up 1.2s 2.2s var(--out) both}
+ @keyframes n-drop{from{opacity:0;translate:0 -34px}}
+ @keyframes n-up{from{opacity:0;translate:0 34px}}
+ @keyframes n-fade{from{opacity:0}}
+ @keyframes n-pop{from{opacity:0;scale:.6}}
+ @keyframes n-stage{from{opacity:0;transform:perspective(1400px) translate3d(0,150px,-80px) rotateX(26deg);transform-origin:50% 0}to{opacity:1;transform:perspective(1400px)}}
+}
+@media(max-width:980px){.h-hero{padding:130px 0 60px}.h-stage{margin-top:44px}@keyframes n-stage{from{opacity:0;translate:0 70px}}}
+@media(prefers-reduced-motion:reduce){.n-row{animation:none}.n-marq{-webkit-mask:none;mask:none}.n-track{overflow-x:auto}}
+.h-tile.t1{left:-5%;top:40px}.h-tile.t2{right:-4%;top:70px}.h-tile.t3{left:-6%;top:50%}.h-tile.t4{right:-3%;bottom:-34px}.h-tile.t5{left:6%;top:auto;bottom:-44px}
+.h-tile.t1{left:-6.5%;top:110px}
+
+.n-marq:not(.on) .n-row{animation-play-state:paused}
+.h-beam{animation:none}

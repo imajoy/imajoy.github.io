@@ -72,16 +72,8 @@
     apply();
   }
 
-  /* statement: split into words so each lights up with the scroll (CSS does the timing) */
-  var say = home.querySelector('[data-say]');
-  if (say && !reduce) {
-    var words = say.textContent.trim().split(/\s+/); say.setAttribute('aria-label', say.textContent.trim()); say.textContent = '';
-    words.forEach(function (w, i) {
-      var sp = document.createElement('span'); sp.className = 'w'; sp.setAttribute('aria-hidden', 'true'); sp.textContent = w; sp.style.setProperty('--a', (30 + 34 * i / words.length).toFixed(2) + '%'); sp.style.setProperty('--b', (30 + 34 * i / words.length + 5).toFixed(2) + '%');
-      say.appendChild(sp); say.appendChild(document.createTextNode(' '));
-    });
-    say.classList.add('split');
-  }
+  var mq = home.querySelector('.n-marq');
+  if (mq && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { mq.classList.toggle('on', es[0].isIntersecting); }).observe(mq); else if (mq) mq.classList.add('on');
 
   /* Outliner -> Attribute Editor */
   var rows = [].slice.call(home.querySelectorAll('.o-row')), ae = home.querySelector('.o-ae');

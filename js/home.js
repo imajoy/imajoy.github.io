@@ -69,8 +69,8 @@
     apply();
   }
 
-  var mq = home.querySelector('.n-marq');
-  if (mq && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { mq.classList.toggle('on', es[0].isIntersecting); }).observe(mq); else if (mq) mq.classList.add('on');
+  var gate = home.querySelector('.h-gate');
+  if (gate && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { gate.classList.toggle('off', !es[0].isIntersecting); }).observe(gate);
 
   /* Outliner -> Attribute Editor */
   var rows = [].slice.call(home.querySelectorAll('.o-row')), ae = home.querySelector('.o-ae');

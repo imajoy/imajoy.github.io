@@ -100,7 +100,7 @@
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 
-<link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/tool-explainer.css?v=xp1"><link rel="stylesheet" href="css/home.css?v=h3"><link rel="stylesheet" href="css/home3d.css?v=h7"><link rel="stylesheet" href="css/home-v6.css?v=n4"><link rel="stylesheet" href="css/transitions.css?v=vt2"></head>
+<link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/tool-explainer.css?v=xp1"><link rel="stylesheet" href="css/home.css?v=h3"><link rel="stylesheet" href="css/home3d.css?v=h9"><link rel="stylesheet" href="css/home-v6.css?v=n4"><link rel="stylesheet" href="css/transitions.css?v=vt2"></head>
 <script>(function(){var d=document.documentElement;if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("n-pre");function go(){if(!d.classList.contains("n-pre"))return;requestAnimationFrame(function(){requestAnimationFrame(function(){d.classList.remove("n-pre");d.classList.add("n-go")})})}var f=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve();var l=new Promise(function(r){if(document.readyState==="complete")r();else addEventListener("load",r)});Promise.all([f,l]).then(go);setTimeout(go,2200)})()</script>
 <body class="studio-page" >
 <a class="skip" href="#main">Skip to content</a>
@@ -126,11 +126,12 @@
   <!-- 01 · THE SHOT: the hero is a Maya viewport; the headline sits in the camera gate -->
   <section class="h-hero" aria-labelledby="h-title">
     <div class="h-gate" aria-hidden="true">
-      <i class="h-beam" aria-hidden="true"></i><i class="h-orb o1"></i><i class="h-orb o2"></i>
-      <i class="g-c g-tl"></i><i class="g-c g-tr"></i><i class="g-c g-bl"></i><i class="g-c g-br"></i>
-      <span class="g-hud g-hud-tl">persp</span><span class="g-hud g-hud-tr">1920 × 1080</span>
-      <span class="g-hud g-hud-bl"><b class="g-frame">1001</b> fps 24</span><span class="g-hud g-hud-br">Ajoy Tools · Wrapline</span>
-      <svg class="g-floor" viewBox="0 0 1200 260" preserveAspectRatio="none"><path d="M-200 260L420 0M-20 260L500 0M160 260L580 0M340 260L660 0M520 260L740 0M700 260L820 0M880 260L900 0M1060 260L980 0M1240 260L1060 0M1420 260L1140 0M0 30H1200M0 70H1200M0 120H1200M0 180H1200M0 250H1200"/></svg>
+      <i class="h-orb o1"></i><i class="h-orb o2"></i><i class="h-orb o3"></i>
+      <div class="h3-scene"><div class="h3-floor"><i></i></div><div class="h3-horizon"></div>
+        <div class="h3-cube c1"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+        <div class="h3-cube c2"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+        <div class="h3-cube c3"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+      </div>
     </div>
     <div class="wrap h-hero-grid">
       <div class="h-copy">
@@ -147,19 +148,14 @@
         <div class="visual-heading"><span>LIVE IN MAYA · DRAG &amp; DROP</span><span class="visual-dot" aria-hidden="true"></span></div>
         <ol class="xp-fallback"><li><b>Drag &amp; Drop:</b> drop files, choose an action for each, confirm.</li><li><b>FBX Exporter:</b> set the shot, pick rigs, export named FBX files.</li><li><b>Rivet:</b> select two edges, click Rivet, parent your object.</li></ol>
         <figcaption>Three of fourteen tools, playing on a loop · <a href="wrapline.html#tools">See them all</a></figcaption>
-      </figure><span class="h-tile t1" style="--h:200" aria-hidden="true"><b>IK</b><small>IK / FK Switch</small></span><span class="h-tile t2" style="--h:25" aria-hidden="true"><b>FB</b><small>FBX Exporter</small></span><span class="h-tile t3" style="--h:0" aria-hidden="true"><b>PB</b><small>Playblast</small></span><span class="h-tile t4" style="--h:340" aria-hidden="true"><b>RI</b><small>Rivet</small></span><span class="h-tile t5" style="--h:150" aria-hidden="true"><b>AB</b><small>Alembic</small></span></div>
+      </figure></div>
     </div>
-  </section>
-
-  <!-- 01b · every tool, drifting past -->
-  <section class="n-marq" aria-label="All fourteen tools">
-    <div class="n-track"><ul class="n-row"><li style="--h:200"><b>IK</b>Advanced IK FK Switch</li><li style="--h:150"><b>AB</b>Alembic Exporter</li><li style="--h:320"><b>AU</b>Audio Exporter</li><li style="--h:48"><b>DD</b>Drag &amp; Drop</li><li style="--h:25"><b>FB</b>FBX Exporter</li><li style="--h:270"><b>HK</b>Hotkey Manager</li><li style="--h:0"><b>PB</b>Playblast</li><li style="--h:175"><b>RB</b>Rebake IK Space</li><li style="--h:240"><b>RV</b>Revert to Last Saved</li><li style="--h:340"><b>RI</b>Rivet</li><li style="--h:210"><b>SN</b>IK / FK Snap</li><li style="--h:280"><b>MS</b>Multi Swapper</li><li style="--h:40"><b>UV</b>UDIM Preview</li><li style="--h:150"><b>LP</b>Layer Prefix Remover</li><li style="--h:200"><b>IK</b>Advanced IK FK Switch</li><li style="--h:150"><b>AB</b>Alembic Exporter</li><li style="--h:320"><b>AU</b>Audio Exporter</li><li style="--h:48"><b>DD</b>Drag &amp; Drop</li><li style="--h:25"><b>FB</b>FBX Exporter</li><li style="--h:270"><b>HK</b>Hotkey Manager</li><li style="--h:0"><b>PB</b>Playblast</li><li style="--h:175"><b>RB</b>Rebake IK Space</li><li style="--h:240"><b>RV</b>Revert to Last Saved</li><li style="--h:340"><b>RI</b>Rivet</li><li style="--h:210"><b>SN</b>IK / FK Snap</li><li style="--h:280"><b>MS</b>Multi Swapper</li><li style="--h:40"><b>UV</b>UDIM Preview</li><li style="--h:150"><b>LP</b>Layer Prefix Remover</li></ul><ul class="n-row rev" aria-hidden="true"><li style="--h:150"><b>LP</b>Layer Prefix Remover</li><li style="--h:40"><b>UV</b>UDIM Preview</li><li style="--h:280"><b>MS</b>Multi Swapper</li><li style="--h:210"><b>SN</b>IK / FK Snap</li><li style="--h:340"><b>RI</b>Rivet</li><li style="--h:240"><b>RV</b>Revert to Last Saved</li><li style="--h:175"><b>RB</b>Rebake IK Space</li><li style="--h:0"><b>PB</b>Playblast</li><li style="--h:270"><b>HK</b>Hotkey Manager</li><li style="--h:25"><b>FB</b>FBX Exporter</li><li style="--h:48"><b>DD</b>Drag &amp; Drop</li><li style="--h:320"><b>AU</b>Audio Exporter</li><li style="--h:150"><b>AB</b>Alembic Exporter</li><li style="--h:200"><b>IK</b>Advanced IK FK Switch</li><li style="--h:150"><b>LP</b>Layer Prefix Remover</li><li style="--h:40"><b>UV</b>UDIM Preview</li><li style="--h:280"><b>MS</b>Multi Swapper</li><li style="--h:210"><b>SN</b>IK / FK Snap</li><li style="--h:340"><b>RI</b>Rivet</li><li style="--h:240"><b>RV</b>Revert to Last Saved</li><li style="--h:175"><b>RB</b>Rebake IK Space</li><li style="--h:0"><b>PB</b>Playblast</li><li style="--h:270"><b>HK</b>Hotkey Manager</li><li style="--h:25"><b>FB</b>FBX Exporter</li><li style="--h:48"><b>DD</b>Drag &amp; Drop</li><li style="--h:320"><b>AU</b>Audio Exporter</li><li style="--h:150"><b>AB</b>Alembic Exporter</li><li style="--h:200"><b>IK</b>Advanced IK FK Switch</li></ul></div>
   </section>
 
   <!-- 02 · THE SHELF: the toolkits shown as Maya's Outliner + Attribute Editor -->
   <section class="h-shelf" id="tools" aria-labelledby="tools-title">
     <div class="wrap">
-      <div class="ring" aria-hidden="true"><div class="ring-in"><span class="ring-t" style="--i:0;--h:200"><b>IK</b><small>Advanced IK FK Switch</small></span><span class="ring-t" style="--i:1;--h:150"><b>AB</b><small>Alembic Exporter</small></span><span class="ring-t" style="--i:2;--h:320"><b>AU</b><small>Audio Exporter</small></span><span class="ring-t" style="--i:3;--h:48"><b>DD</b><small>Drag &amp; Drop</small></span><span class="ring-t" style="--i:4;--h:25"><b>FB</b><small>FBX Exporter</small></span><span class="ring-t" style="--i:5;--h:270"><b>HK</b><small>Hotkey Manager</small></span><span class="ring-t" style="--i:6;--h:0"><b>PB</b><small>Playblast</small></span><span class="ring-t" style="--i:7;--h:175"><b>RB</b><small>Rebake IK Space</small></span><span class="ring-t" style="--i:8;--h:240"><b>RV</b><small>Revert to Last Saved</small></span><span class="ring-t" style="--i:9;--h:340"><b>RI</b><small>Rivet</small></span></div></div>
+      
       <div class="h-head" data-r>
         <p class="h-kicker"><span>02</span>The shelf</p>
         <h2 id="tools-title">Fourteen tools. <em>One shelf.</em></h2>
@@ -280,5 +276,5 @@
 </footer>
 
 <script src="js/studio.js?v=20261019-complete1"></script><script src="js/site-config.js?v=20261023-p4"></script><script type="module" src="js/account.js?v=20261107-a3"></script><script type="module" src="js/guest-prompt.js?v=20261019-account2"></script>
-<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script src="js/home.js?v=h8" defer></script><script src="js/home3d.js?v=h5" defer></script><script type="module" src="js/tool-explainer.js?v=xp3"></script><script src="js/smooth-scroll.js?v=sm1" defer></script><script src="js/transitions.js?v=vt2"></script></body>
+<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script src="js/home.js?v=h9" defer></script><script src="js/home3d.js?v=h5" defer></script><script type="module" src="js/tool-explainer.js?v=xp3"></script><script src="js/smooth-scroll.js?v=sm1" defer></script><script src="js/transitions.js?v=vt2"></script></body>
 </html>

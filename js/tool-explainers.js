@@ -145,4 +145,24 @@ export default {
       { t: 'Saved version opens', c: 'A backup of what you had is kept first, and the message tells you where.', d: 3800, a: [[0, 'panel', 'show'], [200, 'show', 'bk'], [1000, 'css', 'doc', 'opacity', 0.2], [1600, 'css', 'doc', 'opacity', 1], [1700, 'toast', 'Reverted · backup saved'], [3300, 'untoast']] },
     ],
   },
+  'advanced-ik-fk-switch': {
+    title: 'Advanced IK FK Switch', ix: 0, file: 'shot_020_rig.ma', cursor: [420, 300],
+    scene: ARM('#7fa0ff') + CUBE('ctl'),
+    panel: { ...P, html: R('Rig', SEL('rg', 'Hero_rig')) + R('Limb', SEL('lb', 'L_arm')) + R('Mode', SG('m', ['IK', 'FK'], 0)) + CB('k1', 'Key the switch', true) + CB('k2', 'Match range') + BAR('pr') + B('go', 'Switch', 'main full') },
+    steps: [
+      { t: 'Pick the limb', c: 'Choose the rig and the arm or leg you want to switch.', d: 3200, a: [[0, 'mv', 'sh'], [950, 'clk', 'sh'], [1100, 'panel', 'show'], [1700, 'mv', 'lb'], [2400, 'clk', 'lb']] },
+      { t: 'Choose the mode', c: 'IK or FK, with the pose matched so nothing pops.', d: 3000, a: [[0, 'mv', 'm1'], [900, 'clk', 'm1'], [1000, 'pick', 'm1'], [1200, 'css', 'arm', 'opacity', .7]] },
+      { t: 'Switch with keys', c: 'One click switches and keys it across your range.', d: 3800, a: C(0, 'go').concat([[1100, 'fill', 'pr', 1500], [2800, 'toast', 'Switched to FK · keyed'], [3500, 'untoast']]) },
+    ],
+  },
+  playblast: {
+    title: 'Playblast', ix: 5, file: 'shot_030_anim.ma',
+    scene: `<g class="t" data-k="cam"><rect x="70" y="100" width="200" height="130" rx="8" fill="none" stroke="#6a7aa8" stroke-width="2" stroke-dasharray="6 5"/><circle cx="170" cy="165" r="26" fill="rgba(109,170,255,.2)" stroke="#6DAAFF" stroke-width="2"/></g>`,
+    panel: { ...P, html: R('Camera', SEL('cm', 'persp')) + R('Size', SEL('sz', '1920 × 1080')) + R('Format', SEL('fm', 'H.264 MP4')) + CB('o1', 'Open when done', true) + BAR('pr') + B('go', 'Playblast', 'main full') },
+    steps: [
+      { t: 'Choose the camera', c: 'Pick the camera and the size you want to review at.', d: 3200, a: [[0, 'mv', 'sh'], [950, 'clk', 'sh'], [1100, 'panel', 'show'], [1700, 'mv', 'cm'], [2400, 'clk', 'cm'], [2500, 'on', 'cam']] },
+      { t: 'Set the format', c: 'MP4 with the right settings, no manual codec hunting.', d: 3000, a: [[0, 'mv', 'fm'], [800, 'clk', 'fm'], [900, 'set', 'fm', 'H.264 MP4']] },
+      { t: 'Playblast', c: 'Records the viewport and opens the movie when done.', d: 3800, a: C(0, 'go').concat([[1100, 'fill', 'pr', 1600], [2900, 'toast', 'Playblast saved'], [3600, 'untoast']]) },
+    ],
+  },
 };

@@ -13,7 +13,7 @@ html[data-theme=dark] .h-orb.o2{background:radial-gradient(closest-side,hsl(285 
 .h-tile b{grid-row:1/3;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font:800 11px var(--sans);color:#fff;background:linear-gradient(145deg,hsl(var(--h) 80% 62%),hsl(calc(var(--h) + 26) 72% 46%));box-shadow:0 10px 18px -8px hsl(var(--h) 80% 45% / .8)}
 .h-tile small{font:600 12.5px var(--sans);color:var(--ink);white-space:nowrap;align-self:end}
 .h-tile::after{content:"ready";grid-column:2;font:500 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);align-self:start}
-.h-tile.t1{left:-34px;top:-30px;--z:120px}.h-tile.t2{right:-10px;top:22%;--z:150px;animation-delay:-1.4s}.h-tile.t3{left:-44px;bottom:26%;--z:90px;animation-delay:-2.8s}.h-tile.t4{right:8%;bottom:-34px;--z:130px;animation-delay:-4.2s}.h-tile.t5{left:30%;top:-46px;--z:70px;animation-delay:-5.6s}
+.h-tile.t1{left:-26px;top:-54px;--z:120px}.h-tile.t2{right:-4px;top:-44px;--z:150px;animation-delay:-1.4s}.h-tile.t3{left:-78px;top:40%;--z:90px;animation-delay:-2.8s}.h-tile.t4{right:3%;bottom:-44px;--z:130px;animation-delay:-4.2s}.h-tile.t5{left:38%;top:-62px;--z:70px;animation-delay:-5.6s}
 @keyframes tile-float{50%{translate:0 -10px}}
 /* tilt cards */
 [data-tilt]{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .6s var(--out),box-shadow .4s;position:relative}
@@ -60,3 +60,28 @@ html[data-theme=dark] [data-tilt]::after{background:radial-gradient(360px circle
 .o-ae-go,.o-row .o-ico{transition:transform .35s var(--out),background .2s}.o-row:hover .o-ico{transform:scale(1.15) rotate(-6deg)}
 @media(max-width:980px){.ring,.h-tile{display:none}.h-stage{perspective:none}}
 @media(prefers-reduced-motion:reduce){.h-tile,.ring-in,.h-plan.is-top::before{animation:none!important}[data-tilt],.h-stage>.h-demo,[data-s3d]{transform:none!important}.home .btn::before{display:none}}
+
+/* shelf: live per-tool demo inside the Attribute Editor */
+.o-xp .xp{margin:0;gap:12px}
+.o-xp .xp-frame{border-radius:10px;box-shadow:0 0 0 1px var(--maya-ln)}
+.o-xp .xp-steps{display:none}
+.o-xp .xp-cap{min-height:46px}
+.o-xp .xp-cap b{color:#fff;font-size:.95rem}.o-xp .xp-cap p{color:#C9CED8;font-size:.84rem;margin:2px 0 0}
+.o-ae-attrs{grid-auto-flow:column;grid-auto-columns:1fr}
+.o-ae-attrs div{grid-template-columns:1fr;gap:4px}.o-ae-attrs dt{text-align:left;font-size:11px;letter-spacing:.06em;text-transform:uppercase}
+
+/* ---------- sheets: every section slides over the last like a card, each with its own day/night colour ---------- */
+.home{--sh1:#F7F9FD;--sh2:#E3EAF7;--sh3:#FBF6EC;--sh4:#ECEEF8;--sh5:#DDE5F6;--shadow-up:0 -34px 60px -36px rgba(20,36,90,.38);--glow1:rgba(80,130,255,.16);--glow2:rgba(255,170,90,.18)}
+:root[data-theme=dark] .home,html[data-theme=dark] .home{--sh1:#0C1226;--sh2:#111A3A;--sh3:#0A0F1F;--sh4:#0F1530;--sh5:#151D42;--shadow-up:0 -34px 70px -30px rgba(0,0,0,.8);--glow1:rgba(80,130,255,.2);--glow2:rgba(255,160,90,.1)}
+.home .h-shelf,.home .h-plans,.home .h-setup,.home .h-credits,.home .h-wrap{border-radius:46px 46px 0 0;margin-top:-46px;box-shadow:var(--shadow-up);border-block:0;transform-origin:50% 0}
+.home .h-shelf{background:radial-gradient(900px 420px at 88% 0,var(--glow1),transparent 70%),var(--sh1);z-index:1;padding-top:150px}
+.home .h-plans{background:radial-gradient(900px 420px at 10% 0,var(--glow2),transparent 70%),var(--sh2);z-index:2;padding-top:130px}
+.home .h-setup{background:radial-gradient(800px 380px at 80% 0,var(--glow1),transparent 70%),var(--sh3);z-index:3;padding-top:150px}
+.home .h-credits{background:radial-gradient(900px 400px at 15% 0,var(--glow2),transparent 70%),var(--sh4);z-index:4;padding-top:150px}
+.home .h-wrap{background:radial-gradient(900px 420px at 50% 0,var(--glow1),transparent 70%),var(--sh5);z-index:5;padding-top:150px;padding-bottom:90px}
+@supports (animation-timeline:view()){
+  .home .h-shelf,.home .h-plans,.home .h-setup,.home .h-credits,.home .h-wrap{animation:sheet-in linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+  @keyframes sheet-in{from{scale:.9}to{scale:1}}
+}
+@media(max-width:700px){.home .h-shelf,.home .h-plans,.home .h-setup,.home .h-credits,.home .h-wrap{border-radius:28px 28px 0 0;margin-top:-28px}@supports (animation-timeline:view()){@keyframes sheet-in{from{scale:.96}to{scale:1}}}}
+@media(prefers-reduced-motion:reduce){.home .h-shelf,.home .h-plans,.home .h-setup,.home .h-credits,.home .h-wrap{animation:none!important}}

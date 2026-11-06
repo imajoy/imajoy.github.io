@@ -24,6 +24,7 @@ class Player {
       document.addEventListener('visibilitychange', () => this.sync());
     }
   }
+  setTool(cfg) { if (this.cfg === cfg) return; this.list = [cfg]; this.li = 0; this.load(cfg); this.seek(0); this.clock = 0; this.sync(); }
   load(cfg) {
     this.cfg = cfg; this.steps = cfg.steps; this.acts = []; this.starts = []; let t = 0;
     this.steps.forEach((s, i) => { this.starts.push(t); (s.a || []).forEach(a => this.acts.push({ t: t + a[0], a: a.slice(1), i })); t += s.d; });
@@ -34,7 +35,7 @@ class Player {
     const root = document.createElement('div'); root.className = 'xp'; root.setAttribute('role', 'group');
     this.fig.querySelector('.xp-fallback')?.remove();
     const head = this.fig.querySelector('.visual-heading'), cap = this.fig.querySelector('figcaption');
-    (head || this.fig).after(root); this.head = head;
+    if (this.fig.hasAttribute('data-shelf')) this.fig.append(root); else (head || this.fig).after(root); this.head = head;
     if (head) { const dot = head.querySelector('.visual-dot'); const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'xp-play'; btn.setAttribute('aria-label', 'Pause the demo'); btn.innerHTML = '<svg viewBox="0 0 24 24"><path class="pp" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>'; (dot || head.lastElementChild || head).after(btn); dot && dot.remove(); this.btn = btn; btn.addEventListener('click', () => { this.user = !this.user; this.sync(); }); }
     if (cap && !this.fig.hasAttribute('data-keep-caption')) cap.textContent = 'Animated demo · based on the Wrapline Pro guide';
     this.root = root;
@@ -128,4 +129,5 @@ class Player {
   }
 }
 
+document.querySelectorAll('[data-shelf]').forEach(fig => { const pl = new Player(fig, [XP[window.__shelfKey] || XP['drag-drop']]); window.__shelfSet = k => { if (XP[k]) pl.setTool(XP[k]); }; });
 document.querySelectorAll('[data-explainer]').forEach(fig => { const list = fig.dataset.explainer.split(',').map(k => XP[k.trim()]).filter(Boolean); if (list.length) new Player(fig, list); });

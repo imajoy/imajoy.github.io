@@ -66,6 +66,7 @@
       q('.a-kit').textContent = kit; q('.a-cat').textContent = row.dataset.cat; q('.a-plan').textContent = row.dataset.plan;
       q('.o-ae-desc').textContent = row.querySelector('.o-desc').textContent;
       var go = q('.o-ae-go'); go.href = row.getAttribute('href'); go.firstChild.nodeValue = 'Open the ' + name + ' guide ';
+      window.__shelfKey = row.getAttribute('href').replace(/^tool-|\.html$/g, ''); if (window.__shelfSet) window.__shelfSet(window.__shelfKey);
       clearTimeout(tm);
       requestAnimationFrame(function () { box.classList.remove('sw'); if (!reduce) { void box.offsetWidth; box.classList.add('draw'); } });
     };

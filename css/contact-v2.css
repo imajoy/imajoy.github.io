@@ -1,0 +1,66 @@
+/* Contact page, cleaner: a calm two-column layout, topic cards that fill the form, softly staggered fields, a light that follows the pointer on the form card. Day and night. */
+.contact-page{background:radial-gradient(900px 480px at 12% -6%,color-mix(in srgb,var(--blue,#3d8bff) 16%,transparent),transparent 70%),radial-gradient(800px 460px at 96% 4%,rgba(255,170,90,.13),transparent 70%),var(--bg)}
+html[data-theme=dark] .contact-page{background:radial-gradient(900px 480px at 12% -6%,rgba(61,139,255,.2),transparent 70%),radial-gradient(800px 460px at 96% 4%,rgba(255,150,90,.07),transparent 70%),var(--bg)}
+.contact-main{padding:150px 0 90px}
+.contact-layout{grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:64px}
+.contact-copy .s-eyebrow{display:inline-flex;align-items:center;gap:10px}
+.contact-copy .s-eyebrow::before{content:"";width:22px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--blue,#3d8bff),#FFB46B);transform-origin:0 50%;animation:c-line .9s .2s cubic-bezier(.22,1,.36,1) both}
+@keyframes c-line{from{transform:scaleX(0)}}
+.contact-copy h1{letter-spacing:-.045em}
+.contact-copy>p{max-width:30em;font-size:1.0625rem;line-height:1.65}
+
+/* topic cards */
+.c-topics{list-style:none;margin:30px 0 0;padding:0;display:grid;gap:10px}
+.c-topics li{margin:0}
+.c-topic{width:100%;display:grid;grid-template-columns:44px minmax(0,1fr) 24px;align-items:center;gap:14px;text-align:left;padding:13px 16px 13px 13px;border-radius:18px;border:1px solid var(--line);background:color-mix(in srgb,var(--card,#fff) 88%,transparent);color:var(--ink);font:inherit;cursor:pointer;
+ transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s,border-color .25s,background .25s}
+.c-topic:hover{transform:translate3d(6px,0,0);border-color:color-mix(in srgb,var(--blue,#3d8bff) 45%,var(--line));box-shadow:0 18px 32px -22px rgba(20,40,110,.5)}
+.c-topic:focus-visible{outline:2px solid var(--blue,#3d8bff);outline-offset:3px}
+.c-topic:active{transform:translate3d(3px,0,0) scale(.99)}
+.c-ico{width:44px;height:44px;border-radius:13px;display:grid;place-items:center;background:color-mix(in srgb,var(--blue,#3d8bff) 12%,transparent);color:var(--blue-d,#2a64e8);transition:transform .45s cubic-bezier(.34,1.56,.64,1),background .25s,color .25s}
+.c-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.c-topic:hover .c-ico{transform:rotate(-8deg) scale(1.08)}
+.c-txt b{display:block;font-size:.9375rem;letter-spacing:-.015em}.c-txt small{display:block;margin-top:2px;font-size:.8125rem;color:var(--mute)}
+.c-tick{width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--blue,#3d8bff);color:#fff;opacity:0;transform:scale(.4);transition:opacity .25s,transform .4s cubic-bezier(.34,1.56,.64,1)}
+.c-tick svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.c-topic[aria-pressed=true]{border-color:var(--blue,#3d8bff);background:color-mix(in srgb,var(--blue,#3d8bff) 9%,var(--card,#fff))}
+.c-topic[aria-pressed=true] .c-ico{background:var(--blue,#3d8bff);color:#fff}
+.c-topic[aria-pressed=true] .c-tick{opacity:1;transform:none}
+
+/* the little draft picture becomes a slim strip under the topics */
+.contact-art{display:none}
+.contact-art-scene{height:100%;width:100%}
+.contact-art .art-caption{bottom:8px}
+.contact-assurance{border-radius:18px;padding:16px 18px}
+
+/* form card */
+.contact-form{position:relative;isolation:isolate;border-radius:30px;padding:36px 36px 30px;border:1px solid var(--line);box-shadow:0 40px 80px -50px rgba(18,40,110,.55)}
+html[data-theme=dark] .contact-form{box-shadow:0 40px 90px -50px rgba(0,0,0,.9)}
+.contact-form::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:-1;pointer-events:none;opacity:0;transition:opacity .4s;
+ background:radial-gradient(420px 320px at var(--mx,50%) var(--my,0%),color-mix(in srgb,var(--blue,#3d8bff) 13%,transparent),transparent 70%)}
+.contact-form.lit::before{opacity:1}
+.contact-form-heading h2{font-size:1.75rem;letter-spacing:-.04em}
+.contact-field input,.contact-field select,.contact-field textarea{border-radius:14px;min-height:52px;background:color-mix(in srgb,var(--bg) 70%,var(--card,#fff));border:1px solid var(--line);
+ transition:border-color .25s,box-shadow .35s cubic-bezier(.22,1,.36,1),background .25s,transform .35s cubic-bezier(.22,1,.36,1)}
+.contact-field input:hover,.contact-field select:hover,.contact-field textarea:hover{border-color:color-mix(in srgb,var(--blue,#3d8bff) 35%,var(--line))}
+.contact-field input:focus,.contact-field select:focus,.contact-field textarea:focus{outline:none;background:var(--card,#fff);border-color:var(--blue,#3d8bff);box-shadow:0 0 0 4px color-mix(in srgb,var(--blue,#3d8bff) 20%,transparent),0 14px 26px -18px color-mix(in srgb,var(--blue,#3d8bff) 80%,#000);transform:translate3d(0,-1px,0)}
+html[data-theme=dark] .contact-field input:focus,html[data-theme=dark] .contact-field select:focus,html[data-theme=dark] .contact-field textarea:focus{background:#0B1022}
+.draft-meter progress{height:6px}
+.contact-send{min-height:56px;border-radius:999px;font-size:1rem;overflow:hidden}
+.contact-send .send-icon{transition:transform .4s cubic-bezier(.34,1.56,.64,1)}
+.contact-send:not(:disabled):hover .send-icon{transform:translate3d(4px,-4px,0)}
+
+/* arrival: card slides up, fields follow one after another */
+@media(prefers-reduced-motion:no-preference){
+ .contact-copy>*{animation:c-up .9s cubic-bezier(.22,1,.36,1) both}
+ .contact-copy>:nth-child(2){animation-delay:.08s}.contact-copy>:nth-child(3){animation-delay:.16s}.contact-copy>:nth-child(4){animation-delay:.24s}.contact-copy>:nth-child(5){animation-delay:.32s}.contact-copy>:nth-child(6){animation-delay:.4s}
+ .c-topics li{animation:c-up .8s cubic-bezier(.22,1,.36,1) both}.c-topics li:nth-child(1){animation-delay:.28s}.c-topics li:nth-child(2){animation-delay:.35s}.c-topics li:nth-child(3){animation-delay:.42s}.c-topics li:nth-child(4){animation-delay:.49s}
+ .contact-form{animation:c-card 1s .12s cubic-bezier(.22,1,.36,1) both}
+ .contact-form>*{animation:c-up .8s cubic-bezier(.22,1,.36,1) both}
+ .contact-form>:nth-child(1){animation-delay:.3s}.contact-form>:nth-child(2){animation-delay:.36s}.contact-form>:nth-child(3){animation-delay:.42s}.contact-form>:nth-child(4){animation-delay:.48s}.contact-form>:nth-child(5){animation-delay:.54s}.contact-form>:nth-child(6){animation-delay:.6s}.contact-form>:nth-child(7){animation-delay:.66s}.contact-form>:nth-child(8){animation-delay:.72s}.contact-form>:nth-child(n+9){animation-delay:.78s}
+ @keyframes c-up{from{opacity:0;transform:translate3d(0,22px,0)}}
+ @keyframes c-card{from{opacity:0;transform:perspective(1400px) translate3d(0,40px,0) rotateX(6deg);transform-origin:50% 0}}
+}
+@media(max-width:800px){.contact-layout{gap:30px}.contact-form{padding:24px 20px}.contact-art{display:none}.c-topic:hover{transform:none}}
+.contact-assurance{margin-top:16px}
+@media(max-width:420px){.contact-form{padding:22px 14px}.contact-mode button{min-width:0;padding-inline:6px}}

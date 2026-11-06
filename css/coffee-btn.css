@@ -30,3 +30,5 @@
 html[data-theme=dark] .cfb{--cfb-bg:#2A1D14;--cfb-ink:#FFE3C8;--cfb-line:#5A3A24;--cfb-deep:#E8B48A;box-shadow:0 10px 24px -14px rgba(0,0,0,.7)}
 .cfb.cfb-lg{padding:16px 28px 16px 18px;font-size:16.5px}.cfb.cfb-lg .cfb-mug{width:36px;height:36px}
 @media(prefers-reduced-motion:reduce){.cfb,.cfb-mug,.cfb-fill{transition:none}.cfb-steam path,.cfb-eye,.cfb:hover::before{animation:none}.cfb-steam path{opacity:.5;stroke-dashoffset:0}}
+html[data-theme=dark] .cfb{--cfb-bg:linear-gradient(135deg,#FFE2B8,#FFB46B);--cfb-ink:#2A1700;--cfb-line:rgba(255,226,184,.6);--cfb-deep:#8A4F22;background:var(--cfb-bg);box-shadow:0 14px 28px -14px rgba(255,160,80,.65)}
+html[data-theme=dark] .cfb:hover,html[data-theme=dark] .cfb:focus-visible{box-shadow:0 18px 34px -12px rgba(255,160,80,.85)}

@@ -133,3 +133,9 @@ html[data-theme=dark] .ft-coffee-card{background:linear-gradient(135deg,#2A1D14,
 @media (prefers-reduced-motion:reduce){.ft-download.is-busy,.ft-download.is-busy .ico,.fd-orb i,.fd-line.is-swap,.fd-tick,.fd-tick svg{animation:none}.fd-tick svg{stroke-dashoffset:0}.fd-bar i{animation:none;width:60%}.ft-download .fd-spin{animation-duration:2s}}
 .free-pro-note{margin-top:14px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.55);border:1px dashed rgba(201,147,42,.55);font-size:14px;line-height:1.55}
 html[data-theme=dark] .free-pro-note{background:rgba(255,255,255,.05)}
+
+/* night mode: the support banner is navy with a warm glow behind the mug, not a flat brown slab */
+html[data-theme=dark] .ft-coffee-card{background:radial-gradient(420px 300px at 14% 50%,rgba(255,160,80,.2),transparent 70%),linear-gradient(135deg,#131A35,#0D1226);border:1px solid rgba(255,207,138,.22);box-shadow:0 40px 70px -40px rgba(0,0,0,.9)}
+html[data-theme=dark] .ft-coffee-copy h2{color:#fff}html[data-theme=dark] .ft-coffee-copy em{color:#FFB46B}
+html[data-theme=dark] .ft-coffee-copy p{color:#A9B3D1}html[data-theme=dark] .ft-coffee-copy .eyebrow{color:#FFB46B}
+html[data-theme=dark] .ft-coffee-actions>span{color:#7F8BAE}

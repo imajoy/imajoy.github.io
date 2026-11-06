@@ -77,3 +77,11 @@
  .coffee[data-state=hidden] .coffee-x,.coffee[data-state=hidden] .coffee-y{transform:none}
  .coffee[data-state=out]{opacity:0}
 }
+
+/* night mode: calm navy glass with a thin gold edge instead of the muddy orange smear */
+html[data-theme=dark] .coffee-card{background:linear-gradient(160deg,#141B36,#0E1429);border:1px solid rgba(255,207,138,.26);
+ box-shadow:0 26px 50px -22px rgba(0,0,0,.85),0 0 0 1px rgba(255,255,255,.03) inset}
+html[data-theme=dark] .coffee-mug{background:radial-gradient(circle at 50% 45%,#FFF3E0 0 46%,rgba(255,243,224,.12) 47% 100%);box-shadow:0 0 0 1px rgba(255,207,138,.3),0 8px 18px -8px rgba(0,0,0,.7)}
+html[data-theme=dark] .coffee-copy b{color:#fff}html[data-theme=dark] .coffee-copy span{color:#A9B3D1}
+html[data-theme=dark] .coffee-go{color:#2A1700;box-shadow:0 10px 22px -12px rgba(255,170,90,.9)}
+html[data-theme=dark] .coffee-x-btn{color:#8793B5}html[data-theme=dark] .coffee-x-btn:hover{background:rgba(255,255,255,.1);color:#fff}

@@ -139,3 +139,25 @@ html[data-theme=dark] .h-orb.o3{background:radial-gradient(closest-side,hsl(265 
 .h-orb{will-change:auto}
 .is-scrolling .h-gate *{animation-play-state:paused!important}
 .h-orb{width:36vmax;height:36vmax}.h-orb.o3{width:38vmax;height:38vmax}
+/* ---- About: bento ---- */
+.home .h-credits-grid{grid-template-columns:.9fr 1.1fr;gap:72px;align-items:center}
+.ab-sign{display:flex;align-items:center;gap:14px;margin-top:34px;padding:12px 14px 12px 12px;width:max-content;max-width:100%;border-radius:99px;background:color-mix(in srgb,var(--card) 80%,transparent);border:1px solid var(--line);box-shadow:0 18px 40px -26px rgba(20,40,110,.5)}
+.ab-av{width:46px;height:46px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(145deg,#3E7BFF,#8A5CFF);box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+.ab-av img{filter:brightness(0) invert(1)}
+.ab-sign b{display:block;font-size:16px;color:var(--ink);line-height:1.2}.ab-sign small{display:block;font-size:13px;color:var(--mute)}
+.ab-hi{display:inline-flex;align-items:center;gap:6px;margin-left:8px;padding:10px 16px;border-radius:99px;background:var(--ink);color:var(--card);font-weight:600;font-size:14px;text-decoration:none;transition:translate .35s var(--out,ease),gap .35s}
+.ab-hi svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.ab-hi:hover{gap:10px;translate:0 -2px}
+.ab-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:0}
+.ab-card{position:relative;overflow:hidden;padding:26px 24px 24px;border-radius:26px;background:linear-gradient(160deg,color-mix(in srgb,var(--card) 92%,transparent),color-mix(in srgb,var(--card) 62%,transparent));border:1px solid var(--line);box-shadow:0 22px 50px -32px rgba(20,40,110,.45);transition:translate .5s var(--out,ease),box-shadow .5s,border-color .5s}
+.ab-card::after{content:"";position:absolute;right:-60px;top:-60px;width:170px;height:170px;border-radius:50%;background:radial-gradient(closest-side,var(--glow1),transparent);opacity:.7;pointer-events:none}
+.ab-card:hover{translate:0 -5px;border-color:color-mix(in srgb,var(--blue) 45%,var(--line));box-shadow:0 30px 60px -30px rgba(40,80,220,.5)}
+.ab-wide{grid-column:1/-1}
+.ab-ic{width:42px;height:42px;border-radius:13px;display:grid;place-items:center;margin-bottom:18px;color:var(--blue);background:color-mix(in srgb,var(--blue) 12%,transparent);border:1px solid color-mix(in srgb,var(--blue) 22%,transparent);font-style:normal}
+.ab-ic svg{width:22px;height:22px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+.ab-card dt{font:600 12px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.ab-card dd{margin:10px 0 0;font-size:19px;line-height:1.35;font-weight:600;letter-spacing:-.01em;color:var(--ink);max-width:24em}
+.ab-chips{display:flex;gap:6px;margin-top:16px}.ab-chips b{font:600 12px var(--mono);padding:5px 10px;border-radius:99px;color:var(--blue);background:color-mix(in srgb,var(--blue) 11%,transparent)}
+@media(max-width:980px){.home .h-credits-grid{grid-template-columns:1fr;gap:38px}}
+@media(max-width:560px){.ab-grid{grid-template-columns:1fr}.ab-sign{flex-wrap:wrap;border-radius:26px;width:auto}.ab-hi{margin-left:0}.ab-card dd{font-size:17px}}
+.ab-av{font:800 20px var(--sans,sans-serif);color:#fff}

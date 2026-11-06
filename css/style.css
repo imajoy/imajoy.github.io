@@ -412,3 +412,9 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .bento-pro .t-rig>.category-workflow{grid-row:3;align-self:center}
 @media(max-width:980px){.bento-pro .t-export,.bento-pro .t-anim,.bento-pro .t-rig,.bento-pro .t-scene{grid-column:auto}.bento-pro .t-rig{display:flex}}
 @media(max-width:980px){.bento-pro .tl-2{grid-template-columns:1fr}.bento-pro .tl-2 li:nth-child(2){border-top:1px solid var(--t09)}.bento-pro .t-rig{display:flex;flex-direction:column;text-align:left;align-items:stretch}.bento-pro .t-rig>.keycaps{justify-content:flex-start}}
+
+/* pill bar hides on scroll down, returns on scroll up (js/header-scroll.js) */
+.site-header{transition:translate 1s cubic-bezier(.22,1,.36,1),opacity .8s ease,filter .9s ease,scale 1s cubic-bezier(.22,1,.36,1),visibility 0s linear 0s;will-change:translate,opacity}
+.site-header[data-scroll-hidden]{translate:0 calc(-100% - 36px);opacity:0;filter:blur(14px);scale:.96;visibility:hidden;transition:translate 1.1s cubic-bezier(.5,0,.2,1),opacity .85s ease .1s,filter .9s ease,scale 1.1s cubic-bezier(.5,0,.2,1),visibility 0s linear 1.1s}
+.site-header[data-scroll-hidden] .pillbar{pointer-events:none}
+@media(prefers-reduced-motion:reduce){.site-header,.site-header[data-scroll-hidden]{transition:opacity .2s ease,visibility 0s linear .2s;translate:none;scale:none;filter:none}}

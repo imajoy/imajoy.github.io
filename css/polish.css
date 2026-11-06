@@ -3,9 +3,6 @@
 html[data-theme=dark]{--soft-shadow:0 4px 12px #0002,0 20px 55px #0003}
 body{background-image:radial-gradient(ellipse at 0% 35%,#b7cfff12,transparent 45%)}
 .pillbar{box-shadow:0 5px 10px #23314e04,0 18px 46px #23314e0d;border-color:var(--pillbd);transition:box-shadow .5s var(--ease-soft)}
-.site-header{transition:transform .65s var(--ease-soft),opacity .55s ease}
-.site-header[data-scroll-hidden]{transform:translateY(calc(-100% - 32px));opacity:0}
-.site-header[data-scroll-hidden] .pillbar{pointer-events:none}
 .site-header:has(:focus-visible){transform:none;opacity:1}
 /* Open the shell from its centre, then reveal controls without stretching text. */
 @media(prefers-reduced-motion:no-preference){

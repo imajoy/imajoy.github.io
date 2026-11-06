@@ -70,7 +70,7 @@ html[data-theme=dark] .h-beam{background:conic-gradient(from 180deg at 50% 0%,tr
 .home h2 .w{overflow:visible}.home h2 .w>span{transform:none!important;opacity:1!important;animation:none!important;translate:none!important}
 @media(max-width:700px){
  /* the tiny, unreadable Maya window, badges, camera HUD, ring and clapperboard are desktop and tablet only */
- .h-stage,.h-tile,.h-gate,.h-beam,.ring,.slate,.t-slider{display:none!important}
+ .h-tile,.h-beam,.ring,.slate,.t-slider{display:none!important}
  .h-hero{padding:118px 0 34px}
  .h-hero h1{font-size:clamp(40px,12.4vw,60px);margin:20px 0 18px}
  .h-lead{font-size:16.5px}

@@ -161,3 +161,59 @@ html[data-theme=dark] .h-orb.o3{background:radial-gradient(closest-side,hsl(265 
 @media(max-width:980px){.home .h-credits-grid{grid-template-columns:1fr;gap:38px}}
 @media(max-width:560px){.ab-grid{grid-template-columns:1fr}.ab-sign{flex-wrap:wrap;border-radius:26px;width:auto}.ab-hi{margin-left:0}.ab-card dd{font-size:17px}}
 .ab-av{font:800 20px var(--sans,sans-serif);color:#fff}
+/* ---- v10 phones and tablets: demo visible, compact sections, 3D swipe cards ---- */
+@media(max-width:980px) and (min-width:701px){.h3-cube{display:block}.h3-cube.c1{left:2%;top:11%;--s:78px}.h3-cube.c2{right:3%;top:9%;--s:60px}.h3-cube.c3{display:none}}
+@media(max-width:700px){
+ .h3-cube{display:none}
+ .home .h-hero .h-gate{display:block!important}
+ .h3-floor{height:46%}
+ .home .h-hero{padding:104px 0 28px}
+ .h-stage{display:block!important;margin-top:26px;perspective:900px}
+ .h-stage>.h-demo{border-radius:20px;padding:12px 12px 14px}
+ .h-demo .visual-heading{font-size:10px}
+ .h-demo figcaption{display:none}
+ .h-facts{margin-top:26px}
+ /* shelf */
+  .o-app .o-tree{max-height:360px;overflow:auto;overscroll-behavior:contain;-webkit-mask-image:linear-gradient(#000 82%,transparent);mask-image:linear-gradient(#000 82%,transparent)}
+ /* plans: swipe through three cards */
+ .h-plan-grid{display:flex!important;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 8vw 22px;margin-inline:-16px;perspective:900px;scrollbar-width:none;overscroll-behavior-x:contain}
+ .h-plan-grid::-webkit-scrollbar{display:none}
+ .h-plan-grid>.h-plan{flex:0 0 78%;scroll-snap-align:center;min-width:0}
+ /* setup: compact rows */
+ .t-steps{display:grid;gap:10px}
+ .t-steps li{padding:16px 18px;border-radius:18px}
+ .t-steps li h3{font-size:18px;margin:4px 0 4px}.t-steps li p{font-size:14px;line-height:1.5;margin:0}
+ /* about: two small cards per row */
+ .home .h-credits-grid{gap:26px}
+ .ab-grid{grid-template-columns:1fr 1fr;gap:10px}
+ .ab-card{padding:16px 14px 16px;border-radius:20px}
+ .ab-ic{width:34px;height:34px;border-radius:11px;margin-bottom:12px}.ab-ic svg{width:18px;height:18px}
+ .ab-card dt{font-size:10.5px}.ab-card dd{font-size:14.5px;margin-top:8px}
+ .ab-chips{display:none}
+ .ab-sign{width:100%;margin-top:24px}
+ /* contact: short and clean */
+ .w-card{padding:30px 22px}
+ .w-copy .h-actions .btn-light{display:none}
+ .w-copy h2{font-size:clamp(38px,11vw,50px)}
+}
+@supports (animation-timeline:view()){
+ @media(max-width:980px){
+  @keyframes m3d-in{from{rotate:1 0 0 16deg;scale:.93}to{rotate:1 0 0 0deg;scale:1}}
+  @keyframes m3d-card{0%{rotate:0 1 0 14deg;scale:.9;opacity:.55}50%{rotate:0 1 0 0deg;scale:1;opacity:1}100%{rotate:0 1 0 -14deg;scale:.9;opacity:.55}}
+  .home .wrap{perspective:900px}
+  .t-steps li,.ab-card,.w-card,.o-app{animation:m3d-in linear both;animation-timeline:view();animation-range:entry 0% entry 75%}
+  .h-plan-grid>.h-plan{animation:m3d-card linear both;animation-timeline:view(inline);animation-range:entry 0% exit 100%}
+ }
+}
+@media(prefers-reduced-motion:reduce){.t-steps li,.ab-card,.w-card,.o-app,.h-plan-grid>.h-plan{animation:none!important}}
+/* shelf on phones/tablets: the editor with the demo sits above the list */
+@media(max-width:980px){
+ .o-body{display:flex!important;flex-direction:column}
+ .o-app.ready .o-ae{display:block!important;order:-1;border-bottom:1px solid var(--o-line,rgba(255,255,255,.1));min-height:0}
+ .o-ae .o-ae-attrs,.o-ae .o-ae-desc,.o-ae-tab{display:none}
+ .o-ae .o-ae-in{padding:14px 14px 16px}
+ .o-ae .o-xp{margin:10px 0 12px}
+ .o-ae-go{margin-top:2px}
+  .o-app .o-tree{max-height:300px;overflow:auto}
+}
+@media(min-width:701px) and (max-width:980px){.h-plan-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:12px}.h-plan{padding:22px 18px}.h-plan .h-num{font-size:56px}}

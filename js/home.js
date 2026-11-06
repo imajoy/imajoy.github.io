@@ -94,7 +94,12 @@
       clearTimeout(tm);
       requestAnimationFrame(function () { box.classList.remove('sw'); if (!reduce) { void box.offsetWidth; box.classList.add('draw'); } });
     };
-    rows.forEach(function (r) { r.addEventListener('pointerenter', function () { pick(r); }); r.addEventListener('focus', function () { pick(r); }); });
+    rows.forEach(function (r) {
+      r.addEventListener('pointerenter', function (e) { if (e.pointerType !== 'touch') pick(r); });
+      r.addEventListener('focus', function () { if (r.matches(':focus-visible')) pick(r); });
+      /* touch: first tap previews the tool in the editor above, second tap opens its guide */
+      r.addEventListener('click', function (e) { if (matchMedia('(hover: none)').matches && r !== cur) { e.preventDefault(); pick(r); } });
+    });
     var start = rows.filter(function (r) { return /drag-drop/.test(r.getAttribute('href')); })[0] || rows[0];
     pick(start, true); ae.classList.add('ready'); var app = ae.closest('.o-app'); if (app) app.classList.add('ready');
   }

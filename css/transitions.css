@@ -1,0 +1,18 @@
+@view-transition{navigation:auto}
+/* Page transitions: the new page opens as a circle from the link you clicked; the old page recedes.
+   The top pill stays put so the page feels like one app. Direction flips on Back (html[data-vt=back]). */
+.pillbar{view-transition-name:pillbar}
+@media (prefers-reduced-motion:no-preference){
+ ::view-transition-group(root){animation-duration:.75s;animation-timing-function:cubic-bezier(.65,0,.35,1)}
+ ::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal;animation-duration:.75s;animation-timing-function:cubic-bezier(.65,0,.35,1);animation-fill-mode:both}
+ ::view-transition-old(root){animation-name:vt-recede}
+ ::view-transition-new(root){animation-name:vt-open}
+ html[data-vt=back]::view-transition-old(root){animation-name:vt-open-out;z-index:3}
+ html[data-vt=back]::view-transition-new(root){animation-name:vt-return;z-index:1}
+ ::view-transition-group(pillbar){animation-duration:.4s}
+ ::view-transition-old(pillbar),::view-transition-new(pillbar){animation-duration:.4s;mix-blend-mode:normal}
+ @keyframes vt-recede{to{transform:scale(.965) translateY(-10px);filter:brightness(.82) saturate(.9)}}
+ @keyframes vt-open{from{clip-path:circle(0 at var(--vx,50%) var(--vy,60%))}to{clip-path:circle(150vmax at var(--vx,50%) var(--vy,60%))}}
+ @keyframes vt-open-out{from{clip-path:circle(150vmax at var(--vx,50%) var(--vy,60%))}to{clip-path:circle(0 at var(--vx,50%) var(--vy,60%))}}
+ @keyframes vt-return{from{transform:scale(.965) translateY(-10px);filter:brightness(.82)}to{transform:none;filter:none}}
+}

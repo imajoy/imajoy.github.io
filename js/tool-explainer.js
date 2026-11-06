@@ -14,25 +14,39 @@ const FREE = [['IK', 200], ['MS', 280], ['UV', 40], ['LP', 150]];
 const ARROW = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 3l14 8-6 1.8L9.8 19z" fill="#fff" stroke="#0b0d14" stroke-width="1.4" stroke-linejoin="round"/></svg>';
 
 class Player {
-  constructor(fig, cfg) {
-    this.fig = fig; this.cfg = cfg;
-    this.steps = cfg.steps;
-    this.acts = []; this.starts = []; let t = 0;
-    this.steps.forEach((s, i) => { this.starts.push(t); (s.a || []).forEach(a => this.acts.push({ t: t + a[0], a: a.slice(1), i })); t += s.d; });
-    this.total = t; this.acts.sort((x, y) => x.t - y.t);
-    this.build();
-    this.reset(); this.playing = false; this.visible = false;
+  constructor(fig, list) {
+    this.fig = fig; this.list = list; this.li = 0;
+    this.shell(); this.load(list[0]);
+    this.playing = false; this.visible = false;
     if (reduce) { this.seekEnd(this.steps.length - 1); }
     else {
       new IntersectionObserver(es => { this.visible = es[0].isIntersecting; this.sync(); }, { threshold: .3 }).observe(this.root);
       document.addEventListener('visibilitychange', () => this.sync());
     }
   }
-  build() {
-    const c = this.cfg, grp = c.group === 'free' ? FREE : PRO, ix = c.ix;
+  load(cfg) {
+    this.cfg = cfg; this.steps = cfg.steps; this.acts = []; this.starts = []; let t = 0;
+    this.steps.forEach((s, i) => { this.starts.push(t); (s.a || []).forEach(a => this.acts.push({ t: t + a[0], a: a.slice(1), i })); t += s.d; });
+    this.total = t; this.acts.sort((x, y) => x.t - y.t);
+    this.render(); this.reset(); this.clock = null;
+  }
+  shell() {
+    const root = document.createElement('div'); root.className = 'xp'; root.setAttribute('role', 'group');
+    this.fig.querySelector('.xp-fallback')?.remove();
+    const head = this.fig.querySelector('.visual-heading'), cap = this.fig.querySelector('figcaption');
+    (head || this.fig).after(root); this.head = head;
+    if (head) { const dot = head.querySelector('.visual-dot'); const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'xp-play'; btn.setAttribute('aria-label', 'Pause the demo'); btn.innerHTML = '<svg viewBox="0 0 24 24"><path class="pp" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>'; (dot || head.lastElementChild || head).after(btn); dot && dot.remove(); this.btn = btn; btn.addEventListener('click', () => { this.user = !this.user; this.sync(); }); }
+    if (cap && !this.fig.hasAttribute('data-keep-caption')) cap.textContent = 'Animated demo · based on the Wrapline Pro guide';
+    this.root = root;
+    const fit = () => { if (!this.frame) return; const s = this.frame.clientWidth / W; this.s = s; this.canvas.style.transform = `scale(${s})`; };
+    this.fit = fit; new ResizeObserver(fit).observe(root);
+  }
+  render() {
+    const c = this.cfg, grp = c.group === 'free' ? FREE : PRO, ix = c.ix, root = this.root;
     const shelf = grp.map(([a, h], i) => `<span class="xp-sh${i === ix ? ' me' : ''}" style="--h:${h}"${i === ix ? ' data-k="sh"' : ''}>${a}</span>`).join('');
     const p = c.panel;
-    const root = document.createElement('div'); root.className = 'xp'; root.setAttribute('role', 'group'); root.setAttribute('aria-label', `${c.title}: animated walkthrough in ${this.steps.length} steps`);
+    root.setAttribute('aria-label', `${c.title}: animated walkthrough in ${this.steps.length} steps`);
+    if (this.head && this.fig.dataset.label) this.head.querySelector('span').textContent = this.fig.dataset.label + ' · ' + c.title.toUpperCase();
     root.innerHTML = `
       <div class="xp-frame"><div class="xp-canvas" aria-hidden="true">
         <div class="xp-top"><i></i><i></i><i></i><b data-k="ttl">Autodesk Maya 2026 &nbsp;·&nbsp; ${c.file || 'shot_010_anim.ma'}</b><span>${c.menu || 'File &nbsp; Edit &nbsp; Create &nbsp; Windows &nbsp; Wrapline'}</span></div>
@@ -44,19 +58,12 @@ class Player {
       </div></div>
       <div class="xp-cap" aria-live="polite"><b></b><p></p></div>
       <div class="xp-steps" style="--n:${this.steps.length}">${this.steps.map((s, i) => `<button type="button" class="xp-step" data-i="${i}"><small>0${i + 1}</small><span>${s.t}</span><i class="xp-fill"></i></button>`).join('')}</div>`;
-    this.fig.querySelector('.xp-fallback')?.remove();
-    const head = this.fig.querySelector('.visual-heading');
-    const cap = this.fig.querySelector('figcaption');
-    (head || this.fig).after(root);
-    if (head) { const dot = head.querySelector('.visual-dot'); const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'xp-play'; btn.setAttribute('aria-label', 'Pause the demo'); btn.innerHTML = '<svg viewBox="0 0 24 24"><path class="pp" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>'; (dot || head).replaceWith(btn); this.btn = btn; btn.addEventListener('click', () => { this.user = !this.user; this.sync(); }); }
-    if (cap) cap.textContent = 'Animated demo · based on the Wrapline Pro guide';
-    this.root = root; this.frame = root.querySelector('.xp-frame'); this.canvas = root.querySelector('.xp-canvas'); this.vp = root.querySelector('.xp-vp');
+    this.frame = root.querySelector('.xp-frame'); this.canvas = root.querySelector('.xp-canvas'); this.vp = root.querySelector('.xp-vp');
     this.panel = root.querySelector('.xp-panel'); this.pb = root.querySelector('.xp-pb'); this.scene = root.querySelector('.xp-scene'); this.cur = root.querySelector('.xp-cur'); this.toastEl = root.querySelector('.xp-toast');
     this.capB = root.querySelector('.xp-cap b'); this.capP = root.querySelector('.xp-cap p'); this.chips = [...root.querySelectorAll('.xp-step')];
     this.init = { pb: this.pb.innerHTML, scene: this.scene.innerHTML, ttl: root.querySelector('[data-k=ttl]').innerHTML };
     this.chips.forEach(b => b.addEventListener('click', () => { this.user = false; this.seek(+b.dataset.i); this.sync(); }));
-    const fit = () => { const s = this.frame.clientWidth / W; this.s = s; this.canvas.style.transform = `scale(${s})`; };
-    new ResizeObserver(fit).observe(this.frame); fit();
+    this.fit();
   }
   q(k) { return this.root.querySelector(`[data-k="${k}"]`); }
   qa(k) { return [...this.root.querySelectorAll(`[data-k="${k}"]`)]; }
@@ -116,9 +123,9 @@ class Player {
     let ci = 0; for (let n = 0; n < this.starts.length; n++) if (this.clock >= this.starts[n]) ci = n;
     this.show(Math.min(ci, this.steps.length - 1));
     this.chips.forEach((c, n) => c.style.setProperty('--p', Math.max(0, Math.min(1, (this.clock - this.starts[n]) / this.steps[n].d)).toFixed(3)));
-    if (this.clock >= this.total + HOLD) { this.seek(0); this.clock = 0; this.chips.forEach(c => c.style.setProperty('--p', 0)); }
+    if (this.clock >= this.total + HOLD) { if (this.list.length > 1) { this.li = (this.li + 1) % this.list.length; this.load(this.list[this.li]); } this.seek(0); this.clock = 0; this.chips.forEach(c => c.style.setProperty('--p', 0)); }
     requestAnimationFrame(t => this.tick(t));
   }
 }
 
-document.querySelectorAll('[data-explainer]').forEach(fig => { const cfg = XP[fig.dataset.explainer]; if (cfg) new Player(fig, cfg); });
+document.querySelectorAll('[data-explainer]').forEach(fig => { const list = fig.dataset.explainer.split(',').map(k => XP[k.trim()]).filter(Boolean); if (list.length) new Player(fig, list); });

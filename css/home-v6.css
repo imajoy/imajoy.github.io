@@ -64,3 +64,30 @@ html[data-theme=dark] .h-beam{background:conic-gradient(from 180deg at 50% 0%,tr
 
 .n-marq:not(.on) .n-row{animation-play-state:paused}
 .h-beam{animation:none}
+
+/* ---------- phones: show only what fits ---------- */
+/* headings that used to be split into sliding words stay plain and visible */
+.home h2 .w{overflow:visible}.home h2 .w>span{transform:none!important;opacity:1!important;animation:none!important;translate:none!important}
+@media(max-width:700px){
+ /* the tiny, unreadable Maya window, badges, camera HUD, ring and clapperboard are desktop and tablet only */
+ .h-stage,.h-tile,.h-gate,.h-beam,.ring,.slate,.t-slider{display:none!important}
+ .h-hero{padding:118px 0 34px}
+ .h-hero h1{font-size:clamp(40px,12.4vw,60px);margin:20px 0 18px}
+ .h-lead{font-size:16.5px}
+ .h-facts{margin-top:34px;gap:22px}
+ .h-facts dt{font-size:28px}
+ .n-marq{padding:20px 0 70px}.n-row li{font-size:14px;padding:8px 16px 8px 8px}.n-row b{width:30px;height:30px}
+ .home .h-shelf,.home .h-plans,.home .h-setup,.home .h-credits,.home .h-wrap{padding-top:78px}
+ .home .h-shelf{padding-bottom:70px}.h-plans{padding-bottom:80px}.h-setup,.h-credits{padding-bottom:70px}
+ .h-head{margin-bottom:30px}
+ /* shelf: a plain list of tools, no inner scrolling, no long descriptions */
+ .o-tree{max-height:none;overflow:visible}.o-desc{display:none}
+ .o-row{grid-template-rows:auto;padding:11px 16px 11px 44px}
+ .o-app{border-radius:16px}
+ /* contact: card only */
+ .w-card{padding:30px 22px;gap:0}.w-card .slate,.w-card [class*=slate]{display:none}
+ .h-wrap{padding-bottom:50px}
+ /* setup steps: plain cards, no animated ruler */
+ .t-steps{gap:12px}
+}
+@media(max-width:700px){.guest-prompt{display:none!important}}

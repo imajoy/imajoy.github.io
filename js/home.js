@@ -1,9 +1,6 @@
 /* Home page behaviour: reveals, hero camera push, viewport frame counter, Outliner -> Attribute Editor, time slider, slate.
    Everything reads layout once per frame at most and only writes transform/opacity-driving CSS variables. */
 (function () {
-  /* intro curtain: lifts after about a second (first visit of the session), hero then starts */
-  var rt = document.documentElement;
-  if (rt.classList.contains('h-pre')) { setTimeout(function () { rt.classList.add('h-pre-out'); rt.classList.remove('h-pre'); setTimeout(function () { rt.classList.remove('h-pre-out'); }, 1000); }, 1250); }
   var root = document.documentElement, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var home = document.querySelector('main.home'); if (!home) return;
   if (!reduce && 'IntersectionObserver' in window) root.classList.add('h-js');

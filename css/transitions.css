@@ -16,3 +16,12 @@
  @keyframes vt-open-out{from{clip-path:circle(150vmax at var(--vx,50%) var(--vy,60%))}to{clip-path:circle(0 at var(--vx,50%) var(--vy,60%))}}
  @keyframes vt-return{from{transform:scale(.965) translateY(-10px);filter:brightness(.82)}to{transform:none;filter:none}}
 }
+/* Content on plain pages rises in, one block after another, as the circle opens. */
+@media (prefers-reduced-motion:no-preference){
+ .policy-main>*,.policy-layout>*,.policy-section,.contact-main>*,.contact-main form>*{animation:vt-rise .7s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(.18s + var(--vi,0) * 70ms)}
+ .policy-main>:nth-child(2),.policy-layout>:nth-child(2),.contact-main>:nth-child(2){--vi:1}
+ .policy-main>:nth-child(3),.contact-main>:nth-child(3),.policy-section:nth-of-type(1){--vi:2}
+ .policy-main>:nth-child(4),.contact-main>:nth-child(4),.policy-section:nth-of-type(2){--vi:3}
+ .policy-section:nth-of-type(3){--vi:4}.policy-section:nth-of-type(n+4){--vi:5}
+ @keyframes vt-rise{from{opacity:0;transform:translateY(22px)}}
+}

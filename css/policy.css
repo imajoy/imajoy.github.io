@@ -47,8 +47,6 @@
 .policy-plan-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:22px}.policy-plan-grid>div{background:var(--card);padding:22px;border:1px solid var(--line);border-radius:22px}.policy-plan-grid h3{font-size:1rem;margin-bottom:12px}.policy-plan-grid p{font-size:.8125rem}
 .policy-end{display:flex;align-items:center;justify-content:space-between;gap:30px;background:var(--card);border:1px solid var(--pillbd);border-radius:32px;padding:40px;margin-top:60px;box-shadow:var(--soft-shadow)}
 .policy-end .policy-eyebrow{font-size:.5625rem;margin-bottom:15px}.policy-end h2{font-size:2rem;margin-bottom:12px}.policy-end p:last-child{font-size:.8125rem;color:var(--mute)}.policy-end .btn{flex:none}
-/* Legal documents opt out of the site's full-page transitions. */
-@view-transition{navigation:none}
 .policy-page .policy-section,.policy-page .policy-section:hover{transform:none;transition:none}
 .policy-page .site-header{transform:none;opacity:1;transition:none}
 .policy-page .pillbar{transition:scale 180ms ease-out,translate 180ms ease-out;transform-origin:top center}

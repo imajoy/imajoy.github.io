@@ -86,3 +86,22 @@ html[data-theme=dark] [data-tilt]::after{background:radial-gradient(360px circle
 @media(max-width:700px){.home .h-shelf,.home .h-plans,.home .h-setup,.home .h-credits,.home .h-wrap{border-radius:28px 28px 0 0;margin-top:-28px}@supports (animation-timeline:view()){@keyframes sheet-in{from{scale:.96}to{scale:1}}}}
 @media(prefers-reduced-motion:reduce){.home .h-shelf,.home .h-plans,.home .h-setup,.home .h-credits,.home .h-wrap{animation:none!important}}
 
+/* ---- v7 backgrounds: richer day / night palette ---- */
+.home{--sh1:#F8FAFF;--sh2:#EAF0FF;--sh3:#FFF7EC;--sh4:#F1EDFB;--sh5:#E2ECFB;--glow1:rgba(70,120,255,.2);--glow2:rgba(255,150,90,.22);--dot:rgba(30,50,110,.16)}
+:root[data-theme=dark] .home,html[data-theme=dark] .home{--sh1:#0B1228;--sh2:#101A40;--sh3:#0A1124;--sh4:#14123A;--sh5:#0E1A3A;--glow1:rgba(80,130,255,.28);--glow2:rgba(170,110,255,.2);--dot:rgba(150,180,255,.16)}
+.home .h-hero{position:relative;isolation:isolate;background:
+ radial-gradient(1100px 620px at 12% -8%,rgba(96,150,255,.38),transparent 62%),
+ radial-gradient(900px 560px at 92% 4%,rgba(255,150,200,.3),transparent 60%),
+ radial-gradient(900px 520px at 70% 92%,rgba(255,190,120,.3),transparent 62%),
+ linear-gradient(180deg,#EEF3FF 0%,#F6F2FF 55%,#FBF4EC 100%)}
+html[data-theme=dark] .home .h-hero{background:
+ radial-gradient(1100px 640px at 10% -10%,rgba(60,110,255,.42),transparent 62%),
+ radial-gradient(900px 560px at 94% 6%,rgba(150,80,255,.34),transparent 60%),
+ radial-gradient(900px 520px at 66% 96%,rgba(30,190,200,.2),transparent 62%),
+ linear-gradient(180deg,#060B1C 0%,#0A1030 60%,#0B1228 100%)}
+.home .h-hero::before{content:"";position:absolute;inset:0;z-index:-1;pointer-events:none;background-image:radial-gradient(var(--dot) 1.2px,transparent 1.4px);background-size:26px 26px;-webkit-mask-image:radial-gradient(ellipse 75% 70% at 50% 38%,#000 20%,transparent 78%);mask-image:radial-gradient(ellipse 75% 70% at 50% 38%,#000 20%,transparent 78%)}
+.home .h-shelf{background:radial-gradient(900px 420px at 88% 0,var(--glow1),transparent 70%),radial-gradient(700px 400px at 0 100%,rgba(255,170,100,.1),transparent 70%),linear-gradient(180deg,var(--sh1),var(--sh2))}
+.home .h-plans{background:radial-gradient(900px 420px at 10% 0,var(--glow2),transparent 70%),linear-gradient(180deg,var(--sh3),var(--sh2))}
+.home .h-setup{background:radial-gradient(800px 380px at 80% 0,var(--glow1),transparent 70%),linear-gradient(180deg,var(--sh3),var(--sh1))}
+.home .h-credits{background:radial-gradient(900px 400px at 15% 0,var(--glow2),transparent 70%),linear-gradient(180deg,var(--sh4),var(--sh1))}
+.home .h-wrap{background:radial-gradient(900px 420px at 50% 0,var(--glow1),transparent 70%),linear-gradient(180deg,var(--sh5),var(--sh4))}

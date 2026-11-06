@@ -25,10 +25,10 @@
   var hero = home.querySelector('.h-hero'), frameEl = home.querySelector('.g-frame');
   if (hero && !reduce) {
     var raf = 0, lastP = -1, heroVis = true, hH = hero.offsetHeight;
-    var hc = hero.querySelector('.h-copy'), hd = hero.querySelector('.h-demo'), hg = hero.querySelector('.h-gate');
+    var hc = hero.querySelector('.h-copy'), hd = hero.querySelector('.h-stage'), hg = hero.querySelector('.h-gate');
     var setP = function (p) {
-      if (hc) { hc.style.transform = 'translate3d(0,' + (-46 * p).toFixed(1) + 'px,0)'; hc.style.opacity = (1 - p * .7).toFixed(3); }
-      if (hd) hd.style.transform = 'translate3d(0,' + (-22 * p).toFixed(1) + 'px,0)';
+      if (hc) { hc.style.translate = '0 ' + (-46 * p).toFixed(1) + 'px'; hc.style.opacity = (1 - p * .7).toFixed(3); }
+      if (hd) hd.style.translate = '0 ' + (-22 * p).toFixed(1) + 'px';
       if (hg) { hg.style.transform = 'scale(' + (1 - p * .05).toFixed(4) + ')'; hg.style.opacity = (1 - p * .9).toFixed(3); }
     };
     var onScroll = function () { if (!raf) raf = requestAnimationFrame(apply); };

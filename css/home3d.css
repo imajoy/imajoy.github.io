@@ -1,0 +1,62 @@
+/* Depth layer for the home page: 3D hero stage, tilt cards with glare, scroll-driven perspective, a 3D tool ring, button shine.
+   Everything animates transform/opacity only. Pointer effects are mouse-only; all of it is off for reduced motion. */
+.h-orb{position:absolute;width:46vmax;height:46vmax;border-radius:50%;pointer-events:none;will-change:translate}
+.h-orb.o1{left:-14vmax;top:-12vmax;background:radial-gradient(closest-side,hsl(215 95% 72% / .38),transparent)}
+.h-orb.o2{right:-16vmax;top:6vmax;background:radial-gradient(closest-side,hsl(300 85% 76% / .3),transparent)}
+html[data-theme=dark] .h-orb.o1{background:radial-gradient(closest-side,hsl(215 95% 50% / .3),transparent)}
+html[data-theme=dark] .h-orb.o2{background:radial-gradient(closest-side,hsl(285 80% 52% / .24),transparent)}
+/* hero stage */
+.h-stage{position:relative;perspective:1300px;min-width:0}
+.h-stage>.h-demo{transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));will-change:transform;backface-visibility:hidden}
+.h-demo::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(520px circle at var(--gx,50%) var(--gy,0%),rgba(255,255,255,.16),transparent 45%);opacity:var(--ga,0);transition:opacity .4s}
+.h-tile{position:absolute;z-index:3;display:grid;grid-template-columns:34px auto;align-items:center;gap:2px 10px;padding:10px 16px 10px 10px;border-radius:16px;background:var(--card);border:1px solid var(--line);box-shadow:0 28px 40px -22px rgba(14,30,80,.5);transform:translateZ(var(--z,90px)) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));animation:tile-float 7s ease-in-out infinite;pointer-events:none}
+.h-tile b{grid-row:1/3;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;font:800 11px var(--sans);color:#fff;background:linear-gradient(145deg,hsl(var(--h) 80% 62%),hsl(calc(var(--h) + 26) 72% 46%));box-shadow:0 10px 18px -8px hsl(var(--h) 80% 45% / .8)}
+.h-tile small{font:600 12.5px var(--sans);color:var(--ink);white-space:nowrap;align-self:end}
+.h-tile::after{content:"ready";grid-column:2;font:500 10px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--mute);align-self:start}
+.h-tile.t1{left:-34px;top:-30px;--z:120px}.h-tile.t2{right:-10px;top:22%;--z:150px;animation-delay:-1.4s}.h-tile.t3{left:-44px;bottom:26%;--z:90px;animation-delay:-2.8s}.h-tile.t4{right:8%;bottom:-34px;--z:130px;animation-delay:-4.2s}.h-tile.t5{left:30%;top:-46px;--z:70px;animation-delay:-5.6s}
+@keyframes tile-float{50%{translate:0 -10px}}
+/* tilt cards */
+[data-tilt]{transform:perspective(900px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg));transition:transform .6s var(--out),box-shadow .4s;position:relative}
+[data-tilt].tilting{transition:transform .1s linear,box-shadow .4s}
+[data-tilt]::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(360px circle at var(--gx,50%) var(--gy,0%),rgba(255,255,255,.28),transparent 55%);opacity:var(--ga,0);transition:opacity .35s}
+html[data-theme=dark] [data-tilt]::after{background:radial-gradient(360px circle at var(--gx,50%) var(--gy,0%),rgba(150,190,255,.16),transparent 55%)}
+@media(hover:hover) and (pointer:fine){[data-tilt]:hover{box-shadow:0 34px 60px -30px rgba(20,35,100,.55)}.t-steps li[data-tilt]:hover,.h-plan[data-tilt]:hover{translate:0 -4px}}
+/* scroll-driven perspective */
+[data-s3d]{transform-origin:50% 0}
+/* scroll-driven perspective on the compositor: elements fold up into place as they enter, no JS */
+@supports (animation-timeline:view()){
+ @media(prefers-reduced-motion:no-preference){
+  [data-s3d]{animation:s3d-in linear both;animation-timeline:view();animation-range:entry 0% entry 85%}
+  @keyframes s3d-in{from{transform:perspective(1300px) rotateX(16deg) translateZ(-130px)}to{transform:perspective(1300px) rotateX(0deg) translateZ(0)}}
+ }
+}
+.h-plan-grid[data-s3d],.t-steps[data-s3d]{transform-style:flat}
+/* 3D tool ring */
+.h-shelf>.wrap{position:relative}
+.ring{position:absolute;right:-30px;top:-20px;width:420px;height:300px;perspective:1100px;pointer-events:none;-webkit-mask:linear-gradient(90deg,transparent,#000 25%);mask:linear-gradient(90deg,transparent,#000 25%)}
+.ring-in{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;animation:ring-spin 30s linear infinite;rotate:x -14deg}
+.ring-t{position:absolute;left:-62px;top:-34px;width:124px;height:68px;display:grid;align-content:center;justify-items:center;gap:3px;border-radius:14px;background:var(--card);border:1px solid var(--line);box-shadow:0 18px 30px -18px rgba(14,30,80,.45);transform:rotateY(calc(var(--i) * 36deg)) translateZ(190px);backface-visibility:hidden}
+.ring-t b{width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font:800 9.5px var(--sans);color:#fff;background:linear-gradient(145deg,hsl(var(--h) 80% 62%),hsl(calc(var(--h) + 26) 72% 46%))}
+.ring-t small{font:600 9.5px var(--sans);color:var(--mute);white-space:nowrap;max-width:112px;overflow:hidden;text-overflow:ellipsis}
+@keyframes ring-spin{to{transform:rotateY(360deg)}}
+/* premium plan: a light sweeps around the border */
+.h-plan.is-top{overflow:hidden;isolation:isolate}
+.h-plan.is-top::before{content:"";position:absolute;inset:-70%;z-index:-2;background:conic-gradient(from 0deg,transparent 0 72%,#F7D489 86%,transparent 96%);animation:spin 7s linear infinite}
+.h-plan.is-top>*{position:relative;z-index:1}
+.h-plan.is-top::after{inset:1.5px;border-radius:calc(26px - 1.5px);z-index:0;background:none}
+@keyframes spin{to{transform:rotate(360deg)}}
+.h-plan.is-top{background:none}
+.h-plan.is-top>.h-plan-bg{position:absolute;inset:1.5px;border-radius:24.5px;z-index:-1;background:radial-gradient(120% 90% at 90% 0%,#2B3F86,#131B3F 55%,#0A0F26)}
+/* buttons: shine + press */
+.home .btn{position:relative;overflow:hidden;isolation:isolate}
+.home .btn::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.5) 50%,transparent 65%);translate:-130% 0;transition:translate .8s var(--out)}
+.home .btn:hover::before{translate:130% 0}
+.home .btn-light::before{background:linear-gradient(105deg,transparent 35%,rgba(60,100,255,.16) 50%,transparent 65%)}
+.home .btn:active{scale:.97}
+/* extra hover life */
+.o-row{transition:background .18s,color .18s,padding .25s var(--out)}.o-row:hover{padding-left:50px}
+.cr div{transition:padding .35s var(--out),background .3s}.cr div:hover{padding-left:14px;background:linear-gradient(90deg,var(--t05),transparent)}
+.h-facts div{transition:translate .35s var(--out)}.h-facts div:hover{translate:0 -4px}
+.o-ae-go,.o-row .o-ico{transition:transform .35s var(--out),background .2s}.o-row:hover .o-ico{transform:scale(1.15) rotate(-6deg)}
+@media(max-width:980px){.ring,.h-tile{display:none}.h-stage{perspective:none}}
+@media(prefers-reduced-motion:reduce){.h-tile,.ring-in,.h-plan.is-top::before{animation:none!important}[data-tilt],.h-stage>.h-demo,[data-s3d]{transform:none!important}.home .btn::before{display:none}}

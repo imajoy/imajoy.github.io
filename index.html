@@ -100,7 +100,7 @@
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 
-<link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/tool-explainer.css?v=xp1"><link rel="stylesheet" href="css/home.css?v=h2"><link rel="stylesheet" href="css/transitions.css?v=vt1"></head>
+<link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/tool-explainer.css?v=xp1"><link rel="stylesheet" href="css/home.css?v=h3"><link rel="stylesheet" href="css/home3d.css?v=h3"><link rel="stylesheet" href="css/transitions.css?v=vt1"></head>
 <body class="studio-page" >
 <a class="skip" href="#main">Skip to content</a>
 
@@ -125,6 +125,7 @@
   <!-- 01 · THE SHOT: the hero is a Maya viewport; the headline sits in the camera gate -->
   <section class="h-hero" aria-labelledby="h-title">
     <div class="h-gate" aria-hidden="true">
+      <i class="h-orb o1"></i><i class="h-orb o2"></i>
       <i class="g-c g-tl"></i><i class="g-c g-tr"></i><i class="g-c g-bl"></i><i class="g-c g-br"></i>
       <span class="g-hud g-hud-tl">persp</span><span class="g-hud g-hud-tr">1920 × 1080</span>
       <span class="g-hud g-hud-bl"><b class="g-frame">1001</b> fps 24</span><span class="g-hud g-hud-br">Ajoy Tools · Wrapline</span>
@@ -139,25 +140,26 @@
           <a class="btn btn-dark" href="wrapline.html">Explore Wrapline Pro</a>
           <a class="btn btn-light" href="wrapline-free.html">Get Wrapline free</a>
         </div>
-        <dl class="h-facts"><div><dt>14</dt><dd>Maya tools</dd></div><div><dt>4</dt><dd>free for everyone</dd></div><div><dt>2023–26</dt><dd>Maya versions</dd></div></dl>
+        <dl class="h-facts" data-count><div><dt>14</dt><dd>Maya tools</dd></div><div><dt>4</dt><dd>free for everyone</dd></div><div><dt>2023–26</dt><dd>Maya versions</dd></div></dl>
       </div>
-      <figure class="tool-visual h-demo" data-explainer="drag-drop,fbx-exporter,rivet" data-label="LIVE IN MAYA" data-keep-caption>
+      <div class="h-stage" data-stage><figure class="tool-visual h-demo" data-explainer="drag-drop,fbx-exporter,rivet" data-label="LIVE IN MAYA" data-keep-caption>
         <div class="visual-heading"><span>LIVE IN MAYA · DRAG &amp; DROP</span><span class="visual-dot" aria-hidden="true"></span></div>
         <ol class="xp-fallback"><li><b>Drag &amp; Drop:</b> drop files, choose an action for each, confirm.</li><li><b>FBX Exporter:</b> set the shot, pick rigs, export named FBX files.</li><li><b>Rivet:</b> select two edges, click Rivet, parent your object.</li></ol>
         <figcaption>Three of fourteen tools, playing on a loop · <a href="wrapline.html#tools">See them all</a></figcaption>
-      </figure>
+      </figure><span class="h-tile t1" style="--h:200" aria-hidden="true"><b>IK</b><small>IK / FK Switch</small></span><span class="h-tile t2" style="--h:25" aria-hidden="true"><b>FB</b><small>FBX Exporter</small></span><span class="h-tile t3" style="--h:0" aria-hidden="true"><b>PB</b><small>Playblast</small></span><span class="h-tile t4" style="--h:340" aria-hidden="true"><b>RI</b><small>Rivet</small></span><span class="h-tile t5" style="--h:150" aria-hidden="true"><b>AB</b><small>Alembic</small></span></div>
     </div>
   </section>
 
   <!-- 02 · THE SHELF: the toolkits shown as Maya's Outliner + Attribute Editor -->
   <section class="h-shelf" id="tools" aria-labelledby="tools-title">
     <div class="wrap">
+      <div class="ring" aria-hidden="true"><div class="ring-in"><span class="ring-t" style="--i:0;--h:200"><b>IK</b><small>Advanced IK FK Switch</small></span><span class="ring-t" style="--i:1;--h:150"><b>AB</b><small>Alembic Exporter</small></span><span class="ring-t" style="--i:2;--h:320"><b>AU</b><small>Audio Exporter</small></span><span class="ring-t" style="--i:3;--h:48"><b>DD</b><small>Drag &amp; Drop</small></span><span class="ring-t" style="--i:4;--h:25"><b>FB</b><small>FBX Exporter</small></span><span class="ring-t" style="--i:5;--h:270"><b>HK</b><small>Hotkey Manager</small></span><span class="ring-t" style="--i:6;--h:0"><b>PB</b><small>Playblast</small></span><span class="ring-t" style="--i:7;--h:175"><b>RB</b><small>Rebake IK Space</small></span><span class="ring-t" style="--i:8;--h:240"><b>RV</b><small>Revert to Last Saved</small></span><span class="ring-t" style="--i:9;--h:340"><b>RI</b><small>Rivet</small></span></div></div>
       <div class="h-head" data-r>
         <p class="h-kicker"><span>02</span>The shelf</p>
         <h2 id="tools-title">Fourteen tools. <em>One shelf.</em></h2>
         <p>Both toolkits, laid out the way Maya would show them. Point at a tool to inspect it, click to open its guide.</p>
       </div>
-      <div class="o-app" data-r>
+      <div class="o-app" data-r data-s3d>
         <div class="o-bar" aria-hidden="true"><i></i><i></i><i></i><b>Outliner</b><span>Display &nbsp; Show &nbsp; Help</span></div>
         <div class="o-body">
           <div class="o-tree">
@@ -189,10 +191,10 @@
         <h2 id="compare-title">Start free. <em>Grow into Pro.</em></h2>
         <p>Wrapline costs nothing. When you need exporters, playblasts and rig tools, Wrapline Pro adds them to the same shelf.</p>
       </div>
-      <div class="h-plan-grid">
-        <article class="h-plan" data-r style="--d:0"><p class="h-plan-k">Wrapline</p><p class="h-num">4<span>tools</span></p><p class="h-plan-s">Free for everyone. No account needed.</p><ul><li>IK / FK Snap, Multi Swapper</li><li>UDIM Preview, Layer Prefix Remover</li><li>Works offline</li></ul><a class="btn btn-light" href="wrapline-free.html">Get Wrapline free</a></article>
-        <article class="h-plan" data-r style="--d:1"><p class="h-plan-k">Wrapline Pro Basic</p><p class="h-num">10<span>tools</span></p><p class="h-plan-s">Online and always up to date. 4-day free trial.</p><ul><li>All 10 Pro tools</li><li>Always the newest version</li><li>Sign in with your email</li></ul><a class="btn btn-dark" href="wrapline.html#pricing">See Basic</a></article>
-        <article class="h-plan is-top" data-r style="--d:2"><p class="h-plan-k">Wrapline Pro Premium <span>Every tool</span></p><p class="h-num">14<span>tools</span></p><p class="h-plan-s">Offline with a license key. Built for studios.</p><ul><li>All 10 Pro tools + the 4 free tools</li><li>Works offline after install</li><li>You decide when to update</li></ul><a class="btn btn-gold" href="wrapline.html#pricing">See Premium</a></article>
+      <div class="h-plan-grid" data-s3d>
+        <article data-tilt class="h-plan" data-r style="--d:0"><p class="h-plan-k">Wrapline</p><p class="h-num">4<span>tools</span></p><p class="h-plan-s">Free for everyone. No account needed.</p><ul><li>IK / FK Snap, Multi Swapper</li><li>UDIM Preview, Layer Prefix Remover</li><li>Works offline</li></ul><a class="btn btn-light" href="wrapline-free.html">Get Wrapline free</a></article>
+        <article data-tilt class="h-plan" data-r style="--d:1"><p class="h-plan-k">Wrapline Pro Basic</p><p class="h-num">10<span>tools</span></p><p class="h-plan-s">Online and always up to date. 4-day free trial.</p><ul><li>All 10 Pro tools</li><li>Always the newest version</li><li>Sign in with your email</li></ul><a class="btn btn-dark" href="wrapline.html#pricing">See Basic</a></article>
+        <article data-tilt class="h-plan is-top" data-r style="--d:2"><i class="h-plan-bg" aria-hidden="true"></i><p class="h-plan-k">Wrapline Pro Premium <span>Every tool</span></p><p class="h-num">14<span>tools</span></p><p class="h-plan-s">Offline with a license key. Built for studios.</p><ul><li>All 10 Pro tools + the 4 free tools</li><li>Works offline after install</li><li>You decide when to update</li></ul><a class="btn btn-gold" href="wrapline.html#pricing">See Premium</a></article>
       </div>
     </div>
   </section>
@@ -208,10 +210,10 @@
         <div class="t-ruler"><span>1</span><span>12</span><span>24</span><span>36</span><span>48</span><span>60</span></div>
         <i class="t-key k1"></i><i class="t-key k2"></i><i class="t-key k3"></i><span class="t-run"><i class="t-head"><b>f</b></i></span>
       </div>
-      <ol class="t-steps">
-        <li data-r style="--d:0"><span class="t-n">f 01</span><h3>Download</h3><p>Get the installer from the download page. One small file.</p></li>
-        <li data-r style="--d:1"><span class="t-n">f 24</span><h3>Drag into Maya</h3><p>Drop the file into the viewport and click Install. No folders to copy.</p></li>
-        <li data-r style="--d:2"><span class="t-n">f 48</span><h3>Start working</h3><p>Your tools appear on the shelf and in the Wrapline menu.</p></li>
+      <ol class="t-steps" data-s3d>
+        <li data-tilt data-r style="--d:0"><span class="t-n">f 01</span><h3>Download</h3><p>Get the installer from the download page. One small file.</p></li>
+        <li data-tilt data-r style="--d:1"><span class="t-n">f 24</span><h3>Drag into Maya</h3><p>Drop the file into the viewport and click Install. No folders to copy.</p></li>
+        <li data-tilt data-r style="--d:2"><span class="t-n">f 48</span><h3>Start working</h3><p>Your tools appear on the shelf and in the Wrapline menu.</p></li>
       </ol>
       <p class="t-more" data-r><a class="o-ae-go" href="download.html">Go to downloads <span aria-hidden="true">→</span></a></p>
     </div>
@@ -225,7 +227,7 @@
         <h2 id="about-title">Made by an animator, <em>for artists.</em></h2>
         <p class="h-credits-lead">Every tool starts with a task that slowed down a real shot, and turns it into one click or one window.</p>
       </div>
-      <dl class="cr" data-r>
+      <dl class="cr" data-r data-s3d>
         <div><dt>Built from</dt><dd>Real production work and real deadlines</dd></div>
         <div><dt>Made for</dt><dd>Animators, riggers and studio pipelines</dd></div>
         <div><dt>Runs in</dt><dd>Autodesk Maya 2023 to 2026 on Windows</dd></div>
@@ -238,7 +240,7 @@
   <!-- 06 · THAT'S A WRAP: a slate claps shut when it comes into view -->
   <section class="h-wrap" id="contact" aria-labelledby="contact-title">
     <div class="wrap">
-      <div class="w-card" data-r>
+      <div class="w-card" data-r data-s3d>
         <div class="w-copy">
           <p class="h-kicker"><span>06</span>Contact</p>
           <h2 id="contact-title">That's a <em>wrap.</em></h2>
@@ -272,5 +274,5 @@
 </footer>
 
 <script src="js/studio.js?v=20261019-complete1"></script><script src="js/site-config.js?v=20261023-p4"></script><script type="module" src="js/account.js?v=20261025-cards1"></script><script type="module" src="js/guest-prompt.js?v=20261019-account2"></script>
-<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script src="js/home.js?v=h2" defer></script><script type="module" src="js/tool-explainer.js?v=xp2"></script><script src="js/transitions.js?v=vt1"></script></body>
+<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script src="js/home.js?v=h3" defer></script><script src="js/home3d.js?v=h3" defer></script><script type="module" src="js/tool-explainer.js?v=xp2"></script><script src="js/transitions.js?v=vt1"></script></body>
 </html>

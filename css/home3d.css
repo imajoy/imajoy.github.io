@@ -85,3 +85,53 @@ html[data-theme=dark] [data-tilt]::after{background:radial-gradient(360px circle
 }
 @media(max-width:700px){.home .h-shelf,.home .h-plans,.home .h-setup,.home .h-credits,.home .h-wrap{border-radius:28px 28px 0 0;margin-top:-28px}@supports (animation-timeline:view()){@keyframes sheet-in{from{scale:.96}to{scale:1}}}}
 @media(prefers-reduced-motion:reduce){.home .h-shelf,.home .h-plans,.home .h-setup,.home .h-credits,.home .h-wrap{animation:none!important}}
+
+/* ---------- opening: a dark curtain with the wordmark lifts off the page (first visit of a session) ---------- */
+html.h-pre{overflow:hidden}
+html.h-pre::before,html.h-pre-out::before{content:"AJOY TOOLS";position:fixed;inset:0;z-index:10001;display:grid;place-items:center;align-content:center;color:#EEF2FF;font:600 15px/1 ui-monospace,Consolas,monospace;letter-spacing:.5em;text-indent:.5em;background:none;pointer-events:none;animation:pre-word 1.25s cubic-bezier(.22,1,.36,1) both}
+html.h-pre::after,html.h-pre-out::after{content:"";position:fixed;inset:0;z-index:10000;pointer-events:none;
+ background:radial-gradient(520px 300px at 50% 100%,rgba(255,150,70,.35),transparent 70%),radial-gradient(700px 420px at 50% 0,rgba(61,139,255,.25),transparent 70%),#05070F}
+html.h-pre-out::before{animation:pre-word-out .5s ease both}
+html.h-pre-out::after{animation:pre-lift .95s cubic-bezier(.76,0,.24,1) both}
+html.h-pre .h-hero *,html.h-pre .h-hero{animation-play-state:paused!important}
+@keyframes pre-word{from{opacity:0;letter-spacing:.9em}}
+@keyframes pre-word-out{to{opacity:0;transform:translate3d(0,-30px,0)}}
+@keyframes pre-lift{to{transform:translate3d(0,-100%,0)}}
+
+/* ---------- light on the horizon: every sheet gets a glowing edge, the hero a warm sun ---------- */
+.home .h-shelf::before,.home .h-plans::before,.home .h-setup::before,.home .h-credits::before,.home .h-wrap::before{content:"";position:absolute;left:14%;right:14%;top:0;height:1px;pointer-events:none;
+ background:linear-gradient(90deg,transparent,rgba(255,176,102,.95) 30%,rgba(120,165,255,.95) 70%,transparent);box-shadow:0 0 30px 2px rgba(255,160,90,.4)}
+.home .h-hero{background:radial-gradient(760px 380px at 86% 108%,rgba(255,150,70,.2),transparent 70%),radial-gradient(1000px 560px at 78% 18%,var(--hero-glow),transparent 70%),linear-gradient(180deg,var(--hero-a),var(--bg) 92%)}
+html[data-theme=dark] .home .h-hero{background:radial-gradient(900px 420px at 86% 112%,rgba(255,140,60,.28),transparent 70%),radial-gradient(1000px 560px at 78% 18%,var(--hero-glow),transparent 70%),linear-gradient(180deg,var(--hero-a),var(--bg) 92%)}
+
+/* ---------- headings: words rise out of a mask ---------- */
+.home .w{display:inline-block;overflow:hidden;vertical-align:top;padding:.04em .02em .14em;margin:-.04em -.02em -.14em}
+.home .w>span{display:inline-block}
+.h-js [data-r] .w>span{translate:0 112%;transition:translate 1s cubic-bezier(.22,1,.36,1) calc(var(--i) * 70ms + 120ms)}
+.h-js [data-r].in .w>span{translate:0 0}
+@media(prefers-reduced-motion:reduce){html.h-pre::before,html.h-pre::after{display:none}.h-js [data-r] .w>span{translate:none}}
+
+/* ---------- hero light: two soft beams sweep slowly across the camera gate ---------- */
+.h-beam{position:absolute;left:50%;top:-30%;width:150%;height:140%;translate:-50% 0;pointer-events:none;opacity:.9;
+ background:conic-gradient(from 188deg at 62% 0%,transparent 0 10%,rgba(90,140,255,.20) 15%,transparent 22%,transparent 30%,rgba(255,176,96,.20) 35%,transparent 42%,transparent 100%);
+ -webkit-mask:linear-gradient(#000 20%,transparent 85%);mask:linear-gradient(#000 20%,transparent 85%);transform-origin:62% 0;animation:beam 16s ease-in-out infinite alternate}
+html[data-theme=dark] .h-beam{opacity:1;background:conic-gradient(from 188deg at 62% 0%,transparent 0 10%,rgba(90,140,255,.30) 15%,transparent 23%,transparent 30%,rgba(255,170,90,.26) 35%,transparent 43%,transparent 100%)}
+@keyframes beam{from{transform:rotate(-5deg)}to{transform:rotate(6deg)}}
+@media(prefers-reduced-motion:reduce){.h-beam{animation:none}}
+
+/* ---------- statement: tall section, text pinned while the words light up ---------- */
+.h-say{position:relative;height:260svh;z-index:0}
+.h-say-in{position:sticky;top:0;height:100svh;display:grid;align-content:center;justify-items:center;text-align:center;padding:0 clamp(20px,6vw,120px);gap:26px}
+.h-say-in .h-kicker{margin:0}
+.h-say-t{max-width:20em;margin:0;font:600 clamp(28px,4.4vw,64px)/1.16 var(--sans);letter-spacing:-.04em;color:var(--ink)}
+.h-say-t .w{display:inline-block}
+@supports (animation-timeline:view()){
+ .h-say{view-timeline:--say block}
+ .h-say-t.split .w{opacity:.16;animation:say-on linear both;animation-timeline:--say;animation-range:cover var(--a) cover var(--b)}
+ @keyframes say-on{to{opacity:1}}
+}
+@supports not (animation-timeline:view()){.h-say{height:auto;padding:110px 0}.h-say-in{position:static;height:auto}}
+@media(max-width:700px){.h-say{height:230svh}}
+@media(prefers-reduced-motion:reduce){.h-say{height:auto;padding:110px 0}.h-say-in{position:static;height:auto}}
+.h-say-in::before{content:"";position:absolute;inset:12% 8%;z-index:-1;pointer-events:none;background:radial-gradient(60% 55% at 50% 50%,var(--glow1),transparent 70%)}
+.h-say-in{isolation:isolate}

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <script>document.documentElement.classList.add("js")</script>
-<script>(function(){var t;try{t=localStorage.getItem("ajoy-theme")}catch(e){}if(t!=="dark"&&t!=="light")t="light";document.documentElement.setAttribute("data-theme",t)})()</script>
+<script>(function(){try{if(!matchMedia("(prefers-reduced-motion: reduce)").matches&&!sessionStorage.getItem("ajoy-pre")){document.documentElement.classList.add("h-pre");sessionStorage.setItem("ajoy-pre","1")}}catch(e){}})()</script><script>(function(){var t;try{t=localStorage.getItem("ajoy-theme")}catch(e){}if(t!=="dark"&&t!=="light")t="light";document.documentElement.setAttribute("data-theme",t)})()</script>
 <meta charset="UTF-8">
 <meta name="google-site-verification" content="BIfChOxPCbTD1nXCiCt0XrkL3hdeSbZGvQBlWOb3flw" />
 <script src="js/maker-entrance.js?v=20261021-always1"></script>
@@ -100,7 +100,7 @@
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 
-<link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/tool-explainer.css?v=xp1"><link rel="stylesheet" href="css/home.css?v=h3"><link rel="stylesheet" href="css/home3d.css?v=h4"><link rel="stylesheet" href="css/transitions.css?v=vt1"></head>
+<link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/tool-explainer.css?v=xp1"><link rel="stylesheet" href="css/home.css?v=h3"><link rel="stylesheet" href="css/home3d.css?v=h5"><link rel="stylesheet" href="css/transitions.css?v=vt2"></head>
 <body class="studio-page" >
 <a class="skip" href="#main">Skip to content</a>
 
@@ -125,7 +125,7 @@
   <!-- 01 · THE SHOT: the hero is a Maya viewport; the headline sits in the camera gate -->
   <section class="h-hero" aria-labelledby="h-title">
     <div class="h-gate" aria-hidden="true">
-      <i class="h-orb o1"></i><i class="h-orb o2"></i>
+      <i class="h-beam" aria-hidden="true"></i><i class="h-orb o1"></i><i class="h-orb o2"></i>
       <i class="g-c g-tl"></i><i class="g-c g-tr"></i><i class="g-c g-bl"></i><i class="g-c g-br"></i>
       <span class="g-hud g-hud-tl">persp</span><span class="g-hud g-hud-tr">1920 × 1080</span>
       <span class="g-hud g-hud-bl"><b class="g-frame">1001</b> fps 24</span><span class="g-hud g-hud-br">Ajoy Tools · Wrapline</span>
@@ -147,6 +147,14 @@
         <ol class="xp-fallback"><li><b>Drag &amp; Drop:</b> drop files, choose an action for each, confirm.</li><li><b>FBX Exporter:</b> set the shot, pick rigs, export named FBX files.</li><li><b>Rivet:</b> select two edges, click Rivet, parent your object.</li></ol>
         <figcaption>Three of fourteen tools, playing on a loop · <a href="wrapline.html#tools">See them all</a></figcaption>
       </figure><span class="h-tile t1" style="--h:200" aria-hidden="true"><b>IK</b><small>IK / FK Switch</small></span><span class="h-tile t2" style="--h:25" aria-hidden="true"><b>FB</b><small>FBX Exporter</small></span><span class="h-tile t3" style="--h:0" aria-hidden="true"><b>PB</b><small>Playblast</small></span><span class="h-tile t4" style="--h:340" aria-hidden="true"><b>RI</b><small>Rivet</small></span><span class="h-tile t5" style="--h:150" aria-hidden="true"><b>AB</b><small>Alembic</small></span></div>
+    </div>
+  </section>
+
+  <!-- 01b · STATEMENT: words light up as you scroll -->
+  <section class="h-say" aria-labelledby="say-label">
+    <div class="h-say-in">
+      <p class="h-kicker" id="say-label"><span>—</span>Why these tools exist</p>
+      <p class="h-say-t" data-say>Small tools, made by an animator. Every one starts with a task that slowed down a real shot, and ends as one click or one window, so the shot gets finished and not fiddled with.</p>
     </div>
   </section>
 
@@ -274,5 +282,5 @@
 </footer>
 
 <script src="js/studio.js?v=20261019-complete1"></script><script src="js/site-config.js?v=20261023-p4"></script><script type="module" src="js/account.js?v=20261025-cards1"></script><script type="module" src="js/guest-prompt.js?v=20261019-account2"></script>
-<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script src="js/home.js?v=h4" defer></script><script src="js/home3d.js?v=h3" defer></script><script type="module" src="js/tool-explainer.js?v=xp3"></script><script src="js/transitions.js?v=vt1"></script></body>
+<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script src="js/home.js?v=h5" defer></script><script src="js/home3d.js?v=h5" defer></script><script type="module" src="js/tool-explainer.js?v=xp3"></script><script src="js/smooth-scroll.js?v=sm1" defer></script><script src="js/transitions.js?v=vt2"></script></body>
 </html>

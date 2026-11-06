@@ -22,3 +22,18 @@
     e.viewTransition.finished.finally(function () { delete root.dataset.vt; });
   });
 })();
+
+/* Pages without their own scroll reveal (download, licence and so on): content eases in as it arrives. Home and pages with scroll-fx keep theirs. */
+(function () {
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+  addEventListener('load', function () {
+    var root = document.documentElement;
+    if (root.classList.contains('sfx') || document.querySelector('main.home')) return;
+    var els = [].slice.call(document.querySelectorAll('main > section > .wrap > *, main > .wrap > *, main > section > *:not(.wrap)'))
+      .filter(function (el) { return !el.closest('.reveal,[data-r],[data-policy-reveal],dialog,.coffee,[hidden]') && el.getBoundingClientRect().top > innerHeight * .9; });
+    if (!els.length) return;
+    root.classList.add('rv-js');
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('rv-in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
+    els.forEach(function (el) { el.classList.add('rv'); io.observe(el); });
+  });
+})();

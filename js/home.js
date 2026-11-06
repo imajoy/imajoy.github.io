@@ -1,9 +1,30 @@
 /* Home page behaviour: reveals, hero camera push, viewport frame counter, Outliner -> Attribute Editor, time slider, slate.
    Everything reads layout once per frame at most and only writes transform/opacity-driving CSS variables. */
 (function () {
+  /* intro curtain: lifts after about a second (first visit of the session), hero then starts */
+  var rt = document.documentElement;
+  if (rt.classList.contains('h-pre')) { setTimeout(function () { rt.classList.add('h-pre-out'); rt.classList.remove('h-pre'); setTimeout(function () { rt.classList.remove('h-pre-out'); }, 1000); }, 1250); }
   var root = document.documentElement, reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   var home = document.querySelector('main.home'); if (!home) return;
   if (!reduce && 'IntersectionObserver' in window) root.classList.add('h-js');
+
+  /* section headings arrive word by word */
+  (function () {
+    var n = 0;
+    function split(node) {
+      [].slice.call(node.childNodes).forEach(function (c) {
+        if (c.nodeType === 3) {
+          var f = document.createDocumentFragment();
+          c.nodeValue.split(/(\s+)/).forEach(function (t) {
+            if (!t) return; if (/^\s+$/.test(t)) { f.appendChild(document.createTextNode(' ')); return; }
+            var w = document.createElement('span'), i = document.createElement('span'); w.className = 'w'; i.textContent = t; i.style.setProperty('--i', n++); w.appendChild(i); f.appendChild(w);
+          });
+          c.parentNode.replaceChild(f, c);
+        } else if (c.nodeType === 1 && !c.classList.contains('w')) split(c);
+      });
+    }
+    if (!reduce) home.querySelectorAll('.h-head h2, .h-head-c h2, .h-setup h2, .h-credits h2').forEach(function (h) { n = 0; h.setAttribute('aria-label', h.textContent); split(h); });
+  })();
 
   /* reveals (once), slate replays every time it comes back */
   if ('IntersectionObserver' in window) {
@@ -49,6 +70,17 @@
       }, 1000 / 24);
     }
     apply();
+  }
+
+  /* statement: split into words so each lights up with the scroll (CSS does the timing) */
+  var say = home.querySelector('[data-say]');
+  if (say && !reduce) {
+    var words = say.textContent.trim().split(/\s+/); say.setAttribute('aria-label', say.textContent.trim()); say.textContent = '';
+    words.forEach(function (w, i) {
+      var sp = document.createElement('span'); sp.className = 'w'; sp.setAttribute('aria-hidden', 'true'); sp.textContent = w; sp.style.setProperty('--a', (30 + 34 * i / words.length).toFixed(2) + '%'); sp.style.setProperty('--b', (30 + 34 * i / words.length + 5).toFixed(2) + '%');
+      say.appendChild(sp); say.appendChild(document.createTextNode(' '));
+    });
+    say.classList.add('split');
   }
 
   /* Outliner -> Attribute Editor */

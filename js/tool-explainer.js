@@ -129,5 +129,12 @@ class Player {
   }
 }
 
-document.querySelectorAll('[data-shelf]').forEach(fig => { const pl = new Player(fig, [XP[window.__shelfKey] || XP['drag-drop']]); window.__shelfSet = k => { if (XP[k]) pl.setTool(XP[k]); }; });
-document.querySelectorAll('[data-explainer]').forEach(fig => { const list = fig.dataset.explainer.split(',').map(k => XP[k.trim()]).filter(Boolean); if (list.length) new Player(fig, list); });
+/* lazy start: a player is only built when its figure is near the screen, and the hero one waits for an idle moment so first paint stays light */
+const whenNear = (el, fn, margin) => { let done = false; const go = () => { if (!done) { done = true; fn(); } };
+  if (!('IntersectionObserver' in window)) return go();
+  const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { io.disconnect(); go(); } }, { rootMargin: margin || '400px 0px' }); io.observe(el); };
+const idle = fn => ('requestIdleCallback' in window ? requestIdleCallback(fn, { timeout: 700 }) : setTimeout(fn, 200));
+document.querySelectorAll('[data-shelf]').forEach(fig => { let pl = null, want = null; window.__shelfSet = k => { if (!XP[k]) return; if (pl) pl.setTool(XP[k]); else want = k; };
+  whenNear(fig, () => idle(() => { pl = new Player(fig, [XP[want || window.__shelfKey] || XP['drag-drop']]); }), '500px 0px'); });
+document.querySelectorAll('[data-explainer]').forEach(fig => { const list = fig.dataset.explainer.split(',').map(k => XP[k.trim()]).filter(Boolean); if (!list.length) return;
+  const hero = !!fig.closest('.h-hero'); whenNear(fig, () => (hero ? idle : (f => f()))(() => new Player(fig, list)), hero ? '0px' : '500px 0px'); });

@@ -115,9 +115,11 @@ html[data-theme=dark] .home{--c3-line:rgba(120,160,255,.24);--c3-edge:rgba(150,1
 .h-orb.o3{left:30%;bottom:-24vmax;width:50vmax;height:50vmax;background:radial-gradient(closest-side,hsl(28 95% 70% / .3),transparent)}
 html[data-theme=dark] .h-orb.o3{background:radial-gradient(closest-side,hsl(265 85% 55% / .26),transparent)}
 .h3-scene{position:absolute;inset:0;perspective:1000px;perspective-origin:50% 30%;overflow:hidden}
-.h3-floor{position:absolute;left:-40%;right:-40%;bottom:0;height:62%;transform-origin:50% 100%;transform:rotateX(64deg);-webkit-mask-image:linear-gradient(to top,#000 5%,transparent 92%);mask-image:linear-gradient(to top,#000 5%,transparent 92%)}
-.h3-floor i{position:absolute;left:0;right:0;top:-80px;bottom:0;background-image:linear-gradient(var(--c3-line) 1.5px,transparent 1.5px),linear-gradient(90deg,var(--c3-line) 1.5px,transparent 1.5px);background-size:80px 80px;animation:h3-run 6s linear infinite}
-@keyframes h3-run{to{translate:0 80px}}
+.h3-floor{position:absolute;left:-14%;right:-14%;bottom:0;height:54%;transform-origin:50% 100%;transform:rotateX(64deg);color:var(--c3-line)}
+.h3-floor svg{position:absolute;inset:0;width:100%;height:100%;stroke:currentColor}
+.h3-hl{position:absolute;inset:0;contain:strict}
+.h3-hl i{position:absolute;left:0;right:0;top:0;height:2px;background:currentColor;opacity:0;animation:h3-run 6.4s linear infinite;animation-delay:calc(var(--n)*-.8s)}
+@keyframes h3-run{0%{translate:0 0;opacity:0}30%{opacity:.9}100%{translate:0 calc(54vh*1.3);opacity:1}}
 .h3-horizon{position:absolute;left:10%;right:10%;bottom:36%;height:1px;background:linear-gradient(90deg,transparent,var(--c3-edge),transparent);box-shadow:0 0 60px 14px var(--c3-glow);opacity:.45}
 .h3-cube{--s:110px;position:absolute;width:var(--s);height:var(--s);transform-style:preserve-3d;animation:h3-spin 46s linear infinite,h3-bob 9s ease-in-out infinite}
 .h3-cube b{position:absolute;inset:0;border:1px solid var(--c3-edge);background:linear-gradient(135deg,var(--c3-face),transparent 70%);border-radius:3px}
@@ -130,4 +132,10 @@ html[data-theme=dark] .h-orb.o3{background:radial-gradient(closest-side,hsl(265 
 .n-go .h3-scene{animation:fade-in 1.8s .5s both}
 .h-gate.off *{animation-play-state:paused!important}
 @media(max-width:980px){.h3-cube{display:none}}
-@media(prefers-reduced-motion:reduce){.h3-floor i,.h3-cube{animation:none}}
+@media(prefers-reduced-motion:reduce){.h3-hl i,.h3-cube{animation:none}}
+/* ---- v9 performance: lazy scene + skip rendering of off-screen sections ---- */
+.h-gate:not(.live) *{animation-play-state:paused!important}
+.h3-scene{contain:layout paint}
+.h-orb{will-change:auto}
+.is-scrolling .h-gate *{animation-play-state:paused!important}
+.h-orb{width:36vmax;height:36vmax}.h-orb.o3{width:38vmax;height:38vmax}

@@ -70,6 +70,9 @@
   }
 
   var gate = home.querySelector('.h-gate');
+  /* freeze the background scene while the page is moving, so scrolling only does scrolling */
+  var sTimer, root = document.documentElement; addEventListener('scroll', function () { if (!root.classList.contains('is-scrolling')) root.classList.add('is-scrolling'); clearTimeout(sTimer); sTimer = setTimeout(function () { root.classList.remove('is-scrolling'); }, 160); }, { passive: true });
+  if (gate) { var live = function () { gate.classList.add('live'); }; if ('requestIdleCallback' in window) requestIdleCallback(function () { setTimeout(live, 900); }, { timeout: 2500 }); else setTimeout(live, 1800); }
   if (gate && 'IntersectionObserver' in window) new IntersectionObserver(function (es) { gate.classList.toggle('off', !es[0].isIntersecting); }).observe(gate);
 
   /* Outliner -> Attribute Editor */

@@ -24,7 +24,7 @@ try{
   assert.equal(await page.locator('#acct-input').getAttribute('autocomplete'),'one-time-code');
   assert.equal(await page.locator('#acct-countdown').textContent(),'Code expires in 2:00');
   assert(await page.locator('[data-resend]').isDisabled());assert.equal(app.sheets.has('Accounts'),false);
-  await page.locator('#acct-input').fill('000000');await page.locator('.acct-form [type=submit]').click();
+  await page.locator('#acct-input').fill('000000');
   await page.waitForFunction(()=>document.querySelector('#acct-message').textContent.includes('incorrect'));
   await page.clock.fastForward(121000);
   assert.equal(await page.locator('#acct-countdown').textContent(),'Code expired');assert(await page.locator('.acct-form [type=submit]').isDisabled());assert(await page.locator('[data-resend]').isEnabled());
@@ -32,13 +32,13 @@ try{
   assert.equal(app.mails.length,2);assert.equal(await page.locator('#acct-input').inputValue(),'');
   if(width===390)await page.screenshot({path:`/tmp/unified-account-${theme}.png`,animations:'disabled'});
   assert(await page.locator('#account-dialog').evaluate(el=>el.scrollWidth<=el.clientWidth+1));
-  const code=app.mails.at(-1).subject.match(/\d{6}/)[0];await page.locator('#acct-input').fill(code);await page.locator('.acct-form [type=submit]').click();
+  const code=app.mails.at(-1).subject.match(/\d{6}/)[0];await page.locator('#acct-input').fill(code);
   await page.locator('[data-out]').waitFor();assert.equal(app.sheets.get('Accounts').rows.length,2);
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ajoy.acct')).email),'new@example.com');
   await page.locator('[data-out]').click();await page.locator('#acct-input').fill('buyer@example.com');await page.locator('.acct-form [type=submit]').click();
   await page.locator('[data-resend]').waitFor();assert.match(await page.locator('.acct-note').first().textContent(),/email is registered/);
   assert.equal(await page.evaluate(()=>localStorage.getItem('ajoy.acct')),null,'Knowing an email must not grant account access');
-  const loginCode=app.mails.at(-1).subject.match(/\d{6}/)[0];await page.locator('#acct-input').fill(loginCode);await page.locator('.acct-form [type=submit]').click();await page.locator('[data-out]').waitFor();
+  const loginCode=app.mails.at(-1).subject.match(/\d{6}/)[0];await page.locator('#acct-input').fill(loginCode);await page.locator('[data-out]').waitFor();
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ajoy.acct')).email),'buyer@example.com');
   await context.close();
  }

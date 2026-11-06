@@ -1,0 +1,85 @@
+/* Sign-in / register dialog v2: a branded header band, a clear two-step flow, big code field, polished button, softer motion. Day and night. */
+.acct-dlg{--ac1:#2A64E8;--ac2:#7C5CFF;--ac3:#FFB46B;width:min(440px,calc(100vw - 28px));padding:0;border-radius:30px;overflow-y:auto;overflow-x:hidden;border:1px solid var(--line);box-shadow:0 50px 100px -30px rgba(10,20,70,.55),0 0 0 1px rgba(255,255,255,.04) inset}
+.acct-dlg::before{content:"";display:block;height:116px;background:
+ radial-gradient(120px 90px at 82% 20%,rgba(255,180,107,.55),transparent 70%),
+ linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px) 0 0/26px 26px,linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px) 0 0/26px 26px,
+ linear-gradient(135deg,var(--ac1),var(--ac2));-webkit-mask:linear-gradient(#000 70%,transparent);mask:linear-gradient(#000 70%,transparent)}
+html[data-theme=dark] .acct-dlg{background:linear-gradient(180deg,#10172F,#0B1124);box-shadow:0 50px 110px -30px #000,0 0 0 1px rgba(255,255,255,.05) inset}
+.acct-dlg::backdrop{-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px)}
+.acct-body{position:relative;padding:0 34px 30px;margin-top:-52px}
+.acct-close{top:14px;right:14px;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);transition:transform .35s cubic-bezier(.34,1.56,.64,1),background .2s}
+.acct-close:hover{background:rgba(255,255,255,.3);transform:rotate(90deg)}
+.acct-icon{width:64px;height:64px;margin-bottom:20px;border-radius:20px;background:var(--bg2,#fff);color:var(--ac1);border:1px solid var(--line);box-shadow:0 16px 30px -14px rgba(20,40,120,.55)}
+html[data-theme=dark] .acct-icon{background:#151D3A;color:#8DB4FF}
+.acct-icon svg{width:30px;height:30px}
+.acct-icon-success{background:linear-gradient(145deg,#3DDC97,#1FA971)!important;color:#04231a!important;font-size:28px;border:0}
+.acct-body .eyebrow{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px;font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;color:var(--mute)}
+.acct-step{float:none;padding:4px 10px;border-radius:99px;background:color-mix(in srgb,var(--ac1) 12%,transparent);color:var(--ac1);font-weight:700;letter-spacing:.06em}
+html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
+.acct-body h2{font-size:clamp(1.5rem,6vw,1.95rem);letter-spacing:-.04em;line-height:1.12;margin:0 0 10px}
+.acct-body>.acct-note{font-size:.9375rem;line-height:1.6;margin:0 0 22px}
+.acct-form{display:grid;gap:10px}
+.acct-form label{font-size:.75rem;font-weight:700;letter-spacing:.02em;color:var(--mute)}
+.acct-form input{min-height:56px;border-radius:16px;font-size:1.0625rem;padding:0 16px 0 48px;border:1.5px solid var(--line);background-color:var(--card,#fff);
+ background-repeat:no-repeat;background-position:16px 50%;background-size:20px;
+ background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238A94B3' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='5' width='18' height='14' rx='3'/%3E%3Cpath d='m4 8 8 6 8-6'/%3E%3C/svg%3E");
+ transition:border-color .25s,box-shadow .35s cubic-bezier(.22,1,.36,1),transform .35s cubic-bezier(.22,1,.36,1)}
+.acct-form input:hover{border-color:color-mix(in srgb,var(--ac1) 40%,var(--line))}
+.acct-form input:focus{outline:none;border-color:var(--ac1);box-shadow:0 0 0 4px color-mix(in srgb,var(--ac1) 20%,transparent),0 14px 26px -18px var(--ac1);transform:translate3d(0,-1px,0)}
+.acct-form input[autocomplete=one-time-code]{padding:0 16px;text-align:center;font:700 1.75rem/1 ui-monospace,SFMono-Regular,Consolas,monospace;letter-spacing:.55em;text-indent:.55em;background-image:none}
+.acct-form input[aria-invalid=true]{border-color:#E5484D;box-shadow:0 0 0 4px rgba(229,72,77,.16);animation:acct-shake .4s}
+@keyframes acct-shake{20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+.acct-form .btn{position:relative;overflow:hidden;min-height:56px;border:0;border-radius:99px;color:#fff;font-size:.9375rem;font-weight:700;background:linear-gradient(135deg,var(--ac1),var(--ac2));box-shadow:0 18px 30px -16px var(--ac1);transition:transform .35s cubic-bezier(.22,1,.36,1),box-shadow .35s,filter .2s}
+.acct-form .btn::before{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.32) 50%,transparent 65%);transform:translateX(-120%)}
+.acct-form .btn:not(:disabled):hover{transform:translate3d(0,-2px,0);box-shadow:0 24px 36px -16px var(--ac1)}
+.acct-form .btn:not(:disabled):hover::before{transition:transform .8s cubic-bezier(.22,1,.36,1);transform:translateX(120%)}
+.acct-form .btn:active{transform:scale(.98)}
+.acct-form .btn span{display:inline-block;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}.acct-form .btn:hover span{transform:translateX(5px)}
+.acct-form button:disabled{opacity:.6}
+.acct-bar{height:3px;margin:18px 0 0;border-radius:3px;background:transparent;overflow:hidden}
+.acct-body[aria-busy=true] .acct-bar{background:color-mix(in srgb,var(--ac1) 14%,transparent)}
+.acct-body[aria-busy=true] .acct-bar i{display:block;width:40%;height:100%;border-radius:3px;background:linear-gradient(90deg,transparent,var(--ac1),var(--ac2),transparent);animation:acct-load 1.1s ease-in-out infinite}
+@keyframes acct-load{from{transform:translateX(-100%)}to{transform:translateX(260%)}}
+.acct-privacy{margin:14px 0 0;font-size:.75rem;line-height:1.6;color:var(--mute);text-align:center}
+.acct-code-status{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:6px}
+.acct-link{transition:color .2s,transform .3s}
+@media(prefers-reduced-motion:no-preference){
+ .acct-dlg{transform:perspective(1200px) translate3d(0,34px,0) rotateX(10deg) scale(.95);transform-origin:50% 100%;transition:opacity .3s ease,transform .6s cubic-bezier(.22,1,.36,1),display .5s allow-discrete,overlay .5s allow-discrete}
+ .acct-dlg[open]:not([data-closing]){transform:none}
+ @starting-style{.acct-dlg[open]:not([data-closing]){opacity:0;transform:perspective(1200px) translate3d(0,34px,0) rotateX(10deg) scale(.95)}}
+ .acct-dlg[data-closing]{transform:translate3d(0,16px,0) scale(.97);opacity:0}
+ .acct-dlg::before{animation:acct-band 1.2s cubic-bezier(.22,1,.36,1) both}
+ @keyframes acct-band{from{opacity:0;transform:scale(1.15) translateY(-14px)}}
+ .acct-body>:not(.acct-msg){animation:acct-in .6s cubic-bezier(.22,1,.36,1) both}
+ .acct-body>:nth-child(1){animation-name:acct-pop;animation-delay:.08s}.acct-body>:nth-child(2){animation-delay:.14s}.acct-body>:nth-child(3){animation-delay:.2s}.acct-body>:nth-child(4){animation-delay:.26s}.acct-body>:nth-child(5){animation-delay:.32s}.acct-body>:nth-child(6){animation-delay:.38s}
+ @keyframes acct-in{from{opacity:0;transform:translate3d(0,16px,0)}}
+ @keyframes acct-pop{from{opacity:0;transform:scale(.5) rotate(-12deg)}60%{transform:scale(1.08)}}
+ .acct-icon-success::after{content:"";position:absolute;inset:-6px;border-radius:24px;border:2px solid #3DDC97;opacity:0;animation:acct-ring 1.1s .3s ease-out}
+ @keyframes acct-ring{0%{opacity:.8;transform:scale(.85)}100%{opacity:0;transform:scale(1.4)}}
+}
+.acct-icon{position:relative}
+@media(max-width:420px){.acct-body{padding:0 22px 24px}}
+
+/* six code boxes (the real input sits on top, invisible, so paste, autofill and screen readers still work) */
+.acct-otp{position:relative;display:grid;grid-template-columns:repeat(6,1fr);gap:9px}
+.acct-otp>i{height:62px;border-radius:15px;border:1.5px solid var(--line);background:var(--card,#fff);display:grid;place-items:center;font:700 1.6rem/1 ui-monospace,SFMono-Regular,Consolas,monospace;font-style:normal;color:var(--ink);transition:border-color .25s,box-shadow .3s,background .25s,transform .3s cubic-bezier(.34,1.56,.64,1)}
+.acct-otp>i.on{border-color:color-mix(in srgb,var(--ac1) 55%,var(--line));background:color-mix(in srgb,var(--ac1) 7%,var(--card,#fff))}
+.acct-otp>i.cur{border-color:var(--ac1);box-shadow:0 0 0 4px color-mix(in srgb,var(--ac1) 20%,transparent);transform:translate3d(0,-2px,0)}
+.acct-otp>i.cur:not(.on)::after{content:"";width:2px;height:26px;border-radius:2px;background:var(--ac1);animation:acct-caret 1s steps(1) infinite}
+@keyframes acct-caret{50%{opacity:0}}
+.acct-otp>i.pop{animation:acct-digit .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes acct-digit{from{transform:scale(.78)}}
+.acct-form .acct-otp>input[autocomplete=one-time-code],.acct-otp>input{position:absolute;inset:0;width:100%;height:100%;opacity:0;font-size:16px;padding:0;border:0;cursor:text;letter-spacing:normal;text-indent:0;min-height:0}
+.acct-otp[data-bad]>i{border-color:#E5484D;background:rgba(229,72,77,.07);animation:acct-shake .45s}
+.acct-body[aria-busy=true] .acct-otp>i.on{animation:acct-wave 1s ease-in-out infinite}
+.acct-body[aria-busy=true] .acct-otp>i:nth-child(2){animation-delay:.08s}.acct-body[aria-busy=true] .acct-otp>i:nth-child(3){animation-delay:.16s}.acct-body[aria-busy=true] .acct-otp>i:nth-child(4){animation-delay:.24s}.acct-body[aria-busy=true] .acct-otp>i:nth-child(5){animation-delay:.32s}.acct-body[aria-busy=true] .acct-otp>i:nth-child(6){animation-delay:.4s}
+@keyframes acct-wave{50%{transform:translate3d(0,-5px,0);border-color:var(--ac2)}}
+/* success */
+.acct-tick{stroke-dasharray:30;stroke-dashoffset:30;animation:acct-draw .5s .35s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes acct-draw{to{stroke-dashoffset:0}}
+.acct-confetti{position:absolute;left:32px;top:30px;width:0;height:0;pointer-events:none}
+.acct-confetti i{position:absolute;width:7px;height:7px;border-radius:2px;background:var(--c);opacity:0;animation:acct-burst .9s .4s cubic-bezier(.2,.8,.2,1) forwards}
+@keyframes acct-burst{0%{opacity:1;transform:rotate(var(--a)) translateX(0)}100%{opacity:0;transform:rotate(var(--a)) translateX(var(--d)) rotate(200deg) scale(.5)}}
+@media(max-width:420px){.acct-otp{gap:6px}.acct-otp>i{height:54px}}
+@media(prefers-reduced-motion:reduce){.acct-tick{animation:none;stroke-dashoffset:0}.acct-confetti{display:none}.acct-otp>i{transition:none}}
+.acct-body h2:focus,.acct-body h2:focus-visible{outline:none}

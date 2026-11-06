@@ -1,4 +1,3 @@
-import {mountPasskeys,cancelPasskey} from './passkeys.js?v=20261020-fast1';
 /* Email-code sign-in with an immediate cached summary and live subscription refresh. */
 import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
 const cfg = window.AJOY_CONFIG || {};
@@ -62,7 +61,7 @@ function init() {
   const accountIcon='<span class="acct-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 11l9 7 9-7M8 8h16a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>';
   async function close() {
     if(closing||!dlg.open)return;
-    closing=true;cancelPasskey();dlg.dataset.closing='';
+    closing=true;dlg.dataset.closing='';
     if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
       await new Promise(requestAnimationFrame);
       await Promise.race([Promise.allSettled(dlg.getAnimations().map(a=>a.finished)),new Promise(r=>setTimeout(r,380))]);
@@ -70,7 +69,7 @@ function init() {
     clearInterval(countdownTimer);dlg.close();delete dlg.dataset.closing;closing=false;
   }
   function open() { if(closing)return;render();if(!dlg.open)dlg.showModal();if(step==='code'&&!getAccountSession()){clearInterval(countdownTimer);syncCountdown();countdownTimer=setInterval(syncCountdown,1000);}focusStep(); }
-  function focusStep(){if(dlg.open)body.querySelector('input, #acct-title')?.focus({preventScroll:true});}
+  function focusStep(){if(dlg.open)(body.querySelector('input')||body.querySelector('#acct-title'))?.focus({preventScroll:true});}
   dlg.querySelector('.acct-close').addEventListener('click',close);
   dlg.addEventListener('cancel',e=>{e.preventDefault();close();});
   dlg.addEventListener('click',e=>{const r=dlg.getBoundingClientRect();if(e.target===dlg&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))close();});
@@ -88,7 +87,6 @@ function init() {
         (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(subscriptionCard).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
         '<a class="acct-history-link" href="thank-you.html?history=1"><span class="acct-receipt-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Zm3 5h6M9 12h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>Purchases &amp; invoices</b><small>View your confirmations and receipts</small></span><span aria-hidden="true">→</span></a>'+
-        '<div class="acct-passkeys" hidden></div>'+
         (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<div class="acct-footer"><p class="acct-note">Switching accounts?<br>Sign out to use another email.</p><button class="acct-link" type="button" data-out>Sign out <span aria-hidden="true">→</span></button></div>';
       body.querySelector('[data-out]').onclick=()=>{generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
       body.querySelector('[data-retry]')?.addEventListener('click',status);
@@ -99,11 +97,10 @@ function init() {
         try{const result=await cancelSubscription(sub);if(result.external){stop.disabled=false;stop.dataset.confirm='';stop.textContent=sub.trial?'Cancel free trial':'Cancel subscription';announce('Finish cancelling in the PayPal window that opened.');}}
         catch(error){stop.disabled=false;stop.dataset.confirm='';stop.textContent=sub.trial?'Cancel free trial':'Cancel subscription';announce(error.message,true);}
       });
-      mountAccountPasskeys(session);
       return;
     }
     const code=step==='code';
-    body.innerHTML=accountIcon+'<p class="eyebrow">Register / Login <span class="acct-step">'+(code?'02':'01')+' / 02</span></p><h2 id="acct-title" tabindex="-1">'+(code?'Check your inbox.':(reauthenticating?'Confirm it’s you.':'Your email. One account.'))+'</h2><p class="acct-note">'+(code?(registration?'Email is not registered yet. Verify the code to create your account and sign in.':'Your email is registered. Verify the code to sign in securely.')+'<br>Code sent to <b>'+esc(email)+'</b>.':'Enter your email. We’ll detect whether you already have an account and send a verification code.')+'</p><form class="acct-form"><label for="acct-input">'+(code?'Email verification code':'Your email address')+'</label><input id="acct-input" '+(code?'type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code"':'type="email" maxlength="120" autocomplete="email"')+' required autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="acct-message'+(code?' acct-countdown':'')+'" '+(!code?'value="'+esc(email)+'"'+(reauthenticating?' readonly':''):'')+'><button class="btn btn-dark" type="submit">'+(code?(registration?'Verify and create account':'Verify and login'):'Send verification code')+'<span aria-hidden="true"> →</span></button></form>'+(!code?'<div class="acct-passkeys" hidden></div>':'')+(code?'<div class="acct-code-status"><p id="acct-countdown" role="timer" aria-live="off"></p><button class="acct-link" type="button" data-resend disabled>Resend code</button></div>':'')+'<p id="acct-message" class="acct-msg" role="status" aria-live="polite">'+esc(msg)+'</p><div class="acct-bar" aria-hidden="true"><i></i></div>'+(code?'<button class="acct-link" type="button" data-back>'+(reauthenticating?'Back to account':'Use a different email')+'</button>':'<p class="acct-note acct-privacy">We use your email for account verification and service messages. <a href="privacy.html">Privacy notice</a></p>');
+    body.innerHTML=accountIcon+'<p class="eyebrow">Register / Login <span class="acct-step">'+(code?'02':'01')+' / 02</span></p><h2 id="acct-title" tabindex="-1">'+(code?'Check your inbox.':(reauthenticating?'Confirm it’s you.':'Your email. One account.'))+'</h2><p class="acct-note">'+(code?(registration?'Email is not registered yet. Verify the code to create your account and sign in.':'Your email is registered. Verify the code to sign in securely.')+'<br>Code sent to <b>'+esc(email)+'</b>.':'Enter your email. We’ll detect whether you already have an account and send a verification code.')+'</p><form class="acct-form"><label for="acct-input">'+(code?'Email verification code':'Your email address')+'</label><input id="acct-input" '+(code?'type="text" inputmode="numeric" pattern="[0-9]{6}" minlength="6" maxlength="6" autocomplete="one-time-code"':'type="email" maxlength="120" autocomplete="email"')+' required autocapitalize="off" autocorrect="off" spellcheck="false" aria-describedby="acct-message'+(code?' acct-countdown':'')+'" '+(!code?'value="'+esc(email)+'"'+(reauthenticating?' readonly':''):'')+'><button class="btn btn-dark" type="submit">'+(code?(registration?'Verify and create account':'Verify and login'):'Send verification code')+'<span aria-hidden="true"> →</span></button></form>'+(code?'<div class="acct-code-status"><p id="acct-countdown" role="timer" aria-live="off"></p><button class="acct-link" type="button" data-resend disabled>Resend code</button></div>':'')+'<p id="acct-message" class="acct-msg" role="status" aria-live="polite">'+esc(msg)+'</p><div class="acct-bar" aria-hidden="true"><i></i></div>'+(code?'<button class="acct-link" type="button" data-back>'+(reauthenticating?'Back to account':'Use a different email')+'</button>':'<p class="acct-note acct-privacy">We use your email for account verification and service messages. <a href="privacy.html">Privacy notice</a></p>');
     body.querySelector('[data-back]')?.addEventListener('click',()=>{generation++;busy=false;step='email';codeDeadline=0;msg='';reauthenticating=false;render();focusStep();});
     body.querySelector('[data-resend]')?.addEventListener('click',()=>{if(!busy&&Date.now()>=codeDeadline)requestCode();});
     body.querySelector('form').addEventListener('submit',async event=>{
@@ -116,25 +113,37 @@ function init() {
         const result=await accountRequest({step:'verify',email,code:value});if(operation!==generation)return;
         if(!result.ok){
           if(result.error==='code_expired'){codeDeadline=0;syncCountdown();return;}
-          announce(result.error==='limit'?'Too many incorrect codes. Please wait before trying again.':'That code is incorrect. Check your email and try again.',true);input.setAttribute('aria-invalid','true');input.focus();return;
+          announce(result.error==='limit'?'Too many incorrect codes. Please wait before trying again.':'That code is incorrect. Check your email and try again.',true);input.setAttribute('aria-invalid','true');input.closest('.acct-otp')?.setAttribute('data-bad','');setTimeout(()=>{if(operation===generation&&input.isConnected){input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));input.closest('.acct-otp')?.removeAttribute('data-bad');}},650);input.focus();return;
         }
         if(!result.token||!result.email||(result.subscriptions!==null&&!Array.isArray(result.subscriptions)))throw new Error('Sign-in could not be completed. Please try again.');
+        await celebrate();if(operation!==generation)return;
         msg='';step='email';codeDeadline=0;reauthenticating=false;setAccountSession(result);status();if(purpose){purpose='';close();}
       }catch(error){if(operation===generation)announce(error.message||'Could not reach the service. Please try again.',true);}
       finally{if(operation===generation)setBusy(false);}
     });
-    body.querySelector('input').addEventListener('input',event=>{event.target.removeAttribute('aria-invalid');if(step!=='code'||Date.now()<codeDeadline)announce('');});
-    if(!code)mountAccountPasskeys(null);
+    const field=body.querySelector('input'),form=body.querySelector('form');
+    let slots=[];
+    if(code){
+      const wrap=document.createElement('div');wrap.className='acct-otp';field.replaceWith(wrap);
+      slots=Array.from({length:6},()=>wrap.appendChild(document.createElement('i')));wrap.appendChild(field);
+    }
+    const paint=()=>{const v=field.value;slots.forEach((el,i)=>{const had=el.textContent;el.textContent=v[i]||'';el.classList.toggle('on',!!v[i]);el.classList.toggle('cur',i===Math.min(v.length,5)&&document.activeElement===field);if(v[i]&&!had){el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}});};
+    field.addEventListener('focus',paint);field.addEventListener('blur',paint);
+    field.addEventListener('input',event=>{
+      field.removeAttribute('aria-invalid');
+      if(code){field.value=field.value.replace(/\D/g,'').slice(0,6);paint();}
+      if(step!=='code'||Date.now()<codeDeadline)announce('');
+      /* all six digits in (typed, pasted or filled from the email/SMS): send it without another click */
+      if(code&&field.value.length===6&&!busy&&Date.now()<codeDeadline)form.requestSubmit();
+    });
+    if(code)paint();
     if(code){syncCountdown();if(dlg.open)countdownTimer=setInterval(syncCountdown,1000);}
   }
-  function mountAccountPasskeys(session){
-    mountPasskeys(body.querySelector('.acct-passkeys'),{session,onSession:result=>{
-      if(!result.token||!result.email)throw Error('Passkey sign-in could not be completed.');
-      generation++;step='email';msg='';reauthenticating=false;setAccountSession(result);status();if(purpose){purpose='';close();}
-    },onReauth:()=>{
-      const saved=getAccountSession();if(!saved)return;
-      generation++;reauthenticating=true;email=saved.email;step='email';msg='';render();requestCode();
-    }});
+  /* a short "you're in" moment between the code and the account view */
+  async function celebrate(){
+    const calm=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path class="acct-tick" d="M8 17l5.5 5.5L24 11" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><h2 id="acct-title" tabindex="-1">'+(registration?'Account created.':'You’re in.')+'</h2><p class="acct-note">Opening your account…</p><div class="acct-confetti" aria-hidden="true">'+Array.from({length:14},(_,i)=>'<i style="--a:'+(i*25.7).toFixed(0)+'deg;--d:'+(40+(i%3)*14)+'px;--c:'+['#3DDC97','#6DAAFF','#FFB46B','#B58CFF'][i%4]+'"></i>').join('')+'</div>';
+    await new Promise(r=>setTimeout(r,calm?200:1150));
   }
   function syncCountdown(){
     const timer=body.querySelector('#acct-countdown');if(!timer)return;
@@ -145,7 +154,6 @@ function init() {
     if(!seconds){clearInterval(countdownTimer);announce('This code has expired. Resend to receive a new code.',true);}
   }
   async function requestCode(){
-    cancelPasskey();
     const operation=++generation;setBusy(true);announce('Checking your email and sending a code… this can take a few seconds.');
     try{
       let result=await accountRequest({step:'code',email,intent:'auto'});

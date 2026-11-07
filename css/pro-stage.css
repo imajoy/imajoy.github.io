@@ -41,10 +41,7 @@ html.is-scrolling .pro-floor,html.is-scrolling .pro-halo,html.is-scrolling .pro-
 @keyframes ps-float{to{translate:0 -8px}}
 @keyframes ps-floor{to{transform:translate3d(56px,56px,0)}}
 html[data-theme=dark] .pro-floor{background:repeating-linear-gradient(90deg,rgba(242,182,79,.3) 0 1px,transparent 1px 56px),repeating-linear-gradient(0deg,rgba(242,182,79,.3) 0 1px,transparent 1px 56px)}
-@media(min-width:981px){
- .hero .pro-stage{position:absolute;right:max(3vw,calc((100vw - 1320px)/2));top:50%;translate:0 -46%;width:min(46vw,600px);margin:0}
- .hero-copy{max-width:600px}
-}
+/* split-hero layout removed: the hero is centred now (css/pro-hero.css) */
 @media(max-width:980px){
  .pro-stage{margin-top:34px;width:min(92%,560px)}
  .hero{padding-bottom:64px}.pro-device{transform:none;animation:none}.pro-halo.h2,.pro-cube.c3{display:none}

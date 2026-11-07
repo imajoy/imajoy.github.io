@@ -34,3 +34,8 @@
 (function(){if(!('IntersectionObserver' in window))return;
  var io=new IntersectionObserver(function(es){es.forEach(function(e){e.target.classList.toggle('ap-off',!e.isIntersecting);});},{rootMargin:'160px 0px'});
  [].forEach.call(document.querySelectorAll('body.pro-page section, body.pro-page footer.site-footer'),function(s){io.observe(s);});})();
+
+/* one-time entrance of the stage (CSS: .pro-stage:not(.is-in)) */
+(function(){var st=document.querySelector('.pro-stage');if(!st)return;
+ if(!('IntersectionObserver' in window)){st.classList.add('is-in');return;}
+ var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){st.classList.add('is-in');io.disconnect();}},{threshold:.06});io.observe(st);})();

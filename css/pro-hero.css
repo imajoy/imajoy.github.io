@@ -1,0 +1,41 @@
+/* Wrapline Pro hero v9: a centred "cinema" opening. Huge headline with a Maya selection box that snaps around the key words,
+   the live Maya screen rising out of depth as you scroll, floating tool cards around it. Loaded after pro.css and pro-stage.css,
+   scoped with html body.pro-page so nothing above can override it. Motion is transform/opacity only. */
+html body.pro-page .hero{display:block;min-height:0;padding:0 0 64px;text-align:center;overflow-x:clip;background:var(--bg)}
+html body.pro-page .hero::before{-webkit-mask-image:radial-gradient(ellipse 60% 46% at 50% 40%,#000 10%,transparent 75%);mask-image:radial-gradient(ellipse 60% 46% at 50% 40%,#000 10%,transparent 75%)}
+html body.pro-page .hero::after{background:radial-gradient(34% 26% at 50% 30%,color-mix(in srgb,var(--blue) 24%,transparent),transparent 72%),radial-gradient(26% 22% at 82% 62%,color-mix(in srgb,var(--gold-2) 22%,transparent),transparent 72%),radial-gradient(26% 22% at 14% 70%,color-mix(in srgb,var(--blue) 14%,transparent),transparent 72%)}
+html body.pro-page .hero-copy{max-width:1080px;margin:0 auto;padding:112px 20px 0;text-align:center;pointer-events:auto}
+html body.pro-page .pro-chip{margin:0 auto 14px}
+html body.pro-page .trial-banner{display:flex;width:fit-content;max-width:100%;margin:0 auto 30px}
+html body.pro-page .hero h1{font-size:clamp(38px,6.7vw,104px);line-height:.95;letter-spacing:-.065em;font-weight:600;margin:0 auto 26px;max-width:none}
+html body.pro-page .hero .ln{display:block;overflow:hidden;padding:.08em .16em .12em;margin:-.08em -.16em -.12em}
+html body.pro-page .hero h1 em{position:relative;display:inline-block;padding:0 .02em}
+/* the Maya selection box: dashed marquee, four corner handles, snaps in every few seconds */
+html body.pro-page .hero h1 em::after{content:"";position:absolute;inset:.06em -.1em .02em -.1em;pointer-events:none;border:1.5px dashed color-mix(in srgb,var(--blue) 70%,transparent);border-radius:6px;
+ background:linear-gradient(var(--blue),var(--blue)) 0 0/9px 9px no-repeat,linear-gradient(var(--blue),var(--blue)) 100% 0/9px 9px no-repeat,linear-gradient(var(--blue),var(--blue)) 0 100%/9px 9px no-repeat,linear-gradient(var(--blue),var(--blue)) 100% 100%/9px 9px no-repeat;
+ background-origin:border-box;transform-origin:50% 50%;animation:ph-snap 6s var(--pro-ease,cubic-bezier(.2,.8,.2,1)) 1.4s infinite}
+@keyframes ph-snap{0%{opacity:0;transform:scale(1.16)}9%,82%{opacity:1;transform:scale(1)}94%,100%{opacity:0;transform:scale(.98)}}
+html body.pro-page .hero .lead{max-width:38em;margin:0 auto 30px;font-size:clamp(16px,1.45vw,20px);text-align:center}
+html body.pro-page .hero-actions{justify-content:center}
+html body.pro-page .hero-trial-summary{margin:18px auto 0;text-align:center}
+html body.pro-page .hero-fine{position:static;margin:26px 0 0;text-align:center}
+html body.pro-page .tool-rating{justify-content:center;margin-inline:auto}
+/* the stage: wide, centred, and it rises out of depth as it enters */
+html body.pro-page .pro-stage{width:min(calc(100% - 32px),880px);margin:54px auto 0;padding:0}
+html body.pro-page .pro-stage .pro-halo{width:96%}
+/* one-time entrance when the screen first comes into view (cheap: runs once, not on every scroll frame) */
+html.js body.pro-page .pro-stage{transition:opacity .9s var(--pro-ease,cubic-bezier(.2,.8,.2,1)),transform 1.1s var(--pro-ease,cubic-bezier(.2,.8,.2,1))}
+html.js body.pro-page .pro-stage:not(.is-in){opacity:0;transform:perspective(1500px) translate3d(0,56px,0) rotateX(20deg) scale(.92)}
+html.js body.pro-page .pro-stage.is-in{opacity:1;transform:none}
+/* floating tool cards that frame the screen */
+.pro-floats{position:absolute;inset:0;z-index:3;pointer-events:none}
+.pro-fc{position:absolute;display:flex;align-items:center;gap:10px;padding:10px 16px 10px 10px;border-radius:16px;background:color-mix(in srgb,var(--card) 88%,transparent);border:1px solid var(--line);box-shadow:0 22px 44px -22px rgba(12,24,70,.45);text-align:left;font-size:12.5px;color:var(--mute);animation:ph-drift 7s ease-in-out infinite alternate;will-change:transform}
+.pro-fc svg{flex:none;width:34px;height:34px;padding:8px;border-radius:11px;background:color-mix(in srgb,var(--blue) 14%,transparent);fill:none;stroke:var(--blue);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.pro-fc b{display:block;color:var(--ink);font-size:14px;font-weight:600;letter-spacing:-.01em}
+.pro-fc.f1{left:-11%;top:12%}.pro-fc.f2{right:-10%;top:24%;animation-duration:8.5s;animation-delay:-2s}.pro-fc.f3{left:-7%;bottom:22%;animation-duration:9s;animation-delay:-4s}.pro-fc.f4{right:-6%;bottom:12%;animation-duration:7.5s;animation-delay:-1s}
+.pro-fc.f2 svg,.pro-fc.f4 svg{background:color-mix(in srgb,var(--gold-2) 22%,transparent);stroke:var(--gold-2)}
+@keyframes ph-drift{to{transform:translate3d(0,-12px,0)}}
+@media(max-width:1180px){.pro-floats{display:none}}
+@media(max-width:900px){html body.pro-page .hero-copy{padding-top:96px}html body.pro-page .pro-stage{margin-top:36px}}
+@media(prefers-reduced-motion:reduce){html.js body.pro-page .pro-stage:not(.is-in){opacity:1;transform:none}html.js body.pro-page .pro-stage{transition:none}html body.pro-page .hero h1 em::after,.pro-fc{animation:none}}
+html.is-scrolling .pro-fc,html body.pro-page .ap-off .pro-fc,html body.pro-page .ap-off h1 em::after{animation-play-state:paused}

@@ -13,7 +13,8 @@
 }
 .home-page #stage{opacity:1!important;transform:none!important;translate:none!important;animation:none!important}
 .home-page .intro .ln>span,.home-page .intro-fade{opacity:1;transform:none;translate:none;animation:none}
-.home-page :is(.reveal,.scroll-soft,.tile.reveal.in,.head,.inst-copy){opacity:1!important;filter:none!important;translate:none!important;animation:none!important;transition:none!important;transform:none}
+.home-page :is(.reveal,.scroll-soft,.tile.reveal.in,.inst-copy){opacity:1!important;filter:none!important;translate:none!important;animation:none!important;transition:none!important;transform:none}
+.home-page:not(.pro-page) .head{opacity:1!important;filter:none!important;translate:none!important;animation:none!important;transition:none!important;transform:none}
 .home-page .block h2 em::after,.home-page .frame-inner h2 em::after{transform:scaleX(1);transition:none}
 /* Decorative loops rest; FAQ, hover and user-selected workflow feedback remain. */
 .home-page :is(.ic,.keycaps kbd,.sheen,.mq-track,.glow,.o1,.o2,.frame,.saving-ticket,.saving-orbit,.trial-art *,.offer-inline *,.tool-diagram *){animation:none!important}

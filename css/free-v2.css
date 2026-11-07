@@ -103,3 +103,14 @@ html.pr-on body.free-page .ft-card[data-pr]{transition:opacity .7s var(--fr-ease
 html.pr-on body.free-page .ft-steps li[data-pr]:not(.pr-in){transform:translate3d(0,calc(30px*var(--pr-d,1)),0) rotate(-2deg)}
 body.free-page .ft-card:hover .ft-ic{animation:fr-wig .45s linear}
 @keyframes fr-wig{25%{transform:rotate(-14deg) scale(1.1)}60%{transform:rotate(10deg) scale(1.1)}100%{transform:rotate(-8deg) scale(1.08)}}
+
+/* download area: no loose shine, readable status card on the violet band */
+html body.free-page .ft-download::before,html body.free-page .ft-download::after{display:none}
+html body.free-page #get .ft-status{background:#fff;border:1px solid rgba(255,255,255,.9);color:#2B1B3F;box-shadow:0 18px 40px -20px rgba(30,10,70,.55)}
+html body.free-page #get .ft-status :is(p,span,div,i){color:#2B1B3F;opacity:1}
+html body.free-page #get .ft-status .fd-hint{color:#5B4F78}
+html body.free-page #get .ft-status b{color:#1B7958}
+html body.free-page #get .ft-status[data-state=working] .fd-title{color:#5B44E0}
+html body.free-page #get .ft-status[data-state=error] .fd-title{color:#C2353A}
+html body.free-page #get .ft-status .fd-bar{background:rgba(124,92,255,.14)}
+html body.free-page #get .ft-status a{color:#5B44E0}

@@ -1,0 +1,83 @@
+/* Contact v3: one calm card, underline fields, a floating glass-cube object that overlaps the card edge. Day and night. */
+.contact-main{padding:132px 0 84px}
+.contact-layout{position:relative;display:grid!important;grid-template-columns:minmax(0,.78fr) minmax(0,1.22fr)!important;gap:0!important;max-width:1040px;margin-inline:auto;border-radius:34px;background:var(--card,#fff);border:1px solid var(--line);box-shadow:0 50px 90px -48px rgba(24,44,120,.5),0 2px 0 rgba(255,255,255,.6) inset;perspective:1600px}
+html[data-theme=dark] .contact-layout{background:linear-gradient(160deg,#131B38,#0E1429);box-shadow:0 50px 100px -40px rgba(0,0,0,.8),0 0 0 1px rgba(120,160,255,.08) inset}
+/* left: object + title */
+.contact-copy{align-self:stretch!important;position:relative!important;top:0!important;margin:0!important;display:flex;flex-direction:column;justify-content:flex-end;min-height:560px;padding:44px 40px;border-radius:34px 0 0 34px;background:radial-gradient(520px 380px at 30% 8%,color-mix(in srgb,var(--blue,#3d8bff) 20%,transparent),transparent 72%),linear-gradient(180deg,color-mix(in srgb,var(--blue,#3d8bff) 7%,transparent),transparent)}
+.contact-copy>p,.contact-copy>.s-eyebrow,.c-topics,.contact-assurance,.contact-art{display:none!important}
+.contact-copy h1{order:3;font-size:clamp(1.9rem,2.8vw,2.5rem);line-height:1.04;letter-spacing:-.045em;margin:0;max-width:9em}
+.cv-scene{position:absolute;left:50%;top:14%;width:230px;height:230px;margin-left:-115px;perspective:900px;z-index:2}
+.cv-tilt{position:absolute;inset:0;transform-style:preserve-3d;transform:rotateX(var(--ty,0deg)) rotateY(var(--tx,0deg));transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.cv-spin{position:absolute;inset:0;transform-style:preserve-3d;animation:cv-spin 28s linear infinite}
+.cv-cube{position:absolute;left:50%;top:50%;transform-style:preserve-3d;--s:118px;width:var(--s);height:var(--s);margin:calc(var(--s)/-2) 0 0 calc(var(--s)/-2)}
+.cv-cube.small{--s:54px;animation:cv-counter 16s linear infinite}
+.cv-cube.big{animation:cv-bob 7s ease-in-out infinite}
+.cv-cube b{position:absolute;inset:0;border-radius:10px;border:1px solid color-mix(in srgb,var(--blue,#3d8bff) 55%,#fff);background:linear-gradient(135deg,color-mix(in srgb,var(--blue,#3d8bff) 26%,transparent),rgba(138,92,255,.12) 60%,transparent);box-shadow:inset 0 0 22px color-mix(in srgb,var(--blue,#3d8bff) 18%,transparent)}
+html[data-theme=dark] .cv-cube b{border-color:rgba(150,185,255,.55)}
+.cv-cube.small b{background:linear-gradient(135deg,rgba(255,170,100,.55),rgba(255,120,150,.25));border-color:rgba(255,190,130,.8);border-radius:6px}
+.cv-cube b:nth-child(1){transform:translateZ(calc(var(--s)/2))}.cv-cube b:nth-child(2){transform:rotateY(90deg) translateZ(calc(var(--s)/2))}.cv-cube b:nth-child(3){transform:rotateY(180deg) translateZ(calc(var(--s)/2))}.cv-cube b:nth-child(4){transform:rotateY(-90deg) translateZ(calc(var(--s)/2))}.cv-cube b:nth-child(5){transform:rotateX(90deg) translateZ(calc(var(--s)/2))}.cv-cube b:nth-child(6){transform:rotateX(-90deg) translateZ(calc(var(--s)/2))}
+.cv-shadow{position:absolute;left:50%;bottom:-6px;width:150px;height:26px;margin-left:-75px;border-radius:50%;background:radial-gradient(closest-side,rgba(30,50,130,.35),transparent);animation:cv-sh 7s ease-in-out infinite}
+@keyframes cv-spin{from{transform:rotateX(-22deg) rotateY(0)}to{transform:rotateX(-22deg) rotateY(360deg)}}
+@keyframes cv-counter{to{transform:rotateX(360deg) rotateY(-360deg)}}
+@keyframes cv-bob{50%{translate:0 -12px}}
+@keyframes cv-sh{50%{scale:.8;opacity:.6}}
+/* right: the form */
+.contact-form{display:grid!important;grid-template-columns:1fr 1fr;column-gap:30px;align-content:start;padding:52px 52px 44px!important;background:none!important;border:0!important;box-shadow:none!important;border-radius:0 34px 34px 0!important}
+.contact-form::before,.contact-form::after{display:none!important}
+.contact-form>*{grid-column:1/-1;min-width:0}
+.contact-form>.contact-field:nth-child(5),.contact-form>.contact-field:nth-child(6){grid-column:span 1}
+.contact-form-heading{margin:0 0 6px!important}
+.contact-form-heading h2{font-size:clamp(2.2rem,4vw,3.1rem)!important;letter-spacing:-.05em;line-height:1;margin:0!important}
+.contact-mode{justify-self:start;display:inline-flex;gap:22px;padding:0!important;border:0!important;background:none!important;margin:14px 0 4px;box-shadow:none!important}
+.contact-mode button{white-space:nowrap;flex:0 0 auto!important;padding:6px 0!important;min-width:0;background:none!important;border:0!important;border-radius:0!important;box-shadow:none!important;color:var(--mute);font-size:.8rem;letter-spacing:.02em;position:relative}
+.contact-mode button::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:2px;background:var(--blue,#3d8bff);transform:scaleX(0);transform-origin:0 50%;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.contact-mode button[aria-pressed=true]{color:var(--ink)}.contact-mode button[aria-pressed=true]::after{transform:none}
+.draft-meter{margin:6px 0 20px!important}.draft-meter progress{height:3px!important;border-radius:3px;width:100%}.draft-meter progress::-webkit-progress-bar{background:color-mix(in srgb,var(--ink,#0b1020) 10%,transparent);border-radius:3px}
+.contact-field{position:relative;margin:0 0 24px!important}
+.contact-field label{display:block;font:600 .66rem/1 var(--mono,ui-monospace,monospace)!important;letter-spacing:.14em!important;text-transform:uppercase;color:var(--mute)!important;margin:0 0 4px!important;transition:color .3s}
+.contact-field:focus-within label{color:var(--blue,#3d8bff)!important}
+.contact-field input,.contact-field select,.contact-field textarea{width:100%;background:transparent!important;border:0!important;border-bottom:1.5px solid color-mix(in srgb,var(--ink,#0b1020) 18%,transparent)!important;border-radius:0!important;box-shadow:none!important;padding:10px 0 11px!important;font-size:1.02rem;color:var(--ink);transition:border-color .35s;outline:0}
+.contact-field input,.contact-field select{min-height:0!important;height:auto!important}
+.contact-field textarea{min-height:104px!important;height:auto!important;resize:vertical;line-height:1.55}
+.contact-field::after{content:"";position:absolute;left:0;right:0;bottom:0;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--blue,#3d8bff),#8A5CFF);transform:scaleX(0);transform-origin:0 50%;transition:transform .6s cubic-bezier(.22,1,.36,1);pointer-events:none}
+.contact-field:focus-within::after{transform:none}
+.contact-field input::placeholder,.contact-field textarea::placeholder{color:color-mix(in srgb,var(--mute,#8a94a8) 80%,transparent)}
+.contact-field .contact-error{margin:6px 0 0}
+/* attachment: one quiet line */
+.contact-attachment{margin:0 0 20px!important;padding:0!important;border:0!important;background:none!important}
+.attachment-heading{display:none!important}
+.attachment-picker{display:flex!important;align-items:center;gap:12px;padding:14px 16px!important;border:1.5px dashed color-mix(in srgb,var(--ink,#0b1020) 18%,transparent)!important;border-radius:16px!important;background:none!important;transition:border-color .3s,background .3s,translate .4s cubic-bezier(.22,1,.36,1)}
+.attachment-picker:hover{border-color:var(--blue,#3d8bff)!important;translate:0 -2px}
+.contact-consent{margin:2px 0 22px!important;font-size:.84rem;color:var(--mute)}
+/* send: dark gradient pill with a soft long shadow */
+.contact-send{width:100%;justify-content:center;min-height:56px;border-radius:99px!important;border:0!important;color:#fff!important;background:linear-gradient(95deg,#0b1020 0%,#25315f 100%)!important;box-shadow:0 26px 30px -18px rgba(18,30,90,.65)!important;transition:translate .5s cubic-bezier(.22,1,.36,1),box-shadow .5s,filter .3s}
+html[data-theme=dark] .contact-send{background:linear-gradient(95deg,#3E7BFF,#8A5CFF)!important;box-shadow:0 28px 36px -16px rgba(80,100,255,.55)!important}
+.contact-send:not(:disabled):hover{translate:0 -4px;box-shadow:0 34px 36px -18px rgba(18,30,90,.7)!important}
+.contact-send:disabled{filter:saturate(.6) opacity(.75)}
+.contact-status{margin-top:12px}
+/* entrance */
+@media(prefers-reduced-motion:no-preference){
+ @keyframes cv-card{from{opacity:0;transform:rotateX(14deg) translateY(54px) scale(.97);filter:blur(10px)}}
+ @keyframes cv-obj{from{opacity:0;transform:translateY(40px) scale(.6)}}
+ @keyframes cv-field{from{opacity:0;translate:0 24px}}
+ .contact-layout{animation:cv-card 1.2s cubic-bezier(.22,1,.36,1) both;transform-origin:50% 0}
+ .cv-scene{animation:cv-obj 1.4s .35s cubic-bezier(.22,1,.36,1) both}
+ .contact-form>*{animation:cv-field .9s cubic-bezier(.22,1,.36,1) both}
+ .contact-form>*:nth-child(1){animation-delay:.45s}.contact-form>*:nth-child(2){animation-delay:.52s}.contact-form>*:nth-child(3){animation-delay:.58s}.contact-form>*:nth-child(4){animation-delay:.64s}.contact-form>*:nth-child(5){animation-delay:.7s}.contact-form>*:nth-child(6){animation-delay:.76s}.contact-form>*:nth-child(7){animation-delay:.82s}.contact-form>*:nth-child(8){animation-delay:.88s}.contact-form>*:nth-child(n+9){animation-delay:.94s}
+ .contact-copy h1{animation:cv-field 1s .5s cubic-bezier(.22,1,.36,1) both}
+}
+@media(prefers-reduced-motion:reduce){.cv-spin,.cv-cube,.cv-shadow{animation:none}.cv-spin{transform:rotateX(-22deg) rotateY(35deg)}}
+/* tablet and phone: one column, object sits on top */
+@media(max-width:980px){
+ .contact-main{padding:104px 0 56px}
+ .contact-layout{grid-template-columns:minmax(0,1fr)!important;border-radius:28px}
+ .contact-copy{min-height:0;padding:200px 26px 4px;border-radius:28px 28px 0 0;justify-content:flex-start}
+ .cv-scene{top:14px;width:170px;height:170px;margin-left:-85px}.cv-cube{--s:86px}.cv-cube.small{--s:40px}.cv-shadow{width:110px;margin-left:-55px}
+ .contact-copy h1{font-size:clamp(1.7rem,6.4vw,2.2rem);max-width:none;text-align:center;margin:0 auto}
+ .contact-form{padding:22px 24px 30px!important;border-radius:0 0 28px 28px!important}
+}
+@media(max-width:560px){
+ .contact-form{grid-template-columns:1fr;padding:18px 18px 26px!important}
+ .contact-form>.contact-field:nth-child(5),.contact-form>.contact-field:nth-child(6){grid-column:1/-1}
+ .contact-copy{padding:196px 18px 0}
+}

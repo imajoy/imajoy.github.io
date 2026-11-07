@@ -119,3 +119,13 @@ html[data-theme=dark] .attachment-status[data-error=true]:not(:empty){border-col
 .contact-consent:has(input:focus-visible){outline:2px solid var(--blue,#3d8bff);outline-offset:2px}
 .contact-consent input{margin-top:2px;flex:none}
 .attachment-status:empty{display:none}
+
+/* phones, tighter still: heading folds into the dropzone, shorter message box */
+@media(max-width:700px){
+ .contact-attachment .attachment-heading{position:absolute!important;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);margin:0}
+ .contact-form .attachment-picker{padding:8px 12px!important}
+ .attachment-picker .attachment-upload-icon{width:32px!important;height:32px!important}
+ .contact-form textarea{min-height:92px!important;height:100px!important}
+ #attachment-help{margin:0 0 6px!important}
+ .contact-consent{margin-bottom:16px!important}
+}

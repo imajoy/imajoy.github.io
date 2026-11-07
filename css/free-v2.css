@@ -90,9 +90,16 @@ body.free-page .faq summary{padding-block:18px;font-weight:700;font-size:clamp(1
 body.free-page .ft-rights li{border-radius:22px;background:var(--card);border:2px solid var(--line)}
 
 /* ---- smoothness ---- */
-html body.free-page :is(#tools,#workflows,#get,#coffee,#pro,#faq,.closing){content-visibility:auto;contain-intrinsic-size:auto 800px}
+@media(min-width:981px){html body.free-page #tools{content-visibility:auto;contain-intrinsic-size:auto 640px}html body.free-page #workflows{content-visibility:auto;contain-intrinsic-size:auto 1100px}html body.free-page #faq{content-visibility:auto;contain-intrinsic-size:auto 900px}}
 html.pr-on body.free-page [data-pr]:not(.pr-in){opacity:0;transform:translate3d(0,24px,0)}
 html.pr-on body.free-page [data-pr]{transition:opacity .75s var(--fr-ease),transform .85s var(--fr-ease);transition-delay:calc(var(--pr-i,0)*70ms)}
 html.pr-on body.free-page [data-pr].pr-in{opacity:1;transform:none}
 body.free-page .ft-card.reveal,body.free-page .reveal{transition-delay:0s}
 @media(prefers-reduced-motion:reduce){html.js:not(.fr-go) body.free-page .ft-hero *{opacity:1!important;transform:none!important}.ft-stk span{animation:none!important}html.pr-on body.free-page [data-pr]:not(.pr-in){opacity:1;transform:none}}
+
+/* unique reveals (free): cards pop like stickers being pressed down, steps swing in, hover wiggles */
+html.pr-on body.free-page .ft-card[data-pr]:not(.pr-in){transform:translate3d(0,36px,0) rotate(calc(var(--pr-i,0)*1.6deg - 2.4deg)) scale(.92)}
+html.pr-on body.free-page .ft-card[data-pr]{transition:opacity .7s var(--fr-ease),transform 1s cubic-bezier(.34,1.5,.5,1)}
+html.pr-on body.free-page .ft-steps li[data-pr]:not(.pr-in){transform:translate3d(0,30px,0) rotate(-2deg)}
+body.free-page .ft-card:hover .ft-ic{animation:fr-wig .6s ease}
+@keyframes fr-wig{25%{transform:rotate(-14deg) scale(1.1)}60%{transform:rotate(10deg) scale(1.1)}100%{transform:rotate(-8deg) scale(1.08)}}

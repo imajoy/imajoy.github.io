@@ -14,7 +14,14 @@ html body.pro-page .pf-beam::before{animation:none;opacity:.5}
 html body.pro-page .frame{animation:none}
 
 /* ---- 2. skip rendering what is far off screen ---- */
-html body.pro-page :is(#workflows,#trial,#tools,#install,#pricing,#faq,.closing){content-visibility:auto;contain-intrinsic-size:auto 900px}
+@media(min-width:981px){
+ html body.pro-page #workflows{content-visibility:auto;contain-intrinsic-size:auto 1300px}
+ html body.pro-page #trial{content-visibility:auto;contain-intrinsic-size:auto 780px}
+ html body.pro-page #tools{content-visibility:auto;contain-intrinsic-size:auto 1520px}
+ html body.pro-page #install{content-visibility:auto;contain-intrinsic-size:auto 800px}
+ html body.pro-page #pricing{content-visibility:auto;contain-intrinsic-size:auto 2000px}
+ html body.pro-page #faq{content-visibility:auto;contain-intrinsic-size:auto 1180px}
+}
 
 /* ---- 3. one light reveal ---- */
 html.pr-on body.pro-page [data-pr]:not(.pr-in){opacity:0;transform:translate3d(0,26px,0)}
@@ -76,3 +83,34 @@ body.pro-page .frame-inner h2{font-size:clamp(34px,5vw,64px);letter-spacing:-.05
 
 @media(max-width:700px){body.pro-page .block h2{font-size:clamp(32px,10vw,46px)}body.pro-page #workflows .workflow-panel{border-radius:24px}}
 @media(prefers-reduced-motion:reduce){html.pr-on body.pro-page [data-pr]:not(.pr-in){opacity:1;transform:none}}
+
+
+/* =====================================================================================================================
+   Unique reveals (once, on arrival): headings clip open, tool cards swing in from alternate sides, plans rise with a spring,
+   panels open from the centre, gold rules draw, icons pop. Only opacity/transform/clip-path; never while scrolling is busy.
+   ===================================================================================================================== */
+html.pr-on body.pro-page [data-pr="clip"]:not(.pr-in){opacity:0;transform:translate3d(0,18px,0)}
+html.pr-on body.pro-page [data-pr="clip"].pr-in{opacity:1;transform:none;animation:pp-clip 1s var(--pro-ease) both;transition:none}
+@keyframes pp-clip{from{clip-path:inset(0 0 100% 0);transform:translate3d(0,18px,0)}to{clip-path:inset(0 0 -14% 0);transform:none}}
+html.pr-on body.pro-page [data-pr="left"]:not(.pr-in){transform:translate3d(-40px,18px,0) rotate(-1.2deg)}
+html.pr-on body.pro-page [data-pr="right"]:not(.pr-in){transform:translate3d(40px,18px,0) rotate(1.2deg)}
+html.pr-on body.pro-page [data-pr="zoom"]:not(.pr-in){transform:translate3d(0,40px,0) scale(.93)}
+html.pr-on body.pro-page [data-pr="zoom"]{transition:opacity .8s var(--pro-ease),transform 1.1s cubic-bezier(.34,1.3,.5,1)}
+html.pr-on body.pro-page [data-pr="open"]:not(.pr-in){clip-path:inset(10% 6% 10% 6% round 36px);transform:scale(.97)}
+html.pr-on body.pro-page [data-pr="open"]{transition:opacity .8s var(--pro-ease),transform 1.1s var(--pro-ease),clip-path 1.2s var(--pro-ease)}
+html.pr-on body.pro-page [data-pr="open"].pr-in{clip-path:inset(0 0 0 0 round 36px)}
+/* gold rule beside each eyebrow draws itself */
+html.pr-on body.pro-page .head [data-pr]:not(.pr-in) .eyebrow::before,html.pr-on body.pro-page .head:not(.pr-in) .eyebrow::before{width:0}
+body.pro-page .head .eyebrow::before{transition:width 1s .25s var(--pro-ease)}
+/* tool icons pop in a wave after their card arrives */
+html.pr-on body.pro-page #tools .tile:not(.pr-in) .ic{transform:scale(.3);opacity:0}
+body.pro-page #tools .tile.pr-in .ic{animation:pp-pop .7s cubic-bezier(.34,1.56,.64,1) both;animation-delay:calc(.35s + var(--k,0)*90ms)}
+body.pro-page #tools .tl li:nth-child(2) .ic{--k:1}body.pro-page #tools .tl li:nth-child(3) .ic{--k:2}body.pro-page #tools .tl li:nth-child(4) .ic{--k:3}
+@keyframes pp-pop{from{opacity:0;transform:scale(.3) rotate(-18deg)}to{opacity:1;transform:none}}
+/* install steps and faq rows stagger */
+html.pr-on body.pro-page #install .steps li:not(.pr-in){transform:translate3d(-24px,0,0)}
+html.pr-on body.pro-page #faq details:not(.pr-in){transform:translate3d(30px,0,0)}
+@media(max-width:700px){
+ html.pr-on body.pro-page [data-pr="left"]:not(.pr-in),html.pr-on body.pro-page [data-pr="right"]:not(.pr-in){transform:translate3d(0,26px,0)}
+ html.pr-on body.pro-page [data-pr="open"]:not(.pr-in){clip-path:inset(6% 4% 6% 4% round 24px)}
+}

@@ -1,0 +1,78 @@
+/* Wrapline Pro v5 "premium": calmer, richer sections. Loaded last, scoped to body.pro-page.
+   SMOOTHNESS: the earlier layers ran many scroll-driven 3D animations (animation-timeline:view()), animated blurred orbs and an
+   animated hero mesh at once, which is what made scrolling and reloading jittery. They are switched off here and replaced by one
+   light reveal (opacity + small translate, once) plus off-screen sections that the browser skips while you scroll. */
+
+/* ---- 1. retire the expensive effects ---- */
+html body.pro-page :is(.plans .plan,.workflow-copy,.workflow-panel .tool-visual,.trial-showcase>.wrap,.closing .frame-inner,.faq details,.faq-wrap .head,.inst-copy>*,.block::before){animation:none;animation-timeline:auto}
+html body.pro-page .block::before{transform:none;opacity:.7}
+html body.pro-page .hero::after{animation:none;display:none}
+html body.pro-page :is(#tools,#pricing,#faq,#workflows)::after{animation:none;filter:none;width:640px;height:640px;opacity:1;background:radial-gradient(closest-side,color-mix(in srgb,var(--blue) 10%,transparent),transparent)}
+html body.pro-page :is(#pricing,#workflows)::after{background:radial-gradient(closest-side,color-mix(in srgb,var(--gold-2) 12%,transparent),transparent)}
+html body.pro-page .rv,html.rv-js body.pro-page .rv{opacity:1;transform:none;transition:none}
+html body.pro-page .pf-beam::before{animation:none;opacity:.5}
+html body.pro-page .frame{animation:none}
+
+/* ---- 2. skip rendering what is far off screen ---- */
+html body.pro-page :is(#workflows,#trial,#tools,#install,#pricing,#faq,.closing){content-visibility:auto;contain-intrinsic-size:auto 900px}
+
+/* ---- 3. one light reveal ---- */
+html.pr-on body.pro-page [data-pr]:not(.pr-in){opacity:0;transform:translate3d(0,26px,0)}
+html.pr-on body.pro-page [data-pr]{transition:opacity .8s var(--pro-ease),transform .9s var(--pro-ease);transition-delay:calc(var(--pr-i,0)*70ms)}
+html.pr-on body.pro-page [data-pr].pr-in{opacity:1;transform:none}
+
+/* ---- 4. section headings: editorial ---- */
+body.pro-page .block .head .eyebrow,body.pro-page .workflow-showcase .head .eyebrow{display:inline-flex;align-items:center;gap:12px;font:600 11.5px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:var(--mute)}
+body.pro-page .block .head .eyebrow::before,body.pro-page .workflow-showcase .head .eyebrow::before{content:"";display:inline-block;width:28px;height:1px;background:linear-gradient(90deg,var(--gold-3),var(--gold-2))}
+body.pro-page .block h2{font-size:clamp(34px,4.7vw,60px);line-height:1;letter-spacing:-.055em}
+body.pro-page .block h2 em,body.pro-page .frame-inner h2 em{background:linear-gradient(100deg,var(--gold-3),var(--gold-2) 45%,var(--blue-d));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;padding-right:.08em}
+html[data-theme=dark] body.pro-page .block h2 em{background-image:linear-gradient(100deg,#ffe2a8,#f2b64f 45%,#8dbbff)}
+body.pro-page .block .sub{max-width:36em}
+body.pro-page .head.center .sub{margin-inline:auto}
+
+/* ---- 5. workflows: a dark obsidian band ---- */
+body.pro-page #workflows{--bg:#070B1A;--ink:#EEF2FF;--mute:#A9B4D4;--line:rgba(255,255,255,.12);--card:rgba(255,255,255,.045);--card2:rgba(255,255,255,.06);--em:#9CC3FF;--blue-d:#8DBBFF;--btnbg:#fff;--btnfg:#0b1020;--btnhov:#ffe9bf;
+ color:var(--ink);background:radial-gradient(70% 55% at 85% 0%,rgba(61,139,255,.2),transparent 70%),radial-gradient(50% 45% at 5% 100%,rgba(242,182,79,.1),transparent 70%),#070B1A;margin:0}
+body.pro-page #workflows::before{display:none}body.pro-page #workflows::after{display:none}
+body.pro-page #workflows .workflow-panel{border-radius:32px;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.12);box-shadow:0 40px 90px -50px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.08)}
+body.pro-page #workflows .workflow-panel .tool-visual{background:rgba(5,8,20,.55);border:1px solid rgba(255,255,255,.1)}
+body.pro-page #workflows .workflow-copy h3{color:#fff;font-weight:600;letter-spacing:-.04em}
+body.pro-page #workflows .workflow-copy p{color:var(--mute)}
+body.pro-page #workflows .text-link{color:#ffd98a}
+body.pro-page #workflows .workflow-caption{color:rgba(169,180,212,.7)}
+body.pro-page #workflows .workflow-choices{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+body.pro-page #workflows .workflow-choices button{color:var(--mute)}
+body.pro-page #workflows .workflow-choices button[aria-pressed=true]{background:#fff;color:#0b1020}
+body.pro-page #workflows .btn-dark{background:#fff;color:#0b1020;border-color:#fff}body.pro-page #workflows .btn-dark svg{stroke:#0b1020}
+body.pro-page #workflows .workflow-beats button{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:var(--mute)}
+body.pro-page #workflows .workflow-beats button[aria-pressed=true]{border-color:#F2B64F;color:#fff;background:rgba(242,182,79,.1)}
+
+/* ---- 6. trial: sits on light, its dark card gets a gold edge ---- */
+body.pro-page .trial-showcase{padding:clamp(64px,8vw,110px) 0}
+body.pro-page .trial-stage{border-color:color-mix(in srgb,var(--gold-2) 40%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--gold-2) 14%,transparent),0 50px 90px -50px rgba(10,20,70,.55)}
+
+/* ---- 7. tools: quiet, precise cards ---- */
+body.pro-page #tools{background:var(--bg)}
+body.pro-page #tools .tile{border-radius:30px;padding:clamp(24px,3vw,36px);background:var(--card)}
+body.pro-page #tools .tile h3{font-size:clamp(22px,2.2vw,28px)}
+body.pro-page #tools .tile:hover{border-color:color-mix(in srgb,var(--gold-2) 55%,var(--line))}
+body.pro-page #tools .tl li{padding-block:16px}
+body.pro-page #tools .ic{box-shadow:inset 0 0 0 1px rgba(255,255,255,.35),0 6px 14px -6px rgba(13,17,28,.25)}
+
+/* ---- 8. install + pricing + faq: air and hairlines ---- */
+body.pro-page #install{background:linear-gradient(180deg,var(--bg),color-mix(in srgb,var(--blue) 4%,var(--bg)))}
+body.pro-page .steps li{border-color:var(--line)}
+body.pro-page #pricing{background:var(--bg)}
+html body.pro-page .plans .plan{border-radius:30px}
+html body.pro-page .plans .plan:hover{transform:translateY(-4px)}
+html body.pro-page .plans .plan.plan-lead{border-color:color-mix(in srgb,var(--gold-2) 60%,transparent);background:radial-gradient(90% 60% at 80% 0%,rgba(242,182,79,.16),transparent 70%),linear-gradient(160deg,#131C3E,#0A0F22)}
+body.pro-page .faq summary{padding-block:22px;font-size:clamp(16px,1.5vw,19px);letter-spacing:-.015em}
+body.pro-page .faq details{border-color:var(--line)}
+
+/* ---- 9. closing: obsidian with a gold edge ---- */
+body.pro-page .frame{background:linear-gradient(135deg,var(--gold-2),rgba(255,255,255,.14) 40%,var(--blue))}
+body.pro-page .frame-inner{padding-block:clamp(72px,9vw,120px)}
+body.pro-page .frame-inner h2{font-size:clamp(34px,5vw,64px);letter-spacing:-.055em}
+
+@media(max-width:700px){body.pro-page .block h2{font-size:clamp(32px,10vw,46px)}body.pro-page #workflows .workflow-panel{border-radius:24px}}
+@media(prefers-reduced-motion:reduce){html.pr-on body.pro-page [data-pr]:not(.pr-in){opacity:1;transform:none}}

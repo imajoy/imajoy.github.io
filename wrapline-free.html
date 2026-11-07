@@ -145,9 +145,9 @@
 <link rel="stylesheet" href="css/mobile.css?v=20261107-pb2">
 <link rel="stylesheet" href="css/reviews.css?v=20261023-rv2"><link rel="stylesheet" href="css/wrapline-reviews.css?v=20261023-rv2">
 <link rel="stylesheet" href="css/coffee.css?v=20261023-c1"><link rel="stylesheet" href="css/coffee-btn.css?v=20261101-cb2"><link rel="stylesheet" href="css/free.css?v=20261102-f5"><link rel="stylesheet" href="css/free-stage.css?v=20261103-fs1">
-<link rel="stylesheet" href="css/scroll-fx.css?v=20261101-sx1">
+<link rel="stylesheet" href="css/scroll-fx.css?v=20261101-sx1"><link rel="stylesheet" href="css/free-v2.css?v=fv1">
 <link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/transitions.css?v=vt2"><script src="js/header-scroll.js?v=hs1" defer></script></head>
-<body class="home-page">
+<body class="home-page free-page">
 <div class="progress" id="progress" aria-hidden="true"></div>
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -190,7 +190,7 @@
 
   <!-- HERO -->
   <section class="hero ft-hero">
-    <canvas id="stage" aria-hidden="true"></canvas>
+    <div class="ft-stk" aria-hidden="true"><span style="--c1:#9C8CFF;--c2:#6B5CFF"><i><svg viewBox="0 0 24 24"><use href="#i-ik"/></svg></i>IK / FK Snap</span><span style="--c1:#B49CFF;--c2:#7C5CFF"><i><svg viewBox="0 0 24 24"><use href="#i-swap"/></svg></i>Multi Swapper</span><span style="--c1:#FF9F82;--c2:#FF7A5C"><i><svg viewBox="0 0 24 24"><use href="#i-udim"/></svg></i>UDIM Preview</span><span style="--c1:#FFB46B;--c2:#F2894F"><i><svg viewBox="0 0 24 24"><use href="#i-layers"/></svg></i>Layer Prefix Remover</span></div>
     <div class="hero-copy">
       <p class="free-hero-tag intro-fade"><span class="ft-dot" aria-hidden="true"></span>Free for everyone</p>
       <h1 class="intro">
@@ -357,6 +357,7 @@
       </div>
     </div>
   </section>
+<script>(function(){var r=document.documentElement,d=0,go=function(){if(d)return;d=1;requestAnimationFrame(function(){requestAnimationFrame(function(){r.classList.add("fr-go")})})},rd=function(){(document.fonts&&document.fonts.ready?Promise.race([document.fonts.ready,new Promise(function(x){setTimeout(x,900)})]):Promise.resolve()).then(go)};if(document.readyState==="loading")document.addEventListener("DOMContentLoaded",rd);else rd();setTimeout(go,2600)})()</script>
 </main>
 
 <footer class="site-footer">
@@ -377,7 +378,7 @@
   </div>
 </footer>
 
-<script src="js/site-config.js?v=20261023-p4"></script>
+<script src="js/site-config.js?v=20261023-p4"></script><script src="js/scroll-calm.js?v=sc1" defer></script><script src="js/free-reveal.js?v=fr1" defer></script>
 <script src="js/main.js?v=20261019-i1"></script>
 <script type="module" src="js/extras.js?v=20261023-p5"></script>
 <script type="module" src="js/landing-motion.js?v=20261021-lite2"></script>

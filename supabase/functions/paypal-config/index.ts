@@ -4,12 +4,14 @@
    The PayPal Secret is NOT needed here and must never be added.
    Also reports the visitor's country (IP lookup, see below) so the site can apply the right regional price.
    GET ?geo=1 returns only the country and needs no secrets. */
-const ORIGINS = ['https://imajoy.github.io', 'http://localhost:8765'];
 /* When an ingress IP header has been explicitly verified and configured, that IP is looked up with free
    no-key services (api.country.is, then geojs.io). Only the IP is sent; results are cached for an hour. */
 import { createCountryLookup } from '../_shared/country.js';
+import { guard } from '../_shared/guard.js';
+import { ORIGIN_LIST, PUBLIC_LIMITS } from '../_shared/policy.js';
+const ORIGINS = ORIGIN_LIST((key: string) => Deno.env.get(key));
 const countryOf = createCountryLookup(fetch, Date.now, key => Deno.env.get(key));
-Deno.serve(async (req: Request) => {
+Deno.serve(guard(async (req: Request) => {
   const origin = req.headers.get('origin') || '';
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -35,4 +37,4 @@ Deno.serve(async (req: Request) => {
     return Boolean(value);
   };
   return new Response(JSON.stringify({ mode, clientId, currency: 'USD', plans: flags(plans), country, closedCountries, billingPolicyEnabled:true, vpnProtectionEnabled:Deno.env.get('BILLING_VPN_ENABLED')==='true' }), { headers });
-});
+}, { name: 'paypal-config', limits: PUBLIC_LIMITS, origins: () => ORIGINS }));

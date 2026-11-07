@@ -1,8 +1,9 @@
 import {readFileSync} from 'node:fs';
 import {createContext,runInContext} from 'node:vm';
 import {createHash,createHmac,randomUUID} from 'node:crypto';
-export function service({registered=true,mailFails=false}={}){
+export function service({registered=true,mailFails=false,strictEmail=false}={}){
  const values=new Map([['SESSION_SECRET','private-account-test-secret'],['PAYPAL_MODE','sandbox'],['PAYPAL_CLIENT_ID','test-client'],['PAYPAL_SECRET','test-secret'],['COMMERCE_SECRET','test-private-gateway-secret-at-least-32-bytes'],['TRIAL_IDENTITY_SECRET','test-stable-identity-secret-at-least-32-bytes'],['COMMERCE_ENABLED','true'],['PAYPAL_WEBHOOK_ID','TEST-WEBHOOK'],['COMMERCE_ENFORCE_FROM',new Date(Date.now()-86400000).toISOString()]]);
+ if(!strictEmail)values.set('EXTRA_EMAIL_DOMAINS','example.com');
  const tiers={};for(const tier of ['low','mid','high'])tiers[tier]={online:{monthly:'P-'+tier+'-ONLINE',yearly:'P-'+tier+'-YEARLY'},offline:{monthly:'P-'+tier+'-OFFLINE',yearly:'P-'+tier+'-OFFLINE-YEARLY'},onlineTrial:{monthly:'P-'+tier+'-TRIAL',yearly:'P-'+tier+'-TRIAL-YEARLY'}};
  values.set('PLANS_sandbox',JSON.stringify({productId:'PROD-TEST',tiers}));
  const cache=new Map(),mails=[],requests=[],sheets=new Map(),subscriptions=new Map(),transactions=new Map(),plans=new Map(),idempotency=new Map();let sequence=0,locked=false,signatureValid=true;

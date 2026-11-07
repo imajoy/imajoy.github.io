@@ -1,4 +1,5 @@
 /* Email-code sign-in with an immediate cached summary and live subscription refresh. */
+import {isDisposableEmail,EMAIL_POLICY_TEXT,EMAIL_TEMP_TEXT} from './email-policy.js?v=ep1';
 import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
 const cfg = window.AJOY_CONFIG || {};
 if (cfg.accountOpen && cfg.sheetUrl) init();
@@ -161,13 +162,14 @@ function init() {
     if(!seconds){clearInterval(countdownTimer);announce('This code has expired. Resend to receive a new code.',true);}
   }
   async function requestCode(){
+    if(isDisposableEmail(email)){announce(EMAIL_TEMP_TEXT,true);return;}
     const operation=++generation;setBusy(true);announce('Checking your email and sending a code… this can take a few seconds.');
     try{
       let result=await accountRequest({step:'code',email,intent:'auto'});
       // Compatibility with an older Apps Script while its deployment is being updated.
       if(!result.ok&&result.error==='not_registered')result=await accountRequest({step:'code',email,intent:'register'});
       if(operation!==generation)return;
-      if(!result.ok){announce(result.error==='limit'?'Too many requests. Please wait an hour before requesting another code.':result.error==='email'?'Enter a valid email address.':'Could not send your code. Please try again.',true);return;}
+      if(!result.ok){announce(result.error==='limit'?'Too many requests. Please wait an hour before requesting another code.':result.error==='email'?'Enter a valid email address.':result.error==='email_domain'?EMAIL_POLICY_TEXT:'Could not send your code. Please try again.',true);return;}
       registration=result.registered===false;
       // Old deployments send ten-minute codes without expiry metadata. Show their real lifetime until redeployed.
       const lifetime=result.expiresIn===undefined?600:Math.min(120,Math.max(0,Number(result.expiresIn)||0));

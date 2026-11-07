@@ -402,6 +402,8 @@ function handleAccount_(d) {
   }
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: false, error: 'email' };
   if (step !== 'code' && step !== 'verify') return { ok: false, error: 'step' };
+  // New sign-ups need a reputable mailbox. Anyone who already bought from you can still sign in with the address they used.
+  if (step === 'code' && !emailDomainAllowed_(email) && (isDisposableEmail_(email) || !registeredEmail_(email))) return { ok: false, error: 'email_domain' };
   // Serialize code requests and consumption so a code can be used only once.
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return { ok: false, error: 'busy' };
@@ -737,4 +739,19 @@ function storeContactAttachment_(file,requestId) {
   }
   if(typeof stored.html_url!=='string'||stored.html_url.indexOf('https://github.com/'+repo+'/blob/')!==0)throw Error('storage');
   return stored.html_url;
+}
+
+/* ---- Email policy: reputable mailbox providers only, never a throwaway inbox. Mirrors js/email-policy.js. ---- */
+var REPUTABLE_DOMAINS_ = ["gmail.com", "googlemail.com", "outlook.com", "hotmail.com", "live.com", "msn.com", "passport.com", "icloud.com", "me.com", "mac.com", "proton.me", "protonmail.com", "protonmail.ch", "pm.me", "zoho.com", "zohomail.com", "zohomail.in", "zohomail.eu", "zohomail.com.au", "zohomail.sa", "zohomail.jp", "zohomail.cn", "zoho.eu", "zoho.in", "fastmail.com", "fastmail.fm", "fastmail.org", "gmx.com", "gmx.net", "gmx.us", "gmx.de", "gmx.co.uk", "mail.com", "aol.com", "yandex.com", "yandex.ru", "ya.ru", "tutanota.com", "tutanota.de", "tuta.io", "tutamail.com", "hey.com", "rediffmail.com", "rediff.com", "ymail.com", "rocketmail.com"];
+var DISPOSABLE_DOMAINS_ = ["mailinator.com", "guerrillamail.com", "guerrillamail.net", "guerrillamail.org", "guerrillamail.biz", "guerrillamail.de", "grr.la", "sharklasers.com", "guerrillamailblock.com", "pokemail.net", "spam4.me", "10minutemail.com", "10minutemail.net", "10minemail.com", "20minutemail.com", "tempmail.com", "temp-mail.org", "temp-mail.io", "tempmail.net", "tempmail.dev", "tempmailo.com", "tempail.com", "tempr.email", "tempinbox.com", "temporarymail.com", "yopmail.com", "yopmail.net", "yopmail.fr", "cool.fr.nf", "jetable.fr.nf", "nospam.ze.tc", "nomail.xl.cx", "mega.zik.dj", "speed.1s.fr", "courriel.fr.nf", "moncourrier.fr.nf", "monemail.fr.nf", "monmail.fr.nf", "trashmail.com", "trashmail.net", "trashmail.de", "trashmail.io", "trash-mail.com", "getnada.com", "nada.email", "maildrop.cc", "dispostable.com", "throwawaymail.com", "throwaway.email", "fakeinbox.com", "fakemail.net", "fakemailgenerator.com", "mintemail.com", "mohmal.com", "emailondeck.com", "moakt.com", "moakt.cc", "tmpmail.org", "tmpmail.net", "burnermail.io", "spamgourmet.com", "mailnesia.com", "mytemp.email", "discard.email", "discardmail.com", "disposablemail.com", "disposable-email.ml", "dropmail.me", "33mail.com", "anonbox.net", "mailcatch.com", "mailforspam.com", "mailmoat.com", "mailnull.com", "mailsac.com", "mailtemp.info", "mail-temp.com", "minuteinbox.com", "inboxkitten.com", "instant-mail.de", "incognitomail.com", "harakirimail.com", "spambox.us", "spamex.com", "spamfree24.org", "spamhereplease.com", "tafmail.com", "teleworm.us", "rhyta.com", "dayrep.com", "einrot.com", "fleckens.hu", "gustr.com", "jourrapide.com", "superrito.com", "cuvox.de", "armyspy.com", "tmail.ws", "tmails.net", "emailfake.com", "email-fake.com", "fakeinbox.net", "luxusmail.org", "owlymail.com", "receiveee.com", "smailpro.com", "guerrillamail.info", "fexbox.org", "fexpost.com", "inbox.lv", "getairmail.com", "airmail.cc", "crazymailing.com", "wegwerfmail.de", "wegwerfmail.net", "wegwerfmail.org", "byom.de", "eelmail.com", "emltmp.com", "mailpoof.com", "mailbox.in.ua", "nowmymail.com", "sogetthis.com", "spambog.com", "spambog.de", "tempsky.com", "tmpeml.com", "vomoto.com", "yomail.info", "zetmail.com", "linshiyouxiang.net", "1secmail.com", "1secmail.net", "1secmail.org", "kzccv.com", "qiott.com", "wuuvo.com", "icznn.com", "ezztt.com", "vjuum.com", "laafd.com", "txcct.com", "esiix.com", "xojxe.com", "yoggm.com"];
+function emailDomain_(email) { return String(email || '').trim().toLowerCase().split('@').pop(); }
+function isDisposableEmail_(email) {
+  var d = emailDomain_(email);
+  return DISPOSABLE_DOMAINS_.some(function (x) { return d === x || d.slice(-(x.length + 1)) === '.' + x; });
+}
+function extraEmailDomains_() { return String(props_().getProperty('EXTRA_EMAIL_DOMAINS') || '').toLowerCase().split(/[\s,;]+/).filter(String); }
+function emailDomainAllowed_(email) {
+  var d = emailDomain_(email);
+  if (isDisposableEmail_(email)) return false;
+  return REPUTABLE_DOMAINS_.indexOf(d) >= 0 || /^(yahoo|hotmail|live|outlook)\.(com|co\.[a-z]{2}|com\.[a-z]{2}|[a-z]{2})$/.test(d) || extraEmailDomains_().indexOf(d) >= 0;
 }

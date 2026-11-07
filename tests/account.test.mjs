@@ -3,8 +3,8 @@ import assert from 'node:assert/strict';
 import {service} from './helpers/apps-service.mjs';
 test('Unregistered email is rejected before a code is generated or sent',()=>{
  const app=service({registered:false});
- assert.deepEqual(app.call({step:'code',email:'new@example.com'}),{ok:false,error:'not_registered',registrationAvailable:true});
- assert.equal(app.mails.length,0);assert.equal(app.cache.has('code:new@example.com'),false);
+ assert.deepEqual(app.call({step:'code',email:'new@gmail.com'}),{ok:false,error:'not_registered',registrationAvailable:true});
+ assert.equal(app.mails.length,0);assert.equal(app.cache.has('code:new@gmail.com'),false);
 });
 test('Registered email -> emailed code -> signed session; code cannot be reused',()=>{
  const app=service(),sent=app.call({step:'code',email:' BUYER@EXAMPLE.COM '});assert.equal(sent.ok,true);assert.equal(sent.registered,true);assert.equal(sent.intent,'signin');assert(sent.expiresIn>0&&sent.expiresIn<=120);
@@ -58,18 +58,18 @@ test('The legacy public order endpoint cannot bypass secure checkout',()=>{
 });
 test('Registration creates an account only after its own email code is verified',()=>{
  const app=service({registered:false});
- const sent=app.call({step:'code',email:'new@example.com',intent:'register'});assert.equal(sent.ok,true);
+ const sent=app.call({step:'code',email:'new@gmail.com',intent:'register'});assert.equal(sent.ok,true);
  assert.equal(app.sheets.has('Accounts'),false);assert.equal(app.call({step:'identity',token:'forged'}).ok,false);
  const code=app.mails[0].subject.match(/\d{6}/)[0];
- const verified=app.call({step:'verify',email:'new@example.com',code});assert.equal(verified.ok,true);
+ const verified=app.call({step:'verify',email:'new@gmail.com',code});assert.equal(verified.ok,true);
  assert.equal(app.sheets.get('Accounts').rows.length,2);
- assert.equal(app.call({step:'identity',token:verified.token}).email,'new@example.com');
+ assert.equal(app.call({step:'identity',token:verified.token}).email,'new@gmail.com');
  assert.deepEqual(app.call({step:'status',token:verified.token}).subscriptions,[]);
- assert.equal(app.call({step:'verify',email:'new@example.com',code}).ok,false);
+ assert.equal(app.call({step:'verify',email:'new@gmail.com',code}).ok,false);
 });
 
 test('unified email detection never creates a session before verifying either existing or new email',()=>{
- for(const [email,registered] of [['buyer@example.com',true],['new@example.com',false]]){
+ for(const [email,registered] of [['buyer@example.com',true],['new@gmail.com',false]]){
   const app=service(),sent=app.call({step:'code',email,intent:'auto'});
   assert.equal(sent.ok,true);assert.equal(sent.registered,registered);assert.equal(sent.intent,registered?'signin':'register');assert.equal(sent.token,undefined);assert(!app.sheets.has('Accounts'));
   const code=app.mails[0].subject.match(/\d{6}/)[0];assert.match(app.mails[0].body,/2 minutes/);
@@ -77,7 +77,7 @@ test('unified email detection never creates a session before verifying either ex
  }
 });
 test('the server enforces the two-minute deadline even if a cached code survives, and resending invalidates it',()=>{
- const app=service(),email='new@example.com',sent=app.call({step:'code',email,intent:'auto'}),old=app.mails[0].subject.match(/\d{6}/)[0];
+ const app=service(),email='new@gmail.com',sent=app.call({step:'code',email,intent:'auto'}),old=app.mails[0].subject.match(/\d{6}/)[0];
  let time=sent.expiresAt;app.ctx.Date=class extends Date{static now(){return time;}};
  assert.equal(app.call({step:'verify',email,code:old}).error,'code_expired');assert(!app.sheets.has('Accounts'));
  const resent=app.call({step:'code',email,intent:'auto'});assert.equal(resent.expiresAt,time+120000);
@@ -110,4 +110,15 @@ test('A cancelled free trial keeps access only until the trial would have ended'
  const after=app.call({step:'status',token}).subscriptions[0];
  assert.equal(after.trial,true);assert.equal(after.renews,false);
  assert(Math.abs(Date.parse(after.endsAt)-(started.getTime()+4*864e5))<1000);
+});
+test('Only reputable mailbox providers can start a new sign-up; throwaway inboxes never',()=>{
+ const app=service({registered:false,strictEmail:true});
+ for(const email of ['someone@mailinator.com','x@sub.guerrillamail.com','new@nobody-company-example.xyz','new@gmail.com.evil.io'])assert.deepEqual(app.call({step:'code',email}),{ok:false,error:'email_domain'},email);
+ assert.equal(app.mails.length,0);
+ for(const email of ['a@gmail.com','a@outlook.com','a@yahoo.co.in','a@icloud.com','a@zoho.com','a@zohomail.in','a@proton.me','a@hotmail.co.uk'])assert.equal(app.call({step:'code',email}).error,'not_registered',email);
+});
+test('A customer who already bought can sign in with a company address, but a throwaway one is still refused',()=>{
+ const app=service({strictEmail:true});
+ assert.equal(app.call({step:'code',email:'buyer@example.com'}).ok,true);
+ assert.deepEqual(app.call({step:'code',email:'buyer@mailinator.com'}),{ok:false,error:'email_domain'});
 });

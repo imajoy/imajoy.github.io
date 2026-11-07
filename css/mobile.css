@@ -67,3 +67,9 @@
   html body .site-header .pillbar{padding-left:8px}
 }
 @media (max-width:360px){html body .site-header .pillbar .acct-btn{max-width:128px;padding:0 11px;font-size:.6875rem}}
+
+/* phones and tablets: button text stays on one line and sizes itself to fit */
+@media(max-width:1024px){
+ .btn{white-space:nowrap;padding-inline:clamp(14px,3.6vw,28px);font-size:clamp(.84rem,.62rem + 1.3vw,1rem);overflow:hidden}
+ .btn em{white-space:nowrap}
+}

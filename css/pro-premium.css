@@ -174,3 +174,12 @@ html[data-theme=dark] body.pro-page .btn-light{border-color:#6b7799;color:#ECEFF
 html[data-theme=dark] body.pro-page .btn-light:hover{border-color:#9db0dd}
 body.pro-page .btn-ghost-dark{border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.1)}
 body.pro-page .btn-ghost-dark:hover{border-color:rgba(255,255,255,.85)}
+
+/* phones: hide the tilted trial card illustration; the heading, text and button stay */
+@media(max-width:680px){body.pro-page .trial-stage .trial-art{display:none!important}body.pro-page .trial-stage{gap:14px}}
+
+/* trial banner art: hidden on phones and folding phones, shown on tablets and laptops */
+@media(max-width:760px){
+ body.pro-page #trial .trial-art,body.pro-page #trial .trial-art *{display:none!important}
+ body.pro-page #trial .trial-stage{grid-template-columns:1fr!important;padding:26px;gap:14px}
+}

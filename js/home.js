@@ -90,7 +90,7 @@
       q('.a-kit').textContent = kit; q('.a-cat').textContent = row.dataset.cat; q('.a-plan').textContent = row.dataset.plan;
       q('.o-ae-desc').textContent = row.querySelector('.o-desc').textContent;
       var go = q('.o-ae-go'); go.href = row.getAttribute('href'); go.firstChild.nodeValue = 'Open the ' + name + ' guide ';
-      window.__shelfKey = row.getAttribute('href').replace(/^tool-|\.html$/g, ''); if (window.__shelfSet) window.__shelfSet(window.__shelfKey);
+      window.__shelfKey = row.getAttribute('href').replace(/^tool-|\.html$/g, ''); if (window.__shelfSet) window.__shelfSet(window.__shelfKey); window.dispatchEvent(new Event('shelf-change'));
       clearTimeout(tm);
       requestAnimationFrame(function () { box.classList.remove('sw'); if (!reduce) { void box.offsetWidth; box.classList.add('draw'); } });
     };
@@ -107,7 +107,7 @@
     if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { shelfVisible = es[0].isIntersecting; }, { threshold: .35 }).observe(app0);
     if (!reduce) setInterval(function () {
       if (!shelfVisible || document.hidden || Date.now() - lastUser < 16000) return;
-      var next = rows[(rows.indexOf(cur) + 1) % rows.length]; pick(next);
+      var next = cur, hk = window.__heroKey, n = 0; do { next = rows[(rows.indexOf(next) + 1) % rows.length]; n++; } while (n < rows.length && next.getAttribute('href').replace(/^tool-|\.html$/g, '') === hk); pick(next);
       if (tree && tree.scrollHeight > tree.clientHeight) tree.scrollTo({ top: Math.max(0, next.offsetTop - tree.clientHeight / 2), behavior: 'smooth' });
     }, 10500);
     pick(start, true); ae.classList.add('ready'); var app = ae.closest('.o-app'); if (app) app.classList.add('ready');

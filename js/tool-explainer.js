@@ -15,18 +15,22 @@ const ARROW = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 3l14 
 
 class Player {
   constructor(fig, list) {
-    this.fig = fig; this.list = list; this.li = 0; fig.__player = this;
+    this.fig = fig; this.list = list; this.li = 0; fig.__player = this; this.hero = !!fig.closest('.h-hero');
     this.shell(); this.load(list[0]);
     this.playing = false; this.visible = false;
     if (reduce) { this.seekEnd(this.steps.length - 1); }
     else {
       new IntersectionObserver(es => { this.visible = es[0].isIntersecting; this.sync(); }, { threshold: .12 }).observe(this.root);
       document.addEventListener('visibilitychange', () => this.sync());
+      if (this.hero) window.addEventListener('shelf-change', () => { if (this.list.length > 1 && this.keyOf(this.cfg) === window.__shelfKey) { this.advance(); this.seek(0); this.clock = 0; } });
     }
   }
+  keyOf(cfg) { return Object.keys(XP).find(k => XP[k] === cfg); }
+  /* next tool in the loop, never the one the shelf is showing right now */
+  advance() { for (let n = 0; n < this.list.length; n++) { this.li = (this.li + 1) % this.list.length; if (!this.hero || this.keyOf(this.list[this.li]) !== window.__shelfKey) break; } this.load(this.list[this.li]); }
   setTool(cfg) { if (this.cfg === cfg) return; this.list = [cfg]; this.li = 0; this.load(cfg); this.seek(0); this.clock = 0; this.sync(); }
   load(cfg) {
-    this.cfg = cfg; this.steps = cfg.steps; this.acts = []; this.starts = []; let t = 0;
+    this.cfg = cfg; if (this.hero) window.__heroKey = this.keyOf(cfg); this.steps = cfg.steps; this.acts = []; this.starts = []; let t = 0;
     this.steps.forEach((s, i) => { this.starts.push(t); (s.a || []).forEach(a => this.acts.push({ t: t + a[0], a: a.slice(1), i })); t += s.d; });
     this.total = t; this.acts.sort((x, y) => x.t - y.t);
     this.render(); this.reset(); this.clock = null;
@@ -124,7 +128,7 @@ class Player {
     let ci = 0; for (let n = 0; n < this.starts.length; n++) if (this.clock >= this.starts[n]) ci = n;
     this.show(Math.min(ci, this.steps.length - 1));
     this.chips.forEach((c, n) => c.style.setProperty('--p', Math.max(0, Math.min(1, (this.clock - this.starts[n]) / this.steps[n].d)).toFixed(3)));
-    if (this.clock >= this.total + HOLD) { if (this.list.length > 1) { this.li = (this.li + 1) % this.list.length; this.load(this.list[this.li]); } this.seek(0); this.clock = 0; this.chips.forEach(c => c.style.setProperty('--p', 0)); }
+    if (this.clock >= this.total + HOLD) { if (this.list.length > 1) this.advance(); this.seek(0); this.clock = 0; this.chips.forEach(c => c.style.setProperty('--p', 0)); }
     requestAnimationFrame(t => this.tick(t));
   }
 }

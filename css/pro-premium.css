@@ -114,3 +114,11 @@ html.pr-on body.pro-page #faq details:not(.pr-in){transform:translate3d(30px,0,0
  html.pr-on body.pro-page [data-pr="left"]:not(.pr-in),html.pr-on body.pro-page [data-pr="right"]:not(.pr-in){transform:translate3d(0,calc(26px*var(--pr-d,1)),0)}
  html.pr-on body.pro-page [data-pr="open"]:not(.pr-in){clip-path:inset(6% 4% 6% 4% round 24px)}
 }
+
+/* soft seams: the dark workflow band melts into the light sections above and below instead of a hard edge */
+body.pro-page{--seam:var(--bg)}
+html body.pro-page #workflows{position:relative}
+html body.pro-page #workflows::before,html body.pro-page #workflows::after{display:block;content:"";position:absolute;left:0;right:0;width:100%;max-width:none;margin:0;transform:none;translate:none;opacity:1;inset-inline:0;height:clamp(110px,12vw,170px);pointer-events:none;z-index:0;filter:none;animation:none;border-radius:0}
+html body.pro-page #workflows::before{top:0;bottom:auto;background:linear-gradient(to bottom,var(--seam) 0%,color-mix(in srgb,var(--seam) 55%,transparent) 35%,transparent 100%)}
+html body.pro-page #workflows::after{bottom:0;top:auto;background:linear-gradient(to top,var(--seam) 0%,color-mix(in srgb,var(--seam) 55%,transparent) 35%,transparent 100%)}
+html body.pro-page #workflows>.wrap{position:relative;z-index:1;padding-top:clamp(40px,6vw,80px);padding-bottom:clamp(40px,6vw,80px)}

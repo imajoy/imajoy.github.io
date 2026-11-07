@@ -37,12 +37,12 @@
     e.preventDefault();
     if (!raf) { cur = target = scrollY; }
     var d = e.deltaMode === 1 ? e.deltaY * 34 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
-    target = Math.min(max(), Math.max(0, target + d * 1.05));
+    target = Math.min(max(), Math.max(0, target + d * 1.1));
     if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }, { passive: false });
   function tick(now) {
     var dt = Math.min(48, now - last); last = now;
-    cur += (target - cur) * (1 - Math.exp(-dt / 95));
+    cur += (target - cur) * (1 - Math.exp(-dt / 120));
     if (Math.abs(target - cur) < .4) { cur = target; set = cur; scrollTo(0, cur); raf = 0; done = performance.now(); return; }
     set = cur; scrollTo(0, cur); raf = requestAnimationFrame(tick);
   }

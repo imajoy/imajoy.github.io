@@ -20,6 +20,6 @@
  :where(main p a,main li a:not([class]),.text-link,.tl-link):not(.btn,.cfb,.wlr-tool-link,.wlr-tag,.ft-card,.s-card,.s-slot,.chipl):hover{text-decoration-line:underline;text-decoration-thickness:2px;text-underline-offset:4px}
  /* images and figures: tiny zoom */
  :where(figure.tool-visual,.maker-preview,.shot img,.thumb img):hover{scale:1.015}
- /* smooth the movement; elements with a scroll "reveal" keep their own slower entrance timing */
- :is(.btn,.cfb,.chipl,.wlr-tag,.s-card,.s-cmp,.s-point,.s-contact-card,.s-slot,.mp-card,.plan,.ft-card,.ft-steps li,.free-pro,.tool-free,.rv-card,.rv-summary,.wlr-tool-link,.contact-card,.sp-card,.faq summary,footer a,nav a):not(.reveal,[data-sfx],.sfx-in){transition:translate .35s cubic-bezier(.2,.8,.3,1),scale .35s cubic-bezier(.2,.8,.3,1),rotate .35s cubic-bezier(.2,.8,.3,1),transform .35s cubic-bezier(.2,.8,.3,1),box-shadow .35s ease,background-color .25s ease,background .25s ease,color .25s ease,border-color .25s ease,opacity .25s ease}
+ /* linear, quick hover movement (constant speed, no easing); elements with a scroll "reveal" keep their own slower entrance timing */
+ :is(.btn,.cfb,.chipl,.wlr-tag,.s-card,.s-cmp,.s-point,.s-contact-card,.s-slot,.mp-card,.plan,.ft-card,.ft-steps li,.free-pro,.tool-free,.rv-card,.rv-summary,.wlr-tool-link,.contact-card,.sp-card,.faq summary,footer a,nav a):not(.reveal,[data-sfx],.sfx-in){transition:translate .18s linear,scale .18s linear,rotate .18s linear,transform .18s linear,box-shadow .18s linear,box-shadow .35s ease,background-color .25s ease,background .25s ease,color .25s ease,border-color .25s ease,opacity .25s ease}
 }

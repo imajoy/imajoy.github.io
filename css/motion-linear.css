@@ -1,0 +1,14 @@
+/* Hover feel for Wrapline Pro and Wrapline (free): quick and linear (constant speed, no easing or spring).
+   Only timing changes; every hover effect itself stays. Mouse/pen only. Blocks that are still doing their scroll entrance
+   (data-pr without .pr-set) keep the entrance timing until it finishes. */
+@media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
+ html body.pro-page :is(.btn,.hero-download,.hero-secondary,.tool-rating,.trial-banner,.tile,.plan,.workflow-choices button,.workflow-panel,.pf-cols a,.pf-free span,.pf-top-link span,.pf-logo .mark,#faq summary,.ic,.chipl):is(:not([data-pr]),.pr-set),
+ html body.free-page :is(.btn,.ft-card,.ft-steps li,.ft-ic,.free-pro,.ft-coffee-card,.ft-rights li,#faq summary,.chipl):is(:not([data-pr]),.pr-set){
+  transition-duration:.18s;transition-timing-function:linear;transition-delay:0s}
+ html body.pro-page.home-page #tools .tl li>div,html body.pro-page.home-page #tools .tile .ic{transition:transform .18s linear}
+ html body.pro-page .tile .ic,html body.free-page .ft-card .ft-ic{transition-duration:.18s;transition-timing-function:linear}
+}
+/* soft scroll progress line (Pro and Free pages) */
+.sb-line{position:fixed;left:0;top:0;height:3px;width:100%;z-index:9998;pointer-events:none;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,#e0a93a,#6d7cff);will-change:transform;opacity:.9}
+body.free-page .sb-line{background:linear-gradient(90deg,#ff7a59,#7a4dff)}
+@media(prefers-reduced-motion:reduce){.sb-line{display:none}}

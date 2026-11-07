@@ -1,41 +1,116 @@
-/* Wrapline Pro hero v9: a centred "cinema" opening. Huge headline with a Maya selection box that snaps around the key words,
-   the live Maya screen rising out of depth as you scroll, floating tool cards around it. Loaded after pro.css and pro-stage.css,
-   scoped with html body.pro-page so nothing above can override it. Motion is transform/opacity only. */
-html body.pro-page .hero{display:block;min-height:0;padding:0 0 64px;text-align:center;overflow-x:clip;background:var(--bg)}
-html body.pro-page .hero::before{-webkit-mask-image:radial-gradient(ellipse 60% 46% at 50% 40%,#000 10%,transparent 75%);mask-image:radial-gradient(ellipse 60% 46% at 50% 40%,#000 10%,transparent 75%)}
-html body.pro-page .hero::after{background:radial-gradient(34% 26% at 50% 30%,color-mix(in srgb,var(--blue) 24%,transparent),transparent 72%),radial-gradient(26% 22% at 82% 62%,color-mix(in srgb,var(--gold-2) 22%,transparent),transparent 72%),radial-gradient(26% 22% at 14% 70%,color-mix(in srgb,var(--blue) 14%,transparent),transparent 72%)}
-html body.pro-page .hero-copy{max-width:1080px;margin:0 auto;padding:112px 20px 0;text-align:center;pointer-events:auto}
-html body.pro-page .pro-chip{margin:0 auto 14px}
-html body.pro-page .trial-banner{display:flex;width:fit-content;max-width:100%;margin:0 auto 30px}
-html body.pro-page .hero h1{font-size:clamp(38px,6.7vw,104px);line-height:.95;letter-spacing:-.065em;font-weight:600;margin:0 auto 26px;max-width:none}
-html body.pro-page .hero .ln{display:block;overflow:hidden;padding:.08em .16em .12em;margin:-.08em -.16em -.12em}
-html body.pro-page .hero h1 em{position:relative;display:inline-block;padding:0 .02em}
-/* the Maya selection box: dashed marquee, four corner handles, snaps in every few seconds */
-html body.pro-page .hero h1 em::after{content:"";position:absolute;inset:.06em -.1em .02em -.1em;pointer-events:none;border:1.5px dashed color-mix(in srgb,var(--blue) 70%,transparent);border-radius:6px;
- background:linear-gradient(var(--blue),var(--blue)) 0 0/9px 9px no-repeat,linear-gradient(var(--blue),var(--blue)) 100% 0/9px 9px no-repeat,linear-gradient(var(--blue),var(--blue)) 0 100%/9px 9px no-repeat,linear-gradient(var(--blue),var(--blue)) 100% 100%/9px 9px no-repeat;
- background-origin:border-box;transform-origin:50% 50%;animation:ph-snap 6s var(--pro-ease,cubic-bezier(.2,.8,.2,1)) 1.4s infinite}
-@keyframes ph-snap{0%{opacity:0;transform:scale(1.16)}9%,82%{opacity:1;transform:scale(1)}94%,100%{opacity:0;transform:scale(.98)}}
-html body.pro-page .hero .lead{max-width:38em;margin:0 auto 30px;font-size:clamp(16px,1.45vw,20px);text-align:center}
-html body.pro-page .hero-actions{justify-content:center}
-html body.pro-page .hero-trial-summary{margin:18px auto 0;text-align:center}
-html body.pro-page .hero-fine{position:static;margin:26px 0 0;text-align:center}
-html body.pro-page .tool-rating{justify-content:center;margin-inline:auto}
-/* the stage: wide, centred, and it rises out of depth as it enters */
-html body.pro-page .pro-stage{width:min(calc(100% - 32px),880px);margin:54px auto 0;padding:0}
-html body.pro-page .pro-stage .pro-halo{width:96%}
-/* one-time entrance when the screen first comes into view (cheap: runs once, not on every scroll frame) */
-html.js body.pro-page .pro-stage{transition:opacity .9s var(--pro-ease,cubic-bezier(.2,.8,.2,1)),transform 1.1s var(--pro-ease,cubic-bezier(.2,.8,.2,1))}
-html.js body.pro-page .pro-stage:not(.is-in){opacity:0;transform:perspective(1500px) translate3d(0,56px,0) rotateX(20deg) scale(.92)}
-html.js body.pro-page .pro-stage.is-in{opacity:1;transform:none}
-/* floating tool cards that frame the screen */
-.pro-floats{position:absolute;inset:0;z-index:3;pointer-events:none}
-.pro-fc{position:absolute;display:flex;align-items:center;gap:10px;padding:10px 16px 10px 10px;border-radius:16px;background:color-mix(in srgb,var(--card) 88%,transparent);border:1px solid var(--line);box-shadow:0 22px 44px -22px rgba(12,24,70,.45);text-align:left;font-size:12.5px;color:var(--mute);animation:ph-drift 7s ease-in-out infinite alternate;will-change:transform}
-.pro-fc svg{flex:none;width:34px;height:34px;padding:8px;border-radius:11px;background:color-mix(in srgb,var(--blue) 14%,transparent);fill:none;stroke:var(--blue);stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
-.pro-fc b{display:block;color:var(--ink);font-size:14px;font-weight:600;letter-spacing:-.01em}
-.pro-fc.f1{left:-11%;top:12%}.pro-fc.f2{right:-10%;top:24%;animation-duration:8.5s;animation-delay:-2s}.pro-fc.f3{left:-7%;bottom:22%;animation-duration:9s;animation-delay:-4s}.pro-fc.f4{right:-6%;bottom:12%;animation-duration:7.5s;animation-delay:-1s}
-.pro-fc.f2 svg,.pro-fc.f4 svg{background:color-mix(in srgb,var(--gold-2) 22%,transparent);stroke:var(--gold-2)}
-@keyframes ph-drift{to{transform:translate3d(0,-12px,0)}}
-@media(max-width:1180px){.pro-floats{display:none}}
-@media(max-width:900px){html body.pro-page .hero-copy{padding-top:96px}html body.pro-page .pro-stage{margin-top:36px}}
-@media(prefers-reduced-motion:reduce){html.js body.pro-page .pro-stage:not(.is-in){opacity:1;transform:none}html.js body.pro-page .pro-stage{transition:none}html body.pro-page .hero h1 em::after,.pro-fc{animation:none}}
-html.is-scrolling .pro-fc,html body.pro-page .ap-off .pro-fc,html body.pro-page .ap-off h1 em::after{animation-play-state:paused}
+/* Wrapline Pro hero v10: "the hero is a Maya viewport". A dark rounded viewport with a flowing perspective grid, HUD corners,
+   an axis gizmo and a keyframe timeline whose playhead scrubs along; headline left, the live tool window floating on the right.
+   LOAD SAFETY: the whole entrance is gated on html.hv-go (added after DOM + fonts + two painted frames, so the busy script
+   start-up is over) and uses only transform/opacity, which run on the compositor. No layout moves: sizes are fixed up front,
+   fonts are preloaded with font-display:block. Scoped html body.pro-page so nothing earlier can override it. */
+@font-face{font-family:'Geist Pro';font-style:normal;font-weight:100 900;font-display:block;src:url('../assets/fonts/geist-latin-5.3.0.woff2') format('woff2')}
+@font-face{font-family:'Instrument Pro';font-style:italic;font-weight:400;font-display:block;src:url('../assets/fonts/instrument-serif-italic-5.3.0.woff2') format('woff2')}
+html body.pro-page{--sans:'Geist Pro',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Instrument Pro','Times New Roman',serif}
+
+html body.pro-page .hero.hv{display:block;min-height:0;padding:100px 0 26px;background:var(--bg);overflow-x:clip;text-align:left}
+html body.pro-page .hero.hv::before,html body.pro-page .hero.hv::after{display:none}
+.hv-frame{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);gap:clamp(20px,3vw,56px);align-items:center;
+ width:min(calc(100% - 32px),1280px);min-height:min(740px,max(620px,calc(100svh - 124px)));margin:0 auto;padding:clamp(64px,6vw,80px) clamp(24px,4.6vw,76px) clamp(92px,8vw,104px);
+ border-radius:32px;overflow:hidden;color:#EEF2FF;background:radial-gradient(120% 90% at 78% 6%,#1d2c66 0%,#0e1531 46%,#080c1c 100%);
+ box-shadow:0 70px 120px -64px rgba(20,40,130,.6),0 0 0 1px rgba(255,255,255,.08) inset}
+/* ---- viewport furniture ---- */
+.hv-grid{position:absolute;left:-30%;right:-30%;bottom:0;height:60%;z-index:0;pointer-events:none;overflow:hidden;
+ -webkit-mask-image:linear-gradient(to top,#000 6%,transparent 88%);mask-image:linear-gradient(to top,#000 6%,transparent 88%)}
+.hv-grid::before{content:"";position:absolute;left:0;right:0;top:-64px;bottom:0;transform-origin:50% 100%;transform:perspective(560px) rotateX(62deg);will-change:transform;
+ background:repeating-linear-gradient(90deg,rgba(118,158,255,.3) 0 1px,transparent 1px 64px),repeating-linear-gradient(0deg,rgba(118,158,255,.3) 0 1px,transparent 1px 64px);animation:hv-flow 5s linear infinite}
+@keyframes hv-flow{to{transform:perspective(560px) rotateX(62deg) translate3d(0,64px,0)}}
+.hv-glow{position:absolute;left:50%;bottom:20%;width:90%;height:240px;margin-left:-45%;z-index:0;pointer-events:none;background:radial-gradient(closest-side,rgba(110,150,255,.32),transparent)}
+.hv-hud{position:absolute;z-index:3;font:600 10.5px/1 var(--sans);letter-spacing:.18em;text-transform:uppercase;color:rgba(196,210,255,.55);pointer-events:none}
+.hv-tl{left:30px;top:26px;display:flex;align-items:center;gap:9px}
+.hv-tl i{width:7px;height:7px;border-radius:50%;background:#ff5d5d;animation:hv-blink 1.8s steps(2,jump-none) infinite}
+.hv-tr{right:30px;top:26px}
+@keyframes hv-blink{50%{opacity:.25}}
+.hv-gizmo{position:absolute;left:28px;bottom:84px;width:58px;height:58px;z-index:3;fill:none;stroke-width:2.2;stroke-linecap:round;font:700 8px var(--sans);pointer-events:none;animation:hv-gz 14s linear infinite;will-change:transform}
+@keyframes hv-gz{to{transform:rotateY(360deg)}}
+.hv-timeline{position:absolute;left:28px;right:28px;bottom:22px;height:44px;z-index:3;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);pointer-events:none;overflow:hidden}
+.hv-track{position:absolute;inset:0 18px 14px;overflow:hidden}
+.hv-track::before{content:"";position:absolute;left:0;right:0;bottom:0;height:9px;background:repeating-linear-gradient(90deg,rgba(196,210,255,.35) 0 1px,transparent 1px 22px)}
+.hv-track i{position:absolute;left:calc(var(--p)*100%);top:10px;width:9px;height:9px;margin-left:-4px;background:#ffc15e;transform:rotate(45deg);border-radius:2px;opacity:.3;animation:hv-key 8s linear infinite;animation-delay:calc(var(--p)*8s)}
+@keyframes hv-key{0%{opacity:.3;transform:rotate(45deg) scale(1)}2%{opacity:1;transform:rotate(45deg) scale(1.6)}12%{opacity:1;transform:rotate(45deg) scale(1.15)}45%,100%{opacity:.3;transform:rotate(45deg) scale(1)}}
+.hv-ph{position:absolute;inset:0;transform:translateX(-100%);will-change:transform;animation:hv-play 8s linear infinite}
+.hv-ph::after{content:"";position:absolute;right:0;top:0;bottom:-14px;width:2px;background:#ffb547;box-shadow:0 0 14px 2px rgba(255,181,71,.7)}
+@keyframes hv-play{to{transform:translateX(0)}}
+.hv-timeline b{position:absolute;bottom:4px;font:600 8.5px/1 var(--sans);letter-spacing:.06em;color:rgba(196,210,255,.5)}
+.hv-timeline b:nth-of-type(1){left:18px}.hv-timeline b:nth-of-type(2){left:calc(18px + (100% - 36px)*.2)}.hv-timeline b:nth-of-type(3){left:calc(18px + (100% - 36px)*.4)}.hv-timeline b:nth-of-type(4){left:calc(18px + (100% - 36px)*.6)}.hv-timeline b:nth-of-type(5){left:calc(18px + (100% - 36px)*.8)}.hv-timeline b:nth-of-type(6){right:18px}
+
+/* ---- copy ---- */
+html body.pro-page .hv-frame .hero-copy{position:relative;z-index:2;max-width:640px;margin:0;padding:0;text-align:left;pointer-events:auto}
+html body.pro-page .hv-frame .pro-chip{display:none}
+html body.pro-page .hv-frame .trial-banner{display:inline-flex;align-items:center;gap:12px;width:fit-content;max-width:100%;margin:0 0 28px;padding:6px 16px 6px 6px;border-radius:999px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);box-shadow:none;color:#fff}
+html body.pro-page .hv-frame .trial-banner:hover{border-color:#ffc15e;transform:none;background:rgba(255,255,255,.1)}
+html body.pro-page .hv-frame .trial-banner-seal{width:34px;height:34px;min-width:0;min-height:0;padding:0;align-self:center;border-radius:50%;box-shadow:none;background:linear-gradient(135deg,#ffd98a,#f2b64f);color:#3a2606}
+html body.pro-page .hv-frame .trial-banner-seal b{font-size:16px;letter-spacing:0;line-height:1}html body.pro-page .hv-frame .trial-banner-seal small{display:none}
+html body.pro-page .hv-frame .trial-banner-copy{display:flex;gap:10px;align-items:baseline;flex-wrap:wrap;color:rgba(214,224,255,.7)}
+html body.pro-page .hv-frame .trial-banner-copy strong{color:#fff;font-size:14px;font-weight:600}
+html body.pro-page .hv-frame .trial-banner-copy .offer-eyebrow{color:#9cc2ff;font-size:10.5px}
+html body.pro-page .hv-frame .trial-banner-copy>span:last-child:not(.offer-eyebrow){display:none}
+html body.pro-page .hv-frame .trial-banner-arrow{color:#ffc15e}
+html body.pro-page .hv-frame h1{margin:0 0 24px;font-size:clamp(40px,5.7vw,88px);line-height:.95;letter-spacing:-.06em;font-weight:600;color:#fff;max-width:none}
+html body.pro-page .hv-frame .ln{display:block;overflow:hidden;padding:.06em .14em .1em;margin:-.06em -.14em -.1em}
+html body.pro-page .hv-frame h1 em{font-family:var(--serif);font-style:italic;font-weight:400;padding-right:.08em;background:linear-gradient(100deg,#ffe2a8 0%,#f2b64f 42%,#8dbbff 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+html body.pro-page .hv-frame .lead{max-width:30em;margin:0 0 32px;font-size:clamp(16px,1.35vw,19px);line-height:1.6;color:rgba(214,224,255,.74);text-align:left}
+html body.pro-page .hv-frame .hero-actions{justify-content:flex-start;gap:12px}
+html body.pro-page .hv-frame .btn-dark{background:#fff;color:#0b1020;border-color:#fff;box-shadow:0 18px 44px -16px rgba(255,193,94,.55)}
+html body.pro-page .hv-frame .btn-dark:hover{background:#ffe9bf}
+html body.pro-page .hv-frame .btn-dark svg{stroke:#0b1020}
+html body.pro-page .hv-frame .btn-light{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.28);box-shadow:none}
+html body.pro-page .hv-frame .btn-light:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.5)}
+html body.pro-page .hv-frame .hero-trial-summary{max-width:36em;margin:22px 0 0;text-align:left;font-size:13px;line-height:1.6;color:rgba(196,210,255,.62)}
+html body.pro-page .hv-frame .hero-trial-summary strong{color:#e6edff}
+html body.pro-page .hv-frame .hero-trial-summary a{color:#ffc15e}
+html body.pro-page .hv-frame .tool-rating{justify-content:flex-start;margin:18px 0 0;color:#e6edff}
+html body.pro-page .hero.hv>.hero-fine{position:static;margin:20px 0 0;text-align:center;color:var(--mute)}
+
+/* ---- the live tool window ---- */
+html body.pro-page .hv-frame .pro-stage{position:relative;z-index:2;width:100%;max-width:540px;margin:0 0 0 auto;padding:0;right:auto;top:auto;translate:none}
+/* the viewport grid replaces the old floor/cubes; the screen holds still so only the demo itself moves */
+html body.pro-page .hv-frame .pro-scene{display:none}
+html body.pro-page .hv-frame .pro-device{animation:none}
+html body.pro-page .hv-frame .pro-stage .tool-visual::before{animation:none;--pa:40deg}
+html body.pro-page .hv-frame .pro-dock{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
+html body.pro-page .hv-frame .pro-now{color:rgba(206,218,255,.78)}
+html body.pro-page .hv-frame .pro-reflect{display:none}
+
+/* ---- entrance: only transform + opacity, only after html.hv-go ---- */
+html.js:not(.hv-go) body.pro-page .hero .hv-in,html.js:not(.hv-go) body.pro-page .hero .hv-stage{animation:none;opacity:0}
+html.js:not(.hv-go) body.pro-page .hero .intro .ln>span{animation:none;transform:translate3d(0,108%,0);opacity:1}
+html.js:not(.hv-go) body.pro-page .hero .hv-frame{opacity:0}
+html.js body.pro-page .hero .hv-frame{transition:opacity .9s cubic-bezier(.16,1,.3,1)}
+html.hv-go body.pro-page .hero .hv-frame{opacity:1}
+html.hv-go body.pro-page .hero .hv-in{opacity:1;animation:hv-up .9s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0)*80ms + 260ms)}
+html.hv-go body.pro-page .hero .intro .ln>span{opacity:1;transform:none;animation:hv-rise 1s cubic-bezier(.16,1,.3,1) both}
+html.hv-go body.pro-page .hero .intro .ln:nth-child(1)>span{animation-delay:.28s}
+html.hv-go body.pro-page .hero .intro .ln:nth-child(2)>span{animation-delay:.38s}
+html.hv-go body.pro-page .hero .intro .ln:nth-child(3)>span{animation-delay:.48s}
+html.hv-go body.pro-page .hero .hv-stage{opacity:1;animation:hv-stage 1.2s cubic-bezier(.16,1,.3,1) .35s both}
+@keyframes hv-up{from{opacity:0;transform:translate3d(0,26px,0)}to{opacity:1;transform:none}}
+@keyframes hv-rise{from{transform:translate3d(0,108%,0)}to{transform:none}}
+@keyframes hv-stage{from{opacity:0;transform:translate3d(48px,34px,0) scale(.94)}to{opacity:1;transform:none}}
+
+/* ---- tablet / phone ---- */
+@media(max-width:1000px){
+ .hv-frame{grid-template-columns:minmax(0,1fr);min-height:0;padding:76px 22px 100px;gap:36px;border-radius:26px}
+ .hv-hud,.hv-gizmo{display:none}
+ html body.pro-page .hv-frame .pro-stage{margin:0 auto;max-width:560px}
+ html body.pro-page .hv-frame h1{font-size:clamp(40px,11vw,72px)}
+}
+@media(max-width:640px){
+ html body.pro-page .hero.hv{padding-top:92px}
+ .hv-frame{width:calc(100% - 20px);padding:64px 16px 86px;border-radius:22px}
+ .hv-timeline{left:14px;right:14px;bottom:14px;height:38px}.hv-track{inset:0 12px 12px}.hv-timeline b{display:none}
+ html body.pro-page .hv-frame .hero-actions .btn{width:100%}
+ .hv-grid::before,.hv-gizmo{animation:none}
+}
+@media(prefers-reduced-motion:reduce){
+ html.js:not(.hv-go) body.pro-page .hero .hv-in,html.js:not(.hv-go) body.pro-page .hero .hv-stage,html.js:not(.hv-go) body.pro-page .hero .hv-frame{opacity:1}
+ html.js:not(.hv-go) body.pro-page .hero .intro .ln>span{transform:none}
+ html.hv-go body.pro-page .hero .hv-in,html.hv-go body.pro-page .hero .intro .ln>span,html.hv-go body.pro-page .hero .hv-stage{animation:none}
+ .hv-grid::before,.hv-ph,.hv-track i,.hv-gizmo,.hv-tl i{animation:none}.hv-ph{transform:translateX(-60%)}
+}
+/* rest while scrolling or off screen */
+html.is-scrolling .hv-grid::before,html.is-scrolling .hv-ph,html.is-scrolling .hv-track i,html.is-scrolling .hv-gizmo,html body.pro-page .ap-off .hv-grid::before,html body.pro-page .ap-off .hv-ph,html body.pro-page .ap-off .hv-track i,html body.pro-page .ap-off .hv-gizmo,html body.pro-page .ap-off .hv-tl i{animation-play-state:paused}

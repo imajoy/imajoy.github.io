@@ -40,7 +40,7 @@ class Player {
     this.fig.querySelector('.xp-fallback')?.remove();
     const head = this.fig.querySelector('.visual-heading'), cap = this.fig.querySelector('figcaption');
     if (this.fig.hasAttribute('data-shelf')) this.fig.append(root); else (head || this.fig).after(root); this.head = head;
-    if (head) { const dot = head.querySelector('.visual-dot'); const btn = document.createElement('button'); btn.type = 'button'; btn.className = 'xp-play'; btn.setAttribute('aria-label', 'Pause the demo'); btn.innerHTML = '<svg viewBox="0 0 24 24"><path class="pp" d="M7 5h3.5v14H7zM13.5 5H17v14h-3.5z"/></svg>'; (dot || head.lastElementChild || head).after(btn); dot && dot.remove(); this.btn = btn; btn.addEventListener('click', () => { this.user = !this.user; this.sync(); }); }
+    /* no play/pause button: the demo always runs on its own */
     if (cap && !this.fig.hasAttribute('data-keep-caption')) cap.textContent = 'Animated demo · based on the Wrapline Pro guide';
     this.root = root;
     const fit = () => { if (!this.frame) return; const s = this.frame.clientWidth / W; this.s = s; this.canvas.style.transform = `scale(${s})`; };

@@ -105,3 +105,17 @@ html[data-theme=dark] .attachment-status[data-error=true]:not(:empty){border-col
 .contact-field[data-valid=true] .required-star,.contact-consent[data-valid=true] .required-star{font-size:0;color:transparent}
 .contact-field[data-valid=true] .required-star::after,.contact-consent[data-valid=true] .required-star::after{content:"✓";display:inline-block;font-size:.8125rem;font-weight:800;color:#1B7958;animation:ct-pop .35s linear}
 @media(prefers-reduced-motion:reduce){.attachment-picker[data-state=error],.attachment-status[data-error=true]:not(:empty),.draft-meter.just-done #contact-ready-count,.contact-field[data-valid=true] .required-star::after{animation:none!important}}
+
+/* phones: compact dropzone so Send sits higher; consent reads as part of the form's validation */
+@media(max-width:700px){
+ .contact-form .attachment-picker{min-height:0!important;padding:10px 14px!important;gap:12px!important;border-radius:14px!important}
+ .attachment-picker .attachment-upload-icon{width:36px!important;height:36px!important;flex:none}
+ .attachment-picker .attachment-upload-icon svg{width:20px;height:20px}
+ .attachment-heading{margin-bottom:2px}#attachment-help{margin:0 0 8px!important;font-size:.74rem}
+ .contact-attachment{margin-block:6px}
+}
+.contact-consent{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid color-mix(in srgb,#e0a93a 55%,transparent);border-radius:14px;background:color-mix(in srgb,#e0a93a 11%,transparent);transition:background-color .2s linear,border-color .2s linear}
+.contact-consent:has(input:checked){border-color:color-mix(in srgb,#2FB583 55%,transparent);background:color-mix(in srgb,#2FB583 10%,transparent)}
+.contact-consent:has(input:focus-visible){outline:2px solid var(--blue,#3d8bff);outline-offset:2px}
+.contact-consent input{margin-top:2px;flex:none}
+.attachment-status:empty{display:none}

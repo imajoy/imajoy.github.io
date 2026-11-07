@@ -266,8 +266,26 @@ function sessionSecret_() {
 }
 function b64u_(bytes) { return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/, ''); }
 function sign_(text) { return b64u_(Utilities.computeHmacSha256Signature(text, sessionSecret_())); }
+var SESSION_MS_ = 30 * 24 * 3600 * 1000;
+/* Constant-time comparison so a signature cannot be guessed one character at a time. */
+function safeEq_(a, b) { a = String(a); b = String(b); if (a.length !== b.length) return false; var r = 0; for (var i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; }
+/* Sign-out and account deletion revoke every token issued before that moment. Entries older than a token's life are dropped. */
+function revocationKey_(email) { return sign_('revoke:' + email).slice(0, 22); }
+function revokedBefore_(email) {
+  try { return Number(JSON.parse(props_().getProperty('SESSION_REVOKED') || '{}')[revocationKey_(email)] || 0); } catch (err) { return 0; }
+}
+function revokeSessions_(email, lockHeld) {
+  var lock = lockHeld ? null : LockService.getScriptLock(); if (lock) lock.waitLock(10000);
+  try {
+    var map; try { map = JSON.parse(props_().getProperty('SESSION_REVOKED') || '{}'); } catch (err) { map = {}; }
+    var now = Date.now();
+    Object.keys(map).forEach(function (k) { if (now - Number(map[k]) > SESSION_MS_ + 86400000) delete map[k]; });
+    map[revocationKey_(email)] = now;
+    props_().setProperty('SESSION_REVOKED', JSON.stringify(map));
+  } finally { if (lock) lock.releaseLock(); }
+}
 function makeSession_(email, onlySub) {
-  var exp = Date.now() + 30 * 24 * 3600 * 1000, body = b64u_(Utilities.newBlob(email + '|' + exp + (onlySub ? '|' + onlySub : '')).getBytes());
+  var exp = Date.now() + SESSION_MS_, body = b64u_(Utilities.newBlob(email + '|' + exp + (onlySub ? '|' + onlySub : '')).getBytes());
   return body + '.' + sign_(body);
 }
 /* Returns {email, sub} ('sub' only for a sign-in that is limited to one subscription) or null. */
@@ -278,14 +296,17 @@ function readSession_(tok) {
     var i = tok.indexOf('.');
     if (i < 1) return null;
     var body = tok.slice(0, i);
-    if (sign_(body) !== tok.slice(i + 1)) return null;
+    if (!safeEq_(sign_(body), tok.slice(i + 1))) return null;
     var padded = body + '==='.slice(0, (4 - body.length % 4) % 4);
     var txt = Utilities.newBlob(Utilities.base64DecodeWebSafe(padded)).getDataAsString().split('|');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(txt[0]) || !Number.isFinite(Number(txt[1])) || Number(txt[1]) <= Date.now()) return null;
+    if (Number(txt[1]) - SESSION_MS_ <= revokedBefore_(txt[0])) return null;
     return { email: txt[0], sub: txt[2] || '', expiresAt: Number(txt[1]) };
   } catch (err) { return null; }
 }
 
+/* Six digits from the platform's secure random UUID source (Math.random is predictable). */
+function secureCode_() { var n = parseInt(Utilities.getUuid().replace(/-/g, '').slice(0, 12), 16); return String(100000 + (n % 900000)); }
 function hashCode_(email, code) { return b64u_(Utilities.computeHmacSha256Signature(email + ':' + code, sessionSecret_())); }
 function ordersFor_(email, onlySub) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
@@ -346,7 +367,7 @@ function cancelSubscription_(who, provider, ref) {
     try { MailApp.sendEmail({ to: ownerEmail_(), name: 'Wrapline Pro orders', subject: 'Subscription cancelled: ' + ref, body: who.email + ' cancelled their Wrapline Pro PayPal subscription ' + ref + '. Access continues until ' + (item.endsAt ? new Date(item.endsAt).toDateString() : 'the end of the paid period') + '.' }); } catch (e) {}
     return { ok: true, cancelled: true, endsAt: item.endsAt || '' };
   } catch (e) {
-    return { ok: false, error: 'unavailable', message: (e && e.message) || 'The subscription could not be cancelled. Please try again.' };
+    return { ok: false, error: e && e.code ? e.code : 'unavailable', message: e && e.code && e.message ? e.message : 'The subscription could not be cancelled. Please try again.' };
   }
 }
 /* Accounts are created only after a registration email code has been verified. */
@@ -386,6 +407,11 @@ function handleAccount_(d) {
     try { if (typeof invoiceBackfill_ === 'function' && !viewer.sub) invoiceBackfill_(viewer.email); } catch (e) { Logger.log('Invoice backfill: ' + e.message); }
     return { ok: true, email: viewer.email, subscriptions: subscriptionsFor_(viewer.email, viewer.sub), invoices: invoiceArchive_(viewer) };
   }
+  if (step === 'logout') {
+    var leaving = readSession_(d.token);
+    if (leaving) revokeSessions_(leaving.email);
+    return { ok: true };
+  }
   if (step === 'status' || step === 'identity') {
     var who = readSession_(d.token);
     if (!who) return { ok: false, error: 'expired' };
@@ -419,7 +445,7 @@ function handleAccount_(d) {
       var intent = !registered && ['register','auto'].indexOf(d.intent)>=0 ? 'register' : 'signin';
       if (!registered && intent !== 'register') return { ok: false, error: 'not_registered', registrationAvailable: true };
       cache.put('intent:' + email, intent, 120);
-      var code = String(Math.floor(100000 + Math.random() * 900000));
+      var code = secureCode_();
       var expiresAt=Date.now()+120000;
       cache.put('code:' + email, JSON.stringify({hash:hashCode_(email,code),expiresAt:expiresAt}), 120); cache.remove('tries:' + email);
       try { sendNoReply_({ to: email, name: 'Wrapline Pro (no-reply)', subject: 'Your Wrapline Pro sign-in code: ' + code,

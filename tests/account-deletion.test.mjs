@@ -29,6 +29,6 @@ test('Deletion removes the account and anonymizes ledger rows, but keeps other p
  assert(/^deleted-[a-z0-9]{8}$/.test(row[4]),'email anonymized: '+row[4]);
  assert.equal(row[5],'');assert.equal(row[10],'');assert.equal(row[0],'2026-01-01');assert.equal(row[6],'IN');
  assert.equal(keep[4],other);assert.equal(keep[5],'Other Person');
- assert.equal(app.call({step:'status',token}).error,'not_registered','old token no longer works');
+ assert.equal(app.call({step:'status',token}).error,'expired','old token no longer works');
  assert(/deleted/i.test(app.mails.at(-1).subject));
 });

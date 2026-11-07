@@ -188,3 +188,17 @@ body.ty-page .ty-first-ring{position:absolute;right:22px;bottom:14px;width:30px;
 body.ty-page [data-ty-state=verifying] .ty-first,body.ty-page [data-ty-state=verifying] .ty-manage{opacity:.55}
 @media (prefers-reduced-motion:reduce){body.ty-page .ty-first,body.ty-page .ty-first-file,body.ty-page .ty-first-ring{animation:none}body.ty-page .ty-first-file{transform:translate(30px,16px)}}
 @media (max-width:560px){body.ty-page .ty-first{flex-direction:column;align-items:flex-start}body.ty-page .ty-manage-main small{font-size:12.5px}}
+
+/* ---------- keep exploring ---------- */
+body.ty-page .ty-explore{margin-top:56px;padding-bottom:24px}
+body.ty-page .ty-explore-head h2{margin:0;font-size:clamp(22px,3vw,30px);letter-spacing:-.03em}
+body.ty-page .ty-explore-head p{margin:6px 0 20px;color:var(--mute)}
+body.ty-page .ty-explore-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+body.ty-page .ty-explore-grid a{position:relative;display:flex;flex-direction:column;gap:4px;padding:16px 38px 16px 16px;border-radius:16px;text-decoration:none;color:var(--ink);background:var(--card);border:1px solid color-mix(in srgb,var(--ty-a) 18%,transparent);transition:transform .35s var(--ty-ease),border-color .35s,box-shadow .35s var(--ty-ease)}
+body.ty-page .ty-explore-grid a:hover,body.ty-page .ty-explore-grid a:focus-visible{transform:translateY(-3px);border-color:var(--ty-a);box-shadow:0 18px 36px -22px var(--ty-a)}
+body.ty-page .ty-explore-grid b{font-size:15px;letter-spacing:-.01em}
+body.ty-page .ty-explore-grid span{font-size:13px;line-height:1.4;color:var(--mute)}
+body.ty-page .ty-explore-grid i{position:absolute;right:14px;top:16px;font-style:normal;color:var(--ty-a);transition:transform .35s var(--ty-ease)}
+body.ty-page .ty-explore-grid a:hover i{transform:translateX(4px)}
+@media(max-width:900px){body.ty-page .ty-explore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){body.ty-page .ty-explore{margin-top:40px}body.ty-page .ty-explore-grid{grid-template-columns:minmax(0,1fr)}}

@@ -110,7 +110,7 @@ function loadArchive(){
    body.append(print);details.append(body);box.append(details);
   }
   if('IntersectionObserver' in window){const reveal=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){archive.dataset.ready='true';reveal.disconnect();}},{threshold:.12});reveal.observe(archive);}else archive.dataset.ready='true';
-  $('ty-archive-note').textContent=data.archivePending?'Online invoices are being connected. Your existing invoices remain in your verified email inbox.':data.invoices.length?'Invoices are also sent to your verified email after each payment.':'No paid invoices yet. Trial payments appear here after they are collected.';
+  $('ty-archive-note').textContent=data.archivePending?'Online invoices are being connected. Your existing invoices remain in your verified email inbox.':data.invoices.length?'Invoices are also sent to your verified email after each payment.':(archiveMode?'No invoices here yet. Each paid or free order appears as soon as its invoice is issued.':'Payment received. Your invoice is being prepared and will appear here and in your email shortly. You don\'t need to do anything.');
  }).catch(()=>{if(archiveMode)state('problem','Could not load subscription','Please retry or contact support.');$('ty-archive-note').textContent='Could not load invoices. Please try again. Your emailed copies remain in your inbox.';}).finally(()=>{archiveLoading=false;retry.disabled=false;retry.textContent='Refresh invoices';});
 }
 document.getElementById('ty-invoice-retry').addEventListener('click',loadArchive);

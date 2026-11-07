@@ -52,3 +52,18 @@
   .commerce-header .back-link{display:none}
   .commerce-header .acct-btn{margin-left:auto;max-width:170px}
 }
+
+/* Phone header pill v2: one tidy capsule. Round theme button (it was squeezed into an oval),
+   even 40px controls, slimmer capsule, account label that never wraps or crowds the logo. */
+@media (max-width:680px){
+  html body .site-header .pillbar{gap:8px;padding:6px 6px 6px 12px;min-height:0;width:auto;max-width:calc(100vw - 24px)}
+  html body .site-header .pillbar .brand{gap:8px;min-height:40px;white-space:nowrap}
+  html body .site-header .pillbar .brand .mark{width:28px;height:28px;flex:none}
+  html body .site-header .pillbar .theme{flex:none;width:40px;height:40px;min-width:40px;padding:0;border-radius:50%}
+  html body .site-header .pillbar .acct-btn,html body .site-header .pillbar>a.btn-sm{flex:0 1 auto;min-height:40px;height:40px;padding:0 14px;font-size:.75rem;font-weight:600;line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;border-radius:999px}
+}
+@media (max-width:430px){
+  html body .site-header .pillbar:has(.acct-btn) .brand>span{display:none}
+  html body .site-header .pillbar{padding-left:8px}
+}
+@media (max-width:360px){html body .site-header .pillbar .acct-btn{max-width:128px;padding:0 11px;font-size:.6875rem}}

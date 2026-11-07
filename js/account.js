@@ -78,17 +78,53 @@ function init() {
   window.addEventListener('ajoy-account-open',event=>{purpose=event.detail?.purpose||'';if(event.detail?.email&&event.detail.email!==email){generation++;busy=false;step='email';codeDeadline=0;email=event.detail.email;msg='';}open();});
   function announce(text,error=false){msg=text;const n=body.querySelector('.acct-msg');if(n){n.textContent=text;n.dataset.error=String(error);} }
   function setBusy(value){busy=value;body.setAttribute('aria-busy',String(value));for(const button of body.querySelectorAll('button'))button.disabled=value;if(step==='code')syncCountdown();}
+  /* Delete my account and data: needs a fresh emailed code, auto-submits when the 6 digits are entered. */
+  let erasePanel=null;
+  const eraseErrors={active_subscription:'Your subscription still has access left. You can delete your account once it has ended.',code:'That code is not right. Check the email and try again.',code_expired:'That code has expired. Go back and ask for a new one.',limit:'Too many attempts. Please wait a few minutes and try again.',expired:'Your session expired. Sign in again to delete your account.',busy:'The service is busy. Please try again in a moment.'};
+  function renderErase(session){
+    const st=erasePanel;
+    if(st.stage==='done'){
+      body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Account deleted</p><h2 id="acct-title" tabindex="-1">Your data has been deleted.</h2><p class="acct-note">We emailed you a confirmation. Payment records we must keep for accounting are anonymized.</p><button class="btn btn-dark" type="button" data-close>Close</button>';
+      body.querySelector('[data-close]').onclick=()=>{erasePanel=null;dlg.close();};
+      return;
+    }
+    if(st.stage==='intro'){
+      body.innerHTML=accountIcon+'<p class="eyebrow">Delete account</p><h2 id="acct-title" tabindex="-1">Delete your account and data?</h2><p class="acct-note">This removes your account, reviews, contact messages and saved passkeys. Payment records we must keep for accounting are anonymized. <b>This cannot be undone.</b> A subscription that is active or still has access left must end first.</p>'+(st.msg?'<p class="acct-note acct-error" role="alert">'+esc(st.msg)+'</p>':'')+'<button class="btn btn-dark" type="button" data-send>Email me a confirmation code</button><button class="acct-link" type="button" data-back>Keep my account</button>';
+      body.querySelector('[data-back]').onclick=()=>{erasePanel=null;render();};
+      body.querySelector('[data-send]').onclick=async event=>{
+        const b=event.currentTarget;b.disabled=true;b.textContent='Sending…';
+        try{const r=await accountRequest({step:'code',email:session.email,intent:'signin'});
+          if(r.ok){erasePanel={stage:'code',msg:''};render();}else{erasePanel={stage:'intro',msg:eraseErrors[r.error]||'We could not send the code. Please try again.'};render();}
+        }catch(error){erasePanel={stage:'intro',msg:error.message};render();}
+      };
+      return;
+    }
+    body.innerHTML=accountIcon+'<p class="eyebrow">Delete account</p><h2 id="acct-title" tabindex="-1">Enter the code.</h2><p class="acct-note">We sent a 6-digit code to <b>'+esc(session.email)+'</b>. Entering it deletes your account right away.</p><input class="acct-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" aria-label="6-digit code" data-code>'+(st.msg?'<p class="acct-note acct-error" role="alert">'+esc(st.msg)+'</p>':'')+'<button class="acct-link" type="button" data-back>Cancel</button>';
+    const input=body.querySelector('[data-code]');input.focus();
+    body.querySelector('[data-back]').onclick=()=>{erasePanel=null;render();};
+    input.addEventListener('input',async()=>{
+      input.value=input.value.replace(/\D/g,'').slice(0,6);if(input.value.length<6)return;
+      input.disabled=true;
+      try{const r=await accountRequest({step:'erase',token:session.token,code:input.value},60000);
+        if(r.ok){erasePanel={stage:'done'};try{for(const k of Object.keys(localStorage))if(/^ajoy[.-]/.test(k)&&k!=='ajoy-theme')localStorage.removeItem(k);for(const k of Object.keys(sessionStorage))if(/^ajoy\./.test(k))sessionStorage.removeItem(k);}catch{}clearAccountSession();render();}
+        else{erasePanel={stage:r.error==='code_expired'||r.error==='active_subscription'?'intro':'code',msg:eraseErrors[r.error]||'We could not delete the account. Please try again.'};render();}
+      }catch(error){erasePanel={stage:'code',msg:error.message};render();}
+    });
+  }
   function render() {
     clearInterval(countdownTimer);
+    if(erasePanel&&erasePanel.stage==='done'){renderErase(null);return;}
     const session=reauthenticating?null:getAccountSession(),subs=session?.subscriptions;
     body.dataset.stage=session?'account':step;dlg.querySelector('.acct-close').setAttribute('aria-label',session?'Close account':'Close sign-in');body.setAttribute('aria-busy',String(busy));
+    if(session&&erasePanel){renderErase(session);return;}
     if(session){
       body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Your account</p><h2 id="acct-title" tabindex="-1">'+esc(session.email)+'</h2><p class="acct-note acct-sync" role="status">'+(updating?'Updating your subscription details…':offline?'Showing your saved account. Reconnect to update your details.':'Your verified account email is used automatically at checkout.')+'</p>'+
         (subs?.length>1&&totalDays(subs)?'<p class="acct-total">Total across your subscriptions: <b>'+dayWord(totalDays(subs))+' left</b></p>':'')+
         (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(subscriptionCard).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
         '<a class="acct-history-link" href="thank-you.html?history=1"><span class="acct-receipt-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Zm3 5h6M9 12h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>Purchases &amp; invoices</b><small>View your confirmations and receipts</small></span><span aria-hidden="true">→</span></a>'+
-        (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<div class="acct-footer"><p class="acct-note">Switching accounts?<br>Sign out to use another email.</p><button class="acct-link" type="button" data-out>Sign out <span aria-hidden="true">→</span></button></div>';
+        (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<div class="acct-footer"><p class="acct-note">Switching accounts?<br>Sign out to use another email.</p><button class="acct-link" type="button" data-out>Sign out <span aria-hidden="true">→</span></button></div><button class="acct-link acct-erase" type="button" data-erase>Delete my account and data</button>';
+      body.querySelector('[data-erase]').onclick=()=>{erasePanel={stage:'intro',msg:''};render();};
       body.querySelector('[data-out]').onclick=()=>{generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
       body.querySelector('[data-retry]')?.addEventListener('click',status);
       for(const stop of body.querySelectorAll('[data-cancel-index]'))stop.addEventListener('click',async()=>{

@@ -95,3 +95,10 @@ html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
 .acct-form label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 .acct-form input::placeholder{color:var(--mute,#8a94a8);opacity:.8}
 .acct-privacy{font-size:12.5px;margin-top:18px;text-align:center}
+
+/* delete my account */
+.acct-erase{display:block;margin:14px auto 0;font-size:.78rem;color:var(--mute,#6b7488);opacity:.85;text-decoration:underline;text-underline-offset:3px}
+.acct-erase:hover{color:#c4352b;opacity:1}
+.acct-input{width:100%;margin:14px 0 6px;padding:14px 16px;border-radius:14px;border:1.5px solid var(--line,#dfe3ec);background:var(--card,#fff);color:var(--ink,#111);font:600 1.4rem/1 var(--mono,ui-monospace,monospace);letter-spacing:.5em;text-align:center}
+.acct-input:focus{outline:2px solid var(--blue,#3d8bff);outline-offset:2px}
+.acct-error{color:#c4352b}

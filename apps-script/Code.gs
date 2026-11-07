@@ -395,6 +395,7 @@ function handleAccount_(d) {
     if (step === 'status') account.subscriptions = subscriptionsFor_(who.email, who.sub);
     return account;
   }
+  if (step === 'erase') return handleErase_(d);
   if (step === 'cancel') {
     var owner = readSession_(d.token);
     if (!owner) return { ok: false, error: 'expired' };
@@ -637,7 +638,7 @@ function setupPlans() {
 function testEmail() {
   var to = ownerEmail_();
   MailApp.sendEmail({ to: to, subject: 'Wrapline Pro test email', body: 'If you can read this, the order emails can be sent. Remaining daily email quota: ' + MailApp.getRemainingDailyQuota() });
-  Logger.log('Sent to ' + to);
+  Logger.log('Test email sent to the owner address [REDACTED].');
 }
 
 /* Run once after renaming the toolkit (Ajoy Tools -> Wrapline Pro): renames every PayPal plan this

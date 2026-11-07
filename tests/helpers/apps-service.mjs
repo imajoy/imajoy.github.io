@@ -12,7 +12,7 @@ export function service({registered=true,mailFails=false,strictEmail=false}={}){
  const paypalMissing=new Set(),paypalOrders=new Map();
  function table(name,initial=[[]]){
   const rows=initial;
-  const sheet={rows,clear:()=>{rows.length=0;return sheet;},setHiddenGridlines:()=>sheet,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},deleteRow:index=>{rows.splice(index-1,1);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
+  const sheet={rows,getName:()=>name,getLastColumn:()=>Math.max(0,...rows.map(r=>r.length)),clear:()=>{rows.length=0;return sheet;},setHiddenGridlines:()=>sheet,getLastRow:()=>rows.length,appendRow:row=>{rows.push([...row]);return sheet;},deleteRow:index=>{rows.splice(index-1,1);return sheet;},setFrozenRows:()=>sheet,setRowHeight:()=>sheet,setColumnWidth:()=>sheet,setTabColor:()=>sheet,
    getRange:(row,col,height=1,width=1)=>{const range={getValues:()=>Array.from({length:height},(_,r)=>Array.from({length:width},(_,c)=>rows[row+r-1]?.[col+c-1]??'')),setValues:data=>{data.forEach((r,i)=>r.forEach((v,j)=>{rows[row+i-1]??=[];rows[row+i-1][col+j-1]=v;}));return range;},setValue:v=>{rows[row-1]??=[];rows[row-1][col-1]=v;return range;}};for(const n of ['setNumberFormat','setBackground','setFontColor','setFontWeight','setVerticalAlignment','setFontStyle','setFontSize','setFontFamily','setHorizontalAlignment','setWrapStrategy'])range[n]=()=>range;return range;}};
   sheets.set(name,sheet);return sheet;
  }
@@ -23,7 +23,7 @@ export function service({registered=true,mailFails=false,strictEmail=false}={}){
  const ctx=createContext({console,PropertiesService:{getScriptProperties:()=>({getProperty:k=>values.get(k)||null,setProperty:(k,v)=>values.set(k,v),deleteProperty:k=>values.delete(k)})},
   Utilities:{formatDate:(date,zone,pattern)=>{const d=new Date(date.getTime()+19800000),M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return pattern.replace('yyyy',d.getUTCFullYear()).replace('MMM',M[d.getUTCMonth()]).replace('MM',String(d.getUTCMonth()+1).padStart(2,'0')).replace('d ',d.getUTCDate()+' ');},getUuid:randomUUID,DigestAlgorithm:{SHA_1:'sha1'},computeDigest:(algorithm,bytes)=>[...createHash(algorithm).update(Buffer.from(bytes)).digest()],base64Decode:text=>[...Buffer.from(text,'base64')],base64Encode:value=>Buffer.from(value).toString('base64'),base64EncodeWebSafe:bytes=>Buffer.from(bytes).toString('base64url'),base64DecodeWebSafe:text=>[...Buffer.from(text,'base64url')],newBlob:blob,computeHmacSha256Signature:(text,key)=>[...createHmac('sha256',key).update(text).digest()]},
   LockService:{getScriptLock:()=>lock},CacheService:{getScriptCache:()=>({get:k=>cache.get(k)||null,put:(k,v)=>cache.set(k,v),remove:k=>cache.delete(k)})},
-  SpreadsheetApp:{WrapStrategy:{CLIP:'CLIP'},getActiveSpreadsheet:()=>({getSheetByName:name=>sheets.get(name)||null,insertSheet:name=>table(name,[])})},
+  SpreadsheetApp:{WrapStrategy:{CLIP:'CLIP'},getActiveSpreadsheet:()=>({getSheets:()=>[...sheets.values()],getSheetByName:name=>sheets.get(name)||null,insertSheet:name=>table(name,[])})},
   MailApp:{sendEmail:message=>{if(mailFails)throw Error('Mail service unavailable');mails.push(message);}},Session:{getEffectiveUser:()=>({getEmail:()=> 'owner@example.com'})},
   UrlFetchApp:{fetch:(url,options={})=>{
    requests.push({url,options});
@@ -81,7 +81,7 @@ export function service({registered=true,mailFails=false,strictEmail=false}={}){
    return result({},404);
   }},ContentService:{MimeType:{JSON:'json'},createTextOutput:()=>({setMimeType(){return this;},setContent(text){this.text=text;return this;}})}
  });
- for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs','Billing.gs','Payments.gs','Reviews.gs','Donations.gs','Invoices.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
+ for(const name of ['Code.gs','Loyalty.gs','Commerce.gs','Passkeys.gs','Razorpay.gs','Billing.gs','Payments.gs','Reviews.gs','Donations.gs','Invoices.gs','AccountDeletion.gs'])runInContext(readFileSync(new URL('../../apps-script/'+name,import.meta.url),'utf8'),ctx);
  ctx.archivePayPalCatalog_({tiers});
  const currentTiers=JSON.parse(JSON.stringify(tiers).replaceAll('P-','P-CURRENT-'));
  values.set('PLANS_sandbox',JSON.stringify({productId:'PROD-TEST',tiers:currentTiers,priceVersion:ctx.PRICE_VERSION,prices:ctx.PRICES}));

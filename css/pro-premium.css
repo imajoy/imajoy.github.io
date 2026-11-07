@@ -140,3 +140,27 @@ body.pro-page #tools li:hover b[data-key]::after,body.pro-page #tools li:focus-w
  body.pro-page #tools .tl li:has(b[data-key]){background:linear-gradient(100deg,color-mix(in srgb,#e0a93a 12%,transparent),transparent 70%)}
  body.pro-page #tools b[data-key]::after{display:table;margin:5px 0 0}
 }
+
+/* ---- landing-page feel: word-by-word headings + scrubbed (scroll-linked) drift on blocks ---- */
+html.pr-on body.pro-page .pp-words .pw{display:inline-block;overflow:hidden;vertical-align:top;padding-bottom:.12em;margin-bottom:-.12em}
+html.pr-on body.pro-page .pp-words .pw>span{display:inline-block;transform:translate3d(0,112%,0);transition:transform .8s cubic-bezier(.22,1,.36,1);transition-delay:calc(var(--wi,0)*55ms + 80ms)}
+html.pr-on body.pro-page .pp-words.pr-in .pw>span,html.pr-on body.pro-page .pp-words:is(.pr-in) .pw>span{transform:none}
+html.pr-on body.pro-page .pp-words[data-pr="clip"]:not(.pr-in){opacity:1;transform:none}
+html.pr-on body.pro-page .pp-words[data-pr="clip"].pr-in{animation:none}
+@keyframes pp-drift{0%{translate:0 56px}30%{translate:0 0}72%{translate:0 0}100%{translate:0 -24px}}
+@keyframes pp-drift-s{0%{translate:0 34px;scale:.975}35%{translate:0 0;scale:1}100%{translate:0 0;scale:1}}
+@supports (animation-timeline:view()){
+ @media(min-width:701px) and (prefers-reduced-motion:no-preference){
+  html.pr-on body.pro-page :is(#workflows .workflow-panel,#trial .trial-stage,#install .inst-stage,#pricing .plan,.closing .frame-inner){animation:pp-drift-s linear both;animation-timeline:view();animation-range:entry 0% entry 80%}
+  html.pr-on body.pro-page :is(#tools .head,#pricing .head,#faq .faq-wrap .head,#install .inst-copy){animation:pp-drift linear both;animation-timeline:view();animation-range:entry 0% exit 100%}
+ }
+ @media(max-width:700px) and (prefers-reduced-motion:no-preference){
+  html.pr-on body.pro-page :is(#workflows .workflow-panel,#trial .trial-stage,#install .inst-stage,#pricing .plan,.closing .frame-inner){animation:pp-drift-s linear both;animation-timeline:view();animation-range:entry 0% entry 70%}
+ }
+}
+@media(prefers-reduced-motion:reduce){html.pr-on body.pro-page .pp-words .pw>span{transform:none!important;transition:none!important}}
+/* gradient italics inside split headings: paint the gradient on each word, not on the (now empty) em box */
+html body.pro-page .pp-words em{background:none!important;-webkit-text-fill-color:currentColor;padding-right:0}
+html body.pro-page :is(.block,.frame-inner) .pp-words em .pw>span{background:linear-gradient(100deg,var(--gold-3),var(--gold-2) 45%,var(--blue-d));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;padding-right:.08em}
+html[data-theme=dark] body.pro-page :is(.block,.frame-inner) .pp-words em .pw>span{background-image:linear-gradient(100deg,#ffe2a8,#f2b64f 45%,#8dbbff)}
+html body.pro-page .trial-stage .pp-words em .pw>span{-webkit-text-fill-color:#9CC3FF;color:#9CC3FF;background:none}

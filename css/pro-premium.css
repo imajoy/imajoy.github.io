@@ -118,7 +118,9 @@ html.pr-on body.pro-page #faq details:not(.pr-in){transform:translate3d(30px,0,0
 /* soft seams: the dark workflow band melts into the light sections above and below instead of a hard edge */
 body.pro-page{--seam:var(--bg)}
 html body.pro-page #workflows{position:relative}
-html body.pro-page #workflows::before,html body.pro-page #workflows::after{display:block;content:"";position:absolute;left:0;right:0;width:100%;max-width:none;margin:0;transform:none;translate:none;opacity:1;inset-inline:0;height:clamp(110px,12vw,170px);pointer-events:none;z-index:0;filter:none;animation:none;border-radius:0}
-html body.pro-page #workflows::before{top:0;bottom:auto;background:linear-gradient(to bottom,var(--seam) 0%,color-mix(in srgb,var(--seam) 55%,transparent) 35%,transparent 100%)}
-html body.pro-page #workflows::after{bottom:0;top:auto;background:linear-gradient(to top,var(--seam) 0%,color-mix(in srgb,var(--seam) 55%,transparent) 35%,transparent 100%)}
+html body.pro-page #workflows::before,html body.pro-page #workflows::after{display:block;content:"";position:absolute;left:0;right:0;width:100%;max-width:none;margin:0;transform:none;translate:none;opacity:1;inset-inline:0;height:clamp(130px,14vw,200px);pointer-events:none;z-index:0;filter:none;animation:none;border-radius:0}
+html body.pro-page #workflows::before{top:0;bottom:auto;background:linear-gradient(to bottom,var(--seam) 0%,#E3E8F4 14%,#B7C3E0 32%,#6C7FB5 54%,#26366B 76%,#0B1330 92%,#070B1A 100%)}
+html body.pro-page #workflows::after{bottom:0;top:auto;background:linear-gradient(to top,var(--seam) 0%,#E3E8F4 14%,#B7C3E0 32%,#6C7FB5 54%,#26366B 76%,#0B1330 92%,#070B1A 100%)}
+html[data-theme=dark] body.pro-page #workflows::before{background:linear-gradient(to bottom,var(--seam),#070B1A)}
+html[data-theme=dark] body.pro-page #workflows::after{background:linear-gradient(to top,var(--seam),#070B1A)}
 html body.pro-page #workflows>.wrap{position:relative;z-index:1;padding-top:clamp(40px,6vw,80px);padding-bottom:clamp(40px,6vw,80px)}

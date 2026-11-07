@@ -1,0 +1,23 @@
+# Secrets and local settings: never commit these
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+service-account*.json
+credentials*.json
+secrets*.json
+coupons.private.json
+*.private.json
+
+# Local tooling
+node_modules/
+.DS_Store
+Thumbs.db
+*.log
+.supabase/
+supabase/.temp/
+supabase/.branches/
+.vscode/

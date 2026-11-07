@@ -1,5 +1,6 @@
 /* Called only after commerce envelope signature/nonce validation. Browser emails grant no role. */
-function billingTester_(who){return !!who&&!who.sub&&who.email==='contactmy3dart@gmail.com';}
+/* The tester account is set privately in Script properties (BILLING_TESTER_EMAIL), never written in code. */
+function billingTester_(who){var t=String(props_().getProperty('BILLING_TESTER_EMAIL')||'').trim().toLowerCase();return !!t&&!!who&&!who.sub&&String(who.email||'').toLowerCase()===t;}
 function billingCountryValid_(value){return typeof value==='string'&&/^[A-Z]{2}$/.test(value)&&['XX','ZZ','EU'].indexOf(value)<0;}
 function billingNetworkReason_(network){
   if(!billingCountryValid_(network.country))return 'country_unavailable';

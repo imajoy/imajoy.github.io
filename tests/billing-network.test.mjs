@@ -26,20 +26,20 @@ test('Missing keys, quota errors and malformed results never imply a clear conne
  const s=lookup({},{key:''});assert.equal((await s.run(req())).status,'unavailable');assert(!s.calls.some(u=>u.includes('proxycheck.io')));
  const untrusted=lookup({});assert.deepEqual(await untrusted.run(new Request('https://example.test/',{headers:{'x-forwarded-for':ip}})),{country:'',status:'unavailable'});assert.equal(untrusted.calls.length,0);
 });
-function setup(){const app=service();app.values.set('BILLING_POLICY_ENABLED','true');return app;}
+function setup(){const app=service();app.values.set('BILLING_POLICY_ENABLED','true');app.values.set('BILLING_TESTER_EMAIL','owner@example.com');return app;}
 test('Only a verified full tester account can edit countries or bypass reputation checks',()=>{
  const app=setup(),buyer=app.ctx.makeSession_('buyer@example.com');
- app.register('contactmy3dart@gmail.com');const owner=app.ctx.makeSession_('contactmy3dart@gmail.com');
+ app.register('owner@example.com');const owner=app.ctx.makeSession_('owner@example.com');
  for(const status of ['vpn','unavailable','clear']){
   const regular=app.rpc('billing_context',{accountToken:buyer,billingNetwork:{country:'US',status}});
   assert.equal(regular.canEditCountry,false);assert.equal(regular.blocked,status!=='clear');
   const tester=app.rpc('billing_context',{accountToken:owner,billingNetwork:{country:'US',status}});
   assert.equal(tester.canEditCountry,true);assert.equal(tester.blocked,false);
  }
- const guest=app.rpc('billing_context',{email:'contactmy3dart@gmail.com',isOwner:true,billingNetwork:{country:'US',status:'vpn'}});
+ const guest=app.rpc('billing_context',{email:'owner@example.com',isOwner:true,billingNetwork:{country:'US',status:'vpn'}});
  assert.equal(guest.canEditCountry,false);assert.equal(guest.blocked,true);
  assert.equal(app.rpc('billing_context',{accountToken:owner+'forged'}).error,'signin_required');
- assert.equal(app.ctx.billingTester_({email:'contactmy3dart@gmail.com',sub:'I-RESTRICTED'}),false);
+ assert.equal(app.ctx.billingTester_({email:'owner@example.com',sub:'I-RESTRICTED'}),false);
 });
 test('PayPal billing fails closed and rejects country changes even within the same price tier',()=>{
  const app=setup(),accountToken=app.ctx.makeSession_('buyer@example.com');
@@ -50,9 +50,9 @@ test('PayPal billing fails closed and rejects country changes even within the sa
  assert.equal(app.rpc('eligibility',{accountToken,billingNetwork:{country:'',status:'clear'}}).error,'country_unavailable');
 });
 test('Verified tester can test another country but provider restrictions remain enforced',()=>{
- const app=setup();app.register('contactmy3dart@gmail.com');const accountToken=app.ctx.makeSession_('contactmy3dart@gmail.com');
+ const app=setup();app.register('owner@example.com');const accountToken=app.ctx.makeSession_('owner@example.com');
  const data={billingCountry:'CA',billingNetwork:{country:'US',status:'vpn'}};
- app.ctx.billingApply_(data,{email:'contactmy3dart@gmail.com'});assert.equal(data.country,'CA');
+ app.ctx.billingApply_(data,{email:'owner@example.com'});assert.equal(data.country,'CA');
  const blocked=app.rpc('rewards',{accountToken,plan:'online',billing:'monthly',seats:1,billingCountry:'RU',billingNetwork:{country:'US',status:'vpn'}});
  assert.equal(blocked.ok,false);assert.notEqual(blocked.error,'vpn_detected');
 });
@@ -60,7 +60,7 @@ test('Gateway discards browser network and role claims and signs only server net
  const app=setup(),accountToken=app.ctx.makeSession_('buyer@example.com');let payload;
  const env=k=>({ALLOWED_ORIGINS:'https://imajoy.github.io',BILLING_POLICY_ENABLED:'true',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
  const request=async(url,options)=>{const envelope=JSON.parse(options.body);payload=JSON.parse(envelope.payload);return Response.json(JSON.parse(app.ctx.doPost({postData:{contents:options.body}}).text));};
- const response=await handleCommerceRequest(new Request('https://edge.test/commerce/billing-context',{method:'POST',headers:{Origin:'https://imajoy.github.io'},body:JSON.stringify({accountToken,email:'contactmy3dart@gmail.com',isOwner:true,billingNetwork:{country:'IN',status:'clear'}})}),env,request,async()=>({country:'US',status:'vpn'}));
+ const response=await handleCommerceRequest(new Request('https://edge.test/commerce/billing-context',{method:'POST',headers:{Origin:'https://imajoy.github.io'},body:JSON.stringify({accountToken,email:'owner@example.com',isOwner:true,billingNetwork:{country:'IN',status:'clear'}})}),env,request,async()=>({country:'US',status:'vpn'}));
  assert.deepEqual(payload.billingNetwork,{country:'US',status:'vpn'});assert.equal(payload.isOwner,undefined);assert.equal(payload.email,undefined);assert(!JSON.stringify(payload).includes(ip));
  const result=await response.json();assert.equal(result.blocked,true);assert.equal(result.canEditCountry,false);
 });
@@ -97,19 +97,19 @@ test('VPN off requires no provider key and does not disable verified tester coun
  const calls=[],env=k=>k==='COMMERCE_CLIENT_IP_HEADER'?'cf-connecting-ip':undefined;
  const network=await createBillingNetworkLookup(async url=>{calls.push(url);return Response.json({country:'US'});},env)(req());
  assert.deepEqual(network,{country:'US',status:'disabled',vpnEnabled:false});assert.equal(calls.length,1);assert(!calls.some(u=>u.includes('proxycheck.io')));
- const app=service();app.register('contactmy3dart@gmail.com');
- const accountToken=app.ctx.makeSession_('contactmy3dart@gmail.com');
+ const app=service();app.values.set('BILLING_TESTER_EMAIL','owner@example.com');app.register('owner@example.com');
+ const accountToken=app.ctx.makeSession_('owner@example.com');
  const context=app.rpc('billing_context',{accountToken,billingNetwork:network});assert.equal(context.canEditCountry,true);assert.equal(context.blocked,false);
  const selection={billingCountry:'CA',billingNetwork:network};app.ctx.billingApply_(selection,app.ctx.commerceWho_(accountToken));assert.equal(selection.country,'CA');
  assert.equal(app.rpc('rewards',{accountToken:app.ctx.makeSession_('buyer@example.com'),plan:'online',billing:'monthly',seats:1,billingCountry:'CA',billingNetwork:network}).error,'country_mismatch');
 });
 test('Real signed gateway permits only the verified tester override with no VPN configuration',async()=>{
- const app=service();app.register('contactmy3dart@gmail.com');
+ const app=service();app.values.set('BILLING_TESTER_EMAIL','owner@example.com');app.register('owner@example.com');
  const env=k=>({ALLOWED_ORIGINS:'https://imajoy.github.io',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
  const upstream=async(url,options)=>url.startsWith('https://api.country.is/')?Response.json({country:'US'}):Response.json(JSON.parse(app.ctx.doPost({postData:{contents:options.body}}).text));
- for(const email of ['contactmy3dart@gmail.com','buyer@example.com']){
+ for(const email of ['owner@example.com','buyer@example.com']){
   const response=await handleCommerceRequest(new Request('https://edge.test/commerce/rewards',{method:'POST',headers:{Origin:'https://imajoy.github.io','cf-connecting-ip':ip},body:JSON.stringify({accountToken:app.ctx.makeSession_(email),plan:'online',billing:'monthly',seats:1,country:'CA'})}),env,upstream);
-  const result=await response.json();assert.equal(result.ok,email==='contactmy3dart@gmail.com',JSON.stringify(result));
-  if(email!=='contactmy3dart@gmail.com')assert.equal(result.error,'country_mismatch');
+  const result=await response.json();assert.equal(result.ok,email==='owner@example.com',JSON.stringify(result));
+  if(email!=='owner@example.com')assert.equal(result.error,'country_mismatch');
  }
 });

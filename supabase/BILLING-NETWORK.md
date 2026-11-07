@@ -2,7 +2,7 @@
 
 **VPN protection is disabled by default.** Country detection, locking and the verified testing-account exception work independently. No ProxyCheck.io account or API key is needed for these country features.
 
-Only a verified full account session for **contactmy3dart@gmail.com** can edit the country. A typed email, cached account label or browser claim cannot authorize editing. Ordinary visitors see the detected country without a dropdown arrow. Provider availability, trial limits, subscription ownership and payment verification still apply to the tester.
+Only a verified full account session for the owner account named in the private Apps Script property **BILLING_TESTER_EMAIL** can edit the country. A typed email, cached account label or browser claim cannot authorize editing. Ordinary visitors see the detected country without a dropdown arrow. Provider availability, trial limits, subscription ownership and payment verification still apply to the tester.
 
 ## Deploy the country-edit fix
 
@@ -19,7 +19,7 @@ npx.cmd supabase@latest functions deploy razorpay --project-ref wsadhewcmpdhojgq
 ```
 
 4. Leave **BILLING_VPN_ENABLED** unset or set it to **false** in Supabase secrets. The old BILLING_POLICY_ENABLED setting is no longer needed to unlock the tester account. Do not enable VPN checks to fix country editing.
-5. Hard-refresh checkout, then sign in as contactmy3dart@gmail.com. After the server confirms the account, the country dropdown becomes editable. Signing out locks it again. Subscription-status updates for the same session no longer restart location verification.
+5. Hard-refresh checkout, then sign in as that owner account. After the server confirms the account, the country dropdown becomes editable. Signing out locks it again. Subscription-status updates for the same session no longer restart location verification.
 
 Your existing verified **COMMERCE_CLIENT_IP_HEADER** remains necessary to locate ordinary visitors. Supported values are cf-connecting-ip or x-real-ip only after verifying that your ingress overwrites the header with the actual visitor IP. Never use arbitrary X-Forwarded-For or guess a header to bypass a failed check. Unknown country blocks ordinary checkout; the verified tester may still choose one.
 

@@ -69,3 +69,8 @@ Add Passkeys.gs, update Commerce.gs and deploy the new Supabase passkeys functio
 The account dialog now links to **Purchases & invoices** and to each active subscription's confirmation. The protected `account` action `step: history` in `Code.gs` returns subscriptions and invoice rows for the email in the signed session token; `Invoices.gs` supplies the read-only invoice archive. The website never accepts an email supplied by the browser as invoice ownership. Archived invoices remain available to the verified account after a subscription ends.
 
 Publish **both `Code.gs` and `Invoices.gs`** to the existing Apps Script project, then choose **Deploy → Manage deployments → Edit → New version → Deploy**. Keep the current URL and permissions. The GitHub Pages update alone does not activate the account history endpoint. Until this deployment, verified confirmations reopen through the existing account status service and the invoice section points buyers to their email. Invoices already emailed remain in customers' inboxes; this archive lists rows that exist in the `Invoices` sheet.
+
+## Script properties that replaced hard-coded values
+
+- `BILLING_TESTER_EMAIL`: the one account allowed to test another billing country. It used to be written in `Billing.gs`; set it (Project Settings > Script properties) **before** pasting the new `Billing.gs`, otherwise nobody gets the tester override.
+- `REPLY_TO`: the address buyers can reply to. If unset it now falls back to `OWNER_EMAIL` (or the script owner's account) instead of a fixed address.

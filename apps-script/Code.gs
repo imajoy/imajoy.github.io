@@ -11,9 +11,8 @@
    Never paste the PayPal Secret into this file. */
 var SHEET_NAME = 'Sheet1';
 var ORDERS_SHEET = 'Orders';
-var DEFAULT_REPLY = 'contactmy3dart@gmail.com';
 /* Optional Script properties: OWNER_EMAIL = where YOUR order reminders go (default: the Google account that owns this script);
-   REPLY_TO = the address buyers see and can reply to (default below). */
+   REPLY_TO = the address buyers see and can reply to (default: OWNER_EMAIL, or the script owner's account). */
 function ownerEmail_() { return props_().getProperty('OWNER_EMAIL') || Session.getEffectiveUser().getEmail(); }
 /* Automatic emails nobody should answer (sign-in codes). Google only lets Workspace accounts send from a real no-reply
    address; on a normal Gmail account the option is ignored, so the sender name and the text say it is automatic. */
@@ -21,7 +20,7 @@ function sendNoReply_(message) {
   try { MailApp.sendEmail(Object.assign({ noReply: true }, message)); }
   catch (err) { MailApp.sendEmail(message); }
 }
-function replyTo_() { return props_().getProperty('REPLY_TO') || DEFAULT_REPLY; }
+function replyTo_() { return props_().getProperty('REPLY_TO') || ownerEmail_(); }
 
 function props_() { return PropertiesService.getScriptProperties(); }
 function mode_() { return props_().getProperty('PAYPAL_MODE') === 'live' ? 'live' : 'sandbox'; }

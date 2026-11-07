@@ -8,8 +8,8 @@ const base=new URL(process.argv[2]||'http://localhost:8798/');
 const browser=await chromium.launch({executablePath:process.env.CHROMIUM_PATH,args:['--no-sandbox']});
 try{
  for(const width of [390,1280]){
-  const app=service();app.values.set('BILLING_POLICY_ENABLED','true');app.register('contactmy3dart@gmail.com');
-  const buyer=app.ctx.makeSession_('buyer@example.com'),owner=app.ctx.makeSession_('contactmy3dart@gmail.com');
+  const app=service();app.values.set('BILLING_POLICY_ENABLED','true');app.values.set('BILLING_TESTER_EMAIL','owner@example.com');app.register('owner@example.com');
+  const buyer=app.ctx.makeSession_('buyer@example.com'),owner=app.ctx.makeSession_('owner@example.com');
   let status='clear',checks=0;const errors=[];
   const context=await browser.newContext({viewport:{width,height:900},reducedMotion:'reduce'}),page=await context.newPage();
   page.on('pageerror',error=>errors.push(error.message));
@@ -39,15 +39,15 @@ try{
   await page.evaluate(()=>scrollTo(0,500));assert.equal(await page.locator('.m-total.on').count(),0);
   await page.locator('[data-network-signin]').click();await page.locator('#account-dialog[open]').waitFor();
   // Reload closes the local account dialog; seed a real signed owner session.
-  await account(owner,'contactmy3dart@gmail.com');await ready();assert.equal(await page.locator('#country').isDisabled(),false);
+  await account(owner,'owner@example.com');await ready();assert.equal(await page.locator('#country').isDisabled(),false);
   await page.selectOption('#country','CA');assert.equal(await page.locator('#country').inputValue(),'CA');
   await account(null);await page.getByRole('heading',{name:'Turn off your VPN to continue'}).waitFor();assert(await page.locator('#country').isDisabled());
   status='unavailable';await page.locator('[data-network-retry]').click();await page.getByText('We could not complete the network check.',{exact:false}).waitFor();
   assert.equal(await page.getByRole('heading',{name:'Turn off your VPN to continue'}).count(),0);
   status='clear';await page.locator('[data-network-retry]').click();await ready();assert(await page.locator('.checkout-grid').isVisible());
-  await account(buyer,'contactmy3dart@gmail.com');await ready();assert(await page.locator('#country').isDisabled());
+  await account(buyer,'owner@example.com');await ready();assert(await page.locator('#country').isDisabled());
   status='disabled';app.values.set('BILLING_POLICY_ENABLED','false');
-  await page.evaluate(async({owner})=>{const m=await import('./js/account-session.js?v=20261023-p7');m.setAccountSession({token:owner,email:'contactmy3dart@gmail.com',expiresAt:Date.now()+864e5,subscriptions:[]});},{owner});
+  await page.evaluate(async({owner})=>{const m=await import('./js/account-session.js?v=20261023-p7');m.setAccountSession({token:owner,email:'owner@example.com',expiresAt:Date.now()+864e5,subscriptions:[]});},{owner});
   await page.waitForFunction(()=>document.querySelector('#country').disabled===false);
   assert(await page.locator('.checkout-grid').isVisible());
   const before=checks;

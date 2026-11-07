@@ -1,6 +1,6 @@
 /* One light reveal for the Pro page: each block animates in as it arrives, from the side you scroll from, and plays again when you scroll back. */
 (function(){
- if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ if(!('IntersectionObserver' in window))return;
  var sel='#workflows .head h2,#workflows .head .sub,#install .steps li,#faq details,#workflows .head,#workflows .workflow-panel,#trial .trial-stage,#tools .head h2,#tools .head,#tools .tile,#install .inst-copy,#install .inst-stage,#pricing .head h2,#pricing .head,#pricing .plan,#faq .faq-wrap>*,.closing .frame-inner';
  var items=[].slice.call(document.querySelectorAll(sel));
  var timers=new WeakMap();

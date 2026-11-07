@@ -1,6 +1,6 @@
 /* One light reveal for the Wrapline (free) page: blocks animate in as they arrive, from the side you scroll from, and play again when you scroll back. */
 (function(){
- if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+ if(!('IntersectionObserver' in window))return;
  var sel='#tools .head,#tools .ft-card,#workflows .head,#workflows .workflow-panel,#get .head,#get .ft-steps li,#get .ft-get-cta,#coffee .ft-coffee-card,#coffee .ft-rights li,#pro .free-pro,#faq .faq-wrap>*';
  var items=[].slice.call(document.querySelectorAll(sel));
  var timers=new WeakMap();

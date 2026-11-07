@@ -82,7 +82,8 @@ body.pro-page .frame-inner{padding-block:clamp(72px,9vw,120px)}
 body.pro-page .frame-inner h2{font-size:clamp(34px,5vw,64px);letter-spacing:-.055em}
 
 @media(max-width:700px){body.pro-page .block h2{font-size:clamp(32px,10vw,46px)}body.pro-page #workflows .workflow-panel{border-radius:24px}}
-@media(prefers-reduced-motion:reduce){html.pr-on body.pro-page [data-pr]:not(.pr-in){opacity:1;transform:none}}
+/* reduced motion: no travel, just a soft fade so blocks still arrive */
+@media(prefers-reduced-motion:reduce){html.pr-on body.pro-page [data-pr]:not(.pr-in){opacity:0;transform:none!important;clip-path:none!important}html.pr-on body.pro-page [data-pr]{transition:opacity .6s linear!important;transition-delay:0s!important}html.pr-on body.pro-page [data-pr].pr-in{animation:none!important}}
 
 
 /* =====================================================================================================================

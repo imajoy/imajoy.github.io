@@ -95,7 +95,7 @@ html.pr-on body.free-page [data-pr]:not(.pr-in){opacity:0;transform:translate3d(
 html.pr-on body.free-page [data-pr]{transition:opacity .75s var(--fr-ease),transform .85s var(--fr-ease);transition-delay:calc(var(--pr-i,0)*70ms)}
 html.pr-on body.free-page [data-pr].pr-in{opacity:1;transform:none}
 body.free-page .ft-card.reveal,body.free-page .reveal{transition-delay:0s}
-@media(prefers-reduced-motion:reduce){html.js:not(.fr-go) body.free-page .ft-hero *{opacity:1!important;transform:none!important}.ft-stk span{animation:none!important}html.pr-on body.free-page [data-pr]:not(.pr-in){opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){html.js:not(.fr-go) body.free-page .ft-hero *{opacity:1!important;transform:none!important}.ft-stk span{animation:none!important}html.pr-on body.free-page [data-pr]:not(.pr-in){opacity:0;transform:none!important}html.pr-on body.free-page [data-pr]{transition:opacity .6s linear!important;transition-delay:0s!important}}
 
 /* unique reveals (free): cards pop like stickers being pressed down, steps swing in, hover wiggles */
 html.pr-on body.free-page .ft-card[data-pr]:not(.pr-in){transform:translate3d(0,calc(36px*var(--pr-d,1)),0) rotate(calc(var(--pr-i,0)*1.6deg - 2.4deg)) scale(.92)}

@@ -40,3 +40,12 @@ test('invoice history belongs to the verified account and survives a closed conf
  assert.deepEqual(s.ctx.handleAccount_({step:'history',token:s.ctx.makeSession_('other@example.com')}).invoices,[]);
  assert.equal(s.ctx.handleAccount_({step:'history',token:'forged'}).error,'expired');
 });
+
+test('a free order (4-day trial or 100% coupon) still gets a numbered invoice marked no payment due',()=>{
+ const s=service();s.ctx.Logger={log(){}};
+ const n=s.ctx.invoiceSendFree_({id:'chk-1',email:'buyer@example.com',mode:'live',subscriptionId:'sub_F',price:{plan:'online',billing:'monthly',seats:1,currency:'INR'}},'Coupon');
+ assert.match(n,/^WL-\d{6}-0001$/);const m=invoices(s)[0];
+ assert.match(m.htmlBody,/Total due/);assert.match(m.htmlBody,/₹0\.00/);assert.match(m.htmlBody,/No payment was due/);assert.match(m.htmlBody,/Coupon/);
+ assert.equal(s.ctx.invoiceSendFree_({id:'chk-1',email:'buyer@example.com',mode:'live',price:{plan:'online',billing:'monthly',seats:1}}),'','never invoiced twice');
+ const hist=s.ctx.invoiceArchive_?s.ctx.invoiceArchive_({email:'buyer@example.com'}):null;if(hist)assert.equal(hist.length>=1,true);
+});

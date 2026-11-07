@@ -6,13 +6,14 @@
 <link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v=20261107-hs1">
 <link rel="stylesheet" href="css/commerce.css?v=20261017-r7">
-<link rel="stylesheet" href="css/thank-you.css?v=20261025-setup1">
+<link rel="stylesheet" href="css/thank-you.css?v=20261025-setup1"><link rel="stylesheet" href="css/thank-you-v2.css?v=ty3">
 <script src="js/site-config.js?v=20261023-p4"></script>
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 <link rel="stylesheet" href="css/coffee.css?v=20261023-c1"><link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/transitions.css?v=vt2"></head>
 <body class="commerce-page ty-page">
 <header class="commerce-header"><div class="wrap"><a class="brand" href="wrapline.html"><img class="mark" src="assets/logo-mark.svg" alt="" width="28" height="28"><span class="brand-name">Wrapline Pro<small class="brand-by">by Ajoy Tools</small></span></a><a class="back-link" href="wrapline.html">Back to Wrapline Pro</a></div></header>
-<main class="commerce-main ty-main" data-ty-state="verifying">
+<main class="commerce-main ty-main" data-ty-state="verifying" data-ty-kind="basic">
+  <div class="ty-stage" aria-hidden="true"><span class="ty-beams"></span><span class="ty-orb ty-o1"></span><span class="ty-orb ty-o2"></span><span class="ty-floor"></span><div class="ty-confetti"><i style="--i:0"></i><i style="--i:1"></i><i style="--i:2"></i><i style="--i:3"></i><i style="--i:4"></i><i style="--i:5"></i><i style="--i:6"></i><i style="--i:7"></i><i style="--i:8"></i><i style="--i:9"></i><i style="--i:10"></i><i style="--i:11"></i><i style="--i:12"></i><i style="--i:13"></i><i style="--i:14"></i><i style="--i:15"></i><i style="--i:16"></i><i style="--i:17"></i><i style="--i:18"></i><i style="--i:19"></i><i style="--i:20"></i><i style="--i:21"></i><i style="--i:22"></i><i style="--i:23"></i><i style="--i:24"></i><i style="--i:25"></i></div></div>
   <div class="wrap ty-grid">
     <section class="ty-hero" aria-labelledby="ty-title">
       <div class="ty-seal" aria-hidden="true">
@@ -57,8 +58,17 @@
       </ol>
     </aside>
   </div>
+  <section class="wrap ty-receipt-wrap" id="ty-receipt-sec" aria-labelledby="ty-receipt-title" hidden>
+    <article class="ty-receipt" id="ty-receipt">
+      <header class="ty-r-head"><div><p class="ty-r-kicker">Receipt</p><h2 id="ty-receipt-title">Your order</h2></div><span class="ty-stamp" id="ty-stamp" aria-hidden="true">Confirmed</span></header>
+      <dl class="ty-r-rows" id="ty-r-rows"></dl>
+      <div class="ty-r-total"><span id="ty-r-total-label">Total</span><b id="ty-r-total">—</b></div>
+      <p class="ty-r-note" id="ty-r-note"></p>
+      <div class="ty-r-actions"><button type="button" class="btn btn-light" id="ty-r-print">Print or save as PDF</button></div>
+    </article>
+  </section>
   <section class="wrap ty-archive" id="ty-archive" aria-labelledby="ty-archive-title" hidden><h2 id="ty-archive-title">Your invoices</h2><p id="ty-archive-note">Loading your payment history…</p><div id="ty-invoices"></div><button type="button" class="btn btn-light" id="ty-invoice-retry">Refresh invoices</button></section>
 </main>
 <footer class="commerce-footer">© 2026 AJOY <a href="license.html">License terms</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></footer>
-<script type="module" src="js/thank-you.js?v=20261101-auto1"></script>
+<script type="module" src="js/thank-you.js?v=20261107-ty2"></script>
 <script type="module" src="js/coffee.js?v=20261101-f2"></script><script src="js/smooth-scroll.js?v=sm1" defer></script><script src="js/transitions.js?v=vt3"></script></body></html>

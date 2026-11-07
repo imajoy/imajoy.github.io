@@ -137,3 +137,36 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
 (()=>{const card=document.querySelector('.ty-pass');if(!card||!matchMedia('(hover:hover)').matches||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
  card.addEventListener('pointermove',e=>{const r=card.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;card.style.transform=`perspective(900px) rotateY(${x*6}deg) rotateX(${-y*6}deg)`;});
  card.addEventListener('pointerleave',()=>{card.style.transform='';});})();
+
+/* ---- mood + receipt (v2) ---------------------------------------------------------------------------------------------
+   The page takes a colour mood from what was bought: basic = sapphire, premium = gold on obsidian, trial = emerald,
+   free (nothing to pay today, e.g. a 100% coupon) = amethyst + gold. Every confirmed order shows a receipt, including
+   orders that cost nothing, so there is always a record on screen as well as the invoice email. */
+(()=>{
+ const rawPaid=q.get('paid'),cur=/^[A-Z]{3}$/.test(q.get('cur')||'')?q.get('cur'):'INR',coupon=/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(q.get('cp')||'')?q.get('cp'):'';
+ const paidKnown=rawPaid!==null&&rawPaid!==''&&Number.isFinite(Number(rawPaid)),paid=paidKnown?Math.max(0,Number(rawPaid))/100:null;
+ const free=paidKnown&&paid===0&&!trial;
+ const kind=trial?'trial':free?'free':plan==='Premium'?'premium':'basic';
+ main.dataset.tyKind=kind;document.body.dataset.tyKind=kind;
+ const money=v=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:cur}).format(v);}catch{return cur+' '+v.toFixed(2);}};
+ const rows=$('ty-r-rows'),email=getAccountSession()?.email||'';
+ const add=(k,v)=>{if(!v)return;const d=document.createElement('div'),a=document.createElement('dt'),b=document.createElement('dd');a.textContent=k;b.textContent=v;d.append(a,b);rows.append(d);};
+ const orderRef=(q.get('checkout')||'').replace(/[^a-f0-9]/gi,'').slice(0,8).toUpperCase();
+ add('Item','Wrapline Pro '+plan+(trial?' · 4-day trial':' · '+billing));
+ add('Licenses',seats+(seats===1?' license':' licenses'));
+ add('Date',new Date().toLocaleDateString(undefined,{dateStyle:'long'}));
+ add('Billed to',email);
+ add(provider&&!free&&!trial?'Paid with':'Provider',provider);
+ if(coupon)add('Coupon',coupon);
+ if(orderRef)add('Order',orderRef);
+ const label=$('ty-r-total-label'),total=$('ty-r-total'),note=$('ty-r-note');
+ if(paidKnown){
+  label.textContent=paid===0?'Total due today':'Total paid';total.textContent=money(paid);
+  note.textContent=paid===0?'Nothing was due today. Your invoice is still emailed to you'+(email?' at '+email:'')+', and it is kept in your account.':'Your invoice is emailed to you'+(email?' at '+email:'')+' and kept in your account.';
+  if(paid>0&&!matchMedia('(prefers-reduced-motion:reduce)').matches){const t0=performance.now();total.textContent=money(0);const step=n=>{const k=Math.min(1,(n-t0-600)/1100);if(k>=0)total.textContent=money(paid*(1-Math.pow(1-k,4)));if(k<1)requestAnimationFrame(step);else total.textContent=money(paid);};requestAnimationFrame(step);}
+ }else{label.textContent='Total';total.textContent='On your invoice';note.textContent='Your invoice is emailed to you'+(email?' at '+email:'')+' and kept in your account.';}
+ $('ty-stamp').textContent=trial?'Trial active':free?'Confirmed':'Paid';
+ const sec=$('ty-receipt-sec'),sync=()=>{sec.hidden=main.dataset.tyState!=='confirmed'||archiveMode;};
+ new MutationObserver(sync).observe(main,{attributes:true,attributeFilter:['data-ty-state']});sync();
+ $('ty-r-print').addEventListener('click',()=>{document.body.classList.add('ty-printing');const done=()=>{document.body.classList.remove('ty-printing');removeEventListener('afterprint',done);};addEventListener('afterprint',done);window.print();});
+})();

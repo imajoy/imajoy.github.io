@@ -243,6 +243,7 @@ function razorpayAcceptTrial_(id,subscription){
     var rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues():[];
     if(!rows.some(function(r){return r[1]===current.subscriptionId;}))sheet.appendRow([new Date(),current.subscriptionId,'ACTIVE','razorpay_'+current.mode,current.email,current.name,current.price.country,'online trial',current.price.billing,current.price.seats,current.company,current.price.planId].map(safeSheetCell_));
     razorpayNotify_(current);
+    try{if(typeof invoiceSendFree_==='function')invoiceSendFree_(current,'Free trial');}catch(e){Logger.log('Invoice: '+e.message);}
     if(current.trialCheckPaise)razorpayRefundTrialCheck_(current);
     return razorpayPublic_(current);
   });
@@ -258,6 +259,7 @@ function razorpayAcceptFree_(id,subscription){
     var rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues():[];
     if(!rows.some(function(r){return r[1]===current.subscriptionId;}))sheet.appendRow([new Date(),current.subscriptionId,'ACTIVE','razorpay_'+current.mode,current.email,current.name,current.price.country,current.price.plan,current.price.billing,current.price.seats,current.company,current.price.planId].map(safeSheetCell_));
     razorpayNotify_(current);
+    try{if(typeof invoiceSendFree_==='function')invoiceSendFree_(current,'Coupon');}catch(e){Logger.log('Invoice: '+e.message);}
     if(current.trialCheckPaise)razorpayRefundTrialCheck_(current);
     if(current.price.discount&&current.price.discount.coupon&&typeof couponRecordUse_==='function')couponRecordUse_(couponCode_(current.price.discount.coupon.code));
     try{CacheService.getScriptCache().remove('rh:'+mode_()+':'+current.email);}catch(e){}

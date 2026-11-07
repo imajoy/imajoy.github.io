@@ -38,7 +38,7 @@ if(form&&paypal&&url){
  const saveQuote=(extra,pricing)=>{try{sessionStorage.setItem(quoteKey(extra),JSON.stringify({at:Date.now(),pricing}));}catch{}};
  let clubNote='';
  let coupon=/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(draft?.coupon||'')?draft.coupon:'',usingPopup=false,rzpScript=null,offer='standard',trialCheck={key:'',state:'',message:''};
- const thankYou=(r,plan,billing,seats)=>'thank-you.html?'+new URLSearchParams({provider:'razorpay',plan:r?.plan||plan,billing:r?.billing||billing,seats:String(r?.seats||seats),...((r?.offer||offer)==='trial'?{offer:'trial'}:{})}).toString();
+ const thankYou=(r,plan,billing,seats)=>'thank-you.html?'+new URLSearchParams({provider:'razorpay',plan:r?.plan||plan,billing:r?.billing||billing,seats:String(r?.seats||seats),...((r?.offer||offer)==='trial'?{offer:'trial'}:{}),...(quote&&Number.isFinite(Number(quote.total))?{paid:String((r?.offer||offer)==='trial'?0:Math.max(0,Math.round(Number(quote.total)))),cur:/^[A-Z]{3}$/.test(quote.currency||'')?quote.currency:rzpCurrency()}:{}),...(coupon?{cp:coupon}:{})}).toString();
  const clearPending=()=>{pending=null;requestId=crypto.randomUUID();check.hidden=true;link.hidden=true;try{sessionStorage.removeItem('ajoy.razorpay.pending');}catch{}};
  function loadCheckout(){
   if(window.Razorpay)return Promise.resolve();

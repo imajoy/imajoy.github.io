@@ -1,11 +1,14 @@
 /* Wrapline Pro hero stage: a live animated demo ("graphical video") of the ten Pro tools, framed in a gold 3D scene.
    Compositor-friendly only: transform / translate / rotate / opacity. Paused offscreen by the Player + .is-scrolling. */
+@property --rx{syntax:"<angle>";inherits:false;initial-value:0deg}
+@property --ry{syntax:"<angle>";inherits:false;initial-value:-6deg}
 @property --pa{syntax:"<angle>";inherits:false;initial-value:0deg}
 .pro-stage{position:relative;z-index:2;perspective:1400px;min-width:0;margin:6px auto 0;width:min(100%,560px);padding:0 4px}
 .pro-scene{position:absolute;inset:-14% -10%;z-index:0;pointer-events:none;transform-style:preserve-3d}
 .pro-floor{position:absolute;left:-10%;right:-10%;bottom:-6%;height:46%;transform-origin:50% 100%;transform:rotateX(68deg);
- background:repeating-linear-gradient(90deg,rgba(201,138,30,.34) 0 1px,transparent 1px 56px),repeating-linear-gradient(0deg,rgba(201,138,30,.34) 0 1px,transparent 1px 56px);
- -webkit-mask-image:radial-gradient(ellipse 60% 80% at 50% 100%,#000 10%,transparent 72%);mask-image:radial-gradient(ellipse 60% 80% at 50% 100%,#000 10%,transparent 72%);animation:ps-floor 7s linear infinite}
+ overflow:hidden;-webkit-mask-image:radial-gradient(ellipse 60% 80% at 50% 100%,#000 10%,transparent 72%);mask-image:radial-gradient(ellipse 60% 80% at 50% 100%,#000 10%,transparent 72%)}
+.pro-floor::before{content:"";position:absolute;inset:-56px 0 0 -56px;will-change:transform;
+ background:repeating-linear-gradient(90deg,rgba(201,138,30,.34) 0 1px,transparent 1px 56px),repeating-linear-gradient(0deg,rgba(201,138,30,.34) 0 1px,transparent 1px 56px);animation:ps-floor 7s linear infinite}
 .pro-halo{position:absolute;left:50%;top:50%;width:92%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;border:1px solid rgba(242,182,79,.5);animation:ps-orbit 22s linear infinite;transform:rotateX(72deg)}
 .pro-halo::before,.pro-halo::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:var(--gold-1);box-shadow:0 0 18px 5px rgba(242,182,79,.8);top:-6px;left:50%}
 .pro-halo::after{top:auto;bottom:-6px;width:8px;height:8px}
@@ -17,13 +20,13 @@
 .pro-cube i:nth-child(3){transform:rotateY(90deg) translateZ(calc(var(--s,46px)/2))}.pro-cube i:nth-child(4){transform:rotateY(-90deg) translateZ(calc(var(--s,46px)/2))}
 .pro-cube i:nth-child(5){transform:rotateX(90deg) translateZ(calc(var(--s,46px)/2))}.pro-cube i:nth-child(6){transform:rotateX(-90deg) translateZ(calc(var(--s,46px)/2))}
 .pro-cube.c1{left:-3%;top:10%;--s:52px}.pro-cube.c2{right:-4%;top:58%;--s:38px;animation-duration:11s,5s;animation-direction:reverse,alternate}.pro-cube.c3{left:8%;bottom:2%;--s:28px;animation-duration:17s,7s}
-.pro-device{position:relative;z-index:1;transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,-6deg));will-change:transform;animation:ps-float 7s ease-in-out infinite alternate}
+.pro-device{position:relative;z-index:1;transform-style:preserve-3d;transform:rotateX(var(--rx)) rotateY(var(--ry));will-change:transform;backface-visibility:hidden;pointer-events:none;animation:ps-float 7s ease-in-out infinite alternate}
 .pro-stage .tool-visual{margin:0;padding:12px 12px 14px;border-radius:24px;position:relative;isolation:isolate;
  background:linear-gradient(160deg,#10152b,#0a0e1f);border:0;box-shadow:0 50px 90px -40px rgba(10,20,60,.75),0 0 0 1px rgba(255,255,255,.06),0 0 80px -20px rgba(242,182,79,.45)}
 .pro-stage .tool-visual::before{content:"";position:absolute;inset:-2px;border-radius:26px;z-index:-1;padding:2px;
  background:conic-gradient(from var(--pa),transparent 0 62%,rgba(255,226,154,.95) 78%,#F2B64F 86%,transparent 96%);
  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:ps-sweep 6s linear infinite}
-.pro-stage .tool-visual::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(420px circle at var(--gx,30%) var(--gy,0%),rgba(255,226,154,.16),transparent 50%)}
+.pro-stage .tool-visual::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(420px circle at 30% 0%,rgba(255,226,154,.16),transparent 50%)}
 .pro-stage .visual-heading{color:#c8d3f5;font-size:10.5px;letter-spacing:.14em}.pro-stage .visual-heading span:first-child{color:var(--gold-1)}
 .pro-stage .xp-play,.pro-stage .visual-dot{display:none!important}
 .pro-stage .tool-visual figcaption{color:#9fb0e0;font-size:13px;margin-top:10px}.pro-stage .tool-visual figcaption a{color:var(--gold-1);font-weight:700}
@@ -36,7 +39,7 @@ html.is-scrolling .pro-floor,html.is-scrolling .pro-halo,html.is-scrolling .pro-
 @keyframes ps-cube{to{transform:rotateX(360deg) rotateY(360deg)}}
 @keyframes ps-bob{to{translate:0 -18px}}
 @keyframes ps-float{to{translate:0 -8px}}
-@keyframes ps-floor{to{background-position:0 56px,56px 0}}
+@keyframes ps-floor{to{transform:translate3d(56px,56px,0)}}
 html[data-theme=dark] .pro-floor{background:repeating-linear-gradient(90deg,rgba(242,182,79,.3) 0 1px,transparent 1px 56px),repeating-linear-gradient(0deg,rgba(242,182,79,.3) 0 1px,transparent 1px 56px)}
 @media(min-width:981px){
  .hero .pro-stage{position:absolute;right:max(3vw,calc((100vw - 1320px)/2));top:50%;translate:0 -46%;width:min(46vw,600px);margin:0}
@@ -82,3 +85,15 @@ html[data-theme=dark] .pro-floor{background:repeating-linear-gradient(90deg,rgba
 @keyframes ps-now{from{opacity:0;transform:translateY(8px) rotateX(-60deg)}to{opacity:1;transform:none}}
 @media(max-width:520px){.pro-dock{gap:4px;padding-inline:8px}.pro-dock span{width:24px;height:24px;font-size:9px;border-radius:7px}}
 @media(prefers-reduced-motion:reduce){.pro-stage .xp-frame.ps-in,.pro-stage .xp-frame.ps-in::after,.pro-stage .xp-vp::before,.pro-stage .xp-vp::after,.pro-stage.is-swap .pro-halo,.pro-now.sw{animation:none}.pro-dock span{transition:none}}
+
+/* ---------- no jitter: the tilting device never takes hover (a rotating hit-box flips :hover at its edge and the
+   site-wide figure zoom then fights the lean). Only its caption link stays clickable. ---------- */
+html body .pro-stage .tool-visual,html body .pro-stage .tool-visual:hover{scale:none;transition:none}
+html body .pro-stage .tool-visual figcaption a{pointer-events:auto}
+.pro-stage.is-lean .tool-visual::before{animation-play-state:paused}
+
+/* off-screen sections rest: only endless ambient loops are listed (entrance/scroll-driven ones are untouched) */
+body.pro-page .ap-off::after,body.pro-page .ap-off .pro-stage *,body.pro-page .ap-off .pro-stage *::before,body.pro-page .ap-off .pro-stage *::after,
+body.pro-page .ap-off .orb,body.pro-page .ap-off .ic,body.pro-page .ap-off .plan::after,body.pro-page .ap-off .frame::before,body.pro-page .ap-off .frame-inner::before,
+body.pro-page .ap-off .pf-beam::before,body.pro-page .ap-off .pf-beam i,body.pro-page .ap-off .pf-word,body.pro-page .ap-off .license-float,body.pro-page .ap-off .license-seat,
+body.pro-page .ap-off .license-seat::after,body.pro-page .ap-off .sheen,body.pro-page .ap-off .plan-discount-glow,body.pro-page .ap-off b,body.pro-page .ap-off b::after{animation-play-state:paused}

@@ -142,3 +142,18 @@ html:not([data-theme=dark]) .contact-send:disabled{box-shadow:0 0 0 1.5px color-
 .contact-consent:active{transform:scale(.99);background:color-mix(in srgb,#e0a93a 18%,transparent)}
 .contact-consent:has(input:checked):active{background:color-mix(in srgb,#2FB583 16%,transparent)}
 .contact-consent a{position:relative;z-index:1}
+
+/* labels: stronger contrast (light + dark) */
+.contact-field label{color:#363e50!important}
+html[data-theme=dark] .contact-field label{color:#d3dbf0!important}
+.contact-field:focus-within label{color:var(--blue,#3d8bff)!important}
+html[data-theme=dark] .contact-field:focus-within label{color:#8dbbff!important}
+
+/* header: more room between logo, theme toggle and plan pill; plan pill "PLAN | 352d left" */
+.contact-page .pillbar .acct-btn.has-days::before{content:none!important;display:none!important}
+.contact-page .pillbar .acct-btn.has-days{display:inline-flex;align-items:center;gap:10px;padding-inline:16px 18px;white-space:nowrap}
+.contact-page .pillbar .acct-btn.has-days .ab-k{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.7;padding-right:10px;border-right:1px solid currentColor;border-right-color:color-mix(in srgb,currentColor 30%,transparent);line-height:1.6}
+.contact-page .pillbar .acct-btn.has-days .ab-v{font-size:.84rem;font-weight:600}
+.contact-page .pillbar .acct-btn.has-days .ab-v b{font-size:1.02rem;font-weight:800;margin-right:2px}
+@media(max-width:520px){.contact-page .pillbar{gap:14px;padding:8px 10px 8px 14px}.contact-page .pillbar .theme{margin-inline:2px}}
+@media(max-width:380px){.contact-page .pillbar{gap:12px;padding:7px 8px 7px 12px}.contact-page .pillbar>.acct-btn{max-width:150px}.contact-page .pillbar .acct-btn.has-days{gap:8px;padding-inline:10px 12px}.contact-page .pillbar .acct-btn.has-days .ab-k{padding-right:7px;letter-spacing:.08em}.contact-page .pillbar .acct-btn.has-days .ab-v{font-size:.76rem}}

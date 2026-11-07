@@ -100,6 +100,27 @@
       /* touch: first tap previews the tool in the editor above, second tap opens its guide */
       r.addEventListener('click', function (e) { if (matchMedia('(hover: none)').matches && r !== cur) { e.preventDefault(); pick(r); } });
     });
+    /* phones: a swipeable strip of all tools above the list; tap a chip to preview it, swipe to browse */
+    var app1 = ae.closest('.o-app'), chips = [], strip = null;
+    if (app1) {
+      strip = document.createElement('div'); strip.className = 'o-swipe'; strip.setAttribute('role', 'tablist'); strip.setAttribute('aria-label', 'Browse the 14 tools');
+      rows.forEach(function (r) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'o-chip'; b.setAttribute('role', 'tab'); b.setAttribute('aria-selected', 'false');
+        b.style.setProperty('--h', r.style.getPropertyValue('--h') || '210');
+        var i = document.createElement('i'); i.textContent = r.querySelector('.o-ico').textContent; i.setAttribute('aria-hidden', 'true');
+        b.appendChild(i); b.appendChild(document.createTextNode(r.querySelector('.o-name').textContent));
+        b.addEventListener('click', function () { pick(r); });
+        strip.appendChild(b); chips.push(b);
+      });
+      var body = app1.querySelector('.o-body'); if (body) app1.insertBefore(strip, body);
+      var basePick = pick;
+      pick = function (row, first) {
+        basePick(row, first);
+        var ix = rows.indexOf(row);
+        chips.forEach(function (c, k) { c.classList.toggle('on', k === ix); c.setAttribute('aria-selected', String(k === ix)); });
+        if (strip.scrollWidth > strip.clientWidth && chips[ix]) { var c = chips[ix]; strip.scrollTo({ left: c.offsetLeft - (strip.clientWidth - c.offsetWidth) / 2, behavior: first || reduce ? 'auto' : 'smooth' }); }
+      };
+    }
     var start = rows.filter(function (r) { return /ik-fk-snap/.test(r.getAttribute('href')); })[0] || rows[0];
     /* the shelf demo walks through the tools by itself, and stops while someone is using it */
     var lastUser = 0, shelfVisible = false, tree = q('.o-tree'), app0 = ae.closest('.o-app') || ae;

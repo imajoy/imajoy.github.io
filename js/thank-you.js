@@ -1,6 +1,6 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
 import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
-import {buildInvoiceDoc,printDoc} from './ty-invoice.js?v=iv1';
+import {buildInvoiceDoc,printDoc} from './ty-invoice.js?v=iv3';
 import {mountSetupProgress} from './setup-progress.js?v=20261101-auto1';
 let progress=null;
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');

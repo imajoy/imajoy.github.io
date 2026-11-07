@@ -185,6 +185,7 @@ function init() {
     btn.textContent=!session?'Register / Login':landingAccount&&Array.isArray(subs)&&!subs.length?'No subscription':!pill||!best?'Account':best.d.state==='ended'?label(best.s.plan)+' · Renew':best.d.state==='unknown'?'Account':(active.length>1?'Subscribed':label(best.s.plan))+' · '+totalDays(subs)+'d left';
     if(landingAccount)pill.dataset.signedIn=String(!!session);
     btn.dataset.state=best?.d.state||'';btn.classList.toggle('is-updating',updating);
+    btn.title=!session?'Sign in or register to see your plan and manage your subscription':best&&best.d.text?'Your plan: '+best.d.text+'. Click to manage your account.':'Open your account';
     btn.setAttribute('aria-label',session?'Account: '+session.email+'. '+btn.textContent+(updating?'. Updating subscription details.':''):'Register / Login');
     for(const plan of ['online','offline']){
       const a=document.querySelector('[data-buy="'+plan+'"]');if(!a)continue;

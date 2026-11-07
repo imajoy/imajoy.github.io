@@ -42,3 +42,16 @@ html body.pro-page .pillbar,html body.free-page .pillbar{-webkit-backdrop-filter
  html body.free-page .ft-steps li:hover{transform:translateY(-5px) rotate(-.6deg)}
  html body.free-page .free-pro:hover,html body.free-page .ft-coffee-card:hover{box-shadow:0 20px 40px -22px rgba(60,20,120,.5)}
 }
+
+/* Pro header: say what the plan pill is, and what the round button does */
+@media(min-width:1100px){
+ html body.pro-page .acct-btn:is([data-state=active],[data-state=ending],[data-state=ended]):not(:disabled)::before{content:"Your plan";margin-right:9px;padding-right:9px;border-right:1px solid currentColor;font-size:.68em;font-weight:700;letter-spacing:.09em;text-transform:uppercase;opacity:.7}
+ html body.pro-page .acct-btn[data-state=ended]::before{content:"Plan ended"}
+}
+html body.pro-page #theme{position:relative}
+@media (hover:hover) and (pointer:fine){
+ html body.pro-page #theme::after{content:"Light / dark";position:absolute;top:calc(100% + 8px);left:50%;transform:translate(-50%,-4px);padding:5px 9px;border-radius:8px;background:#0b1020;color:#fff;font-size:11px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s linear,transform .15s linear}
+ html body.pro-page #theme:hover::after{opacity:1;transform:translate(-50%,0)}
+}
+html body.pro-page #theme:hover{rotate:none!important}
+html body.pro-page #theme:hover{transform:none!important;scale:none!important;animation:none!important}

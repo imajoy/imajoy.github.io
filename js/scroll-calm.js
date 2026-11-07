@@ -9,7 +9,7 @@
  }
  function wake(){paused.forEach(function(a){try{if(a.playState==='paused')a.play();}catch(e){}});paused=[];}
  addEventListener('scroll',function(){
-  if(!on){on=true;rest();}
-  clearTimeout(t);t=setTimeout(function(){on=false;wake();},140);
+  if(!on){on=true;document.documentElement.classList.add('is-scrolling');rest();}
+  clearTimeout(t);t=setTimeout(function(){on=false;document.documentElement.classList.remove('is-scrolling');wake();},140);
  },{passive:true});
 })();

@@ -19,8 +19,7 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', intro); else intro();
 
-  /* ---- inertial wheel scrolling: OFF. The browser's own scrolling runs on the compositor and stays smooth even when the page is busy; a script-driven glide adds delay and stutter. ---- */
-  return;
+  /* ---- inertial wheel scrolling (mouse wheels only; touchpads and touch keep their native feel) ---- */
   if (!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
   var cur = scrollY, target = scrollY, raf = 0, last = 0, set = scrollY, done = 0;
   var max = function () { return Math.max(0, root.scrollHeight - innerHeight); };
@@ -38,14 +37,14 @@
     e.preventDefault();
     if (!raf) { cur = target = scrollY; }
     var d = e.deltaMode === 1 ? e.deltaY * 34 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
-    target = Math.min(max(), Math.max(0, target + d * 1.1));
+    target = Math.min(max(), Math.max(0, target + d * 1.0));
     if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
   }, { passive: false });
   function tick(now) {
     var dt = Math.min(48, now - last); last = now;
-    cur += (target - cur) * (1 - Math.exp(-dt / 120));
+    cur += (target - cur) * (1 - Math.exp(-dt / 78));
     if (Math.abs(target - cur) < .4) { cur = target; set = cur; scrollTo(0, cur); raf = 0; done = performance.now(); return; }
-    set = cur; scrollTo(0, cur); raf = requestAnimationFrame(tick);
+    set = Math.round(cur); scrollTo(0, set); raf = requestAnimationFrame(tick);
   }
   /* keyboard, scrollbar drags and in-page links move the page themselves: follow them */
   addEventListener('scroll', function () { if (raf || performance.now() - done < 140) return; cur = target = scrollY; }, { passive: true });

@@ -189,7 +189,7 @@
 <link rel="stylesheet" href="css/license-motion.css?v=20261019-motion1">
 <link rel="stylesheet" href="css/mobile.css?v=20261020-m1">
 <link rel="stylesheet" href="css/reviews.css?v=20261023-rv2"><link rel="stylesheet" href="css/wrapline-reviews.css?v=20261023-rv2">
-<link rel="stylesheet" href="css/pro.css?v=20261107-r3"><link rel="stylesheet" href="css/tool-explainer.css?v=xp1"><link rel="stylesheet" href="css/pro-stage.css?v=ps2">
+<link rel="stylesheet" href="css/pro.css?v=20261107-r6"><link rel="stylesheet" href="css/tool-explainer.css?v=xp1"><link rel="stylesheet" href="css/pro-stage.css?v=ps4">
 
 <link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/tool-dragdrop.css?v=20261103-dd1"><link rel="stylesheet" href="css/transitions.css?v=vt2"><script src="js/header-scroll.js?v=hs1" defer></script></head>
 <body class="home-page pro-page">
@@ -262,6 +262,7 @@
         <ol class="xp-fallback"><li><b>FBX Exporter:</b> set the shot, pick rigs, export named FBX files.</li><li><b>Rivet:</b> select two edges, click Rivet, parent your object.</li><li><b>Drag &amp; Drop:</b> drop files, choose an action for each, confirm.</li></ol>
         <figcaption>Ten Pro tools take turns here · <a href="#tools">See them all</a></figcaption>
       </figure></div>
+      <div class="pro-dock" aria-hidden="true"><span style="--h:200">IK</span><span style="--h:150">AB</span><span style="--h:320">AU</span><span style="--h:25">FB</span><span style="--h:270">HK</span><span style="--h:0">PB</span><span style="--h:175">RB</span><span style="--h:240">RV</span><span style="--h:340">RI</span><span style="--h:48">DD</span><em class="pro-now">Advanced IK FK Switch</em></div>
       <span class="pro-reflect" aria-hidden="true"></span>
     </div>
       <p class="hero-fine intro-fade">For Autodesk Maya 2023–2026 on Windows.</p>
@@ -550,21 +551,30 @@
   </section>
 </main>
 
-<footer class="site-footer">
-  <div class="wrap foot">
-    <div class="foot-brand">
-      <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3D8BFF"/><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg>
-      <p>Wrapline Pro is made by <a href="./" class="maker-link">Ajoy Tools</a>.<br>© <span id="year">2026</span> AJOY. All rights reserved.</p>
+<footer class="site-footer pf">
+  <div class="pf-beam" aria-hidden="true"></div>
+  <div class="wrap pf-top">
+    <div class="pf-brand">
+      <a class="pf-logo" href="#top" aria-label="Wrapline Pro, back to top">
+        <svg class="mark" viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="8" fill="#3D8BFF"/><path d="M7.5 23.5C15 23.5 17 8.5 24.5 8.5" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/><path d="M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/><path d="M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z" fill="#fff"/></svg>
+        <span>Wrapline <span class="pro-word">Pro</span></span>
+      </a>
+      <p class="pf-tag">Production tools for Maya, made by <a href="./" class="maker-link">Ajoy Tools</a>.</p>
+      <div class="pf-cta"><a class="btn btn-dark" href="#install">Download Setup</a><a class="pf-free" href="wrapline-free.html">Get free Wrapline <span aria-hidden="true">→</span></a></div>
     </div>
-    <nav class="foot-links" aria-label="Footer">
-      <a href="#tools">Tools</a>
-      <a href="#install">Download</a>
-      <a href="#pricing">Pricing</a>
-      <a href="license.html">License</a>
-      <a href="privacy.html">Privacy</a>
-      <a href="contact.html">Contact</a>
+    <nav class="pf-cols" aria-label="Footer">
+      <div><h3>Wrapline Pro</h3><a href="#tools">Tools</a><a href="#install">Install</a><a href="#pricing">Pricing</a><a href="#faq">FAQ</a></div>
+      <div><h3>Toolkits</h3><a href="wrapline.html">Wrapline Pro</a><a href="wrapline-free.html">Wrapline (free)</a><a href="download.html">Download</a></div>
+      <div><h3>Help</h3><a href="support.html">Support</a><a href="contact.html">Contact</a><a href="./">Ajoy Tools</a></div>
+      <div><h3>Legal</h3><a href="license.html">License</a><a href="privacy.html">Privacy</a></div>
     </nav>
   </div>
+  <div class="wrap pf-bottom">
+    <p>© <span id="year">2026</span> AJOY. All rights reserved.</p>
+    <p class="pf-maya"><i aria-hidden="true"></i>For Autodesk Maya 2023–2026 on Windows</p>
+    <a class="pf-top-link" href="#top">Back to top <span aria-hidden="true">↑</span></a>
+  </div>
+  <div class="pf-word" aria-hidden="true">Wrapline</div>
 </footer>
 
 <script src="js/site-config.js?v=20261023-p4"></script>
@@ -573,7 +583,7 @@
 <script type="module" src="js/pricing.js?v=20261025-cta1"></script>
 <script type="module" src="js/wrapline-reviews.js?v=20261102-rv4"></script>
 <script type="module" src="js/landing-motion.js?v=20261021-lite2"></script>
-<script type="module" src="js/tool-explainer.js?v=xp5"></script><script src="js/pro-stage.js?v=ps1" defer></script><script type="module" src="js/tool-card-motion.js?v=20261019-lock1"></script>
+<script type="module" src="js/tool-explainer.js?v=xp6"></script><script src="js/pro-stage.js?v=ps3" defer></script><script type="module" src="js/tool-card-motion.js?v=20261019-lock1"></script>
 
 <script type="module" src="js/account.js?v=20261107-a5"></script>
 <script type="module" src="js/workflows.js?v=20261018-a1"></script><script type="module" src="js/tool-guide.js?v=20261019-s1"></script><script type="module" src="js/faq.js?v=20261019-s1"></script><script type="module" src="js/ui-motion.js?v=20261107-hs1"></script><script type="module" src="js/trial-promotion.js?v=20261025-cta1"></script><script type="module" src="js/guest-prompt.js?v=20261019-account2"></script><script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script type="module" src="js/license-motion.js?v=20261019-motion1"></script>

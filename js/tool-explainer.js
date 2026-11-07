@@ -30,7 +30,7 @@ class Player {
   advance() { for (let n = 0; n < this.list.length; n++) { this.li = (this.li + 1) % this.list.length; if (!this.hero || this.keyOf(this.list[this.li]) !== window.__shelfKey) break; } this.load(this.list[this.li]); }
   setTool(cfg) { if (this.cfg === cfg) return; this.list = [cfg]; this.li = 0; this.load(cfg); this.seek(0); this.clock = 0; this.sync(); }
   load(cfg) {
-    this.cfg = cfg; if (this.hero) window.__heroKey = this.keyOf(cfg); this.steps = cfg.steps; this.acts = []; this.starts = []; let t = 0;
+    this.cfg = cfg; if (this.hero) window.__heroKey = this.keyOf(cfg); this.announce = true; this.steps = cfg.steps; this.acts = []; this.starts = []; let t = 0;
     this.steps.forEach((s, i) => { this.starts.push(t); (s.a || []).forEach(a => this.acts.push({ t: t + a[0], a: a.slice(1), i })); t += s.d; });
     this.total = t; this.acts.sort((x, y) => x.t - y.t);
     this.render(); this.reset(); this.clock = null;
@@ -63,7 +63,7 @@ class Player {
       </div></div>
       <div class="xp-cap" aria-live="polite"><b></b><p></p></div>
       <div class="xp-steps" style="--n:${this.steps.length}">${this.steps.map((s, i) => `<button type="button" class="xp-step" data-i="${i}"><small>0${i + 1}</small><span>${s.t}</span><i class="xp-fill"></i></button>`).join('')}</div>`;
-    this.frame = root.querySelector('.xp-frame'); this.canvas = root.querySelector('.xp-canvas'); this.vp = root.querySelector('.xp-vp');
+    this.frame = root.querySelector('.xp-frame'); if (this.announce) { this.announce = false; const st = this.fig.closest('.pro-stage'); if (st) { this.frame.classList.add('ps-in'); st.dispatchEvent(new CustomEvent('xp-tool', { detail: { ix: this.cfg.ix, title: this.cfg.title } })); } } this.canvas = root.querySelector('.xp-canvas'); this.vp = root.querySelector('.xp-vp');
     this.panel = root.querySelector('.xp-panel'); this.pb = root.querySelector('.xp-pb'); this.scene = root.querySelector('.xp-scene'); this.cur = root.querySelector('.xp-cur'); this.toastEl = root.querySelector('.xp-toast');
     this.capB = root.querySelector('.xp-cap b'); this.capP = root.querySelector('.xp-cap p'); this.chips = [...root.querySelectorAll('.xp-step')];
     this.init = { pb: this.pb.innerHTML, scene: this.scene.innerHTML, ttl: root.querySelector('[data-k=ttl]').innerHTML };

@@ -17,8 +17,7 @@
 .pro-cube i:nth-child(3){transform:rotateY(90deg) translateZ(calc(var(--s,46px)/2))}.pro-cube i:nth-child(4){transform:rotateY(-90deg) translateZ(calc(var(--s,46px)/2))}
 .pro-cube i:nth-child(5){transform:rotateX(90deg) translateZ(calc(var(--s,46px)/2))}.pro-cube i:nth-child(6){transform:rotateX(-90deg) translateZ(calc(var(--s,46px)/2))}
 .pro-cube.c1{left:-3%;top:10%;--s:52px}.pro-cube.c2{right:-4%;top:58%;--s:38px;animation-duration:11s,5s;animation-direction:reverse,alternate}.pro-cube.c3{left:8%;bottom:2%;--s:28px;animation-duration:17s,7s}
-.pro-device{position:relative;z-index:1;transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,-6deg));transition:transform .5s cubic-bezier(.16,1,.3,1);will-change:transform;animation:ps-float 7s ease-in-out infinite alternate}
-.pro-device.is-live{transition:none}
+.pro-device{position:relative;z-index:1;transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,-6deg));will-change:transform;animation:ps-float 7s ease-in-out infinite alternate}
 .pro-stage .tool-visual{margin:0;padding:12px 12px 14px;border-radius:24px;position:relative;isolation:isolate;
  background:linear-gradient(160deg,#10152b,#0a0e1f);border:0;box-shadow:0 50px 90px -40px rgba(10,20,60,.75),0 0 0 1px rgba(255,255,255,.06),0 0 80px -20px rgba(242,182,79,.45)}
 .pro-stage .tool-visual::before{content:"";position:absolute;inset:-2px;border-radius:26px;z-index:-1;padding:2px;
@@ -54,3 +53,32 @@ html[data-theme=dark] .pro-floor{background:repeating-linear-gradient(90deg,rgba
 .pro-stage .xp-step{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#b9c4e6}
 .pro-stage .xp-step span{color:#eef2ff}.pro-stage .xp-step small{color:var(--gold-2)}
 .pro-stage .xp-step.on{border-color:var(--gold-2);background:rgba(242,182,79,.12)}
+
+/* ---------- automatic tool-swap transition: the screen turns in out of depth with a light sweep ---------- */
+.pro-stage .xp-frame{transform-origin:50% 60%;backface-visibility:hidden}
+.pro-stage .xp-frame.ps-in{animation:ps-swap 1.05s cubic-bezier(.16,1,.3,1) both}
+.pro-stage .xp-frame.ps-in::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,226,154,.55) 48%,rgba(255,255,255,.7) 52%,transparent 70%);transform:translateX(-120%);animation:ps-beam 1.1s .12s ease-out forwards}
+.pro-stage.is-swap .pro-halo{animation:ps-orbit 22s linear infinite,ps-ping 1.2s ease-out 1}
+.pro-stage.is-swap .pro-halo.h2{animation:ps-orbit 34s linear infinite reverse,ps-ping 1.4s .1s ease-out 1}
+@keyframes ps-swap{0%{opacity:0;transform:perspective(900px) rotateY(-82deg) rotateX(10deg) scale(.9);filter:blur(8px)}55%{opacity:1;filter:blur(0)}100%{opacity:1;transform:none}}
+@keyframes ps-beam{to{transform:translateX(120%)}}
+@keyframes ps-ping{0%{border-color:rgba(255,226,154,.95);box-shadow:0 0 40px 4px rgba(242,182,79,.5)}100%{box-shadow:0 0 0 0 transparent}}
+
+/* ---------- the empty Maya viewport is never still: slow scan light + drifting motes ---------- */
+.pro-stage .xp-vp::before{content:"";position:absolute;left:-30%;right:-30%;top:0;height:38%;pointer-events:none;z-index:0;background:linear-gradient(180deg,transparent,rgba(120,160,255,.16),transparent);animation:ps-scan 6s ease-in-out infinite}
+.pro-stage .xp-vp::after{content:"";position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.55;
+ background:radial-gradient(2px 2px at 18% 30%,rgba(255,226,154,.9),transparent),radial-gradient(2px 2px at 62% 68%,rgba(141,187,255,.9),transparent),radial-gradient(1.6px 1.6px at 80% 24%,rgba(255,255,255,.8),transparent),radial-gradient(1.6px 1.6px at 36% 78%,rgba(255,226,154,.8),transparent),radial-gradient(2px 2px at 48% 46%,rgba(141,187,255,.7),transparent);
+ animation:ps-motes 9s ease-in-out infinite alternate}
+@keyframes ps-scan{0%{transform:translateY(-120%)}100%{transform:translateY(300%)}}
+@keyframes ps-motes{0%{transform:translate3d(0,0,0)}100%{transform:translate3d(14px,-18px,0)}}
+
+/* ---------- tool dock: magnifies around the tool being demonstrated ---------- */
+.pro-dock{position:relative;z-index:2;display:flex;justify-content:center;align-items:flex-end;gap:7px;height:62px;margin:22px auto 34px;padding:0 14px 8px;width:fit-content;max-width:100%;border-radius:20px;background:color-mix(in srgb,var(--card,#fff) 70%,transparent);border:1px solid var(--line,rgba(120,130,160,.25));backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:0 20px 40px -26px rgba(8,14,40,.45)}
+.pro-dock span{--k:max(0,calc(1 - var(--d,9)*.45));position:relative;display:grid;place-items:center;width:30px;height:30px;border-radius:9px;font:800 10.5px/1 var(--sans);letter-spacing:.02em;color:#fff;background:linear-gradient(160deg,hsl(var(--h) 80% 62%),hsl(var(--h) 70% 42%));box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 6px 12px -6px hsl(var(--h) 80% 40%);transform:translateY(calc(var(--k)*-10px)) scale(calc(1 + var(--k)*.45));transform-origin:50% 100%;transition:transform .7s cubic-bezier(.16,1,.3,1),opacity .4s;opacity:calc(.55 + var(--k)*.45)}
+.pro-dock span.on{box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 0 0 2px var(--gold-2,#F2B64F),0 10px 22px -6px hsl(var(--h) 90% 55%)}
+.pro-dock span.on::after{content:"";position:absolute;left:50%;bottom:-8px;width:4px;height:4px;margin-left:-2px;border-radius:50%;background:var(--gold-2,#F2B64F)}
+.pro-now{position:absolute;left:50%;bottom:-26px;translate:-50% 0;white-space:nowrap;font:700 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--mute,#667);font-style:normal}
+.pro-now.sw{animation:ps-now .8s cubic-bezier(.16,1,.3,1) both}
+@keyframes ps-now{from{opacity:0;transform:translateY(8px) rotateX(-60deg)}to{opacity:1;transform:none}}
+@media(max-width:520px){.pro-dock{gap:4px;padding-inline:8px}.pro-dock span{width:24px;height:24px;font-size:9px;border-radius:7px}}
+@media(prefers-reduced-motion:reduce){.pro-stage .xp-frame.ps-in,.pro-stage .xp-frame.ps-in::after,.pro-stage .xp-vp::before,.pro-stage .xp-vp::after,.pro-stage.is-swap .pro-halo,.pro-now.sw{animation:none}.pro-dock span{transition:none}}

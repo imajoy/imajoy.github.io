@@ -151,3 +151,86 @@ html body.pro-page .plans .plan .price .amt{font-size:clamp(34px,4.2vw,54px);let
 html body.pro-page .plans .plan .price .per{letter-spacing:0}
 html body.pro-page .plans .plan .ticks li.pl-free-note{font-size:.8125rem;color:var(--plan-copy)}
 html body.pro-page .plans .plan:hover{transform:translateY(-6px) rotateX(2deg)}
+
+/* =====================================================================================================================
+   v4: more life. Slow ambient light, scroll-driven 3D depth, glowing frames, and a proper footer.
+   Everything is transform/opacity; scroll-driven parts are inside @supports so older browsers simply show the final state.
+   ===================================================================================================================== */
+@property --pb{syntax:"<angle>";inherits:false;initial-value:0deg}
+
+/* hero: a slow living mesh behind the stage */
+body.pro-page .hero::after{content:"";position:absolute;inset:-25%;z-index:0;pointer-events:none;
+ background:radial-gradient(38% 34% at 72% 36%,color-mix(in srgb,var(--blue) 22%,transparent),transparent 70%),radial-gradient(30% 28% at 88% 70%,color-mix(in srgb,var(--gold-2) 20%,transparent),transparent 70%),radial-gradient(34% 30% at 16% 82%,color-mix(in srgb,var(--blue) 12%,transparent),transparent 70%);animation:pro-mesh 22s ease-in-out infinite alternate}
+@keyframes pro-mesh{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(-3%,2%,0) scale(1.06)}100%{transform:translate3d(2%,-3%,0) rotate(2deg) scale(1.1)}}
+body.pro-page .hero-copy,body.pro-page .pro-stage{z-index:2}
+
+/* every section opens with a hairline that draws itself, and carries a drifting soft light */
+body.pro-page .block,body.pro-page .trial-showcase{position:relative}
+body.pro-page .block::before{content:"";position:absolute;top:0;left:50%;width:min(1160px,88%);height:1px;translate:-50% 0;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--blue) 55%,var(--line)),transparent);transform-origin:50% 50%;pointer-events:none}
+body.pro-page :is(#tools,#pricing,#faq,#workflows){isolation:isolate;overflow-x:clip}
+body.pro-page :is(#tools,#pricing,#faq,#workflows)::after{content:"";position:absolute;z-index:-1;width:520px;height:520px;border-radius:50%;pointer-events:none;filter:blur(70px);opacity:.5;background:color-mix(in srgb,var(--blue) 14%,transparent);top:8%;right:-6%;animation:pro-orb 18s ease-in-out infinite alternate}
+body.pro-page :is(#pricing,#workflows)::after{right:auto;left:-8%;background:color-mix(in srgb,var(--gold-2) 16%,transparent);animation-duration:24s}
+html[data-theme=dark] body.pro-page :is(#tools,#pricing,#faq,#workflows)::after{opacity:.75}
+@keyframes pro-orb{to{transform:translate3d(-70px,60px,0) scale(1.18)}}
+
+/* glowing, travelling light on the big frames */
+body.pro-page .trial-stage{position:relative}
+body.pro-page .trial-stage::before,body.pro-page .plan.plan-lead::after,body.pro-page .frame::before{content:"";position:absolute;inset:0;border-radius:inherit;padding:1.5px;pointer-events:none;z-index:2;
+ background:conic-gradient(from var(--pb),transparent 0 60%,color-mix(in srgb,var(--gold-2) 90%,#fff) 76%,#fff 82%,color-mix(in srgb,var(--blue) 80%,#fff) 90%,transparent 100%);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:pro-edge 8s linear infinite}
+body.pro-page .frame{position:relative}
+body.pro-page .frame-inner{position:relative;overflow:hidden}
+body.pro-page .frame-inner::before{content:"";position:absolute;left:50%;top:50%;width:150%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;pointer-events:none;
+ background:repeating-conic-gradient(from 0deg,color-mix(in srgb,var(--blue) 24%,transparent) 0 3deg,transparent 3deg 14deg);-webkit-mask-image:radial-gradient(closest-side,#000 0,transparent 68%);mask-image:radial-gradient(closest-side,#000 0,transparent 68%);animation:pro-rays 80s linear infinite}
+body.pro-page .frame-inner>*{position:relative;z-index:1}
+@keyframes pro-edge{to{--pb:360deg}}
+@keyframes pro-rays{to{transform:rotate(360deg)}}
+
+/* scroll-driven depth */
+@supports (animation-timeline:view()){
+ body.pro-page .block::before{animation:pro-line linear both;animation-timeline:view();animation-range:entry 0% entry 55%}
+ body.pro-page .workflow-copy{animation:pro-slide-l linear both;animation-timeline:view();animation-range:entry 0% entry 70%}
+ body.pro-page .workflow-panel .tool-visual{animation:pro-pop linear both;animation-timeline:view();animation-range:entry 5% entry 80%}
+ body.pro-page .trial-showcase>.wrap{animation:pro-pop linear both;animation-timeline:view();animation-range:entry 0% entry 60%}
+ body.pro-page .closing .frame-inner{animation:pro-pop linear both;animation-timeline:view();animation-range:entry 0% entry 70%}
+ body.pro-page .faq details{animation:pro-slide-r linear both;animation-timeline:view();animation-range:entry 0% entry 80%}
+ body.pro-page .faq-wrap .head{animation:pro-slide-l linear both;animation-timeline:view();animation-range:entry 0% entry 80%}
+ body.pro-page .inst-copy>*{animation:pro-slide-l linear both;animation-timeline:view();animation-range:entry 0% entry 80%}
+}
+@keyframes pro-line{from{transform:scaleX(0);opacity:0}to{transform:scaleX(1);opacity:1}}
+@keyframes pro-slide-l{from{opacity:.001;transform:perspective(1000px) rotateY(9deg) translate3d(-40px,18px,-40px)}to{opacity:1;transform:none}}
+@keyframes pro-slide-r{from{opacity:.001;transform:perspective(1000px) rotateY(-8deg) translate3d(34px,10px,-30px)}to{opacity:1;transform:none}}
+@keyframes pro-pop{from{opacity:.001;transform:perspective(1200px) rotateX(11deg) translate3d(0,56px,-90px) scale(.96)}to{opacity:1;transform:none}}
+
+/* ---------- footer ---------- */
+body.pro-page .site-footer.pf{position:relative;overflow:hidden;isolation:isolate;padding:clamp(56px,8vw,96px) 0 0;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--blue) 5%,var(--bg2)));border-top:1px solid var(--line)}
+.pf-beam{position:absolute;top:-1px;left:0;right:0;height:2px;overflow:hidden}
+.pf-beam::before{content:"";position:absolute;top:0;left:-30%;width:30%;height:100%;background:linear-gradient(90deg,transparent,var(--gold-2),var(--blue),transparent);animation:pf-run 6s ease-in-out infinite}
+@keyframes pf-run{to{left:100%}}
+.pf-top{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1.5fr);gap:clamp(32px,6vw,90px);align-items:start;padding-bottom:clamp(40px,6vw,72px)}
+.pf-logo{display:inline-flex;align-items:center;gap:12px;font:700 22px/1 var(--sans);letter-spacing:-.03em;color:var(--ink);text-decoration:none}
+.pf-logo .mark{width:36px;height:36px;border-radius:10px;box-shadow:0 0 0 1.5px var(--card),0 0 0 3px var(--gold-2);transition:transform .6s var(--pro-ease)}
+.pf-logo:hover .mark{transform:rotate(-8deg) scale(1.06)}
+.pf-tag{margin:16px 0 22px;color:var(--mute);font-size:15.5px;line-height:1.65;max-width:26em}
+.pf-tag a{color:var(--ink);font-weight:600;text-decoration:underline;text-decoration-color:var(--line);text-underline-offset:4px}
+.pf-cta{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center}
+.pf-free{color:var(--ink);font-weight:600;font-size:15px;text-decoration:none}.pf-free span{display:inline-block;transition:transform .4s var(--pro-ease)}.pf-free:hover span{transform:translateX(5px)}
+.pf-cols{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:28px}
+.pf-cols h3{margin:0 0 14px;font:700 11.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.pf-cols a{position:relative;display:block;width:fit-content;padding:6px 0;font-size:15px;color:var(--ink);text-decoration:none;opacity:.82;transition:opacity .25s,transform .4s var(--pro-ease)}
+.pf-cols a::after{content:"";position:absolute;left:0;bottom:3px;height:1px;width:100%;background:linear-gradient(90deg,var(--blue),var(--gold-2));transform:scaleX(0);transform-origin:0 50%;transition:transform .45s var(--pro-ease)}
+.pf-cols a:hover{opacity:1;transform:translateX(3px)}.pf-cols a:hover::after{transform:scaleX(1)}
+.pf-bottom{position:relative;z-index:1;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:12px 28px;padding-block:20px;border-top:1px solid var(--line);color:var(--mute);font-size:13.5px}
+.pf-bottom p{margin:0}.pf-maya{display:inline-flex;align-items:center;gap:9px}
+.pf-maya i{width:8px;height:8px;border-radius:50%;background:#2FB583;box-shadow:0 0 0 0 rgba(47,181,131,.6);animation:pf-pulse 2.4s ease-out infinite}
+@keyframes pf-pulse{70%{box-shadow:0 0 0 8px rgba(47,181,131,0)}100%{box-shadow:0 0 0 0 rgba(47,181,131,0)}}
+.pf-top-link{color:var(--ink);text-decoration:none;font-weight:600}.pf-top-link span{display:inline-block;transition:transform .4s var(--pro-ease)}.pf-top-link:hover span{transform:translateY(-4px)}
+.pf-word{position:relative;z-index:0;margin-top:-.1em;text-align:center;font:600 clamp(80px,19vw,280px)/.8 var(--sans);letter-spacing:-.06em;white-space:nowrap;user-select:none;pointer-events:none;
+ background:linear-gradient(100deg,color-mix(in srgb,var(--blue) 24%,transparent) 0%,color-mix(in srgb,var(--gold-2) 30%,transparent) 50%,color-mix(in srgb,var(--blue) 24%,transparent) 100%);background-size:220% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+ -webkit-mask-image:linear-gradient(180deg,#000 10%,transparent 92%);mask-image:linear-gradient(180deg,#000 10%,transparent 92%);padding-bottom:.08em;animation:pro-sheen-w 14s linear infinite}
+@keyframes pro-sheen-w{to{background-position:-220% 0}}
+@media(max-width:900px){.pf-top{grid-template-columns:1fr}.pf-cols{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.pf-bottom{flex-direction:column;align-items:flex-start}.pf-word{font-size:25vw}}
+@media(prefers-reduced-motion:reduce){
+ body.pro-page .hero::after,body.pro-page :is(#tools,#pricing,#faq,#workflows)::after,body.pro-page .trial-stage::before,body.pro-page .plan.plan-lead::after,body.pro-page .frame::before,body.pro-page .frame-inner::before,.pf-beam::before,.pf-maya i,.pf-word{animation:none}
+}

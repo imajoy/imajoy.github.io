@@ -160,3 +160,6 @@ html[data-theme=dark] .dl2 .dl-card,html[data-theme=dark] .dl2 .requirements,htm
 .fs-pro[data-step="4"] .fs-pcode .fs-ok{animation:fs-in .5s 2.3s forwards}
 .fs-pro:not([data-step]) .fs-pcode{display:none}
 @media(prefers-reduced-motion:reduce){.fs-pro .fs-pcode{display:none}}
+
+/* phones: leave room under the orbiting tool icons so they never sit on the heading */
+@media(max-width:520px){.dl-stage{margin-bottom:58px}}

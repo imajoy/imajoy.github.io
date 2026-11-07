@@ -1,0 +1,36 @@
+/* Tool pages, phones and folding phones only (up to 700px). Laptops and tablets are untouched. */
+@media(max-width:700px){
+ /* hero: no trial promo, one clear full-width button */
+ .tool-hero .tool-trial-invite,.tool-hero a[data-trial-cta],.tool-trial,aside.tool-trial{display:none!important}
+ .tool-hero .actions{display:flex;flex-direction:column;gap:10px;margin-top:6px}
+ .tool-hero .actions .btn{width:100%;justify-content:center;min-height:52px}
+ .tool-hero .actions .btn-light{background:var(--ink,#0D111C);color:var(--card,#fff);border-color:transparent}
+ .tool-copy .lead{font-size:1rem;line-height:1.65}
+
+ /* feature cards: swipe sideways instead of a long stack */
+ .guide-features{display:flex!important;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;margin-inline:-20px;padding:4px 20px 14px;scroll-padding-inline:20px;scrollbar-width:none}
+ .guide-features::-webkit-scrollbar{display:none}
+ .guide-features>*{flex:0 0 82%;scroll-snap-align:start;padding:22px!important;opacity:1!important;transform:none!important;translate:none!important;clip-path:none!important}
+ .guide-features>*:last-child{margin-right:4px}
+
+
+ .guide-step-heading h2 br{display:inline!important}
+
+ /* previous / next tool cards: same layout both sides */
+ .pn{gap:10px}
+ .rel,.rel:last-child{flex-direction:row;justify-content:flex-start;padding:16px 18px;font-size:16px;border-radius:20px;min-height:64px}
+ .rel .ic{flex:none}
+
+ /* "More tools" chips swipe on one line */
+ .chiplist{flex-wrap:nowrap;overflow-x:auto;scroll-snap-type:x proximity;margin-inline:-20px;padding:2px 20px 10px;scrollbar-width:none}
+ .chiplist::-webkit-scrollbar{display:none}
+ .chiplist .chipl{flex:none;scroll-snap-align:start;white-space:nowrap}
+
+ /* coffee thank-you: slim bar that no longer covers the text */
+ .coffee-card{padding:8px 34px 8px 8px!important;gap:10px!important;border-radius:18px!important}
+ .coffee-mug{width:42px!important;height:42px!important;margin:0!important}
+ .coffee-mug svg{width:38px!important;height:38px!important}
+ .coffee-copy>span{display:none!important}
+ .coffee-copy b{font-size:.84rem}
+ .coffee-go{padding:7px 12px!important;font-size:.76rem!important;margin-top:4px!important}
+}

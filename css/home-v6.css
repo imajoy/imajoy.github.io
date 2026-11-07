@@ -91,3 +91,12 @@ html[data-theme=dark] .h-beam{background:conic-gradient(from 180deg at 50% 0%,tr
  .t-steps{gap:12px}
 }
 @media(max-width:700px){.guest-prompt{display:none!important}}
+
+/* ---------- hero: clearer primary/secondary split + readable header links ---------- */
+.h-actions .btn.h-free{gap:9px;border:1.5px solid color-mix(in srgb,var(--ink) 55%,transparent);background:transparent;box-shadow:none;color:var(--ink)}
+.h-actions .btn.h-free svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s}
+.h-actions .btn.h-free em{font-style:normal;font-family:inherit;font-size:.6875rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;color:#0d6b4a;background:#2fb58326}
+html[data-theme=dark] .h-actions .btn.h-free em{color:#7ee2b8;background:#2fb58333}
+.h-actions .btn.h-free:hover,.h-actions .btn.h-free:focus-visible{border-color:var(--ink);background:color-mix(in srgb,var(--ink) 6%,transparent)}
+.h-actions .btn.h-free:hover svg{transform:translateY(2px)}
+@media(min-width:981px){.pillbar .nav{gap:2px}.pillbar .nav a{padding:8px 12px;font-size:14.5px}}

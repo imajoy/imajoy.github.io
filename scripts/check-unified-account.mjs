@@ -20,7 +20,7 @@ try{
   assert.equal(await page.locator('[data-account-button]').textContent(),'Register / Login');
   await page.locator('[data-account-button]').click();
   await page.locator('#acct-input').fill('new@example.com');await page.locator('.acct-form [type=submit]').click();
-  await page.locator('[data-resend]').waitFor();assert.match(await page.locator('.acct-note').first().textContent(),/not registered yet/);
+  await page.locator('[data-resend]').waitFor();assert.match(await page.locator('.acct-note').first().textContent(),/Sent to new@example.com/);
   assert.equal(await page.locator('#acct-input').getAttribute('autocomplete'),'one-time-code');
   assert.equal(await page.locator('#acct-countdown').textContent(),'Code expires in 2:00');
   assert(await page.locator('[data-resend]').isDisabled());assert.equal(app.sheets.has('Accounts'),false);
@@ -36,7 +36,7 @@ try{
   await page.locator('[data-out]').waitFor();assert.equal(app.sheets.get('Accounts').rows.length,2);
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ajoy.acct')).email),'new@example.com');
   await page.locator('[data-out]').click();await page.locator('#acct-input').fill('buyer@example.com');await page.locator('.acct-form [type=submit]').click();
-  await page.locator('[data-resend]').waitFor();assert.match(await page.locator('.acct-note').first().textContent(),/email is registered/);
+  await page.locator('[data-resend]').waitFor();assert.match(await page.locator('.acct-note').first().textContent(),/Sent to /);
   assert.equal(await page.evaluate(()=>localStorage.getItem('ajoy.acct')),null,'Knowing an email must not grant account access');
   const loginCode=app.mails.at(-1).subject.match(/\d{6}/)[0];await page.locator('#acct-input').fill(loginCode);await page.locator('[data-out]').waitFor();
   assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('ajoy.acct')).email),'buyer@example.com');

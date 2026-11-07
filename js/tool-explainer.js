@@ -15,12 +15,12 @@ const ARROW = '<svg viewBox="0 0 24 24" width="22" height="22"><path d="M5 3l14 
 
 class Player {
   constructor(fig, list) {
-    this.fig = fig; this.list = list; this.li = 0;
+    this.fig = fig; this.list = list; this.li = 0; fig.__player = this;
     this.shell(); this.load(list[0]);
     this.playing = false; this.visible = false;
     if (reduce) { this.seekEnd(this.steps.length - 1); }
     else {
-      new IntersectionObserver(es => { this.visible = es[0].isIntersecting; this.sync(); }, { threshold: .3 }).observe(this.root);
+      new IntersectionObserver(es => { this.visible = es[0].isIntersecting; this.sync(); }, { threshold: .12 }).observe(this.root);
       document.addEventListener('visibilitychange', () => this.sync());
     }
   }

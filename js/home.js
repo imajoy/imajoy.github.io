@@ -100,7 +100,16 @@
       /* touch: first tap previews the tool in the editor above, second tap opens its guide */
       r.addEventListener('click', function (e) { if (matchMedia('(hover: none)').matches && r !== cur) { e.preventDefault(); pick(r); } });
     });
-    var start = rows.filter(function (r) { return /drag-drop/.test(r.getAttribute('href')); })[0] || rows[0];
+    var start = rows.filter(function (r) { return /ik-fk-snap/.test(r.getAttribute('href')); })[0] || rows[0];
+    /* the shelf demo walks through the tools by itself, and stops while someone is using it */
+    var lastUser = 0, shelfVisible = false, tree = q('.o-tree'), app0 = ae.closest('.o-app') || ae;
+    ['pointerdown', 'pointerenter', 'focusin', 'touchstart'].forEach(function (ev) { app0.addEventListener(ev, function () { lastUser = Date.now(); }, { passive: true }); });
+    if ('IntersectionObserver' in window) new IntersectionObserver(function (es) { shelfVisible = es[0].isIntersecting; }, { threshold: .35 }).observe(app0);
+    if (!reduce) setInterval(function () {
+      if (!shelfVisible || document.hidden || Date.now() - lastUser < 16000) return;
+      var next = rows[(rows.indexOf(cur) + 1) % rows.length]; pick(next);
+      if (tree && tree.scrollHeight > tree.clientHeight) tree.scrollTo({ top: Math.max(0, next.offsetTop - tree.clientHeight / 2), behavior: 'smooth' });
+    }, 10500);
     pick(start, true); ae.classList.add('ready'); var app = ae.closest('.o-app'); if (app) app.classList.add('ready');
   }
 })();

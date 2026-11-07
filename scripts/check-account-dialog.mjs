@@ -41,7 +41,7 @@ try{
    await page.locator('[data-out]').click();await layout(page);
    assert.equal(await page.locator('.acct-form input').evaluate(el=>getComputedStyle(el).borderTopWidth),'1px');
    await page.keyboard.press('Escape');await page.locator('[data-account-button]').click();await layout(page);
-   assert.match(await page.locator('#acct-title').textContent(),/Your email. One account/);
+   assert.match(await page.locator('#acct-title').textContent(),/Your email\./);
    await context.close();
   }
  }

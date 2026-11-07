@@ -91,3 +91,7 @@ html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
 .acct-auto::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ac1);animation:acct-pulse 1.8s ease-in-out infinite;flex:none}
 @keyframes acct-pulse{50%{transform:scale(1.7);opacity:.4}}
 @media(prefers-reduced-motion:reduce){.acct-auto::before{animation:none}}
+/* minimal: label is for screen readers only */
+.acct-form label{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+.acct-form input::placeholder{color:var(--mute,#8a94a8);opacity:.8}
+.acct-privacy{font-size:12.5px;margin-top:18px;text-align:center}

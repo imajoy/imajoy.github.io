@@ -33,7 +33,8 @@
       .filter(function (el) { return !el.closest('.reveal,[data-r],[data-policy-reveal],dialog,.coffee,[hidden]') && el.getBoundingClientRect().top > innerHeight * .9; });
     if (!els.length) return;
     root.classList.add('rv-js');
-    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('rv-in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px', threshold: .08 });
-    els.forEach(function (el) { el.classList.add('rv'); io.observe(el); });
+    var io = new IntersectionObserver(function (es) { es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('rv-in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px', threshold: 0 });
+    /* very tall blocks (long legal text) are never hidden: a fractional threshold could never be met on a phone */
+    els.forEach(function (el) { if (el.getBoundingClientRect().height > innerHeight * .8) return; el.classList.add('rv'); io.observe(el); });
   });
 })();

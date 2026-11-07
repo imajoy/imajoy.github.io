@@ -189,3 +189,8 @@ body.pro-page .btn-ghost-dark:hover{border-color:rgba(255,255,255,.85)}
  html body.pro-page #trial .trial-art,html body.pro-page #trial .trial-art *{display:none!important;visibility:hidden!important}
  html body.pro-page #trial .trial-stage{grid-template-columns:1fr!important}
 }
+
+/* all trial promos (hero banner, trial section, pop-up offer, "Explore the free trial" button) are hidden on every phone and folding phone */
+@media(max-width:767px),(max-width:960px) and (max-height:520px) and (pointer:coarse){
+ html body.pro-page :is(.trial-banner,#trial,.trial-showcase,.trial-nudge,a[href="#trial"]){display:none!important}
+}

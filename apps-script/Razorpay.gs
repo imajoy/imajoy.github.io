@@ -104,7 +104,7 @@ function razorpayTrialConflict_(signals,exceptId,usedOnly){
     return ['emailHash','deviceHash','ipHash'].some(function(k){return !!signals[k]&&!!r.trial[k]&&signals[k]===r.trial[k];});
   });
 }
-function razorpayTrialUsedByEmail_(email){return razorpayRows_().some(function(r){return r.mode===razorpayMode_()&&r.email===email&&!!r.trialUsedAt;});}
+function razorpayTrialUsedByEmail_(email){return razorpayRows_().some(function(r){return r.mode===razorpayMode_()&&canonEmail_(r.email)===canonEmail_(email)&&!!r.trialUsedAt;});}
 function razorpayTrialCheck_(d,email,exceptId){
   var signals=commerceSignals_(d,email);
   if(commerceHistoricalTrial_(email)||commerceConflict_(signals,exceptId||'',true))throw commerceError_('trial_used','4-day trial already claimed. You can continue with a paid subscription.');
@@ -230,7 +230,7 @@ function razorpayAcceptTrial_(id,subscription){
   return commerceLock_(function(){
     var current=razorpayFind_(id);
     if(current.accepted)return razorpayPublic_(current);
-    var signals=current.trial||{emailHash:trialHash_('email:'+current.email)};
+    var signals=current.trial||{emailHash:trialHash_('email:'+canonEmail_(current.email))};
     if(commerceHistoricalTrial_(current.email)||commerceConflict_(signals,current.id,true)){
       try{razorpayApi_('/subscriptions/'+encodeURIComponent(current.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:0});}catch(e){}
       current.state='blocked';current.providerStatus='cancelled';razorpayWrite_(current);

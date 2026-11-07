@@ -231,13 +231,13 @@ function couponUses_(code,email,exceptId) {
     if(r[0]===exceptId||r[1]!==mode_())return;
     var c=(rewardBuyer_(r).loyalty||{}).coupon;if(!c||couponCode_(c.code)!==code)return;
     var live=r[12]==='accepted'||['reserved','created'].indexOf(r[12])>=0&&Date.now()-new Date(r[13]).getTime()<1800000;
-    if(!live)return;total++;if(email&&r[2]===email)mine++;
+    if(!live)return;total++;if(email&&canonEmail_(r[2])===canonEmail_(email))mine++;
   });
   if(typeof razorpayRows_==='function')razorpayRows_().forEach(function(r){
     if(r.id===exceptId||r.mode!==razorpayMode_())return;
     var c=r.price&&r.price.discount&&r.price.discount.coupon;if(!c||couponCode_(c.code)!==code)return;
     var live=r.accepted||['creating','created'].indexOf(r.state)>=0&&Date.now()-r.createdAt<1800000;
-    if(!live)return;total++;if(email&&r.email===email)mine++;
+    if(!live)return;total++;if(email&&canonEmail_(r.email)===canonEmail_(email))mine++;
   });
   return {total:total,mine:mine};
 }

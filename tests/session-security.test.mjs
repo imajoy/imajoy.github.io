@@ -40,3 +40,15 @@ test('Deleting an account also kills its old tokens, even if the email registers
  assert.ok(app.ctx.revokedBefore_(mail)>0,'revocation recorded so a re-registered email cannot revive it');
  assert.equal(app.ctx.readSession_(t),null);
 });
+test('Email aliases count as one mailbox for trials and coupons',()=>{
+ const app=service();
+ for(const [a,b] of [['jo.hn@gmail.com','john@gmail.com'],['john+x1@gmail.com','john@googlemail.com'],['sam+a@example.com','sam@example.com']])assert.equal(app.ctx.canonEmail_(a),app.ctx.canonEmail_(b));
+ assert.notEqual(app.ctx.canonEmail_('a.b@example.com'),app.ctx.canonEmail_('ab@example.com'),'dots only matter for Gmail');
+});
+test('Mass new sign-ups hit a cap but existing customers can always get a code',()=>{
+ const app=service();app.register('keeper@example.com');
+ let blocked=0;
+ for(let i=0;i<30;i++){const r=app.call({step:'code',email:'newperson'+i+'@example.com',intent:'register'});if(r.error==='busy')blocked++;}
+ assert.ok(blocked>=10,'blocked '+blocked);
+ assert.equal(app.call({step:'code',email:'keeper@example.com'}).ok,true);
+});

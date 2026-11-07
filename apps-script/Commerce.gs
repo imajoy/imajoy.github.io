@@ -52,7 +52,7 @@ function commerceHistoricalTrial_(email) {
   if(typeof razorpayTrialUsedByEmail_==='function'&&razorpayTrialUsedByEmail_(email))return true;
   var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
   if(!sheet||sheet.getLastRow()<2)return false;
-  return sheet.getRange(2,1,sheet.getLastRow()-1,12).getValues().some(function(r){return r[3]===mode_()&&String(r[4]).toLowerCase()===email&&(['ACTIVE','APPROVED'].indexOf(r[2])>=0)&&(String(r[7]).indexOf('trial')>=0||isTrialPlan_(String(r[11])));});
+  return sheet.getRange(2,1,sheet.getLastRow()-1,12).getValues().some(function(r){return r[3]===mode_()&&canonEmail_(r[4])===canonEmail_(email)&&(['ACTIVE','APPROVED'].indexOf(r[2])>=0)&&(String(r[7]).indexOf('trial')>=0||isTrialPlan_(String(r[11])));});
 }
 function commerceConflict_(signals,exceptId,usedOnly) {
   if(typeof razorpayTrialConflict_==='function'&&razorpayTrialConflict_(signals,exceptId,usedOnly))return true;
@@ -68,7 +68,7 @@ function commerceConflict_(signals,exceptId,usedOnly) {
 }
 function commerceSignals_(d,email) {
   if(d.deviceHash&&!/^[a-f0-9]{64}$/.test(d.deviceHash)||d.ipHash&&!/^[a-f0-9]{64}$/.test(d.ipHash))throw commerceError_('signals','Browser eligibility could not be verified.');
-  return {emailHash:trialHash_('email:'+email),deviceHash:d.deviceHash||'',ipHash:d.ipHash||''};
+  return {emailHash:trialHash_('email:'+canonEmail_(email)),deviceHash:d.deviceHash||'',ipHash:d.ipHash||''};
 }
 function commerceEligibility_(d,who) {
   var signals=commerceSignals_(d,who.email);
@@ -236,6 +236,6 @@ function backfillTrialHistory() {
     var s=commercePaypal_('/v1/billing/subscriptions/'+encodeURIComponent(String(r[1]))),payer=s.subscriber&&s.subscriber.payer_id;
     if(!payer)throw new Error('Cannot verify payer for '+r[1]+'. Resolve this order before enabling trials.');
     var email=String(r[4]).trim().toLowerCase(),now=new Date();
-    commerceLock_(function(){if(!commerceFind_(id))commerceWrite_([id,mode_(),email,trialHash_('email:'+email),'','','trial','online',r[8],Number(r[9])||1,r[11],r[1],'accepted',r[0],now,trialHash_('payer:'+payer),'yes','',r[6],'',r[0]||now,s.status]);});
+    commerceLock_(function(){if(!commerceFind_(id))commerceWrite_([id,mode_(),email,trialHash_('email:'+canonEmail_(email)),'','','trial','online',r[8],Number(r[9])||1,r[11],r[1],'accepted',r[0],now,trialHash_('payer:'+payer),'yes','',r[6],'',r[0]||now,s.status]);});
   });
 }

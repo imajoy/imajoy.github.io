@@ -267,6 +267,25 @@ function sessionSecret_() {
 function b64u_(bytes) { return Utilities.base64EncodeWebSafe(bytes).replace(/=+$/, ''); }
 function sign_(text) { return b64u_(Utilities.computeHmacSha256Signature(text, sessionSecret_())); }
 var SESSION_MS_ = 30 * 24 * 3600 * 1000;
+/* One mailbox, one identity: name+tag@gmail.com and n.a.me@gmail.com are the same inbox as name@gmail.com. Used for trial and coupon limits. */
+function canonEmail_(email) {
+  var e = String(email || '').trim().toLowerCase(), at = e.lastIndexOf('@');
+  if (at < 1) return e;
+  var local = e.slice(0, at), domain = e.slice(at + 1);
+  if (domain === 'googlemail.com') domain = 'gmail.com';
+  var plus = local.indexOf('+'); if (plus > 0) local = local.slice(0, plus);
+  if (domain === 'gmail.com') local = local.replace(/\./g, '');
+  return local + '@' + domain;
+}
+/* Fixed-window counter: returns false once `limit` hits were made inside `ttlSec` seconds. */
+function bump_(cache, key, limit, ttlSec) {
+  var now = Date.now(), o = null;
+  try { o = JSON.parse(cache.get(key) || 'null'); } catch (err) { o = null; }
+  if (!o || now - o.s > ttlSec * 1000) o = { n: 0, s: now };
+  if (o.n >= limit) return false;
+  o.n++; cache.put(key, JSON.stringify(o), Math.max(1, Math.ceil(ttlSec - (now - o.s) / 1000)));
+  return true;
+}
 /* Constant-time comparison so a signature cannot be guessed one character at a time. */
 function safeEq_(a, b) { a = String(a); b = String(b); if (a.length !== b.length) return false; var r = 0; for (var i = 0; i < a.length; i++) r |= a.charCodeAt(i) ^ b.charCodeAt(i); return r === 0; }
 /* Sign-out and account deletion revoke every token issued before that moment. Entries older than a token's life are dropped. */
@@ -442,6 +461,11 @@ function handleAccount_(d) {
       cache.put(key, String(n + 1), 3600);
       // Legacy sign-in-only requests still reject unknown emails; unified requests register only after verification.
       var registered = registeredEmail_(email);
+      // Mass sign-ups must not use up the mail quota that real customers need to receive their codes: only NEW addresses are capped.
+      if (!registered) {
+        var quota = (typeof MailApp !== 'undefined' && MailApp.getRemainingDailyQuota) ? MailApp.getRemainingDailyQuota() : 999;
+        if (quota < 25 || !bump_(cache, 'sends-new', 20, 600)) return { ok: false, error: 'busy' };
+      }
       var intent = !registered && ['register','auto'].indexOf(d.intent)>=0 ? 'register' : 'signin';
       if (!registered && intent !== 'register') return { ok: false, error: 'not_registered', registrationAvailable: true };
       cache.put('intent:' + email, intent, 120);

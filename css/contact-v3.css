@@ -81,3 +81,27 @@ html[data-theme=dark] .contact-send{background:linear-gradient(95deg,#3E7BFF,#8A
  .contact-form>.contact-field:nth-child(5),.contact-form>.contact-field:nth-child(6){grid-column:1/-1}
  .contact-copy{padding:196px 18px 0}
 }
+
+/* ---- attachment: clear inline error for oversize / wrong files ---- */
+.attachment-status[data-error=true]:not(:empty){position:relative;margin-top:10px;padding:12px 14px 12px 44px;border:1px solid #f1c7c2;border-radius:14px;background:#fff6f5;color:#8a2d23;font-size:.8125rem;line-height:1.5;animation:ct-shake .4s linear}
+.attachment-status[data-error=true]:not(:empty)::before{content:'!';position:absolute;left:13px;top:12px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#c2412f;color:#fff;font:700 .72rem/1 var(--sans)}
+html[data-theme=dark] .attachment-status[data-error=true]:not(:empty){border-color:#5a2a25;background:#2a1311;color:#ffc2b8}
+.attachment-picker[data-state=error]{border-color:#c2412f!important;background:color-mix(in srgb,#c2412f 6%,transparent)!important;animation:ct-shake .4s linear}
+#attachment-help{position:static!important;width:auto!important;height:auto!important;clip-path:none!important;overflow:visible!important;margin:2px 0 10px;font-size:.78rem;color:var(--mute)}
+@keyframes ct-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
+
+/* ---- progress: four segments that light up as each required detail is done ---- */
+.draft-meter>div{position:static!important;width:auto!important;height:auto!important;clip-path:none!important;overflow:visible!important;display:flex;justify-content:space-between;margin-bottom:8px;font-size:.75rem;font-weight:600;color:var(--mute)}
+.draft-meter progress{-webkit-mask:repeating-linear-gradient(90deg,#000 0 calc(25% - 5px),transparent calc(25% - 5px) 25%);mask:repeating-linear-gradient(90deg,#000 0 calc(25% - 5px),transparent calc(25% - 5px) 25%);height:6px!important;border-radius:0!important;transition:filter .2s linear}
+.draft-meter progress::-webkit-progress-bar{background:color-mix(in srgb,var(--ink,#0b1020) 12%,transparent)!important;border-radius:0!important}
+.draft-meter progress::-webkit-progress-value{background:linear-gradient(90deg,#e0a93a,#3D8BFF);border-radius:0;transition:width .35s linear,background .3s linear}
+.draft-meter progress::-moz-progress-bar{background:linear-gradient(90deg,#e0a93a,#3D8BFF);border-radius:0}
+.draft-meter[data-done="4"] progress::-webkit-progress-value{background:#2FB583}
+.draft-meter[data-done="4"] progress::-moz-progress-bar{background:#2FB583}
+.draft-meter[data-done="4"] #contact-ready-count{color:#1B7958}
+.draft-meter.just-done #contact-ready-count{animation:ct-pop .35s linear}
+@keyframes ct-pop{0%{transform:scale(1)}50%{transform:scale(1.08)}100%{transform:scale(1)}}
+/* each finished field swaps its star for a green tick */
+.contact-field[data-valid=true] .required-star,.contact-consent[data-valid=true] .required-star{font-size:0;color:transparent}
+.contact-field[data-valid=true] .required-star::after,.contact-consent[data-valid=true] .required-star::after{content:"✓";display:inline-block;font-size:.8125rem;font-weight:800;color:#1B7958;animation:ct-pop .35s linear}
+@media(prefers-reduced-motion:reduce){.attachment-picker[data-state=error],.attachment-status[data-error=true]:not(:empty),.draft-meter.just-done #contact-ready-count,.contact-field[data-valid=true] .required-star::after{animation:none!important}}

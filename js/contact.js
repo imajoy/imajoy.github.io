@@ -41,7 +41,11 @@ if(form){
  };
  function updateDraft(){
   const fields=form.elements;
-  const completed=Number(!!fields.name.value.trim())+Number(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(fields.email.value.trim()))+Number(fields.message.value.trim().length>=10)+Number(fields.consent.checked);meter.value=completed;ready.textContent=`${completed} of 4 details ready`;
+  const completed=Number(!!fields.name.value.trim())+Number(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(fields.email.value.trim()))+Number(fields.message.value.trim().length>=10)+Number(fields.consent.checked);const ok={name:!!fields.name.value.trim(),email:/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(fields.email.value.trim()),message:fields.message.value.trim().length>=10,consent:fields.consent.checked};
+  for(const k of Object.keys(ok)){const box=fields[k].closest('.contact-field,.contact-consent');if(box)box.dataset.valid=String(ok[k]);}
+  const before=Number(meter.value)||0;meter.value=completed;meter.dataset.done=String(completed);
+  ready.textContent=completed===4?'All set, ready to send':`${completed} of 4 details ready`;
+  const wrap=meter.closest('.draft-meter');if(wrap){wrap.dataset.done=String(completed);if(completed>before){wrap.classList.remove('just-done');void wrap.offsetWidth;wrap.classList.add('just-done');}}
  }
  document.querySelectorAll('[data-contact-mode]').forEach(button=>button.addEventListener('click',()=>{
   if(button.dataset.contactMode==='account'&&!getAccountSession()){wantsAccount=true;openAccount({intent:'signin',purpose:'contact'});return;}
@@ -63,7 +67,7 @@ if(form){
  });
  function clearAttachment(resetInput=true){
   fileVersion++;selecting=false;submit.disabled=busy;chosenFile=null;chosenInfo=null;if(resetInput)fileInput.value='';preview.hidden=true;preview.classList.remove('has-media');media.replaceChildren();
-  if(objectURL){URL.revokeObjectURL(objectURL);objectURL='';}attachmentStatus.textContent='';delete attachmentStatus.dataset.error;
+  if(objectURL){URL.revokeObjectURL(objectURL);objectURL='';}attachmentStatus.textContent='';delete attachmentStatus.dataset.error;delete picker.dataset.state;fileInput.removeAttribute('aria-invalid');
  }
  function renderPreview(){
   media.replaceChildren();preview.classList.remove('has-media');if(objectURL){URL.revokeObjectURL(objectURL);objectURL='';}
@@ -79,11 +83,13 @@ if(form){
   preview.hidden=false;
  }
  async function chooseFile(file,fromInput=false){
-  if(busy)return;clearAttachment(!fromInput);if(!file)return;const version=fileVersion;selecting=true;submit.disabled=true;
+  if(busy)return;clearAttachment(!fromInput);if(!file)return;const version=fileVersion;
+  if(file.size>5*1024*1024){fileInput.value='';const mb=(file.size/1048576).toFixed(1);attachmentStatus.textContent='That file is '+mb+' MB, over the 5 MB limit. Try a screenshot, a shorter clip, or a smaller export. No attachment selected.';attachmentStatus.dataset.error='true';picker.dataset.state='error';fileInput.setAttribute('aria-invalid','true');return;}
+  selecting=true;submit.disabled=true;
   try{
    const info=await inspectAttachment(file);if(version!==fileVersion)return;chosenFile=file;chosenInfo=info;renderPreview();
    attachmentStatus.textContent='Ready to attach. Uploaded only when you send your message.';
-  }catch(error){if(version!==fileVersion)return;fileInput.value='';attachmentStatus.textContent=error.message+' No attachment selected.';attachmentStatus.dataset.error='true';}
+  }catch(error){if(version!==fileVersion)return;fileInput.value='';attachmentStatus.textContent=error.message+' No attachment selected.';attachmentStatus.dataset.error='true';picker.dataset.state='error';fileInput.setAttribute('aria-invalid','true');}
   finally{if(version===fileVersion){selecting=false;submit.disabled=busy;}}
  }
  fileInput.addEventListener('change',()=>chooseFile(fileInput.files[0],true));

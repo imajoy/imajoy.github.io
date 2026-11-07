@@ -164,3 +164,13 @@ html body.pro-page .pp-words em{background:none!important;-webkit-text-fill-colo
 html body.pro-page :is(.block,.frame-inner) .pp-words em .pw>span{background:linear-gradient(100deg,var(--gold-3),var(--gold-2) 45%,var(--blue-d));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;padding-right:.08em}
 html[data-theme=dark] body.pro-page :is(.block,.frame-inner) .pp-words em .pw>span{background-image:linear-gradient(100deg,#ffe2a8,#f2b64f 45%,#8dbbff)}
 html body.pro-page .trial-stage .pp-words em .pw>span{-webkit-text-fill-color:#9CC3FF;color:#9CC3FF;background:none}
+
+/* header breathing room on phones + stronger outlines on secondary buttons */
+@media(max-width:520px){body.pro-page .pillbar{gap:14px!important;padding:8px 10px 8px 14px}body.pro-page .pillbar .theme{margin-inline:2px}}
+@media(max-width:380px){body.pro-page .pillbar{gap:12px!important;padding:7px 8px 7px 12px}}
+body.pro-page .btn-light{border:1.5px solid #8d98b0;color:#0D111C}
+body.pro-page .btn-light:hover{border-color:#5d6a88}
+html[data-theme=dark] body.pro-page .btn-light{border-color:#6b7799;color:#ECEFF8}
+html[data-theme=dark] body.pro-page .btn-light:hover{border-color:#9db0dd}
+body.pro-page .btn-ghost-dark{border:1.5px solid rgba(255,255,255,.55);background:rgba(255,255,255,.1)}
+body.pro-page .btn-ghost-dark:hover{border-color:rgba(255,255,255,.85)}

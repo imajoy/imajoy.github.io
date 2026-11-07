@@ -39,3 +39,13 @@
 (function(){var st=document.querySelector('.pro-stage');if(!st)return;
  if(!('IntersectionObserver' in window)){st.classList.add('is-in');return;}
  var io=new IntersectionObserver(function(es){if(es[0].isIntersecting){st.classList.add('is-in');io.disconnect();}},{threshold:.06});io.observe(st);})();
+
+/* hero scroll: the two headline lines part and the window settles back (direct transform writes, no CSS-variable cascade) */
+(function(){var hero=document.querySelector('.hero.hv');if(!hero)return;
+ if(matchMedia('(prefers-reduced-motion: reduce)').matches||!matchMedia('(min-width:981px)').matches)return;
+ var l1=hero.querySelector('.ln:nth-child(1)'),l2=hero.querySelector('.ln:nth-child(2)'),pt=hero.querySelector('.hv-portal'),tick=0,last=-1;
+ if(!l1||!l2||!pt)return;
+ function paint(){tick=0;var h=Math.max(hero.offsetHeight,1),p=Math.min(1,Math.max(0,scrollY/(h*.55)));p=Math.round(p*200)/200;if(p===last)return;last=p;
+  var e=p*p*(3-2*p);l1.style.transform='translate3d('+(-e*7).toFixed(2)+'vw,0,0)';l2.style.transform='translate3d('+(e*7).toFixed(2)+'vw,0,0)';
+  pt.style.transform='translate3d(0,'+(e*14).toFixed(1)+'px,0) scale('+(1-e*.04).toFixed(4)+')';}
+ addEventListener('scroll',function(){if(!tick)tick=requestAnimationFrame(paint);},{passive:true});paint();})();

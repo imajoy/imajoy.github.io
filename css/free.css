@@ -93,7 +93,7 @@ html[data-theme=dark] .ft-coffee-card{background:linear-gradient(135deg,#2A1D14,
 .js .ft-card.reveal.in:hover,.js .ft-card.reveal.in:focus-visible{transform:translateY(-6px)}
 .ft-grid .ft-card:nth-child(2){transition-delay:0s}.js .ft-grid .ft-card.reveal:not(.in):nth-child(2){transition-delay:.08s}.js .ft-grid .ft-card.reveal:not(.in):nth-child(3){transition-delay:.16s}.js .ft-grid .ft-card.reveal:not(.in):nth-child(4){transition-delay:.24s}
 .free-pro h2 em{color:#FFE29A}
-@media(max-width:430px){.pillbar:has(.nav-pro)>.maker-home{display:none}}
+
 
 /* ---------- Free download: waiting state, progress card, success pop ---------- */
 .ft-download{position:relative;overflow:visible;isolation:isolate}

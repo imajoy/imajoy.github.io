@@ -129,3 +129,9 @@ html[data-theme=dark] .attachment-status[data-error=true]:not(:empty){border-col
  #attachment-help{margin:0 0 6px!important}
  .contact-consent{margin-bottom:16px!important}
 }
+
+/* Send button: anchor it on a bright card (light theme) with a crisp edge, a blue-navy glow and a top highlight */
+html:not([data-theme=dark]) .contact-send:not(:disabled){box-shadow:0 0 0 1.5px #0b1020,0 0 0 4px rgba(61,139,255,.22),0 18px 30px -12px rgba(18,30,90,.6),inset 0 1px 0 rgba(255,255,255,.22)!important}
+html:not([data-theme=dark]) .contact-send:not(:disabled):hover{box-shadow:0 0 0 1.5px #0b1020,0 0 0 5px rgba(61,139,255,.3),0 26px 34px -14px rgba(18,30,90,.65),inset 0 1px 0 rgba(255,255,255,.25)!important}
+html:not([data-theme=dark]) .contact-send:not(:disabled):focus-visible{outline:3px solid #3D8BFF;outline-offset:3px}
+html:not([data-theme=dark]) .contact-send:disabled{box-shadow:0 0 0 1.5px color-mix(in srgb,#0b1020 45%,transparent)!important;filter:none;opacity:.78}

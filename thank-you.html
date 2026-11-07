@@ -6,7 +6,7 @@
 <link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v=20261107-hs1">
 <link rel="stylesheet" href="css/commerce.css?v=20261017-r7">
-<link rel="stylesheet" href="css/thank-you.css?v=20261025-setup1"><link rel="stylesheet" href="css/thank-you-v2.css?v=ty7">
+<link rel="stylesheet" href="css/thank-you.css?v=20261025-setup1"><link rel="stylesheet" href="css/thank-you-v2.css?v=ty8">
 <script src="js/site-config.js?v=20261023-p4"></script>
 <link rel="stylesheet" href="css/mobile.css?v=20261107-pb2">
 <link rel="stylesheet" href="css/coffee.css?v=20261023-c1"><link rel="stylesheet" href="css/hover-fx.css?v=20261103-hv2"><link rel="stylesheet" href="css/transitions.css?v=vt2"></head>
@@ -30,14 +30,6 @@
         <a class="btn btn-light" href="wrapline.html">Back to Wrapline Pro</a>
         <a class="ty-history-link" href="#ty-archive">View invoices</a>
       </div>
-      <div class="ty-manage" id="ty-manage">
-        <a class="ty-manage-main" href="wrapline.html#register"><span class="ty-manage-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.5-2-3.4-2.3.9a7.5 7.5 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7.5 7.5 0 0 0-1.7 1l-2.3-.9-2 3.4 2 1.5a7.7 7.7 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9c.5.4 1.1.7 1.7 1l.4 2.5h4l.4-2.5c.6-.3 1.2-.6 1.7-1l2.3.9 2-3.4z"/></svg></span><span><b>Manage subscription &amp; licenses</b><small>Add or remove computers, change plan, stop renewal</small></span><i aria-hidden="true">&rarr;</i></a>
-      </div>
-      <div class="ty-first" id="ty-first" aria-label="Your first step">
-        <div class="ty-first-demo" aria-hidden="true"><span class="ty-first-vp"><i></i><i></i><i></i></span><span class="ty-first-file"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>setup</span><span class="ty-first-ring"></span></div>
-        <div class="ty-first-copy"><p class="ty-first-k">Your first step</p><p><b>Drag the setup file into the Maya viewport.</b> Download it above, then drop it onto Maya&rsquo;s 3D view. The installer opens by itself.</p></div>
-      </div>
-      <p class="ty-fine" id="ty-fine">Need help or want to stop automatic renewal? Open <b>Account</b> on the Wrapline Pro page, or <a href="contact.html">contact support</a>.</p>
     </section>
 
     <aside class="ty-side" aria-label="Your order and what happens next">
@@ -65,16 +57,21 @@
       </ol>
     </aside>
   </div>
-  <section class="wrap ty-receipt-wrap" id="ty-receipt-sec" aria-labelledby="ty-receipt-title" hidden>
-    <article class="ty-receipt" id="ty-receipt">
-      <header class="ty-r-head"><div><p class="ty-r-kicker">Receipt</p><h2 id="ty-receipt-title">Your order</h2></div><span class="ty-stamp" id="ty-stamp" aria-hidden="true">Confirmed</span></header>
-      <dl class="ty-r-rows" id="ty-r-rows"></dl>
-      <div class="ty-r-total"><span id="ty-r-total-label">Total</span><b id="ty-r-total">—</b></div>
-      <p class="ty-r-note" id="ty-r-note"></p>
-      <div class="ty-r-actions"><button type="button" class="btn btn-light" id="ty-r-print">Print or save as PDF</button></div>
-    </article>
+  <section class="wrap ty-start" id="ty-start" aria-labelledby="ty-start-title">
+    <h2 class="ty-sec-title" id="ty-start-title">Get started</h2>
+    <div class="ty-start-grid">
+      <div class="ty-manage" id="ty-manage">
+        <a class="ty-manage-main" href="wrapline.html#register"><span class="ty-manage-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.5-2-3.4-2.3.9a7.5 7.5 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7.5 7.5 0 0 0-1.7 1l-2.3-.9-2 3.4 2 1.5a7.7 7.7 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9c.5.4 1.1.7 1.7 1l.4 2.5h4l.4-2.5c.6-.3 1.2-.6 1.7-1l2.3.9 2-3.4z"/></svg></span><span><b>Manage subscription &amp; licenses</b><small>Add or remove computers, change plan, stop renewal</small></span><i aria-hidden="true">&rarr;</i></a>
+      </div>
+      <div class="ty-first" id="ty-first" aria-label="Your first step">
+        <div class="ty-first-demo" aria-hidden="true"><span class="ty-first-vp"><i></i><i></i><i></i></span><span class="ty-first-file"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>setup</span><span class="ty-first-ring"></span></div>
+        <div class="ty-first-copy"><p class="ty-first-k">Your first step</p><p><b>Drag the setup file into the Maya viewport.</b> Download it above, then drop it onto Maya&rsquo;s 3D view. The installer opens by itself.</p></div>
+      </div>
+      <p class="ty-fine" id="ty-fine">Need help or want to stop automatic renewal? Open <b>Account</b> on the Wrapline Pro page, or <a href="contact.html">contact support</a>.</p>
+    </div>
   </section>
-  <section class="wrap ty-archive" id="ty-archive" aria-labelledby="ty-archive-title" hidden><h2 id="ty-archive-title">Your invoices</h2><p id="ty-archive-note">Loading your payment history…</p><div id="ty-invoices"></div><button type="button" class="btn btn-light" id="ty-invoice-retry">Refresh invoices</button></section>
+  <section class="wrap ty-receipt-wrap" id="ty-receipt-sec" aria-labelledby="ty-receipt-title" hidden><h2 class="ty-sec-title" id="ty-receipt-title">Your invoice</h2><div id="ty-receipt"></div></section>
+  <section class="wrap ty-archive" id="ty-archive" aria-labelledby="ty-archive-title" hidden><h2 class="ty-sec-title" id="ty-archive-title">Your invoices</h2><p id="ty-archive-note">Loading your payment history…</p><div id="ty-invoices"></div><button type="button" class="btn btn-light" id="ty-invoice-retry">Refresh invoices</button></section>
   <section class="wrap ty-explore" id="ty-explore" aria-labelledby="ty-explore-title">
     <div class="ty-explore-head"><h2 id="ty-explore-title">Keep exploring</h2><p>Guides for the tools in your plan, and more from Ajoy Tools.</p></div>
     <div class="ty-explore-grid">
@@ -90,6 +87,6 @@
   </section>
 </main>
 <footer class="commerce-footer">© 2026 AJOY <a href="license.html">License terms</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></footer>
-<script type="module" src="js/thank-you.js?v=20261107-ty4"></script>
+<script type="module" src="js/thank-you.js?v=20261107-ty5"></script>
 <script type="module" src="js/coffee.js?v=20261101-f2"></script><script src="js/smooth-scroll.js?v=sm1" defer></script><script src="js/transitions.js?v=vt3"></script><script src="js/media-guard.js?v=mg1" defer></script>
 </body></html>

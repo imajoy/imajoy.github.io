@@ -1,5 +1,6 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
 import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
+import {buildInvoiceDoc,printDoc} from './ty-invoice.js?v=iv1';
 import {mountSetupProgress} from './setup-progress.js?v=20261101-auto1';
 let progress=null;
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
@@ -102,12 +103,11 @@ function loadArchive(){
    when.textContent=inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'medium'}):'';
    chip.textContent=zero?'No payment due':'Paid';chip.dataset.kind=zero?'free':'paid';
    left.append(title,when);summary.append(left,chip,total);details.append(summary);
+   const cur2=/^[A-Z]{3}$/.test(inv.currency)?inv.currency:'USD',money2=v=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:cur2}).format(v);}catch{return cur2+' '+Number(v).toFixed(2);}};
+   const doc=buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:zero?'No payment due':'Paid',statusKind:zero?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,title:'Wrapline Pro '+inv.plan,sub:inv.billing,seats:Number(inv.seats)||1,money:money2,total:Number(inv.amount)||0,totalLabel:zero?'Total due':'Total paid',note:zero?'No payment was due on this order. This invoice is your record of it.':''});
    const body=document.createElement('div');body.className='ty-invoice-body';
-   for(const [label,value] of [['Seller',inv.seller||'Ajoy Tools'],['Date',inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—'],['Billed to',session.email],['Item',inv.plan],['Billing',inv.billing],['Licenses',String(inv.seats)],[zero?'Provider':'Paid with',inv.provider],[zero?'Reference':'Payment ID',inv.paymentId],[zero?'Total due':'Total paid',total.textContent]]){
-    const row=document.createElement('p'),name=document.createElement('span'),text=document.createElement('b');name.textContent=label;text.textContent=value;row.append(name,text);body.append(row);
-   }
-   const print=document.createElement('button');print.type='button';print.className='btn btn-light ty-print';print.textContent='Print or save as PDF';print.addEventListener('click',()=>{details.open=true;details.classList.add('ty-print-target');window.addEventListener('afterprint',()=>details.classList.remove('ty-print-target'),{once:true});window.print();});
-   body.append(print);details.append(body);box.append(details);
+   const print=document.createElement('button');print.type='button';print.className='btn btn-light ty-print';print.textContent='Print or save as PDF';print.addEventListener('click',()=>{details.open=true;printDoc(doc);});
+   body.append(doc,print);details.append(body);box.append(details);
   }
   if('IntersectionObserver' in window){const reveal=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){archive.dataset.ready='true';reveal.disconnect();}},{threshold:.12});reveal.observe(archive);}else archive.dataset.ready='true';
   $('ty-archive-note').textContent=data.archivePending?'Online invoices are being connected. Your existing invoices remain in your verified email inbox.':data.invoices.length?'Invoices are also sent to your verified email after each payment.':(archiveMode?'No invoices here yet. Each paid or free order appears as soon as its invoice is issued.':'Payment received. Your invoice is being prepared and will appear here and in your email shortly. You don\'t need to do anything.');
@@ -152,24 +152,16 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
  const kind=trial?'trial':free?'free':plan==='Premium'?'premium':'basic';
  main.dataset.tyKind=kind;document.body.dataset.tyKind=kind;
  const money=v=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:cur}).format(v);}catch{return cur+' '+v.toFixed(2);}};
- const rows=$('ty-r-rows'),email=getAccountSession()?.email||'';
- const add=(k,v)=>{if(!v)return;const d=document.createElement('div'),a=document.createElement('dt'),b=document.createElement('dd');a.textContent=k;b.textContent=v;d.append(a,b);rows.append(d);};
+ const email=getAccountSession()?.email||'';
  const orderRef=(q.get('checkout')||'').replace(/[^a-f0-9]/gi,'').slice(0,8).toUpperCase();
- add('Item','Wrapline Pro '+plan+(trial?' · 4-day trial':' · '+billing));
- add('Licenses',seats+(seats===1?' license':' licenses'));
- add('Date',new Date().toLocaleDateString(undefined,{dateStyle:'long'}));
- add('Billed to',email);
- add(provider&&!free&&!trial?'Paid with':'Provider',provider);
- if(coupon)add('Coupon',coupon);
- if(orderRef)add('Order',orderRef);
- const label=$('ty-r-total-label'),total=$('ty-r-total'),note=$('ty-r-note');
- if(paidKnown){
-  label.textContent=paid===0?'Total due today':'Total paid';total.textContent=money(paid);
-  note.textContent=paid===0?'Nothing was due today. Your invoice is still emailed to you'+(email?' at '+email:'')+', and it is kept in your account.':'Your invoice is emailed to you'+(email?' at '+email:'')+' and kept in your account.';
-  if(paid>0&&!matchMedia('(prefers-reduced-motion:reduce)').matches){const t0=performance.now();total.textContent=money(0);const step=n=>{const k=Math.min(1,(n-t0-600)/1100);if(k>=0)total.textContent=money(paid*(1-Math.pow(1-k,4)));if(k<1)requestAnimationFrame(step);else total.textContent=money(paid);};requestAnimationFrame(step);}
- }else{label.textContent='Total';total.textContent='On your invoice';note.textContent='Your invoice is emailed to you'+(email?' at '+email:'')+' and kept in your account.';}
- $('ty-stamp').textContent=trial?'Trial active':free?'Confirmed':'Paid';
+ const slot=$('ty-receipt');
+ const build=()=>{
+  slot.replaceChildren();
+  const doc=buildInvoiceDoc({kind:'Receipt',number:orderRef?'ORD-'+orderRef:'',date:new Date().toLocaleDateString(undefined,{dateStyle:'long'}),statusText:trial?'Trial active':free?'No payment due':'Paid',statusKind:(trial||free)?'free':'paid',email:getAccountSession()?.email||email,provider,reference:'',title:'Wrapline Pro '+plan,sub:trial?'4-day free trial, then '+billing.toLowerCase()+' billing':billing+' subscription',seats,money,total:paidKnown?paid:null,coupon,totalLabel:paidKnown?(paid===0?'Total due today':'Total paid'):'Total',note:paidKnown?(paid===0?'Nothing was due today. Your invoice is still emailed to you'+(email?' at '+email:'')+', and it is kept in your account.':'Your invoice is emailed to you'+(email?' at '+email:'')+' and kept in your account.'):'Your invoice is emailed to you'+(email?' at '+email:'')+' and kept in your account.'});
+  const act=document.createElement('div');act.className='ty-doc-actions';const btn=document.createElement('button');btn.type='button';btn.className='btn btn-light';btn.textContent='Print or save as PDF';btn.addEventListener('click',()=>printDoc(doc));act.append(btn);
+  slot.append(doc,act);
+ };
+ build();
  const sec=$('ty-receipt-sec'),sync=()=>{sec.hidden=main.dataset.tyState!=='confirmed'||archiveMode;};
  new MutationObserver(sync).observe(main,{attributes:true,attributeFilter:['data-ty-state']});sync();
- $('ty-r-print').addEventListener('click',()=>{document.body.classList.add('ty-printing');const done=()=>{document.body.classList.remove('ty-printing');removeEventListener('afterprint',done);};addEventListener('afterprint',done);window.print();});
 })();

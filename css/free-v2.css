@@ -90,7 +90,7 @@ body.free-page .faq summary{padding-block:18px;font-weight:700;font-size:clamp(1
 body.free-page .ft-rights li{border-radius:22px;background:var(--card);border:2px solid var(--line)}
 
 /* ---- smoothness ---- */
-@media(min-width:981px){html body.free-page #tools{content-visibility:auto;contain-intrinsic-size:auto 640px}html body.free-page #workflows{content-visibility:auto;contain-intrinsic-size:auto 1100px}html body.free-page #faq{content-visibility:auto;contain-intrinsic-size:auto 900px}}
+@media(min-width:981px){html body.free-page #tools{content-visibility:visible}html body.free-page #workflows{content-visibility:visible}html body.free-page #faq{content-visibility:visible}}
 html.pr-on body.free-page [data-pr]:not(.pr-in){opacity:0;transform:translate3d(0,calc(24px*var(--pr-d,1)),0)}
 html.pr-on body.free-page [data-pr]{transition:opacity .75s var(--fr-ease),transform .85s var(--fr-ease);transition-delay:calc(var(--pr-i,0)*70ms)}
 html.pr-on body.free-page [data-pr].pr-in{opacity:1;transform:none}

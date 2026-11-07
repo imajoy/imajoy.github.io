@@ -19,7 +19,8 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', intro); else intro();
 
-  /* ---- inertial wheel scrolling ---- */
+  /* ---- inertial wheel scrolling: OFF. The browser's own scrolling runs on the compositor and stays smooth even when the page is busy; a script-driven glide adds delay and stutter. ---- */
+  return;
   if (!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
   var cur = scrollY, target = scrollY, raf = 0, last = 0, set = scrollY, done = 0;
   var max = function () { return Math.max(0, root.scrollHeight - innerHeight); };

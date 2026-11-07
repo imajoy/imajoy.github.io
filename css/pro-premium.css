@@ -15,12 +15,12 @@ html body.pro-page .frame{animation:none}
 
 /* ---- 2. skip rendering what is far off screen ---- */
 @media(min-width:981px){
- html body.pro-page #workflows{content-visibility:auto;contain-intrinsic-size:auto 1300px}
- html body.pro-page #trial{content-visibility:auto;contain-intrinsic-size:auto 780px}
- html body.pro-page #tools{content-visibility:auto;contain-intrinsic-size:auto 1520px}
- html body.pro-page #install{content-visibility:auto;contain-intrinsic-size:auto 800px}
- html body.pro-page #pricing{content-visibility:auto;contain-intrinsic-size:auto 2000px}
- html body.pro-page #faq{content-visibility:auto;contain-intrinsic-size:auto 1180px}
+ html body.pro-page #workflows{content-visibility:visible}
+ html body.pro-page #trial{content-visibility:visible}
+ html body.pro-page #tools{content-visibility:visible}
+ html body.pro-page #install{content-visibility:visible}
+ html body.pro-page #pricing{content-visibility:visible}
+ html body.pro-page #faq{content-visibility:visible}
 }
 
 /* ---- 3. one light reveal ---- */

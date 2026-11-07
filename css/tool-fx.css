@@ -1,0 +1,42 @@
+/* Tool pages: living background + word-by-word headings + scroll-linked card drift */
+
+/* ---- background: soft colour fields that drift slowly and move as you scroll ---- */
+body:has(.tool-hero)::before{content:"";position:fixed;inset:-10vmax;z-index:-1;pointer-events:none;
+ background:
+  radial-gradient(38vmax 38vmax at 12% 18%,rgba(90,140,255,.20),transparent 70%),
+  radial-gradient(34vmax 34vmax at 88% 34%,rgba(170,120,255,.16),transparent 70%),
+  radial-gradient(40vmax 40vmax at 30% 92%,rgba(255,160,120,.14),transparent 70%);
+ animation:tx-drift 26s ease-in-out infinite alternate;will-change:transform}
+html[data-theme=dark] body:has(.tool-hero)::before{background:
+  radial-gradient(38vmax 38vmax at 12% 18%,rgba(70,120,255,.26),transparent 70%),
+  radial-gradient(34vmax 34vmax at 88% 34%,rgba(150,100,255,.22),transparent 70%),
+  radial-gradient(40vmax 40vmax at 30% 92%,rgba(255,130,100,.12),transparent 70%)}
+@keyframes tx-drift{from{transform:translate3d(-2%,-1%,0) rotate(0deg) scale(1)}to{transform:translate3d(2%,2%,0) rotate(6deg) scale(1.08)}}
+/* hero: a second coloured field (the tool's own colour) drifting the opposite way */
+.tool-hero{position:relative;isolation:isolate}
+.tool-hero::after{content:"";position:absolute;z-index:-1;left:-14%;top:22%;width:min(60vmax,520px);aspect-ratio:1;border-radius:50%;pointer-events:none;background:radial-gradient(closest-side,var(--g2,#3D8BFF),transparent);opacity:.18;animation:tx-hero 16s ease-in-out infinite alternate;will-change:transform}
+@keyframes tx-hero{from{transform:translate3d(0,0,0) scale(.9)}to{transform:translate3d(12%,-6%,0) scale(1.08)}}
+@supports (animation-timeline:scroll()){
+ body:has(.tool-hero)::before{animation:tx-drift 26s ease-in-out infinite alternate,tx-scroll linear both;animation-timeline:auto,scroll(root)}
+ @keyframes tx-scroll{from{translate:0 0;scale:1}to{translate:-4vmax -12vmax;scale:1.18}}
+}
+
+/* ---- headings: word by word ---- */
+html.tx-on .tx-h .tx-w{display:inline-block;overflow:hidden;vertical-align:top;padding:.04em .06em .16em;margin:-.04em -.06em -.16em}
+html.tx-on .tx-h .tx-w>span{display:inline-block;transform:translate3d(0,112%,0);opacity:0}
+html.tx-on .tx-h.tx-in .tx-w>span{transform:none;opacity:1;transition:transform .85s cubic-bezier(.16,1,.3,1) calc(var(--wi)*55ms),opacity .45s linear calc(var(--wi)*55ms)}
+html.tx-on .tx-h:not(.tx-in) .tx-w>span{transition:none}
+.tx-h em .tx-w>span{font-style:italic}
+
+/* ---- cards drift a little as they pass through the screen (both directions) ---- */
+@supports (animation-timeline:view()){
+ .guide-feature,.guide-workflow li,.guide-notes>*,.tool-visual{animation:tx-rise linear both;animation-timeline:view();animation-range:entry 0% entry 80%}
+ @keyframes tx-rise{from{translate:0 34px;scale:.975}to{translate:0 0;scale:1}}
+}
+@media(max-width:700px){@supports (animation-timeline:view()){.guide-feature{animation:none}}}
+
+@media(prefers-reduced-motion:reduce){
+ body:has(.tool-hero)::before,.tool-hero::after{animation:none!important}
+ html.tx-on .tx-h .tx-w>span{transform:none!important;transition:opacity .5s linear!important}
+ .guide-feature,.guide-workflow li,.guide-notes>*,.tool-visual{animation:none!important}
+}

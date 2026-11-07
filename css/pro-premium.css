@@ -124,3 +124,18 @@ html body.pro-page #workflows::after{bottom:0;top:auto;background:linear-gradien
 html[data-theme=dark] body.pro-page #workflows::before{background:linear-gradient(to bottom,var(--seam),#070B1A)}
 html[data-theme=dark] body.pro-page #workflows::after{background:linear-gradient(to top,var(--seam),#070B1A)}
 html body.pro-page #workflows>.wrap{position:relative;z-index:1;padding-top:clamp(40px,6vw,80px);padding-bottom:clamp(40px,6vw,80px)}
+
+/* tools: whole row is tappable, key tools carry a badge, and every row answers a tap/hover */
+body.pro-page #tools .tl li{position:relative}
+body.pro-page #tools .tl-link::after{content:"";position:absolute;inset:0;z-index:1}
+body.pro-page #tools b[data-key]::after{content:attr(data-key);display:inline-block;margin-left:9px;padding:2px 9px;border-radius:99px;vertical-align:2px;font-size:10px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#6b4a07;background:linear-gradient(110deg,#ffe3a1,#f2b64f 55%,#ffe3a1);background-size:220% 100%;background-position:100% 0;transition:background-position .45s linear}
+html[data-theme=dark] body.pro-page #tools b[data-key]::after{color:#2a1c02}
+body.pro-page #tools li:hover b[data-key]::after,body.pro-page #tools li:focus-within b[data-key]::after,body.pro-page #tools li:active b[data-key]::after{background-position:0 0}
+@media(max-width:700px){
+ body.pro-page #tools .tl li{padding:16px 36px 16px 10px;margin-inline:-10px;border-radius:16px;border-top:0!important;-webkit-tap-highlight-color:transparent;transition:background-color .15s linear,transform .15s linear}
+ body.pro-page #tools .tl li+li::before{content:"";position:absolute;left:10px;right:10px;top:0;height:1px;background:var(--line)}
+ body.pro-page #tools .tl li::after{content:"";position:absolute;right:14px;top:50%;width:8px;height:8px;border-top:2px solid currentColor;border-right:2px solid currentColor;opacity:.35;transform:translateY(-50%) rotate(45deg)}
+ body.pro-page #tools .tl li:active{background-color:color-mix(in srgb,#e0a93a 14%,transparent);transform:scale(.985)}
+ body.pro-page #tools .tl li:has(b[data-key]){background:linear-gradient(100deg,color-mix(in srgb,#e0a93a 12%,transparent),transparent 70%)}
+ body.pro-page #tools b[data-key]::after{display:table;margin:5px 0 0}
+}

@@ -183,3 +183,9 @@ body.pro-page .btn-ghost-dark:hover{border-color:rgba(255,255,255,.85)}
  body.pro-page #trial .trial-art,body.pro-page #trial .trial-art *{display:none!important}
  body.pro-page #trial .trial-stage{grid-template-columns:1fr!important;padding:26px;gap:14px}
 }
+
+/* trial banner art: gone on every phone and folding phone (portrait or landscape); tablets and laptops keep it */
+@media(max-width:767px),(max-width:960px) and (max-height:520px) and (pointer:coarse){
+ html body.pro-page #trial .trial-art,html body.pro-page #trial .trial-art *{display:none!important;visibility:hidden!important}
+ html body.pro-page #trial .trial-stage{grid-template-columns:1fr!important}
+}

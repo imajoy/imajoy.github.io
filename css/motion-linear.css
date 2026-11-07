@@ -55,3 +55,11 @@ html body.pro-page #theme{position:relative}
 }
 html body.pro-page #theme:hover{rotate:none!important}
 html body.pro-page #theme:hover{transform:none!important;scale:none!important;animation:none!important}
+
+/* plan pill: "PLAN | 352d left" */
+html body .acct-btn.has-days::before{content:none!important;display:none!important}
+html body .acct-btn.has-days{display:inline-flex;align-items:center;gap:10px;padding-inline:16px 18px;white-space:nowrap}
+html body .acct-btn.has-days .ab-k{font-size:.66rem;font-weight:800;letter-spacing:.14em;text-transform:uppercase;opacity:.62;padding-right:10px;border-right:1px solid currentColor;border-right-color:color-mix(in srgb,currentColor 30%,transparent);line-height:1.6}
+html body .acct-btn.has-days .ab-v{font-size:.84rem;font-weight:600;letter-spacing:.01em;opacity:.9}
+html body .acct-btn.has-days .ab-v b{font-size:1.02rem;font-weight:800;letter-spacing:-.01em;margin-right:2px;opacity:1}
+@media(max-width:380px){html body .acct-btn.has-days{gap:9px;padding-inline:10px 12px}html body .acct-btn.has-days .ab-k{padding-right:7px;letter-spacing:.08em}html body .acct-btn.has-days .ab-v{font-size:.76rem}}

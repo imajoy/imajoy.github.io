@@ -186,6 +186,7 @@ function init() {
     if(landingAccount)pill.dataset.signedIn=String(!!session);
     btn.dataset.state=best?.d.state||'';btn.classList.toggle('is-updating',updating);
     btn.title=!session?'Sign in or register to see your plan and manage your subscription':best&&best.d.text?'Your plan: '+best.d.text+'. Click to manage your account.'+(document.body.classList.contains('free-page')?' The Wrapline free toolkit stays free for everyone; this counter is only for your Wrapline Pro subscription.':''):'Open your account';
+    {const m=/^(.*?)\s*·\s*(\d+)d left$/.exec(btn.textContent||'');if(m&&session&&best&&best.d.state!=='ended'){const k=document.body.classList.contains('free-page')?'Pro plan':'Plan';btn.textContent='';const ke=document.createElement('span');ke.className='ab-k';ke.textContent=k;const ve=document.createElement('span');ve.className='ab-v';const n=document.createElement('b');n.textContent=m[2]+'d';ve.append(n,document.createTextNode(' left'));btn.append(ke,document.createTextNode(' '),ve);btn.classList.add('has-days');}else btn.classList.remove('has-days');}
     btn.setAttribute('aria-label',session?'Account: '+session.email+'. '+btn.textContent+(updating?'. Updating subscription details.':''):'Register / Login');
     for(const plan of ['online','offline']){
       const a=document.querySelector('[data-buy="'+plan+'"]');if(!a)continue;

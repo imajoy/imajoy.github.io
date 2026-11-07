@@ -1,15 +1,10 @@
-/* While the page is scrolling, endless decorative loops rest (they resume right after), so scrolling only has to move pixels.
-   Only animations that never end are touched; entrances and one-time transitions keep running. */
+/* While the page is scrolling, a few endless decorative loops rest through CSS (html.is-scrolling), then resume.
+   Deliberately light: it only flips one class. It never queries or pauses animations itself, because that forced a full
+   style recalculation at the start and end of every scroll (a visible hitch). */
 (function(){
- if(!document.getAnimations)return;
- var paused=[],on=false,t=0;
- function rest(){
-  paused=document.getAnimations().filter(function(a){try{return a.playState==='running'&&a.effect&&a.effect.getTiming().iterations===Infinity&&!(a.effect.target&&a.effect.target.closest&&a.effect.target.closest('[data-keep-anim]'));}catch(e){return false;}});
-  paused.forEach(function(a){try{a.pause();}catch(e){}});
- }
- function wake(){paused.forEach(function(a){try{if(a.playState==='paused')a.play();}catch(e){}});paused=[];}
+ var on=false,t=0,root=document.documentElement;
  addEventListener('scroll',function(){
-  if(!on){on=true;document.documentElement.classList.add('is-scrolling');rest();}
-  clearTimeout(t);t=setTimeout(function(){on=false;document.documentElement.classList.remove('is-scrolling');wake();},140);
+  if(!on){on=true;root.classList.add('is-scrolling');}
+  clearTimeout(t);t=setTimeout(function(){on=false;root.classList.remove('is-scrolling');},160);
  },{passive:true});
 })();

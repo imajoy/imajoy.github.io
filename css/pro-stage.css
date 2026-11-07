@@ -32,7 +32,7 @@
 .pro-stage .tool-visual figcaption{color:#9fb0e0;font-size:13px;margin-top:10px}.pro-stage .tool-visual figcaption a{color:var(--gold-1);font-weight:700}
 .pro-stage .xp-fallback{color:#b4c0e6}.pro-stage .xp-fallback b{color:#fff}
 .pro-reflect{position:absolute;left:8%;right:8%;bottom:-26px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(201,138,30,.45),transparent);filter:blur(6px);z-index:0}
-html:not(.is-scrolling) .pro-stage{contain:layout style}
+.pro-stage{contain:layout style}
 html.is-scrolling .pro-floor,html.is-scrolling .pro-halo,html.is-scrolling .pro-cube,html.is-scrolling .pro-device,html.is-scrolling .pro-stage .tool-visual::before{animation-play-state:paused}
 @keyframes ps-sweep{to{--pa:360deg}}
 @keyframes ps-orbit{to{transform:rotateX(72deg) rotateZ(360deg)}}

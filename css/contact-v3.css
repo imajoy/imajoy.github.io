@@ -135,3 +135,10 @@ html:not([data-theme=dark]) .contact-send:not(:disabled){box-shadow:0 0 0 1.5px 
 html:not([data-theme=dark]) .contact-send:not(:disabled):hover{box-shadow:0 0 0 1.5px #0b1020,0 0 0 5px rgba(61,139,255,.3),0 26px 34px -14px rgba(18,30,90,.65),inset 0 1px 0 rgba(255,255,255,.25)!important}
 html:not([data-theme=dark]) .contact-send:not(:disabled):focus-visible{outline:3px solid #3D8BFF;outline-offset:3px}
 html:not([data-theme=dark]) .contact-send:disabled{box-shadow:0 0 0 1.5px color-mix(in srgb,#0b1020 45%,transparent)!important;filter:none;opacity:.78}
+
+/* consent: the whole card is the tap target */
+.contact-consent{cursor:pointer;min-height:52px;align-items:center;-webkit-tap-highlight-color:transparent;user-select:none}
+.contact-consent input{width:22px;height:22px;margin:0;accent-color:#2FB583;cursor:pointer}
+.contact-consent:active{transform:scale(.99);background:color-mix(in srgb,#e0a93a 18%,transparent)}
+.contact-consent:has(input:checked):active{background:color-mix(in srgb,#2FB583 16%,transparent)}
+.contact-consent a{position:relative;z-index:1}

@@ -200,3 +200,87 @@ html.ty-rvon .ty-rv{transition:opacity .7s var(--ty-ease),transform .8s var(--ty
  #iv-print .iv-top{flex-direction:row}#iv-print .iv-title{text-align:right}#iv-print .iv-table .u,#iv-print .iv-table .n{display:table-cell}#iv-print .iv-foot{flex-direction:row}
  #iv-print *{-webkit-print-color-adjust:economy;print-color-adjust:economy}
 }
+
+/* =====================================================================================================================
+   Joy layer (v3.1): unlock strip, sparkles, shine, scroll bar, pointer light, springy hovers.
+   Compositor-friendly: transform/opacity only; endless loops are few and rest while scrolling (js/scroll-calm.js).
+   ===================================================================================================================== */
+.ty-scrollbar{position:fixed;left:0;top:0;right:0;height:3px;z-index:60;pointer-events:none}
+.ty-scrollbar i{display:block;height:100%;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,#F2B64F,var(--ty-a),var(--ty-ok))}
+.ty-hero{position:relative}
+
+/* proud line + headline shine */
+.ty-proud{margin:-10px 0 26px;font:600 15px/1.5 var(--sans);letter-spacing:-.005em;color:var(--ink)}
+.ty-proud::before{content:"★";margin-right:8px;color:#F2B64F}
+.ty-hero h1 em{position:relative;display:inline-block;clip-path:inset(0);padding:0 .06em 0 0}
+.ty-hero h1 em::after{content:"";position:absolute;top:0;bottom:0;left:0;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.85),transparent);transform:translate3d(-160%,0,0) skewX(-18deg);pointer-events:none;mix-blend-mode:soft-light}
+html:not(.ty-wait) .ty-main[data-ty-state=confirmed] .ty-hero h1 em::after{animation:ty-shine 1.3s 1.1s cubic-bezier(.4,0,.2,1) both,ty-shine 1.3s 7s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes ty-shine{from{transform:translate3d(-160%,0,0) skewX(-18deg)}to{transform:translate3d(360%,0,0) skewX(-18deg)}}
+
+/* sparkles around the seal and headline */
+.ty-sparks{position:absolute;inset:-8px 0 auto 0;height:360px;pointer-events:none;opacity:0}
+.ty-sparks i{position:absolute;width:var(--s,16px);height:var(--s,16px);background:var(--c,#F2B64F);clip-path:polygon(50% 0,62% 38%,100% 50%,62% 62%,50% 100%,38% 62%,0 50%,38% 38%);opacity:0}
+.ty-sparks i:nth-child(1){left:calc(50% - 150px);top:20px;--s:18px}
+.ty-sparks i:nth-child(2){left:calc(50% + 110px);top:6px;--s:12px;--c:#6FA8FF}
+.ty-sparks i:nth-child(3){left:calc(50% - 250px);top:150px;--s:12px;--c:#3ECF9B}
+.ty-sparks i:nth-child(4){left:calc(50% + 230px);top:130px;--s:20px}
+.ty-sparks i:nth-child(5){left:calc(50% - 90px);top:262px;--s:10px;--c:#FF7A5C}
+.ty-sparks i:nth-child(6){left:calc(50% + 160px);top:250px;--s:14px;--c:#6FA8FF}
+html:not(.ty-wait) .ty-main[data-ty-state=confirmed] .ty-sparks{opacity:1}
+html:not(.ty-wait) .ty-main[data-ty-state=confirmed] .ty-sparks i{animation:ty-spark 2.6s ease-in-out infinite both;animation-delay:calc(.7s + var(--k,0)*.45s)}
+.ty-sparks i:nth-child(2){--k:1}.ty-sparks i:nth-child(3){--k:2}.ty-sparks i:nth-child(4){--k:3}.ty-sparks i:nth-child(5){--k:4}.ty-sparks i:nth-child(6){--k:5}
+@keyframes ty-spark{0%,100%{opacity:0;transform:scale(.2) rotate(0)}40%{opacity:1;transform:scale(1) rotate(45deg)}70%{opacity:.8;transform:scale(.8) rotate(90deg)}}
+@media(max-width:700px){.ty-sparks i:nth-child(3),.ty-sparks i:nth-child(4){display:none}.ty-sparks i:nth-child(1){left:8%}.ty-sparks i:nth-child(2){left:86%}.ty-sparks i:nth-child(5){left:20%}.ty-sparks i:nth-child(6){left:78%}}
+
+/* seal: golden ring sweeps after the tick, and it wiggles when hovered */
+.ty-seal::before{content:"";position:absolute;inset:-7px;border-radius:50%;border:2px solid transparent;border-top-color:#F2B64F;border-right-color:#F2B64F;opacity:0;transform:rotate(-90deg)}
+html:not(.ty-wait) .ty-main[data-ty-state=confirmed] .ty-seal::before{animation:ty-halo 1.2s .8s var(--ty-ease) both}
+@keyframes ty-halo{0%{opacity:0;transform:rotate(-90deg) scale(.8)}30%{opacity:1}100%{opacity:.0;transform:rotate(270deg) scale(1.25)}}
+.ty-seal{cursor:default;transition:transform .5s cubic-bezier(.34,1.56,.64,1)}.ty-seal:hover{transform:rotate(-8deg) scale(1.1)}
+
+/* unlock strip: tools start dim and light up one by one when the payment is confirmed */
+.ty-unlock{width:100%;margin-top:34px;display:flex;flex-direction:column;align-items:center;gap:14px;min-height:96px}
+.ty-unlock-row{display:flex;flex-wrap:wrap;justify-content:center;gap:10px;max-width:640px}
+.ty-tile{--c:hsl(var(--h) 85% 52%);position:relative;display:grid;place-items:center;width:46px;height:46px;border-radius:14px;border:1px solid var(--line);background:var(--card);color:var(--mute);font:800 12px/1 var(--sans);letter-spacing:.02em;transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+.ty-tile::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(145deg,hsl(var(--h) 90% 62%),hsl(calc(var(--h) + 24) 80% 44%));opacity:0}
+.ty-tile{z-index:0}.ty-tile::before{content:attr(data-t);display:none}
+.ty-unlock.is-open .ty-tile{color:#fff;border-color:transparent;box-shadow:0 10px 22px -10px var(--c);animation:ty-unlock .7s cubic-bezier(.34,1.56,.64,1) both;animation-delay:calc(.9s + var(--n)*90ms)}
+.ty-unlock.is-open .ty-tile::after{opacity:1;animation:ty-lit .5s ease both;animation-delay:calc(.9s + var(--n)*90ms)}
+.ty-tile{isolation:isolate}.ty-tile::after{z-index:-1}
+@keyframes ty-unlock{0%{transform:translate3d(0,0,0) scale(1)}35%{transform:translate3d(0,-14px,0) scale(1.18) rotate(-6deg)}100%{transform:none}}
+@keyframes ty-lit{from{opacity:0}to{opacity:1}}
+.ty-unlock.is-open .ty-tile:hover{transform:translate3d(0,-6px,0) scale(1.12) rotate(-4deg)}
+.ty-unlock-note{margin:0;font-size:14px;color:var(--mute)}.ty-count{display:inline-block;min-width:1.4ch;font:700 22px/1 var(--sans);letter-spacing:-.04em;color:var(--ink);font-variant-numeric:tabular-nums}
+.ty-unlock:not(.is-open) .ty-count{opacity:.35}
+
+/* scroll: the timeline lights step by step, dots spring in */
+.ty-timeline:not(.is-in) li{opacity:0;transform:translate3d(-14px,0,0)}
+.ty-timeline li{transition:opacity .6s var(--ty-ease),transform .7s var(--ty-ease);transition-delay:calc((var(--i,0))*140ms)}
+.ty-timeline li:nth-child(2){--i:1}.ty-timeline li:nth-child(3){--i:2}.ty-timeline li:nth-child(4){--i:3}
+.ty-timeline.is-in li:not(:last-child)::before{transform-origin:top;animation:ty-line .8s var(--ty-ease) both;animation-delay:calc(var(--i,0)*140ms + 200ms)}
+.ty-timeline.is-in .ty-dot{animation:ty-dotpop .7s cubic-bezier(.34,1.56,.64,1) both;animation-delay:calc(var(--i,0)*140ms + 150ms)}
+@keyframes ty-line{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes ty-dotpop{from{transform:scale(.2)}to{transform:scale(1)}}
+.ty-timeline li:hover .ty-dot{transform:scale(1.18)}.ty-dot{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}
+
+/* hover: pointer light + lift on cards, shine on the main button, arrow nudge */
+.ty-pass,.ty-manage-main,.ty-first,.ty-explore-grid a,.ty-invoice>summary{--mx:50%;--my:0%;position:relative;overflow:hidden}
+.ty-pass::after,.ty-manage-main::after,.ty-first::after,.ty-explore-grid a::after,.ty-invoice>summary::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(260px circle at var(--mx) var(--my),color-mix(in srgb,var(--ty-a) 16%,transparent),transparent 70%)}
+.ty-pass:hover::after,.ty-manage-main:hover::after,.ty-first:hover::after,.ty-explore-grid a:hover::after,.ty-invoice>summary:hover::after{opacity:1}
+.ty-explore-grid a:hover,.ty-first:hover{transform:translateY(-3px)}.ty-first{transition:transform .4s var(--ty-ease),border-color .25s}.ty-first:hover{border-color:var(--ty-a)}
+.ty-actions .btn-dark{position:relative;overflow:hidden;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s}
+.ty-actions .btn-dark::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:translate3d(-160%,0,0) skewX(-18deg)}
+.ty-actions .btn-dark:hover{transform:translateY(-3px) scale(1.04)}.ty-actions .btn-dark:hover::after{animation:ty-shine .9s ease both}
+.ty-actions .btn-light{transition:transform .35s cubic-bezier(.34,1.56,.64,1)}.ty-actions .btn-light:hover{transform:translateY(-3px)}
+html:not(.ty-wait) .ty-main[data-ty-state=confirmed] .ty-actions .btn-dark{animation:ty-nudge 2.4s 2.6s ease-in-out 2}
+@keyframes ty-nudge{0%,100%{transform:none}50%{transform:translateY(-4px)}}
+
+/* invoice: slides out like a printed page, then a PAID stamp lands */
+.iv-paper.is-in{animation:iv-print 1s var(--ty-ease) both}
+@keyframes iv-print{from{opacity:0;transform:translate3d(0,-26px,0) scaleY(.96);clip-path:inset(0 0 100% 0)}60%{clip-path:inset(0 0 0 0)}to{opacity:1;transform:none;clip-path:inset(0 0 0 0)}}
+.iv-paper{position:relative}
+.iv-stamp{position:absolute;left:clamp(24px,9%,90px);bottom:clamp(96px,17%,140px);padding:6px 16px;border:3px solid #111;border-radius:8px;color:#111;font:800 clamp(20px,3.2vw,30px)/1 var(--sans);letter-spacing:.2em;rotate:-12deg;opacity:0;pointer-events:none}
+.iv-paper.is-in .iv-stamp{animation:iv-stamp .55s 1.05s cubic-bezier(.2,1.5,.4,1) both}
+@keyframes iv-stamp{0%{opacity:0;transform:scale(2.2)}70%{opacity:1;transform:scale(.94)}100%{opacity:.9;transform:scale(1)}}
+@media print{#iv-print .iv-stamp{opacity:.9!important;animation:none!important;transform:none!important}#iv-print .iv-paper{clip-path:none!important}}
+@media(prefers-reduced-motion:reduce){.ty-tile,.ty-sparks i,.ty-hero h1 em::after,.ty-seal::before{animation:none!important}.ty-unlock .ty-tile::after{opacity:1}.ty-timeline:not(.is-in) li{opacity:1;transform:none}.iv-stamp{opacity:.9;animation:none!important}.ty-scrollbar{display:none}}

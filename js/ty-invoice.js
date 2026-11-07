@@ -59,7 +59,8 @@ export function buildInvoiceDoc(o){
  below.append(notes,tot);
  const foot=el('footer','iv-foot');
  foot.append(el('span',null,'This is a computer-generated document and is valid without a signature.'),el('span',null,seller+' · imajoy.github.io'));
- paper.append(top,meta,parties,table,below,foot);
+ const stamp=el('span','iv-stamp',o.statusKind==='paid'?'PAID':/trial/i.test(o.statusText||'')?'TRIAL':'CONFIRMED');stamp.setAttribute('aria-hidden','true');
+ paper.append(top,meta,parties,table,below,foot,stamp);
  wrap.append(paper);
  const go=()=>paper.classList.add('is-in');
  if('IntersectionObserver' in window&&!reduce()){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){go();io.disconnect();}},{threshold:.12});queueMicrotask(()=>io.observe(paper));}

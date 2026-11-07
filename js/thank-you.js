@@ -1,6 +1,6 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
 import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
-import {buildInvoiceDoc,printDoc} from './ty-invoice.js?v=iv4';
+import {buildInvoiceDoc,printDoc} from './ty-invoice.js?v=iv5';
 import {mountSetupProgress} from './setup-progress.js?v=20261101-auto1';
 let progress=null;
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
@@ -171,4 +171,32 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
  const items=[...document.querySelectorAll('.ty-rv')];if(!items.length)return;
  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}}),{rootMargin:'0px 0px -8% 0px',threshold:.04});
  items.forEach(i=>io.observe(i));requestAnimationFrame(()=>document.documentElement.classList.add('ty-rvon'));
+})();
+
+/* ---- joy layer: tools unlock one by one, a counter, a scroll bar, soft pointer glow ---------------------------------------- */
+(()=>{
+ const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+ const tiles=[['IK',200],['AB',150],['AU',320],['FB',25],['HK',270],['PB',0],['RB',175],['RV',165],['RI',340],['DD',45]];
+ const extra=[['IS',255],['MS',285],['UD',15],['LP',35]];
+ const total=plan==='Premium'?14:10,list=tiles.concat(plan==='Premium'?extra:[]).slice(0,total),row=$('ty-unlock-row');
+ list.forEach(([t,h],i)=>{const b=document.createElement('span');b.className='ty-tile';b.textContent=t;b.style.setProperty('--h',h);b.style.setProperty('--n',i);row.append(b);});
+ let counted=false;
+ const count=()=>{
+  if(counted)return;counted=true;const node=$('ty-count');$('ty-unlock-text').textContent=total===14?'tools unlocked · Pro + free Wrapline':'tools unlocked';
+  if(reduce){node.textContent=total;return;}
+  const t0=performance.now()+900,dur=list.length*90+500;
+  const step=n=>{const k=Math.min(1,Math.max(0,(n-t0)/dur));node.textContent=Math.round(total*k);if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);
+ };
+ const sync=()=>{const ok=main.dataset.tyState==='confirmed';row.closest('.ty-unlock').classList.toggle('is-open',ok);if(ok)count();else if(main.dataset.tyState==='problem')$('ty-unlock-text').textContent='tools on hold';};
+ new MutationObserver(sync).observe(main,{attributes:true,attributeFilter:['data-ty-state']});sync();
+ /* scroll progress line (one transform write per frame) */
+ const bar=document.querySelector('.ty-scrollbar i');let tick=0;
+ const upd=()=>{tick=0;const m=document.documentElement.scrollHeight-innerHeight;bar.style.transform='scaleX('+(m>0?Math.min(1,scrollY/m):0).toFixed(4)+')';};
+ addEventListener('scroll',()=>{if(!tick)tick=requestAnimationFrame(upd);},{passive:true});upd();
+ /* the timeline lights up step by step when it scrolls into view */
+ const tl=document.querySelector('.ty-timeline');
+ if(tl&&'IntersectionObserver' in window&&!reduce){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){tl.classList.add('is-in');io.disconnect();}},{threshold:.3});io.observe(tl);}else tl?.classList.add('is-in');
+ /* soft light that follows the pointer on cards (pointer devices only; writes two variables on the hovered card) */
+ if(!matchMedia('(hover:hover)').matches||reduce)return;
+ document.addEventListener('pointermove',e=>{const c=e.target.closest?.('.ty-pass,.ty-manage-main,.ty-first,.ty-explore-grid a,.ty-invoice>summary');if(!c)return;const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px');},{passive:true});
 })();

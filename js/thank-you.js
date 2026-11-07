@@ -1,6 +1,6 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
 import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
-import {buildInvoiceDoc,printDoc} from './ty-invoice.js?v=iv3';
+import {buildInvoiceDoc,printDoc} from './ty-invoice.js?v=iv4';
 import {mountSetupProgress} from './setup-progress.js?v=20261101-auto1';
 let progress=null;
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
@@ -104,7 +104,7 @@ function loadArchive(){
    chip.textContent=zero?'No payment due':'Paid';chip.dataset.kind=zero?'free':'paid';
    left.append(title,when);summary.append(left,chip,total);details.append(summary);
    const cur2=/^[A-Z]{3}$/.test(inv.currency)?inv.currency:'USD',money2=v=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:cur2}).format(v);}catch{return cur2+' '+Number(v).toFixed(2);}};
-   const doc=buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:zero?'No payment due':'Paid',statusKind:zero?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,title:'Wrapline Pro '+inv.plan,sub:inv.billing,seats:Number(inv.seats)||1,money:money2,total:Number(inv.amount)||0,totalLabel:zero?'Total due':'Total paid',note:zero?'No payment was due on this order. This invoice is your record of it.':''});
+   const doc=buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:zero?'No payment due':'Paid',statusKind:zero?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,seller:inv.seller,title:'Wrapline Pro '+inv.plan,sub:inv.billing,seats:Number(inv.seats)||1,money:money2,total:Number(inv.amount)||0,totalLabel:zero?'Total due':'Total paid',note:zero?'No payment was due on this order. This invoice is your record of it.':''});
    const body=document.createElement('div');body.className='ty-invoice-body';
    const print=document.createElement('button');print.type='button';print.className='btn btn-light ty-print';print.textContent='Print or save as PDF';print.addEventListener('click',()=>{details.open=true;printDoc(doc);});
    body.append(doc,print);details.append(body);box.append(details);
@@ -164,4 +164,11 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
  build();
  const sec=$('ty-receipt-sec'),sync=()=>{sec.hidden=main.dataset.tyState!=='confirmed'||archiveMode;};
  new MutationObserver(sync).observe(main,{attributes:true,attributeFilter:['data-ty-state']});sync();
+})();
+
+/* sections below the first screen ease in as they arrive (transform/opacity only; everything shows if IntersectionObserver is missing) */
+(()=>{if(!('IntersectionObserver' in window)||matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+ const items=[...document.querySelectorAll('.ty-rv')];if(!items.length)return;
+ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('is-in');io.unobserve(e.target);}}),{rootMargin:'0px 0px -8% 0px',threshold:.04});
+ items.forEach(i=>io.observe(i));requestAnimationFrame(()=>document.documentElement.classList.add('ty-rvon'));
 })();

@@ -1,68 +1,69 @@
-/* One modern ticket-style invoice, used for the confirmation page and for every saved invoice. Pure DOM (no HTML strings).
-   Entrance is started by .is-in (added once the invoice is on screen) and only moves transform/opacity. */
-const NS='http://www.w3.org/2000/svg';
+/* One plain black-and-white invoice, used for the confirmation page and for every saved invoice. Pure DOM (no HTML strings).
+   Printing clones just the paper into its own print root, so the page prints exactly one A4 sheet (see css/thank-you-v3.css). */
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;};
 const reduce=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
 export function printDoc(doc){
- document.body.classList.add('ty-printing');doc.classList.add('ty-doc-live');
- const done=()=>{document.body.classList.remove('ty-printing');doc.classList.remove('ty-doc-live');removeEventListener('afterprint',done);};
- addEventListener('afterprint',done);window.print();
-}
-/* deterministic barcode from the invoice number */
-function barcode(seed){
- let h=2166136261;for(const c of String(seed||'WRAPLINE')){h^=c.charCodeAt(0);h=Math.imul(h,16777619)>>>0;}
- const svg=document.createElementNS(NS,'svg');svg.setAttribute('class','ty-doc-bars');svg.setAttribute('viewBox','0 0 220 38');svg.setAttribute('preserveAspectRatio','none');svg.setAttribute('aria-hidden','true');
- let x=0,i=0;while(x<216){h=Math.imul(h^(h>>>13),1274126177)>>>0;const w=1+(h%3),gap=1+((h>>>4)%3);const r=document.createElementNS(NS,'rect');r.setAttribute('x',x);r.setAttribute('y',0);r.setAttribute('width',w);r.setAttribute('height',38);r.style.setProperty('--i',String(i++));svg.append(r);x+=w+gap;}
- return svg;
-}
-function countUp(node,value,money){
- if(reduce()||!(value>0)){node.textContent=money(value);return;}
- const t0=performance.now(),dur=1300;node.textContent=money(0);
- const step=n=>{const k=Math.min(1,(n-t0)/dur);node.textContent=money(value*(1-Math.pow(1-k,4)));if(k<1)requestAnimationFrame(step);else node.textContent=money(value);};
- requestAnimationFrame(step);
+ const paper=doc.querySelector('.iv-paper');if(!paper)return;
+ document.getElementById('iv-print')?.remove();
+ const root=el('div');root.id='iv-print';const copy=paper.cloneNode(true);copy.classList.add('is-print');root.append(copy);document.body.append(root);
+ const title=document.title,num=paper.dataset.number;if(num)document.title='Invoice '+num+' · Ajoy Tools';
+ document.body.classList.add('iv-printing');
+ const done=()=>{document.body.classList.remove('iv-printing');root.remove();document.title=title;removeEventListener('afterprint',done);};
+ addEventListener('afterprint',done);
+ requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
 }
 /* o: {kind:'Invoice'|'Receipt', number, date, statusText, statusKind:'paid'|'free', test, email, provider, reference,
-       title, sub, seats, money(v)->string, total:number|null, coupon, totalLabel, note} */
+       title, sub, seats, money(v)->string, total:number|null, coupon, totalLabel, note, seller} */
 export function buildInvoiceDoc(o){
- const wrap=el('div','ty-doc-wrap'),doc=el('article','ty-doc'),m=o.money,known=typeof o.total==='number'&&Number.isFinite(o.total);
- /* header: the dark "pass" side */
- const head=el('header','ty-doc-head'),bar=el('div','ty-doc-bar'),brand=el('div','ty-doc-brand'),logo=document.createElement('img');
- logo.src='assets/logo-mark.svg';logo.alt='';logo.width=34;logo.height=34;
- const bn=el('div');bn.append(el('b',null,'Ajoy Tools'),el('small',null,'Wrapline Pro'));brand.append(logo,bn);
- const tag=el('div','ty-doc-tag');tag.append(el('span',null,o.kind));if(o.number)tag.append(el('b',null,o.number+(o.test?' · TEST':'')));
- bar.append(brand,tag);
- const hero=el('div','ty-doc-hero');
- hero.append(el('small',null,o.totalLabel));
- const amt=el('p','ty-doc-amount',known?m(o.total):'On invoice');if(!known)amt.classList.add('is-text');hero.append(amt);
- const chip=el('span','ty-doc-status',o.statusText);chip.dataset.kind=o.statusKind||'paid';hero.append(chip);
- head.append(bar,hero);
- /* body: the paper side */
- const body=el('div','ty-doc-body');
- const meta=el('dl','ty-doc-meta');
- for(const [k,v] of [['Billed to',o.email||'Your account'],[o.kind+' date',o.date],[o.statusKind==='free'?'Provider':'Paid with',o.provider||'—'],['Reference',o.reference||(o.number||'—')]]){const d=el('div','ty-doc-cell');d.append(el('dt',null,k),el('dd',null,v));meta.append(d);}
- const items=el('div','ty-doc-items');
- const lab=el('div','ty-doc-row ty-doc-labels');lab.append(el('span',null,'Item'),el('span','ty-doc-qty','Licenses'),el('span','ty-doc-amt','Amount'));
- const row=el('div','ty-doc-row ty-doc-item'),d1=el('div','ty-doc-desc'),ic=el('i','ty-doc-ic'),ds=el('div');
- ic.setAttribute('aria-hidden','true');ic.innerHTML='<svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9z"/><path d="M12 12l8-4.5M12 12v9M12 12L4 7.5"/></svg>';
- ds.append(el('b',null,o.title));if(o.sub)ds.append(el('small',null,o.sub));d1.append(ic,ds);
- row.append(d1,el('span','ty-doc-qty',String(o.seats)),el('span','ty-doc-amt',known?m(o.total):'On invoice'));
- items.append(lab,row);
- const tot=el('dl','ty-doc-totals');
- const line=(k,v,cls)=>{const d=el('div',cls);d.append(el('dt',null,k),el('dd',null,v));tot.append(d);};
- if(known&&o.seats>0)line('Rate',m(o.total/o.seats)+' × '+o.seats);
- if(o.coupon)line('Coupon','Code '+o.coupon+' applied');
- line(o.totalLabel,known?m(o.total):'On invoice','ty-doc-grand');
- body.append(meta,items,tot);
- if(o.note)body.append(el('p','ty-doc-note',o.note));
- const foot=el('footer','ty-doc-foot'),code=el('div','ty-doc-code');code.append(barcode(o.number||o.email||o.date),el('small',null,o.number||'WRAPLINE PRO'));
- const thanks=el('p','ty-doc-thanks');thanks.append('Questions about this document? ');const a=el('a',null,'Contact support');a.href='contact.html';thanks.append(a,'.');
- foot.append(code,thanks);body.append(foot);
- const stamp=el('span','ty-doc-stamp',o.statusKind==='free'?(/trial/i.test(o.statusText)?'Trial':'Confirmed'):'Paid');stamp.setAttribute('aria-hidden','true');
- doc.append(head,body,stamp);wrap.append(doc);
- /* start the entrance when it is actually on screen */
- const go=()=>{if(doc.classList.contains('is-in'))return;doc.classList.add('is-in');if(known)countUp(amt,o.total,m);};
- if('IntersectionObserver' in window&&!reduce()){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){go();io.disconnect();}},{threshold:.18});queueMicrotask(()=>io.observe(doc));}
- else{doc.classList.add('is-in');}
+ const wrap=el('div','iv-wrap'),paper=el('article','iv-paper'),m=o.money,known=typeof o.total==='number'&&Number.isFinite(o.total);
+ const seller=o.seller||'Ajoy Tools',kind=(o.kind||'Invoice').toUpperCase(),dash='—';
+ if(o.number)paper.dataset.number=o.number;
+ const price=v=>known?m(v):'As invoiced';
+ /* top: seller left, document title right */
+ const top=el('header','iv-top'),from=el('div','iv-from');
+ from.append(el('b',null,seller),el('span',null,'Wrapline Pro · production tools for Autodesk Maya'),el('span',null,'imajoy.github.io'));
+ const ttl=el('div','iv-title');ttl.append(el('h3',null,kind));
+ if(o.number)ttl.append(el('span',null,'No. '+o.number+(o.test?' (TEST)':'')));
+ top.append(from,ttl);
+ /* meta strip */
+ const meta=el('dl','iv-meta');
+ const cell=(k,v)=>{const d=el('div');d.append(el('dt',null,k),el('dd',null,v));return d;};
+ meta.append(cell('Date of issue',o.date||dash),cell('Payment status',o.statusText||dash),cell('Payment method',o.provider||dash),cell('Reference',o.reference||o.number||dash));
+ /* parties */
+ const parties=el('div','iv-parties');
+ const pf=el('div'),pt=el('div');
+ pf.append(el('h4',null,'From'),el('b',null,seller),el('span',null,'Maker of Wrapline Pro'),el('span',null,'Support: imajoy.github.io/contact.html'));
+ pt.append(el('h4',null,'Billed to'),el('b',null,o.email||'Your account'),el('span',null,'Wrapline Pro account holder'));
+ parties.append(pf,pt);
+ /* line items */
+ const table=el('table','iv-table'),cap=el('caption',null,'Items');cap.className='iv-sr';
+ const thead=el('thead'),hr=el('tr');
+ for(const [t,c] of [['#','n'],['Description','d'],['Licenses','q'],['Unit price','u'],['Amount','a']]){const th=el('th',c,t);th.scope='col';hr.append(th);}
+ thead.append(hr);
+ const tbody=el('tbody'),tr=el('tr'),d=el('td','d');
+ d.append(el('b',null,o.title));if(o.sub)d.append(el('span',null,o.sub));
+ tr.append(el('td','n','1'),d,el('td','q',String(o.seats)),el('td','u',known&&o.seats>0?m(o.total/o.seats):price()),el('td','a',known?m(o.total):'As invoiced'));
+ tbody.append(tr);table.append(cap,thead,tbody);
+ /* totals */
+ const tot=el('dl','iv-totals');
+ const line=(k,v,cls)=>{const r=el('div',cls);r.append(el('dt',null,k),el('dd',null,v));tot.append(r);};
+ line('Subtotal',known?m(o.total):'—');
+ if(o.coupon)line('Coupon','Code '+o.coupon);
+ line(o.kind==='Receipt'?'Total':'Total','' + (known?m(o.total):'As invoiced'),'iv-grand');
+ line(o.statusKind==='paid'?'Amount paid':'Amount paid',known?m(o.statusKind==='paid'?o.total:0):'—');
+ line('Balance due',known?m(0):'—');
+ const below=el('div','iv-below'),notes=el('div','iv-notes');
+ notes.append(el('h4',null,'Notes'));
+ notes.append(el('p',null,o.note||'Thank you for choosing Wrapline Pro.'));
+ notes.append(el('p',null,'Amounts are shown in the currency charged. Manage or stop automatic renewal any time from Account on the Wrapline Pro page.'));
+ below.append(notes,tot);
+ const foot=el('footer','iv-foot');
+ foot.append(el('span',null,'This is a computer-generated document and is valid without a signature.'),el('span',null,seller+' · imajoy.github.io'));
+ paper.append(top,meta,parties,table,below,foot);
+ wrap.append(paper);
+ const go=()=>paper.classList.add('is-in');
+ if('IntersectionObserver' in window&&!reduce()){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){go();io.disconnect();}},{threshold:.12});queueMicrotask(()=>io.observe(paper));}
+ else go();
  wrap.go=go;
  return wrap;
 }

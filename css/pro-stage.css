@@ -1,0 +1,56 @@
+/* Wrapline Pro hero stage: a live animated demo ("graphical video") of the ten Pro tools, framed in a gold 3D scene.
+   Compositor-friendly only: transform / translate / rotate / opacity. Paused offscreen by the Player + .is-scrolling. */
+@property --pa{syntax:"<angle>";inherits:false;initial-value:0deg}
+.pro-stage{position:relative;z-index:2;perspective:1400px;min-width:0;margin:6px auto 0;width:min(100%,560px);padding:0 4px}
+.pro-scene{position:absolute;inset:-14% -10%;z-index:0;pointer-events:none;transform-style:preserve-3d}
+.pro-floor{position:absolute;left:-10%;right:-10%;bottom:-6%;height:46%;transform-origin:50% 100%;transform:rotateX(68deg);
+ background:repeating-linear-gradient(90deg,rgba(201,138,30,.34) 0 1px,transparent 1px 56px),repeating-linear-gradient(0deg,rgba(201,138,30,.34) 0 1px,transparent 1px 56px);
+ -webkit-mask-image:radial-gradient(ellipse 60% 80% at 50% 100%,#000 10%,transparent 72%);mask-image:radial-gradient(ellipse 60% 80% at 50% 100%,#000 10%,transparent 72%);animation:ps-floor 7s linear infinite}
+.pro-halo{position:absolute;left:50%;top:50%;width:92%;aspect-ratio:1;translate:-50% -50%;border-radius:50%;border:1px solid rgba(242,182,79,.5);animation:ps-orbit 22s linear infinite;transform:rotateX(72deg)}
+.pro-halo::before,.pro-halo::after{content:"";position:absolute;width:12px;height:12px;border-radius:50%;background:var(--gold-1);box-shadow:0 0 18px 5px rgba(242,182,79,.8);top:-6px;left:50%}
+.pro-halo::after{top:auto;bottom:-6px;width:8px;height:8px}
+.pro-halo.h2{width:112%;border-color:rgba(61,139,255,.35);animation-duration:34s;animation-direction:reverse}
+.pro-halo.h2::before{background:#8DBBFF;box-shadow:0 0 18px 5px rgba(61,139,255,.7)}
+.pro-cube{position:absolute;width:var(--s,46px);height:var(--s,46px);transform-style:preserve-3d;animation:ps-cube 14s linear infinite,ps-bob 6s ease-in-out infinite alternate}
+.pro-cube i{position:absolute;inset:0;border:1px solid rgba(201,138,30,.75);background:linear-gradient(135deg,rgba(255,226,154,.55),rgba(242,182,79,.18));box-shadow:inset 0 0 14px rgba(255,226,154,.45)}
+.pro-cube i:nth-child(1){transform:translateZ(calc(var(--s,46px)/2))}.pro-cube i:nth-child(2){transform:rotateY(180deg) translateZ(calc(var(--s,46px)/2))}
+.pro-cube i:nth-child(3){transform:rotateY(90deg) translateZ(calc(var(--s,46px)/2))}.pro-cube i:nth-child(4){transform:rotateY(-90deg) translateZ(calc(var(--s,46px)/2))}
+.pro-cube i:nth-child(5){transform:rotateX(90deg) translateZ(calc(var(--s,46px)/2))}.pro-cube i:nth-child(6){transform:rotateX(-90deg) translateZ(calc(var(--s,46px)/2))}
+.pro-cube.c1{left:-3%;top:10%;--s:52px}.pro-cube.c2{right:-4%;top:58%;--s:38px;animation-duration:11s,5s;animation-direction:reverse,alternate}.pro-cube.c3{left:8%;bottom:2%;--s:28px;animation-duration:17s,7s}
+.pro-device{position:relative;z-index:1;transform-style:preserve-3d;transform:rotateX(var(--rx,0deg)) rotateY(var(--ry,-6deg));transition:transform .5s cubic-bezier(.16,1,.3,1);will-change:transform;animation:ps-float 7s ease-in-out infinite alternate}
+.pro-device.is-live{transition:none}
+.pro-stage .tool-visual{margin:0;padding:12px 12px 14px;border-radius:24px;position:relative;isolation:isolate;
+ background:linear-gradient(160deg,#10152b,#0a0e1f);border:0;box-shadow:0 50px 90px -40px rgba(10,20,60,.75),0 0 0 1px rgba(255,255,255,.06),0 0 80px -20px rgba(242,182,79,.45)}
+.pro-stage .tool-visual::before{content:"";position:absolute;inset:-2px;border-radius:26px;z-index:-1;padding:2px;
+ background:conic-gradient(from var(--pa),transparent 0 62%,rgba(255,226,154,.95) 78%,#F2B64F 86%,transparent 96%);
+ -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:ps-sweep 6s linear infinite}
+.pro-stage .tool-visual::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(420px circle at var(--gx,30%) var(--gy,0%),rgba(255,226,154,.16),transparent 50%)}
+.pro-stage .visual-heading{color:#c8d3f5;font-size:10.5px;letter-spacing:.14em}.pro-stage .visual-heading span:first-child{color:var(--gold-1)}
+.pro-stage .xp-play,.pro-stage .visual-dot{display:none!important}
+.pro-stage .tool-visual figcaption{color:#9fb0e0;font-size:13px;margin-top:10px}.pro-stage .tool-visual figcaption a{color:var(--gold-1);font-weight:700}
+.pro-stage .xp-fallback{color:#b4c0e6}.pro-stage .xp-fallback b{color:#fff}
+.pro-reflect{position:absolute;left:8%;right:8%;bottom:-26px;height:26px;border-radius:50%;background:radial-gradient(closest-side,rgba(201,138,30,.45),transparent);filter:blur(6px);z-index:0}
+html:not(.is-scrolling) .pro-stage{contain:layout style}
+html.is-scrolling .pro-floor,html.is-scrolling .pro-halo,html.is-scrolling .pro-cube,html.is-scrolling .pro-device,html.is-scrolling .pro-stage .tool-visual::before{animation-play-state:paused}
+@keyframes ps-sweep{to{--pa:360deg}}
+@keyframes ps-orbit{to{transform:rotateX(72deg) rotateZ(360deg)}}
+@keyframes ps-cube{to{transform:rotateX(360deg) rotateY(360deg)}}
+@keyframes ps-bob{to{translate:0 -18px}}
+@keyframes ps-float{to{translate:0 -8px}}
+@keyframes ps-floor{to{background-position:0 56px,56px 0}}
+html[data-theme=dark] .pro-floor{background:repeating-linear-gradient(90deg,rgba(242,182,79,.3) 0 1px,transparent 1px 56px),repeating-linear-gradient(0deg,rgba(242,182,79,.3) 0 1px,transparent 1px 56px)}
+@media(min-width:981px){
+ .hero .pro-stage{position:absolute;right:max(3vw,calc((100vw - 1320px)/2));top:50%;translate:0 -46%;width:min(46vw,600px);margin:0}
+ .hero-copy{max-width:600px}
+}
+@media(max-width:980px){
+ .pro-stage{margin-top:34px;width:min(92%,560px)}
+ .hero{padding-bottom:64px}.pro-device{transform:none;animation:none}.pro-halo.h2,.pro-cube.c3{display:none}
+ .pro-stage .tool-visual figcaption{display:none}.pro-hero-fine{position:static}
+}
+@media(prefers-reduced-motion:reduce){.pro-floor,.pro-halo,.pro-cube,.pro-device,.pro-stage .tool-visual::before{animation:none!important}.pro-device{transform:none}}
+/* dark device chrome: caption + step cards read on the dark frame in both themes */
+.pro-stage .xp-cap{min-height:56px}.pro-stage .xp-cap b{color:#fff;font-size:1rem}.pro-stage .xp-cap p{color:#b9c4e6;font-size:.88rem;margin:3px 0 0}
+.pro-stage .xp-step{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.12);color:#b9c4e6}
+.pro-stage .xp-step span{color:#eef2ff}.pro-stage .xp-step small{color:var(--gold-2)}
+.pro-stage .xp-step.on{border-color:var(--gold-2);background:rgba(242,182,79,.12)}

@@ -384,6 +384,7 @@ function handleAccount_(d) {
     var viewer = readSession_(d.token);
     if (!viewer) return { ok: false, error: 'expired' };
     if (!registeredEmail_(viewer.email)) return { ok: false, error: 'not_registered' };
+    try { if (typeof invoiceBackfill_ === 'function' && !viewer.sub) invoiceBackfill_(viewer.email); } catch (e) { Logger.log('Invoice backfill: ' + e.message); }
     return { ok: true, email: viewer.email, subscriptions: subscriptionsFor_(viewer.email, viewer.sub), invoices: invoiceArchive_(viewer) };
   }
   if (step === 'status' || step === 'identity') {

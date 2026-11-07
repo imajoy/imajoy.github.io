@@ -96,14 +96,17 @@ function loadArchive(){
   const box=$('ty-invoices');box.replaceChildren();
   for(const inv of data.invoices){
    const details=document.createElement('details');details.className='ty-invoice';details.open=box.children.length===0;details.style.setProperty('--invoice-index',String(Math.min(box.children.length,5)));
-   const summary=document.createElement('summary'),title=document.createElement('b'),total=document.createElement('span');
+   const summary=document.createElement('summary'),title=document.createElement('b'),total=document.createElement('span'),when=document.createElement('small'),left=document.createElement('div'),chip=document.createElement('em');
+   const zero=!(Number(inv.amount)>0);
    title.textContent='Invoice '+inv.number+(inv.mode==='Test'?' · TEST':'');total.textContent=new Intl.NumberFormat(undefined,{style:'currency',currency:/^[A-Z]{3}$/.test(inv.currency)?inv.currency:'USD'}).format(inv.amount);
-   summary.append(title,total);details.append(summary);
+   when.textContent=inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'medium'}):'';
+   chip.textContent=zero?'No payment due':'Paid';chip.dataset.kind=zero?'free':'paid';
+   left.append(title,when);summary.append(left,chip,total);details.append(summary);
    const body=document.createElement('div');body.className='ty-invoice-body';
-   for(const [label,value] of [['Seller',inv.seller||'Ajoy Tools'],['Date',inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—'],['Billed to',session.email],['Item',inv.plan],['Billing',inv.billing],['Licenses',String(inv.seats)],['Paid with',inv.provider],['Payment ID',inv.paymentId],['Total paid',total.textContent]]){
+   for(const [label,value] of [['Seller',inv.seller||'Ajoy Tools'],['Date',inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—'],['Billed to',session.email],['Item',inv.plan],['Billing',inv.billing],['Licenses',String(inv.seats)],[zero?'Provider':'Paid with',inv.provider],[zero?'Reference':'Payment ID',inv.paymentId],[zero?'Total due':'Total paid',total.textContent]]){
     const row=document.createElement('p'),name=document.createElement('span'),text=document.createElement('b');name.textContent=label;text.textContent=value;row.append(name,text);body.append(row);
    }
-   const print=document.createElement('button');print.type='button';print.className='btn btn-light ty-print';print.textContent='Print invoice';print.addEventListener('click',()=>{details.open=true;details.classList.add('ty-print-target');window.addEventListener('afterprint',()=>details.classList.remove('ty-print-target'),{once:true});window.print();});
+   const print=document.createElement('button');print.type='button';print.className='btn btn-light ty-print';print.textContent='Print or save as PDF';print.addEventListener('click',()=>{details.open=true;details.classList.add('ty-print-target');window.addEventListener('afterprint',()=>details.classList.remove('ty-print-target'),{once:true});window.print();});
    body.append(print);details.append(body);box.append(details);
   }
   if('IntersectionObserver' in window){const reveal=new IntersectionObserver(entries=>{if(entries[0].isIntersecting){archive.dataset.ready='true';reveal.disconnect();}},{threshold:.12});reveal.observe(archive);}else archive.dataset.ready='true';

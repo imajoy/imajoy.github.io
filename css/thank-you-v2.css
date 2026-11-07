@@ -142,3 +142,21 @@ body.ty-page .ty-invoice{background:var(--ty-paper);border:1px solid var(--ty-pa
 }
 /* light theme: deeper headline tones so the italic stays readable on a pale page */
 html:not([data-theme=dark]) body.ty-page .ty-hero h1 em{background-image:linear-gradient(100deg,color-mix(in srgb,var(--ty-a) 80%,#000) 0%,var(--ty-a) 35%,color-mix(in srgb,var(--ty-b) 70%,#6b4200) 55%,var(--ty-a) 80%,color-mix(in srgb,var(--ty-a) 80%,#000) 100%)}
+
+/* ---------- invoices list v2: calm cards, status chip, comfortable on phones ---------- */
+body.ty-page .ty-archive{max-width:760px;margin-inline:auto}
+body.ty-page .ty-invoice{border-radius:20px;margin:12px 0;box-shadow:var(--shadow,0 12px 28px -24px #152b5d55);transition:border-color .3s,transform .5s var(--ty-ease)}
+body.ty-page .ty-invoice:hover{border-color:color-mix(in srgb,var(--ty-a) 50%,var(--ty-paper-line))}
+body.ty-page .ty-invoice summary{display:grid;grid-template-columns:minmax(0,1fr) auto auto;align-items:center;gap:6px 14px;padding:18px 22px;min-height:64px}
+body.ty-page .ty-invoice summary>div{display:grid;gap:3px;min-width:0}
+body.ty-page .ty-invoice summary small{color:var(--ty-paper-mute);font-size:13px;font-weight:500}
+body.ty-page .ty-invoice summary em{font-style:normal;font:700 11px/1 var(--sans);letter-spacing:.08em;text-transform:uppercase;padding:6px 10px;border-radius:999px;color:#1B7D5A;background:rgba(47,181,131,.14)}
+body.ty-page .ty-invoice summary em[data-kind=free]{color:var(--ty-a);background:color-mix(in srgb,var(--ty-a) 14%,transparent)}
+body.ty-page .ty-invoice summary>span{font-size:18px;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+body.ty-page .ty-invoice[open]{border-color:color-mix(in srgb,var(--ty-a) 45%,var(--ty-paper-line))}
+@media(max-width:560px){
+ body.ty-page .ty-invoice summary{grid-template-columns:minmax(0,1fr) auto;padding:16px}
+ body.ty-page .ty-invoice summary em{grid-column:1;grid-row:2;width:fit-content}
+ body.ty-page .ty-invoice summary>span{grid-column:2;grid-row:1 / span 2;align-self:center}
+}
+@media(max-width:560px){body.ty-page .ty-invoice summary b{overflow-wrap:normal;font-size:15px;letter-spacing:-.01em}}

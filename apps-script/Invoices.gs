@@ -51,7 +51,7 @@ function invoiceSend_(p) {
     (zero ? '<p style="margin:0 0 6px;color:#667;font-size:13px">No payment was due on this order. This invoice is your record of it.</p>' : '') +
     '<p style="color:#667;font-size:13px">Thank you for subscribing. Keep this email as your receipt. Questions? Reply to this email or write to ' + esc_(replyTo_()) + '.</p></div>';
   var text = 'Invoice ' + number + ' (' + when + ')\n' + seller + (extra.length ? '\n' + extra.join('\n') : '') + '\n\nBilled to: ' + p.email + '\nItem: ' + plan + '\nPaid with: ' + p.provider + '\nPayment ID: ' + p.paymentId + '\n' + (zero ? 'Total due: ' : 'Total paid: ') + total + (zero ? '\nNo payment was due on this order.' : '') + '\n\nQuestions? ' + replyTo_();
-  MailApp.sendEmail({ to: String(p.email), name: 'Wrapline Pro by Ajoy Tools', replyTo: replyTo_(), subject: tag + 'Your Wrapline Pro invoice ' + number, htmlBody: html, body: text });
+  if (!p.silent) MailApp.sendEmail({ to: String(p.email), name: 'Wrapline Pro by Ajoy Tools', replyTo: replyTo_(), subject: tag + 'Your Wrapline Pro invoice ' + number, htmlBody: html, body: text });
   sheet.appendRow([number, date, p.email, plan, paymentTitle_(p.billing), Number(p.seats) || 1, Number(p.amount), p.currency || '', p.provider, test ? 'Test' : 'Live', String(p.paymentId), String(p.subscriptionId || '')].map(safeSheetCell_));
   return number;
 }
@@ -79,4 +79,39 @@ function invoiceSendFree_(record, reason) {
   if (!record || !record.email || !record.price) return '';
   return invoiceSend_({ date: new Date(), email: record.email, provider: 'Razorpay', mode: record.mode, plan: record.price.plan, billing: record.price.billing, seats: record.price.seats,
     amount: 0, currency: record.price.currency || 'INR', status: 'Paid', paymentId: 'free_' + record.id, subscriptionId: record.subscriptionId, note: reason || 'No payment due' });
+}
+
+/* Self-healing history. When an account opens its invoices, any order that never got one (older purchases, trials whose
+   small card check was refunded, 100% coupons) gets a numbered invoice now. These catch-up invoices are saved silently:
+   nobody is emailed about an old order. Safe to repeat; each order is invoiced once, and the work runs at most every 10 minutes per account. */
+function invoiceBackfill_(email) {
+  email = String(email || '').trim().toLowerCase();
+  if (!email) return 0;
+  var cache = null, key = 'ib:' + email;
+  try { cache = CacheService.getScriptCache(); if (cache.get(key)) return 0; } catch (e) {}
+  var lock = LockService.getScriptLock(), made = 0;
+  if (!lock.tryLock(8000)) return 0;
+  try {
+    // 1) paid payments recorded in the Payments tab that have no invoice yet
+    if (typeof paymentRows_ === 'function') {
+      paymentRows_().forEach(function (r) {
+        if (String(r[1]).trim().toLowerCase() !== email || String(r[9]) !== 'Paid' || !r[12] || !(Number(r[7]) > 0)) return;
+        if (/donat|coffee/i.test(String(r[4]) + String(r[15]))) return;
+        var date = r[0] instanceof Date ? r[0] : new Date(r[0]);
+        if (invoiceSend_({ silent: true, date: isNaN(date.getTime()) ? new Date() : date, email: email, provider: r[2], mode: String(r[3]).toLowerCase(), plan: r[4], billing: r[5], seats: r[6], amount: Number(r[7]), currency: r[8], status: 'Paid', paymentId: r[12], subscriptionId: r[13] })) made++;
+      });
+    }
+    // 2) accepted Razorpay orders that cost nothing today (trial or 100% coupon) and have no invoice yet
+    if (typeof razorpayRows_ === 'function') {
+      razorpayRows_().forEach(function (rec) {
+        if (!rec || !rec.accepted || String(rec.email || '').toLowerCase() !== email || !rec.price) return;
+        var date = new Date(Number(rec.createdAt) || Date.now());
+        var reason = rec.trial || (rec.price && rec.price.offer === 'trial') ? 'Free trial' : (rec.price.discount && rec.price.discount.coupon ? 'Coupon' : '');
+        if (!reason) return;
+        if (invoiceSend_({ silent: true, date: date, email: email, provider: 'Razorpay', mode: rec.mode, plan: rec.price.plan, billing: rec.price.billing, seats: rec.price.seats, amount: 0, currency: rec.price.currency || 'INR', status: 'Paid', paymentId: 'free_' + rec.id, subscriptionId: rec.subscriptionId, note: reason })) made++;
+      });
+    }
+  } finally { lock.releaseLock(); }
+  try { if (cache) cache.put(key, '1', 600); } catch (e) {}
+  return made;
 }

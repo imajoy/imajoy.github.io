@@ -49,3 +49,16 @@ test('a free order (4-day trial or 100% coupon) still gets a numbered invoice ma
  assert.equal(s.ctx.invoiceSendFree_({id:'chk-1',email:'buyer@example.com',mode:'live',price:{plan:'online',billing:'monthly',seats:1}}),'','never invoiced twice');
  const hist=s.ctx.invoiceArchive_?s.ctx.invoiceArchive_({email:'buyer@example.com'}):null;if(hist)assert.equal(hist.length>=1,true);
 });
+
+test('opening the invoice history creates missing invoices for older orders, silently, once',()=>{
+ const s=service();s.register('buyer@example.com');s.ctx.Logger={log(){}};
+ s.ctx.paymentRecord_(pay({source:'History import',paymentId:'pay_OLD000000009',amount:1499}));
+ s.ctx.razorpayRows_=()=>[{id:'chk-old',email:'buyer@example.com',mode:'live',accepted:true,createdAt:Date.now()-5*864e5,subscriptionId:'sub_T',trial:{},price:{plan:'online',billing:'yearly',seats:3,currency:'INR',offer:'trial'}}];
+ const token=s.ctx.makeSession_('buyer@example.com');
+ const h=s.ctx.handleAccount_({step:'history',token});
+ assert.equal(h.ok,true);assert.equal(h.invoices.length,2);
+ assert.deepEqual(h.invoices.map(i=>i.amount).sort((a,b)=>a-b),[0,1499]);
+ assert.equal(invoices(s).length,0,'catch-up invoices send no email');
+ const again=s.ctx.handleAccount_({step:'history',token});assert.equal(again.invoices.length,2,'not duplicated');
+ s.cache&&s.cache.clear&&s.cache.clear();
+});

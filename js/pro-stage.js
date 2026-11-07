@@ -27,3 +27,6 @@
   near=Math.abs(x)<1.1&&Math.abs(y)<1.1;tx=near?Math.max(-1,Math.min(1,x*2)):0;ty=near?Math.max(-1,Math.min(1,y*2)):0;kick();},{passive:true});
  if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis=es[0].isIntersecting;if(vis)kick();}).observe(st);
 })();
+/* mark scrolling so endless decorative loops can rest (CSS: html.is-scrolling) */
+(function(){var t=0,on=false,root=document.documentElement;
+ addEventListener('scroll',function(){if(!on){on=true;root.classList.add('is-scrolling');}clearTimeout(t);t=setTimeout(function(){on=false;root.classList.remove('is-scrolling');},160);},{passive:true});})();

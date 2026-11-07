@@ -1,0 +1,24 @@
+/* grouped setup steps (phones and tablets) */
+.ff-group{display:none}
+.ff-install-steps.ff-acc{gap:10px}
+.ff-install-steps.ff-acc .ff-group{display:block;list-style:none;padding:0;border:0}
+.ff-install-steps .ff-group-btn{display:flex;align-items:center;gap:14px;width:100%;min-height:64px;padding:12px 16px;text-align:left;font:inherit;color:var(--ink);background:var(--card);border:1.5px solid var(--line);border-radius:18px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:border-color .18s linear,background-color .18s linear,box-shadow .18s linear}
+.ff-install-steps .ff-group-btn:active{background:var(--card2,var(--card))}
+.ff-install-steps .ff-group.is-open .ff-group-btn{border-color:color-mix(in srgb,var(--blue,#3d8bff) 55%,var(--line));box-shadow:0 8px 22px -14px color-mix(in srgb,var(--blue,#3d8bff) 60%,transparent)}
+.ff-install-steps .ff-group-btn .ffg-n{flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--blue-d);color:#fff;font:700 .8rem/1 var(--sans,inherit)}
+html[data-theme=dark] .ff-install-steps .ff-group-btn .ffg-n{color:#0b1020}
+.ff-install-steps .ff-group-btn .ffg-t{flex:1;min-width:0;display:grid;gap:3px}
+.ff-install-steps .ff-group-btn .ffg-t b{font-size:.95rem;font-weight:650;line-height:1.3}
+.ff-install-steps .ff-group-btn .ffg-t small{font-size:.74rem;line-height:1.4;color:var(--mute)}
+.ff-install-steps .ff-group-btn .ffg-c{flex:none;width:20px;height:20px;color:var(--mute);transition:transform .22s linear}
+.ff-install-steps .ff-group.is-open .ff-group-btn .ffg-c{transform:rotate(180deg)}
+.ff-install-steps.ff-acc li:not(.ff-group){margin-left:6px;border-left:2px solid var(--line);border-radius:0 14px 14px 0}
+.ff-install-steps.ff-acc li[hidden]{display:none}
+.ff-install-steps.ff-acc li:not(.ff-group)[data-current]{border-left-color:var(--blue-d)}
+.ff-install-steps.ff-acc button:not(.ff-install-steps .ff-group-btn){min-height:44px;align-items:center}
+@media(prefers-reduced-motion:reduce){.ff-install-steps .ff-group-btn,.ff-install-steps .ff-group-btn .ffg-c{transition:none}}
+
+.ff-install-steps .ff-group-btn{box-sizing:border-box;letter-spacing:0;text-transform:none;font-size:1rem}
+.ff-install-steps .ff-group-btn .ffg-t b{display:block;color:var(--ink);letter-spacing:0;text-transform:none}
+.ff-install-steps .ff-group-btn .ffg-t small{display:block;letter-spacing:0;text-transform:none;font-weight:400}
+.ff-install-steps .ff-group-btn .ffg-n{font-size:.8rem;letter-spacing:0}

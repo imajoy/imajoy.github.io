@@ -56,5 +56,6 @@
 .xp-scene .on{stroke:#FFB84D!important;filter:drop-shadow(0 0 6px rgba(255,184,77,.8))}
 
 /* reserve the demo's space before its script builds it, so nothing below jumps while the page loads */
-figure.tool-visual.xp-fig[data-explainer]{aspect-ratio:1/.93}
-@media(max-width:700px){figure.tool-visual.xp-fig[data-explainer]{aspect-ratio:1/1.38}}
+figure.tool-visual.xp-fig[data-explainer]:not(:has(.xp-frame)){aspect-ratio:1/.93}
+@media(max-width:700px){figure.tool-visual.xp-fig[data-explainer]:not(:has(.xp-frame)){aspect-ratio:1/1.38}}
+figure.tool-visual.xp-fig[data-explainer]:has(.xp-frame){aspect-ratio:auto}

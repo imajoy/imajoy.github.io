@@ -62,7 +62,7 @@
 }
 @media(prefers-reduced-motion:no-preference){
  html.pill-pending .home-page .maker-home{opacity:0}
- html.pill-entering .home-page .maker-home{animation:pill-content .5s .78s backwards}
+ html.pill-entering .home-page .maker-home{animation:pill-content .5s 1.63s backwards}
  .js .home-page .intro .ln>span{animation:wrapline-copy-in 650ms 140ms cubic-bezier(.16,1,.3,1) backwards}
  .js .home-page .intro .ln:nth-child(2)>span{animation-delay:230ms}
  .js .home-page .intro-fade{animation:wrapline-copy-in 550ms 300ms ease-out backwards}
@@ -89,6 +89,6 @@
 @keyframes wrapline-banner-unfold{from{opacity:0;transform:perspective(700px) rotateX(-12deg) scale(.96);clip-path:inset(0 42% round 22px)}to{opacity:1;transform:none;clip-path:inset(0 round 22px)}}
 @keyframes wrapline-banner-ink{from{opacity:0;transform:translateX(-8px);clip-path:inset(0 100% 0 0)}to{opacity:1;transform:none;clip-path:inset(0)}}
 @media(prefers-reduced-motion:no-preference){
- html.pill-entering .home-page .pillbar>[data-account-register]{animation:wrapline-button-pop 500ms 1.18s backwards}
- html.pill-entering .home-page .pillbar>[data-account-button]{animation:wrapline-button-glide 500ms 1.1s backwards}
+ html.pill-entering .home-page .pillbar>[data-account-register]{animation:wrapline-button-pop 500ms 2.03s backwards}
+ html.pill-entering .home-page .pillbar>[data-account-button]{animation:wrapline-button-glide 500ms 1.95s backwards}
 }

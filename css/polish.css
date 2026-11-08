@@ -6,10 +6,10 @@ body{background-image:radial-gradient(ellipse at 0% 35%,#b7cfff12,transparent 45
 .site-header:has(:focus-visible){transform:none;opacity:1}
 /* Open the shell from its centre, then reveal controls without stretching text. */
 @media(prefers-reduced-motion:no-preference){
-  html.pill-pending .pillbar{clip-path:inset(0 calc(50% - 28px) round 999px)}
+  html.pill-pending .pillbar{clip-path:inset(0 calc(50% - 28px) round 999px);opacity:0}
   html.pill-pending .pillbar>:is(.brand,.theme,.btn,.acct-btn),html.pill-pending .pillbar .nav a{opacity:0}
-  html.pill-entering .pillbar{animation:pill-open 1.05s cubic-bezier(.65,0,.25,1) backwards}
-  html.pill-entering .pillbar>:is(.brand,.theme,.btn,.acct-btn),html.pill-entering .pillbar .nav a{animation:pill-content .5s var(--ease-soft) backwards;animation-delay:var(--pill-delay,.82s)}
+  html.pill-entering .pillbar{animation:pill-drop 1.9s linear backwards;will-change:translate,scale,filter,clip-path}
+  html.pill-entering .pillbar>:is(.brand,.theme,.btn,.acct-btn),html.pill-entering .pillbar .nav a{animation:pill-content .5s var(--ease-soft) backwards;animation-delay:calc(var(--pill-delay,.82s) + .85s)}
   .pillbar .nav a:nth-child(1){--pill-delay:.88s}
   .pillbar .nav a:nth-child(2){--pill-delay:.94s}
   .pillbar .nav a:nth-child(3){--pill-delay:1s}
@@ -23,10 +23,16 @@ body{background-image:radial-gradient(ellipse at 0% 35%,#b7cfff12,transparent 45
     .pillbar>.btn{--pill-delay:.98s}
   }
 }
-@keyframes pill-open{
-  from{clip-path:inset(0 calc(50% - 28px) round 999px)}
-  85%{clip-path:inset(0 0 round 999px)}
-  to{clip-path:inset(-60px -60px round 999px)}
+/* water drop: a small bead forms above the screen, falls (stretched, soft blur), splats flat on landing, rebounds, settles, then spreads into the full pill */
+@keyframes pill-drop{
+  0%{translate:0 -150px;scale:.6 1.4;opacity:0;filter:blur(4px);clip-path:inset(0 calc(50% - 28px) round 999px);animation-timing-function:cubic-bezier(.55,0,.85,.55)}
+  6%{opacity:1}
+  31%{translate:0 12px;scale:.9 1.16;opacity:1;filter:blur(1.5px);clip-path:inset(0 calc(50% - 28px) round 999px);animation-timing-function:cubic-bezier(.2,.7,.3,1)}
+  35%{translate:0 14px;scale:1.28 .72;filter:blur(0);animation-timing-function:cubic-bezier(.3,.7,.3,1)}
+  41%{translate:0 -7px;scale:.93 1.09;animation-timing-function:ease-in-out}
+  46%{translate:0 0;scale:1 1;clip-path:inset(0 calc(50% - 28px) round 999px);animation-timing-function:cubic-bezier(.65,0,.25,1)}
+  92%{clip-path:inset(0 0 round 999px)}
+  100%{translate:0 0;scale:1 1;opacity:1;filter:blur(0);clip-path:inset(-60px -60px round 999px)}
 }
 @keyframes pill-content{
   from{opacity:0;translate:0 7px;filter:blur(3px)}

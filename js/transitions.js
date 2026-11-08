@@ -14,6 +14,9 @@
   }, true);
   addEventListener('pagereveal', function (e) {
     if (!e.viewTransition) return;
+    /* A reload is not a page change: no old-page snapshot sliding away, the page just loads once. */
+    var nt = window.navigation && navigation.activation && navigation.activation.navigationType;
+    if (nt === 'reload') { try { e.viewTransition.skipTransition(); } catch (x) {} return; }
     var xy = null; try { xy = sessionStorage.getItem(K); } catch (x) {}
     var p = (xy || '').split(',');
     if (p.length === 2) { root.style.setProperty('--vx', p[0] + 'px'); root.style.setProperty('--vy', p[1] + 'px'); }
@@ -42,7 +45,9 @@
 /* Fallback for browsers that cannot animate between documents: fade the page out, then go. */
 (function () {
   if ('PageRevealEvent' in window || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-  var root = document.documentElement; root.classList.add('vt-fb');
+  var root = document.documentElement;
+  try { if ((performance.getEntriesByType('navigation')[0] || {}).type === 'reload') return; } catch (x) {}
+  root.classList.add('vt-fb');
   addEventListener('pageshow', function (e) { root.classList.remove('vt-leave'); });
   document.addEventListener('click', function (e) {
     var a = e.target.closest && e.target.closest('a[href]');

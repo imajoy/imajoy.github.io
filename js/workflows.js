@@ -9,7 +9,7 @@ if(showcase){
  /* slide the pill under the active label (position and size measured from the button) */
  const place=(button,instant)=>{
   if(instant)choices.classList.add('no-anim');
-  choices.style.setProperty('--tx',button.offsetLeft+'px');choices.style.setProperty('--tw',button.offsetWidth+'px');
+  choices.style.setProperty('--tx',button.offsetLeft+'px');choices.style.setProperty('--ty',button.offsetTop+'px');choices.style.setProperty('--th',button.offsetHeight+'px');choices.style.setProperty('--tw',button.offsetWidth+'px');
   choices.classList.add('is-set');
   if(instant){choices.getBoundingClientRect();requestAnimationFrame(()=>choices.classList.remove('no-anim'));}
  };

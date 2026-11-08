@@ -47,7 +47,7 @@
   sl=hero.querySelector('.hv-l b'),sr=hero.querySelector('.hv-r b'),dock=hero.querySelector('.pro-dock'),fig=hero.querySelector('.hv-stage .tool-visual');
  if(!track||!portal||!shell||!stage||!fig)return;
  var bar=document.createElement('div');bar.className='hv-pinbar';bar.setAttribute('aria-hidden','true');bar.innerHTML='<b>01</b><i></i><span>10</span>';portal.appendChild(bar);
- var tgt=0,cur=0,ease=0,num=bar.querySelector('b'),N=10,pinTop=76,extra=0,pinned=false,tick=0,lastP=-1,lastIx=-1,jt=0,vis=true;
+ var prevIx=0,tgt=0,cur=0,ease=0,num=bar.querySelector('b'),N=10,pinTop=76,extra=0,pinned=false,tick=0,lastP=-1,lastIx=-1,jt=0,vis=true;
  function measure(){
   var room=innerHeight-pinTop-10;stage.style.maxWidth='';portal.style.zoom='';
   var ph=portal.offsetHeight;
@@ -61,7 +61,7 @@
  }
  function setTool(ix){
   var pl=fig.__player;if(!pl||!pl.list||ix>=pl.list.length)return;
-  clearTimeout(jt);fig.classList.add('hv-swap');jt=setTimeout(function(){pl.manual=true;pl.jump(ix);requestAnimationFrame(function(){fig.classList.remove('hv-swap');});},150);
+  clearTimeout(jt);jt=setTimeout(function(){var go=function(){pl.manual=true;pl.jump(ix);};if(window.__hvLeave)window.__hvLeave(ix>prevIx?1:-1,go);else go();prevIx=ix;},60);
  }
  function paint(){tick=0;if(!vis)return;
   var h=Math.max(hero.offsetHeight,1),sy=scrollY,
@@ -75,7 +75,7 @@
  function glide(){ease=0;var d=tgt-cur;if(Math.abs(d)<.0004){cur=tgt;}else{cur+=d*.14;ease=requestAnimationFrame(glide);}apply(cur);}
  function apply(p){
   var e=p*p*(3-2*p);
-  shell.style.scale=(1-e*.05).toFixed(4);
+  shell.style.scale=(1-e*.015).toFixed(4);
   if(pinned&&extra>0){
    bar.style.setProperty('--pp',p.toFixed(3));
    var ix=Math.min(N-1,Math.floor(p*N));
@@ -90,3 +90,30 @@
  if('ResizeObserver' in window)new ResizeObserver(function(){measure();lastP=-1;req();}).observe(portal);
  if('IntersectionObserver' in window)new IntersectionObserver(function(es){vis=es[0].isIntersecting;if(vis){lastP=-1;req();}},{rootMargin:'200px 0px'}).observe(hero);
  measure();paint();})();
+
+/* Stage story: the big tool name, its line and the rail follow the tool on show, the glow changes colour with it,
+   and the demo window glides out and in when the tool changes (Web Animations on translate / scale / opacity only). */
+(function(){var hero=document.querySelector('.hero.hv');if(!hero)return;
+ var st=hero.querySelector('.hv-stage'),no=hero.querySelector('[data-hv-no]'),nm=hero.querySelector('[data-hv-name]'),ds=hero.querySelector('[data-hv-desc]'),rail=hero.querySelector('[data-hv-rail]'),
+  wa=hero.querySelector('.hv-wa'),wb=hero.querySelector('.hv-wb'),dock=hero.querySelector('.pro-dock'),fig=hero.querySelector('.hv-stage .tool-visual');
+ if(!st||!nm||!fig||!rail)return;
+ var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,
+  T=[['advanced-ik-fk-switch','Advanced IK FK Switch','Snap between IK and FK in a click.'],['fbx-exporter','FBX Exporter','Pick rigs, set the shot, export named FBX files.'],['rivet','Rivet','Attach a locator to two edges, then parent your object.'],['rebake-ik-space','Rebake IK Space','Rebake animation into a clean IK space.'],['playblast','Playblast','Choose a camera and a format, then review.'],['drag-drop','Drag & Drop','Drop files in and choose an action for each.'],['alembic-exporter','Alembic Exporter','Export shot caches as Alembic.'],['hotkey-manager','Hotkey Manager','Keep your Maya hotkeys in one place.'],['audio-exporter','Audio Exporter','Export the audio from your scene.'],['revert-to-last-saved','Revert to Last Saved','Drop your changes and reopen the last save.']],
+  byName={};T.forEach(function(t,i){byName[t[1]]=i;});
+ var lis=T.map(function(t,i){var li=document.createElement('li');li.innerHTML='<span></span><i></i>';li.firstChild.textContent=t[1];rail.appendChild(li);return li;});
+ var chips=dock?[].slice.call(dock.querySelectorAll('span')):[],front=0,last=-1,first=true;
+ function reveal(el,txt,delay){el.textContent=txt;if(reduce||!el.animate)return;el.animate([{translate:'0 110%',opacity:0},{translate:'0 0',opacity:1}],{duration:620,delay:delay,easing:'cubic-bezier(.16,1,.3,1)',fill:'backwards'});}
+ st.addEventListener('xp-tool',function(e){
+  var i=byName[e.detail.title];if(i==null||i===last)return;var dir=i>last?1:-1;if(last<0)dir=1;last=i;
+  reveal(no,(i+1<10?'0':'')+(i+1),0);reveal(nm,T[i][1],40);reveal(ds,T[i][2],130);
+  lis.forEach(function(li,k){li.classList.toggle('on',k===i);});
+  var h=chips[e.detail.ix]?chips[e.detail.ix].style.getPropertyValue('--h'):'',hue=parseFloat(h);if(isNaN(hue))hue=220;
+  front=1-front;var a=front?wa:wb,b=front?wb:wa;a.style.setProperty('--th',hue);hero.style.setProperty('--th',hue);a.classList.add('on');b.classList.remove('on');
+  if(first){first=false;return;}
+  if(!reduce&&st.animate)st.animate([{translate:(dir*7)+'vw 0',scale:.94,opacity:0},{translate:'0 0',scale:1,opacity:1}],{duration:700,easing:'cubic-bezier(.16,1,.3,1)'});
+ });
+ /* the pin controller calls this before it switches tools, so the old window leaves first */
+ window.__hvLeave=function(dir,done){if(reduce||!st.animate){done();return;}
+  var an=st.animate([{translate:'0 0',scale:1,opacity:1},{translate:(-dir*7)+'vw 0',scale:.94,opacity:0}],{duration:200,easing:'cubic-bezier(.4,0,1,1)',fill:'forwards'});
+  an.onfinish=function(){done();an.cancel();};};
+})();

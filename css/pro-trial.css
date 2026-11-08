@@ -57,7 +57,7 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
 
 /* ---- motion: one 10-second loop. Everything below is transform/opacity only, so it runs on the GPU and never repaints while you scroll ---- */
 @media(prefers-reduced-motion:no-preference){
- html body.pro-page #trial .ta-ticket{animation:ta-float 11s ease-in-out infinite!important}
+ html body.pro-page #trial .ta-ticket{animation:ta-float 11s ease-in-out infinite,ta-flip 11s linear infinite!important}
  html body.pro-page #trial .ta-glare{position:absolute;inset:-30% -20%;pointer-events:none;background:radial-gradient(closest-side at 50% 50%,rgba(255,255,255,.2),rgba(255,255,255,0) 70%);width:55%;height:70%;margin:auto;will-change:transform;animation:ta-glare 11s ease-in-out infinite!important}
  html body.pro-page #trial .ta-glow{animation:ta-breathe 7s ease-in-out infinite!important;will-change:transform,opacity}
  html body.pro-page #trial .ta-orb{position:absolute;inset:3% -6%;z-index:0;border-radius:50%;border:1px solid rgba(140,180,255,.24);rotate:-20deg;animation:ta-spin 28s linear infinite!important;will-change:transform}
@@ -65,11 +65,11 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
  html body.pro-page #trial .ta-orb-b{inset:16% -14%;border-style:dashed;border-color:rgba(255,214,130,.26);animation-duration:40s!important;animation-direction:reverse!important}
  html body.pro-page #trial .ta-orb-b::after{background:#FFD27A;box-shadow:0 0 16px 3px rgba(255,210,122,.65);top:auto;bottom:-4px}
  html body.pro-page #trial .ta-p{position:absolute;z-index:0;left:var(--x);bottom:4%;width:4px;height:4px;border-radius:50%;background:#cfe0ff;box-shadow:0 0 10px 1px rgba(127,176,255,.8);opacity:0;animation:ta-rise var(--t,8s) linear var(--dl,0s) infinite!important;will-change:transform,opacity}
- html body.pro-page #trial .ta-num b{display:block;height:.78em;overflow:visible;animation:ta-count-pop 10s ease-in-out infinite!important}
+ html body.pro-page #trial .ta-num b{display:block;height:.78em;overflow:visible;animation:ta-count-pop 11s ease-in-out infinite!important}
  html body.pro-page #trial .ta-num .rl{display:block;height:.78em;overflow:hidden;font-variant-numeric:tabular-nums}
- html body.pro-page #trial .ta-num .rl-in{display:flex;flex-direction:column;animation:ta-roll 10s cubic-bezier(.22,1,.36,1) infinite!important;will-change:transform}
+ html body.pro-page #trial .ta-num .rl-in{display:flex;flex-direction:column;animation:ta-roll 11s cubic-bezier(.22,1,.36,1) infinite!important;will-change:transform}
  html body.pro-page #trial .ta-num .rl-in i{display:block;font-style:normal;height:.78em;line-height:.78em;background:linear-gradient(180deg,#fff 20%,#bcd2ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
- html body.pro-page #trial .ta-days i::after{animation-duration:10s!important;animation-iteration-count:infinite!important;animation-timing-function:cubic-bezier(.22,1,.36,1)!important}
+ html body.pro-page #trial .ta-days i::after{animation-duration:11s!important;animation-iteration-count:infinite!important;animation-timing-function:cubic-bezier(.22,1,.36,1)!important}
  html body.pro-page #trial .ta-days li:nth-child(1) i::after{animation-name:ta-b0!important}
  html body.pro-page #trial .ta-days li:nth-child(2) i::after{animation-name:ta-b1!important}
  html body.pro-page #trial .ta-days li:nth-child(3) i::after{animation-name:ta-b2!important}
@@ -93,12 +93,14 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
 @keyframes ta-breathe{0%,100%{transform:scale(.92);opacity:.55}50%{transform:scale(1.08) translate3d(3%,-2%,0);opacity:.9}}
 @keyframes ta-spin{to{rotate:340deg}}
 @keyframes ta-rise{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.95}85%{opacity:.5}100%{transform:translate3d(var(--dx,10px),-340px,0);opacity:0}}
-@keyframes ta-roll{0%,8%{transform:translateY(0)}20%,83%{transform:translateY(-80%)}83.1%,100%{transform:translateY(0)}}
-@keyframes ta-count-pop{0%{transform:perspective(700px) rotateY(0) scale(1)}18%{transform:perspective(700px) rotateY(0) scale(1)}22%{transform:perspective(700px) rotateY(0) scale(1.07)}26%{transform:perspective(700px) rotateY(0) scale(1)}80%{transform:perspective(700px) rotateY(0) scale(1);animation-timing-function:linear}92%,100%{transform:perspective(700px) rotateY(360deg) scale(1)}}
-@keyframes ta-b0{0%,14%{transform:scaleX(0)}22%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
-@keyframes ta-b1{0%,26%{transform:scaleX(0)}34%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
-@keyframes ta-b2{0%,38%{transform:scaleX(0)}46%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
-@keyframes ta-b3{0%,50%{transform:scaleX(0)}58%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
+@keyframes ta-roll{0%,8%{transform:translateY(0)}20%,93.2%{transform:translateY(-80%)}93.4%,100%{transform:translateY(0)}}
+@keyframes ta-count-pop{0%,18%{transform:scale(1)}22%{transform:scale(1.07)}26%,100%{transform:scale(1)}}
+/* the whole card turns once at the end of every loop; the numbers reset while it is edge-on (270deg), so nothing visibly jumps */
+@keyframes ta-flip{0%,84%{rotate:0 1 0 0deg;animation-timing-function:cubic-bezier(.45,0,.55,1)}98%,100%{rotate:0 1 0 360deg}}
+@keyframes ta-b0{0%,14%{transform:scaleX(0)}22%,93.2%{transform:scaleX(1)}93.4%,100%{transform:scaleX(0)}}
+@keyframes ta-b1{0%,26%{transform:scaleX(0)}34%,93.2%{transform:scaleX(1)}93.4%,100%{transform:scaleX(0)}}
+@keyframes ta-b2{0%,38%{transform:scaleX(0)}46%,93.2%{transform:scaleX(1)}93.4%,100%{transform:scaleX(0)}}
+@keyframes ta-b3{0%,50%{transform:scaleX(0)}58%,93.2%{transform:scaleX(1)}93.4%,100%{transform:scaleX(0)}}
 @keyframes ta-mark{0%,60%,100%{transform:rotate(0) scale(1)}80%{transform:rotate(90deg) scale(1.12)}}
 @keyframes ta-go{0%,40%{transform:translate(0,0);opacity:1}55%{transform:translate(9px,-9px);opacity:0}56%{transform:translate(-9px,9px);opacity:0}75%,100%{transform:translate(0,0);opacity:1}}
 @keyframes ta-drift{0%,100%{transform:translate3d(0,0,0) rotate(0)}25%{transform:translate3d(7px,-9px,0) rotate(.8deg)}50%{transform:translate3d(-4px,-15px,0) rotate(-.6deg)}75%{transform:translate3d(-8px,-5px,0) rotate(.5deg)}}
@@ -112,4 +114,4 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
 /* the rolling digit: plain colour, no clipped-gradient text (a clipped gradient under a moving, tilting layer drew torn shards mid-roll) */
 html body.pro-page #trial .ta-num b{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:#eef3ff!important;color:#eef3ff;text-shadow:none!important}
 html body.pro-page #trial .ta-num .rl-in i{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:currentColor!important;color:inherit}
-html body.pro-page #trial .ta-num .rl{contain:paint;position:relative}
+html body.pro-page #trial .ta-num .rl{position:relative}

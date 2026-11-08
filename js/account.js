@@ -81,15 +81,17 @@ function init() {
   /* Delete my account and data: needs a fresh emailed code, auto-submits when the 6 digits are entered. */
   let erasePanel=null;
   const eraseErrors={active_subscription:'Your subscription still has access left. You can delete your account once it has ended.',code:'That code is not right. Check the email and try again.',code_expired:'That code has expired. Go back and ask for a new one.',limit:'Too many attempts. Please wait a few minutes and try again.',expired:'Your session expired. Sign in again to delete your account.',busy:'The service is busy. Please try again in a moment.'};
+  /* A small orb with a face; its mood (sad, listening, fading, goodbye) is driven entirely by CSS. */
+  const buddy=mood=>'<div class="eb" data-mood="'+mood+'" aria-hidden="true"><svg viewBox="0 0 120 120"><defs><radialGradient id="eb-g" cx="38%" cy="32%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity=".95"/><stop offset=".45" stop-color="var(--eb-a,#8fb4ff)"/><stop offset="1" stop-color="var(--eb-b,#4a6df0)"/></radialGradient></defs><g class="eb-halo"><circle cx="60" cy="62" r="52"/></g><g class="eb-body"><circle class="eb-orb" cx="60" cy="62" r="40" fill="url(#eb-g)"/><g class="eb-brows"><path d="M38 47q8-5 16-1" /><path d="M66 46q8-4 16 1"/></g><g class="eb-eyes"><ellipse cx="46" cy="60" rx="4.2" ry="5.2"/><ellipse cx="74" cy="60" rx="4.2" ry="5.2"/></g><path class="eb-mouth eb-m-sad" d="M49 82q11-8 22 0"/><path class="eb-mouth eb-m-flat" d="M51 80q9 3 18 0"/><path class="eb-mouth eb-m-smile" d="M48 77q12 11 24 0"/><ellipse class="eb-tear" cx="40" cy="68" rx="2.6" ry="3.6"/></g><g class="eb-hand"><path d="M96 70q8-14 14-6 2 6-4 12-6 6-10-6z"/></g>'+Array.from({length:9},(_,i)=>'<circle class="eb-p" style="--i:'+i+'" cx="'+(30+i*7.5)+'" cy="'+(86-(i%3)*6)+'" r="'+(1.6+(i%3)*.7)+'"/>').join('')+'</svg></div>';
   function renderErase(session){
     const st=erasePanel;
     if(st.stage==='done'){
-      body.innerHTML='<span class="acct-icon acct-icon-success" aria-hidden="true">✓</span><p class="eyebrow">Account deleted</p><h2 id="acct-title" tabindex="-1">Your data has been deleted.</h2><p class="acct-note">We emailed you a confirmation. Payment records we must keep for accounting are anonymized.</p><button class="btn btn-dark" type="button" data-close>Close</button>';
+      body.innerHTML='<div class="ez">'+buddy('bye')+'<h2 id="acct-title" tabindex="-1">Goodbye, and thank you.</h2><p class="acct-note">Your data is deleted. A confirmation is on its way.</p><button class="btn btn-dark" type="button" data-close>Close</button></div>';
       body.querySelector('[data-close]').onclick=()=>{erasePanel=null;dlg.close();};
       return;
     }
     if(st.stage==='intro'){
-      body.innerHTML=accountIcon+'<p class="eyebrow">Delete account</p><h2 id="acct-title" tabindex="-1">Delete your account and data?</h2><p class="acct-note">This removes your account, reviews, contact messages and saved passkeys. Payment records we must keep for accounting are anonymized. <b>This cannot be undone.</b> A subscription that is active or still has access left must end first.</p>'+(st.msg?'<p class="acct-note acct-error" role="alert">'+esc(st.msg)+'</p>':'')+'<button class="btn btn-dark" type="button" data-send>Email me a confirmation code</button><button class="acct-link" type="button" data-back>Keep my account</button>';
+      body.innerHTML='<div class="ez">'+buddy('sad')+'<h2 id="acct-title" tabindex="-1">Leaving so soon?</h2><p class="acct-note">Your account, reviews and messages will be erased. <b>This cannot be undone.</b></p>'+(st.msg?'<p class="acct-note acct-error" role="alert">'+esc(st.msg)+'</p>':'')+'<button class="btn btn-dark" type="button" data-send>Send me a code</button><button class="acct-link" type="button" data-back>Keep my account</button></div>';
       body.querySelector('[data-back]').onclick=()=>{erasePanel=null;render();};
       body.querySelector('[data-send]').onclick=async event=>{
         const b=event.currentTarget;b.disabled=true;b.textContent='Sending…';
@@ -99,12 +101,14 @@ function init() {
       };
       return;
     }
-    body.innerHTML=accountIcon+'<p class="eyebrow">Delete account</p><h2 id="acct-title" tabindex="-1">Enter the code.</h2><p class="acct-note">We sent a 6-digit code to <b>'+esc(session.email)+'</b>. Entering it deletes your account right away.</p><input class="acct-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" aria-label="6-digit code" data-code>'+(st.msg?'<p class="acct-note acct-error" role="alert">'+esc(st.msg)+'</p>':'')+'<button class="acct-link" type="button" data-back>Cancel</button>';
+    body.innerHTML='<div class="ez">'+buddy('listen')+'<h2 id="acct-title" tabindex="-1">Enter the code.</h2><p class="acct-note">Sent to <b>'+esc(session.email)+'</b>. It deletes your account right away.</p><input class="acct-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" aria-label="6-digit code" data-code><div class="eb-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+(st.msg?'<p class="acct-note acct-error" role="alert">'+esc(st.msg)+'</p>':'')+'<button class="acct-link" type="button" data-back>Cancel</button></div>';
     const input=body.querySelector('[data-code]');input.focus();
     body.querySelector('[data-back]').onclick=()=>{erasePanel=null;render();};
     input.addEventListener('input',async()=>{
-      input.value=input.value.replace(/\D/g,'').slice(0,6);if(input.value.length<6)return;
-      input.disabled=true;
+      input.value=input.value.replace(/\D/g,'').slice(0,6);
+      body.querySelectorAll('.eb-dots i').forEach((dot,at)=>dot.classList.toggle('on',at<input.value.length));
+      if(input.value.length<6)return;
+      input.disabled=true;body.querySelector('.eb').dataset.mood='fade';
       try{const r=await accountRequest({step:'erase',token:session.token,code:input.value},60000);
         if(r.ok){erasePanel={stage:'done'};try{for(const k of Object.keys(localStorage))if(/^ajoy[.-]/.test(k)&&k!=='ajoy-theme')localStorage.removeItem(k);for(const k of Object.keys(sessionStorage))if(/^ajoy\./.test(k))sessionStorage.removeItem(k);}catch{}clearAccountSession();render();}
         else{erasePanel={stage:r.error==='code_expired'||r.error==='active_subscription'?'intro':'code',msg:eraseErrors[r.error]||'We could not delete the account. Please try again.'};render();}

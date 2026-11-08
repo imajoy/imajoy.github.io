@@ -252,3 +252,12 @@ html.pr-on body.pro-page #trial .trial-stage[data-pr]{clip-path:none!important;t
  html.pr-on body.pro-page .reveal[data-pr]:not(.trial-stage):not(.pr-set){transition:opacity .8s var(--pro-ease),transform .9s var(--pro-ease)!important;transition-delay:calc(var(--pr-i,0)*70ms)!important}
 }
 html.pr-on body.pro-page #tools .tile.reveal[data-pr]:not(.pr-set){transition:opacity .8s var(--pro-ease),transform .9s var(--pro-ease)!important;transition-delay:calc(var(--pr-i,0)*70ms)!important}
+
+/* ---- smooth scrolling over the big framed panels (trial, featured plan, closing frame) ----
+   Their glowing edge was a conic gradient whose angle was animated forever: that repaints the whole masked border on the main thread every frame (and it was paused/resumed each time you scrolled, which is the stutter). The edge is now painted once, at a fixed angle, and only its brightness breathes (opacity runs on the GPU). */
+body.pro-page .trial-stage::before,body.pro-page .plan.plan-lead::after,body.pro-page .frame::before{--pb:35deg;animation:pro-edge-breathe 5.5s ease-in-out infinite alternate!important;will-change:opacity}
+html.is-scrolling body.pro-page .trial-stage::before,html.is-scrolling body.pro-page .plan.plan-lead::after,html.is-scrolling body.pro-page .frame::before{animation-play-state:running!important}
+@keyframes pro-edge-breathe{from{opacity:.45}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){body.pro-page .trial-stage::before,body.pro-page .plan.plan-lead::after,body.pro-page .frame::before{animation:none!important;opacity:.8}}
+/* the panel's own entrance: rise only (no scaling, which re-rasterises the text while it moves) */
+@keyframes pp-stage-in{from{transform:translate3d(0,40px,0)}to{transform:none}}

@@ -4,9 +4,11 @@
 .pillbar{view-transition-name:pillbar}
 @media (prefers-reduced-motion:no-preference){
  ::view-transition{background:var(--bg)}
- ::view-transition-group(root){animation-duration:.45s}
+ ::view-transition-group(root){animation-duration:.7s}
  ::view-transition-image-pair(root){isolation:auto}
- ::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal;animation-duration:.45s;animation-timing-function:cubic-bezier(.22,1,.36,1);animation-fill-mode:both}
+ ::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal;animation-duration:.7s;animation-timing-function:cubic-bezier(.22,1,.36,1);animation-fill-mode:both}
+ ::view-transition-old(root){animation-duration:.34s;animation-timing-function:cubic-bezier(.4,0,1,1)}
+ ::view-transition-new(root){animation-delay:.1s;animation-duration:.62s}
  ::view-transition-old(root){animation-name:vt-away;z-index:1}
  ::view-transition-new(root){animation-name:vt-toward;z-index:2}
  html[data-vt=back]::view-transition-old(root){animation-name:vt-away-b;z-index:2}
@@ -14,10 +16,10 @@
  ::view-transition-group(pillbar){animation-duration:.4s}
  ::view-transition-old(pillbar),::view-transition-new(pillbar){animation-duration:.4s;mix-blend-mode:normal}
  /* the old page swings back into depth, the new one swings in from the side like a turning page */
- @keyframes vt-away{to{opacity:0;transform:translate3d(0,-10px,0)}}
- @keyframes vt-toward{from{opacity:0;transform:translate3d(0,16px,0)}}
- @keyframes vt-away-b{to{opacity:0;transform:translate3d(0,10px,0)}}
- @keyframes vt-toward-b{from{opacity:0;transform:translate3d(0,-16px,0)}}
+ @keyframes vt-away{to{opacity:0;transform:translate3d(0,-22px,0) scale(.994)}}
+ @keyframes vt-toward{from{opacity:0;transform:translate3d(0,38px,0) scale(.988)}}
+ @keyframes vt-away-b{to{opacity:0;transform:translate3d(0,22px,0) scale(.994)}}
+ @keyframes vt-toward-b{from{opacity:0;transform:translate3d(0,-38px,0) scale(.988)}}
 }
 /* Content on plain pages rises in, one block after another, as the circle opens. */
 @media (prefers-reduced-motion:no-preference){
@@ -61,4 +63,11 @@ html.theme-fx,html.theme-fx *,html.theme-fx *::before,html.theme-fx *::after{tra
  @keyframes vtm-back{to{transform:translate3d(-8%,0,0) scale(.985);opacity:.55}}
  @keyframes vtm-out{from{opacity:1;transform:none}45%{opacity:1}to{opacity:0;transform:translate3d(14%,0,0)}}
  @keyframes vtm-in-b{from{opacity:.55;transform:translate3d(-8%,0,0) scale(.985)}to{opacity:1;transform:none}}
+}
+
+/* browsers without cross-page View Transitions (Firefox, Safari): the page eases out when you leave and eases in on arrival */
+@media (prefers-reduced-motion:no-preference){
+ html.vt-fb body{animation:vtfb-in .55s cubic-bezier(.16,1,.3,1) both}
+ html.vt-fb.vt-leave body{opacity:0;transform:translate3d(0,-14px,0);transition:opacity .26s cubic-bezier(.4,0,1,1),transform .26s cubic-bezier(.4,0,1,1)}
+ @keyframes vtfb-in{from{opacity:0;transform:translate3d(0,22px,0)}}
 }

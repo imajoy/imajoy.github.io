@@ -38,3 +38,18 @@
     els.forEach(function (el) { if (el.getBoundingClientRect().height > innerHeight * .8) return; el.classList.add('rv'); io.observe(el); });
   });
 })();
+
+/* Fallback for browsers that cannot animate between documents: fade the page out, then go. */
+(function () {
+  if ('PageRevealEvent' in window || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  var root = document.documentElement; root.classList.add('vt-fb');
+  addEventListener('pageshow', function (e) { root.classList.remove('vt-leave'); });
+  document.addEventListener('click', function (e) {
+    var a = e.target.closest && e.target.closest('a[href]');
+    if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target || a.hasAttribute('download')) return;
+    var u; try { u = new URL(a.href, location.href); } catch (x) { return; }
+    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search) || !/\.html$|\/$/.test(u.pathname)) return;
+    e.preventDefault(); root.classList.add('vt-leave');
+    setTimeout(function () { location.href = u.href; }, 250);
+  });
+})();

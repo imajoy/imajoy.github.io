@@ -47,3 +47,20 @@ html body.pro-page #workflows .workflow-choices button:active{scale:.97}
 .tl-watch svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s ease}
 .tl-watch:hover svg,.tl-watch:focus-visible svg{transform:translate(2px,-2px)}
 .tl-watch:hover{text-decoration:underline;text-underline-offset:3px}
+
+/* Tool chooser on tablets and phones: a tidy grid instead of a pill that wraps into a lopsided shape.
+   Tablets show the four tools in one row; phones show a 2 x 2 grid. Every tool gets an equal cell, text centred, and the
+   sliding highlight moves between the cells (the script measures each button, so it follows the grid). Desktop is unchanged. */
+@media(max-width:980px){
+  html body.pro-page #workflows .workflow-choices{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;width:100%;max-width:640px;margin-inline:auto;padding:5px;border-radius:999px}
+  html body.pro-page #workflows .workflow-choices button{display:flex;align-items:center;justify-content:center;width:100%;min-width:0;padding:12px 8px;text-align:center;white-space:nowrap;font-size:clamp(.74rem,1.9vw,.875rem)}
+}
+@media(max-width:620px){
+  html body.pro-page #workflows .workflow-choices{grid-template-columns:repeat(2,minmax(0,1fr));max-width:none;border-radius:28px}
+  html body.pro-page #workflows .workflow-choices button{padding:13px 8px;font-size:clamp(.78rem,3.6vw,.9rem)}
+}
+
+/* The trial card and a few sections slide in with a 3D tilt that briefly reaches past the page edge on tablets
+   (about 980 to 1120 px), which let the whole page wobble sideways. Clip those sections themselves; "clip" does not make a
+   scroll container, so the pinned showcase keeps working. */
+@media(max-width:1120px){html body.pro-page :is(#trial,#install,#demos,#reviews,#voices,.closing){overflow-x:clip}}

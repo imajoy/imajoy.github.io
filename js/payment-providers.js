@@ -1,3 +1,4 @@
+import {billingParts} from './receipt-billing.js?v=rb1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261020-trial1';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
@@ -243,7 +244,7 @@ if(form&&paypal&&url){
   busy=true;creating=true;say('Opening secure Razorpay checkout…');paint();
   try{
    if(!usingPopup)await loadCheckout();
-   const trialing=trialOn();const result=await api('checkout',{...sel,offer:trialing?'trial':'standard',...(coupon&&!trialing?{coupon}:{}),...(trialing?{deviceId:browserDeviceId()}:{}),requestId,expectedTotal:price.total,name:form.elements.name.value,company:form.elements.company.value});
+   const trialing=trialOn();const result=await api('checkout',{...sel,offer:trialing?'trial':'standard',...(coupon&&!trialing?{coupon}:{}),...(trialing?{deviceId:browserDeviceId()}:{}),requestId,expectedTotal:price.total,name:form.elements.name.value,company:form.elements.company.value,...billingParts(form)});
    if(getAccountSession()?.token!==token||key()!==selection){popup?.close();throw Error('Your account or selection changed. Review checkout before continuing.');}
    pending={id:result.checkoutId,email:getAccountSession().email};try{sessionStorage.setItem('ajoy.razorpay.pending',JSON.stringify(pending));}catch{}
    if(usingPopup){

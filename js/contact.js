@@ -9,6 +9,8 @@ if(form){
  const motion=matchMedia('(prefers-reduced-motion:reduce)');
  const topics=['general','support','studio','billing','privacy','idea'],topic=new URLSearchParams(location.search).get('topic');
  if(topics.includes(topic))form.elements.topic.value=topic;
+ const refParam=(new URLSearchParams(location.search).get('ref')||'').match(/^ORD-[A-F0-9]{8}$/)?.[0];
+ if(refParam&&!form.elements.message.value)form.elements.message.value='Order ID: '+refParam+'\n\nWhat happened: ';
  let requestId=crypto.randomUUID(),lastPayload='',busy=false,selecting=false,chosenFile=null,chosenInfo=null,objectURL='',fileVersion=0,typingTimer,visible=true;
  let identityMode=getAccountSession()?'account':'guest',wantsAccount=false;
  const announce=(message,error=false)=>{status.textContent=message;status.dataset.error=String(error);};

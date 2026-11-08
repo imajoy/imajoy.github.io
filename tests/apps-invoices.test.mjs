@@ -62,3 +62,28 @@ test('opening the invoice history creates missing invoices for older orders, sil
  const again=s.ctx.handleAccount_({step:'history',token});assert.equal(again.invoices.length,2,'not duplicated');
  s.cache&&s.cache.clear&&s.cache.clear();
 });
+
+test('the invoice shows the billing name, address and Order ID, and the saved copy keeps them',()=>{
+ const s=service();s.ctx.Logger={log(){}};s.register('buyer@example.com');
+ const id='1f2e3d4c-aaaa-4bbb-8ccc-0123456789ab';
+ const buyer=JSON.stringify({name:'Asha Rao',company:'Rao <Studio>',address:'12 Park Street',city:'Kolkata',region:'West Bengal',postal:'700016'});
+ s.ctx.commerceRows_=()=>[[id,'sandbox','buyer@example.com','','','','','online','monthly',1,'','I-ORDER0000001','created','','','','yes','','IN',buyer]];
+ s.ctx.paymentRecord_(pay({subscriptionId:'I-ORDER0000001',paymentId:'pay_ORD000000001'}));
+ const html=invoices(s)[0].htmlBody;
+ assert.match(html,/Asha Rao/);assert.match(html,/12 Park Street/);assert.match(html,/Kolkata, West Bengal 700016/);assert.match(html,/Rao &lt;Studio&gt;/);
+ assert.match(html,/Order ID/);assert.match(html,/ORD-1F2E3D4C/);assert.match(html,new RegExp(id));
+ const saved=s.ctx.handleAccount_({step:'history',token:s.ctx.makeSession_('buyer@example.com')}).invoices[0];
+ assert.equal(saved.orderId,'ORD-1F2E3D4C | '+id);assert.equal(saved.billedTo,'Asha Rao');assert.equal(saved.address,'12 Park Street, Kolkata, West Bengal 700016');
+});
+
+test('"Needs attention" lists money taken with no order and old unfinished checkouts, never recent ones',()=>{
+ const s=service();s.ctx.Logger={log(){}};
+ const old=Date.now()-3600e3;
+ s.ctx.commerceRows_=()=>[['aaaaaaaa-1111-4111-8111-111111111111','sandbox','x@example.com','','','','','online','monthly',1,'','I-ABANDONED001','created',new Date(old),'','','','','IN','{}'],['bbbbbbbb-2222-4222-8222-222222222222','sandbox','y@example.com','','','','','online','monthly',1,'','I-FRESH0000001','created',new Date(),'','','','','IN','{}']];
+ s.ctx.paymentRecord_(pay({mode:'Test',email:'z@example.com',subscriptionId:'I-NOORDER00001',paymentId:'pay_NOORDER0001',source:'History import'}));
+ const n=s.ctx.needsAttention();
+ const rows=s.sheets.get('Needs attention').rows;
+ const text=JSON.stringify(rows);
+ assert.match(text,/Checkout not done/);assert.match(text,/ORD-AAAAAAAA/);assert.doesNotMatch(text,/ORD-BBBBBBBB/);
+ assert.ok(n>=1);
+});

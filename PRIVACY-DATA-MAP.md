@@ -15,6 +15,8 @@ Static site on GitHub Pages. No analytics, error-tracking, advertising or AI ser
 | Browser id (random UUID) | First checkout | Supabase function (hashed for trial checks) | Browser `localStorage` (`ajoy.browser`) | Cleared on account deletion |
 | Session token (embeds email, 30 days, signed) | Sign-in | Sent only to the Apps Script endpoint | Browser `localStorage` (`ajoy.acct`) | Sign out, or account deletion, clears it and the server then rejects it |
 | Billing draft (name, address while checking out) | Checkout page | Not sent until submitted | Browser `sessionStorage`, 30 minutes, cleared after payment | Cleared on tab close |
+| Receipt copy (name, company, address) | Checkout page | Not sent anywhere | Browser `sessionStorage`, 2 hours, same tab only (`js/receipt-billing.js`) | Cleared on tab close |
+| Billing address on the order and invoice | Checkout request to the commerce / razorpay functions, then Apps Script | Checkouts / RazorpayCheckouts (JSON) and Invoices tab; printed on the invoice email | Kept for accounting; blanked by account deletion (`eraseJson_`, `Billed to`, `Company`, `Billing address` columns) | Order ID (ORD-xxxxxxxx) stays: random, not personal |
 | Theme, promo-seen flags | Site | Nowhere | `localStorage` | No personal data |
 | Device info | Not collected | | | |
 | Date of birth, phone number, passwords | Not collected | | | |

@@ -142,7 +142,7 @@ function razorpayCheckout_(d,who){
       }
       throw commerceError_('provider_pending','Your previous checkout is being reconciled. Contact support before starting another subscription.');
     }
-    record={id:Utilities.getUuid(),requestId:d.requestId,email:who.email,mode:razorpayMode_(),price:price,createdAt:Date.now(),state:'creating',name:clip_(d.name,80),company:clip_(d.company,80),accepted:false};
+    record={id:Utilities.getUuid(),requestId:d.requestId,email:who.email,mode:razorpayMode_(),price:price,createdAt:Date.now(),state:'creating',name:clip_(d.name,80),company:clip_(d.company,80),address:clip_(d.address,160),city:clip_(d.city,80),region:clip_(d.region,80),postal:clip_(d.postal,20),accepted:false};
     if(signals)record.trial=signals;
     razorpayWrite_(record);
     var body={plan_id:price.planId,quantity:price.seats,total_count:price.billing==='yearly'?10:100,customer_notify:1,notify_info:{notify_email:who.email},expire_by:Math.floor(Date.now()/1000)+1800,notes:{checkout_id:record.id}};

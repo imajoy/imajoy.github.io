@@ -1,3 +1,4 @@
+import {billingParts} from './receipt-billing.js?v=rb1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261020-trial1';
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
@@ -198,7 +199,7 @@ if(form&&pay){
   clearBillingDraft();document.dispatchEvent(new Event('ajoy:payment-complete'));
   const c={...checkout?.selection,plan:result.plan||checkout?.selection.plan,billing:result.billing||checkout?.selection.billing,seats:result.seats||checkout?.selection.seats};
   say('Payment confirmed. Taking you to your confirmation page…');
-  location.href='thank-you.html?'+new URLSearchParams({provider:'paypal',plan:c.plan==='offline'?'offline':'online',billing:c.billing==='yearly'?'yearly':'monthly',seats:String(c.seats||1),...(result.offer==='trial'?{offer:'trial'}:{})}).toString();
+  location.href='thank-you.html?'+new URLSearchParams({provider:'paypal',plan:c.plan==='offline'?'offline':'online',billing:c.billing==='yearly'?'yearly':'monthly',seats:String(c.seats||1),...(checkout?.id?{order:checkout.id}:{}),...(result.offer==='trial'?{offer:'trial'}:{})}).toString();
  }
  function loadSdk(){
   if(!sdkPromise)sdkPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(cfg.clientId)+'&vault=true&intent=subscription&currency=USD';script.onload=()=>window.paypal?.Buttons?resolve():reject(new Error('PayPal could not start.'));script.onerror=()=>reject(new Error('PayPal could not load. Check your connection.'));document.head.append(script);});
@@ -217,7 +218,7 @@ if(form&&pay){
      const selection=choice(),offer=selectedOffer;if(!getAccountSession()||!offer)throw new Error('Sign in and choose your subscription first.');
      try{
       if(offer==='standard'&&rewardsSupported()&&(!rewardQuote||rewardBusy||keyOf()!==rewardKey))throw new Error('Wait for your verified reward price before subscribing.');
-      const result=await secureCommerce('checkout',{...selection,offer,requestId,...(offer==='standard'&&rewardsSupported()?{expectedTotal:rewardQuote.total,expectedRewardPercent:rewardQuote.percent,...(couponCode?{coupon:couponCode}:{})}:{}),name:form.elements.name.value,company:form.elements.company.value});checkout={id:result.checkoutId,selection,offer:result.offer};return result.subscriptionId;
+      const result=await secureCommerce('checkout',{...selection,offer,requestId,...(offer==='standard'&&rewardsSupported()?{expectedTotal:rewardQuote.total,expectedRewardPercent:rewardQuote.percent,...(couponCode?{coupon:couponCode}:{})}:{}),name:form.elements.name.value,company:form.elements.company.value,...billingParts(form)});checkout={id:result.checkoutId,selection,offer:result.offer};return result.subscriptionId;
      }catch(error){if(error.code==='price_changed'||String(error.code||'').startsWith('coupon_')){if(String(error.code||'').startsWith('coupon_')){couponCode='';couponSay(error.message,true);}invalidate();refreshReward();sync();}reflectTrialRestriction(error);say(error.message,true,error.code==='trial_used');throw error;}
     },
     onApprove:()=>{if(checkout)confirm(checkout.id);else say('Open your account to check the subscription status.',true);},

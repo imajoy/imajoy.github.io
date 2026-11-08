@@ -13,7 +13,7 @@ export function printDoc(doc){
  requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
 }
 /* o: {kind:'Invoice'|'Receipt', number, date, statusText, statusKind:'paid'|'free', test, email, provider, reference,
-       title, sub, seats, money(v)->string, total:number|null, coupon, totalLabel, note, seller} */
+       orderId (short ORD-… ref), orderFull (full checkout ID), billed:{name,lines:[...]}, title, sub, seats, money(v)->string, total:number|null, coupon, totalLabel, note, seller} */
 export function buildInvoiceDoc(o){
  const wrap=el('div','iv-wrap'),paper=el('article','iv-paper'),m=o.money,known=typeof o.total==='number'&&Number.isFinite(o.total);
  const seller=o.seller||'Ajoy Tools',kind=(o.kind||'Invoice').toUpperCase(),dash='—';
@@ -29,11 +29,18 @@ export function buildInvoiceDoc(o){
  const meta=el('dl','iv-meta');
  const cell=(k,v)=>{const d=el('div');d.append(el('dt',null,k),el('dd',null,v));return d;};
  meta.append(cell('Date of issue',o.date||dash),cell('Payment status',o.statusText||dash),cell('Payment method',o.provider||dash),cell('Reference',o.reference||o.number||dash));
+ /* order id: the number the buyer quotes if a payment ever needs to be traced */
+ const order=o.orderId?el('p','iv-order'):null;
+ if(order){order.append(el('span',null,'Order ID'),el('b',null,o.orderId));if(o.orderFull)order.append(el('small',null,o.orderFull));}
  /* parties */
  const parties=el('div','iv-parties');
  const pf=el('div'),pt=el('div');
  pf.append(el('h4',null,'From'),el('b',null,seller),el('span',null,'Maker of Wrapline Pro'),el('span',null,'Support: imajoy.github.io/contact.html'));
- pt.append(el('h4',null,'Billed to'),el('b',null,o.email||'Your account'),el('span',null,'Wrapline Pro account holder'));
+ pt.append(el('h4',null,'Billed to'));
+ const bn=o.billed?.name;
+ pt.append(el('b',null,bn||o.email||'Your account'));
+ for(const l of o.billed?.lines||[])pt.append(el('span',null,l));
+ pt.append(el('span',null,bn?(o.email||''):'Wrapline Pro account holder'));
  parties.append(pf,pt);
  /* line items */
  const table=el('table','iv-table'),cap=el('caption',null,'Items');cap.className='iv-sr';
@@ -60,7 +67,7 @@ export function buildInvoiceDoc(o){
  const foot=el('footer','iv-foot');
  foot.append(el('span',null,'This is a computer-generated document and is valid without a signature.'),el('span',null,seller+' · imajoy.github.io'));
  const stamp=el('span','iv-stamp',o.statusKind==='paid'?'PAID':/trial/i.test(o.statusText||'')?'TRIAL':'CONFIRMED');stamp.setAttribute('aria-hidden','true');
- paper.append(top,meta,parties,table,below,foot,stamp);
+ paper.append(top,meta,...(order?[order]:[]),parties,table,below,foot,stamp);
  wrap.append(paper);
  const go=()=>paper.classList.add('is-in');
  if('IntersectionObserver' in window&&!reduce()){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){go();io.disconnect();}},{threshold:.12});queueMicrotask(()=>io.observe(paper));}

@@ -14,7 +14,8 @@ html body.ty-page .ty-main{padding:clamp(96px,10vw,132px) 0 72px;min-height:60vh
 /* ---- hero ---- */
 .ty-grid{display:block}
 .ty-hero{display:flex;flex-direction:column;align-items:center;text-align:center;max-width:680px;margin:0 auto}
-.ty-seal{position:relative;width:72px;height:72px;margin-bottom:22px}
+.ty-seal{position:relative;width:132px;height:132px;margin-bottom:10px}
+.ty-seal .eb{margin:0}
 .ty-seal svg{position:absolute;inset:0;width:100%;height:100%;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:3}
 .ty-spin{stroke:var(--ty-a);opacity:0;transform-origin:50% 50%}.ty-spin circle{stroke-dasharray:54 122}
 .ty-check circle{stroke:var(--ty-ok);fill:color-mix(in srgb,var(--ty-ok) 12%,transparent);stroke-dasharray:176;stroke-dashoffset:176}
@@ -150,6 +151,7 @@ html.ty-rvon .ty-rv{transition:opacity .7s var(--ty-ease),transform .8s var(--ty
 .iv-title{text-align:right}.iv-title h3{margin:0;font:700 26px/1 var(--sans);letter-spacing:.14em}.iv-title span{display:block;margin-top:8px;font-size:12.5px;color:#333}
 .iv-meta{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0;margin:0;border-bottom:1px solid #111}
 .iv-meta>div{padding:14px 14px 14px 0}.iv-meta dt{font:600 10px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#666;margin-bottom:6px}.iv-meta dd{margin:0;font-weight:600;font-size:13px;overflow-wrap:anywhere}
+.iv-order{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 12px;margin:0;padding:12px 0;border-bottom:1px solid #d0d0d0;font-size:13px}.iv-order span{font:600 10px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#666}.iv-order small{font:11px/1.3 ui-monospace,monospace;color:#555;overflow-wrap:anywhere}
 .iv-parties{display:grid;grid-template-columns:1fr 1fr;gap:24px;padding:22px 0;border-bottom:1px solid #d0d0d0}
 .iv-parties>div{display:flex;flex-direction:column;gap:2px}.iv-parties h4{margin:0 0 8px;font:600 10px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#666}.iv-parties b{font-size:14px;overflow-wrap:anywhere}.iv-parties span{font-size:12.5px;color:#444}
 .iv-table{width:100%;margin:22px 0 0;border-collapse:collapse}
@@ -284,3 +286,5 @@ html:not(.ty-wait) .ty-main[data-ty-state=confirmed] .ty-actions .btn-dark{anima
 @keyframes iv-stamp{0%{opacity:0;transform:scale(2.2)}70%{opacity:1;transform:scale(.94)}100%{opacity:.9;transform:scale(1)}}
 @media print{#iv-print .iv-stamp{opacity:.9!important;animation:none!important;transform:none!important}#iv-print .iv-paper{clip-path:none!important}}
 @media(prefers-reduced-motion:reduce){.ty-tile,.ty-sparks i,.ty-hero h1 em::after,.ty-seal::before{animation:none!important}.ty-unlock .ty-tile::after{opacity:1}.ty-timeline:not(.is-in) li{opacity:1;transform:none}.iv-stamp{opacity:.9;animation:none!important}.ty-scrollbar{display:none}}
+
+.ty-order{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 12px;margin:0 0 16px;font-size:13px;color:var(--mute)}.ty-order[hidden]{display:none}.ty-order span{font:600 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase}.ty-order b{font:600 14px/1 ui-monospace,monospace;color:var(--ink,inherit);letter-spacing:.04em}.ty-order button{font:600 12px/1 var(--sans);padding:6px 11px;border-radius:999px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer}.ty-order a{color:inherit;text-decoration:underline;text-underline-offset:3px}

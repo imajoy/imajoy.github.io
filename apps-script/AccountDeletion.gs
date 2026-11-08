@@ -7,7 +7,7 @@
    and message cells are blanked, while dates and amounts stay for tax and accounting records.
    Contact attachments stored in the private GitHub repository must be removed there (see apps-script/README.md). */
 var ERASE_DELETE_TABS_ = ['Accounts', 'Trials', 'Contacts', 'Reviews', 'Passkeys'];
-var ERASE_PII_HEADER_ = /(^|[^a-z])(name|company|address|city|region|state|postal|zip|phone|message|street|ip address)([^a-z]|$)/i;
+var ERASE_PII_HEADER_ = /(^|[^a-z])(name|billed to|buyer details|company|address|city|region|state|postal|zip|phone|message|street|ip address)([^a-z]|$)/i;
 function eraseAlias_(email) { return 'deleted-' + b64u_(Utilities.computeHmacSha256Signature('erase:' + email, sessionSecret_())).replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toLowerCase(); }
 function eraseHasAccess_(email) {
   var subs = subscriptionsFor_(email, '');
@@ -16,6 +16,18 @@ function eraseHasAccess_(email) {
     if (s.status === 'ACTIVE' || s.renews || ends > Date.now()) return true;
   }
   return false;
+}
+/* Order records keep their details as JSON text (name, company, address, city, region, postal). Blank those fields and swap the email for the alias. */
+var ERASE_JSON_KEYS_ = /^(name|company|address|city|region|postal|zip|phone|buyer)$/i;
+function eraseJson_(text, lower, alias) {
+  var obj; try { obj = JSON.parse(text); } catch (e) { return text; }
+  var walk = function (v) {
+    if (Array.isArray(v)) return v.map(walk);
+    if (v && typeof v === 'object') { var o = {}; Object.keys(v).forEach(function (k) { o[k] = ERASE_JSON_KEYS_.test(k) ? (typeof v[k] === 'object' && v[k] ? walk(v[k]) : '') : walk(v[k]); }); return o; }
+    if (typeof v === 'string' && v.toLowerCase().indexOf(lower) >= 0) return v.split(new RegExp(lower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig')).join(alias);
+    return v;
+  };
+  return JSON.stringify(walk(obj));
 }
 function erasePersonalData_(email) {
   var lower = email.toLowerCase(), alias = eraseAlias_(email), ss = SpreadsheetApp.getActiveSpreadsheet(), sheets = ss.getSheets(), removed = 0, anonymized = 0;
@@ -31,6 +43,7 @@ function erasePersonalData_(email) {
       if (del) { sheet.deleteRow(r + 1); removed++; continue; }
       var next = row.map(function (cell, c) {
         if (typeof cell !== 'string') return cell;
+        if (cell.charAt(0) === '{') return eraseJson_(cell, lower, alias);
         if (cell.toLowerCase().indexOf(lower) >= 0) return cell.split(new RegExp(lower.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'ig')).join(alias);
         return ERASE_PII_HEADER_.test(String(headers[c] || '')) ? '' : cell;
       });

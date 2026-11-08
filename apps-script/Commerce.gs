@@ -125,7 +125,7 @@ function commerceCreate_(d,who) {
     }
     if(pricing&&pricing.reward)rewardReserve_(who,pricing,history,'');
     if(pricing&&pricing.coupon&&!prior)couponRule_(pricing.coupon.code,d,who.email);
-    var buyer=JSON.stringify({name:clip_(d.name,80),company:clip_(d.company,80),networkCountry:d.country||'',sandboxCountry:d.sandboxCountry||'',loyalty:pricing});
+    var buyer=JSON.stringify({name:clip_(d.name,80),company:clip_(d.company,80),address:clip_(d.address,160),city:clip_(d.city,80),region:clip_(d.region,80),postal:clip_(d.postal,20),networkCountry:d.country||'',sandboxCountry:d.sandboxCountry||'',loyalty:pricing});
     var now=new Date(),created=[Utilities.getUuid(),mode_(),who.email,signals.emailHash,signals.deviceHash,signals.ipHash,d.offer,d.plan,d.billing,d.seats,planId,'','reserved',now,now,'','',d.requestId,checkoutCountry,buyer,'',''];
     commerceWrite_(created);return created;
   });

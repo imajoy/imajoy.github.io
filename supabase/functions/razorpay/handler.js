@@ -38,7 +38,7 @@ export function createRazorpayHandler({env,request=fetch}){
      const sandbox=(env('RAZORPAY_MODE')==='test'&&/^[A-Z]{2}$/.test(env('RAZORPAY_SANDBOX_COUNTRY')||''))?env('RAZORPAY_SANDBOX_COUNTRY'):'';
      const offer=data.offer===undefined?'standard':data.offer;
      if(!['standard','trial'].includes(offer))throw fail('Review your plan, licenses and billing country.');
-     Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,country,billingCountry:data.country,sandboxCountry:sandbox,name:typeof data.name==='string'?data.name.slice(0,80):'',company:typeof data.company==='string'?data.company.slice(0,80):'',requestId:data.requestId,expectedTotal:data.expectedTotal,offer,coupon:typeof data.coupon==='string'?data.coupon.trim().toUpperCase().slice(0,32):''});
+     Object.assign(payload,{plan:data.plan,billing:data.billing,seats:data.seats,country,billingCountry:data.country,sandboxCountry:sandbox,name:typeof data.name==='string'?data.name.slice(0,80):'',address:typeof data.address==='string'?data.address.slice(0,160):'',city:typeof data.city==='string'?data.city.slice(0,80):'',region:typeof data.region==='string'?data.region.slice(0,80):'',postal:typeof data.postal==='string'?data.postal.slice(0,20):'',company:typeof data.company==='string'?data.company.slice(0,80):'',requestId:data.requestId,expectedTotal:data.expectedTotal,offer,coupon:typeof data.coupon==='string'?data.coupon.trim().toUpperCase().slice(0,32):''});
      if(offer==='trial'&&path==='checkout'){
       // Same one-trial identity signals as PayPal: keyed hashes only, never the raw browser id or IP.
       const identity=env('TRIAL_IDENTITY_SECRET');if(!identity||identity.length<32)throw fail('Trials are not configured.',503);

@@ -419,14 +419,45 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .site-header[data-scroll-hidden] .pillbar{pointer-events:none}
 @media(prefers-reduced-motion:reduce){.site-header,.site-header[data-scroll-hidden]{transition:opacity .2s ease,visibility 0s linear .2s;translate:none;scale:none;filter:none}}
 
-/* Download buttons: the arrow keeps falling into the tray, on a gentle loop, everywhere a download button appears. */
-.dl-ico .dl-arrow{transform-box:fill-box;animation:dl-fall 1.8s cubic-bezier(.45,0,.35,1) infinite;will-change:transform,opacity}
-@keyframes dl-fall{
- 0%{transform:translateY(-5px);opacity:0}
- 22%{opacity:1}
- 62%{transform:translateY(2.5px);opacity:1}
- 86%{transform:translateY(5px);opacity:0}
- 100%{transform:translateY(5px);opacity:0}
+/* Download buttons (every page): the arrow falls with a stretch and a faint trail, lands in the tray, the tray flexes, a ripple and a progress sweep follow, then it rests and drops again. */
+.dl-ico :is(.dl-arrow,.dl-trail,.dl-tray,.dl-bar,.dl-rip){transform-box:fill-box;transform-origin:50% 100%;animation-duration:2.8s;animation-iteration-count:infinite;animation-timing-function:linear}
+.dl-ico .dl-arrow{animation-name:dl-arrow;will-change:transform,opacity}
+.dl-ico .dl-trail{animation-name:dl-trail;stroke-width:1.4;opacity:0}
+.dl-ico .dl-tray{animation-name:dl-tray}
+.dl-ico .dl-bar{animation-name:dl-bar;stroke-dasharray:1;stroke-dashoffset:1;stroke-width:1.5;opacity:0}
+.dl-ico .dl-rip{animation-name:dl-rip;transform-origin:50% 50%;stroke-width:1.2;opacity:0}
+@keyframes dl-arrow{
+ 0%{transform:translateY(-9px) scaleY(1.25);opacity:0;animation-timing-function:ease-out}
+ 9%{opacity:1;animation-timing-function:cubic-bezier(.5,0,.9,.6)}
+ 34%{transform:translateY(2.5px) scaleY(1.18);opacity:1;animation-timing-function:cubic-bezier(.2,.7,.3,1)}
+ 40%{transform:translateY(5px) scaleY(.72);opacity:1;animation-timing-function:ease-in}
+ 50%{transform:translateY(5.5px) scaleY(.4);opacity:0}
+ 100%{transform:translateY(-9px) scaleY(1.25);opacity:0}
 }
-.btn:is(:hover,:focus-visible) .dl-ico .dl-arrow{animation-duration:1.1s}
-@media(prefers-reduced-motion:reduce){.dl-ico .dl-arrow{animation:none;opacity:1}}
+@keyframes dl-trail{
+ 0%,8%{transform:translateY(-11px) scaleY(1.3);opacity:0;animation-timing-function:cubic-bezier(.5,0,.9,.6)}
+ 20%{opacity:.4}
+ 32%{transform:translateY(0) scaleY(1.2);opacity:.35;animation-timing-function:ease-in}
+ 39%{transform:translateY(4px) scaleY(.8);opacity:0}
+ 100%{opacity:0}
+}
+@keyframes dl-tray{
+ 0%,36%{transform:translateY(0) scaleY(1);animation-timing-function:ease-out}
+ 41%{transform:translateY(1.3px) scaleY(.86);animation-timing-function:ease-out}
+ 49%{transform:translateY(-.5px) scaleY(1.05);animation-timing-function:ease-in-out}
+ 57%,100%{transform:translateY(0) scaleY(1)}
+}
+@keyframes dl-bar{
+ 0%,40%{stroke-dashoffset:1;opacity:0}
+ 42%{opacity:1;stroke-dashoffset:1;animation-timing-function:cubic-bezier(.5,0,.2,1)}
+ 66%{stroke-dashoffset:0;opacity:1}
+ 74%,100%{stroke-dashoffset:0;opacity:0}
+}
+@keyframes dl-rip{
+ 0%,38%{transform:scale(.35);opacity:0}
+ 40%{opacity:.8;animation-timing-function:ease-out}
+ 62%{transform:scale(1.7);opacity:0}
+ 100%{transform:scale(1.7);opacity:0}
+}
+.btn:is(:hover,:focus-visible) .dl-ico :is(.dl-arrow,.dl-trail,.dl-tray,.dl-bar,.dl-rip){animation-duration:1.8s}
+@media(prefers-reduced-motion:reduce){.dl-ico :is(.dl-arrow,.dl-trail,.dl-tray,.dl-bar,.dl-rip){animation:none}.dl-ico .dl-arrow{opacity:1}.dl-ico .dl-bar,.dl-ico .dl-rip,.dl-ico .dl-trail{display:none}}

@@ -57,7 +57,7 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
 
 /* ---- motion: one 10-second loop. Everything below is transform/opacity only, so it runs on the GPU and never repaints while you scroll ---- */
 @media(prefers-reduced-motion:no-preference){
- html body.pro-page #trial .ta-ticket{animation:ta-float 11s ease-in-out infinite,ta-flip 11s linear infinite!important}
+ html body.pro-page #trial .ta-ticket{animation:ta-float 11s ease-in-out infinite,ta-flip 11s linear infinite,ta-flipblur 11s linear infinite!important}
  html body.pro-page #trial .ta-glare{position:absolute;inset:-30% -20%;pointer-events:none;background:radial-gradient(closest-side at 50% 50%,rgba(255,255,255,.2),rgba(255,255,255,0) 70%);width:55%;height:70%;margin:auto;will-change:transform;animation:ta-glare 11s ease-in-out infinite!important}
  html body.pro-page #trial .ta-glow{animation:ta-breathe 7s ease-in-out infinite!important;will-change:transform,opacity}
  html body.pro-page #trial .ta-orb{position:absolute;inset:3% -6%;z-index:0;border-radius:50%;border:1px solid rgba(140,180,255,.24);rotate:-20deg;animation:ta-spin 28s linear infinite!important;will-change:transform}
@@ -93,14 +93,15 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
 @keyframes ta-breathe{0%,100%{transform:scale(.92);opacity:.55}50%{transform:scale(1.08) translate3d(3%,-2%,0);opacity:.9}}
 @keyframes ta-spin{to{rotate:340deg}}
 @keyframes ta-rise{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.95}85%{opacity:.5}100%{transform:translate3d(var(--dx,10px),-340px,0);opacity:0}}
-@keyframes ta-roll{0%,8%{transform:translateY(0)}20%,92.6%{transform:translateY(-80%)}92.8%,100%{transform:translateY(0)}}
+@keyframes ta-roll{0%,8%{transform:translateY(0)}20%,92.3%{transform:translateY(-80%)}92.5%,100%{transform:translateY(0)}}
 @keyframes ta-count-pop{0%,18%{transform:scale(1)}22%{transform:scale(1.07)}26%,100%{transform:scale(1)}}
 /* the whole card turns once at the end of every loop; the numbers reset while it is edge-on (270deg), so nothing visibly jumps */
-@keyframes ta-flip{0%,88%{rotate:0 1 0 0deg;filter:blur(0);animation-timing-function:cubic-bezier(.45,0,.55,1)}90%{filter:blur(3px)}91.5%,93.5%{filter:blur(5px)}94.2%{filter:blur(3px)}95%,100%{rotate:0 1 0 360deg;filter:blur(0)}}
-@keyframes ta-b0{0%,14%{transform:scaleX(0)}22%,92.6%{transform:scaleX(1)}92.8%,100%{transform:scaleX(0)}}
-@keyframes ta-b1{0%,26%{transform:scaleX(0)}34%,92.6%{transform:scaleX(1)}92.8%,100%{transform:scaleX(0)}}
-@keyframes ta-b2{0%,38%{transform:scaleX(0)}46%,92.6%{transform:scaleX(1)}92.8%,100%{transform:scaleX(0)}}
-@keyframes ta-b3{0%,50%{transform:scaleX(0)}58%,92.6%{transform:scaleX(1)}92.8%,100%{transform:scaleX(0)}}
+@keyframes ta-flip{0%,88%{rotate:0 1 0 0deg;animation-timing-function:cubic-bezier(.76,0,.24,1)}95%,100%{rotate:0 1 0 360deg}}
+@keyframes ta-flipblur{0%,88%{filter:blur(0);animation-timing-function:ease-in}91.5%{filter:blur(5px);animation-timing-function:ease-out}95%,100%{filter:blur(0)}}
+@keyframes ta-b0{0%,14%{transform:scaleX(0)}22%,92.3%{transform:scaleX(1)}92.5%,100%{transform:scaleX(0)}}
+@keyframes ta-b1{0%,26%{transform:scaleX(0)}34%,92.3%{transform:scaleX(1)}92.5%,100%{transform:scaleX(0)}}
+@keyframes ta-b2{0%,38%{transform:scaleX(0)}46%,92.3%{transform:scaleX(1)}92.5%,100%{transform:scaleX(0)}}
+@keyframes ta-b3{0%,50%{transform:scaleX(0)}58%,92.3%{transform:scaleX(1)}92.5%,100%{transform:scaleX(0)}}
 @keyframes ta-mark{0%,60%,100%{transform:rotate(0) scale(1)}80%{transform:rotate(90deg) scale(1.12)}}
 @keyframes ta-go{0%,40%{transform:translate(0,0);opacity:1}55%{transform:translate(9px,-9px);opacity:0}56%{transform:translate(-9px,9px);opacity:0}75%,100%{transform:translate(0,0);opacity:1}}
 @keyframes ta-drift{0%,100%{transform:translate3d(0,0,0) rotate(0)}25%{transform:translate3d(7px,-9px,0) rotate(.8deg)}50%{transform:translate3d(-4px,-15px,0) rotate(-.6deg)}75%{transform:translate3d(-8px,-5px,0) rotate(.5deg)}}

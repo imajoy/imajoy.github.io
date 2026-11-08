@@ -3,7 +3,10 @@
    gets its own sunset-ish switch with no location lookup. The theme is chosen before the page paints (this file loads
    in the head, so there is no flash), and a page left open changes by itself at 6 am / 6 pm.
    A visitor who presses the sun/moon button keeps their choice until the next 6 am / 6 pm change, then the clock takes
-   over again. Nothing is sent anywhere; the choice is kept in this browser only. */
+   over again. Nothing is sent anywhere; the choice is kept in this browser only.
+   Welcome shift: on the first page of a visit the page opens in the OTHER theme (light at night, dark by day) and, once
+   it has loaded and settled, glows over into the right one with the same soft bloom as the sun/moon button. It plays
+   once per visit (not on every page), and never with "reduce motion" on or after a manual choice. */
 (function () {
   var root = document.documentElement, HOLD = 'ajoy-theme-hold', timer = 0;
   function isNight(d) { var h = d.getHours(); return h >= 18 || h < 6; }
@@ -30,13 +33,32 @@
     var btn = document.getElementById('theme');
     if (btn) btn.setAttribute('aria-label', t === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
   }
-  /* a gentle colour fade when the clock changes the theme while the page is open */
+  /* the soft bloom: a glow in the middle widens until the new theme fills the screen (browsers without View Transitions
+     get a short colour fade instead) */
+  function shift(next, after) {
+    var calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function fade() {
+      root.classList.add('theme-fx'); paint(next);
+      setTimeout(function () { root.classList.remove('theme-fx'); if (after) after(); }, 460);
+    }
+    if (!document.startViewTransition || calm) { fade(); return; }
+    root.classList.add('theme-vt');
+    var vt;
+    try { vt = document.startViewTransition(function () { paint(next); }); }
+    catch (err) { root.classList.remove('theme-vt'); fade(); return; }
+    vt.ready.then(function () {
+      var big = Math.ceil(Math.hypot(innerWidth, innerHeight) * 2.5) + 'px', o = { duration: 1500, easing: 'cubic-bezier(.45,.05,.25,1)', fill: 'both' };
+      root.animate({ maskSize: ['40px 40px', big + ' ' + big], webkitMaskSize: ['40px 40px', big + ' ' + big], filter: ['blur(18px) brightness(1.25)', 'blur(0px) brightness(1)'] },
+        Object.assign({ pseudoElement: '::view-transition-new(root)' }, o));
+      root.animate({ filter: ['blur(0px)', 'blur(10px)'], opacity: [1, .55] },
+        Object.assign({ pseudoElement: '::view-transition-old(root)' }, o, { easing: 'ease-in-out' }));
+    }).catch(function () {});
+    vt.finished.then(function () {}, function () {}).then(function () { root.classList.remove('theme-vt'); if (after) after(); });
+  }
+  /* the clock changes the theme while the page is open */
   function refresh() {
     var t = wanted();
-    if (root.getAttribute('data-theme') !== t) {
-      root.classList.add('theme-fx'); paint(t);
-      setTimeout(function () { root.classList.remove('theme-fx'); }, 460);
-    }
+    if (root.getAttribute('data-theme') !== t) shift(t);
     schedule();
   }
   function schedule() {
@@ -44,7 +66,22 @@
     var wait = Math.max(1000, Math.min(nextFlip() - Date.now() + 500, 2147483000));
     timer = setTimeout(refresh, wait);
   }
-  paint(wanted());
+  var target = wanted(), intro = false;
+  try {
+    intro = !held() && !sessionStorage.getItem('ajoy-theme-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (intro) sessionStorage.setItem('ajoy-theme-intro', '1');
+  } catch (e) { intro = false; }
+  /* first page of a visit: open in the opposite theme, then shift once the page has settled */
+  paint(intro ? (target === 'dark' ? 'light' : 'dark') : target);
+  if (intro) {
+    var go = function () {
+      if (held()) return;                           /* the visitor already chose with the button */
+      var now = wanted();
+      if (root.getAttribute('data-theme') !== now) shift(now);
+    };
+    var settle = function () { setTimeout(function () { if (document.hidden) { document.addEventListener('visibilitychange', function once() { if (!document.hidden) { document.removeEventListener('visibilitychange', once); setTimeout(go, 600); } }); } else go(); }, 1300); };
+    if (document.readyState === 'complete') settle(); else window.addEventListener('load', settle, { once: true });
+  }
   document.addEventListener('DOMContentLoaded', function () { paint(root.getAttribute('data-theme')); });
   /* a sleeping tab or laptop wakes up late: check again when the page comes back */
   document.addEventListener('visibilitychange', function () { if (!document.hidden) refresh(); });
@@ -52,6 +89,7 @@
   window.AjoyTheme = {
     /* called by the sun/moon button: keep this choice until the next 6 am / 6 pm flip */
     hold: function (t) { try { localStorage.setItem(HOLD, JSON.stringify({ t: t, u: nextFlip() })); } catch (e) {} schedule(); },
-    byClock: byClock
+    byClock: byClock,
+    shift: shift
   };
 })();

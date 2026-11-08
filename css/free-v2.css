@@ -123,43 +123,28 @@ html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-s
 @media(max-width:380px){html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-state=ended]){font-size:.78rem;padding-inline:10px;letter-spacing:0}html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-state=ended])::before{margin-right:5px;padding:2px 5px}}
 @media(max-width:380px){html body.free-page .pillbar{gap:6px;padding-inline:8px}html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-state=ended]){max-width:none;min-width:0;padding-inline:8px;font-size:.74rem}}
 
-/* ---- hanging tool tags: lowered on a twisted rope with a little bridle, they hang and sway, dip, snap back up fast (stretched and blurred), rest, then come again ---- */
+/* ---- hanging tool tags (js/free-tags.js drives the loop: random exits, some tags break their rope and fall) ----
+   chip  = the moving, swaying carrier (translate / rotate)
+   .ft-face = the visible tag (blurred while it zips away, tumbles when it falls)
+   .ft-rope / .ft-bridle = the twisted rope and the two fine strings to the tag corners */
 .ft-stk{--rope-a:#cdb48b;--rope-b:#8f7650}
 html[data-theme=dark] .ft-stk{--rope-a:#b8a888;--rope-b:#6f6350}
 .ft-stk span:nth-child(1){top:22%;bottom:auto;--r:0deg}
 .ft-stk span:nth-child(2){top:12%;bottom:auto;--r:0deg}
 .ft-stk span:nth-child(3){top:52%;bottom:auto;--r:0deg}
 .ft-stk span:nth-child(4){top:62%;bottom:auto;--r:0deg}
-.ft-stk span{transform-origin:50% -70vh}
-/* the rope: three short twists to the strand, slightly shaded on one side */
-.ft-stk span::before{content:"";position:absolute;left:50%;bottom:calc(100% + 21px);width:3px;height:120vh;margin-left:-1.5px;border-radius:2px;background:repeating-linear-gradient(162deg,var(--rope-a) 0 2px,var(--rope-b) 2px 4px);box-shadow:1px 0 0 rgba(0,0,0,.12),-.5px 0 0 rgba(255,255,255,.25);pointer-events:none}
-/* the bridle: two fine strings from a knot down to the corners of the tag */
-.ft-stk span::after{content:"";position:absolute;left:14%;right:14%;top:-21px;height:21px;pointer-events:none;background:
+.ft-stk span{display:block;padding:0;border:0;border-radius:0;background:none;box-shadow:none;transform-origin:50% -70vh}
+.ft-stk .ft-face{display:flex;align-items:center;gap:9px;padding:10px 16px 10px 10px;border-radius:18px;background:var(--card);border:1px solid var(--line);box-shadow:var(--shadow);font:700 14px/1 var(--sans);letter-spacing:-.01em;color:var(--ink);white-space:nowrap}
+.ft-stk .ft-rope{position:absolute;left:50%;bottom:calc(100% + 21px);width:3px;height:120vh;margin-left:-1.5px;border-radius:2px;background:repeating-linear-gradient(162deg,var(--rope-a) 0 2px,var(--rope-b) 2px 4px);box-shadow:1px 0 0 rgba(0,0,0,.12),-.5px 0 0 rgba(255,255,255,.25);pointer-events:none;transform-origin:50% 100%}
+.ft-stk .ft-bridle{position:absolute;left:14%;right:14%;top:-21px;height:21px;pointer-events:none;background:
  radial-gradient(circle at 50% 2px,var(--card) 0 2.2px,var(--rope-b) 2.6px 4.4px,transparent 4.8px),
  linear-gradient(to top left,transparent calc(50% - .8px),var(--rope-b) 50%,transparent calc(50% + .8px)) left bottom/50% 100% no-repeat,
  linear-gradient(to top right,transparent calc(50% - .8px),var(--rope-b) 50%,transparent calc(50% + .8px)) right bottom/50% 100% no-repeat}
-html.fr-go body.free-page .ft-stk span{opacity:0;will-change:translate,rotate,opacity,filter;animation:ft-hang 16s cubic-bezier(.45,0,.25,1) var(--hd,1.6s) infinite both,ft-sway 4.6s ease-in-out var(--hd,1.6s) infinite alternate}
-html.fr-go body.free-page .ft-stk span:nth-child(1){--hd:1.6s}
-html.fr-go body.free-page .ft-stk span:nth-child(2){--hd:3.4s}
-html.fr-go body.free-page .ft-stk span:nth-child(3){--hd:5.2s}
-html.fr-go body.free-page .ft-stk span:nth-child(4){--hd:7s}
-@keyframes ft-hang{
- 0%{translate:0 -62vh;opacity:0;scale:1 1.06;filter:blur(0);animation-timing-function:cubic-bezier(.3,.7,.3,1)}
- 2.8%{opacity:1}
- 10.3%{translate:0 12px;scale:1 1;animation-timing-function:ease-in-out}
- 13.1%{translate:0 -3px;animation-timing-function:ease-in-out}
- 15.9%{translate:0 0}
- 30%{translate:0 7px;animation-timing-function:ease-in-out}
- 45%{translate:0 -4px;animation-timing-function:ease-in-out}
- 58%{translate:0 6px;animation-timing-function:ease-in-out}
- 66.5%{translate:0 0;scale:1 1;filter:blur(0);animation-timing-function:cubic-bezier(.4,0,.2,1)}
- /* anticipation: a quick dip and squash, like a breath in */
- 69.5%{translate:0 16px;scale:1.03 .94;filter:blur(0);animation-timing-function:cubic-bezier(.7,0,.95,.3)}
- /* the snap: fast, stretched, motion-blurred */
- 73.5%{translate:0 -34vh;scale:.97 1.2;filter:blur(5px);opacity:1;animation-timing-function:cubic-bezier(.4,0,1,1)}
- 75%{translate:0 -62vh;scale:.95 1.3;filter:blur(9px);opacity:.9}
- 75.6%{opacity:0}
- 100%{translate:0 -62vh;opacity:0;filter:blur(0)}
-}
+.ft-stk span::before,.ft-stk span::after{content:none}
+/* hidden until the script lowers them; the sway is pure CSS (compositor), everything else is Web Animations on transform/opacity */
+html.fr-go body.free-page .ft-stk span{opacity:0;will-change:translate,opacity;animation:ft-sway 4.6s ease-in-out infinite alternate}
+html.fr-go body.free-page .ft-stk span:nth-child(2){animation-delay:-1.1s}
+html.fr-go body.free-page .ft-stk span:nth-child(3){animation-delay:-2.2s}
+html.fr-go body.free-page .ft-stk span:nth-child(4){animation-delay:-3.3s}
 @keyframes ft-sway{from{rotate:-2.6deg}to{rotate:2.6deg}}
-@media(prefers-reduced-motion:reduce){html.fr-go body.free-page .ft-stk span{animation:none!important;opacity:1;translate:none;rotate:none;filter:none}}
+@media(prefers-reduced-motion:reduce){html.fr-go body.free-page .ft-stk span{animation:none!important;opacity:1;translate:none;rotate:none}.ft-stk .ft-rope{display:none}}

@@ -47,20 +47,21 @@
   sl=hero.querySelector('.hv-l b'),sr=hero.querySelector('.hv-r b'),dock=hero.querySelector('.pro-dock'),fig=hero.querySelector('.hv-stage .tool-visual');
  if(!track||!portal||!shell||!stage||!fig)return;
  var bar=document.createElement('div');bar.className='hv-pinbar';bar.setAttribute('aria-hidden','true');bar.innerHTML='<b>01</b><i></i><span>10</span>';portal.appendChild(bar);
- var num=bar.querySelector('b'),N=10,pinTop=76,extra=0,pinned=false,tick=0,lastP=-1,lastIx=-1,jt=0,vis=true;
+ var tgt=0,cur=0,ease=0,num=bar.querySelector('b'),N=10,pinTop=76,extra=0,pinned=false,tick=0,lastP=-1,lastIx=-1,jt=0,vis=true;
  function measure(){
   var room=innerHeight-pinTop-10;stage.style.maxWidth='';portal.style.zoom='';
   var ph=portal.offsetHeight;
   /* a little too tall for the screen: narrow the demo window (its height follows its width) until the stage fits */
   for(var pass=0;pass<3&&ph>room&&ph-room<ph*.38&&stage.offsetWidth>340;pass++){stage.style.maxWidth=Math.max(340,Math.floor(stage.offsetWidth-(ph-room)/1.05-6))+'px';ph=portal.offsetHeight;}
   if(ph>room&&room/ph>=.66&&'zoom' in portal.style){portal.style.zoom=(room/ph).toFixed(3);ph=portal.getBoundingClientRect().height;}
-  var want=ph<=room+1&&innerHeight>=480;
+  var phone=matchMedia('(pointer: coarse)').matches&&Math.min(screen.width,screen.height)<600;
+  var want=!phone&&ph<=room+1&&innerHeight>=480;
   if(want!==pinned){pinned=want;root.classList.toggle('hv-pin',pinned);}
   if(pinned){var list=(fig.dataset.explainer||'').split(',').length;N=Math.max(2,list);extra=Math.round(N*innerHeight*(innerWidth>980?.3:.26));track.style.setProperty('--pin-extra',extra+'px');track.style.setProperty('--pin-top',pinTop+'px');bar.lastElementChild.textContent=(N<10?'0':'')+N;}
  }
  function setTool(ix){
   var pl=fig.__player;if(!pl||!pl.list||ix>=pl.list.length)return;
-  clearTimeout(jt);jt=setTimeout(function(){pl.manual=true;pl.jump(ix);},110);
+  clearTimeout(jt);fig.classList.add('hv-swap');jt=setTimeout(function(){pl.manual=true;pl.jump(ix);requestAnimationFrame(function(){fig.classList.remove('hv-swap');});},150);
  }
  function paint(){tick=0;if(!vis)return;
   var h=Math.max(hero.offsetHeight,1),sy=scrollY,
@@ -70,12 +71,11 @@
   var p=0;
   if(pinned&&extra>0){var r=track.getBoundingClientRect();p=Math.min(1,Math.max(0,(pinTop-r.top)/extra));}
   else{var pr=portal.getBoundingClientRect();p=Math.min(1,Math.max(0,(innerHeight*.9-pr.top)/(innerHeight*.9+pr.height)))*.6;}
-  p=Math.round(p*500)/500;if(p===lastP)return;lastP=p;
+  tgt=p;if(!ease)ease=requestAnimationFrame(glide);}
+ function glide(){ease=0;var d=tgt-cur;if(Math.abs(d)<.0004){cur=tgt;}else{cur+=d*.14;ease=requestAnimationFrame(glide);}apply(cur);}
+ function apply(p){
   var e=p*p*(3-2*p);
   shell.style.scale=(1-e*.05).toFixed(4);
-  stage.style.scale=(1+e*.04).toFixed(4);
-  if(sl)sl.style.translate=(-e*4).toFixed(2)+'vw '+(e*26).toFixed(1)+'px';if(sr)sr.style.translate=(e*4).toFixed(2)+'vw '+(-e*20).toFixed(1)+'px';
-  if(dock)dock.style.translate='0 '+(-e*6).toFixed(1)+'px';
   if(pinned&&extra>0){
    bar.style.setProperty('--pp',p.toFixed(3));
    var ix=Math.min(N-1,Math.floor(p*N));

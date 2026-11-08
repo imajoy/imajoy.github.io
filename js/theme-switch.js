@@ -8,7 +8,7 @@
   var calm = matchMedia('(prefers-reduced-motion: reduce)');
   function apply(next) {
     root.setAttribute('data-theme', next);
-    try { localStorage.setItem('ajoy-theme', next); } catch (e) {}
+    if (window.AjoyTheme) window.AjoyTheme.hold(next);
     var btn = document.getElementById('theme');
     if (btn) btn.setAttribute('aria-label', next === 'dark' ? 'Switch to light mode' : 'Switch to dark mode');
     var meta = document.querySelector('meta[name="theme-color"]');

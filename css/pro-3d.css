@@ -1,0 +1,31 @@
+/* Wrapline Pro: 3D scroll depth. Panels lean back as they rise into view, square up in the middle of the screen, and tip forward as they leave.
+   Everything is a scroll-linked CSS animation of the `rotate` property: it runs on the GPU (no JavaScript, no repaint), so it follows the wheel or trackpad exactly.
+   Desktop and tablet width only; phones keep the lighter page. */
+@supports (animation-timeline:view()){
+ @media(min-width:901px) and (prefers-reduced-motion:no-preference){
+  /* the stage each group of panels is drawn in */
+  html.pr-on body.pro-page :is(#tools .bento-pro,#pricing .plans,#workflows .wrap,#install .wrap,#trial .wrap,.closing .frame){perspective:1500px;perspective-origin:50% 40%}
+
+  /* tool tiles: a book-fold lean, mirrored left and right */
+  html.pr-on body.pro-page #tools .tile{animation:pp3d-tile-a linear both!important;animation-timeline:view()!important;animation-range:cover 0% cover 100%!important}
+  html.pr-on body.pro-page #tools .tile:nth-child(even){animation-name:pp3d-tile-b!important}
+
+  /* the framed panels */
+  html.pr-on body.pro-page #workflows .workflow-panel{animation:pp-drift-s linear both,pp3d-x linear both;animation-timeline:view(),view();animation-range:entry 0% entry 80%,cover 0% cover 100%}
+  html.pr-on body.pro-page #install .inst-stage{animation:pp-drift-s linear both,pp3d-y linear both;animation-timeline:view(),view();animation-range:entry 0% entry 80%,cover 0% cover 100%}
+  html.pr-on body.pro-page :is(#cl-x .q .r,.closing .frame-inner){animation:pp-drift-s linear both,pp3d-x linear both;animation-timeline:view(),view();animation-range:entry 0% entry 80%,cover 0% cover 100%}
+  html.pr-on body.pro-page #trial .trial-stage[data-pr]{animation:pp-stage-in linear both,pp3d-x linear both!important;animation-timeline:view(),view()!important;animation-range:entry 0% entry 60%,cover 0% cover 100%!important}
+
+  /* pricing cards fan in: outer cards swing from the sides, the middle one rises */
+  html.pr-on body.pro-page #pricing .plan{animation:pp-drift-s linear both,pp3d-plan-m linear both;animation-timeline:view(),view();animation-range:entry 0% entry 80%,cover 0% cover 100%}
+  html.pr-on body.pro-page #pricing .plan:first-child{animation-name:pp-drift-s,pp3d-plan-l}
+  html.pr-on body.pro-page #pricing .plan:last-child{animation-name:pp-drift-s,pp3d-plan-r}
+ }
+}
+@keyframes pp3d-x{0%{rotate:1 0 0 15deg}36%,62%{rotate:1 0 0 0deg}100%{rotate:1 0 0 -9deg}}
+@keyframes pp3d-y{0%{rotate:0 1 0 -15deg}36%,62%{rotate:0 1 0 0deg}100%{rotate:0 1 0 9deg}}
+@keyframes pp3d-tile-a{0%{rotate:1 .55 0 20deg}34%,64%{rotate:1 .55 0 0deg}100%{rotate:1 .55 0 -12deg}}
+@keyframes pp3d-tile-b{0%{rotate:1 -.55 0 20deg}34%,64%{rotate:1 -.55 0 0deg}100%{rotate:1 -.55 0 -12deg}}
+@keyframes pp3d-plan-l{0%{rotate:.35 1 0 20deg}38%,62%{rotate:.35 1 0 0deg}100%{rotate:.35 1 0 -10deg}}
+@keyframes pp3d-plan-r{0%{rotate:.35 -1 0 20deg}38%,62%{rotate:.35 -1 0 0deg}100%{rotate:.35 -1 0 -10deg}}
+@keyframes pp3d-plan-m{0%{rotate:1 0 0 16deg}38%,62%{rotate:1 0 0 0deg}100%{rotate:1 0 0 -8deg}}

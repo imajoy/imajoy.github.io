@@ -110,8 +110,6 @@ html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
 .ez{display:grid;justify-items:center;text-align:center}
 .ez .acct-note{max-width:34ch}
 .ez .btn,.ez .acct-input{width:100%}
-@media(prefers-reduced-motion:no-preference){
- .ez>*{animation:ez-rise .6s cubic-bezier(.2,.8,.2,1) both}
- .ez>:nth-child(2){animation-delay:.08s}.ez>:nth-child(3){animation-delay:.16s}.ez>:nth-child(4){animation-delay:.24s}.ez>:nth-child(5){animation-delay:.3s}
- @keyframes ez-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
-}
+.ez>*{animation:ez-rise .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.35s + var(--n,0) * .18s)}
+.ez>:nth-child(1){--n:-1;animation-delay:0s}.ez>:nth-child(2){--n:0}.ez>:nth-child(3){--n:1}.ez>:nth-child(4){--n:2}.ez>:nth-child(5){--n:3}.ez>:nth-child(6){--n:4}
+@keyframes ez-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}

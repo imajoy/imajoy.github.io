@@ -24,10 +24,21 @@
 .eb-dots{display:flex;gap:9px;justify-content:center;margin:2px 0 8px}
 .eb-dots i{width:8px;height:8px;border-radius:50%;background:var(--line,#dfe3ec);transition:transform .25s cubic-bezier(.3,1.6,.5,1),background-color .25s}
 .eb-dots i.on{background:var(--eb-b,#5a74e6);transform:scale(1.35)}
-@media(prefers-reduced-motion:no-preference){
+@media all{
  .eb{animation:eb-in .7s cubic-bezier(.2,1.2,.3,1) both}
  @keyframes eb-in{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
  .eb-body{animation:eb-breathe 4.6s ease-in-out infinite}
+ .eb-eyes{animation:eb-blink 5s infinite;transform-box:fill-box;transform-origin:center}
+ @keyframes eb-blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.1)}}
+ .eb[data-mood="sad"] .eb-body{animation:eb-sigh 5.2s ease-in-out infinite}
+ @keyframes eb-sigh{0%,100%{transform:translateY(2px) rotate(-3deg) scale(1)}45%{transform:translateY(7px) rotate(-5deg) scale(.96,.93)}70%{transform:translateY(3px) rotate(-3deg) scale(1)}}
+ .eb[data-mood="sad"] .eb-eyes{transform:translateY(4px)}
+ .eb[data-mood="sad"] .eb-tear{width:8px;height:11px}
+ .eb[data-mood="sad"] .eb-sweat{left:61%;top:52%;right:auto;animation:eb-tear 4.6s ease-in infinite 3.1s;opacity:0}
+ .eb[data-mood="listen"] .eb-eyes{animation:eb-look 3.6s ease-in-out infinite}
+ @keyframes eb-look{0%,100%{transform:translate(3px,2px)}40%{transform:translate(-3px,1px)}70%{transform:translate(2px,-1px)}}
+ .eb[data-mood="listen"] .eb-body{animation:eb-tilt 3.6s ease-in-out infinite}
+ @keyframes eb-tilt{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg) translateY(-2px)}}
  @keyframes eb-breathe{50%{transform:translateY(-3px) scale(1.035)}}
  .eb-halo{animation:eb-halo 4.6s ease-in-out infinite}
  @keyframes eb-halo{50%{transform:scale(1.1);opacity:.5}}
@@ -53,7 +64,7 @@
  .eb[data-mood="worry"] .eb-body{animation:eb-fret 3.4s ease-in-out infinite}
  @keyframes eb-fret{0%,100%{transform:translateX(0)}20%{transform:translateX(-2px)}40%{transform:translateX(2px)}60%{transform:translateX(-1px)}}
 }
-@media(prefers-reduced-motion:reduce){.eb-p{display:none}}
+@media(prefers-reduced-motion:reduce){.eb-p{display:none}.eb-body{animation-duration:9s!important}}
 @media(max-width:420px){.eb{width:112px;height:112px}}
 .eb-cheek{fill:#ff8f9d;opacity:0;transition:opacity .4s}
 .eb-sweat{position:absolute;right:26%;top:34%;width:6px;height:9px;border-radius:50% 50% 55% 55%;background:#bfe0ff;opacity:0;will-change:transform,opacity}

@@ -267,8 +267,6 @@ html:not(.ty-wait) .ty-main[data-ty-state=confirmed] .ty-seal::before{animation:
 
 /* hover: pointer light + lift on cards, shine on the main button, arrow nudge */
 .ty-pass,.ty-manage-main,.ty-first,.ty-explore-grid a,.ty-invoice>summary{--mx:50%;--my:0%;position:relative;overflow:hidden}
-.ty-pass::after,.ty-manage-main::after,.ty-first::after,.ty-explore-grid a::after,.ty-invoice>summary::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;opacity:0;transition:opacity .35s;background:radial-gradient(260px circle at var(--mx) var(--my),color-mix(in srgb,var(--ty-a) 16%,transparent),transparent 70%)}
-.ty-pass:hover::after,.ty-manage-main:hover::after,.ty-first:hover::after,.ty-explore-grid a:hover::after,.ty-invoice>summary:hover::after{opacity:1}
 .ty-explore-grid a:hover,.ty-first:hover{transform:translateY(-3px)}.ty-first{transition:transform .4s var(--ty-ease),border-color .25s}.ty-first:hover{border-color:var(--ty-a)}
 .ty-actions .btn-dark{position:relative;overflow:hidden;transition:transform .35s cubic-bezier(.34,1.56,.64,1),box-shadow .3s}
 .ty-actions .btn-dark::after{content:"";position:absolute;top:0;bottom:0;left:0;width:40%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:translate3d(-160%,0,0) skewX(-18deg)}
@@ -289,3 +287,25 @@ html:not(.ty-wait) .ty-main[data-ty-state=confirmed] .ty-actions .btn-dark{anima
 
 .ty-order{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 12px;margin:0 0 16px;font-size:13px;color:var(--mute)}.ty-order[hidden]{display:none}.ty-order span{font:600 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase}.ty-order b{font:600 14px/1 ui-monospace,monospace;color:var(--ink,inherit);letter-spacing:.04em}.ty-order button{font:600 12px/1 var(--sans);padding:6px 11px;border-radius:999px;border:1px solid currentColor;background:transparent;color:inherit;cursor:pointer}.ty-order a{color:inherit;text-decoration:underline;text-underline-offset:3px}
 .ty-main{overflow-x:clip}
+
+/* ---- background: a slow aurora behind the page (transform only, painted once) and a fading dot grid ---- */
+body.ty-page::before{content:"";position:fixed;inset:-25%;z-index:-1;pointer-events:none;
+ background:
+  radial-gradient(38% 34% at 22% 30%,color-mix(in srgb,var(--ty-a) 26%,transparent),transparent 70%),
+  radial-gradient(34% 30% at 78% 24%,rgba(242,182,79,.20),transparent 70%),
+  radial-gradient(40% 36% at 62% 78%,rgba(62,207,155,.17),transparent 72%),
+  radial-gradient(30% 28% at 14% 82%,rgba(150,120,255,.14),transparent 72%);
+ animation:ty-aurora 26s ease-in-out infinite alternate;will-change:transform}
+body.ty-page::after{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.55;
+ background-image:radial-gradient(color-mix(in srgb,var(--ink) 16%,transparent) 1px,transparent 1.3px);background-size:28px 28px;
+ -webkit-mask-image:radial-gradient(ellipse at 50% 38%,#000 0,transparent 72%);mask-image:radial-gradient(ellipse at 50% 38%,#000 0,transparent 72%);
+ animation:ty-dots 9s ease-in-out infinite alternate}
+html[data-theme=dark] body.ty-page::before{filter:saturate(1.15);opacity:.9}
+html[data-theme=dark] body.ty-page::after{opacity:.4}
+@keyframes ty-aurora{
+ 0%{transform:translate3d(-3%,-2%,0) rotate(0deg) scale(1)}
+ 50%{transform:translate3d(3%,2%,0) rotate(6deg) scale(1.06)}
+ 100%{transform:translate3d(-2%,4%,0) rotate(-5deg) scale(1.03)}
+}
+@keyframes ty-dots{from{opacity:.25}to{opacity:.6}}
+@media(prefers-reduced-motion:reduce){body.ty-page::before,body.ty-page::after{animation:none}}

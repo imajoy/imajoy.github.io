@@ -213,7 +213,4 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
  /* the timeline lights up step by step when it scrolls into view */
  const tl=document.querySelector('.ty-timeline');
  if(tl&&'IntersectionObserver' in window&&!reduce){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){tl.classList.add('is-in');io.disconnect();}},{threshold:.3});io.observe(tl);}else tl?.classList.add('is-in');
- /* soft light that follows the pointer on cards (pointer devices only; writes two variables on the hovered card) */
- if(!matchMedia('(hover:hover)').matches||reduce)return;
- document.addEventListener('pointermove',e=>{const c=e.target.closest?.('.ty-pass,.ty-manage-main,.ty-first,.ty-explore-grid a,.ty-invoice>summary');if(!c)return;const r=c.getBoundingClientRect();c.style.setProperty('--mx',(e.clientX-r.left)+'px');c.style.setProperty('--my',(e.clientY-r.top)+'px');},{passive:true});
 })();

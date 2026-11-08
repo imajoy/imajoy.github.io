@@ -1,6 +1,6 @@
 /* Wrapline free page: the hanging tool tags.
    Each tag is lowered on a rope, hangs and sways, then leaves. Every round it is random which leave how:
-   1 or 2 of the four BREAK their rope (the rope whips up, the tag drops, tumbles and vanishes), the others zip straight up
+   1 or 2 of the four BREAK their rope (it strains, snaps, and the tag falls under gravity, tumbling out of sight), the others zip straight up
    (a small dip first, then a fast snap with a stretch and motion blur). After a short rest each one comes back down.
    Only transform / opacity are animated, plus a blur on the small tag itself, so it stays smooth. */
 (function () {
@@ -42,13 +42,17 @@
 
   function enter(t) {
     reset(t);
+    /* lowered on its rope: it drops, the rope stretches and the tag dips low, then springs back up and settles in a few shrinking bounces */
     var a = A(t,t.chip,[
-      { translate: '0 -62vh', scale: '1 1.06', opacity: 0, easing: 'cubic-bezier(.3,.7,.3,1)' },
-      { opacity: 1, offset: .1 },
-      { translate: '0 12px', scale: '1 1', offset: .62, easing: 'ease-in-out' },
-      { translate: '0 -3px', offset: .8, easing: 'ease-in-out' },
+      { translate: '0 -62vh', scale: '1 1.05', opacity: 0, easing: 'cubic-bezier(.3,.55,.4,1)' },
+      { opacity: 1, offset: .08 },
+      { translate: '0 34px', scale: '.985 1.045', opacity: 1, offset: .44, easing: 'ease-in-out' },
+      { translate: '0 -15px', scale: '1.01 .99', offset: .6, easing: 'ease-in-out' },
+      { translate: '0 9px', scale: '.995 1.01', offset: .74, easing: 'ease-in-out' },
+      { translate: '0 -4px', scale: '1 1', offset: .85, easing: 'ease-in-out' },
+      { translate: '0 1.5px', offset: .94, easing: 'ease-in-out' },
       { translate: '0 0', scale: '1 1', opacity: 1 }
-    ], { duration: 1900, fill: 'forwards' });
+    ], { duration: 2400, fill: 'forwards' });
     return a.finished;
   }
   function hang(t, ms) {
@@ -72,30 +76,39 @@
     ], { duration: 760, fill: 'forwards' });
     return a.finished;
   }
-  /* the rope snaps: it whips up and away, the tag drops, tumbles and fades out */
+  /* the rope gives way: it creaks and sags under strain, then snaps. The rope recoils upward, the tag jolts and falls with real
+     gravity (slow at first, faster and faster), turning as it goes with a bit of sideways drift, and fades into the dark below. */
   function snap(t, hang_) {
-    var y = curY(t), dir = Math.random() < .5 ? -1 : 1;
+    var y = curY(t), dir = Math.random() < .5 ? -1 : 1, strain = rnd(380, 620), drift = dir * rnd(14, 46), spin = dir * rnd(130, 240);
     hang_.cancel();
     t.chip.style.animationPlayState = 'paused';
-    var shudder = A(t,t.chip,[
-      { translate: '0 ' + y + 'px' }, { translate: '-2px ' + y + 'px', offset: .2 }, { translate: '2px ' + (y + 2) + 'px', offset: .4 },
-      { translate: '-1.5px ' + y + 'px', offset: .6 }, { translate: '1px ' + (y + 3) + 'px', offset: .8 }, { translate: '0 ' + (y + 4) + 'px' }
-    ], { duration: 260, fill: 'forwards' });
-    return shudder.finished.then(function () {
+    /* strain: the tag sags a few pixels and trembles a little, the rope flickers as its strands go */
+    var sag = A(t,t.chip,[
+      { translate: '0 ' + y + 'px', easing: 'ease-in' },
+      { translate: '0 ' + (y + 5) + 'px', offset: .45, easing: 'linear' },
+      { translate: '-.8px ' + (y + 7) + 'px', offset: .6, easing: 'linear' },
+      { translate: '.8px ' + (y + 8) + 'px', offset: .75, easing: 'linear' },
+      { translate: '0 ' + (y + 10) + 'px' }
+    ], { duration: strain, fill: 'forwards' });
+    A(t,t.rope,[{ opacity: 1 }, { opacity: .8, offset: .55 }, { opacity: 1, offset: .7 }, { opacity: .7, offset: .85 }, { opacity: 1 }], { duration: strain, fill: 'forwards' });
+    return sag.finished.then(function () {
+      var y0 = y + 10;
+      /* the loose rope whips back up out of sight */
       A(t,t.rope,[
-        { translate: '0 0', scale: '1 1', opacity: 1 }, { translate: '0 -34vh', scale: '1 1.6', opacity: .9, offset: .7 }, { translate: '0 -50vh', scale: '1 1.8', opacity: 0 }
-      ], { duration: 320, easing: 'cubic-bezier(.35,0,.9,.5)', fill: 'forwards' });
+        { translate: '0 0', rotate: '0deg', opacity: 1 }, { translate: '0 -26vh', rotate: (-dir * 7) + 'deg', opacity: .95, offset: .5 }, { translate: '0 -52vh', rotate: (dir * 4) + 'deg', opacity: 0 }
+      ], { duration: 520, easing: 'cubic-bezier(.12,.7,.3,1)', fill: 'forwards' });
+      /* the tag turns slowly at first, then faster as it falls */
       A(t,t.face,[
-        { rotate: '0deg' }, { rotate: (dir * 14) + 'deg', offset: .25 }, { rotate: (dir * (60 + Math.random() * 40)) + 'deg' }
-      ], { duration: 1150, easing: 'cubic-bezier(.4,0,.9,.7)', fill: 'forwards' });
+        { rotate: '0deg' }, { rotate: (dir * 9) + 'deg', offset: .16, easing: 'ease-in' }, { rotate: spin + 'deg' }
+      ], { duration: 1350, easing: 'cubic-bezier(.45,0,.85,.7)', fill: 'forwards' });
+      /* released: a tiny upward jerk as the tension lets go, then it falls and speeds up */
       var fall = A(t,t.chip,[
-        { translate: '0 ' + (y + 4) + 'px', opacity: 1, easing: 'ease-out' },
-        { translate: '0 ' + (y - 8) + 'px', opacity: 1, offset: .1, easing: 'cubic-bezier(.5,0,1,.55)' },
-        { translate: '0 78vh', opacity: 1, offset: .8 },
-        { translate: '0 96vh', opacity: 0 }
-      ], { duration: 1150, fill: 'forwards' });
-      /* it fades out well before it reaches the content below */
-      A(t,t.chip,[{ opacity: 1 }, { opacity: 1, offset: .38 }, { opacity: 0, offset: .78 }, { opacity: 0 }], { duration: 1150, fill: 'forwards' });
+        { translate: '0 ' + y0 + 'px', easing: 'cubic-bezier(.2,.6,.4,1)' },
+        { translate: (drift * .08) + 'px ' + (y0 - 9) + 'px', offset: .07, easing: 'cubic-bezier(.5,0,.95,.55)' },
+        { translate: drift + 'px 92vh' }
+      ], { duration: 1350, fill: 'forwards' });
+      /* it stays visible while it drops, then dims out gradually, well before the content below */
+      A(t,t.chip,[{ opacity: 1 }, { opacity: 1, offset: .4 }, { opacity: 0, offset: .85 }, { opacity: 0 }], { duration: 1350, easing: 'linear', fill: 'forwards' });
       return fall.finished;
     });
   }

@@ -84,3 +84,20 @@
 .hero-trial-summary{max-width:42em;margin-top:18px;color:var(--mute);font-size:.75rem;line-height:1.8}
 .hero-trial-summary strong{color:var(--ink);font-weight:500}
 .hero-trial-summary a{color:var(--blue-d);white-space:nowrap}
+
+/* "20%" stamp: size to its content so the number never touches the edges */
+.offer-stamp{width:auto;min-width:68px;padding-inline:14px;box-sizing:border-box;white-space:nowrap}
+.offer-checkout .offer-stamp{font-size:2rem;min-width:88px;padding-inline:16px;gap:3px}
+@media(max-width:680px){
+ .offer-inline{grid-template-columns:auto 1fr}
+ .offer-stamp{width:auto;min-width:62px;padding-inline:12px;font-size:1.75rem}
+ .offer-checkout .offer-stamp{min-width:76px;padding-inline:13px;font-size:1.75rem}
+ .offer-checkout .offer-stamp small{font-size:.9rem}
+}
+@media(max-width:360px){.offer-inline{grid-template-columns:1fr}}
+
+/* Yearly offer badge: column sizes to the badge so "20%" never spills out of its box */
+.offer-inline{grid-template-columns:auto minmax(0,1fr)}
+.offer-checkout .offer-stamp{justify-self:start;box-sizing:border-box;width:auto;min-width:76px;height:auto;min-height:62px;padding:10px 14px;display:inline-flex;flex-direction:row;align-items:baseline;justify-content:center;gap:2px;line-height:1;overflow:hidden}
+.offer-checkout .offer-stamp small{margin:0;line-height:1}
+@media(max-width:360px){.offer-inline{grid-template-columns:1fr}.offer-inline>.offer-action{grid-column:1}}

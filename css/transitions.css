@@ -46,3 +46,19 @@ html.theme-vt.theme-soft::view-transition-new(root){animation:theme-soft .6s eas
 @keyframes theme-soft{from{opacity:0}to{opacity:1}}
 /* browsers without View Transitions: a short colour fade, removed right after */
 html.theme-fx,html.theme-fx *,html.theme-fx *::before,html.theme-fx *::after{transition:background-color .4s ease,color .4s ease,border-color .4s ease,fill .4s ease,stroke .4s ease,box-shadow .4s ease!important}
+
+/* ---- phones: the next page glides in over the old one (which stays solid underneath, so there is no flash or dip),
+   the old page eases back a little. Back plays the other way. Compositor-only: transform and opacity. ---- */
+@media (max-width:820px) and (prefers-reduced-motion:no-preference){
+ ::view-transition-group(root){animation-duration:.6s}
+ ::view-transition-old(root),::view-transition-new(root){animation-duration:.6s;animation-timing-function:cubic-bezier(.22,.9,.28,1);animation-fill-mode:both}
+ ::view-transition-old(root){animation-name:vtm-back;z-index:1}
+ ::view-transition-new(root){animation-name:vtm-in;z-index:2}
+ html[data-vt=back]::view-transition-old(root){animation-name:vtm-out;z-index:2}
+ html[data-vt=back]::view-transition-new(root){animation-name:vtm-in-b;z-index:1}
+ ::view-transition-group(pillbar){animation-duration:.5s}
+ @keyframes vtm-in{from{opacity:0;transform:translate3d(14%,0,0)}55%{opacity:1}to{opacity:1;transform:none}}
+ @keyframes vtm-back{to{transform:translate3d(-8%,0,0) scale(.985);opacity:.55}}
+ @keyframes vtm-out{from{opacity:1;transform:none}45%{opacity:1}to{opacity:0;transform:translate3d(14%,0,0)}}
+ @keyframes vtm-in-b{from{opacity:.55;transform:translate3d(-8%,0,0) scale(.985)}to{opacity:1;transform:none}}
+}

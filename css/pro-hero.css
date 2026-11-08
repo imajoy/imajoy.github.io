@@ -211,3 +211,38 @@ html.hv-pin .hv-grid{height:70%;bottom:-4%}
  .hv-portal{--hv-fy:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.08) 5px,rgba(0,0,0,.3) 14px,rgba(0,0,0,.65) 24px,rgba(0,0,0,.92) 34px,#000 42px,#000 calc(100% - 42px),rgba(0,0,0,.92) calc(100% - 34px),rgba(0,0,0,.65) calc(100% - 24px),rgba(0,0,0,.3) calc(100% - 14px),rgba(0,0,0,.08) calc(100% - 5px),transparent 100%)}
  html:not(.hv-pin) body.pro-page .hv-portal{padding-bottom:clamp(46px,9vw,60px)}
 }
+
+/* ---- light mode hero: a bright stage, the dark demo window stays as the focus ---- */
+html:not([data-theme=dark]) .hv-shell{background:radial-gradient(120% 90% at 50% 0%,#ffffff 0%,#eef3ff 48%,#dde7fb 100%)}
+html:not([data-theme=dark]) .hv-grid{background-image:url('../assets/hero-grid-light.svg')}
+html:not([data-theme=dark]) .hv-glow{background:radial-gradient(closest-side,rgba(110,150,255,.22),transparent)}
+html:not([data-theme=dark]) .hv-wash{background:radial-gradient(55% 62% at 50% 46%,hsl(var(--th,220) 90% 62% / .3),hsl(var(--th,220) 85% 70% / .1) 52%,transparent 72%)}
+html:not([data-theme=dark]) .hv-nm div{color:#0E1530}
+html:not([data-theme=dark]) .hv-ds div{color:#4A5578}
+html:not([data-theme=dark]) .hv-no{color:#6A7599}
+html:not([data-theme=dark]) .hv-no div{background:linear-gradient(160deg,#c98a1e,#e7a93a 55%,#2a64e8);-webkit-background-clip:text;background-clip:text}
+html:not([data-theme=dark]) .hv-rail li{color:rgba(30,42,82,.62)}
+html:not([data-theme=dark]) .hv-rail li.on{color:#0E1530}
+html:not([data-theme=dark]) .hv-rail li.on i{background:hsl(var(--th,40) 80% 48%)}
+html:not([data-theme=dark]) .hv-trial{color:#6A7599}
+html:not([data-theme=dark]) .hv-trial div{color:#c98a1e}
+html:not([data-theme=dark]) .hv-no em,html:not([data-theme=dark]) .hv-trial em{color:#6A7599}
+html:not([data-theme=dark]) body.pro-page .hv-portal .pro-dock{background:rgba(255,255,255,.72);border-color:rgba(20,32,70,.12);box-shadow:0 14px 34px -18px rgba(30,48,110,.35)}
+html:not([data-theme=dark]) body.pro-page .hv-portal .pro-now{color:#4A5578}
+
+/* more room between the headline and the stage on laptop / desktop */
+@media(min-width:981px){.hv-track{margin-block:112px 104px}}
+
+/* scroll-linked drift runs on the compositor (no JavaScript per frame), so it stays smooth on a mouse wheel */
+@supports (animation-timeline:view()){
+ .hero.hv{timeline-scope:--hvt}
+ .hv-track{view-timeline:--hvt block}
+ html.hv-pin body.pro-page .hero .hv-l{animation:hv-dl linear both;animation-timeline:--hvt;animation-range:contain 0% contain 100%}
+ html.hv-pin body.pro-page .hero .hv-r{animation:hv-dr linear both;animation-timeline:--hvt;animation-range:contain 0% contain 100%}
+ html.hv-pin body.pro-page .hero .hv-grid{animation:hv-dg linear both;animation-timeline:--hvt;animation-range:contain 0% contain 100%}
+ html.hv-pin body.pro-page .hero .pro-dock{animation:hv-dd linear both;animation-timeline:--hvt;animation-range:contain 0% contain 100%}
+ @keyframes hv-dl{to{translate:0 -46px}}
+ @keyframes hv-dr{to{translate:0 38px}}
+ @keyframes hv-dg{to{translate:0 70px}}
+ @keyframes hv-dd{to{translate:0 -14px}}
+}

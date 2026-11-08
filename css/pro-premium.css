@@ -38,21 +38,21 @@ body.pro-page .block .sub{max-width:36em}
 body.pro-page .head.center .sub{margin-inline:auto}
 
 /* ---- 5. workflows: a dark obsidian band ---- */
-body.pro-page #workflows{--bg:#070B1A;--ink:#EEF2FF;--mute:#A9B4D4;--line:rgba(255,255,255,.12);--card:rgba(255,255,255,.045);--card2:rgba(255,255,255,.06);--em:#9CC3FF;--blue-d:#8DBBFF;--btnbg:#fff;--btnfg:#0b1020;--btnhov:#ffe9bf;
+html[data-theme=dark] body.pro-page #workflows{--bg:#070B1A;--ink:#EEF2FF;--mute:#A9B4D4;--line:rgba(255,255,255,.12);--card:rgba(255,255,255,.045);--card2:rgba(255,255,255,.06);--em:#9CC3FF;--blue-d:#8DBBFF;--btnbg:#fff;--btnfg:#0b1020;--btnhov:#ffe9bf;
  color:var(--ink);background:radial-gradient(70% 55% at 85% 0%,rgba(61,139,255,.2),transparent 70%),radial-gradient(50% 45% at 5% 100%,rgba(242,182,79,.1),transparent 70%),#070B1A;margin:0}
-body.pro-page #workflows::before{display:none}body.pro-page #workflows::after{display:none}
-body.pro-page #workflows .workflow-panel{border-radius:32px;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.12);box-shadow:0 40px 90px -50px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.08)}
-body.pro-page #workflows .workflow-panel .tool-visual{background:rgba(5,8,20,.55);border:1px solid rgba(255,255,255,.1)}
-body.pro-page #workflows .workflow-copy h3{color:#fff;font-weight:600;letter-spacing:-.04em}
-body.pro-page #workflows .workflow-copy p{color:var(--mute)}
-body.pro-page #workflows .text-link{color:#ffd98a}
-body.pro-page #workflows .workflow-caption{color:rgba(169,180,212,.7)}
-body.pro-page #workflows .workflow-choices{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
-body.pro-page #workflows .workflow-choices button{color:var(--mute)}
-body.pro-page #workflows .workflow-choices button[aria-pressed=true]{background:#fff;color:#0b1020}
-body.pro-page #workflows .btn-dark{background:#fff;color:#0b1020;border-color:#fff}body.pro-page #workflows .btn-dark svg{stroke:#0b1020}
-body.pro-page #workflows .workflow-beats button{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:var(--mute)}
-body.pro-page #workflows .workflow-beats button[aria-pressed=true]{border-color:#F2B64F;color:#fff;background:rgba(242,182,79,.1)}
+html[data-theme=dark] body.pro-page #workflows::before{display:none}html[data-theme=dark] body.pro-page #workflows::after{display:none}
+html[data-theme=dark] body.pro-page #workflows .workflow-panel{border-radius:32px;background:linear-gradient(160deg,rgba(255,255,255,.07),rgba(255,255,255,.025));border:1px solid rgba(255,255,255,.12);box-shadow:0 40px 90px -50px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.08)}
+html[data-theme=dark] body.pro-page #workflows .workflow-panel .tool-visual{background:rgba(5,8,20,.55);border:1px solid rgba(255,255,255,.1)}
+html[data-theme=dark] body.pro-page #workflows .workflow-copy h3{color:#fff;font-weight:600;letter-spacing:-.04em}
+html[data-theme=dark] body.pro-page #workflows .workflow-copy p{color:var(--mute)}
+html[data-theme=dark] body.pro-page #workflows .text-link{color:#ffd98a}
+html[data-theme=dark] body.pro-page #workflows .workflow-caption{color:rgba(169,180,212,.7)}
+html[data-theme=dark] body.pro-page #workflows .workflow-choices{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14)}
+html[data-theme=dark] body.pro-page #workflows .workflow-choices button{color:var(--mute)}
+html[data-theme=dark] body.pro-page #workflows .workflow-choices button[aria-pressed=true]{background:#fff;color:#0b1020}
+html[data-theme=dark] body.pro-page #workflows .btn-dark{background:#fff;color:#0b1020;border-color:#fff}html[data-theme=dark] body.pro-page #workflows .btn-dark svg{stroke:#0b1020}
+html[data-theme=dark] body.pro-page #workflows .workflow-beats button{background:rgba(255,255,255,.04);border-color:rgba(255,255,255,.12);color:var(--mute)}
+html[data-theme=dark] body.pro-page #workflows .workflow-beats button[aria-pressed=true]{border-color:#F2B64F;color:#fff;background:rgba(242,182,79,.1)}
 
 /* ---- 6. trial: sits on light, its dark card gets a gold edge ---- */
 body.pro-page .trial-showcase{padding:clamp(64px,8vw,110px) 0}
@@ -231,3 +231,6 @@ body.pro-page .cl2-head::before{content:"";position:absolute;top:-3px;left:50%;t
  body.pro-page .cl2 .actions{flex-direction:column;align-items:stretch}
 }
 @media(prefers-reduced-motion:reduce){body.pro-page .cl2-head,body.pro-page .cl2-track b{animation:none}body.pro-page .cl2-head{opacity:0}body.pro-page .cl2-track b{background:#f0b84b}}
+
+/* light mode keeps the workflow section light: no dark band, no dark seams */
+html:not([data-theme=dark]) body.pro-page #workflows::before,html:not([data-theme=dark]) body.pro-page #workflows::after{display:none}

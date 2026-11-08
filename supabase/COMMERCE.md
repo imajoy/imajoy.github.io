@@ -34,7 +34,7 @@ Deploy with **Deploy → Manage deployments → Edit → New version → Deploy*
 
 ## 3. Deploy the Supabase functions
 
-Deploy `commerce`, the updated `paypal-config`, and the updated `storefront` if that older function is deployed; retain existing `activate` and other functions. The legacy storefront download route now returns 410 and cannot bypass registration, even with a supplied download token. `verify_jwt=false` is intentional: the commerce function validates the site's signed account sessions through Apps Script. Supabase JWTs are not this authentication system.
+Deploy `commerce`, the updated `paypal-config` and `activate`. `verify_jwt=false` is intentional: the commerce function validates the site's signed account sessions through Apps Script. Supabase JWTs are not this authentication system.
 
 Configure private function settings:
 
@@ -107,7 +107,7 @@ Then set `COMMERCE_ENABLED=true` in both places. Keep live/sandbox plans, creden
 
 ## Returning subscriber rewards
 
-The active checkout uses Google Sheets accounts and PayPal payment records. The older Supabase `storefront` loyalty implementation is separate; enabling it does not connect rewards to this PayPal checkout.
+The active checkout uses Google Sheets accounts and PayPal payment records. Coupons and rewards are handled in Apps Script (`Loyalty.gs`).
 
 To activate this update on the already configured system:
 

@@ -1,12 +1,12 @@
 # Personal data map (audit of 2026-11-08)
 
-Static site on GitHub Pages. No analytics, error-tracking, advertising or AI services are used anywhere. No passwords exist: people sign in with a 6-digit emailed code (and optional passkeys).
+Static site on GitHub Pages. No analytics, error-tracking, advertising or AI services are used anywhere. No passwords exist: people sign in with a 6-digit emailed code.
 
 ## 1. What is collected, where it goes, where it is stored
 
 | Data | Collected at | Travels to | Stored in | Retention / deletion |
 |---|---|---|---|---|
-| Email | Sign-in, checkout, contact, review, download | Apps Script (HTTPS) | Google Sheet: `Accounts`, `Orders`, `Payments`, `Reviews`, `Contacts`, `Trials`, `Passkeys`, invoices | **Self-service delete** (Account > Delete my account and data) |
+| Email | Sign-in, checkout, contact, review, download | Apps Script (HTTPS) | Google Sheet: `Accounts`, `Orders`, `Payments`, `Reviews`, `Contacts`, `Trials`, invoices | **Self-service delete** (Account > Delete my account and data) |
 | Name, company, city, region, postal code | Checkout / invoices, contact, review nickname | Apps Script; PayPal or Razorpay only if they ask for it | Same Sheet tabs (`Orders`, invoices, `Contacts`, `Reviews`) | Blanked on delete; payment amounts and dates kept for accounting |
 | Contact message and optional attachment | Contact form | Apps Script, then a **private** GitHub repository | `Contacts` tab and private GitHub repo | Row deleted on account deletion; files in GitHub history need manual removal (apps-script/README.md) |
 | Payment details (card, bank, UPI) | Only on PayPal / Razorpay pages | Never reach this site | PayPal / Razorpay | Their policies. This site keeps only ids, amounts, status, country |

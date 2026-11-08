@@ -43,8 +43,7 @@ Complete these steps before considering the new payment prices activated:
 4. Deploy a new version of the existing Apps Script web app (retain its URL).
    Refresh checkout and check both plans, both billing periods and a trial's
    renewal amount. Existing Supabase commerce/razorpay proxy functions need no
-   redeploy for these Apps Script changes. If the optional legacy `storefront`
-   function is enabled, redeploy it too because its separate quote catalog changed.
+   redeploy for these Apps Script changes.
 
 Both setup functions resume saved progress on rerun. Do not delete existing catalog
 properties, history properties, checkout rows or order rows to force a rebuild.

@@ -1,5 +1,4 @@
-/* Public configuration only. Never place secret keys here.
-   Set apiBase to the deployed Supabase storefront function URL when ready. */
+/* Public configuration only. Never place secret keys here. */
 window.AJOY_CONFIG = Object.freeze({
   apiBase: '',
   commerceUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/commerce',
@@ -16,5 +15,4 @@ window.AJOY_CONFIG = Object.freeze({
   /* PayPal client ID, mode and plan availability are served by paypal-config.
      Actual plan IDs and merchant credentials remain on the server. */
   paypalConfigUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/paypal-config',
-  // Example: https://YOUR_PROJECT.supabase.co/functions/v1/storefront
 });

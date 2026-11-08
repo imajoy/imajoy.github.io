@@ -8,7 +8,7 @@ Only a verified full account session for the owner account named in the private 
 
 A GitHub push updates the website, but cannot update your private Apps Script or Supabase functions. The old public server does not advertise account-country permissions, so the old deployment leaves every account locked.
 
-1. In your existing Apps Script project, replace **Billing.gs**, **Commerce.gs** and **Razorpay.gs** with their current repository versions. Add Billing.gs if missing. Keep Code.gs, Loyalty.gs, Passkeys.gs and all existing properties.
+1. In your existing Apps Script project, replace **Billing.gs**, **Commerce.gs** and **Razorpay.gs** with their current repository versions. Add Billing.gs if missing. Keep Code.gs, Loyalty.gs and all existing properties.
 2. Choose **Deploy → Manage deployments → Edit → New version → Deploy**, keeping the same web-app URL.
 3. From your updated local checkout, deploy these functions:
 

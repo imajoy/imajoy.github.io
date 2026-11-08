@@ -206,7 +206,6 @@ function handleCommerceEnvelope_(envelope) {
     if(signature!==envelope.signature)throw commerceError_('signature','Invalid service signature.');
     commerceLock_(function(){var cache=CacheService.getScriptCache();if(cache.get('rpc:'+nonce))throw commerceError_('signature','Service request was already used.');cache.put('rpc:'+nonce,'1',300);});
     var d=JSON.parse(packed);
-    if(d.action==='passkeys')return handlePasskeys_(d);
     if(d.action==='billing_context'&&typeof billingContext_==='function')return billingContext_(d);
     if(d.action==='razorpay'&&typeof handleRazorpay_==='function')return handleRazorpay_(d);
     if(d.action==='maya_access'&&typeof mayaAccess_==='function')return mayaAccess_(d);  // Wrapline Pro in Maya: Basic access by email (Maya.gs)

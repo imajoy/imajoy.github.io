@@ -1,8 +1,5 @@
 # Public function entry points enforce origin checks and server-side account validation.
 # Merge this function section into your existing project's config when deploying.
-[functions.storefront]
-verify_jwt = false
-
 [functions.paypal-config]
 verify_jwt = false
 

@@ -23,7 +23,7 @@ For international buyers, separately confirm **International Payments for Subscr
 In the existing private Sheet → Extensions → Apps Script:
 
 1. Add a Script file named **Razorpay**, copying [Razorpay.gs](../apps-script/Razorpay.gs).
-2. Replace **Code.gs** and **Commerce.gs** with the repository versions. Preserve **Loyalty.gs**, **Passkeys.gs**, existing properties and the web app URL.
+2. Replace **Code.gs** and **Commerce.gs** with the repository versions. Preserve **Loyalty.gs**, existing properties and the web app URL.
 3. In Project Settings → Script properties add:
 
 | Property | Initial value |
@@ -82,7 +82,7 @@ Use Razorpay's documented Test recurring methods to check:
 3. Close the browser after paying; the signed webhook still records the order. Duplicate events/confirmation do not duplicate records or emails.
 4. Check a renewal, cancellation and refund. Old invoices must not extend a new unpaid period. Refunding the current receipt removes its paid-through period.
 5. Reload a pending checkout and check its status. If creation timed out, the server searches recent subscriptions by checkout note; unresolved cases stop with a support message instead of creating a duplicate. Reconcile those in Razorpay before starting another subscription.
-6. Check account subscription time remaining, existing PayPal checkout, registration, passkeys and downloads.
+6. Check account subscription time remaining, existing PayPal checkout, registration and downloads.
 
 Private tabs are created as needed: **RazorpayCheckouts** (checkout/subscription state) and **RazorpayPayments** (verified receipts). The initial order also goes into **Orders**, with mode `razorpay_test` or `razorpay_live`. Keep all tabs private and preserve their history.
 

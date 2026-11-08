@@ -2,11 +2,11 @@
    The site calls {type:'account', step:'erase', token, code}. The person must hold a valid session AND type a fresh
    emailed code (request it first with step 'code'), so a stolen token alone cannot delete an account.
    Refuses while a subscription is active or still has paid access left.
-   Removes the person's rows from Accounts, Trials, Contacts, Reviews and Passkeys, and anonymizes their rows in every
+   Removes the person's rows from Accounts, Trials, Contacts and Reviews, and anonymizes their rows in every
    other tab (orders, payments, invoices, donations): the email becomes "deleted-xxxxxxxx" and name, company, address
    and message cells are blanked, while dates and amounts stay for tax and accounting records.
    Contact attachments stored in the private GitHub repository must be removed there (see apps-script/README.md). */
-var ERASE_DELETE_TABS_ = ['Accounts', 'Trials', 'Contacts', 'Reviews', 'Passkeys'];
+var ERASE_DELETE_TABS_ = ['Accounts', 'Trials', 'Contacts', 'Reviews'];
 var ERASE_PII_HEADER_ = /(^|[^a-z])(name|billed to|buyer details|company|address|city|region|state|postal|zip|phone|message|street|ip address)([^a-z]|$)/i;
 function eraseAlias_(email) { return 'deleted-' + b64u_(Utilities.computeHmacSha256Signature('erase:' + email, sessionSecret_())).replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toLowerCase(); }
 function eraseHasAccess_(email) {

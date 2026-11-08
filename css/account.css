@@ -5,6 +5,12 @@
 .acct-btn[data-state="active"]{border-color:#2fb583;color:#1c7d5b}
 .acct-btn[data-state="ending"]{border-color:#e3a23a;color:#9a6410}
 .acct-btn[data-state="ended"]{border-color:#e0564b;color:#b73a30}
+/* dark mode: the light-theme status colours were too dark to read on the dark pill, so use bright tints with a faint fill */
+html[data-theme=dark] .acct-btn[data-state="active"]{border-color:#5fd9a8;color:#7ee6bb;background:rgba(95,217,168,.1)}
+html[data-theme=dark] .acct-btn[data-state="ending"]{border-color:#f2b64f;color:#ffcb6b;background:rgba(242,182,79,.1)}
+html[data-theme=dark] .acct-btn[data-state="ended"]{border-color:#ff8f85;color:#ffaaa2;background:rgba(255,143,133,.1)}
+html[data-theme=dark] body .acct-btn.has-days .ab-k{opacity:.88}
+html[data-theme=dark] body .acct-btn.has-days .ab-v{opacity:1}
 .acct-body h2{font-size:1.5rem;letter-spacing:-.03em;margin:4px 0 8px}
 .acct-note{color:var(--mute);font-size:.875rem;line-height:1.6;margin:8px 0}
 .acct-form{margin:16px 0 6px}.acct-form input{font:inherit;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:transparent;color:inherit}

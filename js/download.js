@@ -8,7 +8,7 @@ let busy=false,pending=false,countdown;
 const state=value=>root.setAttribute('data-state',value);
 function sync(){
  const session=getAccountSession();input.readOnly=true;
- start.textContent=session?'Download Setup':'Sign in or register to download';
+ {const t=session?'Download Setup':'Sign in or register to download',ic=start.querySelector('.dl-ico');start.textContent=t;if(ic)start.prepend(ic);}
  document.querySelector('.download-fine').textContent='Verify your email to register an account before downloading. Your email is used for account and service messages. See the privacy notice.';
  if(!session){state('idle');clearInterval(countdown);return;}
  if(pending){pending=false;state('email');title.textContent='Your registered email.';sub.textContent='Your setup download uses this verified account.';}

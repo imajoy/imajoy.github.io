@@ -418,3 +418,15 @@ html[data-theme=dark] .js .tile.reveal.in:hover,html[data-theme=dark] .tile:hove
 .site-header[data-scroll-hidden]{translate:0 calc(-100% - 36px);opacity:0;filter:blur(14px);scale:.96;visibility:hidden;transition:translate 1.1s cubic-bezier(.5,0,.2,1),opacity .85s ease .1s,filter .9s ease,scale 1.1s cubic-bezier(.5,0,.2,1),visibility 0s linear 1.1s}
 .site-header[data-scroll-hidden] .pillbar{pointer-events:none}
 @media(prefers-reduced-motion:reduce){.site-header,.site-header[data-scroll-hidden]{transition:opacity .2s ease,visibility 0s linear .2s;translate:none;scale:none;filter:none}}
+
+/* Download buttons: the arrow keeps falling into the tray, on a gentle loop, everywhere a download button appears. */
+.dl-ico .dl-arrow{transform-box:fill-box;animation:dl-fall 1.8s cubic-bezier(.45,0,.35,1) infinite;will-change:transform,opacity}
+@keyframes dl-fall{
+ 0%{transform:translateY(-5px);opacity:0}
+ 22%{opacity:1}
+ 62%{transform:translateY(2.5px);opacity:1}
+ 86%{transform:translateY(5px);opacity:0}
+ 100%{transform:translateY(5px);opacity:0}
+}
+.btn:is(:hover,:focus-visible) .dl-ico .dl-arrow{animation-duration:1.1s}
+@media(prefers-reduced-motion:reduce){.dl-ico .dl-arrow{animation:none;opacity:1}}

@@ -96,7 +96,7 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
 @keyframes ta-roll{0%,8%{transform:translateY(0)}20%,93.2%{transform:translateY(-80%)}93.4%,100%{transform:translateY(0)}}
 @keyframes ta-count-pop{0%,18%{transform:scale(1)}22%{transform:scale(1.07)}26%,100%{transform:scale(1)}}
 /* the whole card turns once at the end of every loop; the numbers reset while it is edge-on (270deg), so nothing visibly jumps */
-@keyframes ta-flip{0%,84%{rotate:0 1 0 0deg;animation-timing-function:cubic-bezier(.45,0,.55,1)}98%,100%{rotate:0 1 0 360deg}}
+@keyframes ta-flip{0%,84%{rotate:0 1 0 0deg;filter:blur(0);animation-timing-function:cubic-bezier(.45,0,.55,1)}88%{filter:blur(2px)}91%,94%{filter:blur(4px)}96.5%{filter:blur(2.5px)}98%,100%{rotate:0 1 0 360deg;filter:blur(0)}}
 @keyframes ta-b0{0%,14%{transform:scaleX(0)}22%,93.2%{transform:scaleX(1)}93.4%,100%{transform:scaleX(0)}}
 @keyframes ta-b1{0%,26%{transform:scaleX(0)}34%,93.2%{transform:scaleX(1)}93.4%,100%{transform:scaleX(0)}}
 @keyframes ta-b2{0%,38%{transform:scaleX(0)}46%,93.2%{transform:scaleX(1)}93.4%,100%{transform:scaleX(0)}}
@@ -115,3 +115,6 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
 html body.pro-page #trial .ta-num b{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:#eef3ff!important;color:#eef3ff;text-shadow:none!important}
 html body.pro-page #trial .ta-num .rl-in i{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:currentColor!important;color:inherit}
 html body.pro-page #trial .ta-num .rl{position:relative}
+
+/* room around the rolling digit so round glyphs like 0 are never clipped */
+html body.pro-page #trial .ta-num .rl{padding:.015em .1em;margin:-.015em -.1em}

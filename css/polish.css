@@ -177,3 +177,17 @@ html[data-theme=dark] .annual-summary,html[data-theme=dark] .discount-line dt sp
 .coupon-entry{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}.coupon-entry .btn{height:52px;padding-inline:22px;font-size:.8125rem;border-radius:15px;box-shadow:none;border-color:#7c8ca4}.coupon-entry input{text-transform:uppercase}.coupon-panel .form-field{margin-bottom:10px}.coupon-panel .text-link{border:0;background:none;font:500 .75rem var(--sans);padding:0;color:var(--blue-d);cursor:pointer;margin-top:8px;text-decoration:underline;text-underline-offset:3px}
 #coupon-status[data-error=true]{color:var(--commerce-error)}.coupon-entry .btn:disabled{cursor:wait;opacity:.7}
 @media(max-width:520px){.annual-badge{font-size:.5625rem;margin-left:3px;padding:3px 6px}.coupon-entry{gap:8px}.coupon-entry .btn{padding-inline:16px}.annual-summary{font-size:.6875rem}}
+
+/* Wrapline Pro hero banner (trial / subscription): it waits for the pill bar to finish, then settles in softly, so the page never shows it twice. */
+@media(prefers-reduced-motion:no-preference){
+  html.pill-pending body.pro-page .hero .trial-banner,html.pill-entering:not(.tb-reveal) body.pro-page .hero .trial-banner{animation:none!important;opacity:0!important;translate:0 -14px}
+  html.tb-reveal body.pro-page .hero .trial-banner.hv-in{animation:tb-reveal 1.15s cubic-bezier(.16,1,.3,1) both!important;will-change:translate,scale,filter,opacity}
+  html.tb-reveal body.pro-page .hero .trial-banner-copy>*{animation:pill-content .7s var(--ease-soft) .35s backwards}
+  html.tb-reveal body.pro-page .hero .trial-banner-seal{animation:tb-seal .9s cubic-bezier(.34,1.56,.64,1) .2s backwards}
+}
+@keyframes tb-reveal{
+  from{opacity:0;translate:0 -16px;scale:.9 .86;filter:blur(6px)}
+  55%{opacity:1;filter:blur(0)}
+  to{opacity:1;translate:0 0;scale:1 1;filter:blur(0)}
+}
+@keyframes tb-seal{from{scale:.4;opacity:0}to{scale:1;opacity:1}}

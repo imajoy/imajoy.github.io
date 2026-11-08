@@ -16,6 +16,8 @@
   root.classList.add('pill-pending');
 
   function finish() {
+    /* anything held back until the pill bar is done (the hero's subscription/trial banner) is released here at the latest */
+    if (root.classList.contains('pill-pending') || root.classList.contains('pill-entering')) root.classList.add('tb-reveal');
     finished = true;
     root.classList.remove('pill-pending', 'pill-entering');
   }
@@ -36,7 +38,8 @@
           if (finished) return;
           if (document.visibilityState === 'hidden') { started = false; return; }
           root.classList.replace('pill-pending', 'pill-entering');
-          setTimeout(finish, 3000);
+          setTimeout(function () { if (!finished) root.classList.add('tb-reveal'); }, 2300);
+          setTimeout(finish, 3200);
         }
       });
     });

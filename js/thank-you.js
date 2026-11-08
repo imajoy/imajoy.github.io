@@ -5,6 +5,8 @@ import {buildInvoiceDoc,printDoc} from './ty-invoice.js?v=iv6';
 import {readReceiptBilling,billingLines} from './receipt-billing.js?v=rb1';
 import {mountSetupProgress} from './setup-progress.js?v=20261101-auto1';
 let progress=null;
+/* A real confirmation always arrives with details in the address. Opened bare, it would wrongly say "Payment confirmed", so send the visitor to the toolkit page instead. */
+if(!location.search)location.replace('wrapline.html');
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
 const plan=q.get('plan')==='offline'?'Premium':'Basic',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
 let seats=parseInt(q.get('seats'),10);seats=seats>0&&seats<=100?seats:1;

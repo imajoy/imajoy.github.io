@@ -85,9 +85,11 @@
 
   /* ---------- scroll progress + active nav link ---------- */
   var bar = $('#progress'), ticking = false;
+  var __max=0,__mx=function(){__max=Math.max(0,document.documentElement.scrollHeight-window.innerHeight);};__mx();
+  if('ResizeObserver' in window)new ResizeObserver(__mx).observe(document.body);window.addEventListener('resize',__mx);window.addEventListener('load',__mx);
   function prog() {
     ticking = false;
-    var max = document.documentElement.scrollHeight - window.innerHeight;
+    var max = __max;
     if (bar) bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(1, window.scrollY / max) : 0) + ')';
   }
   window.addEventListener('scroll', function () { if (!ticking) { ticking = true; requestAnimationFrame(prog); } }, { passive: true });

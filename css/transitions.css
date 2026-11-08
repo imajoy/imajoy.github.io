@@ -4,9 +4,9 @@
 .pillbar{view-transition-name:pillbar}
 @media (prefers-reduced-motion:no-preference){
  ::view-transition{background:var(--bg)}
- ::view-transition-group(root){animation-duration:.85s;animation-timing-function:cubic-bezier(.65,0,.2,1)}
+ ::view-transition-group(root){animation-duration:.45s}
  ::view-transition-image-pair(root){isolation:auto}
- ::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal;animation-duration:.85s;animation-timing-function:cubic-bezier(.65,0,.2,1);animation-fill-mode:both;transform-origin:50% 40%;backface-visibility:hidden}
+ ::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal;animation-duration:.45s;animation-timing-function:cubic-bezier(.22,1,.36,1);animation-fill-mode:both}
  ::view-transition-old(root){animation-name:vt-away;z-index:1}
  ::view-transition-new(root){animation-name:vt-toward;z-index:2}
  html[data-vt=back]::view-transition-old(root){animation-name:vt-away-b;z-index:2}
@@ -14,10 +14,10 @@
  ::view-transition-group(pillbar){animation-duration:.4s}
  ::view-transition-old(pillbar),::view-transition-new(pillbar){animation-duration:.4s;mix-blend-mode:normal}
  /* the old page swings back into depth, the new one swings in from the side like a turning page */
- @keyframes vt-away{to{transform:perspective(1500px) translate3d(-9%,0,-380px) rotateY(18deg);opacity:0;filter:brightness(.8)}}
- @keyframes vt-toward{from{transform:perspective(1500px) translate3d(14%,0,-380px) rotateY(-20deg);opacity:0}60%{opacity:1}}
- @keyframes vt-away-b{to{transform:perspective(1500px) translate3d(14%,0,-380px) rotateY(-20deg);opacity:0}}
- @keyframes vt-toward-b{from{transform:perspective(1500px) translate3d(-9%,0,-380px) rotateY(18deg);opacity:0;filter:brightness(.8)}60%{opacity:1}}
+ @keyframes vt-away{to{opacity:0;transform:translate3d(0,-10px,0)}}
+ @keyframes vt-toward{from{opacity:0;transform:translate3d(0,16px,0)}}
+ @keyframes vt-away-b{to{opacity:0;transform:translate3d(0,10px,0)}}
+ @keyframes vt-toward-b{from{opacity:0;transform:translate3d(0,-16px,0)}}
 }
 /* Content on plain pages rises in, one block after another, as the circle opens. */
 @media (prefers-reduced-motion:no-preference){

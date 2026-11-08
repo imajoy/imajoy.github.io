@@ -40,12 +40,8 @@ html[data-theme=dark] body.pro-page .hv-wrap h1 em{background-image:linear-gradi
 .hv-portal{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,clamp(520px,44vw,760px)) minmax(0,1fr);align-items:center;gap:clamp(12px,2vw,32px);
  padding:clamp(32px,4vw,64px) var(--hv-pad) clamp(18px,2vw,30px);min-height:clamp(560px,calc(100svh - 96px),960px)}
 .hv-portal{width:100%}
-.hv-shell{position:absolute;inset:0;z-index:-1;overflow:hidden;border-radius:clamp(0px,2.6vw,44px);transform-origin:50% 0;will-change:transform;background:radial-gradient(120% 90% at 50% 0%,#1b2a63 0%,#0d1431 52%,#070b1a 100%);box-shadow:0 70px 110px -60px rgba(20,40,130,.65),0 0 0 1px rgba(255,255,255,.07) inset;contain:paint}
-.hv-grid{position:absolute;left:-30%;right:-30%;bottom:0;height:58%;overflow:hidden;
- -webkit-mask-image:linear-gradient(to top,#000 4%,transparent 90%);mask-image:linear-gradient(to top,#000 4%,transparent 90%)}
-.hv-grid::before{content:"";position:absolute;left:0;right:0;top:-64px;bottom:0;transform-origin:50% 100%;transform:perspective(560px) rotateX(62deg);will-change:transform;
- background:repeating-linear-gradient(90deg,rgba(118,158,255,.28) 0 1px,transparent 1px 64px),repeating-linear-gradient(0deg,rgba(118,158,255,.28) 0 1px,transparent 1px 64px);animation:hv-flow 6s linear infinite}
-@keyframes hv-flow{to{transform:perspective(560px) rotateX(62deg) translate3d(0,64px,0)}}
+.hv-shell{position:absolute;inset:0;z-index:-1;overflow:hidden;border-radius:clamp(0px,2.6vw,44px);transform-origin:50% 0;will-change:transform;background:radial-gradient(120% 90% at 50% 0%,#1b2a63 0%,#0d1431 52%,#070b1a 100%);box-shadow:0 0 0 1px rgba(255,255,255,.07) inset;contain:paint}
+.hv-grid{position:absolute;left:0;right:0;bottom:0;height:58%;background:url('../assets/hero-grid.svg') center bottom/100% 100% no-repeat;pointer-events:none}
 .hv-glow{position:absolute;left:50%;top:-10%;width:70%;height:60%;margin-left:-35%;background:radial-gradient(closest-side,rgba(110,150,255,.3),transparent)}
 .hv-side{position:relative;z-index:2;display:flex;flex-direction:column;gap:10px;color:#EEF2FF;pointer-events:none}
 .hv-side b{font:italic 400 clamp(88px,10.5vw,170px)/.8 var(--serif);letter-spacing:-.03em;background:linear-gradient(160deg,#ffe2a8,#f2b64f 55%,#8dbbff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent;padding-right:.08em}
@@ -73,11 +69,11 @@ html body.pro-page .hv-cta .tool-rating{justify-content:flex-start;margin:0}
 html body.pro-page .hero.hv>.hero-fine{position:static;margin:28px 0 0;text-align:center;color:var(--mute)}
 
 /* ---- entrance: iris opens, lines slide from opposite sides; transform + opacity only ---- */
-html.js:not(.hv-go) body.pro-page .hero .hv-shell{clip-path:inset(46% 42% 46% 42% round 999px)}
+html.js:not(.hv-go) body.pro-page .hero .hv-shell{opacity:0;transform:scale(.97,.94)}
 html.js:not(.hv-go) body.pro-page .hero .hv-in,html.js:not(.hv-go) body.pro-page .hero .hv-stage,html.js:not(.hv-go) body.pro-page .hero .hv-side,html.js:not(.hv-go) body.pro-page .hero .hv-meta,html.js:not(.hv-go) body.pro-page .hero .hv-foot .lead{opacity:0}
 html.js:not(.hv-go) body.pro-page .hero .intro .ln:nth-child(1)>span{animation:none;transform:translate3d(-14%,0,0);opacity:0}
 html.js:not(.hv-go) body.pro-page .hero .intro .ln:nth-child(2)>span{animation:none;transform:translate3d(14%,0,0);opacity:0}
-html.hv-go body.pro-page .hero .hv-shell{animation:hv-iris 1.3s cubic-bezier(.76,0,.2,1) .1s both}
+html.hv-go body.pro-page .hero .hv-shell{animation:hv-iris 1s cubic-bezier(.16,1,.3,1) .05s both}
 html.hv-go body.pro-page .hero .hv-meta{animation:hv-fade .9s ease .2s both}
 html.hv-go body.pro-page .hero .hv-in{opacity:1;animation:hv-up .9s cubic-bezier(.16,1,.3,1) both;animation-delay:calc(var(--i,0)*80ms + 900ms)}
 html.hv-go body.pro-page .hero .hv-foot .lead{opacity:1;animation:hv-up .9s cubic-bezier(.16,1,.3,1) .85s both}
@@ -86,7 +82,7 @@ html.hv-go body.pro-page .hero .intro .ln:nth-child(1)>span{animation:hv-from-l 
 html.hv-go body.pro-page .hero .intro .ln:nth-child(2)>span{animation:hv-from-r 1.1s cubic-bezier(.16,1,.3,1) .32s both}
 html.hv-go body.pro-page .hero .hv-stage{opacity:1;animation:hv-stage 1.1s cubic-bezier(.16,1,.3,1) .7s both}
 html.hv-go body.pro-page .hero .hv-side{opacity:1;animation:hv-fade 1s ease 1.1s both}
-@keyframes hv-iris{from{clip-path:inset(46% 42% 46% 42% round 999px)}to{clip-path:inset(0 0 0 0 round clamp(0px,2.6vw,44px))}}
+@keyframes hv-iris{from{opacity:0;transform:scale(.97,.94)}to{opacity:1;transform:none}}
 @keyframes hv-from-l{from{opacity:0;transform:translate3d(-14%,0,0)}to{opacity:1;transform:none}}
 @keyframes hv-from-r{from{opacity:0;transform:translate3d(14%,0,0)}to{opacity:1;transform:none}}
 @keyframes hv-up{from{opacity:0;transform:translate3d(0,24px,0)}to{opacity:1;transform:none}}
@@ -98,7 +94,7 @@ html.hv-go body.pro-page .hero .hv-side{opacity:1;animation:hv-fade 1s ease 1.1s
  .hv-portal{grid-template-columns:minmax(0,1fr);min-height:0;padding:22px var(--hv-pad) 10px;min-height:0}
  .hv-side{display:none}
  html body.pro-page .hv-portal .pro-stage{grid-column:1}
- .hv-shell{border-radius:26px}@keyframes hv-iris{from{clip-path:inset(46% 30% 46% 30% round 999px)}to{clip-path:inset(0 0 0 0 round 26px)}}
+ .hv-shell{border-radius:26px}@keyframes hv-iris{from{opacity:0;transform:scale(.97,.94)}to{opacity:1;transform:none}}
  .hv-foot{grid-template-columns:minmax(0,1fr);gap:22px}
  html body.pro-page .hv-wrap h1{font-size:clamp(40px,10.4vw,84px)}
  html body.pro-page .hv-wrap .ln>span{display:block;text-wrap:balance}
@@ -109,17 +105,15 @@ html.hv-go body.pro-page .hero .hv-side{opacity:1;animation:hv-fade 1s ease 1.1s
  html body.pro-page .hv-wrap h1{font-size:clamp(38px,12.4vw,60px);line-height:.98}
  .hv-meta span:last-child{display:none}
  .hv-portal{padding:18px var(--hv-pad) 10px}.hv-shell{border-radius:22px}
- html.js:not(.hv-go) body.pro-page .hero .hv-shell{clip-path:inset(46% 30% 46% 30% round 999px)}
+ html.js:not(.hv-go) body.pro-page .hero .hv-shell{opacity:0;transform:scale(.96,.95)}
  html body.pro-page .hv-cta .hero-actions{width:100%}html body.pro-page .hv-cta .hero-actions .btn{width:100%}
  html body.pro-page .hv-wrap .trial-banner{padding-right:14px}
- .hv-grid::before{animation:none}
 }
 @media(prefers-reduced-motion:reduce){
- html.js:not(.hv-go) body.pro-page .hero .hv-shell{clip-path:none}
+ html.js:not(.hv-go) body.pro-page .hero .hv-shell{opacity:1;transform:none}
  html.js:not(.hv-go) body.pro-page .hero .hv-in,html.js:not(.hv-go) body.pro-page .hero .hv-stage,html.js:not(.hv-go) body.pro-page .hero .hv-side,html.js:not(.hv-go) body.pro-page .hero .hv-meta,html.js:not(.hv-go) body.pro-page .hero .hv-foot .lead{opacity:1}
  html.js:not(.hv-go) body.pro-page .hero .intro .ln>span{transform:none;opacity:1}
  html.hv-go body.pro-page .hero .hv-shell,html.hv-go body.pro-page .hero .hv-meta,html.hv-go body.pro-page .hero .hv-in,html.hv-go body.pro-page .hero .hv-foot .lead,html.hv-go body.pro-page .hero .intro .ln>span,html.hv-go body.pro-page .hero .hv-stage,html.hv-go body.pro-page .hero .hv-side{animation:none}
- .hv-grid::before{animation:none}
 }
 /* rest while scrolling or off screen */
 html.is-scrolling .hv-grid::before,html body.pro-page .ap-off .hv-grid::before{animation-play-state:paused}
@@ -130,3 +124,6 @@ html.is-scrolling .hv-grid::before,html body.pro-page .ap-off .hv-grid::before{a
 /* scroll motion (driven by js/pro-stage.js with transform / translate / scale only) */
 html body.pro-page .hv-side b{will-change:translate}
 html body.pro-page .hv-portal .pro-dock{will-change:translate}
+
+/* sections that are off screen do not animate at all: no work is spent on what nobody can see (resumes as it nears the viewport) */
+html body.pro-page .ap-off,html body.pro-page .ap-off *,html body.pro-page .ap-off *::before,html body.pro-page .ap-off *::after{animation-play-state:paused!important}

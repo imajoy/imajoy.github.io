@@ -106,7 +106,9 @@ html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
 /* Account deletion: a small orb that feels what the person is going through.
    Everything that loops is an HTML layer moved with transform/opacity only (runs on the GPU, no repainting);
    the SVG face is static apart from short, one-off changes. */
-.acct-dlg::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(8,14,34,.6)}
+.acct-dlg::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(8,14,34,0);transition:background-color .34s ease}
+.acct-dlg[open]:not([data-closing])::backdrop{background:rgba(8,14,34,.6)}
+@starting-style{.acct-dlg[open]:not([data-closing])::backdrop{background:rgba(8,14,34,0)}}
 .ez{display:grid;justify-items:center;text-align:center}
 .ez .acct-note{max-width:34ch}
 .ez .btn,.ez .acct-input{width:100%}

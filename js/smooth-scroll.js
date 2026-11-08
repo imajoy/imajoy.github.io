@@ -1,5 +1,4 @@
-/* Every page: (1) inertial wheel scrolling for mouse wheels (touchpads and touch keep their own native feel),
-   (2) a soft load-in for the first block of content. Off with reduced motion. No libraries. */
+/* Every page: a soft load-in for the first block of content. Off with reduced motion. No libraries. */
 (function () {
   var reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (reduce) return;
@@ -19,33 +18,6 @@
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', intro); else intro();
 
-  /* ---- inertial wheel scrolling (mouse wheels only; touchpads and touch keep their native feel) ---- */
-  if (!matchMedia('(hover:hover) and (pointer:fine)').matches) return;
-  var cur = scrollY, target = scrollY, raf = 0, last = 0, set = scrollY, done = 0;
-  var max = function () { return Math.max(0, root.scrollHeight - innerHeight); };
-  function inScrollable(el) {
-    while (el && el !== document.body && el !== root) {
-      if (el.nodeType === 1) { var s = getComputedStyle(el); if (/(auto|scroll)/.test(s.overflowY) && el.scrollHeight > el.clientHeight + 1) return true; }
-      el = el.parentElement;
-    }
-    return false;
-  }
-  function wheelLike(e) { return e.deltaMode !== 0 || (!!e.wheelDeltaY && e.wheelDeltaY % 120 === 0); }
-  addEventListener('wheel', function (e) {
-    if (e.ctrlKey || e.defaultPrevented || e.deltaX && Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-    if (getComputedStyle(document.body).overflow === 'hidden' || root.style.overflow === 'hidden' || inScrollable(e.target) || !wheelLike(e)) { if (!raf) cur = target = scrollY; return; }
-    e.preventDefault();
-    if (!raf) { cur = target = scrollY; }
-    var d = e.deltaMode === 1 ? e.deltaY * 34 : e.deltaMode === 2 ? e.deltaY * innerHeight : e.deltaY;
-    target = Math.min(max(), Math.max(0, target + d * 1.0));
-    if (!raf) { last = performance.now(); raf = requestAnimationFrame(tick); }
-  }, { passive: false });
-  function tick(now) {
-    var dt = Math.min(48, now - last); last = now;
-    cur += (target - cur) * (1 - Math.exp(-dt / 78));
-    if (Math.abs(target - cur) < .4) { cur = target; set = cur; scrollTo(0, cur); raf = 0; done = performance.now(); return; }
-    set = Math.round(cur); scrollTo(0, set); raf = requestAnimationFrame(tick);
-  }
-  /* keyboard, scrollbar drags and in-page links move the page themselves: follow them */
-  addEventListener('scroll', function () { if (raf || performance.now() - done < 140) return; cur = target = scrollY; }, { passive: true });
+  /* Scrolling itself is left to the browser: its own wheel/touch scrolling runs on the compositor and stays smooth even when
+     the page is busy. (A script-driven wheel smoother ran on the main thread and stuttered whenever anything else painted.) */
 })();

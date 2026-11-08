@@ -116,7 +116,16 @@ function init() {
       }catch(error){erasePanel={stage:'code',msg:error.message};render();}
     });
   }
+  /* the window grows or shrinks smoothly when its content changes (one short height animation, no snapping) */
   function render() {
+    const from=dlg.open?dlg.getBoundingClientRect().height:0;
+    renderNow();
+    if(!from||!dlg.open||!dlg.animate)return;
+    const to=dlg.getBoundingClientRect().height;
+    if(Math.abs(to-from)<4)return;
+    dlg.animate([{height:from+'px'},{height:to+'px'}],{duration:340,easing:'cubic-bezier(.22,1,.36,1)'});
+  }
+  function renderNow() {
     clearInterval(countdownTimer);
     if(erasePanel&&erasePanel.stage==='done'){renderErase(null);return;}
     const session=reauthenticating?null:getAccountSession(),subs=session?.subscriptions;

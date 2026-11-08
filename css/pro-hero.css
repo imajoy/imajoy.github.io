@@ -8,7 +8,7 @@
 @font-face{font-family:'Instrument Pro';font-style:italic;font-weight:400;font-display:block;src:url('../assets/fonts/instrument-serif-italic-5.3.0.woff2') format('woff2')}
 html body.pro-page{--sans:'Geist Pro',system-ui,-apple-system,'Segoe UI',sans-serif;--serif:'Instrument Pro','Times New Roman',serif}
 
-html body.pro-page .hero.hv{position:relative;display:block;min-height:0;padding:clamp(96px,9vw,128px) 0 clamp(40px,5vw,72px);background:var(--bg);overflow-x:clip;text-align:center;isolation:isolate}
+html body.pro-page .hero.hv{position:relative;display:block;min-height:0;padding:clamp(96px,9vw,128px) 0 clamp(40px,5vw,72px);background:var(--bg);overflow-x:clip;overflow-y:visible;text-align:center;isolation:isolate}
 html body.pro-page .hero.hv::before,html body.pro-page .hero.hv::after{display:none}
 .hv-bg{position:absolute;inset:0 0 auto 0;height:min(980px,100%);z-index:-1;pointer-events:none;overflow:hidden;contain:strict;
  background:radial-gradient(46% 38% at 82% 6%,rgba(61,139,255,.22),transparent 70%),radial-gradient(40% 34% at 10% 30%,rgba(242,182,79,.2),transparent 72%),radial-gradient(60% 30% at 50% 0%,var(--hero-glow,#fff),transparent 70%);
@@ -37,10 +37,10 @@ html body.pro-page .hv-wrap h1 em{font-family:var(--serif);font-style:italic;fon
 html[data-theme=dark] body.pro-page .hv-wrap h1 em{background-image:linear-gradient(100deg,#ffe2a8 0%,#f2b64f 42%,#8dbbff 100%)}
 
 /* ---- the portal ---- */
-.hv-portal{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,clamp(520px,44vw,760px)) minmax(0,1fr);align-items:center;gap:clamp(12px,2vw,32px);
- padding:clamp(32px,4vw,64px) var(--hv-pad) clamp(18px,2vw,30px);min-height:clamp(560px,calc(100svh - 96px),960px)}
+.hv-portal{position:relative;isolation:isolate;display:grid;grid-template-columns:minmax(0,1fr) minmax(0,clamp(420px,min(44vw,calc((100svh - 200px) / 1.08)),760px)) minmax(0,1fr);align-items:center;gap:clamp(12px,2vw,32px);
+ padding:clamp(32px,4vw,64px) var(--hv-pad) clamp(18px,2vw,30px);min-height:clamp(520px,calc(100svh - 110px),960px)}
 .hv-portal{width:100%}
-.hv-shell{position:absolute;inset:0;z-index:-1;overflow:hidden;border-radius:clamp(0px,2.6vw,44px);transform-origin:50% 0;will-change:transform;background:radial-gradient(120% 90% at 50% 0%,#1b2a63 0%,#0d1431 52%,#070b1a 100%);box-shadow:0 0 0 1px rgba(255,255,255,.07) inset;contain:paint}
+.hv-shell{position:absolute;inset:0;z-index:-1;overflow:hidden;border-radius:clamp(0px,2.6vw,44px);transform-origin:50% 0;will-change:scale,opacity;background:radial-gradient(120% 90% at 50% 0%,#1b2a63 0%,#0d1431 52%,#070b1a 100%);box-shadow:0 0 0 1px rgba(255,255,255,.07) inset;contain:paint}
 .hv-grid{position:absolute;left:0;right:0;bottom:0;height:58%;background:url('../assets/hero-grid.svg') center bottom/100% 100% no-repeat;pointer-events:none}
 .hv-glow{position:absolute;left:50%;top:-10%;width:70%;height:60%;margin-left:-35%;background:radial-gradient(closest-side,rgba(110,150,255,.3),transparent)}
 .hv-side{position:relative;z-index:2;display:flex;flex-direction:column;gap:10px;color:#EEF2FF;pointer-events:none}
@@ -50,7 +50,7 @@ html[data-theme=dark] body.pro-page .hv-wrap h1 em{background-image:linear-gradi
 .hv-r{align-self:start;align-items:flex-end;text-align:right;padding-top:clamp(10px,2vw,28px)}
 
 /* the live tool window keeps its own look; here it only needs to sit in the portal */
-html body.pro-page .hv-portal .pro-stage{position:relative;z-index:2;grid-column:2;width:100%;max-width:clamp(520px,44vw,760px);margin:0 auto;padding:0;right:auto;top:auto;text-align:left;will-change:translate,scale}
+html body.pro-page .hv-portal .pro-stage{position:relative;z-index:2;grid-column:2;width:100%;max-width:clamp(420px,min(44vw,calc((100svh - 200px) / 1.08)),760px);margin:0 auto;padding:0;right:auto;top:auto;text-align:left;will-change:translate,scale}
 html body.pro-page .hv-portal .pro-device{animation:none}
 html body.pro-page .hv-portal .pro-stage .tool-visual::before{animation:none;--pa:40deg}
 html body.pro-page .hv-portal .pro-dock{margin:18px auto 14px;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none}
@@ -127,3 +127,13 @@ html body.pro-page .hv-portal .pro-dock{will-change:translate}
 
 /* sections that are off screen do not animate at all: no work is spent on what nobody can see (resumes as it nears the viewport) */
 html body.pro-page .ap-off,html body.pro-page .ap-off *,html body.pro-page .ap-off *::before,html body.pro-page .ap-off *::after{animation-play-state:paused!important}
+
+/* ---- pinned hero: the stage holds still while the tools change with each scroll, then lets go ---- */
+.hv-track{position:relative}
+html.hv-pin .hv-track::after{content:"";display:block;height:var(--pin-extra,0px)}
+html.hv-pin .hv-portal{position:sticky;top:var(--pin-top,76px)}
+.hv-pinbar{position:absolute;left:50%;top:clamp(14px,1.8vw,24px);z-index:3;display:flex;align-items:center;gap:12px;translate:-50% 0;pointer-events:none;font:600 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:rgba(206,218,255,.7);opacity:0;transition:opacity .4s ease}
+html.hv-pin .hv-pinbar{opacity:1}
+.hv-pinbar i{position:relative;display:block;width:clamp(90px,14vw,160px);height:2px;border-radius:2px;background:rgba(255,255,255,.16);overflow:hidden}
+.hv-pinbar i::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#f2b64f,#8dbbff);transform:scaleX(var(--pp,0));transform-origin:0 50%}
+.hv-pinbar b{font-variant-numeric:tabular-nums;color:#fff;font-weight:600}

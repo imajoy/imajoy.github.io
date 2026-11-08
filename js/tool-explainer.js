@@ -28,6 +28,8 @@ class Player {
   keyOf(cfg) { return Object.keys(XP).find(k => XP[k] === cfg); }
   /* next tool in the loop, never the one the shelf is showing right now */
   advance() { for (let n = 0; n < this.list.length; n++) { this.li = (this.li + 1) % this.list.length; if (!this.hero || this.keyOf(this.list[this.li]) !== window.__shelfKey) break; } this.load(this.list[this.li]); }
+  /* scroll-driven hero: show tool i now and stay on it (no auto-advance while manual) */
+  jump(i) { if (i === this.li && this.cfg === this.list[i]) return; this.li = i; this.load(this.list[i]); this.seek(0); this.clock = 0; this.chips.forEach(c => c.style.setProperty('--p', 0)); this.sync(); }
   setTool(cfg) { if (this.cfg === cfg) return; this.list = [cfg]; this.li = 0; this.load(cfg); this.seek(0); this.clock = 0; this.sync(); }
   load(cfg) {
     this.cfg = cfg; if (this.hero) window.__heroKey = this.keyOf(cfg); this.announce = true; this.steps = cfg.steps; this.acts = []; this.starts = []; let t = 0;
@@ -128,7 +130,7 @@ class Player {
     let ci = 0; for (let n = 0; n < this.starts.length; n++) if (this.clock >= this.starts[n]) ci = n;
     this.show(Math.min(ci, this.steps.length - 1));
     this.chips.forEach((c, n) => c.style.setProperty('--p', Math.max(0, Math.min(1, (this.clock - this.starts[n]) / this.steps[n].d)).toFixed(3)));
-    if (this.clock >= this.total + HOLD) { if (this.list.length > 1) this.advance(); this.seek(0); this.clock = 0; this.chips.forEach(c => c.style.setProperty('--p', 0)); }
+    if (this.clock >= this.total + HOLD) { if (this.list.length > 1 && !this.manual) this.advance(); this.seek(0); this.clock = 0; this.chips.forEach(c => c.style.setProperty('--p', 0)); }
     requestAnimationFrame(t => this.tick(t));
   }
 }

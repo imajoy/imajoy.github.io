@@ -188,7 +188,7 @@ html.hv-pin .hv-portal{padding-top:clamp(84px,9vh,104px);padding-bottom:clamp(10
 
 /* pinned scene covers the whole screen height: starts at the very top (the floating bar sits over it) */
 html.hv-pin .hv-portal{min-height:100svh;padding-top:clamp(74px,9svh,96px);padding-bottom:clamp(10px,1.6svh,20px)}
-html.hv-stuck .hv-shell{top:-70px}
+@media(max-width:980px){html.hv-stuck .hv-shell{top:-70px}}
 html.hv-pin .hv-grid{height:70%;bottom:-4%}
 .hv-l,.hv-r,.hv-grid,.pro-dock{will-change:translate}
 .js body.pro-page .reveal:not(.in){translate:0 46px;scale:.985}
@@ -197,3 +197,11 @@ html.hv-pin .hv-grid{height:70%;bottom:-4%}
 .js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(3){transition-delay:.2s}
 .js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(4){transition-delay:.3s}
 .js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(n+5){transition-delay:.4s}
+
+/* desktop and laptop: the dark stage runs a little past the pinned screen on every side and ends in a short, even fade, so
+   the edge is never sharp, never a wide haze, and the pinned scene still fills the whole screen */
+@media(min-width:981px){
+ .hv-portal{--hv-fy:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.05) 6px,rgba(0,0,0,.22) 18px,rgba(0,0,0,.55) 32px,rgba(0,0,0,.86) 46px,#000 58px,#000 calc(100% - 58px),rgba(0,0,0,.86) calc(100% - 46px),rgba(0,0,0,.55) calc(100% - 32px),rgba(0,0,0,.22) calc(100% - 18px),rgba(0,0,0,.05) calc(100% - 6px),transparent 100%)}
+ .hv-shell{top:-56px;bottom:-56px}
+ .hv-track{margin-block:56px}
+}

@@ -131,7 +131,7 @@ html body.pro-page .ap-off,html body.pro-page .ap-off *,html body.pro-page .ap-o
 /* ---- pinned hero: the stage holds still while the tools change with each scroll, then lets go ---- */
 .hv-track{position:relative}
 html.hv-pin .hv-track::after{content:"";display:block;height:var(--pin-extra,0px)}
-html.hv-pin .hv-portal{position:sticky;top:var(--pin-top,76px)}
+html.hv-pin .hv-portal{position:sticky;top:0}
 .hv-pinbar{position:absolute;left:50%;top:clamp(34px,3.2vw,46px);z-index:3;display:flex;align-items:center;gap:12px;translate:-50% 0;pointer-events:none;font:600 11px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:rgba(206,218,255,.7);opacity:0;transition:opacity .4s ease}
 html.hv-pin .hv-pinbar{opacity:1}
 .hv-pinbar i{position:relative;display:block;width:clamp(90px,14vw,160px);height:2px;border-radius:2px;background:rgba(255,255,255,.16);overflow:hidden}
@@ -192,3 +192,15 @@ html.hv-pin .hv-portal{padding-top:clamp(84px,9vh,104px);padding-bottom:clamp(10
 .js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(3){transition-delay:.14s}
 .js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(4){transition-delay:.21s}
 .js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(n+5){transition-delay:.28s}
+
+/* pinned scene covers the whole screen height: starts at the very top (the floating bar sits over it) */
+html.hv-pin .hv-portal{min-height:100svh;padding-top:clamp(74px,9svh,96px);padding-bottom:clamp(10px,1.6svh,20px)}
+html.hv-stuck .hv-shell{top:-70px}
+html.hv-pin .hv-grid{height:70%;bottom:-4%}
+.hv-l,.hv-r,.hv-grid,.pro-dock{will-change:translate}
+.js body.pro-page .reveal:not(.in){translate:0 46px;scale:.985}
+.js body.pro-page .reveal{transition:opacity 1s var(--out),transform 1s var(--out),translate 1s var(--out),scale 1s var(--out)}
+.js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(2){transition-delay:.1s}
+.js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(3){transition-delay:.2s}
+.js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(4){transition-delay:.3s}
+.js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(n+5){transition-delay:.4s}

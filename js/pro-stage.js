@@ -49,27 +49,28 @@
  var bar=document.createElement('div');bar.className='hv-pinbar';bar.setAttribute('aria-hidden','true');bar.innerHTML='<b>01</b><i></i><span>10</span>';portal.appendChild(bar);
  var lastSw=0,prevIx=0,tgt=0,cur=0,ease=0,num=bar.querySelector('b'),N=10,pinTop=0,extra=0,pinned=false,tick=0,lastP=-1,lastIx=-1,jt=0,vis=true;
  function measure(){
-  var room=innerHeight-pinTop-10;stage.style.maxWidth='';portal.style.zoom='';
+  var room=innerHeight-pinTop;stage.style.maxWidth='';portal.style.zoom='';root.classList.add('hv-pin');
   var ph=portal.offsetHeight;
   /* a little too tall for the screen: narrow the demo window (its height follows its width) until the stage fits */
   for(var pass=0;pass<3&&ph>room&&ph-room<ph*.38&&stage.offsetWidth>340;pass++){stage.style.maxWidth=Math.max(340,Math.floor(stage.offsetWidth-(ph-room)/1.05-6))+'px';ph=portal.offsetHeight;}
   if(ph>room&&room/ph>=.66&&'zoom' in portal.style){portal.style.zoom=(room/ph).toFixed(3);ph=portal.getBoundingClientRect().height;}
   var phone=matchMedia('(pointer: coarse)').matches&&Math.min(screen.width,screen.height)<600;
   var want=!phone&&ph<=room+1&&innerHeight>=480;
-  if(want!==pinned){pinned=want;root.classList.toggle('hv-pin',pinned);}
+  pinned=want;root.classList.toggle('hv-pin',pinned);
   if(pinned){var list=(fig.dataset.explainer||'').split(',').length;N=Math.max(2,list);extra=Math.round(N*innerHeight*(innerWidth>980?.3:.26));track.style.setProperty('--pin-extra',extra+'px');track.style.setProperty('--pin-top',pinTop+'px');bar.lastElementChild.textContent=(N<10?'0':'')+N;}
  }
- function setTool(ix){
-  var pl=fig.__player;if(!pl||!pl.list||ix>=pl.list.length)return;
-  clearTimeout(jt);var now=performance.now(),wait=Math.max(70,520-(now-lastSw));jt=setTimeout(function(){var go=function(){pl.manual=true;pl.jump(ix);};lastSw=performance.now();if(window.__hvLeave)window.__hvLeave(ix>prevIx?1:-1,go);else go();prevIx=ix;},wait);
- }
+ var shown=0,wantIx=0,busy=false;
+ function runSwitch(){var pl=fig.__player;if(!pl||!pl.list)return;var ix=wantIx;if(ix===shown||ix>=pl.list.length)return;busy=true;var dir=ix>shown?1:-1;
+  var go=function(){pl.manual=true;pl.jump(ix);shown=ix;setTimeout(function(){busy=false;if(wantIx!==shown)runSwitch();},420);};
+  if(window.__hvLeave)window.__hvLeave(dir,go);else go();}
+ function setTool(ix){wantIx=ix;if(!busy)runSwitch();}
  function paint(){tick=0;if(!vis)return;
   var h=Math.max(hero.offsetHeight,1),sy=scrollY,
    /* headline lines part while the page first moves */
    a=Math.min(1,Math.max(0,sy/(h*.45))),ea=a*a*(3-2*a),k=innerWidth>980?1:.55;
   l1.style.transform='translate3d('+(-ea*7*k).toFixed(2)+'vw,0,0)';l2.style.transform='translate3d('+(ea*7*k).toFixed(2)+'vw,0,0)';
   var p=0;
-  if(pinned&&extra>0){var r=track.getBoundingClientRect();p=Math.min(1,Math.max(0,(pinTop-r.top)/extra));}
+  if(pinned&&extra>0){var r=track.getBoundingClientRect();root.classList.toggle('hv-stuck',r.top<=0);p=Math.min(1,Math.max(0,(pinTop-r.top)/extra));}
   else{var pr=portal.getBoundingClientRect();p=Math.min(1,Math.max(0,(innerHeight*.9-pr.top)/(innerHeight*.9+pr.height)))*.6;}
   tgt=p;if(!ease)ease=requestAnimationFrame(glide);}
  function glide(){ease=0;var d=tgt-cur;if(Math.abs(d)<.0004){cur=tgt;}else{cur+=d*.14;ease=requestAnimationFrame(glide);}apply(cur);}
@@ -104,7 +105,7 @@
  function reveal(el,txt,delay){el.textContent=txt;if(reduce||!el.animate)return;el.animate([{translate:'0 110%',opacity:0},{translate:'0 0',opacity:1}],{duration:620,delay:delay,easing:'cubic-bezier(.16,1,.3,1)',fill:'backwards'});}
  st.addEventListener('xp-tool',function(e){
   var i=byName[e.detail.title];if(i==null||i===last)return;var dir=i>last?1:-1;if(last<0)dir=1;last=i;
-  reveal(no,(i+1<10?'0':'')+(i+1),0);reveal(nm,T[i][1],40);reveal(ds,T[i][2],130);
+  reveal(no,(i+1<10?'0':'')+(i+1),0);reveal(nm,T[i][1],70);reveal(ds,T[i][2],190);
   lis.forEach(function(li,k){li.classList.toggle('on',k===i);});
   var h=chips[e.detail.ix]?chips[e.detail.ix].style.getPropertyValue('--h'):'',hue=parseFloat(h);if(isNaN(hue))hue=220;
   front=1-front;var a=front?wa:wb,b=front?wb:wa;a.style.setProperty('--th',hue);hero.style.setProperty('--th',hue);a.classList.add('on');b.classList.remove('on');

@@ -123,33 +123,43 @@ html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-s
 @media(max-width:380px){html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-state=ended]){font-size:.78rem;padding-inline:10px;letter-spacing:0}html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-state=ended])::before{margin-right:5px;padding:2px 5px}}
 @media(max-width:380px){html body.free-page .pillbar{gap:6px;padding-inline:8px}html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-state=ended]){max-width:none;min-width:0;padding-inline:8px;font-size:.74rem}}
 
-/* ---- hanging tool tags: each one is lowered on a thin rope, hangs and sways, floats gently, is drawn back up, then comes again ---- */
+/* ---- hanging tool tags: lowered on a twisted rope with a little bridle, they hang and sway, dip, snap back up fast (stretched and blurred), rest, then come again ---- */
+.ft-stk{--rope-a:#cdb48b;--rope-b:#8f7650}
+html[data-theme=dark] .ft-stk{--rope-a:#b8a888;--rope-b:#6f6350}
 .ft-stk span:nth-child(1){top:22%;bottom:auto;--r:0deg}
 .ft-stk span:nth-child(2){top:12%;bottom:auto;--r:0deg}
 .ft-stk span:nth-child(3){top:52%;bottom:auto;--r:0deg}
 .ft-stk span:nth-child(4){top:62%;bottom:auto;--r:0deg}
 .ft-stk span{transform-origin:50% -70vh}
-.ft-stk span::before{content:"";position:absolute;left:50%;bottom:calc(100% - 1px);width:1.5px;height:120vh;margin-left:-.75px;border-radius:2px;background:linear-gradient(180deg,transparent,color-mix(in srgb,var(--ink) 34%,transparent) 14%,color-mix(in srgb,var(--ink) 52%,transparent));pointer-events:none}
-.ft-stk span::after{content:"";position:absolute;left:50%;top:-4px;width:7px;height:7px;margin-left:-3.5px;border-radius:50%;background:var(--card);border:1.5px solid color-mix(in srgb,var(--ink) 52%,transparent)}
-html.fr-go body.free-page .ft-stk span{opacity:0;animation:ft-hang 15s cubic-bezier(.45,0,.25,1) var(--hd,1.6s) infinite both,ft-sway 4.6s ease-in-out var(--hd,1.6s) infinite alternate}
+/* the rope: three short twists to the strand, slightly shaded on one side */
+.ft-stk span::before{content:"";position:absolute;left:50%;bottom:calc(100% + 21px);width:3px;height:120vh;margin-left:-1.5px;border-radius:2px;background:repeating-linear-gradient(162deg,var(--rope-a) 0 2px,var(--rope-b) 2px 4px);box-shadow:1px 0 0 rgba(0,0,0,.12),-.5px 0 0 rgba(255,255,255,.25);pointer-events:none}
+/* the bridle: two fine strings from a knot down to the corners of the tag */
+.ft-stk span::after{content:"";position:absolute;left:14%;right:14%;top:-21px;height:21px;pointer-events:none;background:
+ radial-gradient(circle at 50% 2px,var(--card) 0 2.2px,var(--rope-b) 2.6px 4.4px,transparent 4.8px),
+ linear-gradient(to top left,transparent calc(50% - .8px),var(--rope-b) 50%,transparent calc(50% + .8px)) left bottom/50% 100% no-repeat,
+ linear-gradient(to top right,transparent calc(50% - .8px),var(--rope-b) 50%,transparent calc(50% + .8px)) right bottom/50% 100% no-repeat}
+html.fr-go body.free-page .ft-stk span{opacity:0;will-change:translate,rotate,opacity,filter;animation:ft-hang 16s cubic-bezier(.45,0,.25,1) var(--hd,1.6s) infinite both,ft-sway 4.6s ease-in-out var(--hd,1.6s) infinite alternate}
 html.fr-go body.free-page .ft-stk span:nth-child(1){--hd:1.6s}
 html.fr-go body.free-page .ft-stk span:nth-child(2){--hd:3.4s}
 html.fr-go body.free-page .ft-stk span:nth-child(3){--hd:5.2s}
 html.fr-go body.free-page .ft-stk span:nth-child(4){--hd:7s}
 @keyframes ft-hang{
- 0%{translate:0 -62vh;opacity:0;animation-timing-function:cubic-bezier(.3,.7,.3,1)}
- 3%{opacity:1}
- 11%{translate:0 12px;animation-timing-function:ease-in-out}
- 14%{translate:0 -3px;animation-timing-function:ease-in-out}
- 17%{translate:0 0}
- 32%{translate:0 7px;animation-timing-function:ease-in-out}
- 48%{translate:0 -4px;animation-timing-function:ease-in-out}
- 64%{translate:0 6px;animation-timing-function:ease-in-out}
- 74%{translate:0 0;animation-timing-function:cubic-bezier(.5,0,.8,.4)}
- 77%{translate:0 8px;animation-timing-function:cubic-bezier(.5,0,.9,.4)}
- 90%{translate:0 -62vh;opacity:1}
- 92%{opacity:0}
- 100%{translate:0 -62vh;opacity:0}
+ 0%{translate:0 -62vh;opacity:0;scale:1 1.06;filter:blur(0);animation-timing-function:cubic-bezier(.3,.7,.3,1)}
+ 2.8%{opacity:1}
+ 10.3%{translate:0 12px;scale:1 1;animation-timing-function:ease-in-out}
+ 13.1%{translate:0 -3px;animation-timing-function:ease-in-out}
+ 15.9%{translate:0 0}
+ 30%{translate:0 7px;animation-timing-function:ease-in-out}
+ 45%{translate:0 -4px;animation-timing-function:ease-in-out}
+ 58%{translate:0 6px;animation-timing-function:ease-in-out}
+ 66.5%{translate:0 0;scale:1 1;filter:blur(0);animation-timing-function:cubic-bezier(.4,0,.2,1)}
+ /* anticipation: a quick dip and squash, like a breath in */
+ 69.5%{translate:0 16px;scale:1.03 .94;filter:blur(0);animation-timing-function:cubic-bezier(.7,0,.95,.3)}
+ /* the snap: fast, stretched, motion-blurred */
+ 73.5%{translate:0 -34vh;scale:.97 1.2;filter:blur(5px);opacity:1;animation-timing-function:cubic-bezier(.4,0,1,1)}
+ 75%{translate:0 -62vh;scale:.95 1.3;filter:blur(9px);opacity:.9}
+ 75.6%{opacity:0}
+ 100%{translate:0 -62vh;opacity:0;filter:blur(0)}
 }
 @keyframes ft-sway{from{rotate:-2.6deg}to{rotate:2.6deg}}
-@media(prefers-reduced-motion:reduce){html.fr-go body.free-page .ft-stk span{animation:none!important;opacity:1;translate:none;rotate:none}}
+@media(prefers-reduced-motion:reduce){html.fr-go body.free-page .ft-stk span{animation:none!important;opacity:1;translate:none;rotate:none;filter:none}}

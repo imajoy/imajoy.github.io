@@ -103,25 +103,31 @@ html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
 .acct-input:focus{outline:2px solid var(--blue,#3d8bff);outline-offset:2px}
 .acct-error{color:#c4352b}
 
-/* Account deletion: a small orb that feels what the person is going through. Transform and opacity only. */
+/* Account deletion: a small orb that feels what the person is going through.
+   Everything that loops is an HTML layer moved with transform/opacity only (runs on the GPU, no repainting);
+   the SVG face is static apart from short, one-off changes. */
+.acct-dlg::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(8,14,34,.6)}
 .ez{display:grid;justify-items:center;text-align:center}
 .ez .acct-note{max-width:34ch}
 .ez .btn,.ez .acct-input{width:100%}
-.eb{width:132px;height:132px;margin:2px auto 6px;--eb-a:#9bb8ff;--eb-b:#5a74e6}
-.eb svg{width:100%;height:100%;overflow:visible}
-.eb-halo circle{fill:var(--eb-b);opacity:.14}
+.eb{position:relative;width:132px;height:132px;margin:2px auto 6px;--eb-a:#9bb8ff;--eb-b:#5a74e6;contain:layout}
+.eb svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.eb-halo{position:absolute;inset:0;border-radius:50%;background:radial-gradient(circle,var(--eb-b) 0,transparent 68%);opacity:.22;will-change:transform,opacity}
+.eb-body{position:absolute;inset:0;will-change:transform,opacity}
 .eb-eyes ellipse{fill:#1b2340;transform-box:fill-box;transform-origin:center}
 .eb-brows path,.eb-mouth{fill:none;stroke:#1b2340;stroke-width:3;stroke-linecap:round}
 .eb-brows path{stroke-width:2.6}
-.eb-tear{fill:#bfe0ff;opacity:0;transform-box:fill-box;transform-origin:center}
+.eb-tear{position:absolute;left:31%;top:52%;width:6px;height:8px;border-radius:50% 50% 55% 55%;background:#bfe0ff;opacity:0;will-change:transform,opacity}
 .eb-hand{opacity:0;transform-box:fill-box;transform-origin:20% 90%}
 .eb-hand path{fill:url(#eb-g);stroke:#1b2340;stroke-width:2;stroke-linejoin:round}
-.eb-p{fill:var(--eb-a);opacity:0}
+.eb-p{position:absolute;left:calc(22% + var(--i) * 6.5%);top:calc(66% - (var(--i) % 3) * 5%);width:calc(3px + (var(--i) % 3) * 1.4px);height:calc(3px + (var(--i) % 3) * 1.4px);border-radius:50%;background:var(--eb-a);opacity:0;will-change:transform,opacity}
 .eb-m-flat,.eb-m-smile,.eb-m-sad{opacity:0}
 .eb[data-mood="sad"] .eb-m-sad,.eb[data-mood="listen"] .eb-m-flat,.eb[data-mood="fade"] .eb-m-flat,.eb[data-mood="bye"] .eb-m-smile{opacity:1}
 .eb[data-mood="sad"]{--eb-a:#a9bde8;--eb-b:#6577c9}
 .eb[data-mood="sad"] .eb-brows path:first-child{transform:rotate(-9deg) translateY(1px);transform-box:fill-box;transform-origin:right center}
 .eb[data-mood="sad"] .eb-brows path:last-child{transform:rotate(9deg) translateY(1px);transform-box:fill-box;transform-origin:left center}
+.eb[data-mood="listen"] .eb-eyes{transform:translate(3px,2px)}
+.eb[data-mood="listen"] .eb-brows{transform:translateY(-2px)}
 .eb[data-mood="fade"] .eb-eyes ellipse{transform:scaleY(.12)}
 .eb[data-mood="fade"] .eb-brows{opacity:0}
 .eb[data-mood="bye"]{--eb-a:#ffd9a8;--eb-b:#ff8f6b}
@@ -135,18 +141,12 @@ html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
  @keyframes ez-rise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
  .eb{animation:eb-in .7s cubic-bezier(.2,1.2,.3,1) both}
  @keyframes eb-in{from{opacity:0;transform:scale(.7)}to{opacity:1;transform:none}}
- .eb-body{transform-box:fill-box;transform-origin:center;animation:eb-breathe 4.6s ease-in-out infinite}
+ .eb-body{animation:eb-breathe 4.6s ease-in-out infinite}
  @keyframes eb-breathe{50%{transform:translateY(-3px) scale(1.035)}}
- .eb-halo{transform-box:fill-box;transform-origin:center;animation:eb-halo 4.6s ease-in-out infinite}
- @keyframes eb-halo{50%{transform:scale(1.1);opacity:.65}}
- .eb-eyes ellipse{animation:eb-blink 5.2s infinite}
- @keyframes eb-blink{0%,94%,100%{transform:scaleY(1)}97%{transform:scaleY(.1)}}
+ .eb-halo{animation:eb-halo 4.6s ease-in-out infinite}
+ @keyframes eb-halo{50%{transform:scale(1.1);opacity:.5}}
  .eb[data-mood="sad"] .eb-tear{animation:eb-tear 4.6s ease-in infinite 1.2s}
  @keyframes eb-tear{0%{opacity:0;transform:translateY(-6px) scale(.4)}15%{opacity:.95;transform:translateY(-2px) scale(1)}70%{opacity:.9;transform:translateY(16px) scale(1)}100%{opacity:0;transform:translateY(22px) scale(.8)}}
- .eb[data-mood="listen"] .eb-eyes{animation:eb-look 3.4s ease-in-out infinite}
- @keyframes eb-look{0%,100%{transform:translateX(0)}35%,65%{transform:translateX(3px) translateY(2px)}}
- .eb[data-mood="listen"] .eb-brows{animation:eb-brow 3.4s ease-in-out infinite}
- @keyframes eb-brow{0%,100%{transform:translateY(0)}40%,60%{transform:translateY(-2px)}}
  .eb[data-mood="fade"] .eb-body{animation:eb-fade 1.6s ease-in forwards}
  @keyframes eb-fade{to{transform:translateY(-4px) scale(.88);opacity:.35}}
  .eb[data-mood="fade"] .eb-p,.eb[data-mood="bye"] .eb-p{animation:eb-rise 3.6s ease-out infinite;animation-delay:calc(var(--i)*.28s)}
@@ -156,7 +156,6 @@ html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
  @keyframes eb-wave{0%,100%{transform:rotate(0)}30%{transform:rotate(-16deg)}65%{transform:rotate(14deg)}}
  .eb[data-mood="bye"] .eb-body{animation:eb-glow 3.2s ease-in-out infinite}
  @keyframes eb-glow{50%{transform:translateY(-4px) scale(1.05)}}
- .acct-input:focus{transition:outline-offset .2s}
 }
 @media(prefers-reduced-motion:reduce){.eb-p{display:none}}
 @media(max-width:420px){.eb{width:112px;height:112px}}

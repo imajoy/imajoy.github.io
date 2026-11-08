@@ -5,9 +5,9 @@ body.pro-page #trial .trial-stage{position:relative;grid-template-columns:minmax
   radial-gradient(560px 380px at 96% 108%,rgba(242,182,79,.16),transparent 60%),
   linear-gradient(135deg,#0a1127,#0f1a38 60%,#0b1430)}
 body.pro-page #trial .trial-stage::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.5;background-image:radial-gradient(rgba(255,255,255,.13) 1px,transparent 1.2px);background-size:26px 26px;-webkit-mask-image:radial-gradient(ellipse at 28% 45%,#000 0,transparent 70%);mask-image:radial-gradient(ellipse at 28% 45%,#000 0,transparent 70%)}
-body.pro-page #trial .trial-art{position:relative;z-index:1;height:auto;min-height:380px;display:grid;place-items:center;perspective:none}
+body.pro-page #trial .trial-art{position:relative;z-index:1;height:auto;min-height:380px;display:grid;place-items:center;perspective:1100px}
 .ta-glow{position:absolute;width:78%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle,rgba(86,140,255,.45),transparent 66%);filter:blur(30px);opacity:.75}
-.ta-ticket{position:relative;z-index:1;width:min(100%,356px);padding:26px 28px 22px;border-radius:30px;color:#f4f7ff;transform:rotate(-4deg);overflow:hidden;
+.ta-ticket{position:relative;z-index:1;width:min(100%,356px);padding:26px 28px 22px;border-radius:30px;color:#f4f7ff;transform:rotate(-4deg);overflow:hidden;transform-style:flat;will-change:transform;
  background:linear-gradient(155deg,#3d6fe0 0,#27479c 46%,#172a5e 100%);border:1px solid rgba(190,215,255,.38);
  box-shadow:0 40px 70px -28px rgba(8,18,60,.9),0 0 0 6px rgba(130,170,255,.07),inset 0 1px 0 rgba(255,255,255,.34)}
 .ta-ticket::before,.ta-ticket::after{content:"";position:absolute;top:63%;width:22px;height:22px;border-radius:50%;background:#0d1631;border:1px solid rgba(190,215,255,.28)}
@@ -22,16 +22,15 @@ body.pro-page #trial .trial-art{position:relative;z-index:1;height:auto;min-heig
 .ta-days li{display:grid;gap:7px;font-size:.5625rem;letter-spacing:.08em;text-transform:uppercase;color:#b9cdf5}
 .ta-days i{display:block;height:5px;border-radius:5px;background:rgba(255,255,255,.2);overflow:hidden;position:relative}
 .ta-days i::after{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(90deg,#FFE29A,#F2B64F);transform-origin:left;transform:scaleX(0)}
-[data-offer-in] .ta-days i::after,html:not(.js) .ta-days i::after{animation:ta-fill .7s cubic-bezier(.22,1,.36,1) calc(.5s + var(--d)*.28s) forwards}
+html:not(.js) .ta-days i::after{transform:scaleX(1)}
 .ta-perf{border-top:1.5px dashed rgba(255,255,255,.28);margin:0 -28px 16px}
 .ta-bottom{display:flex;align-items:center;justify-content:space-between;font-size:.625rem;letter-spacing:.06em;text-transform:uppercase;color:#e1ebff}
 .ta-go{display:grid;place-items:center;width:28px;height:28px;border-radius:10px;background:rgba(255,255,255,.16)}
 .ta-go svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 .ta-sheen{position:absolute;inset:-20% auto -20% -60%;width:45%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.22),transparent);transform:translateX(0) skewX(-18deg);animation:ta-sheen 5.5s ease-in-out 1.2s infinite;pointer-events:none}
-.ta-chip{position:absolute;z-index:2;display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;font-size:.6875rem;white-space:nowrap;color:#e9f0ff;background:rgba(14,24,56,.82);border:1px solid rgba(160,195,255,.28);box-shadow:0 14px 30px -12px rgba(0,0,0,.6);animation:ta-bob 6s ease-in-out infinite}
+.ta-chip{position:absolute;z-index:3;display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:99px;font-size:.6875rem;white-space:nowrap;color:#e9f0ff;background:rgba(14,24,56,.82);border:1px solid rgba(160,195,255,.28);box-shadow:0 14px 30px -12px rgba(0,0,0,.6);animation:ta-bob 6s ease-in-out infinite}
 .ta-chip i{width:6px;height:6px;border-radius:50%;background:#7fb0ff;box-shadow:0 0 0 3px rgba(127,176,255,.22)}
 .ta-c1{top:3%;left:-3%}.ta-c2{bottom:9%;right:-2%;animation-delay:-3s}.ta-c2 i{background:#FFD27A;box-shadow:0 0 0 3px rgba(255,210,122,.22)}
-@keyframes ta-fill{to{transform:scaleX(1)}}
 @keyframes ta-sheen{0%,55%{transform:translateX(0) skewX(-18deg)}100%{transform:translateX(420%) skewX(-18deg)}}
 @keyframes ta-bob{0%,100%{translate:0 0}50%{translate:0 -6px}}
 /* copy side */
@@ -55,3 +54,57 @@ body.pro-page #trial .trial-availability{display:inline-flex;align-items:center;
 body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px;border-radius:50%;background:#5fd9a8}
 @media(max-width:980px){body.pro-page #trial .trial-stage{grid-template-columns:1fr;gap:34px}.ta-c1{left:2%}.ta-c2{right:2%}}
 @media(prefers-reduced-motion:reduce){.ta-sheen,.ta-chip{animation:none}.ta-days i::after{animation:none!important;transform:scaleX(1)}}
+
+/* ---- motion: one 10-second loop. Everything below is transform/opacity only, so it runs on the GPU and never repaints while you scroll ---- */
+@media(prefers-reduced-motion:no-preference){
+ html body.pro-page #trial .ta-ticket{animation:ta-float 11s ease-in-out infinite!important}
+ html body.pro-page #trial .ta-glare{position:absolute;inset:-30% -20%;pointer-events:none;background:radial-gradient(closest-side at 50% 50%,rgba(255,255,255,.2),rgba(255,255,255,0) 70%);width:55%;height:70%;margin:auto;will-change:transform;animation:ta-glare 11s ease-in-out infinite!important}
+ html body.pro-page #trial .ta-glow{animation:ta-breathe 7s ease-in-out infinite!important;will-change:transform,opacity}
+ html body.pro-page #trial .ta-orb{position:absolute;inset:3% -6%;z-index:0;border-radius:50%;border:1px solid rgba(140,180,255,.24);rotate:-20deg;animation:ta-spin 28s linear infinite!important;will-change:transform}
+ html body.pro-page #trial .ta-orb::after{content:"";position:absolute;left:50%;top:-4px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#9cc3ff;box-shadow:0 0 16px 3px rgba(122,170,255,.7)}
+ html body.pro-page #trial .ta-orb-b{inset:16% -14%;border-style:dashed;border-color:rgba(255,214,130,.26);animation-duration:40s!important;animation-direction:reverse!important}
+ html body.pro-page #trial .ta-orb-b::after{background:#FFD27A;box-shadow:0 0 16px 3px rgba(255,210,122,.65);top:auto;bottom:-4px}
+ html body.pro-page #trial .ta-p{position:absolute;z-index:0;left:var(--x);bottom:4%;width:4px;height:4px;border-radius:50%;background:#cfe0ff;box-shadow:0 0 10px 1px rgba(127,176,255,.8);opacity:0;animation:ta-rise var(--t,8s) linear var(--dl,0s) infinite!important;will-change:transform,opacity}
+ html body.pro-page #trial .ta-num b{display:block;height:.78em;overflow:visible;animation:ta-count-pop 10s ease-in-out infinite!important}
+ html body.pro-page #trial .ta-num .rl{display:block;height:.78em;overflow:hidden;font-variant-numeric:tabular-nums}
+ html body.pro-page #trial .ta-num .rl-in{display:flex;flex-direction:column;animation:ta-roll 10s cubic-bezier(.22,1,.36,1) infinite!important;will-change:transform}
+ html body.pro-page #trial .ta-num .rl-in i{display:block;font-style:normal;height:.78em;line-height:.78em;background:linear-gradient(180deg,#fff 20%,#bcd2ff);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+ html body.pro-page #trial .ta-days i::after{animation-duration:10s!important;animation-iteration-count:infinite!important;animation-timing-function:cubic-bezier(.22,1,.36,1)!important}
+ html body.pro-page #trial .ta-days li:nth-child(1) i::after{animation-name:ta-b0!important}
+ html body.pro-page #trial .ta-days li:nth-child(2) i::after{animation-name:ta-b1!important}
+ html body.pro-page #trial .ta-days li:nth-child(3) i::after{animation-name:ta-b2!important}
+ html body.pro-page #trial .ta-days li:nth-child(4) i::after{animation-name:ta-b3!important}
+ html body.pro-page #trial .ta-mark{animation:ta-mark 6s ease-in-out infinite!important}
+ html body.pro-page #trial .ta-go svg{animation:ta-go 2.6s cubic-bezier(.5,0,.2,1) infinite!important}
+ html body.pro-page #trial .ta-chip{animation:ta-drift 8s ease-in-out infinite!important;will-change:transform}
+ html body.pro-page #trial .ta-c2{animation-duration:10s!important}
+ html body.pro-page #trial .ta-chip i{position:relative}
+ html body.pro-page #trial .ta-chip i::after{content:"";position:absolute;inset:-3px;border-radius:50%;border:1.5px solid currentColor;color:#7fb0ff;opacity:0;animation:ta-ping 2.4s ease-out infinite!important}
+ html body.pro-page #trial .ta-c2 i::after{color:#FFD27A;animation-delay:-1.2s!important}
+ html body.pro-page #trial .ta-sheen{animation:ta-sheen 5.5s ease-in-out 1.2s infinite!important}
+}
+@keyframes ta-float{
+ 0%,100%{transform:rotate(-4deg) translate3d(0,0,0) rotateX(0) rotateY(0)}
+ 25%{transform:rotate(-3deg) translate3d(0,-9px,0) rotateX(4deg) rotateY(-6deg)}
+ 50%{transform:rotate(-4.6deg) translate3d(0,-15px,0) rotateX(-3deg) rotateY(4deg)}
+ 75%{transform:rotate(-3.4deg) translate3d(0,-6px,0) rotateX(3deg) rotateY(7deg)}
+}
+@keyframes ta-glare{0%,100%{transform:translate3d(-45%,-30%,0)}50%{transform:translate3d(45%,32%,0)}}
+@keyframes ta-breathe{0%,100%{transform:scale(.92);opacity:.55}50%{transform:scale(1.08) translate3d(3%,-2%,0);opacity:.9}}
+@keyframes ta-spin{to{rotate:340deg}}
+@keyframes ta-rise{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.95}85%{opacity:.5}100%{transform:translate3d(var(--dx,10px),-340px,0);opacity:0}}
+@keyframes ta-roll{0%,3%{transform:translateY(0)}16%,90%{transform:translateY(-80%)}97%,100%{transform:translateY(0)}}
+@keyframes ta-count-pop{0%,3%{transform:scale(1);opacity:0}9%,14%{transform:scale(1);opacity:1}18%{transform:scale(1.07);opacity:1}24%,93%{transform:scale(1);opacity:1}97%,100%{transform:scale(1);opacity:0}}
+@keyframes ta-b0{0%,14%{transform:scaleX(0)}22%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
+@keyframes ta-b1{0%,26%{transform:scaleX(0)}34%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
+@keyframes ta-b2{0%,38%{transform:scaleX(0)}46%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
+@keyframes ta-b3{0%,50%{transform:scaleX(0)}58%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
+@keyframes ta-mark{0%,60%,100%{transform:rotate(0) scale(1)}80%{transform:rotate(90deg) scale(1.12)}}
+@keyframes ta-go{0%,40%{transform:translate(0,0);opacity:1}55%{transform:translate(9px,-9px);opacity:0}56%{transform:translate(-9px,9px);opacity:0}75%,100%{transform:translate(0,0);opacity:1}}
+@keyframes ta-drift{0%,100%{transform:translate3d(0,0,0) rotate(0)}25%{transform:translate3d(7px,-9px,0) rotate(.8deg)}50%{transform:translate3d(-4px,-15px,0) rotate(-.6deg)}75%{transform:translate3d(-8px,-5px,0) rotate(.5deg)}}
+@keyframes ta-ping{0%{transform:scale(1);opacity:.7}100%{transform:scale(3.2);opacity:0}}
+@media(prefers-reduced-motion:reduce){.ta-glare,.ta-orb,.ta-p{display:none}.ta-ticket{animation:none}.ta-num .rl-in{transform:translateY(-80%)}.ta-num .rl{height:.78em;overflow:hidden}.ta-num .rl-in i{height:.78em;line-height:.78em}}
+
+.ta-num b span{font:inherit;color:inherit;padding:0;letter-spacing:inherit}
+
+/* the landing page switches every animation inside .trial-art off (landing-motion.css); this panel opts back in with the #trial selectors above */

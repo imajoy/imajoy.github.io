@@ -1,5 +1,5 @@
 /* Light / dark switch for every page with the sun/moon button.
-   Where the browser supports View Transitions, the new theme grows out of the button as a circle: the browser
+   Where the browser supports View Transitions, the new theme blooms from a soft glow in the middle of the screen: the browser
    draws a still of the old page and of the new page and only the circle mask moves, so nothing re-lays out and nothing jitters.
    Without that support (or for people who turned animations off) it is a short colour fade. One shared script replaces the
    separate toggles in main.js and studio.js: this one runs first and stops the event. */
@@ -27,8 +27,6 @@
     busy = true;
     var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     if (!document.startViewTransition) { fade(next); return; }
-    var r = btn.getBoundingClientRect(), x = r.left + r.width / 2, y = r.top + r.height / 2;
-    var radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
     root.classList.add('theme-vt');
     if (calm.matches) root.classList.add('theme-soft');
     var vt;
@@ -36,10 +34,13 @@
     catch (err) { root.classList.remove('theme-vt', 'theme-soft'); fade(next); return; }
     vt.ready.then(function () {
       if (calm.matches) return;
-      root.animate(
-        { clipPath: ['circle(0px at ' + x + 'px ' + y + 'px)', 'circle(' + radius + 'px at ' + x + 'px ' + y + 'px)'] },
-        { duration: 700, easing: 'cubic-bezier(.65,0,.2,1)', pseudoElement: '::view-transition-new(root)' }
-      );
+      /* a small glow in the middle slowly widens, its soft edge blurred, until the new theme fills the screen;
+         the old page softens and dims a little as it gives way */
+      var big = Math.ceil(Math.hypot(innerWidth, innerHeight) * 2.5) + 'px', o = { duration: 1500, easing: 'cubic-bezier(.45,.05,.25,1)', fill: 'both' };
+      root.animate({ maskSize: ['40px 40px', big + ' ' + big], webkitMaskSize: ['40px 40px', big + ' ' + big], filter: ['blur(18px) brightness(1.25)', 'blur(0px) brightness(1)'] },
+        Object.assign({ pseudoElement: '::view-transition-new(root)' }, o));
+      root.animate({ filter: ['blur(0px)', 'blur(10px)'], opacity: [1, .55] },
+        Object.assign({ pseudoElement: '::view-transition-old(root)' }, o, { easing: 'ease-in-out' }));
     }).catch(function () {});
     vt.finished.then(function () {}, function () {}).then(function () {
       root.classList.remove('theme-vt', 'theme-soft'); busy = false;

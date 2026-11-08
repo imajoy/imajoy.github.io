@@ -34,15 +34,15 @@
 .rv-js .rv.rv-in{opacity:1;translate:none}
 @media(prefers-reduced-motion:reduce){.rv-js .rv{opacity:1;translate:none;transition:none}}
 
-/* ---- light / dark switch: the new theme grows out of the button as a circle (js/theme-switch.js) ---- */
+/* ---- light / dark switch: the new theme blooms from a soft glow in the middle of the screen (js/theme-switch.js) ---- */
 html.theme-vt .pillbar{view-transition-name:none}
 html.theme-vt::view-transition{background:transparent}
 html.theme-vt::view-transition-group(root){animation:none}
 html.theme-vt::view-transition-image-pair(root){isolation:isolate}
 html.theme-vt::view-transition-old(root),html.theme-vt::view-transition-new(root){animation:none;mix-blend-mode:normal;transform:none;backface-visibility:visible;animation-fill-mode:none}
 html.theme-vt::view-transition-old(root){z-index:1}
-html.theme-vt::view-transition-new(root){z-index:2}
-html.theme-vt.theme-soft::view-transition-new(root){animation:theme-soft .45s ease both}
+html.theme-vt::view-transition-new(root){z-index:2;-webkit-mask-image:radial-gradient(circle closest-side at 50% 50%,#000 0,#000 45%,rgba(0,0,0,.6) 68%,rgba(0,0,0,.2) 86%,transparent 100%);mask-image:radial-gradient(circle closest-side at 50% 50%,#000 0,#000 45%,rgba(0,0,0,.6) 68%,rgba(0,0,0,.2) 86%,transparent 100%);-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:50% 50%;mask-position:50% 50%;-webkit-mask-size:0 0;mask-size:0 0}
+html.theme-vt.theme-soft::view-transition-new(root){animation:theme-soft .6s ease both;-webkit-mask-image:none;mask-image:none}
 @keyframes theme-soft{from{opacity:0}to{opacity:1}}
 /* browsers without View Transitions: a short colour fade, removed right after */
 html.theme-fx,html.theme-fx *,html.theme-fx *::before,html.theme-fx *::after{transition:background-color .4s ease,color .4s ease,border-color .4s ease,fill .4s ease,stroke .4s ease,box-shadow .4s ease!important}

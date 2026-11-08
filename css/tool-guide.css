@@ -53,3 +53,6 @@ html[data-theme=dark] :is(.guide-index,.guide-notes .eyebrow){color:color-mix(in
  .guide-notes>div:hover{transform:translate3d(0,-3px,0)}
 }
 @media(prefers-reduced-motion:reduce){html .guide-feature,html .guide-feature:hover,html.js .guide-feature.reveal:hover,.guide-feature .guide-index,.guide-steps li .step-index,.guide-notes>div{transform:none!important;transition:none!important}}
+
+/* second download button under the workflow steps */
+.guide-dl{margin-top:22px;display:flex;justify-content:flex-start}.guide-dl .btn{display:inline-flex;align-items:center;gap:9px}.guide-dl .ico{width:18px;height:18px}

@@ -19,7 +19,7 @@
 <link rel="stylesheet" href="css/motion.css?v=20261018-g5">
 <link rel="stylesheet" href="css/extras.css?v=20261019-dialog1">
 <link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="stylesheet" href="css/account.css?v=20261108-dk2"><link rel="stylesheet" href="css/account-v2.css?v=a9">
-<link rel="stylesheet" href="css/mood-orb.css?v=mo2"><link rel="stylesheet" href="css/tool-explainer.css?v=xp4"><link rel="stylesheet" href="css/tool-guide.css?v=20261025-hv3"><link rel="stylesheet" href="css/trial-promotion.css?v=20261109-clarity1">
+<link rel="stylesheet" href="css/mood-orb.css?v=mo2"><link rel="stylesheet" href="css/tool-explainer.css?v=xp4"><link rel="stylesheet" href="css/tool-guide.css?v=20261109-hv3"><link rel="stylesheet" href="css/trial-promotion.css?v=20261109-clarity1">
 <link rel="canonical" href="https://imajoy.github.io/tool-fbx-exporter.html">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Ajoy Tools">
@@ -80,7 +80,7 @@
 </script>
 <link rel="stylesheet" href="css/reviews.css?v=20261023-rv2">
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
-<link rel="stylesheet" href="css/mobile.css?v=20261108-ft1"><link rel="stylesheet" href="css/tool-mobile.css?v=tm1"><link rel="stylesheet" href="css/tool-fx.css?v=tf1">
+<link rel="stylesheet" href="css/mobile.css?v=20261108-ft1"><link rel="stylesheet" href="css/tool-mobile.css?v=tm2"><link rel="stylesheet" href="css/tool-fx.css?v=tf1">
 <link rel="stylesheet" href="css/coffee.css?v=20261023-c1"><link rel="stylesheet" href="css/scroll-fx.css?v=20261101-sx1">
 <link rel="stylesheet" href="css/hover-fx.css?v=hv3"><link rel="stylesheet" href="css/transitions.css?v=vt9"><script src="js/header-scroll.js?v=hs2" defer></script></head>
 <body>
@@ -125,7 +125,7 @@
         <p class="cat-pill">Export</p>
         <h1 class="intro"><span class="ln"><span>FBX Exporter</span></span></h1>
         <a class="tool-rating" href="#reviews" data-rating-badge hidden></a>
-        <p class="lead intro-fade">Choose your project and shot, then export characters, props and cameras with consistent names. Rig assets and deformation joints go into the shot’s Fbx folder without triangulating the original topology.</p>
+        <p class="lead intro-fade">Choose your project and shot, then export characters, props and cameras as .fbx files with consistent names. Rig assets and deformation joints go into the shot’s Fbx folder without triangulating the original topology.</p>
         <p class="tool-trial-invite"><span>4-DAY FREE TRIAL</span> This tool + the full Basic toolkit.</p>
         <div class="actions intro-fade">
           <a class="btn btn-dark" href="wrapline.html#trial" data-trial-cta>Explore the 4-day free trial</a>
@@ -147,7 +147,7 @@
       <div class="guide-intro reveal"><p class="eyebrow">BUILT FOR THE WAY YOU WORK</p><h2 id="guide-heading">From a Maya scene to shot-ready FBX.</h2><div class="guide-tags"><span>Rig assets</span><span>Cameras</span><span>Deformation joints</span></div></div>
       <div class="guide-features"><article class="guide-feature reveal"><span class="guide-index">01</span><h3>Shot-based organisation</h3><p>Automatic names such as SH_010_AssetName.fbx, plus a generator for a whole range of shot folders.</p></article><article class="guide-feature reveal"><span class="guide-index">02</span><h3>Your assets, your selection</h3><p>Refresh the scene’s rig list by group, or use Maya Selection to export exactly what you selected.</p></article><article class="guide-feature reveal"><span class="guide-index">03</span><h3>Animation and cameras</h3><p>Include cameras and bake animation on every frame when the destination needs it.</p></article><article class="guide-feature reveal"><span class="guide-index">04</span><h3>Reusable project setups</h3><p>Save project presets, optionally protect them with admin settings, and choose what happens when a file already exists.</p></article></div>
       <div class="guide-workflow">
-        <div class="guide-step-heading reveal"><p class="eyebrow">FROM THE SHELF TO THE RESULT</p><h2>Make it part of<br>your workflow.</h2><p>Open the tool from the Wrapline Pro shelf or menu. Right-click its shelf button to assign your own hotkey.</p><small>Autodesk Maya 2023–2026 · Windows</small></div>
+        <div class="guide-step-heading reveal"><p class="eyebrow">FROM THE SHELF TO THE RESULT</p><h2>Make it part of<br>your workflow.</h2><p>Open the tool from the Wrapline Pro shelf or menu. Right-click its shelf button to assign your own hotkey.</p><small>Autodesk Maya 2023–2026 · Windows</small><div class="actions guide-dl"><a class="btn btn-light" href="wrapline.html#install"><svg class="ico dl-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v10m0 0l-4-4m4 4l4-4M5 19h14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Download setup</a></div></div>
         <ol class="guide-steps"><li class="reveal"><span class="step-index">01</span><div><h3>Choose the destination</h3><p>Browse to the project folder and enter the shot number and project code.</p></div></li><li class="reveal"><span class="step-index">02</span><div><h3>Pick what leaves Maya</h3><p>Refresh and tick the rigs, or choose Use Maya Selection.</p></div></li><li class="reveal"><span class="step-index">03</span><div><h3>Set export options</h3><p>Choose camera, bake, overwrite and open-folder settings.</p></div></li><li class="reveal"><span class="step-index">04</span><div><h3>Export and inspect</h3><p>Run Export, follow the log and inspect the output folder. Esc cancels a running export.</p></div></li></ol>
       </div>
       <aside class="guide-notes reveal"><div><p class="eyebrow">BEFORE YOU START</p><h3>What you need</h3><p>Wrapline Pro FBX Exporter is an AJOY script that uses Maya’s built-in fbxmaya plug-in. The Maya plug-in needs no separate download. If it is not loaded, open Windows → Settings/Preferences → Plug-in Manager, find fbxmaya.mll, and check Loaded. Enable Auto load to keep it available next time Maya starts.</p></div><div><p class="eyebrow">GOOD TO KNOW</p><h3>A detail worth keeping in mind.</h3><p>An existing file can be replaced. Choose the If exists policy before exporting.</p></div></aside>

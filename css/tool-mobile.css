@@ -34,3 +34,6 @@
  .coffee-copy b{font-size:.84rem}
  .coffee-go{padding:7px 12px!important;font-size:.76rem!important;margin-top:4px!important}
 }
+
+/* phones: the header account button shows just "351d left" so the bar is not crowded next to the theme toggle */
+@media(max-width:520px){body:has(.tool-page) .pillbar .acct-btn.has-days .ab-k{display:none}body:has(.tool-page) .pillbar .acct-btn.has-days{gap:0;padding-inline:14px}}

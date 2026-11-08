@@ -40,19 +40,23 @@
   function cur(t) { return getComputedStyle(t.chip).translate; }  /* "0px 6.2px" or "none" */
   function curY(t) { var v = cur(t); if (!v || v === 'none') return 0; var p = v.split(' '); return parseFloat(p[1]) || 0; }
 
+  /* a damped spring, sampled into keyframes: the tag is lowered fast, overshoots on its stretching rope, and swings back and forth in shrinking bounces */
+  function springFrames(over) {
+    var D = 960, T = 1700, n = 44, k = 3.7, w = 2 * Math.PI / .74, f = [], i, tt, y, e;
+    f.push({ translate: '0 -62vh', scale: '1 1.05', opacity: 0, easing: 'cubic-bezier(.32,.5,.5,1)' });
+    f.push({ opacity: 1, offset: .06 * D / (D + T) });
+    f.push({ translate: '0 ' + over + 'px', scale: (1 - over * .0004).toFixed(4) + ' ' + (1 + over * .0014).toFixed(4), opacity: 1, offset: D / (D + T), easing: 'linear' });
+    for (i = 1; i <= n; i++) {
+      tt = (i / n) * T / 1000; e = Math.exp(-k * tt); y = over * e * Math.cos(w * tt);
+      f.push({ translate: '0 ' + y.toFixed(2) + 'px', scale: (1 - y * .0004).toFixed(4) + ' ' + (1 + y * .0014).toFixed(4), offset: (D + (i / n) * T) / (D + T), easing: 'linear' });
+    }
+    f[f.length - 1].translate = '0 0'; f[f.length - 1].scale = '1 1'; f[f.length - 1].opacity = 1;
+    return { frames: f, ms: D + T };
+  }
   function enter(t) {
     reset(t);
-    /* lowered on its rope: it drops, the rope stretches and the tag dips low, then springs back up and settles in a few shrinking bounces */
-    var a = A(t,t.chip,[
-      { translate: '0 -62vh', scale: '1 1.05', opacity: 0, easing: 'cubic-bezier(.3,.55,.4,1)' },
-      { opacity: 1, offset: .08 },
-      { translate: '0 34px', scale: '.985 1.045', opacity: 1, offset: .44, easing: 'ease-in-out' },
-      { translate: '0 -15px', scale: '1.01 .99', offset: .6, easing: 'ease-in-out' },
-      { translate: '0 9px', scale: '.995 1.01', offset: .74, easing: 'ease-in-out' },
-      { translate: '0 -4px', scale: '1 1', offset: .85, easing: 'ease-in-out' },
-      { translate: '0 1.5px', offset: .94, easing: 'ease-in-out' },
-      { translate: '0 0', scale: '1 1', opacity: 1 }
-    ], { duration: 2400, fill: 'forwards' });
+    var sp = springFrames(38 + Math.random() * 6);
+    var a = A(t,t.chip,sp.frames, { duration: sp.ms, fill: 'forwards' });
     return a.finished;
   }
   function hang(t, ms) {
@@ -70,9 +74,6 @@
       { translate: '0 ' + (y + 14) + 'px', scale: '1.03 .94', opacity: 1, offset: .22, easing: 'cubic-bezier(.55,0,.9,.4)' },
       { translate: '0 -38vh', scale: '.97 1.2', opacity: 1, offset: .62, easing: 'cubic-bezier(.3,0,1,1)' },
       { translate: '0 -66vh', scale: '.95 1.32', opacity: 0 }
-    ], { duration: 760, fill: 'forwards' });
-    A(t,t.face,[
-      { filter: 'blur(0px)' }, { filter: 'blur(0px)', offset: .22 }, { filter: 'blur(5px)', offset: .62 }, { filter: 'blur(9px)' }
     ], { duration: 760, fill: 'forwards' });
     return a.finished;
   }
@@ -122,7 +123,7 @@
       var breaks = breaking(n).indexOf(ix) > -1; n++;
       if (breaks) await snap(t, h); else await goUp(t, h);
       t.chip.style.opacity = '0';
-      await sleep(rnd(900, 2200));
+      await sleep(rnd(450, 1300));
     }
   }
   function start() {

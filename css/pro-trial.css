@@ -119,3 +119,19 @@ html body.pro-page #trial .ta-num .rl{position:relative}
 
 /* room around the rolling digit so round glyphs like 0 are never clipped */
 html body.pro-page #trial .ta-num .rl{padding:.015em .1em;margin:-.015em -.1em}
+
+/* the trial button: a short, playful shake, then a 10-second rest before the next one (11.2s loop, the shake takes the first ~1.1s) */
+@media(prefers-reduced-motion:no-preference){
+ html body.pro-page #trial .trial-actions .btn{animation:ta-btn-shake 11.2s ease-in-out 2.5s infinite!important;will-change:transform}
+ html body.pro-page #trial .trial-actions .btn:hover,html body.pro-page #trial .trial-actions .btn:focus-visible{animation-play-state:paused!important}
+}
+@keyframes ta-btn-shake{
+ 0%{rotate:0deg;translate:0 0;scale:1}
+ 1.6%{rotate:-2.4deg;translate:-2.5px 0;scale:1.035}
+ 3.2%{rotate:2.4deg;translate:2.5px 0;scale:1.04}
+ 4.8%{rotate:-1.9deg;translate:-2px 0;scale:1.03}
+ 6.4%{rotate:1.4deg;translate:1.5px 0;scale:1.02}
+ 8%{rotate:-.8deg;translate:-.8px 0;scale:1.01}
+ 9.4%{rotate:.3deg;translate:.3px 0;scale:1}
+ 10.4%,100%{rotate:0deg;translate:0 0;scale:1}
+}

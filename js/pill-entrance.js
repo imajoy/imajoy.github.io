@@ -5,12 +5,6 @@
   if (root.dataset.makerMotion === 'skip') return;
   var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (motion.matches) return;
-  /* Moving between pages of the site, the pill bar travels with the page (view transition), so it only drops in on a first visit or a reload. */
-  var navType = '';
-  try { navType = (performance.getEntriesByType('navigation')[0] || {}).type || ''; } catch (e) {}
-  var inSite = false;
-  try { inSite = !!document.referrer && new URL(document.referrer).origin === location.origin; } catch (e) {}
-  if ('PageRevealEvent' in window && inSite && navType !== 'reload') return;
   var started = false;
   var finished = false;
   root.classList.add('pill-pending');
@@ -23,7 +17,7 @@
   }
   function start() {
     if (started || finished || document.visibilityState === 'hidden') return;
-    if (motion.matches || !document.querySelector('.pillbar')) { finish(); return; }
+    if (motion.matches || !document.querySelector('.pillbar, .commerce-header .wrap')) { finish(); return; }
     started = true;
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
@@ -49,7 +43,7 @@
     if (document.readyState !== 'loading') start();
   });
   document.addEventListener('focusin', function (event) {
-    if (event.target.closest('.pillbar')) finish();
+    if (event.target.closest('.pillbar, .commerce-header .wrap')) finish();
   });
   motion.addEventListener('change', function () { if (motion.matches) finish(); });
   // A stalled asset must not leave navigation waiting indefinitely.

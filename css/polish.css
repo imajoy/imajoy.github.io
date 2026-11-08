@@ -6,10 +6,13 @@ body{background-image:radial-gradient(ellipse at 0% 35%,#b7cfff12,transparent 45
 .site-header:has(:focus-visible){transform:none;opacity:1}
 /* Open the shell from its centre, then reveal controls without stretching text. */
 @media(prefers-reduced-motion:no-preference){
-  html.pill-pending .pillbar{clip-path:inset(0 calc(50% - 28px) round 999px);opacity:0}
-  html.pill-pending .pillbar>:is(.brand,.theme,.btn,.acct-btn),html.pill-pending .pillbar .nav a{opacity:0}
-  html.pill-entering .pillbar{animation:pill-drop 1.9s linear backwards;will-change:translate,scale,filter,clip-path}
-  html.pill-entering .pillbar>:is(.brand,.theme,.btn,.acct-btn),html.pill-entering .pillbar .nav a{animation:pill-content .5s var(--ease-soft) backwards;animation-delay:calc(var(--pill-delay,.82s) + .85s)}
+  html.pill-pending :is(.pillbar,.commerce-header .wrap){clip-path:inset(0 calc(50% - 28px) round 999px);opacity:0}
+  html.pill-pending .pillbar>:is(.brand,.theme,.btn,.acct-btn),html.pill-pending .pillbar .nav a,html.pill-pending .commerce-header .wrap>*{opacity:0}
+  html.pill-entering :is(.pillbar,.commerce-header .wrap){animation:pill-drop 1.9s linear backwards;will-change:translate,scale,filter,clip-path}
+  html.pill-entering .pillbar>:is(.brand,.theme,.btn,.acct-btn),html.pill-entering .pillbar .nav a,html.pill-entering .commerce-header .wrap>*{animation:pill-content .5s var(--ease-soft) backwards;animation-delay:calc(var(--pill-delay,.82s) + .85s)}
+  .commerce-header .wrap>*{--pill-delay:.92s}
+  .commerce-header .wrap>:nth-child(2){--pill-delay:1s}
+  .commerce-header .wrap>:nth-child(3){--pill-delay:1.08s}
   .pillbar .nav a:nth-child(1){--pill-delay:.88s}
   .pillbar .nav a:nth-child(2){--pill-delay:.94s}
   .pillbar .nav a:nth-child(3){--pill-delay:1s}

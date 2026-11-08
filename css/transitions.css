@@ -1,7 +1,6 @@
 @view-transition{navigation:auto}
 /* Page transitions: 3D page turn. The old page swings back into depth, the new one swings in.
    The top pill stays put so the page feels like one app. Direction flips on Back (html[data-vt=back]). */
-.pillbar{view-transition-name:pillbar}
 @media (prefers-reduced-motion:no-preference){
  ::view-transition{background:var(--bg)}
  ::view-transition-group(root){animation-duration:.7s}

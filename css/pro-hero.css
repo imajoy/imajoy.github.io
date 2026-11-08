@@ -203,7 +203,7 @@ html.hv-pin .hv-grid{height:70%;bottom:-4%}
 @media(min-width:981px){
  .hv-portal{--hv-fy:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.05) 6px,rgba(0,0,0,.22) 18px,rgba(0,0,0,.55) 32px,rgba(0,0,0,.86) 46px,#000 58px,#000 calc(100% - 58px),rgba(0,0,0,.86) calc(100% - 46px),rgba(0,0,0,.55) calc(100% - 32px),rgba(0,0,0,.22) calc(100% - 18px),rgba(0,0,0,.05) calc(100% - 6px),transparent 100%)}
  .hv-shell{top:-56px;bottom:-56px}
- .hv-track{margin-block:56px}
+ .hv-track{margin-block:56px 104px}
 }
 
 /* phones and tablets: same short even fade in pixels (not a share of the tall stage), and the tool name sits clear above it */

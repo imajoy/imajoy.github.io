@@ -38,5 +38,7 @@ Static site on GitHub Pages. No analytics, error-tracking, advertising or AI ser
 
 ## 4. Known limits (decide if you want more)
 - The session token (which contains the email) lives in `localStorage` so the 30-day sign-in survives restarts. A static site cannot set an httpOnly cookie for another domain. A strict Content-Security-Policy would reduce XSS risk further but needs testing against the PayPal and Razorpay scripts.
-- Sign-in codes use `Math.random`. Apps Script has no secure random source; codes are single-use, 2 minutes, 5 tries, rate-limited.
+- Sign-in codes come from Apps Script's secure random source; single-use, 2 minutes, 5 tries, rate-limited. Sign out and account deletion revoke the session token on the server.
+- Trial and coupon limits treat `name+tag@` and Gmail dots as one mailbox.
+- If you ever turn on `BILLING_VPN_ENABLED`, add proxycheck.io back to privacy.html first (it was removed because it is off).
 - Messages sent to the private GitHub repo stay in its git history until you rewrite history.

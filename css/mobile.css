@@ -73,3 +73,9 @@
  .btn{white-space:nowrap;padding-inline:clamp(14px,3.6vw,28px);font-size:clamp(.84rem,.62rem + 1.3vw,1rem);overflow:hidden}
  .btn em{white-space:nowrap}
 }
+
+/* Wrapline Pro, phones only: a little more air above the header capsule (it also respects the notch) and between it and the hero */
+@media(max-width:600px){
+  html body.pro-page .site-header{top:calc(env(safe-area-inset-top,0px) + 24px)}
+  html body.pro-page .hero .hv-wrap{padding-top:14px}
+}

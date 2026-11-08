@@ -41,3 +41,9 @@ html body.pro-page #workflows .workflow-choices button:active{scale:.97}
 .clip-visual .visual-heading{margin:0;padding:12px 16px}
 .clip-visual figcaption{padding:12px 16px 14px}
 @media(prefers-reduced-motion:reduce){.clip-frame video{display:none}}
+
+/* "See it in Maya" link under the two tools that have a real recording */
+.tl-watch{position:relative;z-index:3;display:inline-flex;align-items:center;gap:5px;margin-top:6px;font:600 .75rem/1.2 var(--sans);color:var(--blue-d,#2457c5);text-decoration:none}
+.tl-watch svg{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .25s ease}
+.tl-watch:hover svg,.tl-watch:focus-visible svg{transform:translate(2px,-2px)}
+.tl-watch:hover{text-decoration:underline;text-underline-offset:3px}

@@ -93,8 +93,8 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
 @keyframes ta-breathe{0%,100%{transform:scale(.92);opacity:.55}50%{transform:scale(1.08) translate3d(3%,-2%,0);opacity:.9}}
 @keyframes ta-spin{to{rotate:340deg}}
 @keyframes ta-rise{0%{transform:translate3d(0,0,0);opacity:0}12%{opacity:.95}85%{opacity:.5}100%{transform:translate3d(var(--dx,10px),-340px,0);opacity:0}}
-@keyframes ta-roll{0%,3%{transform:translateY(0)}16%,95%{transform:translateY(-80%)}99%,100%{transform:translateY(0)}}
-@keyframes ta-count-pop{0%,3%{transform:scale(1);opacity:0}9%,14%{transform:scale(1);opacity:1}18%{transform:scale(1.07);opacity:1}24%,89%{transform:scale(1);opacity:1}93%,100%{transform:scale(1);opacity:0}}
+@keyframes ta-roll{0%,8%{transform:translateY(0)}20%,83%{transform:translateY(-80%)}83.1%,100%{transform:translateY(0)}}
+@keyframes ta-count-pop{0%{transform:perspective(700px) rotateY(0) scale(1)}18%{transform:perspective(700px) rotateY(0) scale(1)}22%{transform:perspective(700px) rotateY(0) scale(1.07)}26%{transform:perspective(700px) rotateY(0) scale(1)}80%{transform:perspective(700px) rotateY(0) scale(1);animation-timing-function:linear}92%,100%{transform:perspective(700px) rotateY(360deg) scale(1)}}
 @keyframes ta-b0{0%,14%{transform:scaleX(0)}22%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
 @keyframes ta-b1{0%,26%{transform:scaleX(0)}34%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
 @keyframes ta-b2{0%,38%{transform:scaleX(0)}46%,90%{transform:scaleX(1)}96%,100%{transform:scaleX(0)}}
@@ -110,6 +110,6 @@ body.pro-page #trial .trial-availability::before{content:"";width:6px;height:6px
 /* the landing page switches every animation inside .trial-art off (landing-motion.css); this panel opts back in with the #trial selectors above */
 
 /* the rolling digit: plain colour, no clipped-gradient text (a clipped gradient under a moving, tilting layer drew torn shards mid-roll) */
-html body.pro-page #trial .ta-num b{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:#eef3ff!important;color:#eef3ff;text-shadow:0 3px 0 rgba(120,160,255,.28),0 0 28px rgba(160,195,255,.35)}
+html body.pro-page #trial .ta-num b{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:#eef3ff!important;color:#eef3ff;text-shadow:none!important}
 html body.pro-page #trial .ta-num .rl-in i{background:none!important;-webkit-background-clip:border-box!important;background-clip:border-box!important;-webkit-text-fill-color:currentColor!important;color:inherit}
 html body.pro-page #trial .ta-num .rl{contain:paint;position:relative}

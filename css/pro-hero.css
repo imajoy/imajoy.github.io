@@ -173,3 +173,22 @@ html.hv-pin body.pro-page .hv-portal .pro-dock{margin-top:12px;margin-bottom:8px
 html.hv-pin .hv-portal{min-height:calc(100svh - var(--pin-top,76px) - 10px);align-content:center}
 html.hv-pin body.pro-page .hv-portal .pro-now{display:none}
 @media(max-width:980px){html.hv-pin body.pro-page .hv-portal .pro-stage{max-width:min(90vw,640px)}}
+
+/* lighter layers + full-height scene */
+.hv-shell{-webkit-mask-image:none;mask-image:none;will-change:auto;contain:none}
+.hv-wash{inset:0;will-change:auto}
+html.hv-pin .hv-portal{padding-top:clamp(84px,9vh,104px);padding-bottom:clamp(10px,1.4vh,18px)}
+/* scroll-linked offsets (compositor driven, so a trackpad scroll stays smooth): side blocks rise at different rates as the scene arrives */
+@supports (animation-timeline:view()){@media(prefers-reduced-motion:no-preference){
+ html.js body.pro-page .hv-portal .hv-l{animation:hv-rise-a linear both;animation-timeline:view();animation-range:entry 0% entry 80%}
+ html.js body.pro-page .hv-portal .hv-r{animation:hv-rise-b linear both;animation-timeline:view();animation-range:entry 10% entry 100%}
+ @keyframes hv-rise-a{from{translate:-3vw 90px;opacity:.0}to{translate:0 0;opacity:1}}
+ @keyframes hv-rise-b{from{translate:3vw 150px;opacity:0}to{translate:0 0;opacity:1}}
+}}
+/* staggered reveals further down the page */
+.js body.pro-page .reveal:not(.in){translate:0 26px}
+.js body.pro-page .reveal{transition:opacity .9s var(--out),transform .9s var(--out),translate .9s var(--out)}
+.js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(2){transition-delay:.07s}
+.js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(3){transition-delay:.14s}
+.js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(4){transition-delay:.21s}
+.js body.pro-page :is(.grid,.tiles,.plans,.faq-list,.steps)>.reveal:nth-child(n+5){transition-delay:.28s}

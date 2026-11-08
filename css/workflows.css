@@ -20,3 +20,14 @@
 @media(prefers-reduced-motion:reduce){.workflow-choices button{transition:none}}
 @media(max-width:680px){.workflow-panel .tool-visual{grid-row:1}}
 .workflow-copy .text-link svg,.workflow-next .text-link svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:1.7;vertical-align:middle;margin-left:5px}
+
+/* the switch: one pill slides under the active label instead of the colour jumping from one button to the other */
+html body.pro-page #workflows .workflow-choices{position:relative;isolation:isolate;--thumb:var(--btnbg,var(--ink))}
+html[data-theme=dark] body.pro-page #workflows .workflow-choices{--thumb:#fff}
+html body.pro-page #workflows .workflow-choices::before{content:"";position:absolute;z-index:-1;top:4px;bottom:4px;left:0;width:var(--tw,0);border-radius:999px;background:var(--thumb);translate:var(--tx,0) 0;opacity:var(--to,0);will-change:translate,width;
+ transition:translate .55s cubic-bezier(.65,0,.15,1),width .55s cubic-bezier(.65,0,.15,1),opacity .2s}
+html body.pro-page #workflows .workflow-choices.is-set{--to:1}
+html body.pro-page #workflows .workflow-choices.no-anim::before{transition:none}
+html body.pro-page #workflows .workflow-choices button,html body.pro-page #workflows .workflow-choices button[aria-pressed=true]{background:transparent!important;translate:none!important;box-shadow:none!important;transition:color .4s ease!important}
+html body.pro-page #workflows .workflow-choices button:active{scale:.97}
+@media(prefers-reduced-motion:reduce){html body.pro-page #workflows .workflow-choices::before{transition:none}}

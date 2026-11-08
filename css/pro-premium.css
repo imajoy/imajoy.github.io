@@ -234,3 +234,21 @@ body.pro-page .cl2-head::before{content:"";position:absolute;top:-3px;left:50%;t
 
 /* light mode keeps the workflow section light: no dark band, no dark seams */
 html:not([data-theme=dark]) body.pro-page #workflows::before,html:not([data-theme=dark]) body.pro-page #workflows::after{display:none}
+
+/* ---- trial panel: one scroll-linked entrance only ----
+   This big panel was popping every time it entered or left the screen: a clip-path + scale reveal that is switched on and off by scrolling (with its transition disabled on this page, so it snapped, and clip-path repaints the whole panel). Now the clip-path reveal is off, nothing replays, and the scroll position alone drives a soft rise (transform only, runs on the GPU). */
+html.pr-on body.pro-page #trial .trial-stage[data-pr]{clip-path:none!important;transition:none!important;transform:none}
+@supports (animation-timeline:view()){
+ @media(prefers-reduced-motion:no-preference){
+  html.pr-on body.pro-page #trial .trial-stage[data-pr]{animation:pp-stage-in linear both!important;animation-timeline:view()!important;animation-range:entry 0% entry 60%!important;will-change:transform}
+ }
+}
+@keyframes pp-stage-in{from{transform:translate3d(0,46px,0) scale(.97)}to{transform:none}}
+
+/* The tool tiles are also .reveal, and an old landing-page rule (transition:none!important, opacity:1!important) was snapping them sideways instead of easing. Give them their intended eased reveal back. */
+@media(prefers-reduced-motion:no-preference){
+ html.pr-on body.pro-page .reveal[data-pr]:not(.trial-stage):not(.pr-in){opacity:0!important}
+ html.pr-on body.pro-page .reveal[data-pr]:not(.trial-stage).pr-in{opacity:1!important}
+ html.pr-on body.pro-page .reveal[data-pr]:not(.trial-stage):not(.pr-set){transition:opacity .8s var(--pro-ease),transform .9s var(--pro-ease)!important;transition-delay:calc(var(--pr-i,0)*70ms)!important}
+}
+html.pr-on body.pro-page #tools .tile.reveal[data-pr]:not(.pr-set){transition:opacity .8s var(--pro-ease),transform .9s var(--pro-ease)!important;transition-delay:calc(var(--pr-i,0)*70ms)!important}

@@ -67,3 +67,6 @@ html body .acct-btn.has-days .ab-v b{font-size:1.02rem;font-weight:800;letter-sp
 /* While the page is moving, hover effects hold still: no hover repaint under a stationary pointer, so scrolling stays even */
 /* (removed: switching pointer-events on the whole page during scroll caused a full-page style recalculation hitch) */
 html:has(body.pro-page),html:has(body.free-page){overflow-anchor:none}
+
+/* Dark top pill bar: lighter surface + visible edge so it separates from the page */
+html[data-theme=dark] body.pro-page .pillbar,html[data-theme=dark] body.free-page .pillbar{background:#1B2547;border-color:rgba(255,255,255,.16);box-shadow:0 1px 0 rgba(255,255,255,.08) inset,0 10px 30px rgba(0,0,0,.55)}

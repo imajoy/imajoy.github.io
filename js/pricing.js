@@ -13,7 +13,7 @@ function chooseBilling(value){
  if(billing===value)return;
  settlePrices();animatePricing=true;billing=value;toggle.dataset.state=billing;
  for(const button of toggle.querySelectorAll('button')){const selected=button.dataset.bill===billing;button.classList.toggle('on',selected);button.setAttribute('aria-pressed',String(selected));}
- render();
+ requestAnimationFrame(()=>requestAnimationFrame(render));
 }
 function animate(element){if(animatePricing&&!matchMedia('(prefers-reduced-motion: reduce)').matches)element.animate([{opacity:.5},{opacity:1}],{duration:200,easing:'ease-out'});}
 async function render(){

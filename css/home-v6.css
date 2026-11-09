@@ -35,6 +35,9 @@ html[data-theme=dark] .h-beam{background:conic-gradient(from 180deg at 50% 0%,tr
 .home .h-tile{animation:tile-float 7s ease-in-out infinite}
 @media(prefers-reduced-motion:no-preference){
  .n-go .pillbar{animation:n-drop .9s var(--out) both}
+ /* focus used to switch this animation off and back on, which replayed the drop whenever the avatar / menu lost focus */
+ .n-go .pillbar:focus-within{animation:n-drop .9s var(--out) both!important}
+ html[data-ui-paused].n-go .pillbar{animation:none!important}
  .n-go .h-beam{animation:n-fade 2s .1s both}
  .n-go .h-orb{animation:n-fade 2.2s .1s both}
  .n-go .g-c{animation:g-in 1.1s .3s var(--out) both}.n-go .g-hud{animation:fade-in .8s 1s both}

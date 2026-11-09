@@ -162,8 +162,26 @@ payBox.addEventListener('change',async e=>{
   try{await saveProfile({payment:r.value});say(payMsg,r.value?'Saved. We will open '+(r.value==='paypal'?'PayPal':'Razorpay')+' first at checkout.':'Saved. No default method.','ok');}
   catch{say(payMsg,'Could not save. Please try again.','error');}
 });
+/* Every billing detail is needed for an invoice, so empty fields are refused with a message under the field. */
+const REQUIRED=[['name','Enter your full name.'],['address','Enter your billing address.'],['postal','Enter your postal code.'],['city','Enter your city.'],['region','Enter your state or region.']];
+function fieldError(input,text){
+  const box=input.closest('.bc-field');if(!box)return;
+  let note=$('.bc-err',box);
+  if(!text){box.removeAttribute('data-invalid');input.removeAttribute('aria-invalid');note?.remove();return;}
+  if(!note){note=el('p','bc-err');note.id=input.id+'-err';note.setAttribute('role','alert');box.append(note);}
+  note.textContent=text;box.dataset.invalid='';input.setAttribute('aria-invalid','true');input.setAttribute('aria-describedby',note.id);
+}
+function validate(f){
+  let first=null;
+  const need=[...REQUIRED];if(f.companyOn.checked)need.push(['company','Enter your company name.']);
+  for(const [k,msg] of need){const bad=!f[k].value.trim();fieldError(f[k],bad?msg:'');if(bad&&!first)first=f[k];}
+  if(first){say(billMsg,'Please fill in the highlighted fields.','error');first.focus();return false;}
+  return true;
+}
+form.addEventListener('input',e=>{if(e.target.closest('.bc-field')?.hasAttribute('data-invalid'))fieldError(e.target,'');});
 form.addEventListener('submit',async e=>{
   e.preventDefault();const f=form.elements,btn=$('.bc-save',form);
+  if(!validate(f))return;
   btn.disabled=true;say(billMsg,'Saving…');
   try{
     await saveProfile({name:f.name.value.trim(),address:f.address.value.trim(),postal:f.postal.value.trim(),city:f.city.value.trim(),region:f.region.value.trim(),companyOn:f.companyOn.checked,company:f.company.value.trim(),companyAddress:f.companyAddress.value.trim(),companyPostal:f.companyPostal.value.trim()});

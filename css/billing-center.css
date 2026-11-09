@@ -126,3 +126,7 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
  .bc-method,.bc-signin,.bc-limited,.bc-error{padding:22px}
 }
 @media(prefers-reduced-motion:reduce){.bc-ind,.bc-nav a svg,.bc-co,.bc-radio::after,.bc-pay label{transition:none!important}.bc-panel.bc-in,.bc-body tbody tr,.bc-dlg[open],.bc-chip i{animation:none!important}}
+.bc-err{margin:7px 2px 0;font-size:.8125rem;color:var(--bc-bad);animation:bc-err-in .3s var(--out,ease) both}
+@keyframes bc-err-in{from{opacity:0;transform:translateY(-4px)}}
+.bc-field[data-invalid] input,.bc-field[data-invalid] textarea{border-color:var(--bc-bad);box-shadow:0 0 0 3px color-mix(in srgb,var(--bc-bad) 16%,transparent)}
+@media(prefers-reduced-motion:reduce){.bc-err{animation:none}}

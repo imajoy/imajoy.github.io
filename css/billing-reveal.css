@@ -15,3 +15,6 @@
 .postal-hint.pop{animation:postal-pop .45s var(--out) both}
 @keyframes postal-pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.reveal,.reveal>.reveal-inner>*{transition:none}.postal-hint.pop,.reveal.open>.reveal-inner{animation:none}}
+
+.postal-hint.err{color:var(--commerce-error,#d6455d)}
+.form-field input[aria-invalid=true]{border-color:var(--commerce-error,#d6455d)!important}

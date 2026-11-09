@@ -53,9 +53,9 @@
       style(); protect();
       var host = document.createElement('div'); host.id = 'gt-host'; host.className = 'notranslate'; host.setAttribute('translate', 'no'); document.body.appendChild(host);
       window.googleTranslateElementInit = function () {
-        try { new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: CODES.join(','), autoDisplay: false, layout: 0 }, 'gt-host'); } catch (e) { fail(e); return; }
+        try { new google.translate.TranslateElement({ pageLanguage: 'en', includedLanguages: CODES.join(','), autoDisplay: false }, 'gt-host'); } catch (e) { fail(e); return; }
         var t0 = Date.now();
-        (function wait() { var c = document.querySelector('select.goog-te-combo'); if (c) ok(c); else if (Date.now() - t0 > 12000) fail(new Error('timeout')); else setTimeout(wait, 80); })();
+        (function wait() { var c = document.querySelector('select.goog-te-combo'); if (c && c.options.length > 1) ok(c); else if (Date.now() - t0 > 12000) fail(new Error('timeout')); else setTimeout(wait, 80); })();
       };
       var sc = document.createElement('script'); sc.src = 'https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit'; sc.async = true;
       sc.onerror = function () { fail(new Error('blocked')); }; document.head.appendChild(sc);

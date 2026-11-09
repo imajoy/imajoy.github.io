@@ -26,3 +26,5 @@
 /* the note sits right under its field, with normal spacing before the next one */
 .form-field:has(+ .postal-hint:not([hidden])){margin-bottom:0}
 .postal-hint:not([hidden]){margin:8px 0 22px}
+/* mouse users: only the box is a click target */
+@media(hover:hover) and (pointer:fine){.check-row,.contact-consent{cursor:default}.check-row input[type=checkbox],.contact-consent input[type=checkbox]{cursor:pointer}}

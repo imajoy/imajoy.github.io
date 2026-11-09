@@ -2,7 +2,7 @@
    Scales the card row to the window height (never below 70%, never above 115%). Phones/tablets are untouched. */
 (()=>{
 const row=document.querySelector('#pricing .plans');if(!row)return;
-const wide=matchMedia('(min-width:900px)'),MIN=.7,MAX=1.15,TOP=96,BOTTOM=28;
+const wide=matchMedia('(min-width:900px)'),MIN=.8,MAX=1.15,TOP=96,BOTTOM=28;
 let raf=0,last=0;
 const fit=()=>{
   raf=0;

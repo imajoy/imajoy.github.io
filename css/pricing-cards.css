@@ -60,3 +60,28 @@ html[data-theme=dark] .plans .plan:not(.plan-lead){--plan-copy:#aebdd7;--plan-go
 @media(max-width:980px){.plans{max-width:560px}.plans .plan{padding:34px}}
 @media(max-width:520px){.plans .plan{padding:30px 28px;border-radius:30px}.plans .plan h3{font-size:1.875rem}.price-stack{margin-top:25px}.plans .plan .for{min-height:0}.plans .plan .ticks{margin-bottom:25px}}
 @media(max-width:360px){.plans .plan{padding:27px 23px}.plans .plan h3{font-size:1.75rem}.plan-heading{gap:10px}.plan-discount b{font-size:.625rem}.plan-discount small{font-size:.5rem}}
+/* Laptops and desktops: tighter cards so the pair fits one screen without being scaled down much. */
+@media(min-width:900px){
+ .plans .plan{padding:28px 32px}
+ .plan-heading{margin-bottom:8px}
+ .plans .plan h3{font-size:1.75rem}
+ .plans .plan .for{line-height:1.6;min-height:0}
+ .price-stack{margin-top:16px}
+ .plan-lead .price-stack::before{inset:-22px -12px -18px}
+ .plan-comparison{margin-bottom:6px}
+ .plans .price{gap:5px}
+ .plans .amt{font-size:clamp(2rem,13cqi,3.5rem);line-height:1.02}
+ @supports(font-size:1cqi){.plans .amt{font-size:clamp(2rem,13cqi,3.5rem)}}
+ .plans .plan .annual-offer{margin-top:8px;line-height:1.5}
+ .plan-yearly-link{margin-top:8px;padding:3px 0}
+ .plans .plan .note{margin:8px 0 10px;line-height:1.55}
+ .plans .plan .ticks{margin:0 0 14px}
+ .plans .plan .ticks li{padding:6px 0 6px 31px;line-height:1.5}
+ .plans .plan .ticks li::before{top:6px}
+ .plans .plan .plan-trial-kicker{margin-top:10px;padding:5px 11px}
+ .plans .plan .plan-status{margin-top:10px;padding:11px 16px;border-radius:18px}
+ .plans .plan .plan-status .ps-links{margin-top:2px}
+ .plans .plan .plan-status .ps-meter{margin:8px 0}
+ .plans .plan .ticks li{padding:5px 0 5px 31px}
+ .plans .plan .ticks li::before{top:5px}
+}

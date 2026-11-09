@@ -169,7 +169,17 @@ function openInvoice(inv){
   $('.bc-print',dlg).onclick=()=>printDoc(doc);
   if(!dlg.open)dlg.showModal();
 }
-$('#bc-invoice').addEventListener('click',e=>{if(e.target.closest('[data-x]')||e.target===e.currentTarget)e.currentTarget.close();});
+/* closing plays the opening motion in reverse before the dialog is really closed */
+const invDlg=$('#bc-invoice');
+function closeInvoice(){
+  if(!invDlg.open||invDlg.classList.contains('bc-out'))return;
+  if(calm()){invDlg.close();return;}
+  invDlg.classList.add('bc-out');
+  let done=false;const end=()=>{if(done)return;done=true;invDlg.classList.remove('bc-out');if(invDlg.open)invDlg.close();};
+  invDlg.addEventListener('animationend',end,{once:true});setTimeout(end,360);
+}
+invDlg.addEventListener('click',e=>{if(e.target.closest('[data-x]')||e.target===e.currentTarget)closeInvoice();});
+invDlg.addEventListener('cancel',e=>{e.preventDefault();closeInvoice();});
 
 /* ---------- payment methods ---------- */
 const form=$('#bc-billing'),payBox=$('#bc-savecard'),billMsg=$('#bc-bill-msg'),payMsg=$('#bc-pay-msg');

@@ -220,3 +220,8 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 .bc-sw:focus-visible{outline:2px solid var(--blue-d,#2A64E8);outline-offset:3px}
 .bc-sw:disabled{opacity:.7;cursor:progress}
 @media(prefers-reduced-motion:reduce){.bc-sw,.bc-sw i{transition:none}}
+#bc-invoice.bc-out{animation:bc-inv-out .26s cubic-bezier(.4,0,1,1) both;pointer-events:none}
+#bc-invoice.bc-out::backdrop{animation:bc-inv-fadeout .26s ease both}
+@keyframes bc-inv-out{from{opacity:1;transform:none}to{opacity:0;transform:translate3d(0,14px,0) scale(.985)}}
+@keyframes bc-inv-fadeout{from{opacity:1}to{opacity:0}}
+@media(prefers-reduced-motion:reduce){#bc-invoice.bc-out,#bc-invoice.bc-out::backdrop{animation:none}}

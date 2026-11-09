@@ -199,7 +199,7 @@ if(form&&pay){
   clearBillingDraft();document.dispatchEvent(new Event('ajoy:payment-complete'));
   const c={...checkout?.selection,plan:result.plan||checkout?.selection.plan,billing:result.billing||checkout?.selection.billing,seats:result.seats||checkout?.selection.seats};
   say('Payment confirmed. Taking you to your confirmation page…');
-  location.href='thank-you.html?'+new URLSearchParams({provider:'paypal',plan:c.plan==='offline'?'offline':'online',billing:c.billing==='yearly'?'yearly':'monthly',seats:String(c.seats||1),...(checkout?.id?{order:checkout.id}:{}),...(result.offer==='trial'?{offer:'trial'}:{})}).toString();
+  window.WraplineLoader?.show();location.href='thank-you.html?'+new URLSearchParams({provider:'paypal',plan:c.plan==='offline'?'offline':'online',billing:c.billing==='yearly'?'yearly':'monthly',seats:String(c.seats||1),...(checkout?.id?{order:checkout.id}:{}),...(result.offer==='trial'?{offer:'trial'}:{})}).toString();
  }
  function loadSdk(){
   if(!sdkPromise)sdkPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(cfg.clientId)+'&vault=true&intent=subscription&currency=USD';script.onload=()=>window.paypal?.Buttons?resolve():reject(new Error('PayPal could not start.'));script.onerror=()=>reject(new Error('PayPal could not load. Check your connection.'));document.head.append(script);});

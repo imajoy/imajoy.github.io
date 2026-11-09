@@ -21,3 +21,19 @@ html[data-theme=dark]{--sk-a:#161d33;--sk-b:#232c4a;--sk-bg:#070b16}
 .pay-skel .sk-logo{width:78px}
 html[data-checkout-step=billing] .pay-skel{display:none}
 @media(prefers-reduced-motion:reduce){.sk-bar,.sk-block{animation:none}.pg-skel{transition:none}}
+
+/* Logo + ring loader */
+@keyframes ring-spin{to{transform:rotate(360deg)}}
+@keyframes ring-dash{0%{stroke-dasharray:4 300;stroke-dashoffset:0}50%{stroke-dasharray:190 300;stroke-dashoffset:-40}100%{stroke-dasharray:4 300;stroke-dashoffset:-302}}
+.pg-ring{position:fixed;inset:0;z-index:2147483200;display:grid;place-items:center;background:var(--bg,#f1f3f8);opacity:1}
+.pg-ring:not(#pg-ring){opacity:0;transition:opacity .3s ease}
+.pg-ring.on{opacity:1}
+.pg-ring.done{opacity:0!important;visibility:hidden;transition:opacity .4s ease,visibility 0s .4s}
+.pg-ring .ring-wrap{position:relative;width:96px;height:96px;display:grid;place-items:center}
+.pg-ring .ring{position:absolute;inset:0;width:100%;height:100%;animation:ring-spin 1.6s linear infinite}
+.pg-ring .ring circle{fill:none;stroke-width:1.6}
+.pg-ring .ring-track{stroke:var(--line,#d9deea)}
+.pg-ring .ring-arc{stroke:var(--blue,#3d8bff);stroke-linecap:round;animation:ring-dash 1.8s ease-in-out infinite}
+.pg-ring img{width:40px;height:40px;animation:ring-pulse 1.8s ease-in-out infinite}
+@keyframes ring-pulse{50%{transform:scale(.9);opacity:.85}}
+@media(prefers-reduced-motion:reduce){.pg-ring .ring,.pg-ring .ring-arc,.pg-ring img{animation:none}}

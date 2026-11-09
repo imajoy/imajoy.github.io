@@ -52,7 +52,7 @@ if(form&&paypal&&url){
   busy=true;say('Payment received. Opening your confirmation…','ok');paint();
   try{sessionStorage.removeItem('ajoy.razorpay.pending');sessionStorage.removeItem('ajoy.billing-draft');}catch{}
   document.dispatchEvent(new Event('ajoy:payment-complete'));
-  location.href=thankYou(null,sel.plan,sel.billing,sel.seats)+'&'+new URLSearchParams({checkout:checkoutId,verify:'1'}).toString();
+  window.WraplineLoader?.show();location.href=thankYou(null,sel.plan,sel.billing,sel.seats)+'&'+new URLSearchParams({checkout:checkoutId,verify:'1'}).toString();
  }
  /* Buyer closed the window or the payment failed: end the unpaid checkout so nothing is left waiting. */
  function abandon(checkoutId,reason){
@@ -231,7 +231,7 @@ if(form&&paypal&&url){
   if(!pending||busy||getAccountSession()?.email!==pending.email)return;
   busy=true;say('Verifying payment directly with Razorpay…');paint();check.disabled=true;
   try{const result=await api('confirm',{checkoutId:pending.id});
-   if(result.accepted){say('Payment confirmed. Taking you to your confirmation page…','ok');setTimeout(()=>{location.href=thankYou(result,result.plan,result.billing,result.seats);},800);panel.dataset.paymentComplete='';document.dispatchEvent(new Event('ajoy:payment-complete'));check.hidden=true;link.hidden=true;start.hidden=true;try{sessionStorage.removeItem('ajoy.razorpay.pending');}catch{}pending=null;}
+   if(result.accepted){say('Payment confirmed. Taking you to your confirmation page…','ok');setTimeout(()=>{window.WraplineLoader?.show();location.href=thankYou(result,result.plan,result.billing,result.seats);},800);panel.dataset.paymentComplete='';document.dispatchEvent(new Event('ajoy:payment-complete'));check.hidden=true;link.hidden=true;start.hidden=true;try{sessionStorage.removeItem('ajoy.razorpay.pending');}catch{}pending=null;}
    else if(['cancelled','expired','completed'].includes(result.status)){clearPending();say('The unpaid checkout has ended. You can start a new subscription.','warn');}
    else say('Payment is not confirmed yet. If you closed the Razorpay window without paying, press "Cancel this checkout" or simply start again.','warn');
   }catch(error){say(error.message);}finally{busy=false;check.disabled=false;paint();}

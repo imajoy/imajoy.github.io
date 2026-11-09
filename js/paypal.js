@@ -1,6 +1,6 @@
 import {billingParts} from './receipt-billing.js?v=rb1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261109-co5';
+import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261109-co6';
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
 import {tierFor,availability,closedMessage,countryCheck,usdUnit} from './regions.js?v=20261023-p7';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261023-p5';
@@ -69,7 +69,7 @@ if(form&&pay){
   priceCheck.hidden=!waiting;priceStatus.textContent=waiting?(rewardBusy?'Confirming your subscription price…':rewardError||'Confirm your subscription price before continuing to PayPal.'):'';
   priceRetry.hidden=!waiting||rewardBusy;
   buttons.hidden=!session||!cfg||!eligibility||!selectedOffer||!available||(needsPrice&&!priceReady);
-  {const waiting=!!session&&!!available&&(!cfg||!eligibility||!selectedOffer||(needsPrice&&!priceReady));ppLoad.hidden=rendered||!(waiting||!buttons.hidden);}
+  {const waiting=!!session&&!!available&&(!cfg||!eligibility||!selectedOffer||(needsPrice&&!priceReady));ppLoad.hidden=rendered||!(waiting||!buttons.hidden);const t=ppLoad.querySelector('.pp-text');if(t&&!ppLoad.dataset.slow)t.textContent=!cfg?'Connecting to PayPal…':!eligibility?'Checking your account…':(!selectedOffer||(needsPrice&&!priceReady))?'Confirming your price…':'Opening PayPal…';ppLoad.dataset.step=!cfg?'1':!eligibility?'2':(!selectedOffer||(needsPrice&&!priceReady))?'3':'4';}
   if(availabilityNote)availabilityNote.textContent=!session?'Sign in or register your email, then review your subscription.':!cfg?'Secure checkout is temporarily unavailable.':!eligibility?'Checking your account and trial eligibility…':trialOn?'Review your free trial and its first paid renewal, then approve with PayPal.':'Review the standard subscription price, then approve with PayPal.';
   if(!buttons.hidden&&paymentStep&&document.documentElement.dataset.checkoutReady!=='false')startButtons();
   paintHead();
@@ -207,8 +207,8 @@ if(form&&pay){
   return sdkPromise;
  }
  const ppLoad=document.createElement('div');ppLoad.className='pp-loading';ppLoad.hidden=true;ppLoad.setAttribute('role','status');ppLoad.setAttribute('aria-live','polite');
- ppLoad.innerHTML='<span class="pp-spin" aria-hidden="true"></span><span class="pp-bar sk-bar" aria-hidden="true"></span><span class="pp-text">Loading PayPal…</span>';buttons.after(ppLoad);
- let ppSlow=setTimeout(()=>{const t=ppLoad.querySelector('.pp-text');if(t)t.textContent='Still loading PayPal, this can take a few seconds…';},6000);
+ ppLoad.innerHTML='<span class="pp-spin" aria-hidden="true"></span><span class="pp-bar sk-bar" aria-hidden="true"></span><span class="pp-text">Connecting to PayPal…</span><span class="pp-track" aria-hidden="true"><i></i></span><span class="pp-steps" aria-hidden="true"><b></b><b></b><b></b><b></b></span>';buttons.after(ppLoad);
+ let ppSlow=setTimeout(()=>{const t=ppLoad.querySelector('.pp-text');if(t){ppLoad.dataset.slow='1';t.textContent='Still working, PayPal is taking a little longer than usual…';}},6000);
  const ppDone=()=>{clearTimeout(ppSlow);ppLoad.hidden=true;};
  async function startButtons(){
   if(rendered)return;rendered=true;

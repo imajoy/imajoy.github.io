@@ -46,3 +46,15 @@ html[data-checkout-step=billing] .pay-skel{display:none}
 .pp-loading .pp-text{grid-row:1;grid-column:2;z-index:1;font-size:.8125rem;color:var(--mute,#667085)}
 @keyframes pp-rot{to{transform:rotate(360deg)}}
 @media(prefers-reduced-motion:reduce){.pp-loading .pp-spin{animation-duration:2.4s}}
+
+.pp-loading .pp-bar{height:58px}
+.pp-loading .pp-spin{margin-left:20px}
+.pp-loading .pp-text{font-weight:500;transition:opacity .25s}
+.pp-loading .pp-track{grid-column:1/-1;grid-row:2;height:3px;border-radius:3px;background:color-mix(in srgb,var(--blue,#2a64e8) 14%,transparent);overflow:hidden;position:relative}
+.pp-loading .pp-track i{position:absolute;inset:0 auto 0 0;width:38%;border-radius:3px;background:linear-gradient(90deg,#2a64e8,#5fa0ff);animation:pp-slide 1.25s cubic-bezier(.4,0,.2,1) infinite}
+.pp-loading .pp-steps{grid-column:1/-1;grid-row:3;display:flex;gap:6px;justify-content:center}
+.pp-loading .pp-steps b{width:6px;height:6px;border-radius:50%;background:color-mix(in srgb,var(--blue,#2a64e8) 22%,transparent);transition:background .3s,transform .3s}
+.pp-loading[data-step="1"] .pp-steps b:nth-child(-n+1),.pp-loading[data-step="2"] .pp-steps b:nth-child(-n+2),.pp-loading[data-step="3"] .pp-steps b:nth-child(-n+3),.pp-loading[data-step="4"] .pp-steps b{background:var(--blue,#2a64e8)}
+.pp-loading[data-step="1"] .pp-steps b:nth-child(1),.pp-loading[data-step="2"] .pp-steps b:nth-child(2),.pp-loading[data-step="3"] .pp-steps b:nth-child(3),.pp-loading[data-step="4"] .pp-steps b:nth-child(4){transform:scale(1.5)}
+@keyframes pp-slide{0%{transform:translateX(-110%)}100%{transform:translateX(280%)}}
+@media(prefers-reduced-motion:reduce){.pp-loading .pp-track i{animation-duration:3s}}

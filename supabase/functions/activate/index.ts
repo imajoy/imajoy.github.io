@@ -130,7 +130,7 @@ Deno.serve(async (req) => {
 
   const deactivating = input.action === "deactivate";
   // Spaces, line breaks and invisible characters (copied from an email or chat) are never part of a code or email.
-  const raw = clip(input.code, 200).replace(/[\s​-‍⁠﻿]/g, "").slice(0, 160);
+  const raw = clip(input.code, 200).replace(/[\s\u200b-\u200d\u2060\ufeff]/g, "").slice(0, 160);
   const isEmail = raw.includes("@");
   const email = isEmail ? raw.toLowerCase() : "";
   const code = isEmail ? "" : normalise(raw.slice(0, 64));

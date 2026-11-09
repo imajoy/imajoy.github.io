@@ -31,8 +31,8 @@ function setup(){
   const s=getAccountSession();if(!s)return;
   const mode=themeMode(),idx={light:0,dark:1,auto:2}[mode];
   menu.innerHTML='<div class="pf-head" style="--i:0"><span class="pf-av pf-av-lg" aria-hidden="true">'+esc(initial())+'</span><div><b>'+esc(profile?.name||'Your account')+'</b><small>'+esc(s.email)+'</small></div></div>'+
-   '<button class="pf-item" type="button" role="menuitem" data-go="plan" style="--i:1">'+ic.plan+'<span><b>My plan</b><small>Subscription, renewals and invoices</small></span></button>'+
-   '<button class="pf-item" type="button" role="menuitem" data-go="billing" style="--i:2">'+ic.bill+'<span><b>Billing details</b><small>'+esc(summary(profile))+'</small></span></button>'+
+   '<button class="pf-item" type="button" role="menuitem" data-go="plan" style="--i:1">'+ic.plan+'<span><b>Subscriptions &amp; invoices</b><small>Plans, renewals and payment history</small></span></button>'+
+   '<button class="pf-item" type="button" role="menuitem" data-go="billing" style="--i:2">'+ic.bill+'<span><b>Payment &amp; billing</b><small>'+esc(summary(profile))+'</small></span></button>'+
    '<div class="pf-theme" style="--i:3"><span class="pf-label">Appearance</span><div class="pf-seg" role="radiogroup" aria-label="Appearance" style="--at:'+idx+'"><i aria-hidden="true"></i>'+
     [['light','Light',ic.sun],['dark','Dark',ic.moon],['auto','Auto',ic.auto]].map(([v,t,i])=>'<button type="button" role="radio" aria-checked="'+(mode===v)+'" data-theme-set="'+v+'">'+i+'<span>'+t+'</span></button>').join('')+'</div></div>'+
    '<button class="pf-item pf-out" type="button" role="menuitem" data-go="out" style="--i:4">'+ic.out+'<span><b>Sign out</b></span></button>';
@@ -64,8 +64,8 @@ function setup(){
   if(t){const v=t.dataset.themeSet;window.AjoyTheme?.pin?.(v);const seg=menu.querySelector('.pf-seg');seg.style.setProperty('--at',{light:0,dark:1,auto:2}[v]);seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',String(b===t)));return;}
   const g=e.target.closest('[data-go]');if(!g)return;
   const go=g.dataset.go;
-  if(go==='plan'){close();window.dispatchEvent(new CustomEvent('ajoy-account-open',{detail:{}}));}
-  else if(go==='billing'){close();openEditor();}
+  if(go==='plan'){close();location.href='account.html#subscriptions';}
+  else if(go==='billing'){close();location.href='account.html#methods';}
   else if(go==='out'){close();const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});clearAccountSession();}
  });
  /* ---- billing details editor ---- */

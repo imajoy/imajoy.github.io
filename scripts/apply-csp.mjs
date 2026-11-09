@@ -22,7 +22,7 @@ export function policyFor(html){
     "style-src 'self' 'unsafe-inline' "+RAZORPAY,
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://wsadhewcmpdhojgqzstw.supabase.co https://script.google.com https://script.googleusercontent.com https://open.er-api.com https://api.country.is https://get.geojs.io "+PAYPAL+' '+RAZORPAY,
+    "connect-src 'self' https://wsadhewcmpdhojgqzstw.supabase.co https://script.google.com https://script.googleusercontent.com https://open.er-api.com https://api.country.is https://get.geojs.io https://api.postalpincode.in https://api.zippopotam.us "+PAYPAL+' '+RAZORPAY,
     "frame-src "+PAYPAL+' '+RAZORPAY,
     "media-src 'self' blob:","worker-src 'self' blob:","manifest-src 'self'",
     "object-src 'none'","base-uri 'self'","form-action 'self'",

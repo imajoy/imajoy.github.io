@@ -36,3 +36,8 @@ html[data-theme=dark] .sp-pop{box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px rg
 .sp-off .sp-chev{display:none}
 .sp-off .sp-val{color:var(--ink)}
 .sp-off .sp-btn.sp-empty .sp-val{color:var(--mute)}
+/* Postal code lookup note */
+.postal-hint{margin-top:8px;color:var(--blue-d)}
+.postal-hint.pop{animation:postal-pop .45s var(--out) both}
+@keyframes postal-pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.postal-hint.pop{animation:none}}

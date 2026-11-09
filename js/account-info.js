@@ -1,6 +1,6 @@
 /* Account information tab: profile picture, name, email, billing-address summary and account deletion.
    The name is the same one used on invoices; the picture is a small square JPEG saved with the account. */
-import {getAccountSession,onAccountChange} from './account-session.js?v=20261023-p7';
+import {getAccountSession,clearAccountSession,accountRequest,onAccountChange} from './account-session.js?v=20261023-p7';
 import {loadProfile,saveProfile,hasBilling} from './profile-store.js?v=pm2';
 const $=s=>document.querySelector(s);
 const av=$('#ai-av');if(!av)throw new Error('no account panel');
@@ -69,3 +69,8 @@ $('#ai-remove').addEventListener('click',async()=>{
 
 /* delete: opens the same emailed-code flow the sign-in window already has */
 $('#ai-delete').addEventListener('click',()=>window.dispatchEvent(new CustomEvent('ajoy-account-erase')));
+
+/* sign out / switch account: end this session on the server, then (for switch) open the sign-in window for another email */
+function leave(){const t=getAccountSession()?.token;if(t)accountRequest({step:'logout',token:t},8000).catch(()=>{});clearAccountSession();}
+$('#ai-out').addEventListener('click',leave);
+$('#ai-switch').addEventListener('click',()=>{leave();setTimeout(()=>window.dispatchEvent(new CustomEvent('ajoy-account-open',{detail:{}})),60);});

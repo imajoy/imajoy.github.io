@@ -45,3 +45,7 @@
  #p-account .ai-rows+.bc-msg{padding:0 18px 14px}
 }
 @media(prefers-reduced-motion:reduce){.ai-av,.ai-edit{transition:none!important}}
+
+.ai-act{grid-template-columns:minmax(120px,32%) minmax(0,1fr) auto}.ai-mute{color:var(--mute);font-size:.875rem}
+@media(max-width:640px){.ai-act{grid-template-columns:minmax(0,1fr) auto}.ai-act .ai-v{grid-area:v}.ai-act>:last-child{grid-area:b;grid-row:1 / span 2}}
+.ai-rows+.ai-danger{border-top:1px solid var(--line)}

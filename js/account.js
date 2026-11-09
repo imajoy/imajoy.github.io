@@ -138,9 +138,8 @@ function init() {
         (subs?.length>1&&totalDays(subs)?'<p class="acct-total">Total across your subscriptions: <b>'+dayWord(totalDays(subs))+' left</b></p>':'')+
         (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(subscriptionCard).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
-        '<a class="acct-history-link" href="thank-you.html?history=1"><span class="acct-receipt-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3Zm3 5h6M9 12h6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span><b>Purchases &amp; invoices</b><small>View your confirmations and receipts</small></span><span aria-hidden="true">→</span></a>'+
-        (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<div class="acct-footer"><p class="acct-note">Switching accounts?<br>Sign out to use another email.</p><button class="acct-link" type="button" data-out>Sign out <span aria-hidden="true">→</span></button></div><button class="acct-link acct-erase" type="button" data-erase>Delete my account and data</button>';
-      body.querySelector('[data-erase]').onclick=()=>{erasePanel={stage:'intro',msg:''};render();};
+
+        (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<div class="acct-footer"><p class="acct-note">Switching accounts?<br>Sign out to use another email.</p><button class="acct-link" type="button" data-out>Sign out <span aria-hidden="true">→</span></button></div>';
       body.querySelector('[data-out]').onclick=()=>{const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
       body.querySelector('[data-retry]')?.addEventListener('click',status);
       for(const stop of body.querySelectorAll('[data-cancel-index]'))stop.addEventListener('click',async()=>{

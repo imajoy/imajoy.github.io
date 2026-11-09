@@ -8,6 +8,7 @@ const required=on=>{for(const n of ['company','companyAddress','companyPostal'])
 window.WraplineBilling={openArea:()=>set(area,true)};
 E.companyOn.addEventListener('change',()=>{const on=E.companyOn.checked;required(on);set(comp,on);if(on)setTimeout(()=>E.company.focus({preventScroll:true}),350);});
 document.addEventListener('wrapline:postal-found',()=>set(area,true));
+document.addEventListener('wrapline:postal-reset',()=>{if(!E.city.value.trim()&&!E.region.value.trim())set(area,false);});
 /* a saved draft (or the browser restoring the form) already has values: open straight away, no animation needed */
 const init=()=>{
   if(E.city.value||E.region.value){area.classList.add('open');area.inert=false;}

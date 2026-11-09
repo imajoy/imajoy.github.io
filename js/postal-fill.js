@@ -21,7 +21,7 @@ async function lookup(cc,code){
     const p=(await r.json())?.places?.[0];return p?{city:clean(p['place name']),region:clean(p.state)}:{bad:true};
   }catch{return null;}finally{clearTimeout(t);}
 }
-function bind(postal,city,region,hint,onFound){
+function bind(postal,city,region,hint,onFound,onReset){
   let run=0,timer;
   const free=el=>!el.value.trim()||el.dataset.auto==='1';
   for(const el of [city,region])el.addEventListener('input',e=>{if(e.isTrusted)delete el.dataset.auto;});
@@ -31,20 +31,22 @@ function bind(postal,city,region,hint,onFound){
     if(text){void hint.offsetWidth;hint.classList.add('pop');}
     if(manual){const b=document.createElement('button');b.type='button';b.className='text-link';b.textContent='enter city and state yourself';b.onclick=()=>{window.WraplineBilling?.openArea();say('');};hint.append(b);}
   }
+  /* Code removed or not valid: take back what was filled automatically (typed text stays) and let the caller close City/State. */
+  function reset(){for(const el of [city,region])if(el.dataset.auto==='1'){el.value='';delete el.dataset.auto;el.dispatchEvent(new Event('input',{bubbles:true}));}if(onReset)onReset();}
   async function go(){
     const id=++run,cc=(country?.value||'').toUpperCase(),code=postal.value.trim();
-    if(!/^[A-Z]{2}$/.test(cc)||code.length<3){say('');return;}
+    if(!/^[A-Z]{2}$/.test(cc)||code.length<3){say('');reset();return;}
     const found=await lookup(cc,code);
     if(id!==run||postal.value.trim()!==code)return;
     if(!found){say('');return;}                       /* service unreachable: stay quiet */
-    if(found.bad){say(onFound?'We couldn’t verify that postal code for your country. Check it, or ':'','',!!onFound);return;}
+    if(found.bad){reset();say(onFound?'We couldn’t verify that postal code for your country. Check it, or ':'','',!!onFound);return;}
     put(city,found.city);put(region,found.region);
     if(onFound)onFound(found);
     say(onFound&&(found.city||found.region)?'Verified: '+[found.city,found.region].filter(Boolean).join(', ')+'. You can edit it.':'','ok');
   }
-  const later=()=>{clearTimeout(timer);timer=setTimeout(go,450);};
+  const later=()=>{clearTimeout(timer);if(!postal.value.trim()){run++;say('');reset();return;}timer=setTimeout(go,450);};
   postal.addEventListener('input',later);country?.addEventListener('change',later);
 }
-bind(E.postal,E.city,E.region,document.querySelector('#postal-hint'),()=>document.dispatchEvent(new CustomEvent('wrapline:postal-found')));
+bind(E.postal,E.city,E.region,document.querySelector('#postal-hint'),()=>document.dispatchEvent(new CustomEvent('wrapline:postal-found')),()=>document.dispatchEvent(new CustomEvent('wrapline:postal-reset')));
 if(E.companyPostal&&E.companyCity&&E.companyRegion)bind(E.companyPostal,E.companyCity,E.companyRegion,null,null);
 })();

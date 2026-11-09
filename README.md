@@ -1,6 +1,6 @@
-# Wrapline by Ajoy Tools
+# Wrapline
 
-Animation and pipeline tools for Autodesk Maya (2023–2026, Windows), by Ajoy Tools.
+Animation and pipeline tools for Autodesk Maya (2023–2026, Windows), by AJOY.
 
 **Website:** https://imajoy.github.io/
 

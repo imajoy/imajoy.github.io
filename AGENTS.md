@@ -13,7 +13,6 @@ When changing these files or shared motion rules, run `node scripts/check-protec
 
 ## Product terminology
 
-**Ajoy Tools** is the maker brand. **Wrapline** is its free Maya toolkit (IK / FK Snap, Multi Swapper, UDIM Preview, Layer Prefix Remover; page wrapline-free.html; free for everyone, all rights reserved, donations via support.html) and **Wrapline Pro** is the paid Maya toolkit (wrapline.html, 10 tools). Former text: Wrapline is its Maya toolkit (shown as "Wrapline by Ajoy Tools"); future products for other software will also sit under Ajoy Tools. Use Wrapline for the toolkit, its menu, shelf, installer (`Wrapline_Setup.py`), plans and emails; keep Ajoy Tools for the publisher/organisation.
-
+**Wrapline** is the brand and the umbrella for everything on the site. Under it: **Wrapline Free** (the free Maya toolkit: IK / FK Snap, Multi Swapper, UDIM Preview, Layer Prefix Remover; page wrapline-free.html; free for everyone, all rights reserved, donations via support.html) and **Wrapline Pro** (the paid Maya toolkit, wrapline.html, 10 tools). **Wrapline for Blender** is planned and shown as "coming soon". The name "Ajoy Tools" is retired from the public site. The legal owner stays visible only as "AJOY" / "Made by Ajoy Pal" in footers and the License, Privacy and invoices. The installer is `Wrapline_Setup.py`.
 
 Wrapline **FBX Exporter** and **Alembic Exporter** are AJOY's scripts. Their dependencies, **fbxmaya** and **AbcExport**, are Maya's built-in plug-ins. Explain that the Maya plug-ins can be enabled in the Plug-in Manager without a separate download; do not describe AJOY's exporter scripts as bundled with Maya. FFmpeg is a separate download used by **Audio Exporter**.

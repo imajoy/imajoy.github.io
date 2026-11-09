@@ -243,8 +243,8 @@ function handleOrder_(d) {
         (trial ? '<p><b>Your 4-day free trial has started.</b> Your first payment is taken automatically when it ends, unless you cancel before then in PayPal. You can cancel any time.</p>' : '') +
         '<p><b>Your license key will arrive within 12 hours</b> at this email address.</p>' +
         '<p>Questions? Reply to this email or write to ' + replyTo_() + '.</p>' +
-        '<p style="color:#667;font-size:13px">Wrapline Pro by Ajoy Tools: production tools for Maya.</p></div>';
-      try { MailApp.sendEmail({ to: email, name: 'Wrapline Pro by Ajoy Tools', replyTo: replyTo_(), subject: tag + 'Your Wrapline Pro order is confirmed', htmlBody: html,
+        '<p style="color:#667;font-size:13px">Wrapline Pro: production tools for Maya.</p></div>';
+      try { MailApp.sendEmail({ to: email, name: 'Wrapline Pro', replyTo: replyTo_(), subject: tag + 'Your Wrapline Pro order is confirmed', htmlBody: html,
         body: 'Thank you. Your Wrapline Pro subscription is confirmed.\nPlan: ' + planText + '\nSubscription ID: ' + subId + '\nYour license key will arrive within 12 hours at this email address.\nQuestions? ' + replyTo_() }); emailLog.push('buyer: sent'); } catch (err) { emailLog.push('buyer FAILED: ' + String(err).slice(0, 120)); }
     } else { emailLog.push('buyer: skipped (' + (verified ? 'bad email' : 'not verified') + ')'); }
     sheet.getRange(orderRow, 17).setValue(emailLog.join(' | '));
@@ -530,8 +530,8 @@ function handleTrial_(d) {
       log.push('owner: sent');
     } catch (err) { log.push('owner FAILED: ' + String(err).slice(0, 120)); }
     try {
-      MailApp.sendEmail({ to: email, name: 'Wrapline Pro by Ajoy Tools', replyTo: replyTo_(), subject: 'We received your Wrapline Pro trial request',
-        body: 'Hi ' + (name || 'there') + ',\n\nThanks for asking to try Wrapline Pro. Your ' + days + '-day trial code will arrive at this email address within 12 hours.\n\nQuestions? Reply to this email or write to ' + replyTo_() + '.\n\nWrapline by Ajoy Tools: production tools for Maya.' });
+      MailApp.sendEmail({ to: email, name: 'Wrapline Pro', replyTo: replyTo_(), subject: 'We received your Wrapline Pro trial request',
+        body: 'Hi ' + (name || 'there') + ',\n\nThanks for asking to try Wrapline Pro. Your ' + days + '-day trial code will arrive at this email address within 12 hours.\n\nQuestions? Reply to this email or write to ' + replyTo_() + '.\n\nWrapline Pro: production tools for Maya.' });
       log.push('visitor: sent');
     } catch (err) { log.push('visitor FAILED: ' + String(err).slice(0, 120)); }
     sheet.getRange(row, 6).setValue(log.join(' | '));
@@ -602,7 +602,7 @@ function setupPlans() {
   }
   var productId = result.productId;
   if (!productId) {
-    productId = paypalPost_('/v1/catalogs/products', { name: 'Wrapline Pro by Ajoy Tools', description: 'Production tools for Maya.', type: 'DIGITAL', category: 'SOFTWARE', home_url: 'https://imajoy.github.io/' }, t, 'ajoy-product-' + mode_()).id;
+    productId = paypalPost_('/v1/catalogs/products', { name: 'Wrapline Pro', description: 'Production tools for Maya.', type: 'DIGITAL', category: 'SOFTWARE', home_url: 'https://imajoy.github.io/' }, t, 'ajoy-product-' + mode_()).id;
     result.productId = productId;
   }
   ['high', 'mid', 'low'].forEach(function (tier) {

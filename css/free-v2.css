@@ -115,7 +115,7 @@ html body.free-page #get .ft-status[data-state=error] .fd-title{color:#C2353A}
 html body.free-page #get .ft-status .fd-bar{background:rgba(124,92,255,.14)}
 html body.free-page #get .ft-status a{color:#5B44E0}
 
-/* free page header: the plan counter belongs to Wrapline Pro, so say so; and always keep a way back to the Ajoy Tools home page */
+/* free page header: the plan counter belongs to Wrapline Pro, so say so; and always keep a way back to the Wrapline home page */
 html body.free-page .pillbar>.maker-home{display:grid!important}
 html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-state=ended]):not(:disabled)::before{content:"Pro";margin-right:8px;padding:2px 7px;border-radius:99px;background:currentColor;color:inherit;font-size:.66em;font-weight:800;letter-spacing:.08em;text-transform:uppercase;-webkit-text-fill-color:#fff;background-color:#7a4dff;-webkit-text-fill-color:#fff}
 @media(min-width:460px){html body.free-page .acct-btn:is([data-state=active],[data-state=ending],[data-state=ended]):not(:disabled)::before{content:"Wrapline Pro"}}

@@ -35,8 +35,8 @@ for(const filename of publicPages){
  const ogImage=meta(head,'og:image');assert(ogImage.startsWith(base+'assets/og/'),`${filename}: og:image must be a site image`);assert(existsSync(resolve(root,ogImage.slice(base.length))),`${filename}: og:image file missing`);assert.equal(meta(head,'twitter:image'),ogImage);assert.equal(meta(head,'twitter:card'),'summary_large_image');assert(meta(head,'og:image:alt').length>5);assert.match(meta(head,'robots'),/\bindex\b/);
  const webpage=nodes.find(node=>node['@type']==='WebPage');assert.equal(webpage?.url,expected);assert.equal(webpage.description,description);
  if(filename==='index.html'){
-  const org=nodes.find(node=>node['@type']==='Organization');assert.equal(org?.name,'Ajoy Tools');
-  const products=nodes.find(node=>node['@type']==='ItemList');assert(products?.itemListElement.some(item=>item.url===base+'wrapline.html'),'Ajoy Tools home must list Wrapline');
+  const org=nodes.find(node=>node['@type']==='Organization');assert.equal(org?.name,'Wrapline');
+  const products=nodes.find(node=>node['@type']==='ItemList');assert(products?.itemListElement.some(item=>item.url===base+'wrapline.html'),'Wrapline home must list Wrapline Pro');
  }else if(filename==='wrapline-free.html'){
   const app=nodes.find(node=>node['@type']==='SoftwareApplication');assert.equal(app.name,'Wrapline');assert.equal(app.isAccessibleForFree,true);assert.equal(app.featureList.length,freeTools.length);
  }else if(filename==='wrapline.html'){

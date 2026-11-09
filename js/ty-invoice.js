@@ -6,7 +6,7 @@ export function printDoc(doc){
  const paper=doc.querySelector('.iv-paper');if(!paper)return;
  document.getElementById('iv-print')?.remove();
  const root=el('div');root.id='iv-print';const copy=paper.cloneNode(true);copy.classList.add('is-print');root.append(copy);document.body.append(root);
- const title=document.title,num=paper.dataset.number;if(num)document.title='Invoice '+num+' · Ajoy Tools';
+ const title=document.title,num=paper.dataset.number;if(num)document.title='Invoice '+num+' · Wrapline';
  document.body.classList.add('iv-printing');
  const done=()=>{document.body.classList.remove('iv-printing');root.remove();document.title=title;removeEventListener('afterprint',done);};
  addEventListener('afterprint',done);
@@ -16,7 +16,7 @@ export function printDoc(doc){
        orderId (short ORD-… ref), orderFull (full checkout ID), billed:{name,lines:[...]}, title, sub, seats, money(v)->string, total:number|null, coupon, totalLabel, note, seller} */
 export function buildInvoiceDoc(o){
  const wrap=el('div','iv-wrap'),paper=el('article','iv-paper'),m=o.money,known=typeof o.total==='number'&&Number.isFinite(o.total);
- const seller=o.seller||'Ajoy Tools',kind=(o.kind||'Invoice').toUpperCase(),dash='—';
+ const seller=o.seller||'AJOY',kind=(o.kind||'Invoice').toUpperCase(),dash='—';
  if(o.number)paper.dataset.number=o.number;
  const price=v=>known?m(v):'As invoiced';
  /* top: seller left, document title right */

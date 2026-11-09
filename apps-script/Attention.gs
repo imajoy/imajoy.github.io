@@ -1,5 +1,5 @@
 /* "Needs attention": a plain list of purchases that may not have finished, so you can follow up with the buyer.
-   Run it from the sheet menu (Ajoy Tools > Refresh "Needs attention") or from the Apps Script editor (run needsAttention).
+   Run it from the sheet menu (Wrapline > Refresh "Needs attention") or from the Apps Script editor (run needsAttention).
    It rewrites one tab, "Needs attention", and never changes any order, payment or invoice.
    Three kinds of rows:
      Paid, no order      money was taken (Payments tab) but no accepted order exists for that subscription
@@ -10,7 +10,7 @@ var ATTENTION_SHEET_ = 'Needs attention';
 var ATTENTION_HEADERS_ = ['Problem', 'Order ID', 'Full checkout ID', 'Buyer email', 'Started', 'Provider', 'Plan', 'Subscription ID', 'Payment ID', 'What to do'];
 
 function onOpen() {
-  try { SpreadsheetApp.getUi().createMenu('Ajoy Tools').addItem('Refresh "Needs attention"', 'needsAttention').addToUi(); } catch (e) {}
+  try { SpreadsheetApp.getUi().createMenu('Wrapline').addItem('Refresh "Needs attention"', 'needsAttention').addToUi(); } catch (e) {}
 }
 
 function needsAttention() {

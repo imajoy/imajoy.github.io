@@ -2,7 +2,7 @@
    (the first payment and each renewal), from PayPal or Razorpay. Donations never get one.
    Called from paymentRecord_() in Payments.gs, which only reports a payment as new once, so nobody is emailed twice.
    Optional script properties (Project Settings > Script properties):
-     INVOICE_SELLER_NAME     name printed on the invoice (default "Ajoy Tools")
+     INVOICE_SELLER_NAME     name printed on the invoice (default "AJOY")
      INVOICE_SELLER_DETAILS  extra lines such as address or tax number; separate lines with | */
 var INVOICES_SHEET_ = 'Invoices';
 var INVOICE_HEADERS_ = ['Invoice no.', 'Date', 'Buyer email', 'Plan', 'Billing', 'Licenses', 'Amount', 'Currency', 'Provider', 'Mode', 'Payment ID', 'Subscription ID', 'Order ID', 'Billed to', 'Company', 'Billing address'];
@@ -78,7 +78,7 @@ function invoiceSend_(p) {
   var order = invoiceOrder_(p.subscriptionId, p.email, p.checkoutId), orderRef = orderRef_(order.checkoutId), addr = invoiceAddress_(order);
   var plan = 'Wrapline Pro ' + planLabel_(p.plan === 'offline' || /premium/i.test(p.plan) ? 'offline' : 'online') + ' · ' + (/year/i.test(p.billing) ? 'Yearly' : 'Monthly') + (Number(p.seats) > 1 ? ' · ' + Number(p.seats) + ' licenses' : '');
   var test = String(p.mode).toLowerCase() === 'test', tag = test ? '[TEST] ' : '';
-  var props = props_(), seller = props.getProperty('INVOICE_SELLER_NAME') || 'Ajoy Tools', extra = (props.getProperty('INVOICE_SELLER_DETAILS') || '').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
+  var props = props_(), seller = props.getProperty('INVOICE_SELLER_NAME') || 'AJOY', extra = (props.getProperty('INVOICE_SELLER_DETAILS') || '').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
   var when = Utilities.formatDate(date, 'Asia/Calcutta', 'd MMM yyyy'), total = invoiceMoney_(p.amount, p.currency || 'INR');
   var zero = !(Number(p.amount) > 0), row = function (a, b, strong) { return '<tr><td style="padding:10px 0;color:#667;border-top:1px solid #e3e6ee">' + esc_(a) + '</td><td style="padding:10px 0;text-align:right;border-top:1px solid #e3e6ee">' + (strong ? '<b>' + esc_(b) + '</b>' : esc_(b)) + '</td></tr>'; };
   var html = '<div style="font-family:Arial,sans-serif;max-width:560px;margin:auto;color:#14182a">' +
@@ -90,7 +90,7 @@ function invoiceSend_(p) {
     (zero ? '<p style="margin:0 0 6px;color:#667;font-size:13px">No payment was due on this order. This invoice is your record of it.</p>' : '') +
     '<p style="color:#667;font-size:13px">Thank you for subscribing. Keep this email as your receipt. Questions? Reply to this email or write to ' + esc_(replyTo_()) + '.</p></div>';
   var text = 'Invoice ' + number + ' (' + when + ')\n' + seller + (extra.length ? '\n' + extra.join('\n') : '') + '\n\nBilled to: ' + [order.name, order.company].filter(Boolean).concat(addr).concat([p.email]).join(', ') + (orderRef ? '\nOrder ID: ' + orderRef + ' (' + order.checkoutId + ')' : '') + '\nItem: ' + plan + '\nPaid with: ' + p.provider + '\nPayment ID: ' + p.paymentId + '\n' + (zero ? 'Total due: ' : 'Total paid: ') + total + (zero ? '\nNo payment was due on this order.' : '') + '\n\nQuestions? ' + replyTo_();
-  if (!p.silent) MailApp.sendEmail({ to: String(p.email), name: 'Wrapline Pro by Ajoy Tools', replyTo: replyTo_(), subject: tag + 'Your Wrapline Pro invoice ' + number, htmlBody: html, body: text });
+  if (!p.silent) MailApp.sendEmail({ to: String(p.email), name: 'Wrapline Pro', replyTo: replyTo_(), subject: tag + 'Your Wrapline Pro invoice ' + number, htmlBody: html, body: text });
   sheet.appendRow([number, date, p.email, plan, paymentTitle_(p.billing), Number(p.seats) || 1, Number(p.amount), p.currency || '', p.provider, test ? 'Test' : 'Live', String(p.paymentId), String(p.subscriptionId || ''), orderRef ? orderRef + ' | ' + order.checkoutId : '', order.name, order.company, addr.join(', ')].map(safeSheetCell_));
   return number;
 }
@@ -109,7 +109,7 @@ function invoiceArchive_(who) {
     .filter(function (r) { return String(r[2]).trim().toLowerCase() === who.email && (!allowedSub || String(r[11]) === allowedSub); })
     .slice(-200).reverse().map(function (r) {
       var date = r[1] instanceof Date ? r[1] : new Date(r[1]);
-      return { number: String(r[0]), date: isNaN(date.getTime()) ? '' : date.toISOString(), plan: String(r[3]), seller: props_().getProperty('INVOICE_SELLER_NAME') || 'Ajoy Tools', billing: String(r[4]), seats: Number(r[5]) || 1, amount: Number(r[6]) || 0, currency: String(r[7]), provider: String(r[8]), mode: String(r[9]), paymentId: String(r[10]), subscriptionId: String(r[11]), orderId: String(r[12] || ''), billedTo: String(r[13] || ''), company: String(r[14] || ''), address: String(r[15] || '') };
+      return { number: String(r[0]), date: isNaN(date.getTime()) ? '' : date.toISOString(), plan: String(r[3]), seller: props_().getProperty('INVOICE_SELLER_NAME') || 'AJOY', billing: String(r[4]), seats: Number(r[5]) || 1, amount: Number(r[6]) || 0, currency: String(r[7]), provider: String(r[8]), mode: String(r[9]), paymentId: String(r[10]), subscriptionId: String(r[11]), orderId: String(r[12] || ''), billedTo: String(r[13] || ''), company: String(r[14] || ''), address: String(r[15] || '') };
     });
 }
 

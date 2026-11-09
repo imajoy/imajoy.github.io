@@ -1,4 +1,4 @@
-// Wrapline Pro (by Ajoy Tools; the paid toolkit): checks a Premium access code or a Basic email and, if it is allowed, returns a
+// Wrapline Pro (the paid toolkit): checks a Premium access code or a Basic email and, if it is allowed, returns a
 // short-lived download link for the latest package. Also handles {"action": "deactivate"} when a computer uninstalls.
 //
 // Premium: "code" is a license key (stored only as a hash in the licenses table).
@@ -137,7 +137,7 @@ Deno.serve(async (req) => {
   const machineId = clip(input.machine_id, 128);
   if (!machineId || (isEmail ? (email.length > 120 || !EMAIL.test(email)) : code.length < 8)) {
     return reply(400, {
-      error: isEmail ? "Enter the email address you registered on the Ajoy Tools website." : "Invalid request",
+      error: isEmail ? "Enter the email address you registered on the Wrapline website." : "Invalid request",
     });
   }
 
@@ -204,7 +204,7 @@ Deno.serve(async (req) => {
       return reply(404, {
         // "#register=<email>" opens the website's Register / Login window with this email filled in.
         error: "This email is not registered yet. [Register](" + SITE + "#register=" + encodeURIComponent(email).replace(/[()]/g, escape) +
-          ") for free on the Ajoy Tools website with this email, then click Install again.",
+          ") for free on the Wrapline website with this email, then click Install again.",
         reason: "not_registered", link: SITE + "#register",
       });
     } else if (answer.entitled !== true) {

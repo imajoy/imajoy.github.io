@@ -1,4 +1,4 @@
-/* Ajoy Tools home: the page is told like a shot in Maya.
+/* Wrapline home: the page is told like a shot in Maya.
    01 viewport + camera gate  02 Outliner/Attribute Editor  03 plans  04 time slider  05 credits  06 slate.
    Only transform and opacity animate; no blur, no backdrop filters, no fixed layers. Day and night use the site tokens. */
 .home{--mono:ui-monospace,"SFMono-Regular","Cascadia Mono",Consolas,monospace;--sel:#3CCB7F;--maya:#2B2D31;--maya2:#36393F;--maya3:#43474F;--maya-ln:#1E2024;--maya-tx:#C9CED8;--maya-hi:#4F7FA6;overflow-x:clip}

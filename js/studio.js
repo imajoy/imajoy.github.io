@@ -1,4 +1,4 @@
-/* Ajoy Tools home page: theme switch, footer year and gentle section entrances. Content stays visible without this script. */
+/* Wrapline home page: theme switch, footer year and gentle section entrances. Content stays visible without this script. */
 (function () {
   var root = document.documentElement, btn = document.getElementById('theme');
   function label() { if (btn) btn.setAttribute('aria-label', root.getAttribute('data-theme') === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'); }

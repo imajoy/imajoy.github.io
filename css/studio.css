@@ -1,4 +1,4 @@
-/* Ajoy Tools home page (the maker's hub). Product pages such as wrapline.html keep their own styles. */
+/* Wrapline home page (the hub). Product pages such as wrapline.html keep their own styles. */
 .studio-page{background:var(--bg)}
 .skip{position:absolute;left:16px;top:-60px;z-index:100;background:var(--btnbg);color:var(--btnfg);padding:10px 16px;border-radius:12px;text-decoration:none}
 .skip:focus{top:16px}
@@ -182,3 +182,9 @@ a.s-slot.is-free b,a.s-slot.is-free small{text-decoration:none}
 .s-cmp-best li svg{stroke:#3A2606;background:linear-gradient(135deg,#FFE29A,#F2B64F)}
 .s-cmp-tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);padding:6px 14px;border-radius:999px;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:#3A2606;background:linear-gradient(135deg,#FFE29A,#F2B64F);box-shadow:0 8px 20px -10px rgba(242,182,79,.9);white-space:nowrap}
 @media(max-width:900px){.s-cmp-grid{grid-template-columns:1fr}.s-compare{padding:20px 0 80px}}
+
+/* Blender note under the plans */
+.h-blender{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin:28px auto 0;padding:14px 22px;max-width:max-content;border-radius:999px;font-size:.95rem;text-align:center;color:var(--t60,inherit);background:var(--pill);border:1px solid var(--pillbd)}
+.h-blender b{color:var(--ink,inherit);font-weight:700}
+.h-blender i{width:10px;height:10px;border-radius:50%;background:#F5792A;box-shadow:0 0 0 4px rgba(245,121,42,.18);flex:none}
+@media(max-width:520px){.h-blender{border-radius:22px;padding:14px 18px;font-size:.88rem}}

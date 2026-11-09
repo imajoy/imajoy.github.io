@@ -1,4 +1,4 @@
-/* "Vibe" scroll layer for the Ajoy Tools home page and the Wrapline Pro page (styles: css/vibe-scroll.css).
+/* "Vibe" scroll layer for the Wrapline home page and the Wrapline Pro page (styles: css/vibe-scroll.css).
    - a gradient scroll-progress bar with a glowing head
    - tilted ribbons ([data-vibe-ribbon]) that drift on their own and speed up / flip direction with your scroll
    - a highlighter swipe under each section heading's <em> as it arrives

@@ -10,9 +10,9 @@ html body .site-header .pillbar .home-btn{margin-left:0}
   html.pill-pending .pillbar>.home-btn{opacity:0}
   html.pill-entering .pillbar>.home-btn{--pill-delay:.78s;animation:pill-content .5s cubic-bezier(.22,1,.36,1) backwards;animation-delay:calc(var(--pill-delay) + .85s)}
   .pillbar .home-btn svg path{transition:transform .45s cubic-bezier(.22,1,.36,1);transform-box:fill-box;transform-origin:center}
-  .pillbar .home-btn:hover svg{animation:home-hop .6s cubic-bezier(.22,1,.36,1)}
-  .pillbar .home-btn:hover svg path:nth-child(1){transform:translateY(-1.6px)}
-  .pillbar .home-btn:hover svg path:nth-child(3){transform:scaleY(1.12)}
+  .pillbar .home-btn:is(:hover,:active,:focus-visible) svg{animation:home-hop .6s cubic-bezier(.22,1,.36,1)}
+  .pillbar .home-btn:is(:hover,:active,:focus-visible) svg path:nth-child(1){transform:translateY(-1.6px)}
+  .pillbar .home-btn:is(:hover,:active,:focus-visible) svg path:nth-child(3){transform:scaleY(1.12)}
   .pillbar .home-btn:active{transform:scale(.92)}
   @keyframes home-hop{0%{transform:none}35%{transform:translateY(-3px) rotate(-6deg)}70%{transform:translateY(0) rotate(3deg)}100%{transform:none}}
 }

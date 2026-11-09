@@ -40,3 +40,39 @@
 .checkout-side>*{flex:none}
 .checkout-side .order-summary{overflow:visible}
 @media(max-width:800px){.checkout-side{display:contents}.checkout-side>*{margin:0!important}.checkout-grid{row-gap:22px}.checkout-side .order-summary{grid-row:1}}
+
+/* Compact desktop billing: less "zoomed in", offers visible at the top of the right column */
+@media(min-width:801px){
+ .commerce-main{padding-top:36px;padding-bottom:60px}
+ .commerce-main h1{font-size:clamp(1.9rem,1rem + 2vw,2.5rem);margin-bottom:10px}
+ .commerce-intro{font-size:.875rem}
+ .checkout-progress{margin-top:16px}
+ .status-box{margin-top:14px;padding:11px 18px}
+ .checkout-grid{margin-top:22px;gap:26px;grid-template-columns:1.15fr .85fr}
+ .checkout-form fieldset{padding:20px 24px 6px;margin-bottom:20px;border-radius:22px}
+ .checkout-form legend{font-size:.9375rem;margin-bottom:14px}
+ .form-field{margin-bottom:13px}
+ .form-field label{font-size:.75rem;margin-bottom:5px}
+ .form-field input,.form-field select,.form-field textarea,.sp-btn{min-height:42px;padding:9px 13px;font-size:.9375rem}
+ .form-field textarea{min-height:68px}
+ .checkout-side{gap:14px}
+ .checkout-side .offer-inline{order:-1}
+ .checkout-side .order-summary{padding:20px 24px 22px}
+ .checkout-side .license-preview{height:132px;margin:-6px 0 8px}
+ .checkout-side .license-pass{width:min(210px,100% - 25px);padding:13px}
+ .checkout-side .creative-flow{display:none}
+ .checkout-side .order-summary h2{font-size:1.25rem}
+ .checkout-side .order-lines{margin:14px 0 8px}
+ .checkout-side .order-lines div{padding:8px 0}
+ .checkout-side .order-total{margin:14px 0 8px}
+ .checkout-side .order-total strong{font-size:1.625rem}
+ .checkout-side .summary-list{margin-top:14px;padding-top:14px}
+ .checkout-side .summary-list li{margin-bottom:5px}
+ .checkout-side .offer-inline{padding:16px 18px}
+}
+@media(min-width:801px){
+ .commerce-main>.wrap>.eyebrow,.commerce-main>.wrap>.commerce-intro{display:none}
+ .commerce-main{padding-top:22px}
+ .commerce-main h1{margin-bottom:0}
+ .checkout-progress{margin-top:14px}
+}

@@ -40,3 +40,4 @@ html[data-theme=dark] .lng-search{background:#0d1530}
 @keyframes lng-spin{to{transform:rotate(360deg)}}
 @media(max-width:520px){.lng-box{padding:24px 12px 12px}.lng-name{flex-direction:column;gap:0}}
 @media(prefers-reduced-motion:reduce){.lng-dlg[open],.lng-list li,.lng-tick{animation:none!important;transition:none!important}}
+.lng-here{margin:6px 12px 0;padding:9px 12px;border-radius:12px;font-size:.78rem;line-height:1.5;color:var(--mute,#586072);background:color-mix(in srgb,var(--blue,#3d8bff) 8%,transparent)}

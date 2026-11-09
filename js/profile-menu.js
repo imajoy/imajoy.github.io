@@ -68,7 +68,7 @@ function setup(){
   const go=g.dataset.go;
   if(go==='plan'){close();location.href='account.html#subscriptions';}
   else if(go==='billing'){close();location.href='account.html#methods';}
-  else if(go==='lang'){close();import('./language-ui.js?v=lg1').then(m=>m.openLanguage());}
+  else if(go==='lang'){close();import('./language-ui.js?v=lg2').then(m=>m.openLanguage());}
   else if(go==='out'){close();const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});clearAccountSession();}
  });
  /* ---- billing details editor ---- */

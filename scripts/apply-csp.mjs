@@ -10,7 +10,12 @@ const root=new URL('../',import.meta.url);
 export const BUSTER="if(window.top!==window.self){try{window.top.location=window.self.location}catch(e){document.documentElement.style.display='none'}}";
 const hash=text=>"'sha256-"+createHash('sha256').update(text,'utf8').digest('base64')+"'";
 const PAYPAL='https://www.paypal.com https://*.paypal.com https://www.paypalobjects.com https://*.paypalobjects.com';
+/* Google's page translator needs inline + eval script permission, so it is allowed only on pages that opt in with
+   <meta name="ajoy-translate" content="on"> (marketing pages). Checkout, account, billing, download, thank-you, support and
+   contact keep the strict hash-only policy and stay in English. */
 const TRANSLATE='https://translate.google.com https://translate.googleapis.com https://www.gstatic.com';
+const TRANSLATE_SCRIPT="'unsafe-inline' 'unsafe-eval' https://*.google.com https://*.googleapis.com https://*.gstatic.com";
+export const translates=html=>/<meta name="ajoy-translate" content="on">/.test(html);
 const RAZORPAY='https://checkout.razorpay.com https://*.razorpay.com';
 export function inlineScripts(html){
   return [...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi)].filter(m=>!/type\s*=\s*["']?application\/(ld\+json|json)/i.test(m[1])&&m[2].trim()&&!/data-csp-meta/.test(m[1])).map(m=>m[2]);
@@ -19,7 +24,7 @@ export function policyFor(html){
   const hashes=[...new Set([BUSTER,...inlineScripts(html)])].map(hash);
   return [
     "default-src 'self'",
-    "script-src 'self' "+hashes.join(' ')+' '+PAYPAL+' '+RAZORPAY+' '+TRANSLATE,
+    translates(html)?"script-src 'self' "+TRANSLATE_SCRIPT+' '+PAYPAL+' '+RAZORPAY:"script-src 'self' "+hashes.join(' ')+' '+PAYPAL+' '+RAZORPAY,
     "style-src 'self' 'unsafe-inline' "+RAZORPAY+' '+TRANSLATE,
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",

@@ -25,6 +25,8 @@
   var CODES = LIST.map(function (l) { return l[0]; });
   function stored() { try { var v = localStorage.getItem(KEY); return CODES.indexOf(v) > -1 ? v : 'en'; } catch (e) { return 'en'; } }
   var cur = stored(), loading = null;
+  /* only pages that opt in (<meta name="ajoy-translate">) may run the translator; the others stay English and keep the saved choice */
+  var CAN = !!document.querySelector('meta[name="ajoy-translate"][content="on"]');
   function cookie(code) {
     var v = code === 'en' ? '' : '/en/' + code;
     document.cookie = 'googtrans=' + v + ';path=/;max-age=' + (code === 'en' ? 0 : 31536000) + ';SameSite=Lax';
@@ -83,7 +85,9 @@
     if (CODES.indexOf(code) < 0) return Promise.resolve(false);
     var prev = cur; cur = code;
     try { localStorage.setItem(KEY, code); } catch (e) {}
-    cookie(code); root.lang = code === 'en' ? 'en' : code;
+    cookie(code);
+    if (!CAN) { listeners.forEach(function (f) { f(code); }); return Promise.resolve(true); }
+    root.lang = code === 'en' ? 'en' : code;
     if (prev === code) return Promise.resolve(true);
     /* English with nothing translated yet: nothing to do */
     if (code === 'en' && !/translated-(ltr|rtl)/.test(root.className) && !loading) { listeners.forEach(function (f) { f(code); }); return Promise.resolve(true); }
@@ -95,15 +99,14 @@
     });
   }
   window.AjoyLang = {
-    /* off until the translator can run under the site's security policy (it needs inline-script permission) */
-    enabled: false,
+    enabled: true, supported: CAN,
     list: LIST, current: function () { return cur; },
     entry: function (c) { return LIST.filter(function (l) { return l[0] === (c || cur); })[0] || LIST[0]; },
     set: set, onChange: function (f) { listeners.push(f); }
   };
   function boot() {
     protect();
-    if (cur !== 'en') { cookie(cur); root.lang = cur; style(); busy(true); apply(cur).then(function () { busy(false); }, function () { busy(false); cur = 'en'; try { localStorage.setItem(KEY, 'en'); } catch (e) {} cookie('en'); }); }
+    if (CAN && cur !== 'en') { cookie(cur); root.lang = cur; style(); busy(true); apply(cur).then(function () { busy(false); }, function () { busy(false); cur = 'en'; try { localStorage.setItem(KEY, 'en'); } catch (e) {} cookie('en'); }); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

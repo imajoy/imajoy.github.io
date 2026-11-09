@@ -41,7 +41,10 @@ export function bindPostal(form){
     let f=null,down=false,cc='';
     for(const c of order){const r=await lookup(c,code);if(id!==run||postal.value.trim()!==code)return;if(r===null){down=true;continue;}if(!r.bad){f=r;cc=c;break;}}
     if(!f&&down){lock(false);say('Could not look up the postal code right now. Enter your city and state.','');return;}
-    if(!f){clear();lock(true);say('We couldn’t find postal code '+code+'. Please check it.','err');return;}
+    if(!f){clear();
+      /* an Indian PIN that does not exist is a typo; any other unknown code (a country the free service does not cover) opens City and State so the customer can still save */
+      if(geo==='IN'&&digits===6){lock(true);say('We couldn’t find PIN code '+code+' in India. Please check it.','err');return;}
+      lock(false);say('We couldn’t verify that postal code. Check it, or enter your city and state yourself.','');return;}
     city.value=f.city;region.value=f.region;lock(true);
     city.dispatchEvent(new Event('input',{bubbles:true}));region.dispatchEvent(new Event('input',{bubbles:true}));
     say('Detected: '+[f.city,f.region].filter(Boolean).join(', '),'ok');

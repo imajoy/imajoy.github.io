@@ -166,7 +166,7 @@ function openInvoice(inv){
   const dlg=$('#bc-invoice'),slot=$('.bc-invoice-body',dlg);slot.replaceChildren();
   const doc=invoiceDoc(inv);if(!doc)return;
   slot.append(doc);
-  $('.bc-print',dlg).onclick=()=>saveDocs([inv],$('.bc-print',dlg));
+  $('.bc-print',dlg).onclick=()=>printDoc(doc);
   if(!dlg.open)dlg.showModal();
 }
 $('#bc-invoice').addEventListener('click',e=>{if(e.target.closest('[data-x]')||e.target===e.currentTarget)e.currentTarget.close();});

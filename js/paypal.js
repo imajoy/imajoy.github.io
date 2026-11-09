@@ -69,7 +69,7 @@ if(form&&pay){
   priceCheck.hidden=!waiting;priceStatus.textContent=waiting?(rewardBusy?'Confirming your subscription price…':rewardError||'Confirm your subscription price before continuing to PayPal.'):'';
   priceRetry.hidden=!waiting||rewardBusy;
   buttons.hidden=!session||!cfg||!eligibility||!selectedOffer||!available||(needsPrice&&!priceReady);
-  {const waiting=!!session&&!!available&&(!cfg||!eligibility||!selectedOffer||(needsPrice&&!priceReady));ppLoad.hidden=rendered||!(waiting||!buttons.hidden);const t=ppLoad.querySelector('.pp-text');if(t&&!ppLoad.dataset.slow)t.textContent=!cfg?'Connecting to PayPal…':!eligibility?'Checking your account…':(!selectedOffer||(needsPrice&&!priceReady))?'Confirming your price…':'Opening PayPal…';ppLoad.dataset.step=!cfg?'1':!eligibility?'2':(!selectedOffer||(needsPrice&&!priceReady))?'3':'4';}
+  {const waiting=!!session&&!!available&&(!cfg||!eligibility||!selectedOffer||(needsPrice&&!priceReady));ppLoad.hidden=rendered||!(waiting||!buttons.hidden);const t=ppLoad.querySelector('.pp-text');const stp=!cfg?'1':!eligibility?'2':(!selectedOffer||(needsPrice&&!priceReady))?'3':'4';ppLoad.dataset.step=stp;if(t)t.textContent=(ppLoad.dataset.slow?{1:'Still connecting to PayPal, this is taking a little longer…',2:'Still checking your account, this is taking a little longer…',3:'Still confirming your price, this is taking a little longer…',4:'PayPal is taking a little longer than usual to open…'}:{1:'Connecting to PayPal…',2:'Checking your account…',3:'Confirming your price…',4:'Opening PayPal…'})[stp];}
   if(availabilityNote)availabilityNote.textContent=!session?'Sign in or register your email, then review your subscription.':!cfg?'Secure checkout is temporarily unavailable.':!eligibility?'Checking your account and trial eligibility…':trialOn?'Review your free trial and its first paid renewal, then approve with PayPal.':'Review the standard subscription price, then approve with PayPal.';
   if(!buttons.hidden&&paymentStep&&document.documentElement.dataset.checkoutReady!=='false')startButtons();
   paintHead();
@@ -213,7 +213,7 @@ if(form&&pay){
  }
  const ppLoad=document.createElement('div');ppLoad.className='pp-loading';ppLoad.hidden=true;ppLoad.setAttribute('role','status');ppLoad.setAttribute('aria-live','polite');
  ppLoad.innerHTML='<span class="pp-spin" aria-hidden="true"></span><span class="pp-bar sk-bar" aria-hidden="true"></span><span class="pp-text">Connecting to PayPal…</span><span class="pp-track" aria-hidden="true"><i></i></span><span class="pp-steps" aria-hidden="true"><b></b><b></b><b></b><b></b></span>';buttons.after(ppLoad);
- let ppSlow=setTimeout(()=>{const t=ppLoad.querySelector('.pp-text');if(t){ppLoad.dataset.slow='1';t.textContent='Still working, PayPal is taking a little longer than usual…';}},6000);
+ let ppSlow=setTimeout(()=>{ppLoad.dataset.slow='1';sync();},6000);
  const ppDone=()=>{clearTimeout(ppSlow);ppLoad.hidden=true;};
  async function startButtons(){
   if(rendered)return;rendered=true;

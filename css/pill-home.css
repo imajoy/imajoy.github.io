@@ -16,3 +16,9 @@ html body .site-header .pillbar .home-btn{margin-left:0}
   .pillbar .home-btn:active{transform:scale(.92)}
   @keyframes home-hop{0%{transform:none}35%{transform:translateY(-3px) rotate(-6deg)}70%{transform:translateY(0) rotate(3deg)}100%{transform:none}}
 }
+/* Plan pill ("PLAN | 350d left"): slightly smaller text so it has breathing room inside the pill */
+html body .pillbar .acct-btn.has-days.has-days{gap:11px;padding-inline:22px 24px}
+html body .pillbar .acct-btn.has-days.has-days .ab-k{font-size:.6rem;padding-right:11px}
+html body .pillbar .acct-btn.has-days.has-days .ab-v{font-size:.76rem}
+html body .pillbar .acct-btn.has-days.has-days .ab-v b{font-size:.92rem}
+@media(max-width:380px){html body .pillbar .acct-btn.has-days.has-days{gap:8px;padding-inline:14px 16px}html body .pillbar .acct-btn.has-days.has-days .ab-k{padding-right:8px}html body .pillbar .acct-btn.has-days.has-days .ab-v{font-size:.7rem}html body .pillbar .acct-btn.has-days.has-days .ab-v b{font-size:.84rem}}

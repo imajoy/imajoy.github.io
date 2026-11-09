@@ -7,8 +7,8 @@
 <link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/instrument-serif-italic-5.3.0.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v=20261108-dl2">
 <link rel="stylesheet" href="css/commerce.css?v=20261017-r7">
-<link rel="stylesheet" href="css/thank-you-v3.css?v=ty18">
-<link rel="stylesheet" href="css/mood-orb.css?v=mo2">
+<link rel="stylesheet" href="css/thank-you-v3.css?v=ty19">
+<link rel="stylesheet" href="css/mood-orb.css?v=mo3">
 <script src="js/site-config.js?v=20261023-p4"></script>
 <link rel="stylesheet" href="css/mobile.css?v=20261108-ft1">
 <link rel="stylesheet" href="css/coffee.css?v=20261023-c1"><link rel="stylesheet" href="css/hover-fx.css?v=hv3"><link rel="stylesheet" href="css/transitions.css?v=vt9"><link rel="stylesheet" href="css/skeleton.css?v=sk7"><script defer src="js/skeleton.js?v=sk1"></script><script defer src="js/page-loader.js?v=pl1"></script></head>
@@ -18,7 +18,6 @@
 <main class="commerce-main ty-main" data-ty-state="verifying" data-ty-kind="basic">
   <div class="wrap ty-grid">
     <section class="ty-hero" aria-labelledby="ty-title">
-      <div class="ty-sparks" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <div class="ty-seal" id="ty-orb" aria-hidden="true"></div>
       <p class="ty-status" role="status" aria-live="polite"><i aria-hidden="true"></i><span id="ty-status">Payment confirmed</span></p>
       <h1 id="ty-title">Welcome to <em>Wrapline Pro.</em></h1>
@@ -30,7 +29,7 @@
         <a class="btn btn-light" href="wrapline.html">Back to Wrapline Pro</a>
         <a class="ty-history-link" href="#ty-archive">View invoices</a>
       </div>
-      <div class="ty-unlock" id="ty-unlock" role="group" aria-label="Your tools"><div class="ty-unlock-row" id="ty-unlock-row"></div><p class="ty-unlock-note"><b class="ty-count" id="ty-count">0</b> <span id="ty-unlock-text">tools unlocking…</span></p></div>
+      <div class="ty-unlock" id="ty-unlock" role="group" aria-label="Your tools"><p class="ty-unlock-note"><b class="ty-count" id="ty-count">0</b> <span id="ty-unlock-text">tools unlocking…</span></p></div>
       <div class="ty-progress" aria-hidden="true"><i></i></div>
     </section>
 
@@ -54,43 +53,35 @@
       <h2 class="ty-next-title">What happens next</h2>
       <ol class="ty-timeline">
         <li data-step="done"><span class="ty-dot" aria-hidden="true"></span><div><b id="ty-step-pay">Payment received</b><p>Just now</p></div></li>
-        <li data-step="current" id="ty-step-key"><span class="ty-dot" aria-hidden="true"></span><div><b>License key arrives within 12 hours</b><p>We email it to your verified address. Check spam if it hasn't arrived.</p></div></li>
-        <li id="ty-step-install"><span class="ty-dot" aria-hidden="true"></span><div><b>Install Wrapline Pro in Maya</b><p>Drag the setup file into the Maya viewport and choose Basic (online mode) or Premium (offline mode).</p></div></li>
-        <li data-step="key" id="ty-step-start"><span class="ty-dot" aria-hidden="true"></span><div><b>Your license time starts when you activate</b><p>Enter your key in Maya. Your subscription period begins then, not before.</p></div></li>
+        <li data-step="current" id="ty-step-key"><span class="ty-dot" aria-hidden="true"></span><div><b>License key arrives within 12 hours</b><p>Sent to your verified email. Check spam if it's late.</p></div></li>
+        <li id="ty-step-install"><span class="ty-dot" aria-hidden="true"></span><div><b>Install Wrapline Pro in Maya</b><p>Drag the setup file into the Maya viewport and choose your mode.</p></div></li>
+        <li data-step="key" id="ty-step-start"><span class="ty-dot" aria-hidden="true"></span><div><b>Your license time starts when you activate</b><p>Enter your key in Maya. Your period starts then.</p></div></li>
       </ol>
       </div>
     </aside>
   </div>
   <section class="wrap ty-start ty-rv" id="ty-start" aria-labelledby="ty-start-title">
-    <h2 class="ty-sec-title" id="ty-start-title">Get started</h2>
+    <h2 class="ty-sec-title" id="ty-start-title">Manage your plan</h2>
     <div class="ty-start-grid">
       <div class="ty-manage" id="ty-manage">
         <a class="ty-manage-main" href="wrapline.html#register"><span class="ty-manage-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/><path d="M19.4 13a7.7 7.7 0 0 0 0-2l2-1.5-2-3.4-2.3.9a7.5 7.5 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7.5 7.5 0 0 0-1.7 1l-2.3-.9-2 3.4 2 1.5a7.7 7.7 0 0 0 0 2l-2 1.5 2 3.4 2.3-.9c.5.4 1.1.7 1.7 1l.4 2.5h4l.4-2.5c.6-.3 1.2-.6 1.7-1l2.3.9 2-3.4z"/></svg></span><span><b>Manage subscription &amp; licenses</b><small>Add or remove computers, change plan, stop renewal</small></span><i aria-hidden="true">&rarr;</i></a>
       </div>
-      <div class="ty-first" id="ty-first" aria-label="Your first step">
-        <div class="ty-first-demo" aria-hidden="true"><span class="ty-first-vp"><i></i><i></i><i></i></span><span class="ty-first-file"><svg viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/></svg>setup</span><span class="ty-first-ring"></span></div>
-        <div class="ty-first-copy"><p class="ty-first-k">Your first step</p><p><b>Drag the setup file into the Maya viewport.</b> Download it above, then drop it onto Maya&rsquo;s 3D view. The installer opens by itself.</p></div>
-      </div>
       <p class="ty-fine" id="ty-fine">Need help or want to stop automatic renewal? Open <b>Account</b> on the Wrapline Pro page, or <a href="contact.html">contact support</a>.</p>
     </div>
   </section>
-  <section class="wrap ty-receipt-wrap ty-rv" id="ty-receipt-sec" aria-labelledby="ty-receipt-title" hidden><h2 class="ty-sec-title" id="ty-receipt-title">Your invoice</h2><div id="ty-receipt"></div></section>
+  <section class="wrap ty-receipt-wrap ty-rv" id="ty-receipt-sec" aria-labelledby="ty-receipt-title" hidden><details class="ty-rcpt"><summary><span><b>Your invoice</b><small>Receipt for this payment</small></span><i aria-hidden="true"></i></summary><div id="ty-receipt"></div></details></section>
   <section class="wrap ty-archive ty-rv" id="ty-archive" aria-labelledby="ty-archive-title" hidden><h2 class="ty-sec-title" id="ty-archive-title">Your invoices</h2><p id="ty-archive-note">Loading your payment history…</p><div id="ty-invoices"><div class="ty-skel" aria-hidden="true"><i></i><i></i><i></i></div></div><button type="button" class="btn btn-light" id="ty-invoice-retry">Refresh invoices</button></section>
   <section class="wrap ty-explore ty-rv" id="ty-explore" aria-labelledby="ty-explore-title">
-    <div class="ty-explore-head"><h2 id="ty-explore-title">Keep exploring</h2><p>Guides for the tools in your plan, and more from Wrapline.</p></div>
+    <div class="ty-explore-head"><h2 id="ty-explore-title">Keep exploring</h2><p>Guides for the tools in your plan.</p></div>
     <div class="ty-explore-grid">
       <a href="tool-advanced-ik-fk-switch.html"><b>Advanced IK FK Switch</b><span>Seamless switching with one click</span><i aria-hidden="true">&rarr;</i></a>
-      <a href="tool-fbx-exporter.html"><b>FBX Exporter</b><span>Clean game-ready exports</span><i aria-hidden="true">&rarr;</i></a>
       <a href="tool-playblast.html"><b>Playblast</b><span>Review-ready previews in seconds</span><i aria-hidden="true">&rarr;</i></a>
       <a href="wrapline.html#tools"><b>All Wrapline Pro tools</b><span>Guides and demos for every tool</span><i aria-hidden="true">&rarr;</i></a>
       <a href="wrapline.html#faq"><b>Questions &amp; answers</b><span>Install, licenses and billing</span><i aria-hidden="true">&rarr;</i></a>
-      <a href="wrapline-free.html"><b>Wrapline Free</b><span>The free toolkit, no account needed</span><i aria-hidden="true">&rarr;</i></a>
-      <a href="support.html"><b>Support</b><span>Help from the maker</span><i aria-hidden="true">&rarr;</i></a>
-      <a href="index.html"><b>Wrapline</b><span>See everything we make</span><i aria-hidden="true">&rarr;</i></a>
     </div>
   </section>
 </main>
 <footer class="commerce-footer">© 2026 AJOY <a href="license.html">License terms</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></footer>
-<script src="js/scroll-calm.js?v=sc3" defer></script><script type="module" src="js/thank-you.js?v=20261110-ty12"></script>
+<script src="js/scroll-calm.js?v=sc3" defer></script><script type="module" src="js/thank-you.js?v=20261110-ty13"></script>
 <script type="module" src="js/coffee.js?v=20261101-f2"></script><script src="js/smooth-scroll.js?v=sm5" defer></script><script src="js/transitions.js?v=vt5"></script><script src="js/media-guard.js?v=mg1" defer></script><script src="js/lang-boot.js?v=lg6" defer></script>
 <script src="js/fit-text.js?v=ft2" defer></script></body></html>

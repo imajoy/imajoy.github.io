@@ -197,8 +197,7 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
  const tiles=[['IK',200],['AB',150],['AU',320],['FB',25],['HK',270],['PB',0],['RB',175],['RV',165],['RI',340],['DD',45]];
  const extra=[['IS',255],['MS',285],['UD',15],['LP',35]];
- const total=plan==='Premium'?14:10,list=tiles.concat(plan==='Premium'?extra:[]).slice(0,total),row=$('ty-unlock-row');
- list.forEach(([t,h],i)=>{const b=document.createElement('span');b.className='ty-tile';b.textContent=t;b.style.setProperty('--h',h);b.style.setProperty('--n',i);row.append(b);});
+ const total=plan==='Premium'?14:10,list=tiles.concat(plan==='Premium'?extra:[]).slice(0,total);
  let counted=false;
  const count=()=>{
   if(counted)return;counted=true;const node=$('ty-count');$('ty-unlock-text').textContent=total===14?'tools unlocked · Pro + free Wrapline':'tools unlocked';
@@ -206,7 +205,7 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
   const t0=performance.now()+900,dur=list.length*90+500;
   const step=n=>{const k=Math.min(1,Math.max(0,(n-t0)/dur));node.textContent=Math.round(total*k);if(k<1)requestAnimationFrame(step);};requestAnimationFrame(step);
  };
- const sync=()=>{const ok=main.dataset.tyState==='confirmed';row.closest('.ty-unlock').classList.toggle('is-open',ok);if(ok)count();else if(main.dataset.tyState==='problem')$('ty-unlock-text').textContent='tools on hold';};
+ const sync=()=>{const ok=main.dataset.tyState==='confirmed';$('ty-unlock').classList.toggle('is-open',ok);if(ok)count();else if(main.dataset.tyState==='problem')$('ty-unlock-text').textContent='tools on hold';};
  new MutationObserver(sync).observe(main,{attributes:true,attributeFilter:['data-ty-state']});sync();
  /* scroll progress line (one transform write per frame) */
  const bar=document.querySelector('.ty-scrollbar i');let tick=0;

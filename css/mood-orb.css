@@ -35,10 +35,18 @@
  .eb[data-mood="sad"] .eb-eyes{transform:translateY(4px)}
  .eb[data-mood="sad"] .eb-tear{width:8px;height:11px}
  .eb[data-mood="sad"] .eb-sweat{left:61%;top:52%;right:auto;animation:eb-tear 4.6s ease-in infinite 3.1s;opacity:0}
- .eb[data-mood="listen"] .eb-eyes{animation:eb-look 3.6s ease-in-out infinite}
- @keyframes eb-look{0%,100%{transform:translate(3px,2px)}40%{transform:translate(-3px,1px)}70%{transform:translate(2px,-1px)}}
- .eb[data-mood="listen"] .eb-body{animation:eb-tilt 3.6s ease-in-out infinite}
- @keyframes eb-tilt{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg) translateY(-2px)}}
+ /* eyes dart quickly, then hold: snappy moves with short pauses read as a character looking around */
+ .eb[data-mood="listen"] .eb-eyes{animation:eb-look 2.6s infinite}
+ @keyframes eb-look{
+  0%,8%{transform:translate(3px,2px);animation-timing-function:cubic-bezier(.7,0,.2,1)}
+  14%,36%{transform:translate(-7px,1px);animation-timing-function:cubic-bezier(.7,0,.2,1)}
+  42%,62%{transform:translate(7px,-3px) scaleY(1);animation-timing-function:cubic-bezier(.7,0,.2,1)}
+  68%,76%{transform:translate(0,4px) scaleY(1)}
+  78%{transform:translate(0,4px) scaleY(.1)}
+  81%{transform:translate(3px,2px) scaleY(1)}
+  100%{transform:translate(3px,2px)}}
+ .eb[data-mood="listen"] .eb-body{animation:eb-tilt 2.6s infinite}
+ @keyframes eb-tilt{0%,8%{transform:rotate(0)}14%,36%{transform:rotate(-7deg) translateY(-1px)}42%,62%{transform:rotate(7deg) translateY(-3px)}68%,100%{transform:rotate(0)}}
  @keyframes eb-breathe{50%{transform:translateY(-3px) scale(1.035)}}
  .eb-halo{animation:eb-halo 4.6s ease-in-out infinite}
  @keyframes eb-halo{50%{transform:scale(1.1);opacity:.5}}
@@ -54,13 +62,39 @@
  .eb[data-mood="bye"] .eb-body{animation:eb-glow 3.2s ease-in-out infinite}
  @keyframes eb-glow{50%{transform:translateY(-4px) scale(1.05)}}
  /* thank-you moods */
- .eb[data-mood="joy"] .eb-body{animation:eb-joy 2.4s cubic-bezier(.3,.9,.3,1) infinite}
- @keyframes eb-joy{0%,100%{transform:translateY(0) scale(1)}35%{transform:translateY(-9px) scale(1.06,.97)}55%{transform:translateY(0) scale(.98,1.03)}}
+ /* joy: squash, jump and land with stretch, quick glances left and right with a head tilt, a blink, then a small second hop */
+ .eb[data-mood="joy"] .eb-body{animation:eb-joy 5s cubic-bezier(.3,.9,.3,1) infinite}
+ @keyframes eb-joy{
+  0%{transform:translateY(0) rotate(0) scale(1)}
+  4%{transform:translateY(3px) scale(1.12,.86)}
+  12%{transform:translateY(-18px) rotate(-3deg) scale(.94,1.1)}
+  20%{transform:translateY(0) rotate(-4deg) scale(1.1,.9)}
+  25%{transform:translateY(-2px) rotate(-7deg) scale(.99,1.02)}
+  28%,44%{transform:translateY(0) rotate(-7deg) scale(1)}
+  48%{transform:translateY(-4px) rotate(7deg) scale(1)}
+  50%,66%{transform:translateY(0) rotate(7deg) scale(1)}
+  72%{transform:translateY(2px) rotate(0) scale(1.07,.93)}
+  78%{transform:translateY(-10px) scale(.96,1.06)}
+  84%{transform:translateY(0) scale(1.05,.95)}
+  90%,100%{transform:translateY(0) rotate(0) scale(1)}}
+ .eb[data-mood="joy"] .eb-eyes{animation:eb-glance 5s infinite}
+ @keyframes eb-glance{
+  0%,20%{transform:translate(0,0) scaleY(1);animation-timing-function:cubic-bezier(.7,0,.2,1)}
+  24%,44%{transform:translate(-7px,-2px) scaleY(1);animation-timing-function:cubic-bezier(.7,0,.2,1)}
+  48%,66%{transform:translate(7px,-3px) scaleY(1);animation-timing-function:cubic-bezier(.7,0,.2,1)}
+  70%{transform:translate(0,3px) scaleY(1)}
+  72%{transform:translate(0,3px) scaleY(.1)}
+  75%{transform:translate(0,-2px) scaleY(1)}
+  90%,100%{transform:translate(0,0) scaleY(1)}}
+ .eb[data-mood="joy"] .eb-brows{animation:eb-brows 5s infinite}
+ @keyframes eb-brows{0%,20%,44%,66%,100%{transform:translateY(-2px)}24%,40%{transform:translateY(-5px)}48%,62%{transform:translateY(-5px)}76%,82%{transform:translateY(-6px)}}
  .eb[data-mood="joy"] .eb-p{animation:eb-rise 2.8s ease-out infinite;animation-delay:calc(var(--i)*.22s)}
  .eb[data-mood="joy"] .eb-cheek{animation:eb-cheek 2.4s ease-in-out infinite}
  @keyframes eb-cheek{50%{opacity:.85}}
  .eb[data-mood="worry"] .eb-sweat{animation:eb-sweat 3.2s ease-in infinite .6s}
  @keyframes eb-sweat{0%{opacity:0;transform:translateY(-5px) scale(.4)}20%{opacity:.95;transform:translateY(0) scale(1)}75%{opacity:.9;transform:translateY(14px)}100%{opacity:0;transform:translateY(18px)}}
+ .eb[data-mood="worry"] .eb-eyes{animation:eb-dart 2.4s infinite}
+ @keyframes eb-dart{0%,10%{transform:translate(0,0);animation-timing-function:cubic-bezier(.7,0,.2,1)}14%,30%{transform:translate(-5px,1px);animation-timing-function:cubic-bezier(.7,0,.2,1)}34%,52%{transform:translate(5px,1px);animation-timing-function:cubic-bezier(.7,0,.2,1)}56%,100%{transform:translate(0,0)}}
  .eb[data-mood="worry"] .eb-body{animation:eb-fret 3.4s ease-in-out infinite}
  @keyframes eb-fret{0%,100%{transform:translateX(0)}20%{transform:translateX(-2px)}40%{transform:translateX(2px)}60%{transform:translateX(-1px)}}
 }

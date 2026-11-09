@@ -123,6 +123,8 @@ function invoiceSend_(p) {
 function invoiceArchive_(who) {
   var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(INVOICES_SHEET_);
   if (!sheet || sheet.getLastRow() < 2) return [];
+  var refunded = {};
+  try { if (typeof paymentRows_ === 'function') paymentRows_().forEach(function (r) { if (String(r[9]) === 'Refunded' && r[12]) refunded[String(r[12])] = true; }); } catch (e) {}
   var allowedSub = who.sub || '';
   if (allowedSub && /^[-a-f0-9]{36}$/i.test(allowedSub)) {
     var checkout = typeof razorpayFind_ === 'function' ? razorpayFind_(allowedSub) : null;
@@ -133,7 +135,7 @@ function invoiceArchive_(who) {
     .filter(function (r) { return String(r[2]).trim().toLowerCase() === who.email && (!allowedSub || String(r[11]) === allowedSub); })
     .slice(-200).reverse().map(function (r) {
       var date = r[1] instanceof Date ? r[1] : new Date(r[1]);
-      return { number: String(r[0]), date: isNaN(date.getTime()) ? '' : date.toISOString(), plan: String(r[3]), seller: props_().getProperty('INVOICE_SELLER_NAME') || 'AJOY', billing: String(r[4]), seats: Number(r[5]) || 1, amount: Number(r[6]) || 0, currency: String(r[7]), provider: String(r[8]), mode: String(r[9]), paymentId: String(r[10]), subscriptionId: String(r[11]), orderId: String(r[12] || ''), billedTo: String(r[13] || ''), company: String(r[14] || ''), address: String(r[15] || '') };
+      return { number: String(r[0]), date: isNaN(date.getTime()) ? '' : date.toISOString(), plan: String(r[3]), seller: props_().getProperty('INVOICE_SELLER_NAME') || 'AJOY', billing: String(r[4]), seats: Number(r[5]) || 1, amount: Number(r[6]) || 0, currency: String(r[7]), provider: String(r[8]), mode: String(r[9]), paymentId: String(r[10]), subscriptionId: String(r[11]), orderId: String(r[12] || ''), billedTo: String(r[13] || ''), company: String(r[14] || ''), address: String(r[15] || ''), refunded: refunded[String(r[10])] === true };
     });
 }
 

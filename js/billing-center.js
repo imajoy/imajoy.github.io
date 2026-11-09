@@ -2,7 +2,7 @@
    Data comes from the same verified-session calls the rest of the site uses: 'history' (subscriptions + invoices) and the saved profile. */
 import {getAccountSession,accountRequest,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
 import {loadProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm2';
-import {buildInvoiceDoc,printDoc,invoicePeriod} from './ty-invoice.js?v=iv7';
+import {buildInvoiceDoc,printDoc,printDocs,invoicePeriod} from './ty-invoice.js?v=iv8';
 
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;};
@@ -12,6 +12,7 @@ const shell=$('.bc-shell'),nav=$('.bc-nav'),ind=$('.bc-ind');
 let data=null,loading=false,tab='subscriptions';
 const sort={subscriptions:{key:'date',dir:-1},history:{key:'date',dir:-1}};
 const query={subscriptions:'',history:''};
+let hmode='payments';const picked=new Set();
 
 /* ---------- formatting ---------- */
 const cur=c=>/^[A-Z]{3}$/.test(c||'')?c:'USD';
@@ -102,28 +103,63 @@ function renderSubscriptions(){
 
 function renderHistory(){
   const host=$('#his-table'),body=$('tbody',host),q=query.history.trim().toLowerCase();
-  const rows=(data.invoices||[]).map(inv=>{
+  const all=(data.invoices||[]).map(inv=>{
     const zero=!(Number(inv.amount)>0);
-    return {inv,zero,text:[inv.number,planName(inv.plan),day(inv.date),money(inv.amount,inv.currency),zero?'no payment due':'paid',providerName(inv.provider)].join(' ').toLowerCase(),
+    return {inv,zero,text:[inv.number,inv.paymentId,planName(inv.plan),day(inv.date),money(inv.amount,inv.currency),inv.refunded?'refunded':zero?'no payment due':'paid',providerName(inv.provider)].join(' ').toLowerCase(),
       sort:{number:inv.number,date:Date.parse(inv.date)||0,plan:planName(inv.plan),amount:Number(inv.amount)||0}};
   });
+  const rows=hmode==='refunds'?all.filter(r=>r.inv.refunded):all;
   let list=rows.filter(r=>!q||r.text.includes(q));
   const s=sort.history;list.sort((a,b)=>cmp(a.sort[s.key],b.sort[s.key])*s.dir);
   body.replaceChildren();$('#his-empty').replaceChildren();
-  if(!rows.length){host.hidden=true;$('#his-empty').append(empty('No payments yet',data.archivePending?'Online invoices are being connected. Your emailed copies stay in your inbox.':'Each paid or free order appears here as soon as its invoice is ready.'));return;}
+  const known=new Set(all.map(r=>r.inv.number));for(const n of [...picked])if(!known.has(n))picked.delete(n);
+  if(!rows.length){host.hidden=true;syncSelection([]);$('#his-empty').append(hmode==='refunds'?empty('No refunds','If a payment is ever refunded, it appears here.'):empty('No payments yet',data.archivePending?'Online invoices are being connected. Your emailed copies stay in your inbox.':'Each paid or free order appears here as soon as its invoice is ready.'));return;}
   host.hidden=false;
-  if(!list.length){$('#his-empty').append(empty('No results','Nothing matches “'+query.history.trim()+'”.'));return;}
+  if(!list.length){syncSelection([]);$('#his-empty').append(empty('No results','Nothing matches “'+query.history.trim()+'”.'));return;}
   list.forEach((r,i)=>{
-    const inv=r.inv,tr=el('tr');tr.style.setProperty('--i',String(Math.min(i,8)));
-    const c1=el('td');c1.dataset.label='Invoice';c1.append(el('b',null,inv.number+(inv.mode==='Test'?' · TEST':'')),el('small',null,providerName(inv.provider)));
-    const c2=el('td',null,day(inv.date));c2.dataset.label='Date';
-    const c3=el('td',null,planName(inv.plan)+' · '+(inv.billing==='yearly'?'Yearly':'Monthly'));c3.dataset.label='Plan';
+    const inv=r.inv,tr=el('tr');tr.style.setProperty('--i',String(Math.min(i,8)));if(picked.has(inv.number))tr.dataset.picked='';
+    const c0=el('td','bc-pick');const lab=el('label','bc-cb'),cb=el('input');cb.type='checkbox';cb.checked=picked.has(inv.number);cb.setAttribute('aria-label','Select invoice '+inv.number);cb.dataset.n=inv.number;lab.append(cb,el('span'));c0.append(lab);
+    const c1=el('td');c1.dataset.label='Invoice';{const w=el('div');w.append(el('b',null,inv.number+(inv.mode==='Test'?' · TEST':'')),el('small',null,planName(inv.plan)+' · '+(inv.billing==='yearly'?'Yearly':'Monthly')+' · '+providerName(inv.provider)));c1.append(w);}
+    const c2=el('td');c2.dataset.label='Payment ID';const pid=String(inv.paymentId||'');const pv=el('span','bc-mono',pid?(pid.length>16?pid.slice(0,7)+'…'+pid.slice(-4):pid):'—');if(pid)pv.title=pid;c2.append(pv);
+    const c3=el('td',null,day(inv.date));c3.dataset.label='Paid at';
     const c4=el('td',null,money(inv.amount,inv.currency));c4.dataset.label='Amount';
-    const c5=el('td');c5.dataset.label='Status';c5.append(chip(r.zero?'free':'active',r.zero?'No payment due':'Paid'));
-    const c6=el('td','bc-act');const v=el('button','bc-link','View');v.type='button';v.addEventListener('click',()=>openInvoice(inv));c6.append(v);
-    tr.append(c1,c2,c3,c4,c5,c6);body.append(tr);
+    const c5=el('td');c5.dataset.label='Status';c5.append(inv.refunded?chip('cancelled','Refunded'):chip(r.zero?'free':'active',r.zero?'No payment due':'Paid'));
+    const c6=el('td','bc-act');const v=el('button','bc-go');v.type='button';v.setAttribute('aria-label','View invoice '+inv.number);v.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>';v.addEventListener('click',()=>openInvoice(inv));c6.append(v);
+    tr.append(c0,c1,c2,c3,c4,c5,c6);body.append(tr);
   });
+  syncSelection(list.map(r=>r.inv.number));
 }
+/* row ticks, "select all", and the bar that appears once something is selected */
+function syncSelection(visible){
+  const all=$('#his-all'),bar=$('#his-sel'),n=picked.size;
+  if(all){const on=visible.filter(x=>picked.has(x)).length;all.checked=!!visible.length&&on===visible.length;all.indeterminate=on>0&&on<visible.length;all.disabled=!visible.length;}
+  $('#his-sel-n').textContent=String(n);$('#his-sel-t').textContent=n===1?'invoice selected':'invoices selected';
+  if(n>0&&bar.hidden){bar.hidden=false;if(!calm()){bar.classList.remove('bc-in');void bar.offsetWidth;bar.classList.add('bc-in');}}
+  else if(n===0)bar.hidden=true;
+}
+const hisBody=$('#his-table tbody');
+hisBody.addEventListener('change',e=>{
+  const cb=e.target.closest('input[type=checkbox][data-n]');if(!cb)return;
+  if(cb.checked)picked.add(cb.dataset.n);else picked.delete(cb.dataset.n);
+  cb.closest('tr').toggleAttribute('data-picked',cb.checked);
+  syncSelection($$('input[data-n]',hisBody).map(x=>x.dataset.n));
+});
+$('#his-table thead').addEventListener('change',e=>{
+  if(e.target.id!=='his-all')return;
+  $$('input[data-n]',hisBody).forEach(cb=>{cb.checked=e.target.checked;if(e.target.checked)picked.add(cb.dataset.n);else picked.delete(cb.dataset.n);cb.closest('tr').toggleAttribute('data-picked',e.target.checked);});
+  syncSelection($$('input[data-n]',hisBody).map(x=>x.dataset.n));
+});
+$('#his-clear').addEventListener('click',()=>{picked.clear();renderHistory();});
+$('#his-dl').addEventListener('click',()=>{
+  const docs=(data?.invoices||[]).filter(i=>picked.has(i.number)).map(invoiceDoc).filter(Boolean);
+  if(docs.length)printDocs(docs);
+});
+$$('[data-hmode]').forEach(b=>b.addEventListener('click',()=>{
+  if(hmode===b.dataset.hmode)return;hmode=b.dataset.hmode;
+  $$('[data-hmode]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
+  $('#his-search').placeholder=hmode==='refunds'?'Search refunds':'Search';
+  renderHistory();
+}));
 
 function render(which){
   if(!data)return;
@@ -133,11 +169,14 @@ function render(which){
 }
 
 /* ---------- invoice viewer ---------- */
-function openInvoice(inv){
-  const session=getAccountSession();if(!session)return;
-  const dlg=$('#bc-invoice'),slot=$('.bc-invoice-body',dlg);slot.replaceChildren();
+function invoiceDoc(inv){
+  const session=getAccountSession();if(!session)return null;
   const zero=!(Number(inv.amount)>0),m=v=>money(v,inv.currency);
-  const doc=buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:zero?'No payment due':'Paid',statusKind:zero?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,orderId:(inv.orderId||'').split(' | ')[0],orderFull:(inv.orderId||'').split(' | ')[1]||'',billed:{name:inv.billedTo||'',lines:[inv.company,inv.address].filter(Boolean)},seller:inv.seller,title:'Wrapline Pro '+(inv.plan==='offline'?'Premium':'Basic'),sub:inv.billing==='yearly'?'Yearly':'Monthly',currency:cur(inv.currency),period:invoicePeriod(inv.date,inv.billing),nextBilling:(()=>{const sub=(data?.subscriptions||[]).find(x=>x.ref===inv.subscriptionId);return sub&&sub.renews&&Number.isFinite(Date.parse(sub.endsAt))?day(sub.endsAt):'';})(),seats:Number(inv.seats)||1,money:m,total:Number(inv.amount)||0,totalLabel:zero?'Total due':'Total paid',note:zero?'No payment was due on this order. This invoice is your record of it.':''});
+  return buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:inv.refunded?'Refunded':zero?'No payment due':'Paid',statusKind:zero||inv.refunded?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,orderId:(inv.orderId||'').split(' | ')[0],orderFull:(inv.orderId||'').split(' | ')[1]||'',billed:{name:inv.billedTo||'',lines:[inv.company,inv.address].filter(Boolean)},seller:inv.seller,title:'Wrapline Pro '+(inv.plan==='offline'?'Premium':'Basic'),sub:inv.billing==='yearly'?'Yearly':'Monthly',currency:cur(inv.currency),period:invoicePeriod(inv.date,inv.billing),nextBilling:(()=>{const sub=(data?.subscriptions||[]).find(x=>x.ref===inv.subscriptionId);return sub&&sub.renews&&Number.isFinite(Date.parse(sub.endsAt))?day(sub.endsAt):'';})(),seats:Number(inv.seats)||1,money:m,total:Number(inv.amount)||0,totalLabel:zero?'Total due':'Total paid',note:zero?'No payment was due on this order. This invoice is your record of it.':''});
+}
+function openInvoice(inv){
+  const dlg=$('#bc-invoice'),slot=$('.bc-invoice-body',dlg);slot.replaceChildren();
+  const doc=invoiceDoc(inv);if(!doc)return;
   slot.append(doc);
   $('.bc-print',dlg).onclick=()=>printDoc(doc);
   if(!dlg.open)dlg.showModal();
@@ -225,7 +264,8 @@ let lastToken=getAccountSession()?.token||'';
 onAccountChange(()=>{const t=getAccountSession()?.token||'';if(t!==lastToken){lastToken=t;data=null;load();}});
 
 $('#sub-head').append(th('subscriptions','name','Subscription'),th('subscriptions','price','Last payment'),th('subscriptions','date','Billing date'),th('subscriptions','status','Status'),th('subscriptions','','',{sortable:false}));
-$('#his-head').append(th('history','number','Invoice'),th('history','date','Date'),th('history','plan','Plan'),th('history','amount','Amount'),th('history','status','Status',{sortable:false}),th('history','','',{sortable:false}));
+$('#his-head').append((()=>{const h=el('th','bc-pick');h.scope='col';const lab=el('label','bc-cb'),cb=el('input');cb.type='checkbox';cb.id='his-all';cb.setAttribute('aria-label','Select all invoices');lab.append(cb,el('span'));h.append(lab);return h;})(),th('history','number','Invoice'),th('history','paymentId','Payment ID',{sortable:false}),th('history','date','Paid at'),th('history','amount','Amount'),th('history','status','Status',{sortable:false}),th('history','go','',{sortable:false}));
 $$('#sub-head th:last-child,#his-head th:last-child').forEach(h=>h.className='bc-act');
+$('#his-head th:last-child').innerHTML='<span class="sr">View</span>';
 show(location.hash.slice(1)||'subscriptions',{push:false});
 load();

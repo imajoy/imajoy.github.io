@@ -8,16 +8,20 @@ export function invoicePeriod(iso,billing){
  const a=new Date(t),b=new Date(t);if(/year/i.test(billing||''))b.setFullYear(b.getFullYear()+1);else b.setMonth(b.getMonth()+1);
  const f=d=>d.toLocaleDateString(undefined,{dateStyle:'medium'});return f(a)+' to '+f(b);
 }
-export function printDoc(doc){
- const paper=doc.querySelector('.iv-paper');if(!paper)return;
+export function printDocs(docs){
+ const papers=docs.map(d=>d.querySelector('.iv-paper')).filter(Boolean);if(!papers.length)return;
  document.getElementById('iv-print')?.remove();
- const root=el('div');root.id='iv-print';const copy=paper.cloneNode(true);copy.classList.add('is-print');root.append(copy);document.body.append(root);
- const title=document.title,num=paper.dataset.number;if(num)document.title='Invoice '+num+' · Wrapline';
+ const root=el('div');root.id='iv-print';
+ papers.forEach(paper=>{const copy=paper.cloneNode(true);copy.classList.add('is-print');root.append(copy);});
+ document.body.append(root);
+ const title=document.title,num=papers.length===1?papers[0].dataset.number:'';
+ document.title=num?'Invoice '+num+' · Wrapline':'Wrapline invoices';
  document.body.classList.add('iv-printing');
  const done=()=>{document.body.classList.remove('iv-printing');root.remove();document.title=title;removeEventListener('afterprint',done);};
  addEventListener('afterprint',done);
  requestAnimationFrame(()=>requestAnimationFrame(()=>window.print()));
 }
+export function printDoc(doc){printDocs([doc]);}
 /* o: {kind:'Invoice'|'Receipt', number, date, statusText, statusKind:'paid'|'free', test, email, provider, reference,
        orderId (short ORD-… ref), orderFull (full checkout ID), billed:{name,lines:[...]}, title, sub, seats, money(v)->string, total:number|null, coupon, totalLabel, note, seller} */
 export function buildInvoiceDoc(o){

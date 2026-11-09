@@ -339,3 +339,5 @@ html[data-theme=dark] body.ty-page::after{opacity:.4}
 @media(max-width:900px){.ty-explore-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:520px){.ty-explore-grid{grid-template-columns:minmax(0,1fr)}}
 .ty-page .ty-start,.ty-page .ty-receipt-wrap,.ty-page .ty-archive,.ty-page .ty-explore{margin-top:clamp(40px,5vw,64px)}
+
+@media print{#iv-print .iv-paper+.iv-paper{break-before:page;page-break-before:always}}

@@ -30,3 +30,9 @@ html[data-theme=dark] .sp-pop{box-shadow:0 24px 60px rgba(0,0,0,.6),0 0 0 1px rg
 .sp-none::after{content:"No matches";display:block;padding:18px 12px;color:var(--mute);text-align:center}
 .sp-off{opacity:.9}
 @media(prefers-reduced-motion:reduce){.sp-btn,.sp-chev,.sp-pop,.sp-tick{transition:none}}
+/* Locked (auto-detected) fields look like a plain read-only box, not a dropdown */
+.sp-off .sp-btn{cursor:default;opacity:1;background:var(--t05,rgba(14,18,32,.04));border-color:var(--line);box-shadow:none;pointer-events:none}
+.sp-off .sp-btn:hover{border-color:var(--line)}
+.sp-off .sp-chev{display:none}
+.sp-off .sp-val{color:var(--ink)}
+.sp-off .sp-btn.sp-empty .sp-val{color:var(--mute)}

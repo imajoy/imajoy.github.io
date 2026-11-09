@@ -4,6 +4,7 @@ import {getAccountSession,accountRequest,onAccountChange,openAccount} from './ac
 import {loadProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm2';
 import {bindPostal} from './billing-postal.js?v=bp3';
 import {buildInvoiceDoc,printDoc,printDocs,invoicePeriod} from './ty-invoice.js?v=iv9';
+import {downloadInvoices} from './invoice-pdf.js?v=pdf1';
 
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;};
@@ -125,7 +126,11 @@ function renderHistory(){
     const c3=el('td',null,day(inv.date));c3.dataset.label='Paid at';
     const c4=el('td',null,money(inv.amount,inv.currency));c4.dataset.label='Amount';
     const c5=el('td');c5.dataset.label='Status';c5.append(inv.refunded?chip('cancelled','Refunded'):chip(r.zero?'free':'active',r.zero?'Payment done':'Paid'));
-    const c6=el('td','bc-act');const v=el('button','bc-go');v.type='button';v.setAttribute('aria-label','View invoice '+inv.number);v.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>';v.addEventListener('click',()=>openInvoice(inv));c6.append(v);
+    const c6=el('td','bc-act');
+    const v=el('button','bc-view',null);v.type='button';v.textContent='View';v.setAttribute('aria-label','View invoice '+inv.number);v.addEventListener('click',()=>openInvoice(inv));
+    const dl=el('button','bc-dl1');dl.type='button';dl.setAttribute('aria-label','Download invoice '+inv.number+' as PDF');dl.title='Download PDF';dl.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4-4m4 4 4-4M5 19h14"/></svg>';
+    dl.addEventListener('click',()=>saveDocs([inv],dl));
+    c6.append(v,dl);
     tr.append(c0,c1,c2,c3,c4,c5,c6);body.append(tr);
   });
   syncSelection(list.map(r=>r.inv.number));
@@ -151,10 +156,7 @@ $('#his-table thead').addEventListener('change',e=>{
   syncSelection($$('input[data-n]',hisBody).map(x=>x.dataset.n));
 });
 $('#his-clear').addEventListener('click',()=>{picked.clear();renderHistory();});
-$('#his-dl').addEventListener('click',()=>{
-  const docs=(data?.invoices||[]).filter(i=>picked.has(i.number)).map(invoiceDoc).filter(Boolean);
-  if(docs.length)printDocs(docs);
-});
+$('#his-dl').addEventListener('click',()=>saveDocs((data?.invoices||[]).filter(i=>picked.has(i.number)),$('#his-dl')));
 $$('[data-hmode]').forEach(b=>b.addEventListener('click',()=>{
   if(hmode===b.dataset.hmode)return;hmode=b.dataset.hmode;
   $$('[data-hmode]').forEach(x=>x.setAttribute('aria-selected',String(x===b)));
@@ -175,11 +177,18 @@ function invoiceDoc(inv){
   const zero=!(Number(inv.amount)>0),m=v=>money(v,inv.currency);
   return buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:inv.refunded?'Refunded':zero?'Payment done':'Paid',statusKind:zero||inv.refunded?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,orderId:(inv.orderId||'').split(' | ')[0],orderFull:(inv.orderId||'').split(' | ')[1]||'',billed:{name:inv.billedTo||'',lines:[inv.company,inv.address].filter(Boolean)},seller:inv.seller,title:'Wrapline Pro '+(inv.plan==='offline'?'Premium':'Basic'),sub:inv.billing==='yearly'?'Yearly':'Monthly',currency:cur(inv.currency),period:invoicePeriod(inv.date,inv.billing),nextBilling:(()=>{const sub=(data?.subscriptions||[]).find(x=>x.ref===inv.subscriptionId);return sub&&sub.renews&&Number.isFinite(Date.parse(sub.endsAt))?day(sub.endsAt):'';})(),seats:Number(inv.seats)||1,money:m,total:Number(inv.amount)||0,totalLabel:zero?'Total paid':'Total paid',note:zero?'Payment done. This invoice is your record of it.':''});
 }
+async function saveDocs(invs,btn){
+  const docs=invs.map(invoiceDoc).filter(Boolean);if(!docs.length)return;
+  const label=btn.textContent,busy=btn.disabled;btn.disabled=true;if(btn.id==='his-dl')btn.textContent='Preparing…';
+  try{await downloadInvoices(docs,docs.length===1?'Wrapline-invoice-'+invs[0].number:'Wrapline-invoices');}
+  catch{btn.title='Could not create the PDF. Please try again.';}
+  finally{btn.disabled=busy;if(btn.id==='his-dl')btn.textContent=label;}
+}
 function openInvoice(inv){
   const dlg=$('#bc-invoice'),slot=$('.bc-invoice-body',dlg);slot.replaceChildren();
   const doc=invoiceDoc(inv);if(!doc)return;
   slot.append(doc);
-  $('.bc-print',dlg).onclick=()=>printDoc(doc);
+  $('.bc-print',dlg).onclick=()=>saveDocs([inv],$('.bc-print',dlg));
   if(!dlg.open)dlg.showModal();
 }
 $('#bc-invoice').addEventListener('click',e=>{if(e.target.closest('[data-x]')||e.target===e.currentTarget)e.currentTarget.close();});

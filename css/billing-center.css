@@ -173,3 +173,12 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 /* City and State are filled from the postal code and cannot be typed in */
 .bc-field input.bc-auto{background:color-mix(in srgb,var(--ink,#111) 5%,transparent);cursor:not-allowed;color:var(--mute,#667085)}
 .bc-hint{margin:-4px 0 12px;font-size:13px;color:var(--mute,#667085)}.bc-hint[data-kind=ok]{color:#1c9a6c}.bc-hint[data-kind=err]{color:#d14343}
+
+/* invoice row actions: a labelled View button and a Download button */
+.bc-act{white-space:nowrap}
+.bc-view{font:inherit;font-weight:600;font-size:13px;padding:6px 14px;border-radius:999px;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;transition:border-color .2s,transform .2s}
+.bc-view:hover,.bc-view:focus-visible{border-color:var(--blue,#3d8bff);transform:translateY(-1px)}
+.bc-dl1{display:inline-grid;place-items:center;width:32px;height:32px;margin-left:6px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;vertical-align:middle;transition:border-color .2s,transform .2s}
+.bc-dl1:hover,.bc-dl1:focus-visible{border-color:var(--blue,#3d8bff);transform:translateY(-1px)}
+.bc-dl1 svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+@media(max-width:640px){.bc-view{padding:6px 12px}}

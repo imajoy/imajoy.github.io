@@ -2,7 +2,7 @@
    Data comes from the same verified-session calls the rest of the site uses: 'history' (subscriptions + invoices) and the saved profile. */
 import {getAccountSession,accountRequest,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
 import {loadProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm2';
-import {bindPostal} from './billing-postal.js?v=bp1';
+import {bindPostal} from './billing-postal.js?v=bp2';
 import {buildInvoiceDoc,printDoc,printDocs,invoicePeriod} from './ty-invoice.js?v=iv9';
 
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];

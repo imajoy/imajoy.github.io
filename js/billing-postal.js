@@ -31,14 +31,17 @@ export function bindPostal(form){
     const id=++run,code=postal.value.trim();
     if(!code){clear();lock(true);say('');return;}
     if(code.length<3){return;}
-    let cc=cachedGeo();if(!cc)cc=await detectGeo();
-    if(!cc&&/^\d{6}$/.test(code))cc='IN';
+    let geo=cachedGeo();if(!geo)geo=await detectGeo();
     if(id!==run)return;
-    if(!cc){lock(false);say('Enter your city and state.','');return;}
-    const f=await lookup(cc,code);
-    if(id!==run||postal.value.trim()!==code)return;
-    if(!f){lock(false);say('Could not look up the postal code right now. Enter your city and state.','');return;}
-    if(f.bad){clear();lock(true);say(cc==='IN'?'We couldn’t find PIN code '+code+' in India. Please check it.':'We couldn’t verify that postal code. Please check it.','err');return;}
+    /* the code's own shape decides where to look; the detected country goes first when it fits */
+    const digits=/^\d+$/.test(code)?code.length:0;
+    const byShape=digits===6?['IN','SG']:digits===5?['US','DE','FR','ES','IT','MX']:digits===4?['AU','NZ','BE','CH','AT']:/^[A-Za-z]\d[A-Za-z] ?\d[A-Za-z]\d$/.test(code)?['CA']:/^[A-Za-z]{1,2}\d[A-Za-z\d]? ?\d[A-Za-z]{2}$/.test(code)?['GB']:geo?[geo]:[];
+    const order=[...(geo&&byShape.includes(geo)?[geo]:[]),...byShape.filter(c=>c!==geo)];
+    if(!order.length){lock(false);say('Enter your city and state.','');return;}
+    let f=null,down=false,cc='';
+    for(const c of order){const r=await lookup(c,code);if(id!==run||postal.value.trim()!==code)return;if(r===null){down=true;continue;}if(!r.bad){f=r;cc=c;break;}}
+    if(!f&&down){lock(false);say('Could not look up the postal code right now. Enter your city and state.','');return;}
+    if(!f){clear();lock(true);say('We couldn’t find postal code '+code+'. Please check it.','err');return;}
     city.value=f.city;region.value=f.region;lock(true);
     city.dispatchEvent(new Event('input',{bubbles:true}));region.dispatchEvent(new Event('input',{bubbles:true}));
     say('Detected: '+[f.city,f.region].filter(Boolean).join(', '),'ok');

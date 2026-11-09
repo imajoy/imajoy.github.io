@@ -1,4 +1,4 @@
-import {initializeCheckoutSteps} from './checkout-steps.js?v=20261109-co4';
+import {initializeCheckoutSteps} from './checkout-steps.js?v=20261109-co5';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
 import {initializeBillingCountry} from './billing-country.js?v=20261021-fast2';
 import {YEARLY_PERCENT,yearlyOfferUsed} from './regions.js?v=20261023-p7';

@@ -40,7 +40,7 @@ html[data-checkout-step=billing] .pay-skel{display:none}
 
 /* PayPal button area: visible "still loading" state until the real buttons appear */
 .pp-loading{position:relative;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px 12px;margin:10px 0 4px;min-height:46px}
-#paypal-buttons[hidden]+.pp-loading{display:none}
+.pp-loading[hidden]{display:none!important}
 .pp-loading .pp-bar{grid-column:1/-1;grid-row:1;height:46px;border-radius:999px;display:block;width:100%}
 .pp-loading .pp-spin{grid-row:1;grid-column:1;z-index:1;margin-left:18px;width:18px;height:18px;border-radius:50%;border:2px solid color-mix(in srgb,var(--blue,#2a64e8) 28%,transparent);border-top-color:var(--blue,#2a64e8);animation:pp-rot .8s linear infinite}
 .pp-loading .pp-text{grid-row:1;grid-column:2;z-index:1;font-size:.8125rem;color:var(--mute,#667085)}

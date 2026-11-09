@@ -105,7 +105,7 @@ function renderHistory(){
   const host=$('#his-table'),body=$('tbody',host),q=query.history.trim().toLowerCase();
   const all=(data.invoices||[]).map(inv=>{
     const zero=!(Number(inv.amount)>0);
-    return {inv,zero,text:[inv.number,inv.paymentId,planName(inv.plan),day(inv.date),money(inv.amount,inv.currency),inv.refunded?'refunded':zero?'no payment due':'paid',providerName(inv.provider)].join(' ').toLowerCase(),
+    return {inv,zero,text:[inv.number,inv.paymentId,planName(inv.plan),day(inv.date),money(inv.amount,inv.currency),inv.refunded?'refunded':zero?'payment done':'paid',providerName(inv.provider)].join(' ').toLowerCase(),
       sort:{number:inv.number,date:Date.parse(inv.date)||0,plan:planName(inv.plan),amount:Number(inv.amount)||0}};
   });
   const rows=hmode==='refunds'?all.filter(r=>r.inv.refunded):all;
@@ -123,7 +123,7 @@ function renderHistory(){
     const c2=el('td');c2.dataset.label='Payment ID';const pid=String(inv.paymentId||'');const pv=el('span','bc-mono',pid?(pid.length>16?pid.slice(0,7)+'…'+pid.slice(-4):pid):'—');if(pid)pv.title=pid;c2.append(pv);
     const c3=el('td',null,day(inv.date));c3.dataset.label='Paid at';
     const c4=el('td',null,money(inv.amount,inv.currency));c4.dataset.label='Amount';
-    const c5=el('td');c5.dataset.label='Status';c5.append(inv.refunded?chip('cancelled','Refunded'):chip(r.zero?'free':'active',r.zero?'No payment due':'Paid'));
+    const c5=el('td');c5.dataset.label='Status';c5.append(inv.refunded?chip('cancelled','Refunded'):chip(r.zero?'free':'active',r.zero?'Payment done':'Paid'));
     const c6=el('td','bc-act');const v=el('button','bc-go');v.type='button';v.setAttribute('aria-label','View invoice '+inv.number);v.innerHTML='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6 6 6-6 6"/></svg>';v.addEventListener('click',()=>openInvoice(inv));c6.append(v);
     tr.append(c0,c1,c2,c3,c4,c5,c6);body.append(tr);
   });
@@ -172,7 +172,7 @@ function render(which){
 function invoiceDoc(inv){
   const session=getAccountSession();if(!session)return null;
   const zero=!(Number(inv.amount)>0),m=v=>money(v,inv.currency);
-  return buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:inv.refunded?'Refunded':zero?'No payment due':'Paid',statusKind:zero||inv.refunded?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,orderId:(inv.orderId||'').split(' | ')[0],orderFull:(inv.orderId||'').split(' | ')[1]||'',billed:{name:inv.billedTo||'',lines:[inv.company,inv.address].filter(Boolean)},seller:inv.seller,title:'Wrapline Pro '+(inv.plan==='offline'?'Premium':'Basic'),sub:inv.billing==='yearly'?'Yearly':'Monthly',currency:cur(inv.currency),period:invoicePeriod(inv.date,inv.billing),nextBilling:(()=>{const sub=(data?.subscriptions||[]).find(x=>x.ref===inv.subscriptionId);return sub&&sub.renews&&Number.isFinite(Date.parse(sub.endsAt))?day(sub.endsAt):'';})(),seats:Number(inv.seats)||1,money:m,total:Number(inv.amount)||0,totalLabel:zero?'Total due':'Total paid',note:zero?'No payment was due on this order. This invoice is your record of it.':''});
+  return buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:inv.refunded?'Refunded':zero?'Payment done':'Paid',statusKind:zero||inv.refunded?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,orderId:(inv.orderId||'').split(' | ')[0],orderFull:(inv.orderId||'').split(' | ')[1]||'',billed:{name:inv.billedTo||'',lines:[inv.company,inv.address].filter(Boolean)},seller:inv.seller,title:'Wrapline Pro '+(inv.plan==='offline'?'Premium':'Basic'),sub:inv.billing==='yearly'?'Yearly':'Monthly',currency:cur(inv.currency),period:invoicePeriod(inv.date,inv.billing),nextBilling:(()=>{const sub=(data?.subscriptions||[]).find(x=>x.ref===inv.subscriptionId);return sub&&sub.renews&&Number.isFinite(Date.parse(sub.endsAt))?day(sub.endsAt):'';})(),seats:Number(inv.seats)||1,money:m,total:Number(inv.amount)||0,totalLabel:zero?'Total paid':'Total paid',note:zero?'No payment was due on this order. This invoice is your record of it.':''});
 }
 function openInvoice(inv){
   const dlg=$('#bc-invoice'),slot=$('.bc-invoice-body',dlg);slot.replaceChildren();

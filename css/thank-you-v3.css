@@ -341,3 +341,6 @@ html[data-theme=dark] body.ty-page::after{opacity:.4}
 .ty-page .ty-start,.ty-page .ty-receipt-wrap,.ty-page .ty-archive,.ty-page .ty-explore{margin-top:clamp(40px,5vw,64px)}
 
 @media print{#iv-print .iv-paper+.iv-paper{break-before:page;page-break-before:always}}
+
+/* invoice lives in Profile > Payment history; the thank-you page only links there */
+.ty-page #ty-receipt-sec,.ty-page #ty-archive{display:none!important}

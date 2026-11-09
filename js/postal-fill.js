@@ -34,6 +34,7 @@ function bind(postal,city,region,hint,onFound,onReset){
   for(const el of [city,region])el.addEventListener('input',e=>{if(e.isTrusted)delete el.dataset.auto;});
   const put=(el,v)=>{if(!v||!free(el))return false;el.value=v;el.dataset.auto='1';el.dispatchEvent(new Event('input',{bubbles:true}));return true;};
   function say(text,kind,manual){
+    postal.toggleAttribute('data-unverified',!!text&&kind!=='ok');
     if(!hint)return;hint.className='form-hint postal-hint'+(kind?' '+kind:'');hint.textContent=text;hint.hidden=!text;
     if(text){void hint.offsetWidth;hint.classList.add('pop');}
     if(manual){const b=document.createElement('button');b.type='button';b.className='text-link';b.textContent='enter city and state yourself';b.onclick=()=>{window.WraplineBilling?.openArea();say('');};hint.append(b);}

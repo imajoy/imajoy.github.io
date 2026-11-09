@@ -10,7 +10,9 @@
 .reveal.open>.reveal-inner>*:nth-child(3){transition-delay:.12s}
 .company-toggle{margin-top:6px}
 .postal-hint{margin-top:8px}
-.postal-hint .text-link{margin-left:4px}
+.form-field .postal-hint .text-link{display:inline;min-height:0;margin:0 0 0 4px;padding:0;border:0;background:none;box-shadow:none;font:inherit;color:var(--blue-d);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.form-field .postal-hint .text-link:focus-visible{outline:2px solid var(--blue);outline-offset:3px;border-radius:4px}
+.form-field:has(> input[data-unverified])::after,.form-field:has(> input[aria-invalid=true])::after{display:none!important}
 .postal-hint.ok{color:var(--blue-d)}
 .postal-hint.pop{animation:postal-pop .45s var(--out) both}
 @keyframes postal-pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}

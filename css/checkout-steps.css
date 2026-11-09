@@ -6,7 +6,7 @@ html[data-checkout-step="billing"] :is(.payment-picker,.razorpay-panel,.billing-
 .checkout-continue .btn{display:flex;justify-content:center;gap:14px;align-items:center;width:100%}
 .checkout-continue .form-hint{line-height:1.7;margin-top:12px}
 .checkout-continue .form-status:empty{display:none}
-html[data-checkout-step="payment"] :is(.license-entry,.billing-entry,.offer-checkout,.billing-completion,.order-summary .license-preview,.order-summary .creative-flow,.order-summary .summary-list){display:none!important}
+html[data-checkout-step="payment"] :is(.license-entry,.billing-entry,.offer-checkout,.customer-verification,.billing-upsell,.billing-completion,.order-summary .license-preview,.order-summary .creative-flow,.order-summary .summary-list){display:none!important}
 html[data-checkout-ready="false"] .checkout-grid{display:none!important}
 .payment-billing-summary{padding:22px;border:1px solid var(--line);border-radius:22px;background:var(--card);margin-bottom:26px}
 .payment-billing-summary h2{font-size:1.1rem;margin-bottom:12px}

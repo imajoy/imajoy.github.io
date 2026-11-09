@@ -28,3 +28,15 @@
 .postal-hint:not([hidden]){margin:8px 0 22px}
 /* mouse users: only the box is a click target */
 @media(hover:hover) and (pointer:fine){.check-row,.contact-consent{cursor:default}.check-row input[type=checkbox],.contact-consent input[type=checkbox]{cursor:pointer}}
+
+/* Right column: summary, offers and rewards live here; the left column is billing details only */
+.checkout-side{display:flex;flex-direction:column;gap:18px;min-width:0}
+.checkout-side>*{margin:0!important}
+.checkout-side .order-summary{position:static}
+.checkout-side .offer-inline{margin:0}
+.checkout-side .billing-upsell{margin:0}
+.checkout-side .customer-verification{padding:20px 22px}
+.checkout-side .reward-steps{gap:8px}
+.checkout-side>*{flex:none}
+.checkout-side .order-summary{overflow:visible}
+@media(max-width:800px){.checkout-side{display:contents}.checkout-side>*{margin:0!important}.checkout-grid{row-gap:22px}.checkout-side .order-summary{grid-row:1}}

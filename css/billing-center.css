@@ -182,3 +182,22 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 .bc-dl1:hover,.bc-dl1:focus-visible{border-color:var(--blue,#3d8bff);transform:translateY(-1px)}
 .bc-dl1 svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:640px){.bc-view{padding:6px 12px}}
+
+/* Download button: the arrow is swapped for a second one that drops in from above (slot-machine swap); while the PDF is made a ring draws around it, then a tick pops in */
+.bc-dl1{position:relative;overflow:hidden}
+.bc-dl1 .dl-slot{position:absolute;inset:0;display:block;overflow:hidden;border-radius:50%}
+.bc-dl1 .dl-slot svg{position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .42s cubic-bezier(.2,.9,.25,1),opacity .3s}
+.bc-dl1 .dl-a2{transform:translateY(-26px);opacity:0}
+.bc-dl1:hover .dl-a1,.bc-dl1:focus-visible .dl-a1{transform:translateY(26px);opacity:0}
+.bc-dl1:hover .dl-a2,.bc-dl1:focus-visible .dl-a2{transform:none;opacity:1}
+.bc-dl1 .dl-ring{position:absolute;inset:-1px;width:calc(100% + 2px);height:calc(100% + 2px);fill:none;stroke:var(--blue,#3d8bff);stroke-width:2.4;stroke-linecap:round;stroke-dasharray:113;stroke-dashoffset:113;transform:rotate(-90deg);opacity:0;pointer-events:none}
+.bc-dl1 .dl-ok{position:absolute;left:50%;top:50%;width:16px;height:16px;margin:-8px 0 0 -8px;fill:none;stroke:#1c9a6c;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:22;stroke-dashoffset:22;opacity:0}
+.bc-dl1[data-s=busy] .dl-ring{opacity:1;animation:dl-ring .65s cubic-bezier(.4,0,.2,1) forwards}
+.bc-dl1[data-s=busy] .dl-a2,.bc-dl1[data-s=busy] .dl-a1{transform:translateY(26px);opacity:0}
+.bc-dl1[data-s=done]{border-color:#1c9a6c}
+.bc-dl1[data-s=done] .dl-a1,.bc-dl1[data-s=done] .dl-a2{transform:translateY(26px);opacity:0}
+.bc-dl1[data-s=done] .dl-ok{opacity:1;animation:dl-ok .4s .05s ease-out forwards}
+.bc-dl1[data-s=fail]{border-color:#d14343}
+@keyframes dl-ring{to{stroke-dashoffset:0}}
+@keyframes dl-ok{to{stroke-dashoffset:0}}
+@media(prefers-reduced-motion:reduce){.bc-dl1 .dl-slot svg,.bc-dl1[data-s] .dl-ring,.bc-dl1[data-s] .dl-ok{transition:none;animation-duration:.01s}}

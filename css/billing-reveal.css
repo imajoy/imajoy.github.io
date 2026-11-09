@@ -23,3 +23,6 @@
 
 /* the green tick on a postal code means it was verified for the country */
 .form-field:has(> #postal:not([data-verified]))::after,.form-field:has(> #company-postal:not([data-verified]))::after{display:none!important}
+/* the note sits right under its field, with normal spacing before the next one */
+.form-field:has(+ .postal-hint:not([hidden])){margin-bottom:0}
+.postal-hint:not([hidden]){margin:8px 0 22px}

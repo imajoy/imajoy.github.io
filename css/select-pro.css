@@ -1,6 +1,6 @@
 /* Custom dropdowns for the billing form (js/select-pro.js) */
 .sp{position:relative}
-.sp-native{position:absolute!important;inset:0;width:100%;height:100%;opacity:0;pointer-events:none;border:0!important;padding:0!important;min-height:0!important}
+.sp-native,.sp .sp-native:disabled{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;opacity:0!important;visibility:visible;pointer-events:none!important;border:0!important;padding:0!important;min-height:0!important;margin:0!important;background:none!important;color:transparent!important;box-shadow:none!important;font-size:1px!important}
 .sp-btn{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;min-height:52px;padding:13px 14px 13px 16px;text-align:left;font:inherit;color:var(--ink);background:var(--bg2);border:1px solid #7c8ca4;border-radius:15px;cursor:pointer;transition:border-color .25s,background-color .25s,box-shadow .3s}
 html[data-theme=dark] .sp-btn{border-color:#627393}
 .sp-btn:hover:not(:disabled){border-color:var(--blue)}

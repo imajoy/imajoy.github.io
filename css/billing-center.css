@@ -225,3 +225,9 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 @keyframes bc-inv-out{from{opacity:1;transform:none}to{opacity:0;transform:translate3d(0,14px,0) scale(.985)}}
 @keyframes bc-inv-fadeout{from{opacity:1}to{opacity:0}}
 @media(prefers-reduced-motion:reduce){#bc-invoice.bc-out,#bc-invoice.bc-out::backdrop{animation:none}}
+
+/* how saving a card works */
+.bc-how{list-style:none;counter-reset:bch;margin:18px 0 6px;padding:0;display:grid;gap:12px}
+.bc-how li{counter-increment:bch;position:relative;padding-left:40px;display:grid;gap:2px;font-size:.9rem}
+.bc-how li::before{content:counter(bch);position:absolute;left:0;top:1px;width:26px;height:26px;border-radius:50%;display:grid;place-items:center;font-size:.8rem;font-weight:600;border:1px solid var(--line);color:var(--ink)}
+.bc-how b{font-weight:600}.bc-how span{color:var(--mute);font-size:.84rem;line-height:1.5}

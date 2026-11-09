@@ -8,7 +8,7 @@ export function service({registered=true,mailFails=false,strictEmail=false}={}){
  values.set('PLANS_sandbox',JSON.stringify({productId:'PROD-TEST',tiers}));
  const cache=new Map(),mails=[],requests=[],sheets=new Map(),subscriptions=new Map(),transactions=new Map(),plans=new Map(),idempotency=new Map();let sequence=0,locked=false,signatureValid=true;
  const github={private:true,available:true,empty:false,files:new Map(),uploads:0};
- const razorpay={orders:new Map(),plans:new Map(),subscriptions:new Map(),invoices:new Map(),payments:new Map(),loseCreateResponse:false};
+ const razorpay={customers:new Map(),tokens:new Map(),orders:new Map(),plans:new Map(),subscriptions:new Map(),invoices:new Map(),payments:new Map(),loseCreateResponse:false};
  const paypalMissing=new Set(),paypalOrders=new Map();
  function table(name,initial=[[]]){
   const rows=initial;
@@ -29,6 +29,9 @@ export function service({registered=true,mailFails=false,strictEmail=false}={}){
    requests.push({url,options});
    if(url.startsWith('https://api.razorpay.com/v1/')){
     const u=new URL(url),path=u.pathname.replace('/v1',''),body=options.payload?JSON.parse(options.payload):null;
+    if(path==='/customers'&&options.method==='post'){let c=[...razorpay.customers.values()].find(x=>x.email===body.email);if(!c){c={...body,id:'cust_test'+(razorpay.customers.size+1)};razorpay.customers.set(c.id,c);}return result(c,200);}
+    if(/^\/customers\/[^/]+\/tokens$/.test(path)){const cid=path.split('/')[2];return result({items:[...razorpay.tokens.values()].filter(t=>t.customer_id===cid)},200);}
+    if(/^\/customers\/[^/]+\/tokens\/[^/]+$/.test(path)&&options.method==='delete'){const parts=path.split('/'),t=razorpay.tokens.get(parts[4]);if(!t||t.customer_id!==parts[2])return result({},404);razorpay.tokens.delete(parts[4]);return result({deleted:true},200);}
     if(path==='/orders'&&options.method==='post'){const id='order_test'+String(razorpay.orders.size+1).padStart(8,'0'),order={...body,id,status:'created'};razorpay.orders.set(id,order);return result(order,200);}
     if(path.startsWith('/orders/'))return result(razorpay.orders.get(path.split('/').pop())||{},razorpay.orders.has(path.split('/').pop())?200:404);
     if(/^\/payments\/[^/]+\/capture$/.test(path)&&options.method==='post'){const pay=razorpay.payments.get(path.split('/')[2]);if(!pay)return result({},404);pay.status='captured';return result(pay,200);}

@@ -312,6 +312,10 @@ function handleRazorpay_(d){
   if(props_().getProperty('COMMERCE_ENABLED')!=='true'||!razorpayConnected_())throw commerceError_('unavailable','Razorpay is not connected.');
   if(d.operation==='webhook')return razorpayWebhook_(d);
   var who=commerceWho_(d.accountToken);
+  if(d.operation==='cards')return razorpayCards_(who);
+  if(d.operation==='card-setup')return razorpayCardSetup_(who);
+  if(d.operation==='card-verify')return razorpayCardVerify_(d,who);
+  if(d.operation==='card-remove')return razorpayCardRemove_(d.tokenId,who);
   if(d.operation==='confirm')return razorpayConfirm_(d.checkoutId,who);
   if(d.operation==='cancel')return razorpayAbandon_(d.checkoutId,who);
   if(d.operation==='stop')return razorpayStopRenewal_(d.checkoutId,who);
@@ -423,4 +427,49 @@ function razorpayStopRenewal_(id,who){
   commerceLock_(function(){var r=razorpayFind_(id);r.stopRequested=true;razorpayWrite_(r);});
   try{MailApp.sendEmail({to:ownerEmail_(),name:'Wrapline Pro orders',subject:'Renewal stopped: '+record.subscriptionId,body:who.email+' stopped renewal of their Wrapline Pro '+record.price.plan+' '+record.price.billing+' subscription ('+record.subscriptionId+'). Access continues until '+(record.paidThrough?new Date(record.paidThrough*1000).toDateString():'the end of the paid period')+'.'});}catch(e){}
   return {ok:true,stopped:true,endsAt:record.paidThrough?new Date(record.paidThrough*1000).toISOString():''};
+}
+
+
+/* ---------- Saved cards (Payment methods page) ----------
+   Card numbers never touch this site or this Sheet. The customer adds a card inside Razorpay's own window while paying a Rs 1 check,
+   Razorpay keeps the card as a token on a Razorpay "customer" that belongs to the verified email, and the Rs 1 is refunded straight away.
+   Only the safe display facts Razorpay returns (brand, last 4, expiry) are ever shown. */
+function razorpayCustomer_(who){
+  var c=razorpayApi_('/customers','post',{name:'Wrapline customer',email:String(who.email).toLowerCase(),fail_existing:'0',notes:{source:'wrapline'}});
+  if(!/^cust_[A-Za-z0-9]+$/.test(c&&c.id||''))throw commerceError_('provider','Razorpay could not open your saved cards.');
+  return c.id;
+}
+function razorpayCardList_(customerId){
+  var res=razorpayApi_('/customers/'+encodeURIComponent(customerId)+'/tokens');
+  return (res.items||[]).filter(function(t){return t&&t.method==='card'&&t.card&&/^token_[A-Za-z0-9]+$/.test(t.id||'');}).map(function(t){
+    var c=t.card||{};
+    return {id:t.id,network:String(c.network||'Card').slice(0,20),last4:/^\d{4}$/.test(c.last4||'')?c.last4:'',type:String(c.type||'').slice(0,12),issuer:String(c.issuer||'').slice(0,12),expMonth:Number(c.expiry_month)||0,expYear:Number(c.expiry_year)||0};
+  });
+}
+function razorpayCards_(who){return {ok:true,cards:razorpayCardList_(razorpayCustomer_(who)),mode:razorpayMode_()};}
+function razorpayCardSetup_(who){
+  var customerId=razorpayCustomer_(who),email=String(who.email).toLowerCase();
+  var order=razorpayApi_('/orders','post',{amount:100,currency:'INR',receipt:'cardchk_'+Utilities.getUuid().replace(/-/g,'').slice(0,24),notes:{purpose:'card-check',email:email}});
+  if(!/^order_[A-Za-z0-9]+$/.test(order&&order.id||''))throw commerceError_('provider','Razorpay could not start the card check.');
+  return {ok:true,keyId:props_().getProperty('RAZORPAY_KEY_ID'),orderId:order.id,customerId:customerId,amount:100,currency:'INR',mode:razorpayMode_()};
+}
+function razorpayCardVerify_(d,who){
+  var secret=props_().getProperty('RAZORPAY_KEY_SECRET')||'',orderId=String(d.orderId||''),paymentId=String(d.paymentId||'');
+  var expected=Utilities.computeHmacSha256Signature(orderId+'|'+paymentId,secret).map(function(b){return ('0'+((b+256)%256).toString(16)).slice(-2);}).join('');
+  if(!secret||!constantTimeEqual_(expected,String(d.signature||'')))throw commerceError_('signature','The card check could not be verified.');
+  var order=razorpayApi_('/orders/'+encodeURIComponent(orderId));
+  if(!order||order.amount!==100||!order.notes||order.notes.purpose!=='card-check'||String(order.notes.email||'')!==String(who.email).toLowerCase())throw commerceError_('forbidden','This card check belongs to another account.');
+  var payment=razorpayApi_('/payments/'+encodeURIComponent(paymentId));
+  if(!payment||payment.order_id!==orderId||payment.amount!==100)throw commerceError_('invalid','The card check does not match.');
+  if(payment.status==='authorized')payment=razorpayApi_('/payments/'+encodeURIComponent(paymentId)+'/capture','post',{amount:100,currency:'INR'});
+  if(!payment||payment.status!=='captured')throw commerceError_('invalid','The card check was not completed.');
+  if(Number(payment.amount_refunded||0)<100)razorpayApi_('/payments/'+encodeURIComponent(paymentId)+'/refund','post',{amount:100,notes:{reason:'Card check, refunded'}});
+  return {ok:true,refunded:true};
+}
+function razorpayCardRemove_(tokenId,who){
+  if(!/^token_[A-Za-z0-9]{6,40}$/.test(String(tokenId||'')))throw commerceError_('invalid','Invalid saved card.');
+  var customerId=razorpayCustomer_(who);
+  if(!razorpayCardList_(customerId).some(function(c){return c.id===tokenId;}))throw commerceError_('forbidden','That card is not saved on your account.');
+  razorpayApi_('/customers/'+encodeURIComponent(customerId)+'/tokens/'+encodeURIComponent(tokenId),'delete');
+  return {ok:true,cards:razorpayCardList_(customerId)};
 }

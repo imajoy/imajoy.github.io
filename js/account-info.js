@@ -1,6 +1,6 @@
 /* Account information tab: profile picture, name, email, billing-address summary and account deletion.
    The name is the same one used on invoices; the picture is a small square JPEG saved with the account. */
-import {confirmLeave} from './confirm-leave.js?v=cl1';
+import {confirmLeave} from './confirm-leave.js?v=cl2';
 import {getAccountSession,clearAccountSession,accountRequest,onAccountChange} from './account-session.js?v=20261023-p7';
 import {loadProfile,saveProfile,hasBilling} from './profile-store.js?v=pm3';
 const $=s=>document.querySelector(s);

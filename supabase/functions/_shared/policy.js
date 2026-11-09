@@ -13,7 +13,7 @@ export const COMMERCE_LIMITS = [
   { match: (p) => notWebhook(p), limit: 60, windowMs: MIN },
 ];
 export const RAZORPAY_LIMITS = [
-  { match: (p) => ['checkout', 'confirm', 'cancel', 'stop'].includes(p), limit: 10, windowMs: MIN },
+  { match: (p) => ['checkout', 'confirm', 'cancel', 'stop', 'card-setup', 'card-verify', 'card-remove'].includes(p), limit: 10, windowMs: MIN },
   { match: (p) => notWebhook(p), limit: 60, windowMs: MIN },
 ];
 export const MAYA_LIMITS = [{ match: () => true, limit: 20, windowMs: MIN }];

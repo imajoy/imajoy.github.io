@@ -341,3 +341,34 @@ test('A cancelled, failed or still-open trial checkout never blocks the same buy
  const other=s.app.register('someone@example.com');
  assert.equal(s.app.rpc('eligibility',{accountToken:other.token,...sig,country:'IN'}).reason,'trial_reserved','another account on the same browser waits');
 });
+
+test('Saved cards: a Rs 1 check in Razorpay own window, refunded at once; list and remove are limited to the signed-in email',()=>{
+ const s=setup(),other=s.app.register('other@example.com').token;
+ assert.equal(s.rpc('cards',{accountToken:'forged'}).error,'signin_required');
+ assert.deepEqual(s.rpc('cards',{accountToken:s.token}).cards,[]);
+ const setupRes=s.rpc('card-setup',{accountToken:s.token});
+ assert.equal(setupRes.ok,true);assert.equal(setupRes.amount,100);assert.equal(setupRes.currency,'INR');assert(/^cust_/.test(setupRes.customerId));assert(!JSON.stringify(setupRes).includes('private-razorpay-test-secret'));
+ const order=s.app.razorpay.orders.get(setupRes.orderId);assert.equal(order.notes.purpose,'card-check');assert.equal(order.notes.email,'buyer@example.com');
+ const pay={id:'pay_check0001',order_id:setupRes.orderId,amount:100,status:'authorized',amount_refunded:0};s.app.razorpay.payments.set(pay.id,pay);
+ const sign=(o,p,secret='private-razorpay-test-secret')=>createHmac('sha256',secret).update(o+'|'+p).digest('hex');
+ assert.equal(s.rpc('card-verify',{accountToken:s.token,orderId:setupRes.orderId,paymentId:pay.id,signature:sign(setupRes.orderId,pay.id,'wrong')}).error,'signature');
+ assert.equal(s.rpc('card-verify',{accountToken:other,orderId:setupRes.orderId,paymentId:pay.id,signature:sign(setupRes.orderId,pay.id)}).error,'forbidden','another account cannot claim the check');
+ const ok=s.rpc('card-verify',{accountToken:s.token,orderId:setupRes.orderId,paymentId:pay.id,signature:sign(setupRes.orderId,pay.id)});
+ assert.equal(ok.ok,true);assert.equal(ok.refunded,true);assert.equal(s.app.razorpay.payments.get(pay.id).amount_refunded,100);
+ s.app.razorpay.tokens.set('token_mine0001',{id:'token_mine0001',customer_id:setupRes.customerId,method:'card',card:{network:'Visa',last4:'4242',type:'credit',issuer:'HDFC',expiry_month:12,expiry_year:2029}});
+ const otherCust=s.rpc('card-setup',{accountToken:other}).customerId;s.app.razorpay.tokens.set('token_other001',{id:'token_other001',customer_id:otherCust,method:'card',card:{network:'Mastercard',last4:'1111'}});
+ const list=s.rpc('cards',{accountToken:s.token}).cards;assert.equal(list.length,1);assert.deepEqual(list[0],{id:'token_mine0001',network:'Visa',last4:'4242',type:'credit',issuer:'HDFC',expMonth:12,expYear:2029});
+ assert.equal(s.rpc('card-remove',{accountToken:s.token,tokenId:'token_other001'}).error,'forbidden','cannot delete someone else card');
+ assert.equal(s.rpc('card-remove',{accountToken:s.token,tokenId:'bad'}).error,'invalid');
+ assert.deepEqual(s.rpc('card-remove',{accountToken:s.token,tokenId:'token_mine0001'}).cards,[]);
+});
+test('Saved cards gateway: only account-signed requests, strict ids, no card data accepted',async()=>{
+ const sent=[];const handler=createRazorpayHandler({env:k=>({COMMERCE_ENABLED:'true',COMMERCE_SECRET:'x'.repeat(40),SHEET_WEB_APP_URL:'https://script.google.com/macros/s/AKfycbxabc/exec',ALLOWED_ORIGINS:'https://imajoy.github.io'})[k],request:async(url,opt)=>{sent.push(JSON.parse(JSON.parse(opt.body).payload));return new Response(JSON.stringify({ok:true,cards:[]}),{status:200});}});
+ const call=(path,body)=>handler(new Request('https://x.test/functions/v1/razorpay/'+path,{method:'POST',headers:{origin:'https://imajoy.github.io','content-type':'application/json'},body:JSON.stringify(body)}));
+ assert.equal((await call('cards',{})).status,401);
+ assert.equal((await call('cards',{accountToken:'t'.repeat(40)})).status,200);
+ assert.equal((await call('card-remove',{accountToken:'t'.repeat(40),tokenId:'../../x'})).status,400);
+ assert.equal((await call('card-verify',{accountToken:'t'.repeat(40),orderId:'order_abcdef12',paymentId:'pay_abcdef12',signature:'z'})).status,400);
+ const good=await call('card-verify',{accountToken:'t'.repeat(40),orderId:'order_abcdef12',paymentId:'pay_abcdef12',signature:'a'.repeat(64),cardNumber:'4111111111111111'});
+ assert.equal(good.status,200);assert(!JSON.stringify(sent).includes('4111'),'a card number is never forwarded');
+});

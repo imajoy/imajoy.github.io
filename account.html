@@ -7,7 +7,7 @@
 <link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/instrument-serif-italic-5.3.0.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v=20261108-dl2">
 <link rel="stylesheet" href="css/commerce.css?v=20261017-r7">
-<link rel="stylesheet" href="css/thank-you-v3.css?v=ty18"><link rel="stylesheet" href="css/billing-center.css?v=bc14"><link rel="stylesheet" href="css/account-info.css?v=ai2">
+<link rel="stylesheet" href="css/thank-you-v3.css?v=ty18"><link rel="stylesheet" href="css/billing-center.css?v=bc16"><link rel="stylesheet" href="css/account-info.css?v=ai2">
 
 <script src="js/site-config.js?v=20261023-p4"></script>
 <link rel="stylesheet" href="css/account.css?v=20261108-dk2"><link rel="stylesheet" href="css/account-v2.css?v=a9"><link rel="stylesheet" href="css/extras.css?v=20261019-dialog1"><link rel="stylesheet" href="css/polish.css?v=20261108-wd3"><link rel="stylesheet" href="css/mobile.css?v=20261108-ft1">
@@ -61,10 +61,24 @@
 </div></div>
 
 <div class="bc-panel" id="p-methods" hidden>
-<section class="bc-card bc-method"><h2>Save credit and debit cards</h2><p class="bc-sub">Pay faster next time. Your card is entered and kept by Razorpay, never on this site.</p>
+<section class="bc-card bc-method sc-top"><div class="sc-head"><span class="sc-ok" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="m6.5 12.5 3.8 3.8 7.2-8"/></svg></span><p id="sc-count">Checking your saved cards…</p><button class="btn btn-dark sc-add" id="sc-add" type="button">Add payment method</button></div></section>
+<section class="bc-card bc-method"><h2>Saved cards</h2><p class="bc-sub">Kept by Razorpay, not by this site. Only the card type, last 4 digits and expiry are shown.</p><div id="sc-list" aria-live="polite"></div><p class="bc-msg" id="sc-msg" role="status" aria-live="polite"></p></section>
+<dialog id="sc-dlg" class="bc-dlg sc-dlg" aria-label="Add payment method"><div class="bc-dlg-bar"><b>Add payment method</b><span><button class="bc-x" type="button" data-x aria-label="Close">×</button></span></div>
+<div class="sc-body">
+<div class="sc-acc" data-open="true"><button class="sc-acc-h" type="button" aria-expanded="true"><b>Card</b><span class="sc-brands" aria-hidden="true"><em class="b-visa">VISA</em><em class="b-mc"><i></i><i></i></em><em class="b-ru">RuPay</em></span><i class="sc-chev" aria-hidden="true"></i></button>
+<div class="sc-acc-b"><div class="sc-acc-in"><div class="sc-line"><span>Today you&rsquo;ll be charged</span><b>&#8377;1</b></div>
+<ul class="sc-pts"><li>Razorpay opens in its own secure window. Choose a card or add a new one there.</li><li>Tick <b>Save this card</b> in that window to keep it for next time.</li><li>The &#8377;1 only checks that the card works. It is refunded straight away.</li></ul>
+<p class="bc-msg" id="sc-dmsg" role="status" aria-live="polite"></p>
+<button class="btn btn-dark sc-go" id="sc-go" type="button">Submit Payment</button>
+<p class="sc-lock"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="9.5" rx="2.4"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>Encrypted and secure payments. Card details never reach this site.</p></div></div></div>
+<div class="sc-acc" data-open="false"><button class="sc-acc-h" type="button" aria-expanded="false"><b>UPI</b><span class="sc-brands" aria-hidden="true"><em class="b-upi">UPI</em></span><i class="sc-chev" aria-hidden="true"></i></button>
+<div class="sc-acc-b"><div class="sc-acc-in"><p class="sc-note">UPI doesn&rsquo;t need to be added here. Choose <b>UPI</b> in the Razorpay window whenever you pay.</p></div></div></div>
+<div class="sc-acc" data-open="false"><button class="sc-acc-h" type="button" aria-expanded="false"><b>PayPal</b><span class="sc-brands" aria-hidden="true"><em class="b-pp">PayPal</em></span><i class="sc-chev" aria-hidden="true"></i></button>
+<div class="sc-acc-b"><div class="sc-acc-in"><p class="sc-note">PayPal doesn&rsquo;t need to be added here either. Choose <b>PayPal</b> at checkout and approve it in PayPal&rsquo;s own window (charged in USD).</p></div></div></div>
+</div></dialog>
+<section class="bc-card bc-method"><h2>Remember my card at checkout</h2><p class="bc-sub">Pay faster next time. Your card is entered and kept by Razorpay, never on this site.</p>
 <div class="bc-sw-row"><span class="bc-pay-t"><b>Save cards for faster checkout</b><small>When you pay, Razorpay offers to remember your card for next time. You can delete a saved card in the Razorpay window at any time.</small></span><button type="button" class="bc-sw" id="bc-savecard" role="switch" aria-checked="false" aria-label="Save credit and debit cards"><i></i></button></div>
 <p class="bc-msg" id="bc-pay-msg" role="status" aria-live="polite"></p>
-<ol class="bc-how" aria-label="How saving a card works"><li><b>Turn the switch on.</b><span>It tells Razorpay you want cards remembered.</span></li><li><b>Pay with a card at checkout.</b><span>Razorpay shows a &ldquo;Save this card&rdquo; option inside its own secure window.</span></li><li><b>Next time, pick it.</b><span>Your saved card appears in that window, ready to use.</span></li></ol>
 <p class="bc-fine">Your billing details and every purchase are saved to your account automatically after you pay. Find them under Payment history. Card numbers, expiry dates and security codes are entered with Razorpay or PayPal and never reach or get saved on this site.</p></section>
 <section class="bc-card bc-method"><h2>Billing details</h2><p class="bc-sub">Saved to your account and filled in for you at checkout. Your billing country is detected automatically.</p>
 <form id="bc-billing" novalidate>
@@ -79,5 +93,5 @@
 <dialog id="bc-invoice" class="bc-dlg" aria-label="Invoice"><div class="bc-dlg-bar"><b>Invoice</b><span><button class="btn btn-light bc-print" type="button">Print PDF</button><button class="bc-x" type="button" data-x aria-label="Close">×</button></span></div><div class="bc-invoice-body"></div></dialog>
 </main>
 <footer class="commerce-footer">© 2026 AJOY <a href="license.html">License terms</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></footer>
-<script src="js/checkbox-hit.js?v=cb1" defer></script><script src="js/scroll-calm.js?v=sc3" defer></script><script type="module" src="js/account.js?v=20261110-a25"></script><script type="module" src="js/billing-center.js?v=bc16"></script><script type="module" src="js/account-info.js?v=ai3"></script>
+<script src="js/checkbox-hit.js?v=cb1" defer></script><script type="module" src="js/saved-cards.js?v=sc2"></script><script src="js/scroll-calm.js?v=sc3" defer></script><script type="module" src="js/account.js?v=20261110-a25"></script><script type="module" src="js/billing-center.js?v=bc16"></script><script type="module" src="js/account-info.js?v=ai3"></script>
 <script src="js/smooth-scroll.js?v=sm5" defer></script><script src="js/transitions.js?v=vt5"></script><script src="js/media-guard.js?v=mg1" defer></script><script src="js/lang-boot.js?v=lg6" defer></script></body></html>

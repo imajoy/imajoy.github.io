@@ -17,6 +17,7 @@ html[data-theme=dark] .cl-go{background:#fff;color:#0b1124;border-color:#fff}
 @media(prefers-reduced-motion:reduce){.cl-dlg[open],.cl-dlg[open]::backdrop,.cl-dlg.cl-out,.cl-dlg.cl-out::backdrop{animation:none}}`;
 const COPY={
   out:{title:'Sign out of Wrapline?',text:'You will be signed out on this device. Your subscriptions and saved details stay in your account.',yes:'Sign out'},
+  card:{title:'Remove this card?',text:'It will be deleted from Razorpay and will no longer be offered at checkout. You can add it again any time.',yes:'Remove card'},
   switch:{title:'Switch account?',text:'You will be signed out here, then asked to sign in with another email.',yes:'Switch account'}
 };
 export function confirmLeave(kind){

@@ -12,7 +12,7 @@ export function createRazorpayHandler({env,request=fetch}){
   try{
    const path=new URL(req.url).pathname.split('/').filter(Boolean).pop();
    if(req.method==='OPTIONS')return new Response(null,{status:allowed.includes(origin)?204:403,headers});
-   if(!['config','quote','checkout','confirm','cancel','stop','webhook'].includes(path))throw fail('Not found.',404);
+   if(!['config','quote','checkout','confirm','cancel','stop','webhook','cards','card-setup','card-verify','card-remove'].includes(path))throw fail('Not found.',404);
    if(path!=='webhook'&&!allowed.includes(origin))throw fail('Origin not allowed.',403);
    if(req.method!==(path==='config'?'GET':'POST'))throw fail('Method not allowed.',405);
    if(path!=='config'&&env('COMMERCE_ENABLED')!=='true')throw fail('Checkout is temporarily unavailable.',503);
@@ -28,7 +28,16 @@ export function createRazorpayHandler({env,request=fetch}){
     let data;try{data=JSON.parse(raw);}catch{throw fail('Invalid request.');}
     if(typeof data.accountToken!=='string'||data.accountToken.length<16||data.accountToken.length>4096)throw fail('Sign in or register before subscribing.',401);
     payload.accountToken=data.accountToken;
-    if(['confirm','cancel','stop'].includes(path)){
+    if(['cards','card-setup','card-verify','card-remove'].includes(path)){
+     /* saved cards: only the verified account email decides whose cards these are; no card data ever passes through here */
+     if(path==='card-verify'){
+      if(!/^order_[A-Za-z0-9]{6,40}$/.test(data.orderId||'')||!/^pay_[A-Za-z0-9]{6,40}$/.test(data.paymentId||'')||!/^[a-f0-9]{64}$/.test(data.signature||''))throw fail('Invalid card check.');
+      Object.assign(payload,{orderId:data.orderId,paymentId:data.paymentId,signature:data.signature});
+     }else if(path==='card-remove'){
+      if(!/^token_[A-Za-z0-9]{6,40}$/.test(data.tokenId||''))throw fail('Invalid saved card.');
+      payload.tokenId=data.tokenId;
+     }
+    }else if(['confirm','cancel','stop'].includes(path)){
      if(!/^[-a-f0-9]{36}$/i.test(data.checkoutId||''))throw fail('Invalid checkout.');
      payload.checkoutId=data.checkoutId;
     }else{

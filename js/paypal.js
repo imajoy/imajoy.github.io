@@ -1,6 +1,6 @@
 import {billingParts} from './receipt-billing.js?v=rb1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261109-co3';
+import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261109-co4';
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
 import {tierFor,availability,closedMessage,countryCheck,usdUnit} from './regions.js?v=20261023-p7';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261023-p5';
@@ -205,6 +205,10 @@ if(form&&pay){
   if(!sdkPromise)sdkPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(cfg.clientId)+'&vault=true&intent=subscription&currency=USD';script.onload=()=>window.paypal?.Buttons?resolve():reject(new Error('PayPal could not start.'));script.onerror=()=>reject(new Error('PayPal could not load. Check your connection.'));document.head.append(script);});
   return sdkPromise;
  }
+ const ppLoad=document.createElement('div');ppLoad.className='pp-loading';ppLoad.setAttribute('role','status');ppLoad.setAttribute('aria-live','polite');
+ ppLoad.innerHTML='<span class="pp-spin" aria-hidden="true"></span><span class="pp-bar sk-bar" aria-hidden="true"></span><span class="pp-text">Loading PayPal…</span>';buttons.after(ppLoad);
+ let ppSlow=setTimeout(()=>{const t=ppLoad.querySelector('.pp-text');if(t)t.textContent='Still loading PayPal, this can take a few seconds…';},6000);
+ const ppDone=()=>{clearTimeout(ppSlow);ppLoad.remove();};
  async function startButtons(){
   if(rendered)return;rendered=true;
   try{
@@ -224,8 +228,8 @@ if(form&&pay){
     onApprove:()=>{if(checkout)confirm(checkout.id);else say('Open your account to check the subscription status.',true);},
     onCancel:()=>say('Checkout cancelled. You can resume this checkout or try again after its trial reservation expires.'),
     onError:error=>{reflectTrialRestriction(error);say(error.message||'PayPal could not complete the request. Please check your subscription status before retrying.',true,error.code==='trial_used'||eligibility?.reason==='trial_used');}
-   }).render('#paypal-buttons');
-  }catch(error){say(error.message,true);rendered=false;}
+   }).render('#paypal-buttons');ppDone();
+  }catch(error){ppDone();say(error.message,true);rendered=false;}
  }
  sync();
  fetch(settings.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(async response=>{if(!response.ok)throw Error();cfg=await response.json();box.querySelector('.paypal-test').hidden=cfg.mode==='live';refreshReward();sync();}).catch(()=>say('Secure checkout settings are unavailable. Please try again later.',true));

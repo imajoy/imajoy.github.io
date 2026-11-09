@@ -201,3 +201,12 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 @keyframes dl-ring{to{stroke-dashoffset:0}}
 @keyframes dl-ok{to{stroke-dashoffset:0}}
 @media(prefers-reduced-motion:reduce){.bc-dl1 .dl-slot svg,.bc-dl1[data-s] .dl-ring,.bc-dl1[data-s] .dl-ok{transition:none;animation-duration:.01s}}
+
+/* invoice window: one smooth motion. The paper is already in place when the window opens (no second fade-in), and the backdrop is a plain dim fade instead of a costly blur */
+.bc-invoice-body .iv-paper,.bc-invoice-body .iv-paper.is-in{opacity:1!important;transform:none!important;animation:none!important}
+#bc-invoice::backdrop{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(8,12,30,.6)}
+#bc-invoice[open]{animation:bc-inv-in .34s cubic-bezier(.22,1,.36,1) both;will-change:transform,opacity}
+#bc-invoice[open]::backdrop{animation:bc-inv-fade .34s ease both}
+@keyframes bc-inv-in{from{opacity:0;transform:translate3d(0,18px,0) scale(.985)}to{opacity:1;transform:none}}
+@keyframes bc-inv-fade{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){#bc-invoice[open],#bc-invoice[open]::backdrop{animation:none}}

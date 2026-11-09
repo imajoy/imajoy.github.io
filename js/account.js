@@ -2,7 +2,7 @@
 import {orb} from './mood-orb.js?v=mo1';
 import {isDisposableEmail,EMAIL_POLICY_TEXT,EMAIL_TEMP_TEXT} from './email-policy.js?v=ep1';
 import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
-import './profile-menu.js?v=pm8';
+import './profile-menu.js?v=pm9';
 const cfg = window.AJOY_CONFIG || {};
 if (cfg.accountOpen && cfg.sheetUrl) init();
 function init() {
@@ -77,6 +77,7 @@ function init() {
   dlg.addEventListener('cancel',e=>{e.preventDefault();close();});
   dlg.addEventListener('click',e=>{const r=dlg.getBoundingClientRect();if(e.target===dlg&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))close();});
   btn.addEventListener('click',()=>{purpose='';open();});
+  window.addEventListener('ajoy-account-erase',()=>{if(!getAccountSession())return;erasePanel={stage:'intro',msg:''};open();});
   window.addEventListener('ajoy-account-open',event=>{purpose=event.detail?.purpose||'';if(event.detail?.email&&event.detail.email!==email){generation++;busy=false;step='email';codeDeadline=0;email=event.detail.email;msg='';}open();});
   function announce(text,error=false){msg=text;const n=body.querySelector('.acct-msg');if(n){n.textContent=text;n.dataset.error=String(error);} }
   function setBusy(value){busy=value;body.setAttribute('aria-busy',String(value));for(const button of body.querySelectorAll('button'))button.disabled=value;if(step==='code')syncCountdown();}

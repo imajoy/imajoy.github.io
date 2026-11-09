@@ -112,7 +112,7 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
  .bc-ind{border-radius:999px}
  .bc-nav a{padding:10px 16px;border-radius:999px;flex:none}
  .bc-nav a svg{display:none}
- .bc-nav{justify-content:space-between}.bc-nav a{flex:1 1 auto;justify-content:center;padding:10px 12px;font-size:.875rem}.bc-nav .f{display:none}.bc-nav .s{display:inline}.bc-nav a:first-of-type .s{display:none}.bc-nav a:first-of-type .f{display:inline}
+ .bc-nav{justify-content:space-between}.bc-nav a{flex:1 1 auto;justify-content:center;padding:10px 9px;font-size:.84375rem}.bc-nav .f{display:none}.bc-nav .s{display:inline}
  .bc-body td:first-child{display:block;padding-bottom:2px}.bc-body td:first-child::before{content:none}
  .bc-table-card{padding:14px}
  .bc-body table,.bc-body tbody,.bc-body tr,.bc-body td{display:block}

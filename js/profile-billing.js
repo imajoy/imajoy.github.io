@@ -2,7 +2,7 @@
    Payment step: save what was entered on the billing step to the account, once, so next time it is already there. */
 import {getAccountSession,onAccountChange} from './account-session.js?v=20261023-p7';
 import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261109-co7';
-import {loadProfile,cachedProfile,saveProfile,hasBilling} from './profile-store.js?v=pm1';
+import {loadProfile,cachedProfile,saveProfile,hasBilling} from './profile-store.js?v=pm2';
 const form=document.querySelector('#billing-form');
 if(form){
  const E=form.elements,set=(name,value)=>{const el=E[name];if(!el||typeof value!=='string'||!value||el.value.trim())return false;el.value=value;el.dispatchEvent(new Event('input',{bubbles:true}));el.dispatchEvent(new Event('change',{bubbles:true}));return true;};

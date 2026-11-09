@@ -4,7 +4,7 @@ import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261109-co7';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
 import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261023-p7';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
-import {cachedProfile,loadProfile,saveProfile} from './profile-store.js?v=pm1';
+import {cachedProfile,loadProfile,saveProfile} from './profile-store.js?v=pm2';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
 import {secureCommerce,browserDeviceId} from './commerce-gateway.js?v=20261020-country1';
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;

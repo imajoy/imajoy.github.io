@@ -1,0 +1,47 @@
+/* Account information tab */
+.bc-shell[data-state=out] #p-account,.bc-shell[data-state=limited] #p-account{display:none}
+#p-account{display:grid;gap:18px}
+.ai-card{padding:0;overflow:hidden}
+.ai-card h2{display:flex;align-items:center;gap:12px;margin:0;padding:20px 24px;font-size:1.0625rem;font-weight:600;letter-spacing:-.01em;border-bottom:1px solid var(--line)}
+.ai-card h2 svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;color:var(--mute)}
+.ai-note{margin:0;padding:14px 24px;color:var(--mute);font-size:.875rem;border-bottom:1px solid var(--line)}
+.ai-photo-row{display:flex;align-items:center;gap:24px;padding:24px}
+.ai-av{flex:none;width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#639cff,#2a64e8);color:#fff;font:600 2.25rem/1 var(--sans,inherit);background-size:cover;background-position:center;box-shadow:0 0 0 4px var(--card),0 0 0 5px var(--line),0 14px 30px -14px rgba(42,100,232,.55);transition:transform .45s var(--out,cubic-bezier(.22,1,.36,1)),opacity .3s}
+.ai-av[data-photo]{color:transparent}
+.ai-av[data-busy]{opacity:.55;transform:scale(.96)}
+.ai-photo-t b{display:block;font-weight:600}
+.ai-photo-t p{margin:4px 0 0;color:var(--mute);font-size:.875rem;line-height:1.55;max-width:46ch}
+.ai-photo-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px 18px;margin-top:14px}
+.ai-upload{cursor:pointer}.ai-upload:focus-within{outline:2px solid var(--blue-d,#2A64E8);outline-offset:3px}
+.ai-photo .bc-msg{margin:10px 0 0}
+.ai-rows{display:block}
+.ai-row{display:grid;grid-template-columns:minmax(120px,32%) minmax(0,1fr) auto;align-items:center;gap:16px;min-height:66px;padding:12px 24px;border-bottom:1px solid var(--line)}
+.ai-rows .ai-row:last-child{border-bottom:0}
+.ai-k{color:var(--mute);font-size:.9375rem}
+.ai-v{min-width:0;font-size:.9375rem;display:flex;align-items:center;flex-wrap:wrap;gap:8px 12px;overflow-wrap:anywhere}
+.ai-v[data-empty=true]{color:var(--mute)}
+.ai-edit,.ai-lock{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:transparent;color:var(--ink);cursor:pointer;transition:background .2s,transform .3s var(--out,ease),border-color .2s}
+.ai-edit:hover{background:color-mix(in srgb,var(--ink) 7%,transparent);transform:scale(1.06)}
+.ai-edit:focus-visible{outline:2px solid var(--blue-d,#2A64E8);outline-offset:2px}
+.ai-edit svg,.ai-lock svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.ai-lock{border-color:transparent;color:var(--mute);cursor:default}
+.ai-ok{padding:3px 10px 3px 8px;font-size:.72rem}
+.ai-name-form input{width:100%;box-sizing:border-box;padding:12px 16px;border-radius:14px;border:1px solid var(--line);background:var(--bg2,var(--card));color:var(--ink);font:inherit}
+.ai-name-form input:focus{outline:none;border-color:var(--blue-d,#2A64E8);box-shadow:0 0 0 4px color-mix(in srgb,var(--blue-d,#2A64E8) 18%,transparent)}
+.ai-form-actions{display:flex;gap:8px}
+#p-account .ai-rows+.bc-msg{margin:0;padding:0 24px 16px}
+#p-account .ai-rows+.bc-msg:empty{display:none}
+.ai-danger{display:flex;align-items:center;justify-content:space-between;gap:24px;padding:22px 24px}
+.ai-danger b{font-weight:600}.ai-danger p{margin:4px 0 0;color:var(--mute);font-size:.875rem;line-height:1.55;max-width:60ch}
+.ai-del{flex:none;color:var(--bc-bad);border:1px solid color-mix(in srgb,var(--bc-bad) 40%,transparent);background:transparent;transition:background .2s,border-color .2s}
+.ai-del:hover{background:color-mix(in srgb,var(--bc-bad) 10%,transparent);border-color:var(--bc-bad)}
+@media(max-width:640px){
+ .ai-card h2{padding:18px 18px}.ai-note{padding:12px 18px}
+ .ai-photo-row{flex-direction:column;align-items:flex-start;gap:18px;padding:20px 18px}
+ .ai-row{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"k b" "v b";gap:2px 12px;padding:14px 18px}
+ .ai-row .ai-k{grid-area:k;font-size:.8125rem}.ai-row .ai-v{grid-area:v}.ai-row>:last-child{grid-area:b;grid-row:1 / span 2}
+ .ai-name-form{grid-template-columns:1fr;grid-template-areas:none}.ai-name-form .ai-k,.ai-name-form input,.ai-name-form .ai-form-actions{grid-area:auto;grid-row:auto}
+ .ai-danger{flex-direction:column;align-items:flex-start;padding:20px 18px}
+ #p-account .ai-rows+.bc-msg{padding:0 18px 14px}
+}
+@media(prefers-reduced-motion:reduce){.ai-av,.ai-edit{transition:none!important}}

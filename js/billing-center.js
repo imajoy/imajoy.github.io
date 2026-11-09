@@ -1,13 +1,13 @@
 /* Billing area: Subscriptions, Payment history and Payment methods for the signed-in account.
    Data comes from the same verified-session calls the rest of the site uses: 'history' (subscriptions + invoices) and the saved profile. */
 import {getAccountSession,accountRequest,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
-import {loadProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm1';
+import {loadProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm2';
 import {buildInvoiceDoc,printDoc,invoicePeriod} from './ty-invoice.js?v=iv7';
 
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;};
 const calm=()=>matchMedia('(prefers-reduced-motion:reduce)').matches;
-const TABS={subscriptions:'Subscriptions',history:'Payment history',methods:'Payment methods'};
+const TABS={account:'Account information',subscriptions:'Subscriptions',history:'Payment history',methods:'Payment methods'};
 const shell=$('.bc-shell'),nav=$('.bc-nav'),ind=$('.bc-ind');
 let data=null,loading=false,tab='subscriptions';
 const sort={subscriptions:{key:'date',dir:-1},history:{key:'date',dir:-1}};
@@ -47,6 +47,7 @@ function show(next,{push=true}={}){
   if(changed)scrollTo({top:0,behavior:calm()?'auto':'smooth'});
 }
 nav.addEventListener('click',e=>{const a=e.target.closest('a[data-tab]');if(!a)return;e.preventDefault();show(a.dataset.tab);});
+document.addEventListener('click',e=>{const a=e.target.closest('a[data-tab-link]');if(!a)return;e.preventDefault();show(a.dataset.tabLink);});
 addEventListener('hashchange',()=>show(location.hash.slice(1),{push:false}));
 addEventListener('resize',placeIndicator,{passive:true});
 document.fonts?.ready.then(placeIndicator);

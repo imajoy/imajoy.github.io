@@ -1,16 +1,17 @@
 /* Profile menu for signed-in visitors: my plan, saved billing details, appearance (light / dark / auto), sign out.
    Loaded by account.js, so every page with the account button gets it. Signed-out visitors see nothing here. */
 import {getAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
-import {loadProfile,cachedProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm1';
+import {loadProfile,cachedProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm2';
 const cfg=window.AJOY_CONFIG||{};
 if(cfg.accountOpen&&cfg.sheetUrl)setTimeout(setup,0);
 function setup(){
  const anchor=document.querySelector('.acct-btn');if(!anchor||!anchor.parentElement)return;
- const link=document.createElement('link');link.rel='stylesheet';link.href='css/profile.css?v=pm4';document.head.append(link);
+ const link=document.createElement('link');link.rel='stylesheet';link.href='css/profile.css?v=pm5';document.head.append(link);
  document.documentElement.dataset.profileReady='';
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const calm=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
  const ic={
+  me:'<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.5" r="3.6"/><path d="M4.8 19.5c.9-3.6 3.8-5.5 7.2-5.5s6.3 1.9 7.2 5.5"/></svg>',
   plan:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7.5 12 3l8 4.5v9L12 21l-8-4.5z"/><path d="M4 7.5 12 12l8-4.5M12 12v9"/></svg>',
   bill:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3 10h18M7 15h4"/></svg>',
   out:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4M15 8l4 4-4 4M19 12H9"/></svg>',
@@ -24,7 +25,7 @@ function setup(){
  anchor.after(wrap);
  const btn=wrap.querySelector('.pmx-btn'),av=wrap.querySelector('.pmx-av');
  const menu=document.createElement('div');menu.className='pmx-menu';menu.id='pmx-menu';menu.setAttribute('role','menu');menu.hidden=true;document.body.append(menu);
- let profile=null;
+ let profile=cachedProfile();if(profile===undefined)profile=null;
  const initial=()=>{const s=getAccountSession();return ((profile?.name||s?.email||'?').trim()[0]||'?').toUpperCase();};
  const summary=p=>{if(!hasBilling(p))return 'Not saved yet';const bits=[p.name,[p.postal].filter(Boolean).join(' ')].filter(Boolean);return bits.join(' · ')||'Saved';};
  function themeMode(){return window.AjoyTheme?.mode?.()||'auto';}
@@ -32,14 +33,18 @@ function setup(){
   const s=getAccountSession();if(!s)return;
   const mode=themeMode(),idx={light:0,dark:1,auto:2}[mode];
   menu.innerHTML='<div class="pmx-head" style="--i:0"><span class="pmx-av pmx-av-lg" aria-hidden="true">'+esc(initial())+'</span><div><b>'+esc(profile?.name||'Your account')+'</b><small>'+esc(s.email)+'</small></div></div>'+
-   '<button class="pmx-item" type="button" role="menuitem" data-go="plan" style="--i:1">'+ic.plan+'<span><b>Subscriptions &amp; invoices</b><small>Plans, renewals and payment history</small></span></button>'+
-   '<button class="pmx-item" type="button" role="menuitem" data-go="billing" style="--i:2">'+ic.bill+'<span><b>Payment &amp; billing</b><small>'+esc(summary(profile))+'</small></span></button>'+
-   (window.AjoyLang?.enabled?'<button class="pmx-item" type="button" role="menuitem" data-go="lang" style="--i:3">'+ic.globe+'<span><b>Language</b><small class="notranslate" translate="no">'+esc(window.AjoyLang.entry()[1])+'</small></span></button>':'')+
-   '<div class="pmx-theme" style="--i:4"><span class="pmx-label">Appearance</span><div class="pmx-seg" role="radiogroup" aria-label="Appearance" style="--at:'+idx+'"><i aria-hidden="true"></i>'+
+   '<button class="pmx-item" type="button" role="menuitem" data-go="info" style="--i:1">'+ic.me+'<span><b>Account information</b><small>Photo, name and email</small></span></button>'+
+   '<button class="pmx-item" type="button" role="menuitem" data-go="plan" style="--i:2">'+ic.plan+'<span><b>Subscriptions &amp; invoices</b><small>Plans, renewals and payment history</small></span></button>'+
+   '<button class="pmx-item" type="button" role="menuitem" data-go="billing" style="--i:3">'+ic.bill+'<span><b>Payment &amp; billing</b><small>'+esc(summary(profile))+'</small></span></button>'+
+   (window.AjoyLang?.enabled?'<button class="pmx-item" type="button" role="menuitem" data-go="lang" style="--i:4">'+ic.globe+'<span><b>Language</b><small class="notranslate" translate="no">'+esc(window.AjoyLang.entry()[1])+'</small></span></button>':'')+
+   '<div class="pmx-theme" style="--i:5"><span class="pmx-label">Appearance</span><div class="pmx-seg" role="radiogroup" aria-label="Appearance" style="--at:'+idx+'"><i aria-hidden="true"></i>'+
     [['light','Light',ic.sun],['dark','Dark',ic.moon],['auto','Auto',ic.auto]].map(([v,t,i])=>'<button type="button" role="radio" aria-checked="'+(mode===v)+'" data-theme-set="'+v+'">'+i+'<span>'+t+'</span></button>').join('')+'</div></div>'+
-   '<button class="pmx-item pmx-out" type="button" role="menuitem" data-go="out" style="--i:5">'+ic.out+'<span><b>Sign out</b></span></button>';
+   '<button class="pmx-item pmx-out" type="button" role="menuitem" data-go="out" style="--i:6">'+ic.out+'<span><b>Sign out</b></span></button>';
+  paintAv(menu.querySelector('.pmx-av-lg'));
  }
- function paintBtn(){const s=getAccountSession();wrap.hidden=!s;if(!s){close(true);return;}av.textContent=initial();btn.title=s.email;}
+ document.addEventListener('ajoy:profile-saved',e=>{profile=e.detail;paintBtn();if(!menu.hidden){const l=menu.querySelector('.pmx-av-lg');if(l)paintAv(l);}});
+ function paintAv(n){if(profile&&profile.photo){n.style.backgroundImage='url("'+profile.photo+'")';n.dataset.photo='';n.textContent='';}else{n.style.backgroundImage='';delete n.dataset.photo;n.textContent=initial();}}
+ function paintBtn(){const s=getAccountSession();wrap.hidden=!s;if(!s){close(true);return;}paintAv(av);btn.title=s.email;}
  function place(){const r=btn.getBoundingClientRect();const w=Math.min(318,innerWidth-24),left=Math.min(Math.max(12,r.right-w),innerWidth-w-12);menu.style.top=Math.round(r.bottom+10)+'px';menu.style.right='auto';menu.style.left=Math.round(left)+'px';menu.style.transformOrigin=Math.round(r.left+r.width/2-left)+'px -6px';}
  let closing=0;
  function open(){
@@ -67,6 +72,7 @@ function setup(){
   const g=e.target.closest('[data-go]');if(!g)return;
   const go=g.dataset.go;
   if(go==='plan'){close();location.href='account.html#subscriptions';}
+  else if(go==='info'){close();location.href='account.html#account';}
   else if(go==='billing'){close();location.href='account.html#methods';}
   else if(go==='lang'){close();import('./language-ui.js?v=lg3').then(m=>m.openLanguage());}
   else if(go==='out'){close();const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});clearAccountSession();}

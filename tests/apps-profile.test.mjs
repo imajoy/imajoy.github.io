@@ -18,3 +18,12 @@ test('saved billing details belong to the verified account, never store country,
  assert.equal(s.ctx.handleAccount_({step:'profile-get',token:tok}).profile,null);
  assert.equal(s.ctx.handleAccount_({step:'profile-get',token:'bad'}).error,'expired');
 });
+
+test('a profile picture is kept only when it is a small JPEG data URL, and survives later detail edits',()=>{
+ const s=service();s.register('pic@example.com');const tok=s.ctx.makeSession_('pic@example.com');
+ const jpg='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ==';
+ assert.equal(s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{photo:jpg}}).profile.photo,jpg);
+ assert.equal(s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{name:'Pic'}}).profile.photo,jpg,'editing the name keeps the picture');
+ for(const bad of ['http://evil.example/a.jpg','data:image/svg+xml;base64,PHN2Zz4=','data:image/jpeg;base64,'+'A'.repeat(40001),'javascript:alert(1)'])
+  assert.equal(s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{photo:bad}}).profile.photo,'',bad.slice(0,30));
+});

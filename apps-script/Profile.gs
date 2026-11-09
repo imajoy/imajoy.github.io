@@ -16,12 +16,18 @@ function profileSheet_() {
   }
   return sheet;
 }
+/* Profile picture: a small square JPEG sent as a data URL (the site shrinks it to about 192px first). Anything else is dropped. */
+function profilePhoto_(v) {
+  var s = String(v == null ? '' : v);
+  return /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(s) && s.length <= 40000 ? s : '';
+}
 function profileClean_(input) {
   var p = input && typeof input === 'object' ? input : {}, text = function (v, n) { return clip_(String(v == null ? '' : v), n).replace(/[\u0000-\u001f\u007f]+/g, ' ').trim(); };
   var multi = function (v, n) { return clip_(String(v == null ? '' : v), n).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]+/g, ' ').trim(); };
   var out = { name: text(p.name, 120), address: multi(p.address, 400), postal: text(p.postal, 24), city: text(p.city, 100), region: text(p.region, 100),
     companyOn: p.companyOn === true, company: text(p.company, 160), companyAddress: multi(p.companyAddress, 400), companyPostal: text(p.companyPostal, 24),
-    payment: PROFILE_PAYMENT_.indexOf(p.payment) >= 0 ? p.payment : '' };
+    payment: PROFILE_PAYMENT_.indexOf(p.payment) >= 0 ? p.payment : '',
+    photo: profilePhoto_(p.photo) };
   if (!out.companyOn) { out.company = ''; out.companyAddress = ''; out.companyPostal = ''; }
   return out;
 }

@@ -8,6 +8,7 @@ html[data-profile-ready] .pillbar .theme{display:none!important}
 .pmx-btn[aria-expanded=true]{box-shadow:0 0 0 3px rgba(61,139,255,.22)}
 .pmx-btn:focus-visible{outline:2px solid var(--blue,#3d8bff);outline-offset:3px}
 .pmx-av{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#639cff,#2a64e8);color:#fff;font:700 .8125rem/1 var(--sans,inherit);letter-spacing:0}
+.pmx-av[data-photo]{background-size:cover;background-position:center;color:transparent}
 .pmx-av-lg{width:44px;height:44px;font-size:1.0625rem;flex:none}
 .pmx-menu{position:fixed;z-index:2147483000;width:min(318px,calc(100vw - 24px));padding:10px;border-radius:24px;border:1px solid var(--line,#d3d9e4);background:color-mix(in srgb,var(--card,var(--bg2,#fff)) 94%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.3);backdrop-filter:blur(18px) saturate(1.3);color:var(--ink,#0e1220);box-shadow:0 30px 70px -24px rgba(10,20,70,.5),0 0 0 1px rgba(255,255,255,.05) inset;transform-origin:calc(100% - 20px) -6px;opacity:0;transform:translateY(-8px) scale(.94);transition:opacity .2s ease,transform .34s cubic-bezier(.22,1,.36,1)}
 .pmx-menu[hidden]{display:none}

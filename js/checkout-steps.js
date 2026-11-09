@@ -24,7 +24,7 @@ function writeBillingDraft(form){
 export function initializeCheckoutSteps(form){
  const params=new URLSearchParams(location.search),draft=readBillingDraft(),returning=/^[-a-f0-9]{36}$/i.test(params.get('checkout')||'');
  if(!paymentStep&&returning){location.replace('payment.html?'+new URLSearchParams({checkout:params.get('checkout')}).toString());return;}
- if(paymentStep&&!returning&&(!draft||!draft.name.trim()||!draft.address.trim()||!draft.city.trim()||!draft.terms)){
+ if(paymentStep&&!returning&&(!draft||!draft.name.trim()||!draft.address.trim()||!draft.terms)){
   document.documentElement.dataset.checkoutReady='false';location.replace('checkout.html');return;
  }
  if(draft){

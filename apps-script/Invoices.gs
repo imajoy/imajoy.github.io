@@ -74,7 +74,7 @@ function invoiceAddress_(o) {
 function invoiceHtml_(d) {
   var grey = '#667085', line = '#e3e6ee', ink = '#14182a';
   var kv = function (k, v) { return '<tr><td style="padding:3px 0;color:' + grey + ';font-size:13px">' + esc_(k) + ' #&nbsp;</td><td style="padding:3px 0;font-size:13px"><b>' + esc_(v) + '</b></td></tr>'; };
-  var status = d.zero ? 'NO PAYMENT DUE' : 'PAID', statusColor = d.zero ? '#8a6d1d' : '#1c9a6c';
+  var status = d.zero ? 'PAYMENT DONE' : 'PAID', statusColor = d.zero ? '#8a6d1d' : '#1c9a6c';
   var th = function (t, right) { return '<th style="padding:10px 8px;font-size:11px;letter-spacing:.06em;color:' + grey + ';text-align:' + (right ? 'right' : 'left') + ';border-top:1px solid ' + line + ';border-bottom:1px solid ' + line + '">' + t + '</th>'; };
   var td = function (t, right, bold) { return '<td style="padding:16px 8px;font-size:13px;vertical-align:top;text-align:' + (right ? 'right' : 'left') + '">' + (bold ? '<b>' + t + '</b>' : t) + '</td>'; };
   var tot = function (k, v, strong) { return '<tr><td style="padding:6px 8px;text-align:right;color:' + (strong ? ink : grey) + ';font-size:13px">' + k + '</td><td style="padding:6px 8px;text-align:right;font-size:' + (strong ? '15' : '13') + 'px;white-space:nowrap">' + (strong ? '<b>' + v + '</b>' : v) + '</td></tr>'; };
@@ -89,9 +89,9 @@ function invoiceHtml_(d) {
     '<div style="margin:26px 0 22px;font-size:13px;line-height:1.6"><div style="font-weight:700;margin-bottom:3px">BILLED TO</div>' + (d.order.name ? esc_(d.order.name) + '<br>' : '') + (d.order.company ? esc_(d.order.company) + '<br>' : '') + d.addr.map(function (l) { return esc_(l) + '<br>'; }).join('') + '<span style="color:#445">' + esc_(d.email) + '</span></div>' +
     '<table role="presentation" style="width:100%;border-collapse:collapse"><tr>' + th('DESCRIPTION') + th('LICENSES', true) + th('PAID WITH') + th('AMOUNT', true) + '</tr><tr>' +
       td('<b>' + esc_(d.plan) + '</b>') + td(String(d.seats), true) + td(esc_(d.provider)) + td(esc_(d.total), true) + '</tr></table>' +
-    '<table role="presentation" style="border-collapse:collapse;margin:14px 0 0 auto;min-width:300px">' + tot(d.zero ? 'Total due' : 'Total paid', esc_(d.total), true) + tot('Payments', d.zero ? esc_(d.total) : '(' + esc_(d.total) + ')') + tot('Amount due', esc_(d.total.replace(/[0-9][0-9,]*\.?[0-9]*/, '0.00')), true) + '</table>' +
+    '<table role="presentation" style="border-collapse:collapse;margin:14px 0 0 auto;min-width:300px">' + tot(d.zero ? 'Total paid' : 'Total paid', esc_(d.total), true) + tot('Payments', d.zero ? esc_(d.total) : '(' + esc_(d.total) + ')') + tot('Amount due', esc_(d.total.replace(/[0-9][0-9,]*\.?[0-9]*/, '0.00')), true) + '</table>' +
     '<table role="presentation" style="border-collapse:collapse;margin:22px 0 0;width:100%;border-top:1px solid ' + line + ';padding-top:8px">' + meta(d.zero ? 'Reference' : 'Payment ID', d.paymentId) + (d.orderRef ? meta('Order ID', d.orderRef + ' (' + d.order.checkoutId + ')') : '') + (d.subscriptionId ? meta('Subscription', d.subscriptionId) : '') + (d.note ? meta('Reason', d.note) : '') + '</table>' +
-    (d.zero ? '<p style="margin:16px 0 0;color:' + grey + ';font-size:13px">No payment was due on this order. This invoice is your record of it.</p>' : '') +
+    (d.zero ? '<p style="margin:16px 0 0;color:' + grey + ';font-size:13px">Payment done. This invoice is your record of it.</p>' : '') +
     '<p style="color:' + grey + ';font-size:12px;margin:22px 0 0;line-height:1.6">Thank you for subscribing. Keep this email as your receipt. Questions? Reply to this email or write to ' + esc_(d.support) + '.</p></div>';
 }
 
@@ -109,7 +109,7 @@ function invoiceSend_(p) {
   var zero = !(Number(p.amount) > 0);
   var html = invoiceHtml_({ number: number, when: when, seller: seller, extra: extra, order: order, orderRef: orderRef, addr: addr, email: String(p.email), plan: plan, seats: Number(p.seats) || 1,
     provider: p.provider + (test ? ' (test)' : ''), paymentId: String(p.paymentId), subscriptionId: p.subscriptionId ? String(p.subscriptionId) : '', note: p.note || '', total: total, zero: zero, test: test, support: replyTo_() });
-  var text = 'Invoice ' + number + ' (' + when + ')\n' + seller + (extra.length ? '\n' + extra.join('\n') : '') + '\n\nBilled to: ' + [order.name, order.company].filter(Boolean).concat(addr).concat([p.email]).join(', ') + (orderRef ? '\nOrder ID: ' + orderRef + ' (' + order.checkoutId + ')' : '') + '\nItem: ' + plan + '\nPaid with: ' + p.provider + '\nPayment ID: ' + p.paymentId + '\n' + (zero ? 'Total due: ' : 'Total paid: ') + total + (zero ? '\nNo payment was due on this order.' : '') + '\n\nQuestions? ' + replyTo_();
+  var text = 'Invoice ' + number + ' (' + when + ')\n' + seller + (extra.length ? '\n' + extra.join('\n') : '') + '\n\nBilled to: ' + [order.name, order.company].filter(Boolean).concat(addr).concat([p.email]).join(', ') + (orderRef ? '\nOrder ID: ' + orderRef + ' (' + order.checkoutId + ')' : '') + '\nItem: ' + plan + '\nPaid with: ' + p.provider + '\nPayment ID: ' + p.paymentId + '\n' + (zero ? 'Total paid: ' : 'Total paid: ') + total + (zero ? '\nPayment done.' : '') + '\n\nQuestions? ' + replyTo_();
   if (!p.silent) {
     var mail = { to: String(p.email), name: 'Wrapline Pro', replyTo: replyTo_(), subject: tag + 'Your Wrapline Pro invoice ' + number, htmlBody: html, body: text };
     try { mail.attachments = [Utilities.newBlob(html, 'text/html', number + '.html').getAs('application/pdf').setName('Wrapline-Invoice-' + number + '.pdf')]; } catch (e) { /* PDF copy is a bonus; the email itself always goes out */ }

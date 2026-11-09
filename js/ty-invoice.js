@@ -43,7 +43,7 @@ export function buildInvoiceDoc(o){
  fact('Invoice #',o.number?o.number+(o.test?' (TEST)':''):'');fact('Invoice Issued #',o.date);
  if(known)fact('Invoice Amount #',m(o.total)+cc);
  fact('Next Billing Date #',o.nextBilling);fact('Order Nr. #',o.orderId);fact('Payment method #',o.provider);fact('Reference #',o.reference);
- const paidTxt=o.statusKind==='paid'?'PAID':/trial/i.test(o.statusText||'')?'TRIAL ACTIVE':/no payment/i.test(o.statusText||'')?'NO PAYMENT DUE':'CONFIRMED';
+ const paidTxt=o.statusKind==='paid'?'PAID':/trial/i.test(o.statusText||'')?'TRIAL ACTIVE':/payment done/i.test(o.statusText||'')?'PAYMENT DONE':'CONFIRMED';
  const paid=el('p','iv-paid',paidTxt);paid.dataset.kind=o.statusKind==='paid'?'paid':'free';
  ttl.append(facts,paid);
  top.append(from,ttl);

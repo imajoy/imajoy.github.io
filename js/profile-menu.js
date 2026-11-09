@@ -34,7 +34,7 @@ function setup(){
   menu.innerHTML='<div class="pmx-head" style="--i:0"><span class="pmx-av pmx-av-lg" aria-hidden="true">'+esc(initial())+'</span><div><b>'+esc(profile?.name||'Your account')+'</b><small>'+esc(s.email)+'</small></div></div>'+
    '<button class="pmx-item" type="button" role="menuitem" data-go="plan" style="--i:1">'+ic.plan+'<span><b>Subscriptions &amp; invoices</b><small>Plans, renewals and payment history</small></span></button>'+
    '<button class="pmx-item" type="button" role="menuitem" data-go="billing" style="--i:2">'+ic.bill+'<span><b>Payment &amp; billing</b><small>'+esc(summary(profile))+'</small></span></button>'+
-   '<button class="pmx-item" type="button" role="menuitem" data-go="lang" style="--i:3">'+ic.globe+'<span><b>Language</b><small class="notranslate" translate="no">'+esc(window.AjoyLang?window.AjoyLang.entry()[1]:'English')+'</small></span></button>'+
+   (window.AjoyLang?.enabled?'<button class="pmx-item" type="button" role="menuitem" data-go="lang" style="--i:3">'+ic.globe+'<span><b>Language</b><small class="notranslate" translate="no">'+esc(window.AjoyLang.entry()[1])+'</small></span></button>':'')+
    '<div class="pmx-theme" style="--i:4"><span class="pmx-label">Appearance</span><div class="pmx-seg" role="radiogroup" aria-label="Appearance" style="--at:'+idx+'"><i aria-hidden="true"></i>'+
     [['light','Light',ic.sun],['dark','Dark',ic.moon],['auto','Auto',ic.auto]].map(([v,t,i])=>'<button type="button" role="radio" aria-checked="'+(mode===v)+'" data-theme-set="'+v+'">'+i+'<span>'+t+'</span></button>').join('')+'</div></div>'+
    '<button class="pmx-item pmx-out" type="button" role="menuitem" data-go="out" style="--i:5">'+ic.out+'<span><b>Sign out</b></span></button>';

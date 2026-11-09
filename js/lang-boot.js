@@ -95,6 +95,8 @@
     });
   }
   window.AjoyLang = {
+    /* off until the translator can run under the site's security policy (it needs inline-script permission) */
+    enabled: false,
     list: LIST, current: function () { return cur; },
     entry: function (c) { return LIST.filter(function (l) { return l[0] === (c || cur); })[0] || LIST[0]; },
     set: set, onChange: function (f) { listeners.push(f); }

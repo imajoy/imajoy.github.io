@@ -1,5 +1,6 @@
 /* Profile menu for signed-in visitors: my plan, saved billing details, appearance (light / dark / auto), sign out.
    Loaded by account.js, so every page with the account button gets it. Signed-out visitors see nothing here. */
+import {confirmLeave} from './confirm-leave.js?v=cl1';
 import {getAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
 import {loadProfile,cachedProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm3';
 const cfg=window.AJOY_CONFIG||{};
@@ -75,7 +76,7 @@ function setup(){
   else if(go==='info'){close();location.href='account.html#account';}
   else if(go==='billing'){close();location.href='account.html#methods';}
   else if(go==='lang'){close();import('./language-ui.js?v=lg3').then(m=>m.openLanguage());}
-  else if(go==='out'){close();const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});clearAccountSession();}
+  else if(go==='out'){close();confirmLeave('out').then(ok=>{if(!ok)return;const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});clearAccountSession();});}
  });
  /* ---- billing details editor ---- */
  let dlg=null;

@@ -7,7 +7,7 @@
 <link rel="preload" href="assets/fonts/geist-latin-5.3.0.woff2" as="font" type="font/woff2" crossorigin><link rel="preload" href="assets/fonts/instrument-serif-italic-5.3.0.woff2" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="css/style.css?v=20261108-dl2">
 <link rel="stylesheet" href="css/commerce.css?v=20261017-r7">
-<link rel="stylesheet" href="css/thank-you-v3.css?v=ty18"><link rel="stylesheet" href="css/billing-center.css?v=bc11"><link rel="stylesheet" href="css/account-info.css?v=ai2">
+<link rel="stylesheet" href="css/thank-you-v3.css?v=ty18"><link rel="stylesheet" href="css/billing-center.css?v=bc12"><link rel="stylesheet" href="css/account-info.css?v=ai2">
 
 <script src="js/site-config.js?v=20261023-p4"></script>
 <link rel="stylesheet" href="css/account.css?v=20261108-dk2"><link rel="stylesheet" href="css/account-v2.css?v=a9"><link rel="stylesheet" href="css/extras.css?v=20261019-dialog1"><link rel="stylesheet" href="css/polish.css?v=20261108-wd3"><link rel="stylesheet" href="css/mobile.css?v=20261108-ft1">
@@ -61,13 +61,10 @@
 </div></div>
 
 <div class="bc-panel" id="p-methods" hidden>
-<section class="bc-card bc-method"><h2>Preferred payment method</h2><p class="bc-sub">Opened first at checkout. You can still switch there.</p>
-<div class="bc-pay" id="bc-pay" role="radiogroup" aria-label="Preferred payment method">
-<label><input type="radio" name="payment" value="razorpay"><span class="bc-radio"></span><span class="bc-pay-t"><b>Razorpay</b><small>UPI, cards and net banking. Charged in INR.</small></span></label>
-<label><input type="radio" name="payment" value="paypal"><span class="bc-radio"></span><span class="bc-pay-t"><b>PayPal</b><small>PayPal balance or card. Charged in USD.</small></span></label>
-<label><input type="radio" name="payment" value=""><span class="bc-radio"></span><span class="bc-pay-t"><b>No preference</b><small>Choose each time.</small></span></label></div>
+<section class="bc-card bc-method"><h2>Save credit and debit cards</h2><p class="bc-sub">Pay faster next time. Your card is entered and kept by Razorpay, never on this site.</p>
+<div class="bc-sw-row"><span class="bc-pay-t"><b>Save cards for faster checkout</b><small>When you pay, Razorpay offers to remember your card for next time. You can delete a saved card in the Razorpay window at any time.</small></span><button type="button" class="bc-sw" id="bc-savecard" role="switch" aria-checked="false" aria-label="Save credit and debit cards"><i></i></button></div>
 <p class="bc-msg" id="bc-pay-msg" role="status" aria-live="polite"></p>
-<p class="bc-fine">Card and bank details are entered with Razorpay or PayPal and never reach or get saved on this site.</p></section>
+<p class="bc-fine">Card numbers, expiry dates and security codes are entered with Razorpay or PayPal and never reach or get saved on this site.</p></section>
 <section class="bc-card bc-method"><h2>Billing details</h2><p class="bc-sub">Saved to your account and filled in for you at checkout. Your billing country is detected automatically.</p>
 <form id="bc-billing" novalidate>
 <div class="bc-field"><label for="bc-name">Full name</label><input id="bc-name" name="name" maxlength="120" autocomplete="off"></div>
@@ -81,5 +78,5 @@
 <dialog id="bc-invoice" class="bc-dlg" aria-label="Invoice"><div class="bc-dlg-bar"><b>Invoice</b><span><button class="btn btn-light bc-print" type="button">Print PDF</button><button class="bc-x" type="button" data-x aria-label="Close">×</button></span></div><div class="bc-invoice-body"></div></dialog>
 </main>
 <footer class="commerce-footer">© 2026 AJOY <a href="license.html">License terms</a><a href="privacy.html">Privacy</a><a href="contact.html">Contact</a></footer>
-<script src="js/checkbox-hit.js?v=cb1" defer></script><script src="js/scroll-calm.js?v=sc3" defer></script><script type="module" src="js/account.js?v=20261110-a24"></script><script type="module" src="js/billing-center.js?v=bc14"></script><script type="module" src="js/account-info.js?v=ai2"></script>
+<script src="js/checkbox-hit.js?v=cb1" defer></script><script src="js/scroll-calm.js?v=sc3" defer></script><script type="module" src="js/account.js?v=20261110-a24"></script><script type="module" src="js/billing-center.js?v=bc15"></script><script type="module" src="js/account-info.js?v=ai2"></script>
 <script src="js/smooth-scroll.js?v=sm5" defer></script><script src="js/transitions.js?v=vt5"></script><script src="js/media-guard.js?v=mg1" defer></script><script src="js/lang-boot.js?v=lg6" defer></script></body></html>

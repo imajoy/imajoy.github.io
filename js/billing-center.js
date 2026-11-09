@@ -1,7 +1,7 @@
 /* Billing area: Subscriptions, Payment history and Payment methods for the signed-in account.
    Data comes from the same verified-session calls the rest of the site uses: 'history' (subscriptions + invoices) and the saved profile. */
 import {getAccountSession,accountRequest,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
-import {loadProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm2';
+import {loadProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm3';
 import {bindPostal} from './billing-postal.js?v=bp3';
 import {buildInvoiceDoc,printDoc,printDocs,invoicePeriod} from './ty-invoice.js?v=iv9';
 import {downloadInvoices} from './invoice-pdf.js?v=pdf1';
@@ -172,23 +172,24 @@ function openInvoice(inv){
 $('#bc-invoice').addEventListener('click',e=>{if(e.target.closest('[data-x]')||e.target===e.currentTarget)e.currentTarget.close();});
 
 /* ---------- payment methods ---------- */
-const form=$('#bc-billing'),payBox=$('#bc-pay'),billMsg=$('#bc-bill-msg'),payMsg=$('#bc-pay-msg');
+const form=$('#bc-billing'),payBox=$('#bc-savecard'),billMsg=$('#bc-bill-msg'),payMsg=$('#bc-pay-msg');
 let flash=0;
 function say(node,text,kind){clearTimeout(flash);node.textContent=text;node.dataset.kind=kind||'';if(text&&kind==='ok')flash=setTimeout(()=>{node.textContent='';},2600);}
 function fill(p){
   const v=p||emptyProfile();
   for(const k of ['name','address','postal','city','region','company','companyAddress','companyPostal'])if(form.elements[k])form.elements[k].value=v[k]||'';
   form.elements.companyOn.checked=!!v.companyOn;$('.bc-co',form).dataset.open=String(!!v.companyOn);
-  const pay=v.payment||'';$$('input[name=payment]',payBox).forEach(r=>{r.checked=r.value===pay;});
+  payBox.setAttribute('aria-checked',String(!!v.saveCard));
   $('[data-clear]',form).hidden=!hasBilling(v);
 }
 bindPostal(form);
 form.elements.companyOn.addEventListener('change',()=>{$('.bc-co',form).dataset.open=String(form.elements.companyOn.checked);});
-payBox.addEventListener('change',async e=>{
-  const r=e.target.closest('input[name=payment]');if(!r)return;
-  say(payMsg,'Saving…');
-  try{await saveProfile({payment:r.value});say(payMsg,r.value?'Saved. We will open '+(r.value==='paypal'?'PayPal':'Razorpay')+' first at checkout.':'Saved. No default method.','ok');}
-  catch{say(payMsg,'Could not save. Please try again.','error');}
+payBox.addEventListener('click',async()=>{
+  const on=payBox.getAttribute('aria-checked')!=='true';
+  payBox.setAttribute('aria-checked',String(on));payBox.disabled=true;say(payMsg,'Saving…');
+  try{await saveProfile({saveCard:on});say(payMsg,on?'Saved. Razorpay will offer to remember your card at checkout.':'Saved. Cards will not be saved.','ok');}
+  catch{payBox.setAttribute('aria-checked',String(!on));say(payMsg,'Could not save. Please try again.','error');}
+  finally{payBox.disabled=false;}
 });
 /* Every billing detail is needed for an invoice, so empty fields are refused with a message under the field. */
 const REQUIRED=[['name','Enter your full name.'],['address','Enter your billing address.'],['postal','Enter your postal code.'],['city','Enter your city.'],['region','Enter your state or region.']];

@@ -4,7 +4,7 @@ import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261109-co7';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
 import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261023-p7';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
-import {cachedProfile,loadProfile,saveProfile} from './profile-store.js?v=pm2';
+import {cachedProfile,loadProfile,saveProfile} from './profile-store.js?v=pm3';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
 import {secureCommerce,browserDeviceId} from './commerce-gateway.js?v=20261020-country1';
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;
@@ -30,7 +30,7 @@ if(form&&paypal&&url){
  const skel=document.createElement('div');skel.className='pay-skel';skel.setAttribute('aria-hidden','true');skel.innerHTML='<div class="sk-row"><span class="sk-bar" style="width:52px"></span><span class="sk-bar sk-logo"></span></div><div class="sk-row"><span class="sk-bar" style="width:38px"></span><span class="sk-bar sk-logo"></span></div><div class="sk-row"><span class="sk-bar" style="width:64px"></span><span class="sk-bar sk-logo"></span></div>';picker.before(skel);
  const status=panel.querySelector('.razorpay-status'),start=panel.querySelector('[data-razorpay-start]'),check=panel.querySelector('[data-razorpay-check]'),link=panel.querySelector('[data-razorpay-open]'),cancelBtn=panel.querySelector('[data-razorpay-cancel]');
  const pageCoupon={input:document.querySelector('#coupon-code'),remove:document.querySelector('#coupon-remove'),status:document.querySelector('#coupon-status')};
- let userPicked=false,prefApplied=false;const savedPref=()=>{const p=cachedProfile();return p&&['razorpay','paypal'].includes(p.payment)?p.payment:'';};
+ let userPicked=false,prefApplied=false;const savedPref=()=>'';
  let config=null,paypalConfig=null,provider='review',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
  document.documentElement.dataset.paymentProvider='review';paypal.hidden=true;
  document.querySelector('#customer-verification').hidden=true;document.querySelector('.coupon-panel').hidden=true;
@@ -272,7 +272,7 @@ if(form&&paypal&&url){
    let paid=false,failure='';
    const rzp=new window.Razorpay({key:config.keyId,subscription_id:result.subscriptionId,name:'Wrapline Pro',
     description:(trialing?'4-day free trial · then ':'')+'Wrapline Pro '+(sel.plan==='offline'?'Premium':'Basic')+' · '+sel.billing+' · '+sel.seats+' license(s)',
-    prefill:{email:getAccountSession().email,name:form.elements.name.value},theme:{color:'#2A64E8'},
+    prefill:{email:getAccountSession().email,name:form.elements.name.value},theme:{color:'#2A64E8'},remember_customer:cachedProfile()?.saveCard===true,
     handler:()=>{paid=true;goThankYou(result.checkoutId,sel);},
     modal:{escape:true,confirm_close:true,ondismiss:()=>{if(!paid)abandon(result.checkoutId,failure);}}});
    rzp.on('payment.failed',event=>{failure=(event?.error?.description||'The bank declined the payment.').replace(/\.?$/,'.');say('Payment failed: '+failure+' Try another card or method in the Razorpay window, or close it to cancel.','error');});

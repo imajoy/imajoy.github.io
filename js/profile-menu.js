@@ -1,7 +1,7 @@
 /* Profile menu for signed-in visitors: my plan, saved billing details, appearance (light / dark / auto), sign out.
    Loaded by account.js, so every page with the account button gets it. Signed-out visitors see nothing here. */
 import {getAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
-import {loadProfile,cachedProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm2';
+import {loadProfile,cachedProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm3';
 const cfg=window.AJOY_CONFIG||{};
 if(cfg.accountOpen&&cfg.sheetUrl)setTimeout(setup,0);
 function setup(){
@@ -96,7 +96,6 @@ function setup(){
    f('name','Full name',p.name)+f('address','Billing address',p.address,'area')+'<div class="pmx-row">'+f('postal','Postal code',p.postal)+f('city','City',p.city)+'</div>'+f('region','State or region',p.region)+
    '<label class="pmx-check"><input type="checkbox" name="companyOn"'+(p.companyOn?' checked':'')+'><span>I\'m buying for a studio or company</span></label>'+
    '<div class="pmx-co" data-open="'+p.companyOn+'"><div>'+f('company','Company name',p.company)+f('companyAddress','Company address',p.companyAddress,'area')+f('companyPostal','Company postal code',p.companyPostal)+'</div></div>'+
-   '<fieldset class="pmx-pay"><legend>Preferred payment method</legend>'+[['','No preference'],['razorpay','Razorpay'],['paypal','PayPal']].map(([v,t])=>'<label><input type="radio" name="payment" value="'+v+'"'+((p.payment||'')===v?' checked':'')+'><span>'+t+'</span></label>').join('')+'</fieldset>'+
    '<p class="pmx-msg" role="status" aria-live="polite"></p><div class="pmx-actions"><button class="pmx-save" type="submit">Save details</button><button class="pmx-clear" type="button" data-clear'+(hasBilling(p)||p.payment?'':' hidden')+'>Remove saved details</button></div></form>';
   const form=dlg.querySelector('form'),msg=form.querySelector('.pmx-msg'),co=form.querySelector('.pmx-co');
   form.addEventListener('input',()=>{dlg.dataset.dirty='';});
@@ -106,7 +105,7 @@ function setup(){
   form.addEventListener('submit',async e=>{
    e.preventDefault();const E=form.elements,on=E.companyOn.checked,sv=form.querySelector('.pmx-save');
    sv.disabled=true;sv.textContent='Saving…';say('');
-   try{profile=await saveProfile({name:E.name.value,address:E.address.value,postal:E.postal.value,city:E.city.value,region:E.region.value,companyOn:on,company:on?E.company.value:'',companyAddress:on?E.companyAddress.value:'',companyPostal:on?E.companyPostal.value:'',payment:E.payment.value});
+   try{profile=await saveProfile({name:E.name.value,address:E.address.value,postal:E.postal.value,city:E.city.value,region:E.region.value,companyOn:on,company:on?E.company.value:'',companyAddress:on?E.companyAddress.value:'',companyPostal:on?E.companyPostal.value:''});
     delete dlg.dataset.dirty;paintBtn();say('Saved. You will not need to type these again.','ok');sv.textContent='Saved ✓';setTimeout(()=>{if(dlg.open)closeEditor();},900);}
    catch(error){say(error.message,'error');sv.disabled=false;sv.textContent='Save details';}
   });

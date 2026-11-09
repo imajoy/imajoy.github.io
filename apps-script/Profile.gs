@@ -27,6 +27,7 @@ function profileClean_(input) {
   var out = { name: text(p.name, 120), address: multi(p.address, 400), postal: text(p.postal, 24), city: text(p.city, 100), region: text(p.region, 100),
     companyOn: p.companyOn === true, company: text(p.company, 160), companyAddress: multi(p.companyAddress, 400), companyPostal: text(p.companyPostal, 24),
     payment: PROFILE_PAYMENT_.indexOf(p.payment) >= 0 ? p.payment : '',
+    saveCard: p.saveCard === true,
     photo: profilePhoto_(p.photo) };
   if (!out.companyOn) { out.company = ''; out.companyAddress = ''; out.companyPostal = ''; }
   return out;

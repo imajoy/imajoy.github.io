@@ -1,7 +1,7 @@
 /* Account information tab: profile picture, name, email, billing-address summary and account deletion.
    The name is the same one used on invoices; the picture is a small square JPEG saved with the account. */
 import {getAccountSession,clearAccountSession,accountRequest,onAccountChange} from './account-session.js?v=20261023-p7';
-import {loadProfile,saveProfile,hasBilling} from './profile-store.js?v=pm2';
+import {loadProfile,saveProfile,hasBilling} from './profile-store.js?v=pm3';
 const $=s=>document.querySelector(s);
 const av=$('#ai-av');if(!av)throw new Error('no account panel');
 let profile=null;

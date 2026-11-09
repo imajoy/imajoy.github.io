@@ -3,9 +3,9 @@
    A short sessionStorage copy makes the next page instant; the server copy is always the one that counts. */
 import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
 const KEY=email=>'ajoy.profile:'+email,TTL=600000;
-const EMPTY={name:'',address:'',postal:'',city:'',region:'',companyOn:false,company:'',companyAddress:'',companyPostal:'',payment:'',photo:''};
+const EMPTY={name:'',address:'',postal:'',city:'',region:'',companyOn:false,company:'',companyAddress:'',companyPostal:'',payment:'',saveCard:false,photo:''};
 export const emptyProfile=()=>({...EMPTY});
-const norm=p=>p&&typeof p==='object'?{...EMPTY,...Object.fromEntries(Object.keys(EMPTY).filter(k=>k in p).map(k=>[k,k==='companyOn'?p[k]===true:typeof p[k]==='string'?p[k]:'']))}:null;
+const norm=p=>p&&typeof p==='object'?{...EMPTY,...Object.fromEntries(Object.keys(EMPTY).filter(k=>k in p).map(k=>[k,(k==='companyOn'||k==='saveCard')?p[k]===true:typeof p[k]==='string'?p[k]:'']))}:null;
 const remember=(email,profile)=>{try{profile===undefined?sessionStorage.removeItem(KEY(email)):sessionStorage.setItem(KEY(email),JSON.stringify({at:Date.now(),profile}));}catch{}};
 /* undefined = not loaded yet, null = nothing saved, object = saved details */
 export function cachedProfile(){

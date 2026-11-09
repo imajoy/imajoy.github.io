@@ -210,3 +210,13 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 @keyframes bc-inv-in{from{opacity:0;transform:translate3d(0,18px,0) scale(.985)}to{opacity:1;transform:none}}
 @keyframes bc-inv-fade{from{opacity:0}to{opacity:1}}
 @media(prefers-reduced-motion:reduce){#bc-invoice[open],#bc-invoice[open]::backdrop{animation:none}}
+
+/* switch for "Save credit and debit cards": a button, so only the switch itself toggles it */
+.bc-sw-row{display:flex;align-items:center;justify-content:space-between;gap:18px;padding:16px 18px;border:1px solid var(--line);border-radius:18px}
+.bc-sw{position:relative;flex:none;width:46px;height:28px;padding:0;border-radius:999px;border:1px solid var(--line);background:color-mix(in srgb,var(--ink,#111) 14%,transparent);cursor:pointer;transition:background .3s,border-color .3s}
+.bc-sw i{position:absolute;left:3px;top:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3);transition:transform .35s cubic-bezier(.34,1.4,.5,1)}
+.bc-sw[aria-checked=true]{background:var(--blue-d,#2A64E8);border-color:var(--blue-d,#2A64E8)}
+.bc-sw[aria-checked=true] i{transform:translateX(18px)}
+.bc-sw:focus-visible{outline:2px solid var(--blue-d,#2A64E8);outline-offset:3px}
+.bc-sw:disabled{opacity:.7;cursor:progress}
+@media(prefers-reduced-motion:reduce){.bc-sw,.bc-sw i{transition:none}}

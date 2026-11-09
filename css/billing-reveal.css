@@ -1,0 +1,17 @@
+/* Fields that open smoothly (City/State after a verified postal code, and the studio/company block) */
+.reveal{display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .6s var(--out),opacity .45s ease;pointer-events:none}
+.reveal.open{grid-template-rows:1fr;opacity:1;pointer-events:auto}
+.reveal>.reveal-inner{min-height:0;overflow:hidden;padding:0 6px;margin:0 -6px}
+.reveal.open>.reveal-inner{animation:reveal-clip .6s steps(1,end) both}
+@keyframes reveal-clip{from{overflow:hidden}to{overflow:visible}}
+.reveal>.reveal-inner>*{transform:translateY(-8px);opacity:.0;transition:transform .55s var(--out),opacity .4s ease}
+.reveal.open>.reveal-inner>*{transform:none;opacity:1}
+.reveal.open>.reveal-inner>*:nth-child(2){transition-delay:.06s}
+.reveal.open>.reveal-inner>*:nth-child(3){transition-delay:.12s}
+.company-toggle{margin-top:6px}
+.postal-hint{margin-top:8px}
+.postal-hint .text-link{margin-left:4px}
+.postal-hint.ok{color:var(--blue-d)}
+.postal-hint.pop{animation:postal-pop .45s var(--out) both}
+@keyframes postal-pop{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.reveal,.reveal>.reveal-inner>*{transition:none}.postal-hint.pop,.reveal.open>.reveal-inner{animation:none}}

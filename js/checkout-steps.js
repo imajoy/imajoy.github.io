@@ -3,6 +3,8 @@ import {getAccountSession,onAccountChange,openAccount} from './account-session.j
 const key='ajoy.billing-draft',lifetime=30*60*1000;
 export const paymentStep=document.documentElement.dataset.checkoutStep==='payment';
 const fields={name:80,company:160,address:400,city:100,region:100,postal:24};
+/* What the customer typed in each box (the fields above hold what is billed: the company's address when "studio or company" is on). */
+const rawFields={rAddress:400,rCity:100,rRegion:100,rPostal:24,cName:160,cAddress:400,cPostal:24,cCity:100,cRegion:100};
 export function readBillingDraft(){
  try{
   const draft=JSON.parse(sessionStorage.getItem(key)||'null'),session=getAccountSession();
@@ -10,6 +12,8 @@ export function readBillingDraft(){
   if(!['online','offline'].includes(draft.plan)||!['monthly','yearly'].includes(draft.billing)||!Number.isInteger(draft.seats)||draft.seats<1||draft.seats>100)return null;
   const clean={at:draft.at,email:session.email,plan:draft.plan,billing:draft.billing,seats:draft.seats,country:/^[A-Z]{2}$/.test(draft.country||'')?draft.country:'',terms:draft.terms===true,offer:['trial','standard'].includes(draft.offer)?draft.offer:'',rzpOffer:['trial','standard'].includes(draft.rzpOffer)?draft.rzpOffer:'',coupon:/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(draft.coupon||'')?draft.coupon:'',provider:['paypal','razorpay'].includes(draft.provider)?draft.provider:''};
   for(const [name,max] of Object.entries(fields))clean[name]=typeof draft[name]==='string'?draft[name].slice(0,max):'';
+  for(const [name,max] of Object.entries(rawFields))clean[name]=typeof draft[name]==='string'?draft[name].slice(0,max):undefined;
+  clean.companyOn=draft.companyOn===true;
   return clean;
  }catch{return null;}
 }
@@ -17,8 +21,18 @@ export function clearBillingDraft(){try{sessionStorage.removeItem(key);}catch{}}
 function writeBillingDraft(form){
  const session=getAccountSession();if(!session)throw Error('Sign in before continuing.');
  const value={at:Date.now(),email:session.email,plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value,terms:form.elements.terms.checked,provider:document.documentElement.dataset.paymentProvider};
- for(const [name,max] of Object.entries(fields))value[name]=form.elements[name].value.slice(0,max);
- const previous=readBillingDraft();if(previous?.rzpOffer)value.rzpOffer=previous.rzpOffer;
+ const E=form.elements,previous=readBillingDraft(),val=(n,max)=>String(E[n]?.value||'').slice(0,max);
+ for(const [name,max] of Object.entries(fields))value[name]=val(name,max);
+ if(paymentStep&&previous){
+  /* The payment page only shows the billed values; keep what was typed on the billing page so "Edit billing details" restores it. */
+  for(const name of Object.keys(rawFields))if(previous[name]!==undefined)value[name]=previous[name];
+  value.companyOn=previous.companyOn;
+ }else{
+  const on=E.companyOn?.checked===true;
+  Object.assign(value,{rAddress:val('address',400),rCity:val('city',100),rRegion:val('region',100),rPostal:val('postal',24),cName:val('company',160),cAddress:val('companyAddress',400),cPostal:val('companyPostal',24),cCity:val('companyCity',100),cRegion:val('companyRegion',100),companyOn:on});
+  if(on)Object.assign(value,{company:value.cName,address:value.cAddress,postal:value.cPostal,city:value.cCity,region:value.cRegion});
+  else value.company='';
+ }if(previous?.rzpOffer)value.rzpOffer=previous.rzpOffer;
  document.dispatchEvent(new CustomEvent('ajoy:checkout-draft',{detail:value}));sessionStorage.setItem(key,JSON.stringify(value));
 }
 export function initializeCheckoutSteps(form){
@@ -28,7 +42,13 @@ export function initializeCheckoutSteps(form){
   document.documentElement.dataset.checkoutReady='false';location.replace('checkout.html');return;
  }
  if(draft){
-  for(const name of Object.keys(fields))form.elements[name].value=draft[name];
+  for(const name of Object.keys(fields))if(form.elements[name])form.elements[name].value=draft[name];
+  if(!paymentStep){
+   const E=form.elements,pick=(raw,eff)=>raw!==undefined?raw:eff;
+   E.address.value=pick(draft.rAddress,draft.address);E.city.value=pick(draft.rCity,draft.city);E.region.value=pick(draft.rRegion,draft.region);E.postal.value=pick(draft.rPostal,draft.postal);
+   E.company.value=pick(draft.cName,'');E.companyAddress.value=draft.cAddress||'';E.companyPostal.value=draft.cPostal||'';E.companyCity.value=draft.cCity||'';E.companyRegion.value=draft.cRegion||'';
+   E.companyOn.checked=draft.companyOn;
+  }
   for(const name of ['plan','billing'])if(!params.has(name))form.elements[name].value=draft[name];
   form.elements.seats.value=String(draft.seats);form.elements.terms.checked=draft.terms;
  }

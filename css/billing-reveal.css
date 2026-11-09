@@ -20,3 +20,6 @@
 
 .postal-hint.err{color:var(--commerce-error,#d6455d)}
 .form-field input[aria-invalid=true]{border-color:var(--commerce-error,#d6455d)!important}
+
+/* the green tick on a postal code means it was verified for the country */
+.form-field:has(> #postal:not([data-verified]))::after,.form-field:has(> #company-postal:not([data-verified]))::after{display:none!important}

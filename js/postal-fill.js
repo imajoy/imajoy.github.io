@@ -56,9 +56,10 @@ function bind(postal,city,region,hint,onFound,onReset){
       if(cc==='IN'){const m='We couldn’t find PIN code '+code+' in India. Please check it.';mark(m);say(m,'err');return;}
       say(onFound?'We couldn’t verify that postal code for '+countryName(cc)+'. Check it, or ':'','',!!onFound);return;}
     put(city,found.city);put(region,found.region);
-    if(onFound)onFound(found);mark('');
+    if(onFound)onFound(found);mark('');postal.setAttribute('data-verified','');
     say(onFound&&(found.city||found.region)?'Verified: '+[found.city,found.region].filter(Boolean).join(', ')+'. You can edit it.':'','ok');
   }
+  postal.addEventListener('input',()=>postal.removeAttribute('data-verified'));
   const later=()=>{clearTimeout(timer);if(!postal.value.trim()){run++;say('');reset();return;}timer=setTimeout(go,450);};
   postal.addEventListener('input',later);country?.addEventListener('change',later);
 }

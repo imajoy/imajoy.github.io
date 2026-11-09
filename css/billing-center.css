@@ -169,3 +169,7 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 @media(prefers-reduced-motion:reduce){.bc-subtabs button::after,.bc-cb span,.bc-cb span::after,.bc-go{transition:none!important}.bc-selbar.bc-in{animation:none}}
 
 .bc-body td .bc-mono{white-space:nowrap}.bc-body td[data-label='Paid at']{white-space:nowrap}.bc-selbar-t{white-space:nowrap}
+
+/* City and State are filled from the postal code and cannot be typed in */
+.bc-field input.bc-auto{background:color-mix(in srgb,var(--ink,#111) 5%,transparent);cursor:not-allowed;color:var(--mute,#667085)}
+.bc-hint{margin:-4px 0 12px;font-size:13px;color:var(--mute,#667085)}.bc-hint[data-kind=ok]{color:#1c9a6c}.bc-hint[data-kind=err]{color:#d14343}

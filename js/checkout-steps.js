@@ -13,14 +13,14 @@ export function readBillingDraft(){
   const clean={at:draft.at,email:session.email,plan:draft.plan,billing:draft.billing,seats:draft.seats,country:/^[A-Z]{2}$/.test(draft.country||'')?draft.country:'',terms:draft.terms===true,offer:['trial','standard'].includes(draft.offer)?draft.offer:'',rzpOffer:['trial','standard'].includes(draft.rzpOffer)?draft.rzpOffer:'',coupon:/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(draft.coupon||'')?draft.coupon:'',provider:['paypal','razorpay'].includes(draft.provider)?draft.provider:''};
   for(const [name,max] of Object.entries(fields))clean[name]=typeof draft[name]==='string'?draft[name].slice(0,max):'';
   for(const [name,max] of Object.entries(rawFields))clean[name]=typeof draft[name]==='string'?draft[name].slice(0,max):undefined;
-  clean.companyOn=draft.companyOn===true;
+  clean.companyOn=draft.companyOn===true;clean.tester=draft.tester===true;
   return clean;
  }catch{return null;}
 }
 export function clearBillingDraft(){try{sessionStorage.removeItem(key);}catch{}}
 function writeBillingDraft(form){
  const session=getAccountSession();if(!session)throw Error('Sign in before continuing.');
- const value={at:Date.now(),email:session.email,plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value,terms:form.elements.terms.checked,provider:document.documentElement.dataset.paymentProvider};
+ const value={at:Date.now(),email:session.email,plan:form.elements.plan.value,billing:form.elements.billing.value,seats:Number(form.elements.seats.value),country:form.elements.country.value,terms:form.elements.terms.checked,provider:document.documentElement.dataset.paymentProvider,tester:document.documentElement.dataset.billingTester==='true'};
  const E=form.elements,previous=readBillingDraft(),val=(n,max)=>String(E[n]?.value||'').slice(0,max);
  for(const [name,max] of Object.entries(fields))value[name]=val(name,max);
  if(paymentStep&&previous){
@@ -38,7 +38,7 @@ function writeBillingDraft(form){
 export function initializeCheckoutSteps(form){
  const params=new URLSearchParams(location.search),draft=readBillingDraft(),returning=/^[-a-f0-9]{36}$/i.test(params.get('checkout')||'');
  if(!paymentStep&&returning){location.replace('payment.html?'+new URLSearchParams({checkout:params.get('checkout')}).toString());return;}
- if(paymentStep&&!returning&&(!draft||!draft.name.trim()||!draft.address.trim()||!draft.terms)){
+ if(paymentStep&&!returning&&(!draft||(!draft.tester&&(!draft.name.trim()||!draft.address.trim()))||!draft.terms)){
   document.documentElement.dataset.checkoutReady='false';location.replace('checkout.html');return;
  }
  if(draft){

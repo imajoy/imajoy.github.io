@@ -27,7 +27,8 @@ html[data-theme=dark] .lng-search{background:#0d1530}
 .lng-list li:active{transform:scale(.985)}
 .lng-list li[aria-selected=true]{background:color-mix(in srgb,var(--blue,#3d8bff) 15%,transparent)}
 .lng-list li[data-pending]{opacity:.7}
-.lng-badge{flex:none;width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font:700 .6875rem/1 var(--sans,inherit);letter-spacing:.02em;color:var(--blue,#2a64e8);background:color-mix(in srgb,var(--blue,#3d8bff) 13%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--blue,#3d8bff) 28%,transparent) inset}
+.lng-badge{flex:none;width:36px;height:36px;border-radius:50%;overflow:hidden;display:block;background:color-mix(in srgb,var(--ink,#0e1220) 10%,transparent);box-shadow:0 0 0 1px color-mix(in srgb,var(--ink,#0e1220) 14%,transparent),0 3px 8px -3px rgba(10,20,60,.35)}
+.lng-badge img{display:block;width:100%;height:100%;object-fit:cover}
 .lng-name{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 10px;min-width:0;flex:1}
 .lng-name b{font-size:.9375rem;font-weight:650}
 .lng-name small{font-size:.8125rem;color:var(--mute,#586072)}

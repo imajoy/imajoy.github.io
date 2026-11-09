@@ -4,25 +4,27 @@
    Exposes window.AjoyLang { list, current(), set(code), onChange(fn) } for the language window in the profile menu. */
 (function () {
   var KEY = 'ajoy-lang', root = document.documentElement, listeners = [];
-  /* [google code, native name, English name, badge] */
+  /* [google code, native name, English name, flag file in img/flags] */
   var LIST = [
-    ['en', 'English', 'English', 'EN'], ['id', 'Bahasa Indonesia', 'Indonesian', 'ID'], ['ms', 'Bahasa Melayu', 'Malay', 'MS'],
-    ['de', 'Deutsch', 'German', 'DE'], ['es', 'Español', 'Spanish', 'ES'], ['fil', 'Filipino', 'Filipino', 'PH'],
-    ['fr', 'Français', 'French', 'FR'], ['hr', 'Hrvatski', 'Croatian', 'HR'], ['it', 'Italiano', 'Italian', 'IT'],
-    ['lt', 'Lietuvių', 'Lithuanian', 'LT'], ['lv', 'Latviešu', 'Latvian', 'LV'], ['hu', 'Magyar', 'Hungarian', 'HU'],
-    ['nl', 'Nederlands', 'Dutch', 'NL'], ['no', 'Norsk', 'Norwegian', 'NO'], ['pl', 'Polski', 'Polish', 'PL'],
-    ['pt', 'Português', 'Portuguese', 'PT'], ['ro', 'Română', 'Romanian', 'RO'], ['sk', 'Slovenčina', 'Slovak', 'SK'],
-    ['sl', 'Slovenščina', 'Slovenian', 'SL'], ['fi', 'Suomi', 'Finnish', 'FI'], ['sv', 'Svenska', 'Swedish', 'SV'],
-    ['vi', 'Tiếng Việt', 'Vietnamese', 'VI'], ['tr', 'Türkçe', 'Turkish', 'TR'], ['cs', 'Čeština', 'Czech', 'CS'],
-    ['da', 'Dansk', 'Danish', 'DA'], ['el', 'Ελληνικά', 'Greek', 'EL'], ['bg', 'Български', 'Bulgarian', 'BG'],
-    ['ru', 'Русский', 'Russian', 'RU'], ['sr', 'Српски', 'Serbian', 'SR'], ['uk', 'Українська', 'Ukrainian', 'UK'],
-    ['hi', 'हिन्दी', 'Hindi', 'HI'], ['bn', 'বাংলা', 'Bengali', 'BN'], ['ta', 'தமிழ்', 'Tamil', 'TA'],
-    ['te', 'తెలుగు', 'Telugu', 'TE'], ['mr', 'मराठी', 'Marathi', 'MR'], ['gu', 'ગુજરાતી', 'Gujarati', 'GU'],
-    ['kn', 'ಕನ್ನಡ', 'Kannada', 'KN'], ['ml', 'മലയാളം', 'Malayalam', 'ML'], ['pa', 'ਪੰਜਾਬੀ', 'Punjabi', 'PA'],
-    ['th', 'ไทย', 'Thai', 'TH'], ['ko', '한국어', 'Korean', 'KO'], ['ja', '日本語', 'Japanese', 'JA'],
-    ['zh-CN', '简体中文', 'Chinese (Simplified)', 'ZH'], ['zh-TW', '繁體中文', 'Chinese (Traditional)', 'TW']
+    ['en', 'English', 'English', 'gb'], ['id', 'Bahasa Indonesia', 'Indonesian', 'id'], ['ms', 'Bahasa Melayu', 'Malay', 'my'],
+    ['de', 'Deutsch', 'German', 'de'], ['es', 'Español', 'Spanish', 'es'], ['fil', 'Filipino', 'Filipino', 'ph'],
+    ['fr', 'Français', 'French', 'fr'], ['hr', 'Hrvatski', 'Croatian', 'hr'], ['it', 'Italiano', 'Italian', 'it'],
+    ['lt', 'Lietuvių', 'Lithuanian', 'lt'], ['lv', 'Latviešu', 'Latvian', 'lv'], ['hu', 'Magyar', 'Hungarian', 'hu'],
+    ['nl', 'Nederlands', 'Dutch', 'nl'], ['no', 'Norsk', 'Norwegian', 'no'], ['pl', 'Polski', 'Polish', 'pl'],
+    ['pt', 'Português', 'Portuguese', 'br'], ['ro', 'Română', 'Romanian', 'ro'], ['sk', 'Slovenčina', 'Slovak', 'sk'],
+    ['sl', 'Slovenščina', 'Slovenian', 'si'], ['fi', 'Suomi', 'Finnish', 'fi'], ['sv', 'Svenska', 'Swedish', 'se'],
+    ['vi', 'Tiếng Việt', 'Vietnamese', 'vn'], ['tr', 'Türkçe', 'Turkish', 'tr'], ['cs', 'Čeština', 'Czech', 'cz'],
+    ['da', 'Dansk', 'Danish', 'dk'], ['el', 'Ελληνικά', 'Greek', 'gr'], ['bg', 'Български', 'Bulgarian', 'bg'],
+    ['ru', 'Русский', 'Russian', 'ru'], ['sr', 'Српски', 'Serbian', 'rs'], ['uk', 'Українська', 'Ukrainian', 'ua'],
+    ['hi', 'हिन्दी', 'Hindi', 'in'], ['bn', 'বাংলা', 'Bengali', 'bd'], ['ta', 'தமிழ்', 'Tamil', 'in'],
+    ['te', 'తెలుగు', 'Telugu', 'in'], ['mr', 'मराठी', 'Marathi', 'in'], ['gu', 'ગુજરાતી', 'Gujarati', 'in'],
+    ['kn', 'ಕನ್ನಡ', 'Kannada', 'in'], ['ml', 'മലയാളം', 'Malayalam', 'in'], ['pa', 'ਪੰਜਾਬੀ', 'Punjabi', 'in'],
+    ['th', 'ไทย', 'Thai', 'th'], ['ko', '한국어', 'Korean', 'kr'], ['ja', '日本語', 'Japanese', 'jp'],
+    ['zh-CN', '简体中文', 'Chinese (Simplified)', 'cn'], ['zh-TW', '繁體中文', 'Chinese (Traditional)', 'tw']
   ];
   var CODES = LIST.map(function (l) { return l[0]; });
+  var LATIN = 'en id ms de es fil fr hr it lt lv hu nl no pl pt ro sk sl fi sv tr cs da'.split(' ');
+  function script(code) { if (code === 'en') root.removeAttribute('data-script'); else root.setAttribute('data-script', LATIN.indexOf(code) > -1 ? 'latin' : 'complex'); }
   function stored() { try { var v = localStorage.getItem(KEY); return CODES.indexOf(v) > -1 ? v : 'en'; } catch (e) { return 'en'; } }
   var cur = stored(), loading = null;
   /* only pages that opt in (<meta name="ajoy-translate">) may run the translator; the others stay English and keep the saved choice */
@@ -44,6 +46,17 @@
       'html[data-lang-busy] body{opacity:.55;transition:opacity .35s ease}body{transition:opacity .45s ease}' +
       '#lang-bar{position:fixed;z-index:2147483600;left:0;top:0;height:3px;width:100%;transform-origin:0 50%;transform:scaleX(0);opacity:0;background:linear-gradient(90deg,#639cff,#2a64e8);pointer-events:none}' +
       'html[data-lang-busy] #lang-bar{opacity:1;animation:lang-bar 1.8s cubic-bezier(.22,1,.36,1) forwards}@keyframes lang-bar{to{transform:scaleX(.92)}}' +
+
+      /* translated text: the design's tight tracking, low line height and clipped reveal lines are made for English */
+      'html[data-script=complex] body *:not(svg):not(svg *){letter-spacing:0!important;word-spacing:normal!important;text-transform:none!important}' +
+      'html[data-script=complex] h1{font-size:clamp(26px,4.6vw,62px)!important;line-height:1.32!important}' +
+      'html[data-script=complex] h2{font-size:clamp(22px,3.1vw,40px)!important;line-height:1.35!important}' +
+      'html[data-script=complex] h3,html[data-script=complex] h4{line-height:1.4!important}' +
+      'html[data-script=complex] p,html[data-script=complex] li,html[data-script=complex] .sub{line-height:1.75!important}' +
+      'html[data-script=complex] .ln,html[data-script=complex] .h-line,html[data-script=complex] [class*=reveal]{overflow:visible!important;padding:0!important;margin:0!important}' +
+      'html[data-script=complex] h1 em,html[data-script=complex] h2 em{padding:.08em .04em!important}' +
+      'html[data-script=latin] h1{line-height:1.08!important}html[data-script=latin] .ln{padding-bottom:.18em!important}' +
+      'html[data-script] h1,html[data-script] h2{overflow-wrap:anywhere}' +
       '@media(prefers-reduced-motion:reduce){html[data-lang-busy] body,body{transition:none}#lang-bar{animation:none!important}}';
     document.head.appendChild(s);
     var b = document.createElement('div'); b.id = 'lang-bar'; b.setAttribute('aria-hidden', 'true'); document.body.appendChild(b);
@@ -87,7 +100,7 @@
     try { localStorage.setItem(KEY, code); } catch (e) {}
     cookie(code);
     if (!CAN) { listeners.forEach(function (f) { f(code); }); return Promise.resolve(true); }
-    root.lang = code === 'en' ? 'en' : code;
+    root.lang = code === 'en' ? 'en' : code; script(code);
     if (prev === code) return Promise.resolve(true);
     /* English with nothing translated yet: nothing to do */
     if (code === 'en' && !/translated-(ltr|rtl)/.test(root.className) && !loading) { listeners.forEach(function (f) { f(code); }); return Promise.resolve(true); }
@@ -95,7 +108,7 @@
     busy(true); listeners.forEach(function (f) { f(code); });
     return apply(code).then(function () { busy(false); return true; }, function () {
       /* translator could not load (offline, blocked): go back to English quietly */
-      cur = prev; try { localStorage.setItem(KEY, prev); } catch (e) {} cookie(prev); busy(false); listeners.forEach(function (f) { f(prev); }); return false;
+      cur = prev; script(prev); root.lang = prev; try { localStorage.setItem(KEY, prev); } catch (e) {} cookie(prev); busy(false); listeners.forEach(function (f) { f(prev); }); return false;
     });
   }
   window.AjoyLang = {
@@ -106,7 +119,7 @@
   };
   function boot() {
     protect();
-    if (CAN && cur !== 'en') { cookie(cur); root.lang = cur; style(); busy(true); apply(cur).then(function () { busy(false); }, function () { busy(false); cur = 'en'; try { localStorage.setItem(KEY, 'en'); } catch (e) {} cookie('en'); }); }
+    if (CAN && cur !== 'en') { cookie(cur); root.lang = cur; script(cur); style(); busy(true); apply(cur).then(function () { busy(false); }, function () { busy(false); cur = 'en'; try { localStorage.setItem(KEY, 'en'); } catch (e) {} cookie('en'); }); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

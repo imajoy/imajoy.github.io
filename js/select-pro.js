@@ -108,6 +108,6 @@ document.querySelectorAll('.checkout-form .form-field > select').forEach(enhance
 (()=>{
 const root=document.documentElement,labels=['region','postal'].map(id=>document.querySelector('label[for="'+id+'"]')).filter(Boolean);
 for(const l of labels)l.dataset.full=l.textContent;
-const apply=()=>{const t=root.dataset.billingTester==='true';for(const l of labels)l.textContent=t?l.dataset.full.replace(/\s*\(recommended\)/i,''):l.dataset.full;};
+const apply=()=>{const t=root.dataset.billingTester==='true';for(const l of labels)l.textContent=t?l.dataset.full.replace(/\s*\*$/,''):l.dataset.full;};
 new MutationObserver(apply).observe(root,{attributes:true,attributeFilter:['data-billing-tester']});apply();
 })();

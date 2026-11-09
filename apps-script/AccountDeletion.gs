@@ -71,7 +71,7 @@ function handleErase_(d) {
     if (eraseHasAccess_(email)) return { ok: false, error: 'active_subscription' };
     var result = erasePersonalData_(email);
     revokeSessions_(email, true);
-    try { sendNoReply_({ to: email, name: 'Wrapline Pro (no-reply)', subject: 'Your Wrapline Pro account was deleted', body: 'Your account and personal data were deleted as you asked. Payment records that must be kept for accounting are anonymized.\n\nIf this was not you, contact ' + replyTo_() + '.' }); } catch (err) {}
+    try { sendNoReply_({ to: email, name: 'Wrapline (no-reply)', subject: 'Your Wrapline account was deleted', body: 'Your account and personal data were deleted as you asked. Payment records that must be kept for accounting are anonymized.\n\nIf this was not you, contact ' + replyTo_() + '.' }); } catch (err) {}
     return { ok: true, removed: result.removed, anonymized: result.anonymized };
   } finally { lock.releaseLock(); }
 }

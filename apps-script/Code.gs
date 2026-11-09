@@ -27,7 +27,7 @@ function codeEmailHtml_(code, minutes, support) {
     '<div style="max-width:560px;margin:0 auto">' +
     '<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px"><tr>' +
       '<td style="width:34px;height:34px;background:#2a64e8;border-radius:9px;color:#ffffff;font-weight:700;font-size:19px;text-align:center;line-height:34px">W</td>' +
-      '<td style="padding-left:11px;font-size:19px;font-weight:700;letter-spacing:.2px;color:#14182a">WRAPLINE <span style="font-weight:400;color:#6b7390">Pro</span></td></tr></table>' +
+      '<td style="padding-left:11px;font-size:19px;font-weight:700;letter-spacing:.2px;color:#14182a">WRAPLINE</td></tr></table>' +
     '<h1 style="font-size:28px;line-height:1.2;margin:0 0 22px;font-weight:700;color:#14182a">Here is your verification code:</h1>' +
     '<div style="border:1px solid #e3e6ef;border-radius:16px;padding:26px 28px;margin:0 0 26px">' +
       '<span style="font-size:38px;line-height:1;font-weight:700;letter-spacing:6px;color:#2a64e8;font-family:Arial,Helvetica,sans-serif">' + code + '</span></div>' +
@@ -36,8 +36,8 @@ function codeEmailHtml_(code, minutes, support) {
     '<div style="background:#f3f4f8;border-radius:14px;padding:18px 20px;font-size:15px;line-height:1.55;color:#2b3149;margin:0 0 30px">' +
       '<b>Didn\'t try to sign in?</b> You can safely ignore this email. If you keep receiving codes, write to ' + support + '.</div>' +
     '<div style="border-top:1px solid #e3e6ef;padding-top:20px;font-size:12px;line-height:1.6;color:#8a91a8">' +
-      'You received this email because someone entered your address on the Wrapline Pro sign-in page. This is an automatic message; please do not reply to it.<br><br>' +
-      '&copy; ' + new Date().getFullYear() + ' AJOY &middot; Wrapline Pro for Maya</div>' +
+      'You received this email because someone entered your address on the Wrapline sign-in page. This is an automatic message; please do not reply to it.<br><br>' +
+      '&copy; ' + new Date().getFullYear() + ' AJOY &middot; Wrapline for Maya</div>' +
     '</div></div>';
 }
 function replyTo_() { return props_().getProperty('REPLY_TO') || ownerEmail_(); }
@@ -493,9 +493,9 @@ function handleAccount_(d) {
       var code = secureCode_();
       var expiresAt=Date.now()+120000;
       cache.put('code:' + email, JSON.stringify({hash:hashCode_(email,code),expiresAt:expiresAt}), 120); cache.remove('tries:' + email);
-      try { sendNoReply_({ to: email, name: 'Wrapline Pro (no-reply)', subject: 'Your Wrapline Pro sign-in code: ' + code,
+      try { sendNoReply_({ to: email, name: 'Wrapline (no-reply)', subject: 'Your Wrapline sign-in code: ' + code,
         htmlBody: codeEmailHtml_(code, 2, replyTo_()),
-        body: 'Your sign-in code is ' + code + '\n\nIt expires in 2 minutes. If you did not ask for it, you can ignore this email.\n\nThis is an automatic message from Wrapline Pro. Please do not reply to it. For help, write to ' + replyTo_() + '.' }); }
+        body: 'Your sign-in code is ' + code + '\n\nIt expires in 2 minutes. If you did not ask for it, you can ignore this email.\n\nThis is an automatic message from Wrapline. Please do not reply to it. For help, write to ' + replyTo_() + '.' }); }
       catch (err) { cache.remove('code:' + email); return { ok: false, error: 'mail' }; }
       return { ok: true, registered: registered, intent: intent, expiresAt:expiresAt, expiresIn:Math.max(0,Math.ceil((expiresAt-Date.now())/1000)) };
     }

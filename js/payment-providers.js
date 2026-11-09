@@ -4,6 +4,7 @@ import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261109-co7';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
 import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261023-p7';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
+import {cachedProfile,loadProfile,saveProfile} from './profile-store.js?v=pm1';
 import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261021-fast2';
 import {secureCommerce,browserDeviceId} from './commerce-gateway.js?v=20261020-country1';
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;
@@ -15,9 +16,21 @@ if(form&&paypal&&url){
  review.innerHTML='<h3>Review your billing details</h3><p data-billing-availability>Checking payment availability…</p><button type="button" class="btn btn-light btn-block" data-review-billing>Review billing details</button><p class="billing-review-status" role="status" aria-live="polite"></p>';
  panel.innerHTML='<div class="rzp-head"><span class="rzp-shield" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg></span><div><b>Secure INR checkout</b><small>Processed by Razorpay. Card and bank details never reach this site.</small></div><p class="razorpay-mode" hidden><i aria-hidden="true"></i>Test mode</p></div><fieldset class="rzp-offer" hidden><legend>How would you like to start?</legend><label><input type="radio" name="rzp-offer" value="trial"><span><b>Start 4-day free trial</b><small data-trial-terms>Nothing to pay today</small></span><em>Free</em></label><label><input type="radio" name="rzp-offer" value="standard"><span><b>Pay now</b><small>Your paid subscription starts today</small></span></label><p class="rzp-offer-note" role="status"></p></fieldset><div class="rzp-total"><small data-rzp-label>Recurring amount</small><p class="razorpay-amount" aria-live="polite"></p><p class="rzp-saving" hidden>Includes your first-year yearly saving</p><p class="rzp-check" hidden></p><p class="rzp-deal" hidden></p></div><details class="rzp-coupon"><summary>Have a coupon?</summary><div class="rzp-coupon-row"><input type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Enter code" aria-label="Coupon code"><button type="button" class="btn btn-light btn-sm" data-coupon-apply>Apply</button><button type="button" class="rzp-coupon-remove" data-coupon-remove hidden>Remove</button></div><p class="rzp-coupon-msg" role="status" aria-live="polite"></p></details><ul class="rzp-methods" aria-label="Payment methods offered by Razorpay"><li>UPI</li><li>Cards</li><li>Net banking</li></ul><p class="rzp-hint" hidden></p><p class="razorpay-status" role="status" aria-live="polite"></p><button type="button" class="btn btn-blue btn-block rzp-pay" data-razorpay-start>Continue with Razorpay</button><button type="button" class="btn btn-light btn-block" data-razorpay-check hidden>Check payment status</button><a class="text-link" data-razorpay-open hidden target="_blank" rel="noopener">Open secure Razorpay checkout</a><button type="button" class="razorpay-cancel" data-razorpay-cancel hidden>Cancel this checkout</button><ul class="rzp-assure"><li>Cancel renewal any time from your account</li><li>License key within 12 hours</li><li>Time starts when you activate</li></ul><details class="razorpay-terms"><summary>Billing terms</summary><p>Paid recurring subscription, charged in rupees (INR) in India and in US dollars (USD) elsewhere. Your first-year yearly saving is included when it applies. The 4-day trial, coupons and returning-subscriber offers are currently available through PayPal only. Monthly plans authorize up to 100 charges; yearly plans up to 10, then billing stops.</p></details>';
  paypal.before(picker);paypal.after(panel,review);
+ /* Accordion: each method is a row; its panel sits inside the row and only the chosen row is open. */
+ const accItems=[];
+ for(const [value,node] of [['razorpay',panel],['paypal',paypal]]){
+  const label=picker.querySelector('[value="'+value+'"]').parentElement,item=document.createElement('div'),body=document.createElement('div'),inner=document.createElement('div');
+  item.className='pay-item';item.dataset.key=value;body.className='acc-body';inner.className='acc-inner';body.id='acc-'+value;
+  label.insertAdjacentHTML('beforeend','<svg class="acc-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>');
+  const radio=label.querySelector('input');radio.setAttribute('aria-controls',body.id);
+  picker.append(item);inner.append(node);body.append(inner);item.append(label,body);accItems.push(item);
+ }
+ picker.dataset.acc='';
+ const syncAcc=()=>{for(const item of accItems){const open=item.dataset.key===provider;item.toggleAttribute('data-open',open);const body=item.querySelector('.acc-body');body.inert=!open;item.querySelector('input').setAttribute('aria-expanded',String(open));}};
  const skel=document.createElement('div');skel.className='pay-skel';skel.setAttribute('aria-hidden','true');skel.innerHTML='<div class="sk-row"><span class="sk-bar" style="width:52px"></span><span class="sk-bar sk-logo"></span></div><div class="sk-row"><span class="sk-bar" style="width:38px"></span><span class="sk-bar sk-logo"></span></div><div class="sk-row"><span class="sk-bar" style="width:64px"></span><span class="sk-bar sk-logo"></span></div>';picker.before(skel);
  const status=panel.querySelector('.razorpay-status'),start=panel.querySelector('[data-razorpay-start]'),check=panel.querySelector('[data-razorpay-check]'),link=panel.querySelector('[data-razorpay-open]'),cancelBtn=panel.querySelector('[data-razorpay-cancel]');
  const pageCoupon={input:document.querySelector('#coupon-code'),remove:document.querySelector('#coupon-remove'),status:document.querySelector('#coupon-status')};
+ let userPicked=false,prefApplied=false;const savedPref=()=>{const p=cachedProfile();return p&&['razorpay','paypal'].includes(p.payment)?p.payment:'';};
  let config=null,paypalConfig=null,provider='review',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
  document.documentElement.dataset.paymentProvider='review';paypal.hidden=true;
  document.querySelector('#customer-verification').hidden=true;document.querySelector('.coupon-panel').hidden=true;
@@ -76,7 +89,7 @@ if(form&&paypal&&url){
   const promos=document.querySelector('#customer-verification');if(promos)promos.hidden=!['paypal','razorpay'].includes(provider);
   document.querySelector('.coupon-panel').hidden=!['paypal','razorpay'].includes(provider);
   document.documentElement.toggleAttribute('data-rzp-offers',provider==='razorpay');
-  placeTerms();
+  placeTerms();syncAcc();
   if(provider==='razorpay'){pageCoupon.input.value=coupon;couponNote();loyaltyNote(quote?.discount&&!trialOn()?quote.discount:null);}
   document.dispatchEvent(new CustomEvent('ajoy:provider-change',{detail:{provider}}));
   if(provider==='razorpay')refresh();
@@ -86,6 +99,7 @@ if(form&&paypal&&url){
   if(document.documentElement.dataset.billingBlocked==='true'){picker.hidden=true;paypal.hidden=true;panel.hidden=true;review.hidden=true;return;}
   const c=choice(),country=c.country,canRazorpay=razorpayAvailable(config,country),canPaypal=!!paypalConfig?.clientId&&/^[A-Z]{2}$/.test(country)&&availability(country,paypalConfig.closedCountries||[]).open&&(document.documentElement.dataset.billingTester==='true'||countryCheck(country,paypalConfig.mode==='live'?paypalConfig.country:'').ok)&&!!paypalConfig.plans?.tiers?.[tierFor(country)]?.[c.plan]?.[c.billing];
   if(!restoredProvider&&(canRazorpay||canPaypal)){restoredProvider=true;if(draft?.provider==='razorpay'&&canRazorpay)selected('razorpay');}
+  if(!prefApplied&&(canRazorpay||canPaypal)&&cachedProfile()!==undefined){prefApplied=true;const want=savedPref();if(!userPicked&&!draft?.provider&&want){if(want==='razorpay'&&canRazorpay)selected('razorpay');else if(want==='paypal'&&canPaypal)selected('paypal');}}
   picker.hidden=!canRazorpay&&!canPaypal;picker.querySelector('[value="razorpay"]').parentElement.hidden=!canRazorpay;picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
   if(!canRazorpay&&!canPaypal&&provider!=='review')selected('review');
   else if(canRazorpay&&!canPaypal&&provider!=='razorpay')selected('razorpay');
@@ -269,7 +283,7 @@ if(form&&paypal&&url){
  check.onclick=confirm;
  cancelBtn.onclick=()=>{if(pending&&!busy)abandon(pending.id,'');};
  window.addEventListener('focus',()=>{if(provider==='razorpay'&&pending&&usingPopup)confirm();});
- for(const radio of picker.querySelectorAll('input'))radio.onchange=()=>selected(radio.value);
+ for(const radio of picker.querySelectorAll('input'))radio.onchange=()=>{userPicked=true;selected(radio.value);if(getAccountSession())saveProfile({payment:radio.value}).catch(()=>{});};
  for(const name of ['plan','billing','seats','country'])form.elements[name].addEventListener('change',()=>{sync();if(provider==='razorpay')refresh();});
  form.elements.seats.addEventListener('input',()=>{if(provider==='razorpay')refresh();});
  document.addEventListener('ajoy:currency-ready',()=>{if(provider==='razorpay')paint();});
@@ -278,5 +292,6 @@ if(form&&paypal&&url){
  onAccountChange(()=>{const t=getAccountSession()?.token;if(t===pricedFor)return;pricedFor=t;if(provider==='razorpay')refresh();});
  document.addEventListener('ajoy:billing-network',()=>{sync();if(provider==='razorpay')refresh();});
  Promise.all([loadRazorpayConfig(),fetch(window.AJOY_CONFIG.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():null).catch(()=>null)]).then(([rzp,pp])=>{config=rzp;paypalConfig=pp;skel.remove();sync();},()=>skel.remove());
+ if(getAccountSession())loadProfile().then(p=>{if(p!==undefined)sync();});
  try{const saved=JSON.parse(sessionStorage.getItem('ajoy.razorpay.pending')||'null');if(saved?.email===getAccountSession()?.email&&/^[-a-f0-9]{36}$/i.test(saved.id)){pending=saved;check.hidden=false;}}catch{}
 }

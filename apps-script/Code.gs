@@ -460,6 +460,7 @@ function handleAccount_(d) {
     if (step === 'status') account.subscriptions = subscriptionsFor_(who.email, who.sub);
     return account;
   }
+  if (step === 'profile-get' || step === 'profile-set' || step === 'profile-clear') return handleProfile_(d, step);
   if (step === 'erase') return handleErase_(d);
   if (step === 'cancel') {
     var owner = readSession_(d.token);

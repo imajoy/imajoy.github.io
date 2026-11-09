@@ -1,0 +1,22 @@
+/* Payment methods as an accordion: one row per method, only the chosen row is open. */
+.payment-picker[data-acc]{display:grid;gap:12px;padding:22px}
+.payment-picker[data-acc]>legend{font-size:1.0625rem}
+.pay-item{border:1px solid var(--line);border-radius:20px;background:var(--card,var(--bg2));overflow:hidden;transition:border-color .3s,box-shadow .35s,background-color .3s}
+.pay-item:has(>label[hidden]){display:none}
+.pay-item:hover{border-color:color-mix(in srgb,var(--blue,#3d8bff) 45%,var(--line))}
+.pay-item[data-open]{border-color:var(--blue,#3d8bff);box-shadow:0 0 0 3px rgba(61,139,255,.14),0 18px 40px -24px rgba(42,100,232,.55)}
+.payment-picker[data-acc] .pay-item>label{border:0;border-radius:0;background:none!important;box-shadow:none!important;padding:18px 20px;position:relative}
+.payment-picker[data-acc] .pay-item>label:focus-within{outline:2px solid var(--blue,#3d8bff);outline-offset:-3px}
+.payment-picker[data-acc] .pay-item>label input{position:absolute;opacity:0;width:1px;height:1px;pointer-events:none}
+.payment-picker[data-acc] .pay-item>label>span{flex:1;min-width:0}
+.pay-item .pick-badge{margin-left:auto}
+.acc-chev{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--mute);transition:transform .4s cubic-bezier(.22,1,.36,1),color .25s}
+.pay-item[data-open] .acc-chev{transform:rotate(180deg);color:var(--blue,#3d8bff)}
+.acc-body{display:grid;grid-template-rows:0fr;visibility:hidden;transition:grid-template-rows .45s cubic-bezier(.22,1,.36,1),visibility 0s linear .45s}
+.pay-item[data-open]>.acc-body{grid-template-rows:1fr;visibility:visible;transition-delay:0s,0s}
+.acc-inner{min-height:0;overflow:hidden;opacity:0;transform:translateY(-6px);transition:opacity .3s ease,transform .45s cubic-bezier(.22,1,.36,1)}
+.pay-item[data-open] .acc-inner{opacity:1;transform:none;transition-delay:.08s}
+/* the method panels lose their own card chrome and stay mounted so the row can animate open and closed */
+.pay-item .acc-inner>.razorpay-panel,.pay-item .acc-inner>.paypal-box,html .pay-item .acc-inner>.paypal-box{display:block!important;margin:0;border:0;border-top:1px solid var(--line);border-radius:0;box-shadow:none;background:transparent;animation:none}
+.pay-item .acc-inner>.razorpay-panel::before,.pay-item .acc-inner>.paypal-box::before{display:none}
+@media(prefers-reduced-motion:reduce){.pay-item,.acc-chev,.acc-body,.acc-inner{transition:none!important}}

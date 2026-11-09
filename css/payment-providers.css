@@ -1,9 +1,9 @@
 .payment-picker{padding:18px;border:1px solid var(--line);border-radius:22px;margin-bottom:18px;display:grid;gap:10px}.payment-picker[hidden]{display:none}
-.payment-picker legend{font-weight:650;padding-inline:6px}.payment-picker label{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:15px;cursor:pointer;transition:background-color 200ms,border-color 200ms}
-.payment-picker label[hidden]{display:none}.payment-picker input{width:18px;height:18px;accent-color:var(--blue,#326fe5);flex:none}.payment-picker span{display:grid;gap:4px}.payment-picker small{font-size:12px;color:var(--mute);line-height:1.6}
-.payment-picker label:has(input:checked){border-color:var(--blue,#326fe5);background:#3d8bff0a}.payment-picker label:focus-within{outline:2px solid var(--blue,#326fe5);outline-offset:3px}
+.payment-picker legend{font-weight:650;padding-inline:6px}.payment-picker .pay-item>label{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:16px;padding:15px;cursor:pointer;transition:background-color 200ms,border-color 200ms}
+.payment-picker .pay-item>label[hidden]{display:none}.payment-picker .pay-item>label>input{width:18px;height:18px;accent-color:var(--blue,#326fe5);flex:none}.payment-picker .pay-item>label>span{display:grid;gap:4px}.payment-picker .pay-item>label small{font-size:12px;color:var(--mute);line-height:1.6}
+.payment-picker .pay-item>label:has(input:checked){border-color:var(--blue,#326fe5);background:#3d8bff0a}.payment-picker .pay-item>label:focus-within{outline:2px solid var(--blue,#326fe5);outline-offset:3px}
 
-@media(prefers-reduced-motion:reduce){.payment-picker label{transition:none}}
+@media(prefers-reduced-motion:reduce){.payment-picker .pay-item>label{transition:none}}
 .billing-review{border:1px solid var(--line);border-radius:24px;background:var(--card);padding:22px}.billing-review[hidden]{display:none}.billing-review h3{font-size:19px}.billing-review p{color:var(--mute);font-size:14px;line-height:1.8;margin-top:12px}.billing-review .btn{margin-top:18px}.billing-review-status:empty{display:none}
 
 /* The billing gate must override author display rules as well as native hidden. */
@@ -74,9 +74,9 @@ html[data-theme=dark] .razorpay-status[data-kind=error]{color:#ff9d94;background
 html[data-theme=dark] .rzp-assure li::before{background-color:rgba(47,181,131,.18)}
 /* Payment method choice as selectable cards */
 .payment-picker{border-radius:24px;padding:20px;background:var(--card)}
-.payment-picker label{position:relative;padding:16px 18px;border-radius:18px}
-.payment-picker label:has(input:checked){box-shadow:0 0 0 3px rgba(61,139,255,.16)}
-.payment-picker b{font-size:16px}
+.payment-picker .pay-item>label{position:relative;padding:16px 18px;border-radius:18px}
+.payment-picker .pay-item>label:has(input:checked){box-shadow:0 0 0 3px rgba(61,139,255,.16)}
+.payment-picker .pay-item>label b{font-size:16px}
 @keyframes rzp-in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes rzp-run{to{background-position:-200% 0}}
 @keyframes rzp-spin{to{transform:rotate(360deg)}}
@@ -206,7 +206,7 @@ html .paypal-box[hidden]{display:none}
 html[data-checkout-step=billing] .paypal-box>:is(.pp-head,.pp-total){display:none}
 html[data-checkout-step=billing] .paypal-box{padding-top:4px}
 /* Payment method picker badges */
-.payment-picker label .pick-badge{margin-left:auto;font-style:normal;font-size:11px;font-weight:800;letter-spacing:.08em;padding:5px 9px;border-radius:8px}
+.payment-picker .pay-item>label .pick-badge{margin-left:auto;font-style:normal;font-size:11px;font-weight:800;letter-spacing:.08em;padding:5px 9px;border-radius:8px}
 .pick-paypal{color:#003087;background:rgba(0,112,224,.1)}
 .pick-rzp{color:#1F4FBF;background:rgba(61,139,255,.12)}
 html[data-theme=dark] .pick-paypal{color:#8DBBFF;background:rgba(0,112,224,.18)}

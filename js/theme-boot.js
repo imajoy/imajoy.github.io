@@ -25,7 +25,9 @@
     } catch (e) {}
     return null;
   }
-  function wanted() { return held() || byClock(); }
+  /* a lasting choice made in the profile menu (Light / Dark); "Auto" removes it and the 6 am / 6 pm clock takes over */
+  function pinned() { try { var t = localStorage.getItem('ajoy-theme-pin'); return t === 'dark' || t === 'light' ? t : null; } catch (e) { return null; } }
+  function wanted() { return pinned() || held() || byClock(); }
   function paint(t) {
     root.setAttribute('data-theme', t);
     var meta = document.querySelector('meta[name="theme-color"]');
@@ -68,7 +70,7 @@
   }
   var target = wanted(), intro = false;
   try {
-    intro = !held() && !sessionStorage.getItem('ajoy-theme-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    intro = !pinned() && !held() && !sessionStorage.getItem('ajoy-theme-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (intro) sessionStorage.setItem('ajoy-theme-intro', '1');
   } catch (e) { intro = false; }
   /* first page of a visit: open in the opposite theme, then shift once the page has settled */
@@ -90,6 +92,12 @@
     /* called by the sun/moon button: keep this choice until the next 6 am / 6 pm flip */
     hold: function (t) { try { localStorage.setItem(HOLD, JSON.stringify({ t: t, u: nextFlip() })); } catch (e) {} schedule(); },
     byClock: byClock,
+    /* profile menu: 'light' | 'dark' keeps that theme on this browser; 'auto' goes back to the clock */
+    pin: function (t) {
+      try { if (t === 'light' || t === 'dark') localStorage.setItem('ajoy-theme-pin', t); else { localStorage.removeItem('ajoy-theme-pin'); localStorage.removeItem(HOLD); } } catch (e) {}
+      var w = wanted(); if (root.getAttribute('data-theme') !== w) shift(w); schedule();
+    },
+    mode: function () { return pinned() || 'auto'; },
     shift: shift
   };
 })();

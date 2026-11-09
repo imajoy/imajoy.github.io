@@ -75,7 +75,7 @@
         (function poll() {
           var translated = /translated-(ltr|rtl)/.test(root.className);
           if (code === 'en' ? !translated : translated) return setTimeout(done, 250);
-          if (Date.now() - t0 > 7000) return done();
+          if (Date.now() - t0 > (code === 'en' ? 1200 : 7000)) return done();
           setTimeout(poll, 120);
         })();
       });

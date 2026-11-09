@@ -70,7 +70,7 @@ export function initializeCheckoutSteps(form){
   for(const link of document.querySelectorAll('a[href="checkout.html"]'))link.addEventListener('click',()=>{try{writeBillingDraft(form);}catch{}});
  }else{
   const next=document.createElement('section');next.className='checkout-continue';
-  next.innerHTML='<button type="button" class="btn btn-blue btn-block" data-continue-payment>Continue to payment <span aria-hidden="true">→</span></button><p class="form-hint">Choose from the payment methods available for your country on the next page.</p><p class="form-status" data-payment-step-status role="status" aria-live="polite"></p>';
+  next.innerHTML='<button type="button" class="btn btn-blue btn-block" data-continue-payment>Continue to checkout <span aria-hidden="true">→</span></button><p class="form-hint">Choose from the payment methods available for your country on the next page.</p><p class="form-status" data-payment-step-status role="status" aria-live="polite"></p>';
   form.append(next);
   function continueToPayment(){
    const notice=next.querySelector('[data-payment-step-status]'),session=getAccountSession();notice.textContent='';

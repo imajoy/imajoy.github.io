@@ -1,6 +1,6 @@
 import {billingParts} from './receipt-billing.js?v=rb1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261109-co6';
+import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261109-co7';
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
 import {tierFor,availability,closedMessage,countryCheck,usdUnit} from './regions.js?v=20261023-p7';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261023-p5';
@@ -178,14 +178,18 @@ if(form&&pay){
  async function checkAccount(){
   if(document.documentElement.dataset.billingBlocked==='true'){revision++;eligibility=null;sync();return;}
   const token=getAccountSession()?.token||'';if(token===activeToken&&eligibility){sync();return;}
+  const memoKey='ajoy.ppelig:'+(getAccountSession()?.email||'')+'|'+(form.elements.country.value||'');
+  // The billing step already asked the server; carry that answer to the payment step for 10 minutes. The server checks again before any trial is granted.
+  if(token){try{const v=JSON.parse(sessionStorage.getItem(memoKey)||'null');if(v&&Date.now()-v.at<600000&&v.r&&(v.r.eligible===true||v.r.reason==='trial_used')){activeToken=token;eligibility=v.r;selectedOffer='';invalidate();refreshReward();say(v.r.reason==='trial_used'?'4-day trial already claimed. You can continue with a paid subscription.':v.r.message||'Choose your subscription.',false,v.r.reason==='trial_used');sync();return;}}catch{}}
   activeToken=token;refreshReward();eligibility=null;selectedOffer='';invalidate();const operation=++revision;say(token?'Checking your account and trial eligibility…':'');sync();
   if(!token)return;
-  try{const result=await secureCommerce('eligibility');if(operation!==revision||getAccountSession()?.token!==token)return;eligibility=result;refreshReward();say(result.reason==='trial_used'?'4-day trial already claimed. You can continue with a paid subscription.':result.message||'Choose your subscription.',false,result.reason==='trial_used');}
+  try{const result=await secureCommerce('eligibility');if(operation!==revision||getAccountSession()?.token!==token)return;eligibility=result;try{if(result&&(result.eligible===true||result.reason==='trial_used'))sessionStorage.setItem(memoKey,JSON.stringify({at:Date.now(),r:result}));}catch{}refreshReward();say(result.reason==='trial_used'?'4-day trial already claimed. You can continue with a paid subscription.':result.message||'Choose your subscription.',false,result.reason==='trial_used');}
   catch(error){if(operation===revision)say(error.message,true);}
   sync();
  }
  document.addEventListener('ajoy:currency-ready',sync);
  onAccountChange(checkAccount);
+ document.addEventListener('ajoy:payment-complete',()=>{try{Object.keys(sessionStorage).filter(k=>k.startsWith('ajoy.ppelig:')).forEach(k=>sessionStorage.removeItem(k));}catch{}});
  document.addEventListener('ajoy:billing-network',checkAccount);
  document.addEventListener('ajoy:provider-change',event=>{if(event.detail.provider==='paypal'){refreshReward();checkAccount();}sync();});
  async function confirm(id){
@@ -197,6 +201,7 @@ if(form&&pay){
   }catch(error){reflectTrialRestriction(error);say(error.message,true,error.code==='trial_used');}
  }
  function showDone(result){
+  try{Object.keys(sessionStorage).filter(k=>k.startsWith('ajoy.ppelig:')).forEach(k=>sessionStorage.removeItem(k));}catch{}
   clearBillingDraft();document.dispatchEvent(new Event('ajoy:payment-complete'));
   const c={...checkout?.selection,plan:result.plan||checkout?.selection.plan,billing:result.billing||checkout?.selection.billing,seats:result.seats||checkout?.selection.seats};
   say('Payment confirmed. Taking you to your confirmation page…');

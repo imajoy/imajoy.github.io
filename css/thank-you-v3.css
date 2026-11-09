@@ -166,6 +166,18 @@ html.ty-rvon .ty-rv{transition:opacity .7s var(--ty-ease),transform .8s var(--ty
 .iv-totals .iv-grand{padding:12px 0;margin:4px 0;border-top:2px solid #111;border-bottom:2px solid #111;font-size:16px}.iv-totals .iv-grand dt,.iv-totals .iv-grand dd{font-weight:700;color:#111}
 .iv-foot{display:flex;justify-content:space-between;gap:16px;margin-top:28px;padding-top:14px;border-top:1px solid #d0d0d0;font-size:11px;color:#666}
 #iv-print{display:none}
+/* Hostinger-style header: brand and seller left, facts right */
+.iv-paper .iv-top{border-bottom:0;padding-bottom:8px}
+.iv-brand{display:flex;align-items:center;gap:10px;margin-bottom:12px}.iv-brand b{font-size:15px;letter-spacing:.14em;font-weight:700}.iv-from .iv-sel{margin-top:4px;color:#111;font-weight:600}
+.iv-paper .iv-title{text-align:left;min-width:0;flex:0 1 52%}.iv-paper .iv-title h3{font-size:30px;letter-spacing:-.01em;margin-bottom:12px}
+.iv-facts{margin:0}.iv-facts>div{display:flex;gap:6px;padding:2px 0;font-size:13px;line-height:1.5}.iv-facts dt{color:#444;white-space:nowrap}.iv-facts dd{margin:0;font-weight:700;overflow-wrap:anywhere}
+.iv-paid{margin:10px 0 0;font:700 12.5px/1 var(--sans);letter-spacing:.06em;color:#2a9d4b!important}.iv-paid[data-kind=free]{color:#b7791f!important}
+.iv-paper .iv-parties{display:block;padding:18px 0 22px;border-bottom:0}.iv-parties small{margin-top:6px;font-size:11px;color:#777}
+.iv-paper .iv-table th{border-top:1px solid #d0d0d0;padding:12px 0;border-bottom:1px solid #d0d0d0;letter-spacing:.06em;font-size:10.5px;color:#111}
+.iv-table .u,.iv-table .x{text-align:right;white-space:nowrap;padding-left:14px}.iv-table th.u,.iv-table th.x{text-align:right;padding-left:14px}
+.iv-table .d small{display:block;margin-top:6px;font-size:11px;color:#888}
+.iv-paper .iv-totals{max-width:340px;margin-left:auto}.iv-totals .iv-grand{border:0;border-top:1px solid #d0d0d0;font-size:15px;margin:4px 0 0;padding:10px 0 7px}.iv-totals .iv-due{border-bottom:0;border-top:1px solid #d0d0d0;margin-top:6px;padding-top:12px}.iv-totals .iv-due dd{font-weight:700}
+.iv-paper .iv-below{grid-template-columns:minmax(0,1fr);gap:18px}.iv-paper .iv-notes{order:2}
 
 /* ---- phone ---- */
 @media(max-width:820px){
@@ -178,8 +190,8 @@ html.ty-rvon .ty-rv{transition:opacity .7s var(--ty-ease),transform .8s var(--ty
  .ty-pass{padding:22px}.ty-actions .btn{width:100%}.ty-history-link{margin-top:4px}
  .ty-first{flex-direction:column;align-items:flex-start}
  .ty-invoice>summary{grid-template-columns:minmax(0,1fr) auto}.ty-invoice summary>span{grid-column:1/-1}
- .iv-top{flex-direction:column}.iv-title{text-align:left}
- .iv-table .u{display:none}.iv-table .n{display:none}.iv-foot{flex-direction:column}
+ .iv-top{flex-direction:column}.iv-paper .iv-title{flex-basis:auto;width:100%}
+ .iv-table .x{display:none}.iv-table th.a,.iv-table th.u{padding-left:22px}.iv-foot{flex-direction:column}
  .ty-explore-grid{grid-template-columns:minmax(0,1fr)}
 }
 @media(prefers-reduced-motion:reduce){
@@ -195,11 +207,10 @@ html.ty-rvon .ty-rv{transition:opacity .7s var(--ty-ease),transform .8s var(--ty
  body.iv-printing>*:not(#iv-print){display:none!important}
  body.iv-printing #iv-print{display:block!important}
  #iv-print .iv-paper{width:100%;max-width:none;margin:0;padding:0;border:0;border-radius:0;box-shadow:none;opacity:1!important;transform:none!important;animation:none!important;font-size:10pt;line-height:1.45;color:#000;break-inside:avoid;page-break-inside:avoid}
- #iv-print .iv-from b{font-size:17pt}#iv-print .iv-title h3{font-size:22pt}
+ #iv-print .iv-brand b{font-size:12pt}#iv-print .iv-title h3{font-size:24pt}
  #iv-print .iv-top{padding-bottom:14pt}#iv-print .iv-parties{padding:14pt 0}#iv-print .iv-table td{padding:12pt 0}
  #iv-print .iv-foot{margin-top:24pt}
- #iv-print .iv-meta{grid-template-columns:repeat(4,minmax(0,1fr))}#iv-print .iv-parties{grid-template-columns:1fr 1fr}#iv-print .iv-below{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr)}
- #iv-print .iv-top{flex-direction:row}#iv-print .iv-title{text-align:right}#iv-print .iv-table .u,#iv-print .iv-table .n{display:table-cell}#iv-print .iv-foot{flex-direction:row}
+ #iv-print .iv-top{flex-direction:row}#iv-print .iv-paper .iv-title,#iv-print .iv-title{text-align:left}#iv-print .iv-table .u,#iv-print .iv-table .x{display:table-cell}#iv-print .iv-paid{color:#1c7a3a!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}#iv-print .iv-foot{flex-direction:row}
  #iv-print *{-webkit-print-color-adjust:economy;print-color-adjust:economy}
 }
 

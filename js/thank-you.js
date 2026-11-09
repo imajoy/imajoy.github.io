@@ -1,7 +1,7 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
 import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
 import {orb} from './mood-orb.js?v=mo1';
-import {buildInvoiceDoc,printDoc} from './ty-invoice.js?v=iv6';
+import {buildInvoiceDoc,printDoc,invoicePeriod} from './ty-invoice.js?v=iv7';
 import {readReceiptBilling,billingLines} from './receipt-billing.js?v=rb1';
 import {mountSetupProgress} from './setup-progress.js?v=20261101-auto1';
 let progress=null;
@@ -113,7 +113,7 @@ function loadArchive(){
    chip.textContent=zero?'No payment due':'Paid';chip.dataset.kind=zero?'free':'paid';
    left.append(title,when);summary.append(left,chip,total);details.append(summary);
    const cur2=/^[A-Z]{3}$/.test(inv.currency)?inv.currency:'USD',money2=v=>{try{return new Intl.NumberFormat(undefined,{style:'currency',currency:cur2}).format(v);}catch{return cur2+' '+Number(v).toFixed(2);}};
-   const doc=buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:zero?'No payment due':'Paid',statusKind:zero?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,orderId:(inv.orderId||'').split(' | ')[0],orderFull:(inv.orderId||'').split(' | ')[1]||'',billed:{name:inv.billedTo||'',lines:[inv.company,inv.address].filter(Boolean)},seller:inv.seller,title:'Wrapline Pro '+inv.plan,sub:inv.billing,seats:Number(inv.seats)||1,money:money2,total:Number(inv.amount)||0,totalLabel:zero?'Total due':'Total paid',note:zero?'No payment was due on this order. This invoice is your record of it.':''});
+   const doc=buildInvoiceDoc({kind:'Invoice',number:inv.number,test:inv.mode==='Test',date:inv.date?new Date(inv.date).toLocaleDateString(undefined,{dateStyle:'long'}):'—',statusText:zero?'No payment due':'Paid',statusKind:zero?'free':'paid',email:session.email,provider:inv.provider,reference:inv.paymentId,orderId:(inv.orderId||'').split(' | ')[0],orderFull:(inv.orderId||'').split(' | ')[1]||'',billed:{name:inv.billedTo||'',lines:[inv.company,inv.address].filter(Boolean)},seller:inv.seller,title:'Wrapline Pro '+(inv.plan==='offline'?'Premium':'Basic'),sub:inv.billing==='yearly'?'Yearly':'Monthly',currency:cur2,period:invoicePeriod(inv.date,inv.billing),nextBilling:(()=>{const sub=data.subscriptions.find(x=>x.ref===inv.subscriptionId);return sub&&sub.renews&&Number.isFinite(Date.parse(sub.endsAt))?new Date(sub.endsAt).toLocaleDateString(undefined,{dateStyle:'medium'}):'';})(),seats:Number(inv.seats)||1,money:money2,total:Number(inv.amount)||0,totalLabel:zero?'Total due':'Total paid',note:zero?'No payment was due on this order. This invoice is your record of it.':''});
    const body=document.createElement('div');body.className='ty-invoice-body';
    const print=document.createElement('button');print.type='button';print.className='btn btn-light ty-print';print.textContent='Print or save as PDF';print.addEventListener('click',()=>{details.open=true;printDoc(doc);});
    body.append(doc,print);details.append(body);box.append(details);

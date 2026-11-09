@@ -10,6 +10,7 @@ const root=new URL('../',import.meta.url);
 export const BUSTER="if(window.top!==window.self){try{window.top.location=window.self.location}catch(e){document.documentElement.style.display='none'}}";
 const hash=text=>"'sha256-"+createHash('sha256').update(text,'utf8').digest('base64')+"'";
 const PAYPAL='https://www.paypal.com https://*.paypal.com https://www.paypalobjects.com https://*.paypalobjects.com';
+const TRANSLATE='https://translate.google.com https://translate.googleapis.com https://www.gstatic.com';
 const RAZORPAY='https://checkout.razorpay.com https://*.razorpay.com';
 export function inlineScripts(html){
   return [...html.matchAll(/<script(?![^>]*\bsrc=)([^>]*)>([\s\S]*?)<\/script>/gi)].filter(m=>!/type\s*=\s*["']?application\/(ld\+json|json)/i.test(m[1])&&m[2].trim()&&!/data-csp-meta/.test(m[1])).map(m=>m[2]);
@@ -18,12 +19,12 @@ export function policyFor(html){
   const hashes=[...new Set([BUSTER,...inlineScripts(html)])].map(hash);
   return [
     "default-src 'self'",
-    "script-src 'self' "+hashes.join(' ')+' '+PAYPAL+' '+RAZORPAY,
-    "style-src 'self' 'unsafe-inline' "+RAZORPAY,
+    "script-src 'self' "+hashes.join(' ')+' '+PAYPAL+' '+RAZORPAY+' '+TRANSLATE,
+    "style-src 'self' 'unsafe-inline' "+RAZORPAY+' '+TRANSLATE,
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
-    "connect-src 'self' https://wsadhewcmpdhojgqzstw.supabase.co https://script.google.com https://script.googleusercontent.com https://open.er-api.com https://api.country.is https://get.geojs.io https://api.postalpincode.in https://api.zippopotam.us "+PAYPAL+' '+RAZORPAY,
-    "frame-src "+PAYPAL+' '+RAZORPAY,
+    "connect-src 'self' https://wsadhewcmpdhojgqzstw.supabase.co https://script.google.com https://script.googleusercontent.com https://open.er-api.com https://api.country.is https://get.geojs.io https://api.postalpincode.in https://api.zippopotam.us https://translate.googleapis.com https://translate-pa.googleapis.com "+PAYPAL+' '+RAZORPAY,
+    "frame-src "+PAYPAL+' '+RAZORPAY+' https://translate.google.com',
     "media-src 'self' blob:","worker-src 'self' blob:","manifest-src 'self'",
     "object-src 'none'","base-uri 'self'","form-action 'self'",
   ].join('; ');

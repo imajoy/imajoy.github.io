@@ -1,0 +1,30 @@
+/* Trial banner (download page + tool pages): dark card, copy and button left, ticket art right. */
+.offer-download,.tool-trial{--ob-gold:#F2B64F;position:relative;isolation:isolate;overflow:hidden;display:grid!important;grid-template-columns:minmax(0,1fr) minmax(220px,36%);align-items:center;gap:6px clamp(20px,4vw,56px);padding:clamp(24px,3vw,40px)!important;margin:clamp(28px,4vw,48px) 0 0;border:1px solid rgba(255,255,255,.1)!important;border-radius:26px!important;color:#F1F2F4;background:radial-gradient(60% 120% at 100% 100%,rgba(122,92,255,.30),transparent 62%),radial-gradient(50% 90% at 0 0,rgba(242,182,79,.10),transparent 60%),#121114!important;box-shadow:0 30px 70px -40px rgba(0,0,0,.7)}
+.offer-download .offer-stamp,.tool-trial .tool-trial-mark{display:none!important}
+.offer-download>div,.tool-trial>div:not(.tool-trial-mark):not(.tool-trial-action){grid-column:1;min-width:0}
+.tool-trial .tool-trial-action{grid-column:1;margin-top:6px}
+.offer-download h2,.tool-trial h2{color:#fff!important;font-size:clamp(24px,2.8vw,36px)!important;letter-spacing:-.04em!important;line-height:1.1!important;margin:0 0 10px!important}
+.offer-download p,.tool-trial p,.tool-trial small{color:#B5B7C0!important}
+.offer-download .offer-eyebrow,.tool-trial .trial-label{color:var(--ob-gold)!important;font:600 11px/1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.16em}
+.offer-download p.offer-fine,.tool-trial>div>small{display:block;color:#8D8F99!important;font-size:12px!important;line-height:1.6;margin-top:14px;max-width:62ch}
+.offer-download .offer-action,.tool-trial .btn{background:#fff!important;color:#111!important;border:0!important;border-radius:999px;padding:13px 22px;font-weight:700;box-shadow:none;transition:transform .5s cubic-bezier(.22,1,.36,1),box-shadow .5s}
+.offer-download .offer-action:hover,.tool-trial .btn:hover{transform:translate3d(0,-2px,0);box-shadow:0 14px 30px -14px rgba(242,182,79,.7)}
+/* art: a tilted trial pass with a gold seal */
+.offer-download::after,.tool-trial::after{content:"TRIAL PASS\A\A 4 DAYS\A FREE";white-space:pre;position:absolute;z-index:-1;right:clamp(28px,5vw,72px);top:50%;width:clamp(190px,26%,300px);aspect-ratio:1.55;padding:18px 20px;border-radius:20px;color:#fff;font:600 11px/1.1 ui-monospace,Menlo,Consolas,monospace;letter-spacing:.16em;background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.2);box-shadow:0 30px 60px -30px rgba(0,0,0,.8),inset 0 1px 0 rgba(255,255,255,.18);transform:translate3d(0,-50%,0) rotate(-6deg);animation:ob-float 7s cubic-bezier(.45,0,.55,1) infinite}
+.offer-download::before,.tool-trial::before{content:"FREE";position:absolute;z-index:-1;right:clamp(12px,2.6vw,40px);top:clamp(14px,18%,40px);width:64px;height:64px;display:grid;place-items:center;border-radius:50%;background:var(--ob-gold);color:#1A1204;font:800 13px/1 Inter,system-ui,sans-serif;letter-spacing:.04em;transform:rotate(12deg);box-shadow:0 10px 24px -8px rgba(242,182,79,.7);animation:ob-float 6s cubic-bezier(.45,0,.55,1) -2s infinite}
+@keyframes ob-float{50%{translate:0 -8px}}
+@media(max-width:820px){.offer-download,.tool-trial{grid-template-columns:1fr}.offer-download::after,.offer-download::before,.tool-trial::after,.tool-trial::before{display:none}}
+@media(prefers-reduced-motion:reduce){.offer-download::after,.offer-download::before,.tool-trial::after,.tool-trial::before{animation:none}}
+.offer-download::before,.tool-trial::before{z-index:1}
+.offer-download::after,.tool-trial::after{font-size:13px}
+.tool-trial>div:not(.tool-trial-action):not(.tool-trial-mark){display:contents}
+.tool-trial>div:not(.tool-trial-action)>*{grid-column:1}
+.tool-trial>div:not(.tool-trial-action)>small{order:3}
+.tool-trial .tool-trial-action{order:2}
+.tool-trial>div>.trial-label{order:-1}
+.tool-trial{display:flex!important;flex-direction:column;align-items:flex-start}
+.tool-trial>*{max-width:min(100%,62ch)}
+.tool-trial::after,.tool-trial::before{position:absolute}
+.tool-trial h2,.tool-trial .trial-label,.tool-trial p{order:0}
+@media(min-width:821px){.tool-trial{padding-right:calc(36% + 40px)!important}}
+html body :is(.offer-download,.tool-trial)::before{content:"FREE"!important;inset:clamp(14px,3vw,36px) clamp(14px,3vw,44px) auto auto!important;width:68px;height:68px;border-radius:50%!important;background:#F2B64F!important;opacity:1!important;z-index:1!important;pointer-events:none}

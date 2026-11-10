@@ -62,7 +62,7 @@ if(form){
  form.addEventListener('blur',event=>{if(event.target.matches('input,textarea,select'))syncValidity(event.target);},true);
  form.addEventListener('input',event=>{
   if(event.target.validity?.valid)event.target.removeAttribute('aria-invalid');updateDraft();
-  if(event.target.matches('input:not([type]),input[type=text],input[type=email],textarea')&&!busy){
+  if(event.target.matches('textarea')&&!busy){
    art.setAttribute('data-typing','');form.setAttribute('data-typing','');setArt('draft','Your message is taking shape.');clearTimeout(typingTimer);
    typingTimer=setTimeout(()=>{art.removeAttribute('data-typing');form.removeAttribute('data-typing');if(!busy)setArt('draft','Ready whenever you are.');},1000);
   }

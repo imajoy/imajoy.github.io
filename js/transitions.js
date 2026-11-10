@@ -20,6 +20,11 @@
     var xy = null; try { xy = sessionStorage.getItem(K); } catch (x) {}
     var p = (xy || '').split(',');
     if (p.length === 2) { root.style.setProperty('--vx', p[0] + 'px'); root.style.setProperty('--vy', p[1] + 'px'); }
+    /* the shot-frame the new page opens from: a small 16:9 window centred on the click, kept inside the screen */
+    var W = innerWidth, H = innerHeight, fw = Math.max(120, W * .22), fh = fw * 9 / 16;
+    var cx = Math.min(W - fw / 2 - 12, Math.max(fw / 2 + 12, p.length === 2 ? +p[0] : W / 2)), cy = Math.min(H - fh / 2 - 12, Math.max(fh / 2 + 12, p.length === 2 ? +p[1] : H / 2));
+    root.style.setProperty('--ft', Math.round(cy - fh / 2) + 'px'); root.style.setProperty('--fb', Math.round(H - cy - fh / 2) + 'px');
+    root.style.setProperty('--fl', Math.round(cx - fw / 2) + 'px'); root.style.setProperty('--fr', Math.round(W - cx - fw / 2) + 'px');
     var nav = window.navigation && navigation.activation;
     if (nav && nav.navigationType === 'traverse') root.dataset.vt = 'back';
     e.viewTransition.finished.finally(function () { delete root.dataset.vt; });

@@ -14,11 +14,14 @@
  html[data-vt=back]::view-transition-new(root){animation-name:vt-toward-b;z-index:1}
  ::view-transition-group(pillbar){animation-duration:.4s}
  ::view-transition-old(pillbar),::view-transition-new(pillbar){animation-duration:.4s;mix-blend-mode:normal}
- /* the old page swings back into depth, the new one swings in from the side like a turning page */
- @keyframes vt-away{to{opacity:0;transform:translate3d(0,-22px,0) scale(.994)}}
- @keyframes vt-toward{from{opacity:0;transform:translate3d(0,38px,0) scale(.988)}}
- @keyframes vt-away-b{to{opacity:0;transform:translate3d(0,22px,0) scale(.994)}}
- @keyframes vt-toward-b{from{opacity:0;transform:translate3d(0,-38px,0) scale(.988)}}
+ /* "Frame open": the next page opens out of a small rounded shot-frame at the spot you clicked, while the page you leave
+    sinks back and dims like the previous shot. Going Back plays it in reverse: the page you leave closes into a frame. */
+ ::view-transition-old(root){animation-duration:.6s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
+ ::view-transition-new(root){animation-delay:0s;animation-duration:.78s;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+ @keyframes vt-away{to{transform:scale(.94);filter:brightness(.45) saturate(.7)}}
+ @keyframes vt-toward{from{clip-path:inset(var(--ft,38%) var(--fr,36%) var(--fb,38%) var(--fl,36%) round 28px);filter:brightness(1.25)}60%{filter:none}to{clip-path:inset(0 0 0 0 round 0)}}
+ @keyframes vt-away-b{from{clip-path:inset(0 0 0 0 round 0)}to{clip-path:inset(42% 40% 42% 40% round 28px);opacity:0}}
+ @keyframes vt-toward-b{from{transform:scale(.94);filter:brightness(.45) saturate(.7)}}
 }
 /* Content on plain pages rises in, one block after another, as the circle opens. */
 @media (prefers-reduced-motion:no-preference){

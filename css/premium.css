@@ -1,0 +1,30 @@
+/* Premium layer, loaded last on every page.
+   1) Dark mode: clearer surfaces, borders and secondary text.  2) Ambient light that follows the pointer.  3) Small finish details. */
+
+/* ---- 1. dark mode visibility ---- */
+html[data-theme=dark]{--line:#2A3352;--mute:#A8B2CD;--card:#131A33;--card2:#1B2546;--doc:#C3CCE4;--t62:rgba(238,242,255,.74)}
+html[data-theme=dark] body.pro-page{--line:#262E44;--mute:#A6AFC6;--card:#10151F;--card2:#181E2E;--panel-mute:#B4BEDB;--panel-line:rgba(255,255,255,.14)}
+/* cards read as raised surfaces: a faint top edge of light and a deeper drop shadow */
+html[data-theme=dark] :where(.bc-card,.ty-pass,.ty-first,.ty-explore-grid a,.order-summary,.checkout-form fieldset,.sc-acc,.qp-sum,.block,.price-card,.faq details,.h6-plan,.h6-card,.tool-card,.card){
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 18px 44px -28px rgba(0,0,0,.85)}
+/* form controls: visible edges and readable placeholders */
+html[data-theme=dark] :where(input,textarea,select):not([type=checkbox]):not([type=radio]):not([type=range]){border-color:#33405F}
+html[data-theme=dark] ::placeholder{color:#7F8BAA;opacity:1}
+html[data-theme=dark] :where(a.text-link,.text-link){color:#8DBBFF}
+html[data-theme=dark] :focus-visible{outline-color:#8DBBFF}
+html[data-theme=dark] ::selection{background:rgba(111,168,255,.38);color:#fff}
+html[data-theme=light] ::selection,html:not([data-theme=dark]) ::selection{background:rgba(42,100,232,.2)}
+/* thin, themed scrollbars */
+html{scrollbar-color:color-mix(in srgb,var(--mute) 55%,transparent) transparent;scrollbar-width:thin}
+
+/* ---- 2. ambient pointer light (mouse only, added by js/premium.js) ---- */
+.px-light{position:fixed;left:0;top:0;width:620px;height:620px;margin:-310px 0 0 -310px;border-radius:50%;pointer-events:none;z-index:-1;opacity:0;
+ background:radial-gradient(closest-side,rgba(90,150,255,.13),rgba(120,110,255,.06) 45%,transparent 72%);transition:opacity .6s ease;will-change:transform;contain:strict}
+html[data-theme=dark] .px-light.on{opacity:1}
+html:not([data-theme=dark]) .px-light{background:radial-gradient(closest-side,rgba(61,139,255,.10),rgba(61,139,255,.04) 45%,transparent 72%)}
+html:not([data-theme=dark]) .px-light.on{opacity:.9}
+@media(prefers-reduced-motion:reduce),(hover:none){.px-light{display:none}}
+
+/* ---- 3. finish ---- */
+:where(h1,h2,h3){text-wrap:balance}:where(p,li){text-wrap:pretty}
+:where(.btn):active{scale:.97}

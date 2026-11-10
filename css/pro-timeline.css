@@ -62,6 +62,6 @@ body.pro-page .hero .hv-grid{background:none!important;overflow:hidden;perspecti
  -webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.5) 26%,#000 62%);mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.5) 26%,#000 62%)}
 body.pro-page .hero .hv-grid::after{content:"";position:absolute;left:-45%;right:-45%;top:0;height:260%;transform-origin:50% 0;transform:rotateX(72deg);backface-visibility:hidden;
  background:repeating-linear-gradient(90deg,var(--fl,rgba(160,172,205,.2)) 0 1px,transparent 1px 46px),repeating-linear-gradient(0deg,var(--fl,rgba(160,172,205,.2)) 0 1px,transparent 1px 46px)}
-html:not([data-theme=dark]) body.pro-page .hero .hv-grid{--fl:rgba(52,84,170,.2)}
+html:not([data-theme=dark]) body.pro-page .hero .hv-grid{--fl:rgba(52,84,170,.11)}
 html:not([data-theme=dark]) .ptl-curve-on path{stroke:var(--g)}
 html:not([data-theme=dark]) .ptl-key.on b{background:var(--g);border-color:#141824}

@@ -31,6 +31,8 @@ if(form&&paypal&&url){
  const status=panel.querySelector('.razorpay-status'),start=panel.querySelector('[data-razorpay-start]'),check=panel.querySelector('[data-razorpay-check]'),link=panel.querySelector('[data-razorpay-open]'),cancelBtn=panel.querySelector('[data-razorpay-cancel]');
  const pageCoupon={input:document.querySelector('#coupon-code'),remove:document.querySelector('#coupon-remove'),status:document.querySelector('#coupon-status')};
  let userPicked=false,prefApplied=false;const savedPref=()=>'';
+ /* Quick checkout: the customer already pressed Complete payment on the billing page, so open the Razorpay window as soon as the price is confirmed (never for a free trial). */
+ let quickStart=false;try{const q=JSON.parse(sessionStorage.getItem('ajoy.quickpay')||'null');sessionStorage.removeItem('ajoy.quickpay');quickStart=paymentStep&&!!q&&q.provider==='razorpay'&&q.email===getAccountSession()?.email&&Date.now()-q.at<120000;}catch{}
  let config=null,paypalConfig=null,provider='review',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
  document.documentElement.dataset.paymentProvider='review';paypal.hidden=true;
  document.querySelector('#customer-verification').hidden=true;document.querySelector('.coupon-panel').hidden=true;
@@ -202,6 +204,7 @@ if(form&&paypal&&url){
   if(!ownsPending){check.hidden=true;link.hidden=true;}
   cancelBtn.hidden=check.hidden||busy;
   if(!session)start.disabled=false;
+  if(quickStart&&provider==='razorpay'&&quote&&!trialing&&!quote.freePeriod&&!start.disabled&&!busy&&!creating&&session){quickStart=false;setTimeout(()=>{if(!start.disabled&&!busy)start.click();},300);}
   const shownQuote=quote||(provider==='razorpay'&&Number.isInteger(choice().seats)&&choice().seats>0&&/^[A-Z]{2}$/.test(choice().country)?razorpayEstimate(choice().plan,choice().billing,choice().seats,choice().country,rzpCurrency()):null);
   const amount=shownQuote?money(shownQuote.total):'—';showAmount('summary-total',shownQuote?(trialing?0:shownQuote.total):null);loyaltyNote(deal);
   const summary=document.querySelector('.order-total');summary?.classList.toggle('is-trial',trialing);

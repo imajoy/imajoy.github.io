@@ -58,7 +58,7 @@
     var a = e.target.closest && e.target.closest('a[href]');
     if (!a || e.defaultPrevented || e.button || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || a.target || a.hasAttribute('download')) return;
     var u; try { u = new URL(a.href, location.href); } catch (x) { return; }
-    if (u.origin !== location.origin || (u.pathname === location.pathname && u.search === location.search) || !/\.html$|\/$/.test(u.pathname)) return;
+    if (u.origin !== location.origin || (u.pathname.replace(/\.html$/,'').replace(/\/index$/,'/') === location.pathname.replace(/\.html$/,'').replace(/\/index$/,'/') && u.search === location.search) || /\.[a-z0-9]{2,5}$/i.test(u.pathname)&&!/\.html$/.test(u.pathname)) return;
     e.preventDefault(); root.classList.add('vt-leave');
     setTimeout(function () { location.href = u.href; }, 250);
   });

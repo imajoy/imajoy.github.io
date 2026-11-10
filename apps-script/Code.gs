@@ -434,7 +434,35 @@ function registerAccount_(email) {
   if (!sheet) { sheet = ss.insertSheet('Accounts'); sheet.appendRow(['Email', 'Verified at', 'Account ID']); sheet.setFrozenRows(1); }
   var rows = sheet.getLastRow() > 1 ? sheet.getRange(2, 1, sheet.getLastRow() - 1, 3).getValues() : [];
   var existing = rows.filter(function(r) { return sheetEmail_(r[0]) === email && !!r[1]; })[0];
-  if (!existing) sheet.appendRow([email, new Date(), Utilities.getUuid()].map(safeSheetCell_));
+  if (!existing) { sheet.appendRow([email, new Date(), Utilities.getUuid()].map(safeSheetCell_)); return true; }
+  return false;
+}
+/* Sent once, the first time an address is verified (never on later sign-ins). A failure here must never block the sign-in. */
+function welcomeEmailHtml_(support) {
+  var site = 'https://wrapline.in';
+  return '<div style="background:#ffffff;margin:0;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#14182a">' +
+    '<div style="max-width:560px;margin:0 auto">' +
+    '<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px"><tr>' +
+      '<td style="width:34px;height:34px;background:#2a64e8;border-radius:9px;color:#ffffff;font-weight:700;font-size:19px;text-align:center;line-height:34px">W</td>' +
+      '<td style="padding-left:11px;font-size:19px;font-weight:700;letter-spacing:.2px;color:#14182a">WRAPLINE</td></tr></table>' +
+    '<h1 style="font-size:28px;line-height:1.2;margin:0 0 16px;font-weight:700;color:#14182a">Thanks for registering.</h1>' +
+    '<p style="font-size:16px;line-height:1.6;margin:0 0 22px;color:#2b3149">Your Wrapline account is ready. You can sign in any time with just your email and a one-time code. There is no password to remember.</p>' +
+    '<div style="background:#f3f4f8;border-radius:14px;padding:18px 20px;font-size:15px;line-height:1.6;color:#2b3149;margin:0 0 26px">' +
+      '<b>Where to start</b><br>' +
+      '<a href="' + site + '/wrapline-free" style="color:#2a64e8">Download Wrapline Free</a> for everyday Maya tools.<br>' +
+      '<a href="' + site + '/wrapline" style="color:#2a64e8">See Wrapline Pro</a> for the full pipeline kit, with a free trial.</div>' +
+    '<p style="font-size:15px;line-height:1.6;margin:0 0 28px;color:#2b3149">Questions? Write to <a href="mailto:' + support + '" style="color:#2a64e8">' + support + '</a> and a real person will answer.</p>' +
+    '<div style="border-top:1px solid #e3e6ef;padding-top:20px;font-size:12px;line-height:1.6;color:#8a91a8">' +
+      'You received this once because you registered at wrapline.in. This is an automatic message; please do not reply to it.<br><br>' +
+      '&copy; ' + new Date().getFullYear() + ' AJOY &middot; Wrapline for Maya</div>' +
+    '</div></div>';
+}
+function sendWelcome_(email) {
+  try {
+    sendNoReply_({ to: email, name: 'Wrapline (no-reply)', subject: 'Welcome to Wrapline',
+      htmlBody: welcomeEmailHtml_(replyTo_()),
+      body: 'Thanks for registering. Your Wrapline account is ready. Sign in any time with your email and a one-time code.\n\nWrapline Free: https://wrapline.in/wrapline-free\nWrapline Pro: https://wrapline.in/wrapline\n\nQuestions? Write to ' + replyTo_() + '.\n\nThis is an automatic message from Wrapline. Please do not reply to it.' });
+  } catch (err) { /* the sign-in must still succeed */ }
 }
 function handleAccount_(d) {
   var email = clip_(d.email, 120).trim().toLowerCase();
@@ -509,7 +537,8 @@ function handleAccount_(d) {
     var intent = cache.get('intent:' + email);
     cache.remove('code:' + email); cache.remove('intent:' + email);
     if (!registeredEmail_(email) && intent !== 'register') return { ok: false, error: 'not_registered' };
-    registerAccount_(email);
+    var firstTime = registerAccount_(email);
+    if (firstTime) sendWelcome_(email);
     var token = makeSession_(email), identity = readSession_(token), flags2 = yearlyUsedFlags_(email);
     return { ok: true, email: email, token: token, expiresAt: identity.expiresAt, subscriptions: null, premiumYearlyUsed: flags2.offline, yearlyOfferUsed: flags2 };
   } finally { lock.releaseLock(); }

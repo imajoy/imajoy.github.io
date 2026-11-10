@@ -14,9 +14,12 @@ var ORDERS_SHEET = 'Orders';
 /* Optional Script properties: OWNER_EMAIL = where YOUR order reminders go (default: the Google account that owns this script);
    REPLY_TO = the address buyers see and can reply to (default: OWNER_EMAIL, or the script owner's account). */
 function ownerEmail_() { return props_().getProperty('OWNER_EMAIL') || Session.getEffectiveUser().getEmail(); }
-/* Automatic emails nobody should answer (sign-in codes). Google only lets Workspace accounts send from a real no-reply
-   address; on a normal Gmail account the option is ignored, so the sender name and the text say it is automatic. */
+/* Automatic emails nobody should answer (sign-in codes, welcome). They are sent the normal way from the account's own address:
+   Gmail rejected the special Workspace "no-reply" sending mode on a new domain, so it is OFF unless the script property
+   REAL_NOREPLY is set to true. The sender name and the text still say the message is automatic. */
 function sendNoReply_(message) {
+  var real = String(props_().getProperty('REAL_NOREPLY') || '').toLowerCase() === 'true';
+  if (!real) { MailApp.sendEmail(message); return; }
   try { MailApp.sendEmail(Object.assign({ noReply: true }, message)); }
   catch (err) { MailApp.sendEmail(message); }
 }

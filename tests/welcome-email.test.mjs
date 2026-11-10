@@ -21,3 +21,11 @@ test('A failing welcome email never blocks the sign-in',()=>{
  try{assert.equal(app.call({step:'verify',email:'new@gmail.com',code}).ok,true);}finally{globalThis.__mailDown=false;}
  assert.equal(app.mails.filter(m=>/Welcome/.test(m.subject)).length,0);
 });
+test('Code and welcome emails are sent the normal way unless REAL_NOREPLY is on',()=>{
+ const app=service({registered:false});
+ app.call({step:'code',email:'new@gmail.com',intent:'register'});
+ assert.equal(app.mails.at(-1).noReply,undefined);
+ app.values.set('REAL_NOREPLY','true');app.cache.delete('sends:new@gmail.com');
+ app.call({step:'code',email:'new@gmail.com',intent:'register'});
+ assert.equal(app.mails.at(-1).noReply,true);
+});

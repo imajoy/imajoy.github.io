@@ -1,0 +1,85 @@
+/* Wrapline Pro v3: studio layout. Final layer; transform/opacity only. */
+body.pro-page{--e3:cubic-bezier(.22,1,.36,1);--mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace}
+/* section index */
+body.pro-page .p3-lab{display:flex;align-items:center;gap:14px;margin:0 0 clamp(26px,4vw,52px);font:600 11.5px/1 var(--mono);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
+body.pro-page .p3-lab b{color:var(--gold,#F2B64F);font-weight:700}
+body.pro-page .p3-lab i{flex:1;height:1px;background:linear-gradient(90deg,var(--line),transparent)}
+html:not([data-theme=dark]) body.pro-page .p3-lab b{color:#B27712}
+/* tool-name band */
+body.pro-page .p3-band{overflow:hidden;padding:clamp(20px,4vw,44px) 0;border-block:1px solid var(--line);background:var(--bg)}
+body.pro-page .p3-track{display:flex;align-items:center;width:max-content;gap:clamp(22px,3vw,44px);animation:p3-run 70s linear infinite;will-change:transform}
+body.pro-page .p3-track span{font:800 clamp(52px,9.5vw,150px)/1 "Inter Tight",Inter,system-ui,sans-serif;letter-spacing:-.045em;text-transform:uppercase;white-space:nowrap;color:var(--ink)}
+body.pro-page .p3-track span.o{color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb,var(--ink) 55%,transparent)}
+body.pro-page .p3-track em{width:clamp(10px,1.4vw,18px);aspect-ratio:1;border-radius:50%;background:var(--gold,#F2B64F);flex:none}
+@keyframes p3-run{to{transform:translate3d(-50%,0,0)}}
+/* workflows: stacked sheets */
+@media(min-width:981px){
+ body.pro-page #workflows .workflow-panel{position:sticky;top:calc(92px + var(--sk,0)*18px);margin-bottom:clamp(40px,8vh,90px);transform-origin:50% 0;box-shadow:0 -24px 60px -34px rgba(0,0,0,.55),0 1px 0 var(--line)}
+ body.pro-page #workflows .workflow-panel:nth-of-type(1){--sk:0}
+ body.pro-page #workflows .workflow-panel:nth-of-type(2){--sk:1}
+ body.pro-page #workflows .workflow-panel:nth-of-type(3){--sk:2}
+ body.pro-page #workflows .workflow-panel:nth-of-type(4){--sk:3}
+ body.pro-page #workflows .workflow-panel{animation:none!important;animation-timeline:auto!important}
+ body.pro-page #workflows .workflow-copy h3{font-size:clamp(30px,3.4vw,48px);letter-spacing:-.035em;line-height:1.02}
+}
+html:not([data-theme=dark]) body.pro-page #workflows .workflow-panel{background:#fff}
+/* tools: studio bento */
+body.pro-page #tools .bento-pro{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(12px,1.4vw,20px);perspective:none!important}
+body.pro-page #tools .tile{--th:212;position:relative;overflow:hidden;isolation:isolate;border-radius:26px;padding:clamp(24px,3vw,40px);border:1px solid var(--line);background:var(--card);animation:none!important;transition:border-color .5s var(--e3),transform .7s var(--e3)}
+body.pro-page #tools .t-export{grid-column:span 7;grid-row:span 2}
+body.pro-page #tools .t-anim{grid-column:span 5}
+body.pro-page #tools .t-rig{grid-column:span 5}
+body.pro-page #tools .t-scene{grid-column:span 12}
+body.pro-page #tools .t-scene .tl{display:grid;grid-template-columns:repeat(3,1fr);gap:0 clamp(16px,2vw,32px)}
+body.pro-page #tools .tile::before{content:"";position:absolute;z-index:-1;inset:auto -10% -45% -10%;height:80%;background:radial-gradient(60% 70% at 30% 100%,hsl(var(--th) 80% 55%/.20),transparent 70%);opacity:.8;transition:opacity .6s var(--e3),transform .9s var(--e3)}
+body.pro-page #tools .tile::after{content:attr(data-n);display:block!important;position:absolute;z-index:-1;right:clamp(14px,2vw,28px);top:clamp(2px,1vw,12px);font:800 clamp(88px,11vw,170px)/1 "Inter Tight",Inter,system-ui,sans-serif;letter-spacing:-.06em;color:transparent;-webkit-text-stroke:1px color-mix(in srgb,var(--ink) 16%,transparent);pointer-events:none;transition:transform .9s var(--e3),-webkit-text-stroke-color .5s}
+body.pro-page #tools .tile:hover{border-color:hsl(var(--th) 70% 58%/.55)!important}
+body.pro-page #tools .tile:hover::before{opacity:1;transform:translate3d(0,-6%,0) scale(1.08)}
+body.pro-page #tools .tile:hover::after{transform:translate3d(0,6px,0);-webkit-text-stroke-color:hsl(var(--th) 80% 62%/.7)}
+body.pro-page #tools .tile h3{display:inline-flex;align-items:center;gap:10px;margin:0 0 8px;font-size:clamp(26px,3vw,40px);letter-spacing:-.04em}
+body.pro-page #tools .tile h3::before{content:"";width:9px;height:9px;border-radius:50%;background:hsl(var(--th) 85% 60%);box-shadow:0 0 0 5px hsl(var(--th) 85% 60%/.18)}
+body.pro-page #tools .t-sub{max-width:34ch;margin:0 0 clamp(18px,2.4vw,30px)}
+/* outliner rows */
+body.pro-page #tools .tl{list-style:none;margin:0;padding:0}
+body.pro-page #tools .tl li{position:relative;display:flex;align-items:flex-start;gap:14px;padding:14px 12px 14px 4px;margin:0 -4px;border-top:1px solid var(--line);border-radius:10px;cursor:pointer;transition:background .35s var(--e3),transform .5s var(--e3)}
+body.pro-page #tools .tl li:hover{background:hsl(var(--th) 80% 60%/.09);transform:translate3d(6px,0,0)}
+body.pro-page #tools .tl .ic{flex:none;width:40px;height:40px;border-radius:11px;display:grid;place-items:center;background:hsl(var(--th) 80% 60%/.14);color:hsl(var(--th) 85% 66%);border:1px solid hsl(var(--th) 80% 60%/.28)}
+html:not([data-theme=dark]) body.pro-page #tools .tl .ic{color:hsl(var(--th) 70% 36%)}
+body.pro-page #tools .tl .ic svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+body.pro-page #tools .tl b{display:block;font-size:1.02rem;letter-spacing:-.01em}
+body.pro-page #tools .tl b a{color:inherit;text-decoration:none}
+body.pro-page #tools .tl span:not(.ic){display:block;margin-top:3px;font-size:.88rem;line-height:1.45}
+body.pro-page #tools .tl li::after{content:"↗";margin-left:auto;font:600 15px/1 var(--mono);color:var(--mute);opacity:0;transform:translate3d(-6px,6px,0);transition:opacity .35s,transform .5s var(--e3)}
+body.pro-page #tools .tl li:hover::after{opacity:1;transform:none;color:hsl(var(--th) 85% 66%)}
+body.pro-page #tools .keycaps{margin-top:18px}
+@media(max-width:980px){
+ body.pro-page #tools .bento-pro{grid-template-columns:1fr}
+ body.pro-page #tools .tile{grid-column:auto!important;grid-row:auto!important}
+ body.pro-page #tools .t-scene .tl{grid-template-columns:1fr}
+}
+/* FAQ: numbered index */
+body.pro-page #faq{counter-reset:q}
+body.pro-page #faq details{counter-increment:q;position:relative;border:0;border-top:1px solid var(--line);border-radius:0;background:transparent;box-shadow:none;padding:0}
+body.pro-page #faq details:last-of-type{border-bottom:1px solid var(--line)}
+body.pro-page #faq summary{display:flex;align-items:center;gap:clamp(14px,2.4vw,32px);padding:clamp(18px,2.4vw,28px) 4px;font-size:clamp(18px,2.1vw,26px);letter-spacing:-.025em;font-weight:600;list-style:none;transition:padding .5s var(--e3),color .3s}
+body.pro-page #faq summary::-webkit-details-marker{display:none}
+body.pro-page #faq summary::before{content:counter(q,decimal-leading-zero);font:600 12px/1 var(--mono);letter-spacing:.12em;color:var(--gold,#F2B64F);min-width:2.2em}
+body.pro-page #faq summary:hover{padding-left:14px}
+body.pro-page #faq details[open] summary{color:var(--gold,#F2B64F)}
+html:not([data-theme=dark]) body.pro-page #faq details[open] summary,html:not([data-theme=dark]) body.pro-page #faq summary::before{color:#B27712}
+/* plans */
+body.pro-page #pricing .plan{border-radius:26px}
+body.pro-page #pricing .plan.plan-lead{position:relative;overflow:hidden}
+body.pro-page #pricing .plan.plan-lead::before{content:"";position:absolute;inset:0;z-index:0;pointer-events:none;background:radial-gradient(70% 50% at 50% 0%,rgba(242,182,79,.16),transparent 70%)}
+body.pro-page #pricing .plan.plan-lead>*{position:relative}
+/* closing */
+body.pro-page .closing h2{font-size:clamp(44px,8.5vw,128px)!important;letter-spacing:-.055em!important;line-height:.95!important}
+@media(prefers-reduced-motion:reduce){body.pro-page .p3-track{animation:none}}
+body.pro-page #tools .head.center,body.pro-page #pricing .head.center{text-align:left;margin-inline:0;max-width:none}
+body.pro-page #tools .head.center .sub,body.pro-page #pricing .head.center .sub{margin-inline:0;max-width:62ch}
+body.pro-page #tools .head h2,body.pro-page #pricing .head h2{font-size:clamp(40px,6.4vw,96px);letter-spacing:-.05em;line-height:.98}
+body.pro-page #tools .t-export .tl{display:block}
+body.pro-page #tools .t-export .tl li:first-child,body.pro-page #tools .t-anim .tl li:first-child{border-top:0}
+body.pro-page #faq .p3-lab{grid-column:1/-1;width:100%}
+body.pro-page #faq summary{text-align:left;justify-content:flex-start;font-size:clamp(17px,1.7vw,22px)}
+body.pro-page #faq summary::after{margin-left:auto;flex:none}

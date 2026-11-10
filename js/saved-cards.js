@@ -80,6 +80,7 @@ function openDlg(){
   say(dmsg,'');say($('#sc-umsg'),'');say($('#sc-pmsg'),'');go.disabled=false;go.textContent='Submit Payment';$('#sc-ugo').textContent='Continue';syncUpi();
   $$('.sc-acc',dlg).forEach(a=>{a.dataset.open='false';$('.sc-acc-h',a).setAttribute('aria-expanded','false');});
   if(!dlg.open)dlg.showModal();
+  initPaypal();
 }
 function closeDlg(){
   if(!dlg.open||dlg.classList.contains('sc-out'))return;
@@ -120,16 +121,25 @@ $('#sc-ugo').addEventListener('click',()=>{
   runCheck('upi',$('#sc-ugo'),$('#sc-umsg'),'Continue',digits);
 });
 /* ---- PayPal: PayPal's own button approves saving the account; only a PayPal token is kept ---- */
-let ppState='';
+let ppState='',ppReady=null;
+/* Everything slow about PayPal (its token, its script) loads in the background as soon as the page opens, so the button is ready when the window is. */
+function preloadPaypal(){
+  if(ppReady||!getAccountSession())return ppReady;
+  ppReady=(async()=>{
+    const init=await call('paypal-init');
+    if(!/^[A-Za-z0-9_-]{20,120}$/.test(init.clientId||''))throw Object.assign(new Error('Saving PayPal is not available yet.'),{code:'off'});
+    if(!window.paypal){await new Promise((res,rej)=>{const t=document.createElement('script');t.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(init.clientId)+'&components=buttons&currency=USD';if(init.idToken&&/^[\w.-]+$/.test(init.idToken))t.dataset.userIdToken=init.idToken;t.onload=res;t.onerror=()=>rej(new Error('PayPal could not load. Check your connection and try again.'));document.head.append(t);});}
+    if(!window.paypal?.Buttons)throw new Error('PayPal could not load.');
+  })();
+  ppReady.catch(()=>{ppReady=null;});
+  return ppReady;
+}
 async function initPaypal(){
   const box=$('#sc-pp-btn'),load=$('#sc-pp-load'),pm=$('#sc-pmsg');
   if(ppState==='ready'||ppState==='loading'||!getAccountSession())return;
   ppState='loading';load.hidden=false;say(pm,'');
   try{
-    const init=await call('paypal-init');
-    if(!/^[A-Za-z0-9_-]{20,120}$/.test(init.clientId||''))throw Object.assign(new Error('Saving PayPal is not available yet.'),{code:'off'});
-    if(!window.paypal){await new Promise((res,rej)=>{const t=document.createElement('script');t.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(init.clientId)+'&components=buttons&currency=USD';if(init.idToken&&/^[\w.-]+$/.test(init.idToken))t.dataset.userIdToken=init.idToken;t.onload=res;t.onerror=()=>rej(new Error('PayPal could not load. Check your connection and try again.'));document.head.append(t);});}
-    if(!window.paypal?.Buttons)throw new Error('PayPal could not load.');
+    await preloadPaypal();
     await window.paypal.Buttons({style:{shape:'pill',color:'gold',label:'paypal',height:44,layout:'horizontal',tagline:false},
       createVaultSetupToken:async()=>(await call('paypal-setup')).setupTokenId,
       onApprove:async({vaultSetupToken})=>{say(pm,'Saving your PayPal account…');
@@ -140,5 +150,8 @@ async function initPaypal(){
     load.hidden=true;ppState='ready';
   }catch(e){ppState='';load.hidden=true;say(pm,e.code==='off'?'Saving PayPal is not available yet.':e.message,'error');}
 }
-onAccountChange(()=>{cards=null;refresh();});
+/* warm everything up once the page is idle: PayPal, Razorpay's window script, and the saved list */
+function warm(){if(!getAccountSession())return;preloadPaypal()?.catch(()=>{});loadCheckout().catch(()=>{});}
+(window.requestIdleCallback||(f=>setTimeout(f,600)))(()=>{warm();});
+onAccountChange(()=>{cards=null;ppReady=null;ppState='';refresh();warm();});
 refresh();

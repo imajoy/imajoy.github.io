@@ -9,7 +9,7 @@ export async function keyedHash(secret,text){
  return [...new Uint8Array(await crypto.subtle.sign('HMAC',key,encoder.encode(text)))].map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 export async function handleCommerceRequest(req,env,request=fetch,networkOf=createBillingNetworkLookup(request,env)){
- const origin=req.headers.get('origin')||'',allowed=(env('ALLOWED_ORIGINS')||'https://imajoy.github.io').split(',').map(s=>s.trim());
+ const origin=req.headers.get('origin')||'',allowed=(env('ALLOWED_ORIGINS')|| 'https://wrapline.in,https://www.wrapline.in,https://imajoy.github.io').split(',').map(s=>s.trim());
  const cors={'Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin','Access-Control-Allow-Methods':'POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type'};
  if(allowed.includes(origin))cors['Access-Control-Allow-Origin']=origin;
  const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:cors});

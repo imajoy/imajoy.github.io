@@ -18,8 +18,8 @@ const LINK_SECONDS = 900;  // long enough for a slow download to resume after a 
 const MAX_FAILURES = 8;          // failed codes allowed per IP ...
 const WINDOW_MINUTES = 10;       // ... within this many minutes
 const SHEET_TIMEOUT_MS = 20000;  // how long to wait for the website's Sheet (Apps Script)
-const SITE = "https://imajoy.github.io/";
-const PRICING = "https://imajoy.github.io/wrapline.html#pricing";
+const SITE = "https://wrapline.in/";
+const PRICING = "https://wrapline.in/wrapline.html#pricing";
 
 const JSON_HEADERS = {
   "Content-Type": "application/json",

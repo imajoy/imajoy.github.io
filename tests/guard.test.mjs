@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {guard,assertConfig,configProblems,createLimiter,SECURITY_HEADERS} from '../supabase/functions/_shared/guard.js';
 import {COMMERCE_REQUIRED,COMMERCE_LIMITS,ORIGIN_LIST} from '../supabase/functions/_shared/policy.js';
-const req=(path='checkout',init={})=>new Request('https://x.test/functions/v1/commerce/'+path,{method:'POST',headers:{'cf-connecting-ip':'198.51.100.7',origin:'https://imajoy.github.io'},...init});
+const req=(path='checkout',init={})=>new Request('https://x.test/functions/v1/commerce/'+path,{method:'POST',headers:{'cf-connecting-ip':'198.51.100.7',origin:'https://wrapline.in'},...init});
 const json=(data,status=200)=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json'}});
 test('every response gets the security headers and a correlation id',async()=>{
   const g=guard(()=>json({ok:true}),{name:'t'});
@@ -17,10 +17,10 @@ test('client errors keep their message and gain a correlation id',async()=>{
 });
 test('crashes return a generic message with an id and log no message or stack',async()=>{
   const lines=[];
-  const r=await guard(()=>{throw new Error('SELECT * FROM licenses at /srv/app/db.js:12 secret=abc');},{name:'t',log:l=>lines.push(l),origins:()=>['https://imajoy.github.io']})(req());
+  const r=await guard(()=>{throw new Error('SELECT * FROM licenses at /srv/app/db.js:12 secret=abc');},{name:'t',log:l=>lines.push(l),origins:()=>['https://wrapline.in']})(req());
   const text=await r.text();assert.equal(r.status,500);
   assert.doesNotMatch(text,/SELECT|\/srv|secret|stack/i);assert.match(text,/correlationId/);
-  assert.equal(r.headers.get('access-control-allow-origin'),'https://imajoy.github.io');
+  assert.equal(r.headers.get('access-control-allow-origin'),'https://wrapline.in');
   assert.doesNotMatch(lines.join(),/SELECT|\/srv|secret/);assert.match(lines.join(),new RegExp(JSON.parse(text).correlationId));
 });
 test('5xx replies from handlers are logged by id only',async()=>{
@@ -32,7 +32,7 @@ test('rate limit: 10 checkouts per minute per address, then 429 with Retry-After
   let t=1000;const g=guard(()=>json({ok:true}),{name:'c',limits:COMMERCE_LIMITS,limiter:createLimiter(()=>t),origins:()=>ORIGIN_LIST(()=>'')});
   for(let i=0;i<10;i++)assert.equal((await g(req())).status,200);
   const blocked=await g(req());assert.equal(blocked.status,429);assert.ok(Number(blocked.headers.get('retry-after'))>=1);
-  assert.equal(blocked.headers.get('access-control-allow-origin'),'https://imajoy.github.io');
+  assert.equal(blocked.headers.get('access-control-allow-origin'),'https://wrapline.in');
   const other=await g(new Request('https://x.test/c/checkout',{method:'POST',headers:{'cf-connecting-ip':'198.51.100.8'}}));assert.equal(other.status,200);
   t+=61000;assert.equal((await g(req())).status,200);
 });

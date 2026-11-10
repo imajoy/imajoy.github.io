@@ -22,9 +22,9 @@ Social metadata currently uses a text summary; no new social preview image is in
 
 ## After GitHub Pages deploys
 
-1. Confirm `https://imajoy.github.io/robots.txt` and `https://imajoy.github.io/sitemap.xml` return the published files. Public pages must return 200, and real unknown paths should return 404.
-2. In Google Search Console, add/verify the URL-prefix property `https://imajoy.github.io/` using an ownership method available for your GitHub Pages account. Do not place private credentials in the repository. An HTML verification file or public verification meta token can be added when Search Console provides it.
-3. Submit `https://imajoy.github.io/sitemap.xml`. Use URL Inspection on the homepage and priority tool guides; request indexing where appropriate. A sitemap helps discovery but does not guarantee indexing or ranking.
+1. Confirm `https://wrapline.in/robots.txt` and `https://wrapline.in/sitemap.xml` return the published files. Public pages must return 200, and real unknown paths should return 404.
+2. In Google Search Console, add/verify the URL-prefix property `https://wrapline.in/` using an ownership method available for your GitHub Pages account. Do not place private credentials in the repository. An HTML verification file or public verification meta token can be added when Search Console provides it.
+3. Submit `https://wrapline.in/sitemap.xml`. Use URL Inspection on the homepage and priority tool guides; request indexing where appropriate. A sitemap helps discovery but does not guarantee indexing or ranking.
 4. Check the deployed homepage in Google's Rich Results Test and Schema.org Validator. Valid JSON-LD alone does not establish rich-result eligibility. Check real mobile performance with PageSpeed Insights and use Search Console field data when enough visits exist; do not infer a measured SEO/Core Web Vitals score from source inspection.
 5. Keep checkout and download routes out of the sitemap. Their HTML `noindex` tags remain readable because robots.txt does not disallow crawling them. Robots rules and noindex are not access controls; account and installer protection remains on the server.
 

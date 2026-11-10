@@ -5,7 +5,7 @@ const fail=(message,status=400)=>Object.assign(new Error(message),{status});
 export function createRazorpayHandler({env,request=fetch}){
  const networkOf=createBillingNetworkLookup(request,env);
  return async req=>{
-  const origin=req.headers.get('origin')||'',allowed=(env('ALLOWED_ORIGINS')||'https://imajoy.github.io').split(',').map(s=>s.trim());
+  const origin=req.headers.get('origin')||'',allowed=(env('ALLOWED_ORIGINS')|| 'https://wrapline.in,https://www.wrapline.in,https://imajoy.github.io').split(',').map(s=>s.trim());
   const headers={'Content-Type':'application/json','Cache-Control':'no-store','Vary':'Origin','Access-Control-Allow-Methods':'GET, POST, OPTIONS','Access-Control-Allow-Headers':'Content-Type'};
   if(allowed.includes(origin))headers['Access-Control-Allow-Origin']=origin;
   const json=(value,status=200)=>new Response(JSON.stringify(value),{status,headers});

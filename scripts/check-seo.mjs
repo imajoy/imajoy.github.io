@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import {readFileSync,readdirSync,existsSync} from 'node:fs';
 import {fileURLToPath} from 'node:url';
 import {resolve} from 'node:path';
-const root=fileURLToPath(new URL('../',import.meta.url)),base='https://imajoy.github.io/';
+const root=fileURLToPath(new URL('../',import.meta.url)),base='https://wrapline.in/';
 const read=path=>readFileSync(resolve(root,path),'utf8');
 const decode=text=>text.replace(/&amp;/g,'&').replace(/&quot;/g,'"').replace(/&#x27;|&#39;/g,"'").replace(/&lt;/g,'<').replace(/&gt;/g,'>');
 function tags(html,name){

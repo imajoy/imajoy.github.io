@@ -178,7 +178,7 @@ function razorpayNotify_(record){
   var trial=record.price.offer==='trial'&&!record.convertedAt;
   var text='Wrapline Pro '+planLabel_(record.price.plan)+(trial?' (4-day FREE TRIAL)':'')+' · '+record.price.billing+' · '+record.price.seats+' license(s)\nSubscription: '+record.subscriptionId+'\nVerified account: '+record.email+'\n'+(trial?'Trial ends (first charge): ':'Paid through: ')+new Date(record.paidThrough*1000).toISOString();
   if(!record.ownerNotified){MailApp.sendEmail({to:ownerEmail_(),subject:(record.mode==='test'?'[TEST] ':'')+'Wrapline Pro Razorpay: send the license',body:text+'\n\nVerify this order and send the matching access code to the buyer.'});record.ownerNotified=true;razorpayWrite_(record);}
-  if(!record.buyerNotified){MailApp.sendEmail({to:record.email,subject:(record.mode==='test'?'[TEST] ':'')+'Your Wrapline Pro subscription is confirmed',body:text+'\n\nYour access code is sent within 12 hours. Manage future payments with Razorpay or contact support at https://imajoy.github.io/contact.html'});record.buyerNotified=true;razorpayWrite_(record);}
+  if(!record.buyerNotified){MailApp.sendEmail({to:record.email,subject:(record.mode==='test'?'[TEST] ':'')+'Your Wrapline Pro subscription is confirmed',body:text+'\n\nYour access code is sent within 12 hours. Manage future payments with Razorpay or contact support at https://wrapline.in/contact.html'});record.buyerNotified=true;razorpayWrite_(record);}
 }
 function razorpayConfirm_(id,who){
   var record=razorpayFind_(id);if(!record||who&&who.email!==record.email)throw commerceError_('checkout','This checkout does not belong to your account.');
@@ -514,7 +514,7 @@ function handlePaypalVault_(d){
     return {ok:true,clientId:id,idToken:idToken,mode:mode_()};
   }
   if(op==='paypal-setup'){
-    var site=props_().getProperty('SITE_URL')||'https://imajoy.github.io';
+    var site=props_().getProperty('SITE_URL')|| 'https://wrapline.in,https://www.wrapline.in,https://imajoy.github.io';
     var t=commercePaypal_('/v3/vault/setup-tokens','post',{payment_source:{paypal:{usage_type:'MERCHANT',experience_context:{return_url:site+'/account.html#methods',cancel_url:site+'/account.html#methods'}}}},Utilities.getUuid());
     if(!/^[A-Za-z0-9_-]{6,64}$/.test(t&&t.id||''))throw commerceError_('provider','PayPal could not start saving your account.');
     return {ok:true,setupTokenId:t.id};

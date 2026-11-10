@@ -2,9 +2,9 @@
 
 Animation and pipeline tools for Autodesk Maya (2023–2026, Windows), by AJOY.
 
-**Website:** https://imajoy.github.io/
+**Website:** https://wrapline.in/
 
-Wrapline is proprietary software. All rights reserved. The license terms are on the website: [License](https://imajoy.github.io/license.html) and [Privacy](https://imajoy.github.io/privacy.html).
+Wrapline is proprietary software. All rights reserved. The license terms are on the website: [License](https://wrapline.in/license.html) and [Privacy](https://wrapline.in/privacy.html).
 
 ## For the maintainer
 

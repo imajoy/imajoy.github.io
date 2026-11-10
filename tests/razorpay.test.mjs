@@ -114,7 +114,7 @@ test('Edge function rejects forged origins/sessions and uses only trusted server
   calls.push(url);if(url.startsWith('https://api.country.is/'))return Response.json({country:'IN'});
   return Response.json(JSON.parse(s.app.ctx.doPost({postData:{contents:options.body}}).text));
  }});
- const req=(path,body,origin='https://imajoy.github.io',ip='8.8.8.8')=>new Request('https://project.supabase.co/functions/v1/razorpay/'+path,{method:body?'POST':'GET',headers:{Origin:origin,...(ip?{'cf-connecting-ip':ip}:{})},...(body?{body:JSON.stringify(body)}:{})});
+ const req=(path,body,origin='https://wrapline.in',ip='8.8.8.8')=>new Request('https://project.supabase.co/functions/v1/razorpay/'+path,{method:body?'POST':'GET',headers:{Origin:origin,...(ip?{'cf-connecting-ip':ip}:{})},...(body?{body:JSON.stringify(body)}:{})});
  assert.equal((await handler(req('config',null,'https://evil.test'))).status,403);assert.equal(calls.length,0);
  assert.equal((await handler(req('quote',{}))).status,401);
  assert.equal((await handler(req('quote',{accountToken:s.token,plan:'online',billing:'monthly',seats:1,country:'IN'}))).status,200);
@@ -363,8 +363,8 @@ test('Saved cards: a Rs 1 check in Razorpay own window, refunded at once; list a
  assert.deepEqual(s.rpc('card-remove',{accountToken:s.token,tokenId:'token_mine0001'}).cards,[]);
 });
 test('Saved cards gateway: only account-signed requests, strict ids, no card data accepted',async()=>{
- const sent=[];const handler=createRazorpayHandler({env:k=>({COMMERCE_ENABLED:'true',COMMERCE_SECRET:'x'.repeat(40),SHEET_WEB_APP_URL:'https://script.google.com/macros/s/AKfycbxabc/exec',ALLOWED_ORIGINS:'https://imajoy.github.io'})[k],request:async(url,opt)=>{sent.push(JSON.parse(JSON.parse(opt.body).payload));return new Response(JSON.stringify({ok:true,cards:[]}),{status:200});}});
- const call=(path,body)=>handler(new Request('https://x.test/functions/v1/razorpay/'+path,{method:'POST',headers:{origin:'https://imajoy.github.io','content-type':'application/json'},body:JSON.stringify(body)}));
+ const sent=[];const handler=createRazorpayHandler({env:k=>({COMMERCE_ENABLED:'true',COMMERCE_SECRET:'x'.repeat(40),SHEET_WEB_APP_URL:'https://script.google.com/macros/s/AKfycbxabc/exec',ALLOWED_ORIGINS:'https://wrapline.in'})[k],request:async(url,opt)=>{sent.push(JSON.parse(JSON.parse(opt.body).payload));return new Response(JSON.stringify({ok:true,cards:[]}),{status:200});}});
+ const call=(path,body)=>handler(new Request('https://x.test/functions/v1/razorpay/'+path,{method:'POST',headers:{origin:'https://wrapline.in','content-type':'application/json'},body:JSON.stringify(body)}));
  assert.equal((await call('cards',{})).status,401);
  assert.equal((await call('cards',{accountToken:'t'.repeat(40)})).status,200);
  assert.equal((await call('card-remove',{accountToken:'t'.repeat(40),tokenId:'../../x'})).status,400);
@@ -405,8 +405,8 @@ test('Saved PayPal (vault): setup token, payment token kept per account, masked 
  assert(s.app.requests.some(r=>r.url.includes('/v3/vault/payment-tokens/ppvault0001')&&r.options.method==='delete'),'PayPal is told to forget it');
 });
 test('Saved methods gateway: upi method and PayPal ids are validated',async()=>{
- const sent=[];const handler=createRazorpayHandler({env:k=>({COMMERCE_ENABLED:'true',COMMERCE_SECRET:'x'.repeat(40),SHEET_WEB_APP_URL:'https://script.google.com/macros/s/AKfycbxabc/exec',ALLOWED_ORIGINS:'https://imajoy.github.io'})[k],request:async(url,opt)=>{sent.push(JSON.parse(JSON.parse(opt.body).payload));return new Response(JSON.stringify({ok:true}),{status:200});}});
- const call=(path,body)=>handler(new Request('https://x.test/functions/v1/razorpay/'+path,{method:'POST',headers:{origin:'https://imajoy.github.io','content-type':'application/json'},body:JSON.stringify(body)}));
+ const sent=[];const handler=createRazorpayHandler({env:k=>({COMMERCE_ENABLED:'true',COMMERCE_SECRET:'x'.repeat(40),SHEET_WEB_APP_URL:'https://script.google.com/macros/s/AKfycbxabc/exec',ALLOWED_ORIGINS:'https://wrapline.in'})[k],request:async(url,opt)=>{sent.push(JSON.parse(JSON.parse(opt.body).payload));return new Response(JSON.stringify({ok:true}),{status:200});}});
+ const call=(path,body)=>handler(new Request('https://x.test/functions/v1/razorpay/'+path,{method:'POST',headers:{origin:'https://wrapline.in','content-type':'application/json'},body:JSON.stringify(body)}));
  const t='t'.repeat(40);
  assert.equal((await call('card-setup',{accountToken:t,method:'upi'})).status,200);assert.equal(sent.at(-1).method,'upi');
  assert.equal((await call('card-setup',{accountToken:t,method:'wire'})).status,400);

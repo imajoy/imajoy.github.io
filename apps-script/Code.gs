@@ -624,7 +624,7 @@ function setupPlans() {
   }
   var productId = result.productId;
   if (!productId) {
-    productId = paypalPost_('/v1/catalogs/products', { name: 'Wrapline Pro', description: 'Production tools for Maya.', type: 'DIGITAL', category: 'SOFTWARE', home_url: 'https://imajoy.github.io/' }, t, 'ajoy-product-' + mode_()).id;
+    productId = paypalPost_('/v1/catalogs/products', { name: 'Wrapline Pro', description: 'Production tools for Maya.', type: 'DIGITAL', category: 'SOFTWARE', home_url: 'https://wrapline.in/' }, t, 'ajoy-product-' + mode_()).id;
     result.productId = productId;
   }
   ['high', 'mid', 'low'].forEach(function (tier) {

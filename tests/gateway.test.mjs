@@ -1,7 +1,7 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {randomUUID} from 'node:crypto';
 import {handleCommerceRequest,keyedHash,trustedIp} from '../supabase/functions/commerce/handler.js';
 import {service} from './helpers/apps-service.mjs';
-const origin='https://imajoy.github.io';
+const origin='https://wrapline.in';
 function setup(){
  const app=service({registered:false}),account=app.register('new@example.com');
  const values={COMMERCE_ENABLED:'true',COMMERCE_SECRET:app.values.get('COMMERCE_SECRET'),TRIAL_IDENTITY_SECRET:app.values.get('TRIAL_IDENTITY_SECRET'),SHEET_WEB_APP_URL:'https://script.google.com/macros/s/TEST/exec',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip',SUPABASE_URL:'https://project.supabase.co',SUPABASE_SERVICE_ROLE_KEY:'private-service-role',INSTALLER_BUCKET:'installers',INSTALLER_OBJECT:'Wrapline_Setup.py'};

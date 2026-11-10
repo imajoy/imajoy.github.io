@@ -40,7 +40,7 @@ Configure private function settings:
 
 - The same `COMMERCE_SECRET` and `TRIAL_IDENTITY_SECRET` as Apps Script.
 - `SHEET_WEB_APP_URL`: the existing Apps Script `/exec` URL configured in `js/site-config.js`.
-- `ALLOWED_ORIGINS=https://imajoy.github.io` (add only exact development origins actually needed).
+- `ALLOWED_ORIGINS=https://wrapline.in` (add only exact development origins actually needed).
 - `INSTALLER_BUCKET=installers`, `INSTALLER_OBJECT=Wrapline_Setup.py` (the toolkit was renamed from Ajoy Tools to Wrapline; the old `AjoyTools_Setup.py` copy may stay in the bucket for older links).
 - `COMMERCE_ENABLED=false` initially.
 - Supabase supplies `SUPABASE_URL` and `SUPABASE_SERVICE_ROLE_KEY`; confirm that they are available only on the server.

@@ -1,5 +1,5 @@
 /* Limits and required settings per function, in one place so they can be tested. */
-export const ORIGIN_LIST = (env) => (env('ALLOWED_ORIGINS') || 'https://imajoy.github.io').split(',').map((s) => s.trim()).filter(Boolean);
+export const ORIGIN_LIST = (env) => (env('ALLOWED_ORIGINS') || 'https://wrapline.in,https://www.wrapline.in,https://imajoy.github.io').split(',').map((s) => s.trim()).filter(Boolean);
 const MIN = 60000;
 const secret = (name) => ({ name, min: 32 });
 const scriptUrl = { name: 'SHEET_WEB_APP_URL', pattern: /^https:\/\/script\.google\.com\/macros\/s\/[\w-]+\/exec$/ };

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://imajoy.github.io/sitemap.xml
+Sitemap: https://wrapline.in/sitemap.xml

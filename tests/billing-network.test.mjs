@@ -58,9 +58,9 @@ test('Verified tester can test another country but provider restrictions remain 
 });
 test('Gateway discards browser network and role claims and signs only server network results',async()=>{
  const app=setup(),accountToken=app.ctx.makeSession_('buyer@example.com');let payload;
- const env=k=>({ALLOWED_ORIGINS:'https://imajoy.github.io',BILLING_POLICY_ENABLED:'true',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
+ const env=k=>({ALLOWED_ORIGINS:'https://wrapline.in',BILLING_POLICY_ENABLED:'true',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
  const request=async(url,options)=>{const envelope=JSON.parse(options.body);payload=JSON.parse(envelope.payload);return Response.json(JSON.parse(app.ctx.doPost({postData:{contents:options.body}}).text));};
- const response=await handleCommerceRequest(new Request('https://edge.test/commerce/billing-context',{method:'POST',headers:{Origin:'https://imajoy.github.io'},body:JSON.stringify({accountToken,email:'owner@example.com',isOwner:true,billingNetwork:{country:'IN',status:'clear'}})}),env,request,async()=>({country:'US',status:'vpn'}));
+ const response=await handleCommerceRequest(new Request('https://edge.test/commerce/billing-context',{method:'POST',headers:{Origin:'https://wrapline.in'},body:JSON.stringify({accountToken,email:'owner@example.com',isOwner:true,billingNetwork:{country:'IN',status:'clear'}})}),env,request,async()=>({country:'US',status:'vpn'}));
  assert.deepEqual(payload.billingNetwork,{country:'US',status:'vpn'});assert.equal(payload.isOwner,undefined);assert.equal(payload.email,undefined);assert(!JSON.stringify(payload).includes(ip));
  const result=await response.json();assert.equal(result.blocked,true);assert.equal(result.canEditCountry,false);
 });
@@ -78,9 +78,9 @@ test('Razorpay quote/checkout share the billing gate; confirmations are not reje
 });
 test('Checkout/eligibility gateway also replaces client-supplied reputation',async()=>{
  const app=setup(),accountToken=app.ctx.makeSession_('buyer@example.com');
- const env=k=>({ALLOWED_ORIGINS:'https://imajoy.github.io',BILLING_POLICY_ENABLED:'true',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
+ const env=k=>({ALLOWED_ORIGINS:'https://wrapline.in',BILLING_POLICY_ENABLED:'true',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
  for(const path of ['eligibility','rewards']){
-  const response=await handleCommerceRequest(new Request('https://edge.test/commerce/'+path,{method:'POST',headers:{Origin:'https://imajoy.github.io'},body:JSON.stringify({accountToken,plan:'online',billing:'monthly',seats:1,country:'US',billingNetwork:{country:'US',status:'clear'}})}),env,async(u,o)=>Response.json(JSON.parse(app.ctx.doPost({postData:{contents:o.body}}).text)),async()=>({country:'US',status:'vpn'}));
+  const response=await handleCommerceRequest(new Request('https://edge.test/commerce/'+path,{method:'POST',headers:{Origin:'https://wrapline.in'},body:JSON.stringify({accountToken,plan:'online',billing:'monthly',seats:1,country:'US',billingNetwork:{country:'US',status:'clear'}})}),env,async(u,o)=>Response.json(JSON.parse(app.ctx.doPost({postData:{contents:o.body}}).text)),async()=>({country:'US',status:'vpn'}));
   assert.equal((await response.json()).error,'vpn_detected');
  }
 });
@@ -105,10 +105,10 @@ test('VPN off requires no provider key and does not disable verified tester coun
 });
 test('Real signed gateway permits only the verified tester override with no VPN configuration',async()=>{
  const app=service();app.values.set('BILLING_TESTER_EMAIL','owner@example.com');app.register('owner@example.com');
- const env=k=>({ALLOWED_ORIGINS:'https://imajoy.github.io',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
+ const env=k=>({ALLOWED_ORIGINS:'https://wrapline.in',COMMERCE_CLIENT_IP_HEADER:'cf-connecting-ip',SHEET_WEB_APP_URL:'https://script.google.com/macros/s/FIXTURE/exec'}[k]||app.values.get(k));
  const upstream=async(url,options)=>url.startsWith('https://api.country.is/')?Response.json({country:'US'}):Response.json(JSON.parse(app.ctx.doPost({postData:{contents:options.body}}).text));
  for(const email of ['owner@example.com','buyer@example.com']){
-  const response=await handleCommerceRequest(new Request('https://edge.test/commerce/rewards',{method:'POST',headers:{Origin:'https://imajoy.github.io','cf-connecting-ip':ip},body:JSON.stringify({accountToken:app.ctx.makeSession_(email),plan:'online',billing:'monthly',seats:1,country:'CA'})}),env,upstream);
+  const response=await handleCommerceRequest(new Request('https://edge.test/commerce/rewards',{method:'POST',headers:{Origin:'https://wrapline.in','cf-connecting-ip':ip},body:JSON.stringify({accountToken:app.ctx.makeSession_(email),plan:'online',billing:'monthly',seats:1,country:'CA'})}),env,upstream);
   const result=await response.json();assert.equal(result.ok,email==='owner@example.com',JSON.stringify(result));
   if(email!=='owner@example.com')assert.equal(result.error,'country_mismatch');
  }

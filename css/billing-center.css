@@ -272,8 +272,13 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
  .bc-nav{padding:5px;gap:2px}.bc-nav a{flex:1 1 0;min-width:0;padding:10px 4px;font-size:clamp(.68rem,3.5vw,.8125rem);letter-spacing:-.01em;white-space:nowrap;text-align:center}
  .bc-method .bc-msg:empty{display:none}
 }
-.sc-acc-in{transition:padding-bottom .38s cubic-bezier(.22,1,.36,1),opacity .3s ease}
-.sc-acc[data-open=false] .sc-acc-in{opacity:0}.sc-acc[data-open=true] .sc-acc-in{opacity:1}
+/* One animated value only (the row track), so open and close are equally smooth. The bottom gap is a fixed spacer, not an animated padding. */
+.sc-acc[data-open=true] .sc-acc-in{padding-bottom:0}
+.sc-acc-in::after{content:"";display:block;height:20px}
+.sc-acc-b{transition:grid-template-rows .46s cubic-bezier(.32,.72,0,1)}
+.sc-acc-in{transition:opacity .22s ease,transform .46s cubic-bezier(.32,.72,0,1);will-change:opacity}
+.sc-acc[data-open=false] .sc-acc-in{opacity:0;transform:translateY(-6px)}
+.sc-acc[data-open=true] .sc-acc-in{opacity:1;transform:none;transition-delay:.06s,0s}
 /* UPI + PayPal sections */
 .sc-go:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.6)}
 .sc-field{margin:2px 0 14px}.sc-field label{display:block;margin:0 0 6px;font-size:.86rem;color:var(--mute)}

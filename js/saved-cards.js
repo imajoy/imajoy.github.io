@@ -77,7 +77,7 @@ let rzp;function loadCheckout(){
 }
 function openDlg(){
   if(!getAccountSession()){window.dispatchEvent(new CustomEvent('ajoy-account-open',{detail:{}}));return;}
-  say(dmsg,'');say($('#sc-umsg'),'');say($('#sc-pmsg'),'');go.disabled=false;go.textContent='Submit Payment';$('#sc-ugo').disabled=false;$('#sc-ugo').textContent='Continue';
+  say(dmsg,'');say($('#sc-umsg'),'');say($('#sc-pmsg'),'');go.disabled=false;go.textContent='Submit Payment';$('#sc-ugo').textContent='Continue';syncUpi();
   $$('.sc-acc',dlg).forEach(a=>{a.dataset.open='false';$('.sc-acc-h',a).setAttribute('aria-expanded','false');});
   if(!dlg.open)dlg.showModal();
 }
@@ -110,6 +110,9 @@ async function runCheck(kind,btn,msgNode,idle,phone){
   }catch(e){reset();say(msgNode,e.message,'error');if(!dlg.open)dlg.showModal();}
 }
 go.addEventListener('click',()=>runCheck('card',go,dmsg,'Submit Payment'));
+const upiDigits=()=>{const raw=($('#sc-phone').value||'').replace(/[\s-]/g,''),m=/^(\+91|0091|91)?(\d{10})$/.exec(raw)||/^\+(\d{10,13})$/.exec(raw);return m?(m[2]?'+91'+m[2]:'+'+m[1]):'';};
+function syncUpi(){const ok=!!upiDigits();$('#sc-ugo').disabled=!ok;$('#sc-ugo').setAttribute('aria-disabled',String(!ok));}
+$('#sc-phone').addEventListener('input',()=>{say($('#sc-umsg'),'');syncUpi();});syncUpi();
 $('#sc-ugo').addEventListener('click',()=>{
   const raw=($('#sc-phone').value||'').replace(/[\s-]/g,''),m=/^(\+91|0091|91)?(\d{10})$/.exec(raw)||/^\+(\d{10,13})$/.exec(raw);
   if(!m){say($('#sc-umsg'),'Enter the 10-digit mobile number linked to your UPI app.','error');$('#sc-phone').focus();return;}

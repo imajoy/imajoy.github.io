@@ -268,6 +268,7 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 .sc-lock{display:flex;align-items:center;gap:8px;margin:16px 0 0;font-size:.82rem;color:var(--mute)}.sc-lock svg{width:16px;height:16px;fill:none;stroke:var(--blue-d,#2A64E8);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:560px){.sc-head{flex-wrap:wrap}.sc-add{width:100%}}
 /* UPI + PayPal sections */
+.sc-go:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.6)}
 .sc-field{margin:2px 0 14px}.sc-field label{display:block;margin:0 0 6px;font-size:.86rem;color:var(--mute)}
 .sc-field input{width:100%;height:48px;padding:0 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);font:inherit;transition:border-color .25s,box-shadow .25s}
 .sc-field input:focus{outline:0;border-color:var(--blue-d);box-shadow:0 0 0 3px color-mix(in srgb,var(--blue-d) 18%,transparent)}

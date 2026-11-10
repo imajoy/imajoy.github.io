@@ -147,3 +147,11 @@ html body.pro-page #install .inst-stage .o2{background:radial-gradient(circle at
 html body.pro-page #install .inst-stage .dp i{background:linear-gradient(90deg,#C98A1E,#F2B64F)}
 html body.pro-page :is(#install,#workflows,#tools,#pricing,#faq) h2 em,html body.pro-page :is(#install,#workflows,#tools,#pricing,#faq) h2 em *{background:none!important;-webkit-text-fill-color:#F2B64F!important;color:#F2B64F!important}
 html:not([data-theme=dark]) body.pro-page :is(#install,#workflows,#tools,#pricing,#faq) h2 em,html:not([data-theme=dark]) body.pro-page :is(#install,#workflows,#tools,#pricing,#faq) h2 em *{-webkit-text-fill-color:#B27712!important;color:#B27712!important}
+/* trial: the reveal must not clip (it cut the chips and pass notches); plain fade-up instead */
+html.pr-on body.pro-page #trial .trial-stage[data-pr],html.pr-on body.pro-page #trial .trial-stage[data-pr].pr-in{clip-path:none!important}
+html.pr-on body.pro-page #trial .trial-stage[data-pr]:not(.pr-in){transform:translate3d(0,calc(34px*var(--pr-d,1)),0)}
+body.pro-page #trial .trial-art{overflow:visible}
+body.pro-page #trial .ta-c1{left:0}body.pro-page #trial .ta-c2{right:0}
+html body.pro-page #trial .ta-perf::before,html body.pro-page #trial .ta-perf::after{background:#EFAE3E!important;border-color:transparent!important;box-shadow:none!important}
+html body.pro-page #trial .ta-chip i,html body.pro-page #trial .ta-chip i::after{background:#F7C96D;color:#F7C96D;box-shadow:0 0 0 3px rgba(247,201,109,.22)}
+html body.pro-page #trial .ta-ticket::before,html body.pro-page #trial .ta-ticket::after{background:#F0B040;border:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}

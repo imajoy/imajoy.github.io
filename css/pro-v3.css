@@ -169,3 +169,9 @@ body.pro-page #install .inst-stage .orb.o2{translate:calc(var(--px,0)*-1.6) calc
 body.pro-page #install .inst-stage .float-chip{translate:calc(var(--px,0)*-2.2) calc(var(--py,0)*-2.2)}
 html body.pro-page #install .inst-stage .win-drop{background:rgba(18,14,8,.82)!important;font-size:16px;letter-spacing:.01em}
 html[data-theme=dark] body.pro-page #install .inst-stage .orb{opacity:.55}
+html body.pro-page #trial .trial-stage{overflow:visible!important}
+html body.pro-page #trial .ta-c1{left:24px}html body.pro-page #trial .ta-c2{right:24px}
+/* trial number: roller window taller than the glyphs so tops/bottoms are never cut */
+html body.pro-page #trial .ta-num .rl{height:1.1em!important;margin:-.16em 0 -.16em!important}
+html body.pro-page #trial .ta-num .rl-in i{height:1.1em!important;line-height:1.1em!important}
+html body.pro-page #trial .ta-num b{height:.78em!important}

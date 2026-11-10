@@ -19,3 +19,43 @@ html[data-theme=dark] .fs-web{background:#1B1D26}html[data-theme=dark] .fs-wbar{
 html[data-theme=dark] .fs-url{background:#242733;color:#B9BED0}
 html[data-theme=dark] :is(.fs-wnav b,.fs-wh,.fs-wbtn){background:#2D3140}html[data-theme=dark] :is(.fs-wnav span,.fs-wl2){background:#262A37}
 @media(prefers-reduced-motion:reduce){.fs-web,.fs-maya{transition:none}}
+/* v2: the browser shows a small, real-looking copy of the Wrapline page (not grey placeholder bars), with the sign-in as a dialog over a dimmed page.
+   Colours follow the product: Pro = graphite + gold, Free = cream + plum. They stay fixed so day/night changes don't clash with the cards. */
+.fs-web{--wb:#FFF6EA;--wb2:#FFE9D2;--wi:#2B1B3F;--wm:#7A6A90;--wa:#7B5CFF;--wcta:#2B1B3F;--wctat:#fff}
+.fs-pro .fs-web{--wb:#121114;--wb2:#0C0B0E;--wi:#F1F2F4;--wm:#A0A3AD;--wa:#F2B64F;--wcta:linear-gradient(135deg,#FFE2A0,#F2B64F);--wctat:#1A1204}
+.fs-web,.fs-wbar{background:var(--wb)!important}
+.fs-wbar{background:color-mix(in srgb,var(--wb) 88%,#000)!important}
+.fs-pro .fs-wbar>i{background:#3A3A42}.fs-wbar>i{background:color-mix(in srgb,var(--wi) 22%,transparent)}
+.fs-url{background:color-mix(in srgb,var(--wi) 8%,var(--wb))!important;color:var(--wm)!important}
+.fs-wpage{position:relative;padding:0!important;gap:0!important;opacity:1!important;display:block!important;background:radial-gradient(70% 90% at 70% 0%,color-mix(in srgb,var(--wa) 22%,transparent),transparent 70%),var(--wb)}
+.fs-wnav{display:flex!important;align-items:center;gap:16px;margin:0!important;padding:13px 22px;font:600 11px/1 var(--sans);color:var(--wi)}
+.fs-wnav b{width:auto!important;height:auto!important;background:none!important;border-radius:0!important;font:700 12.5px/1 var(--sans);margin-right:auto;color:var(--wi)}
+.fs-wlogo{width:20px!important;height:20px!important;background:none!important;padding:0!important}.fs-wlogo svg{width:20px;height:20px;display:block}.fs-wlogo rect{fill:var(--wa)}.fs-wlogo path{stroke:var(--wb2)}
+.fs-wnav .fs-wl2n{width:auto!important;height:auto!important;background:none!important;color:var(--wm);font-size:11px}
+.fs-wnav .fs-wl2n:first-of-type{margin-left:0!important}
+.fs-wacct{padding:7px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--wi) 18%,transparent);font-size:10.5px}
+.fs-whero{padding:clamp(18px,5%,42px) 8% 0;display:grid;gap:12px;justify-items:start}
+.fs-wpill{padding:6px 11px;border-radius:999px;background:color-mix(in srgb,var(--wa) 18%,transparent);color:var(--wa);font:800 9.5px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase}
+.fs-wtitle{font:800 clamp(26px,4.2vw,46px)/1 var(--sans);letter-spacing:-.05em;color:var(--wi)}
+.fs-wsub{font:500 12px/1.5 var(--sans);color:var(--wm);max-width:26em}
+.fs-wcta{margin-top:4px;padding:11px 20px;border-radius:999px;background:var(--wcta);color:var(--wctat);font:700 12px/1 var(--sans)}
+.fs-wscrim{position:absolute;inset:0;background:rgba(10,8,20,.5);opacity:0;transition:opacity .6s cubic-bezier(.22,1,.36,1)}
+.fs[data-step="0"] .fs-wscrim{opacity:1}
+/* the dialogs match the page: white card on Free, graphite on Pro */
+.fs:not(.fs-pro) .fs-signin,.fs:not(.fs-pro) .fs-dl{background:#fff!important;color:#2B1B3F;box-shadow:0 30px 60px -24px rgba(20,10,40,.55)!important}
+.fs:not(.fs-pro) .fs-signin h4,.fs:not(.fs-pro) .fs-dl h4{color:#2B1B3F}
+.fs:not(.fs-pro) .fs-signin .fs-field{background:#FFF6EA!important;border-color:#7B5CFF!important}
+.fs:not(.fs-pro) .fs-signin .fs-type{color:#2B1B3F}
+.fs:not(.fs-pro) .fs-signin .fs-code i{background:#F4EFFB;border-color:#DCD0F3;color:#2B1B3F}
+.fs:not(.fs-pro) .fs-signin .fs-code i::after{color:#2B1B3F}
+.fs:not(.fs-pro) .fs-dl .fs-pct span,.fs:not(.fs-pro) .fs-dl small{color:#6E6280}
+.fs:not(.fs-pro) .fs-dl .fs-track{background:#EEE6F7}
+.fs:not(.fs-pro) .fs-dl .fs-fileRow b,.fs:not(.fs-pro) .fs-dl .fs-fileRow span:not(.fs-file){color:#2B1B3F}
+.fs-wacct,.fs-wnav>*{white-space:nowrap}
+.fs-wscrim{background:rgba(20,10,40,.34)}
+.fs-pro .fs-wscrim{background:rgba(0,0,0,.45)}
+.fs-wnav>span:first-of-type,.fs-wnav>.fs-wlogo{margin-left:0!important}
+.fs-wnav{gap:14px;padding-right:18px}
+.fs-wacct{margin-left:6px;line-height:1;white-space:nowrap}
+.fs-wnav .fs-wl2n:nth-of-type(n){margin-left:0!important}
+.fs-wnav .fs-wacct{width:auto!important;height:auto!important;background:none!important;padding:7px 12px!important;color:var(--wi)!important}

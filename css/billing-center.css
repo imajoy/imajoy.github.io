@@ -288,3 +288,13 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 @media(prefers-reduced-motion:reduce){.sc-row,#sc-dlg[open],#sc-dlg[open]::backdrop,#sc-dlg.sc-out,#sc-dlg.sc-out::backdrop{animation:none}.sc-acc-b,.sc-chev{transition:none}}
 .sc-head p{display:block}.sc-head p b{display:inline}
 .sc-badge{font-size:.62rem}
+
+/* payment brand names: small light chips, so they read the same in day and night mode */
+.sc-brands{gap:6px}
+.sc-brands em,.sc-apps em{font-family:var(--sans)}
+.sc-brands em{display:inline-flex;align-items:center;height:24px;padding:0 8px;border-radius:6px;background:#fff;border:1px solid rgba(14,18,32,.14);font-style:normal!important;font-weight:800;font-size:.7rem;letter-spacing:.02em;line-height:1;color:#1f2937;white-space:nowrap}
+.sc-brands .b-visa{color:#1a3f9d}.sc-brands .b-mc{color:#b3261e}.sc-brands .b-ru{color:#1b4ea1}.sc-brands .b-upi{color:#3b3b3b}.sc-brands .b-pp{color:#0a3d8f}
+.sc-brands .b-mc i{display:none}
+html[data-theme=dark] .sc-brands em{background:#F1F2F4;border-color:transparent}
+.sc-apps em{background:#fff;border-color:rgba(14,18,32,.14)}html[data-theme=dark] .sc-apps em{background:#F1F2F4;border-color:transparent}
+@media(max-width:420px){.sc-brands em{height:22px;padding:0 6px;font-size:.64rem}}

@@ -80,6 +80,7 @@
   if(pinned&&extra>0){
    bar.style.setProperty('--pp',p.toFixed(3));
    var ix=Math.min(N-1,Math.floor(p*N));
+   if(window.__hvTime)window.__hvTime(p,ix);
    if(p>0&&p<1||ix!==lastIx){if(ix!==lastIx){lastIx=ix;num.textContent=(ix+1<10?'0':'')+(ix+1);setTool(ix);}}
    var pl=fig.__player;if(pl)pl.manual=p>0;
   }
@@ -98,6 +99,7 @@
  var st=hero.querySelector('.hv-stage'),no=hero.querySelector('[data-hv-no]'),nm=hero.querySelector('[data-hv-name]'),ds=hero.querySelector('[data-hv-desc]'),rail=hero.querySelector('[data-hv-rail]'),
   wa=hero.querySelector('.hv-wa'),wb=hero.querySelector('.hv-wb'),dock=hero.querySelector('.pro-dock'),fig=hero.querySelector('.hv-stage .tool-visual');
  if(!st||!nm||!fig||!rail)return;
+ var dv=st.querySelector('.pro-device')||st;
  var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,
   T=[['advanced-ik-fk-switch','Advanced IK FK Switch','Snap between IK and FK in a click.'],['fbx-exporter','FBX Exporter','Pick rigs, set the shot, export named FBX files.'],['rivet','Rivet','Attach a locator to two edges, then parent your object.'],['rebake-ik-space','Rebake IK Space','Rebake animation into a clean IK space.'],['playblast','Playblast','Choose a camera and a format, then review.'],['drag-drop','Drag & Drop','Drop files in and choose an action for each.'],['alembic-exporter','Alembic Exporter','Export shot caches as Alembic.'],['hotkey-manager','Hotkey Manager','Keep your Maya hotkeys in one place.'],['audio-exporter','Audio Exporter','Export the audio from your scene.'],['revert-to-last-saved','Revert to Last Saved','Drop your changes and reopen the last save.']],
   byName={};T.forEach(function(t,i){byName[t[1]]=i;});
@@ -111,10 +113,10 @@
   var h=chips[e.detail.ix]?chips[e.detail.ix].style.getPropertyValue('--h'):'',hue=parseFloat(h);if(isNaN(hue))hue=220;
   front=1-front;var a=front?wa:wb,b=front?wb:wa;a.style.setProperty('--th',hue);hero.style.setProperty('--th',hue);a.classList.add('on');b.classList.remove('on');
   if(first){first=false;return;}
-  if(!reduce&&st.animate)st.animate([{translate:'0 '+(dir*12)+'px',opacity:0},{translate:'0 0',opacity:1}],{duration:420,easing:'cubic-bezier(.22,1,.36,1)'});
+  if(!reduce&&dv.animate)dv.animate([{translate:(dir*26)+'px 0',opacity:0},{translate:'0 0',opacity:1}],{duration:520,easing:'cubic-bezier(.22,1,.36,1)'});
  });
  /* the pin controller calls this before it switches tools, so the old window leaves first */
  window.__hvLeave=function(dir,done){if(reduce||!st.animate){done();return;}
-  var an=st.animate([{translate:'0 0',opacity:1},{translate:'0 '+(-dir*8)+'px',opacity:0}],{duration:140,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});
+  var an=dv.animate([{translate:'0 0',opacity:1},{translate:(-dir*18)+'px 0',opacity:0}],{duration:160,easing:'cubic-bezier(.4,0,.6,1)',fill:'forwards'});
   an.onfinish=function(){done();an.cancel();};};
 })();

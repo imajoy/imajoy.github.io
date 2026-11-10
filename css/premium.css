@@ -48,7 +48,6 @@ html[data-theme=dark] body.ty-page::before{filter:none;opacity:1;background:radi
 html[data-theme=dark] body.ty-page::after{opacity:.28}
 html[data-theme=dark] .coffee-card{background:#17181C;border-color:rgba(255,207,138,.22)}
 html[data-theme=dark] .coffee-copy span{color:var(--mute)}
-html[data-theme=dark] .hv-grid{opacity:.38}
 html[data-theme=dark] .hv-glow{background:radial-gradient(closest-side,rgba(110,150,255,.12),transparent)}
 html[data-theme=dark] .ty-pass{box-shadow:0 30px 70px -40px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.06)}
 html[data-theme=dark] .hv-shell{background:radial-gradient(120% 90% at 50% 0%,#171b28 0%,#0f1116 52%,#09090b 100%)}

@@ -1,0 +1,67 @@
+/* Wrapline Pro hero timeline (js/pro-timeline.js). Graphite with one gold accent; the stage it sits on is dark in both themes. */
+.pro-stage.has-ptl .pro-dock{display:none!important}
+.hv-portal .hv-rail{display:none}
+.ptl{--g:#F2B64F;--tl-ink:rgba(236,239,246,.92);--tl-mute:rgba(170,176,190,.72);--tl-line:rgba(255,255,255,.13);position:relative;z-index:2;margin:16px 0 8px;padding:10px 14px 12px;border-radius:16px;
+ background:rgba(18,19,23,.72);border:1px solid var(--tl-line);box-shadow:inset 0 1px 0 rgba(255,255,255,.05);font-family:var(--sans);user-select:none}
+.ptl-top{display:flex;align-items:center;justify-content:space-between;gap:12px;height:22px;margin-bottom:6px}
+.ptl-name{font-weight:600;font-size:12.5px;letter-spacing:.01em;color:var(--tl-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ptl-name.sw{animation:ptl-name .5s cubic-bezier(.22,1,.36,1) both}
+@keyframes ptl-name{from{opacity:0;transform:translate3d(0,6px,0)}to{opacity:1;transform:none}}
+.ptl-frame{flex:none;display:inline-flex;align-items:baseline;gap:6px;padding:3px 8px;border-radius:7px;background:rgba(0,0,0,.34);border:1px solid var(--tl-line);font-variant-numeric:tabular-nums}
+.ptl-frame small{font-size:9px;font-weight:700;letter-spacing:.14em;color:var(--tl-mute)}
+.ptl-frame b{font:600 12.5px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;color:var(--g);min-width:3ch;text-align:right}
+.ptl-frame em{font:500 10.5px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-style:normal;color:var(--tl-mute)}
+.ptl-lane{position:relative;height:66px}
+/* ruler: a tick every 4 frames, a taller one every 24 */
+.ptl-ruler{position:absolute;left:0;right:0;top:0;height:16px;border-bottom:1px solid var(--tl-line);
+ background:repeating-linear-gradient(90deg,rgba(255,255,255,.34) 0 1px,transparent 1px 10%) bottom/100% 9px no-repeat,repeating-linear-gradient(90deg,rgba(255,255,255,.14) 0 1px,transparent 1px 1.6667%) bottom/100% 4px no-repeat}
+.ptl-ruler i{position:absolute;top:-1px;transform:translateX(4px);font:500 8.5px/1 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-style:normal;color:var(--tl-mute)}
+.ptl-ruler i:last-child{transform:translateX(-100%) translateX(-4px)}
+.ptl-curve{position:absolute;left:0;right:0;top:19px;height:26px;pointer-events:none}
+.ptl-curve svg{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.ptl-curve path{fill:none;stroke:rgba(255,255,255,.16);stroke-width:1.4;vector-effect:non-scaling-stroke}
+.ptl-curve-on{position:absolute;inset:0;clip-path:inset(0 100% 0 0);will-change:clip-path}
+.ptl-curve-on path{stroke:var(--g);stroke-width:1.8}
+/* keys */
+.ptl-key{position:absolute;top:16px;width:34px;height:50px;margin-left:-17px;padding:0;border:0;background:transparent;cursor:pointer;color:var(--tl-mute);-webkit-tap-highlight-color:transparent}
+.ptl-key b{position:absolute;left:50%;width:9px;height:9px;margin-left:-4.5px;border:1.5px solid rgba(255,255,255,.5);background:#17181c;transform:rotate(45deg);transition:transform .45s cubic-bezier(.34,1.56,.64,1),background-color .3s ease,border-color .3s ease,box-shadow .3s ease}
+.ptl-key:nth-of-type(odd) b{top:17px}.ptl-key:nth-of-type(even) b{top:5px}
+.ptl-key span{position:absolute;left:50%;bottom:0;transform:translateX(-50%);font:700 8.5px/1 var(--sans);letter-spacing:.06em;transition:color .3s ease,opacity .3s ease;opacity:.75}
+.ptl-key.past b{background:color-mix(in srgb,var(--g) 55%,#17181c);border-color:var(--g)}
+.ptl-key.on b{background:var(--g);border-color:#fff;transform:rotate(45deg) scale(1.45);box-shadow:0 0 0 4px rgba(242,182,79,.18)}
+.ptl-key.on span{color:var(--g);opacity:1}
+.ptl-key.hit b::after{content:"";position:absolute;inset:-5px;border:1.5px solid var(--g);opacity:0;animation:ptl-hit .7s cubic-bezier(.22,1,.36,1)}
+@keyframes ptl-hit{0%{opacity:.9;transform:scale(.5)}100%{opacity:0;transform:scale(2.3)}}
+@media(hover:hover){.ptl-key:hover b{transform:rotate(45deg) scale(1.25);border-color:#fff}.ptl-key:hover span{color:var(--tl-ink);opacity:1}}
+.ptl-key:focus-visible{outline:2px solid var(--g);outline-offset:1px;border-radius:6px}
+/* playhead */
+.ptl-head{position:absolute;left:0;top:-4px;bottom:12px;width:0;pointer-events:none;will-change:transform;transition:transform .7s cubic-bezier(.22,1,.36,1)}
+.ptl.is-scrub .ptl-head{transition:none}
+.ptl-head i{position:absolute;left:-.75px;top:0;bottom:0;width:1.5px;background:#fff;border-radius:1px;box-shadow:0 0 0 1px rgba(0,0,0,.35)}
+.ptl-head::before{content:"";position:absolute;left:-5px;top:-3px;width:10px;height:9px;background:#fff;clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%)}
+.ptl-curve-on{transition:clip-path .7s cubic-bezier(.22,1,.36,1)}.ptl.is-scrub .ptl-curve-on{transition:none}
+/* entrance with the stage */
+html.hv-go body.pro-page .hero .ptl{animation:ptl-in .9s cubic-bezier(.22,1,.36,1) 1.05s both}
+@keyframes ptl-in{from{opacity:0;transform:translate3d(0,14px,0)}to{opacity:1;transform:none}}
+html.hv-pin body.pro-page .hv-portal .ptl{margin-top:12px;margin-bottom:6px}
+/* light theme: the stage panel is light there */
+html:not([data-theme=dark]) .ptl{--g:#B9781A;--tl-ink:#141824;--tl-mute:#667089;--tl-line:rgba(20,32,70,.14);background:rgba(255,255,255,.78);box-shadow:0 14px 34px -22px rgba(30,48,110,.35)}
+html:not([data-theme=dark]) .ptl-frame{background:rgba(20,32,70,.05)}
+html:not([data-theme=dark]) .ptl-ruler{background:repeating-linear-gradient(90deg,rgba(20,32,70,.42) 0 1px,transparent 1px 10%) bottom/100% 9px no-repeat,repeating-linear-gradient(90deg,rgba(20,32,70,.18) 0 1px,transparent 1px 1.6667%) bottom/100% 4px no-repeat}
+html:not([data-theme=dark]) .ptl-curve path{stroke:rgba(20,32,70,.18)}
+html:not([data-theme=dark]) .ptl-key b{background:#fff;border-color:rgba(20,32,70,.5)}
+html:not([data-theme=dark]) .ptl-key.past b{background:color-mix(in srgb,var(--g) 45%,#fff)}
+html:not([data-theme=dark]) .ptl-key.on b{border-color:#141824}
+html:not([data-theme=dark]) .ptl-head i,html:not([data-theme=dark]) .ptl-head::before{background:#141824}
+@media(max-width:560px){.ptl{padding:8px 10px 10px;margin-top:12px}.ptl-key span{font-size:7.5px;letter-spacing:0}.ptl-key{width:26px;margin-left:-13px}.ptl-ruler i:nth-child(even){display:none}.ptl-name{font-size:11.5px}}
+@media(prefers-reduced-motion:reduce){.ptl-head,.ptl-curve-on,.ptl-key b{transition:none}.ptl,.ptl-name.sw,.ptl-key.hit b::after{animation:none!important}}
+
+/* Stage floor: the perspective grid is now one flat CSS grid tilted in 3D (drawn once, moved on the GPU).
+   The old SVG floor was redrawn on every scroll frame and was the main cause of the choppy hero. */
+body.pro-page .hero .hv-grid{background:none!important;overflow:hidden;perspective:900px;perspective-origin:50% 0;
+ -webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.5) 26%,#000 62%);mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.5) 26%,#000 62%)}
+body.pro-page .hero .hv-grid::after{content:"";position:absolute;left:-45%;right:-45%;top:0;height:260%;transform-origin:50% 0;transform:rotateX(72deg);backface-visibility:hidden;
+ background:repeating-linear-gradient(90deg,var(--fl,rgba(160,172,205,.2)) 0 1px,transparent 1px 46px),repeating-linear-gradient(0deg,var(--fl,rgba(160,172,205,.2)) 0 1px,transparent 1px 46px)}
+html:not([data-theme=dark]) body.pro-page .hero .hv-grid{--fl:rgba(52,84,170,.2)}
+html:not([data-theme=dark]) .ptl-curve-on path{stroke:var(--g)}
+html:not([data-theme=dark]) .ptl-key.on b{background:var(--g);border-color:#141824}

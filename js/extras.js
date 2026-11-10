@@ -51,7 +51,7 @@ document.querySelectorAll('[data-trial-days]').forEach(n => { n.textContent = St
     return fig;
   };
   if (slot) {
-    const m = location.pathname.match(/tool-([a-z0-9-]+?)(?:\.html)?(?:\/)?$/);
+    const m = (window.__realPath || location.pathname).match(/tool-([a-z0-9-]+?)(?:\.html)?(?:\/)?$/);
     const d = m && clips.find(c => c.slug === m[1]);
     if (d) { slot.appendChild(card(d)); slot.hidden = false; }
   }

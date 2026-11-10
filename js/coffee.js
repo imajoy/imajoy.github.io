@@ -4,7 +4,7 @@
 const KEY='ajoy.coffee';
 const target='support.html';
 /* Wrapline (free) pages ask a little differently: the tools cost nothing, so a coffee is the only way to say thanks. */
-const FREE=/wrapline-free|tool-(ik-fk-snap|multi-swapper|udim-preview|layer-prefix-remover)/.test(location.pathname);
+const FREE=/wrapline-free|tool-(ik-fk-snap|multi-swapper|udim-preview|layer-prefix-remover)/.test(window.__realPath||location.pathname);
 const NAME=FREE?'Wrapline':'Wrapline Pro';
 
 const quiet=()=>{try{if(sessionStorage.getItem(KEY))return true;const v=JSON.parse(localStorage.getItem(KEY)||'null');return !!v&&Date.now()<v.until;}catch{return false;}};

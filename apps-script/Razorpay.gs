@@ -309,11 +309,12 @@ function handleRazorpay_(d){
     var keyId=props_().getProperty('RAZORPAY_KEY_ID')||'';
     return {ok:true,enabled:razorpayEnabled_()&&ready&&catalog._priceVersion===PRICE_VERSION,countries:razorpayAllCountries_()?['*']:razorpayCountries_(),closedCountries:razorpayAllCountries_()?razorpayClosed_():[],mode:razorpayMode_(),currency:'INR',trial:razorpayTrialOn_(),trialDays:RAZORPAY_TRIAL_DAYS_,trialCheckPaise:razorpayTrialCheckPaise_('INR'),trialCheckCents:razorpayTrialCheckPaise_('USD'),intlCurrency:razorpayCurrencyFor_('US',catalog),promotions:true,keyId:/^rzp_(test|live)_[A-Za-z0-9]+$/.test(keyId)?keyId:''};
   }
+  if(String(d.operation||'').indexOf('paypal-')===0)return handlePaypalVault_(d);
   if(props_().getProperty('COMMERCE_ENABLED')!=='true'||!razorpayConnected_())throw commerceError_('unavailable','Razorpay is not connected.');
   if(d.operation==='webhook')return razorpayWebhook_(d);
   var who=commerceWho_(d.accountToken);
   if(d.operation==='cards')return razorpayCards_(who);
-  if(d.operation==='card-setup')return razorpayCardSetup_(who);
+  if(d.operation==='card-setup')return razorpayCardSetup_(d,who);
   if(d.operation==='card-verify')return razorpayCardVerify_(d,who);
   if(d.operation==='card-remove')return razorpayCardRemove_(d.tokenId,who);
   if(d.operation==='confirm')return razorpayConfirm_(d.checkoutId,who);
@@ -446,19 +447,30 @@ function razorpayCardList_(customerId){
     return {id:t.id,network:String(c.network||'Card').slice(0,20),last4:/^\d{4}$/.test(c.last4||'')?c.last4:'',type:String(c.type||'').slice(0,12),issuer:String(c.issuer||'').slice(0,12),expMonth:Number(c.expiry_month)||0,expYear:Number(c.expiry_year)||0};
   });
 }
-function razorpayCards_(who){return {ok:true,cards:razorpayCardList_(razorpayCustomer_(who)),mode:razorpayMode_()};}
-function razorpayCardSetup_(who){
-  var customerId=razorpayCustomer_(who),email=String(who.email).toLowerCase();
-  var order=razorpayApi_('/orders','post',{amount:100,currency:'INR',receipt:'cardchk_'+Utilities.getUuid().replace(/-/g,'').slice(0,24),notes:{purpose:'card-check',email:email}});
-  if(!/^order_[A-Za-z0-9]+$/.test(order&&order.id||''))throw commerceError_('provider','Razorpay could not start the card check.');
-  return {ok:true,keyId:props_().getProperty('RAZORPAY_KEY_ID'),orderId:order.id,customerId:customerId,amount:100,currency:'INR',mode:razorpayMode_()};
+/* UPI AutoPay mandates saved on the same Razorpay customer. Only a masked UPI ID is ever returned. */
+function razorpayUpiList_(customerId){
+  var res=razorpayApi_('/customers/'+encodeURIComponent(customerId)+'/tokens');
+  return (res.items||[]).filter(function(t){return t&&t.method==='upi'&&/^token_[A-Za-z0-9]+$/.test(t.id||'');}).map(function(t){
+    var vpa=String(t.vpa||(t.upi&&t.upi.vpa)||''),at=vpa.indexOf('@');
+    return {id:t.id,vpa:at>0?vpa.charAt(0)+'\u2022\u2022\u2022'+vpa.slice(at):'UPI',maxAmount:Number(t.max_amount||(t.recurring_details&&t.recurring_details.max_amount)||0)};
+  });
+}
+function razorpayCards_(who){var id=razorpayCustomer_(who);return {ok:true,cards:razorpayCardList_(id),upi:razorpayUpiList_(id),mode:razorpayMode_()};}
+function razorpayCardSetup_(d,who){
+  var customerId=razorpayCustomer_(who),email=String(who.email).toLowerCase(),upi=d.method==='upi';
+  var body={amount:100,currency:'INR',receipt:(upi?'upichk_':'cardchk_')+Utilities.getUuid().replace(/-/g,'').slice(0,24),notes:{purpose:upi?'upi-check':'card-check',email:email}};
+  /* UPI AutoPay: the customer approves a mandate (up to Rs 15,000 per charge, "as presented") in their UPI app. The Rs 1 check is refunded. */
+  if(upi){body.method='upi';body.customer_id=customerId;body.token={max_amount:1500000,expire_at:Math.floor(Date.now()/1000)+5*365*86400,frequency:'as_presented'};}
+  var order=razorpayApi_('/orders','post',body);
+  if(!/^order_[A-Za-z0-9]+$/.test(order&&order.id||''))throw commerceError_('provider','Razorpay could not start the '+(upi?'UPI':'card')+' check.');
+  return {ok:true,keyId:props_().getProperty('RAZORPAY_KEY_ID'),orderId:order.id,customerId:customerId,amount:100,currency:'INR',method:upi?'upi':'card',mode:razorpayMode_()};
 }
 function razorpayCardVerify_(d,who){
   var secret=props_().getProperty('RAZORPAY_KEY_SECRET')||'',orderId=String(d.orderId||''),paymentId=String(d.paymentId||'');
   var expected=Utilities.computeHmacSha256Signature(orderId+'|'+paymentId,secret).map(function(b){return ('0'+((b+256)%256).toString(16)).slice(-2);}).join('');
   if(!secret||!constantTimeEqual_(expected,String(d.signature||'')))throw commerceError_('signature','The card check could not be verified.');
   var order=razorpayApi_('/orders/'+encodeURIComponent(orderId));
-  if(!order||order.amount!==100||!order.notes||order.notes.purpose!=='card-check'||String(order.notes.email||'')!==String(who.email).toLowerCase())throw commerceError_('forbidden','This card check belongs to another account.');
+  if(!order||order.amount!==100||!order.notes||['card-check','upi-check'].indexOf(order.notes.purpose)<0||String(order.notes.email||'')!==String(who.email).toLowerCase())throw commerceError_('forbidden','This card check belongs to another account.');
   var payment=razorpayApi_('/payments/'+encodeURIComponent(paymentId));
   if(!payment||payment.order_id!==orderId||payment.amount!==100)throw commerceError_('invalid','The card check does not match.');
   if(payment.status==='authorized')payment=razorpayApi_('/payments/'+encodeURIComponent(paymentId)+'/capture','post',{amount:100,currency:'INR'});
@@ -469,7 +481,59 @@ function razorpayCardVerify_(d,who){
 function razorpayCardRemove_(tokenId,who){
   if(!/^token_[A-Za-z0-9]{6,40}$/.test(String(tokenId||'')))throw commerceError_('invalid','Invalid saved card.');
   var customerId=razorpayCustomer_(who);
-  if(!razorpayCardList_(customerId).some(function(c){return c.id===tokenId;}))throw commerceError_('forbidden','That card is not saved on your account.');
+  if(!razorpayCardList_(customerId).concat(razorpayUpiList_(customerId)).some(function(c){return c.id===tokenId;}))throw commerceError_('forbidden','That card is not saved on your account.');
   razorpayApi_('/customers/'+encodeURIComponent(customerId)+'/tokens/'+encodeURIComponent(tokenId),'delete');
-  return {ok:true,cards:razorpayCardList_(customerId)};
+  return {ok:true,cards:razorpayCardList_(customerId),upi:razorpayUpiList_(customerId)};
+}
+
+/* ---------- Saved PayPal (PayPal Vault) ----------
+   PayPal's own button approves the connection; PayPal gives back a "payment token". Only that token, the PayPal email (shown masked)
+   and the verified account email are kept, in the private "PayPalVault" tab. No PayPal password or card number is ever seen here.
+   Needs PayPal's "Vault" feature switched on for the PayPal app. */
+var VAULT_SHEET_='PayPalVault';
+function vaultSheet_(){
+  var ss=SpreadsheetApp.getActiveSpreadsheet(),sheet=ss.getSheetByName(VAULT_SHEET_);
+  if(!sheet){sheet=ss.insertSheet(VAULT_SHEET_);sheet.appendRow(['Account email','Method ID','Mode','PayPal payment token','PayPal customer','PayPal email','Created']);sheet.setFrozenRows(1);sheet.getRange(1,1,1,7).setBackground('#1a2959').setFontColor('#ffffff').setFontWeight('bold');sheet.setTabColor('#7a8cc2');}
+  return sheet;
+}
+function vaultMask_(email){var v=String(email||''),at=v.indexOf('@');return at>0?v.charAt(0)+'\u2022\u2022\u2022'+v.slice(at):'PayPal';}
+function vaultRows_(email){
+  var sheet=vaultSheet_(),last=sheet.getLastRow();if(last<2)return [];
+  return sheet.getRange(2,1,last-1,7).getValues().map(function(r,i){return {row:i+2,data:r};}).filter(function(x){return String(x.data[0]).toLowerCase()===email&&x.data[2]===mode_();});
+}
+function vaultList_(email){return vaultRows_(email).map(function(x){return {id:String(x.data[1]),email:vaultMask_(x.data[5])};});}
+function handlePaypalVault_(d){
+  if(props_().getProperty('COMMERCE_ENABLED')!=='true')throw commerceError_('unavailable','Saving PayPal is not available yet.');
+  var who=commerceWho_(d.accountToken),email=String(who.email).toLowerCase(),op=d.operation;
+  if(op==='paypal-list')return {ok:true,paypal:vaultList_(email),mode:mode_()};
+  if(op==='paypal-init'){
+    var p=props_(),id=p.getProperty('PAYPAL_CLIENT_ID'),secret=p.getProperty('PAYPAL_SECRET');
+    if(!id||!secret)throw commerceError_('unavailable','PayPal is not connected.');
+    var r=UrlFetchApp.fetch(base_()+'/v1/oauth2/token',{method:'post',payload:'grant_type=client_credentials&response_type=id_token',muteHttpExceptions:true,headers:{Authorization:'Basic '+Utilities.base64Encode(id+':'+secret)}});
+    var idToken='';try{idToken=JSON.parse(r.getContentText()).id_token||'';}catch(e){}
+    return {ok:true,clientId:id,idToken:idToken,mode:mode_()};
+  }
+  if(op==='paypal-setup'){
+    var site=props_().getProperty('SITE_URL')||'https://imajoy.github.io';
+    var t=commercePaypal_('/v3/vault/setup-tokens','post',{payment_source:{paypal:{usage_type:'MERCHANT',experience_context:{return_url:site+'/account.html#methods',cancel_url:site+'/account.html#methods'}}}},Utilities.getUuid());
+    if(!/^[A-Za-z0-9_-]{6,64}$/.test(t&&t.id||''))throw commerceError_('provider','PayPal could not start saving your account.');
+    return {ok:true,setupTokenId:t.id};
+  }
+  if(op==='paypal-save'){
+    var setup=String(d.setupTokenId||'');if(!/^[A-Za-z0-9_-]{6,64}$/.test(setup))throw commerceError_('invalid','Invalid PayPal approval.');
+    var tok=commercePaypal_('/v3/vault/payment-tokens','post',{payment_source:{token:{id:setup,type:'SETUP_TOKEN'}}},'vault-'+setup);
+    var ppEmail=String(tok&&tok.payment_source&&tok.payment_source.paypal&&tok.payment_source.paypal.email_address||'');
+    if(!/^[A-Za-z0-9_-]{4,80}$/.test(tok&&tok.id||''))throw commerceError_('provider','PayPal did not confirm your account.');
+    var known=vaultRows_(email).some(function(x){return x.data[3]===tok.id;});
+    if(!known)vaultSheet_().appendRow([email,Utilities.getUuid(),mode_(),tok.id,String(tok.customer&&tok.customer.id||''),ppEmail,new Date()]);
+    return {ok:true,paypal:vaultList_(email)};
+  }
+  if(op==='paypal-remove'){
+    var mid=String(d.methodId||''),hit=vaultRows_(email).filter(function(x){return String(x.data[1])===mid;})[0];
+    if(!hit)throw commerceError_('forbidden','That PayPal account is not saved on your account.');
+    try{commercePaypal_('/v3/vault/payment-tokens/'+encodeURIComponent(hit.data[3]),'delete');}catch(e){if(e.providerStatus!==404)throw e;}
+    vaultSheet_().deleteRow(hit.row);
+    return {ok:true,paypal:vaultList_(email)};
+  }
+  throw commerceError_('invalid','Unknown request.');
 }

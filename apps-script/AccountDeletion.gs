@@ -6,7 +6,7 @@
    other tab (orders, payments, invoices, donations): the email becomes "deleted-xxxxxxxx" and name, company, address
    and message cells are blanked, while dates and amounts stay for tax and accounting records.
    Contact attachments stored in the private GitHub repository must be removed there (see apps-script/README.md). */
-var ERASE_DELETE_TABS_ = ['Accounts', 'Trials', 'Contacts', 'Reviews', 'Profiles'];
+var ERASE_DELETE_TABS_ = ['Accounts', 'Trials', 'Contacts', 'Reviews', 'Profiles', 'PayPalVault'];
 var ERASE_PII_HEADER_ = /(^|[^a-z])(name|billed to|buyer details|company|address|city|region|state|postal|zip|phone|message|street|ip address)([^a-z]|$)/i;
 function eraseAlias_(email) { return 'deleted-' + b64u_(Utilities.computeHmacSha256Signature('erase:' + email, sessionSecret_())).replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toLowerCase(); }
 function eraseHasAccess_(email) {

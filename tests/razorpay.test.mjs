@@ -372,3 +372,46 @@ test('Saved cards gateway: only account-signed requests, strict ids, no card dat
  const good=await call('card-verify',{accountToken:'t'.repeat(40),orderId:'order_abcdef12',paymentId:'pay_abcdef12',signature:'a'.repeat(64),cardNumber:'4111111111111111'});
  assert.equal(good.status,200);assert(!JSON.stringify(sent).includes('4111'),'a card number is never forwarded');
 });
+
+test('Saved UPI AutoPay: Rs 1 order carries a Rs 15,000 mandate, masked UPI id listed, only the owner can remove it',()=>{
+ const s=setup(),other=s.app.register('other@example.com').token;
+ const up=s.rpc('card-setup',{accountToken:s.token,method:'upi'});
+ assert.equal(up.ok,true,up.message);assert.equal(up.method,'upi');assert.equal(up.amount,100);
+ const order=s.app.razorpay.orders.get(up.orderId);
+ assert.equal(order.method,'upi');assert.equal(order.notes.purpose,'upi-check');assert.equal(order.token.max_amount,1500000);assert.equal(order.token.frequency,'as_presented');assert.equal(order.customer_id,up.customerId);
+ const pay={id:'pay_upi00001',order_id:up.orderId,amount:100,status:'authorized',amount_refunded:0};s.app.razorpay.payments.set(pay.id,pay);
+ const sig=createHmac('sha256','private-razorpay-test-secret').update(up.orderId+'|'+pay.id).digest('hex');
+ assert.equal(s.rpc('card-verify',{accountToken:other,orderId:up.orderId,paymentId:pay.id,signature:sig}).error,'forbidden');
+ assert.equal(s.rpc('card-verify',{accountToken:s.token,orderId:up.orderId,paymentId:pay.id,signature:sig}).refunded,true);
+ s.app.razorpay.tokens.set('token_upi00001',{id:'token_upi00001',customer_id:up.customerId,method:'upi',vpa:'ajoy@okhdfc',max_amount:1500000});
+ const list=s.rpc('cards',{accountToken:s.token});
+ assert.equal(list.upi.length,1);assert.equal(list.upi[0].vpa,'a\u2022\u2022\u2022@okhdfc');assert.equal(list.upi[0].maxAmount,1500000);assert(!JSON.stringify(list).includes('ajoy@okhdfc'),'full UPI id is never returned');
+ assert.equal(s.rpc('card-remove',{accountToken:other,tokenId:'token_upi00001'}).error,'forbidden');
+ assert.deepEqual(s.rpc('card-remove',{accountToken:s.token,tokenId:'token_upi00001'}).upi,[]);
+});
+test('Saved PayPal (vault): setup token, payment token kept per account, masked email, remove revokes it',()=>{
+ const s=setup(),other=s.app.register('other@example.com').token;
+ assert.equal(s.rpc('paypal-list',{accountToken:'forged'}).error,'signin_required');
+ const init=s.rpc('paypal-init',{accountToken:s.token});assert.equal(init.ok,true,init.message);assert.equal(init.clientId,'test-client');assert.equal(init.idToken,'idtok.test-vault');assert(!JSON.stringify(init).includes('test-secret'));
+ const setupTok=s.rpc('paypal-setup',{accountToken:s.token});assert.equal(setupTok.setupTokenId,'SETUPTOK0001');
+ assert.equal(s.rpc('paypal-save',{accountToken:s.token,setupTokenId:'bad id!'}).error,'invalid');
+ const saved=s.rpc('paypal-save',{accountToken:s.token,setupTokenId:setupTok.setupTokenId});
+ assert.equal(saved.ok,true,saved.message);assert.equal(saved.paypal.length,1);assert.equal(saved.paypal[0].email,'p\u2022\u2022\u2022@example.com');assert(!JSON.stringify(saved).includes('ppvault0001'),'the PayPal token never leaves the server');
+ assert.equal(s.rpc('paypal-save',{accountToken:s.token,setupTokenId:setupTok.setupTokenId}).paypal.length,1,'saving twice does not duplicate');
+ assert.deepEqual(s.rpc('paypal-list',{accountToken:other}).paypal,[],'another account sees nothing');
+ const id=saved.paypal[0].id;
+ assert.equal(s.rpc('paypal-remove',{accountToken:other,methodId:id}).error,'forbidden');
+ assert.deepEqual(s.rpc('paypal-remove',{accountToken:s.token,methodId:id}).paypal,[]);
+ assert(s.app.requests.some(r=>r.url.includes('/v3/vault/payment-tokens/ppvault0001')&&r.options.method==='delete'),'PayPal is told to forget it');
+});
+test('Saved methods gateway: upi method and PayPal ids are validated',async()=>{
+ const sent=[];const handler=createRazorpayHandler({env:k=>({COMMERCE_ENABLED:'true',COMMERCE_SECRET:'x'.repeat(40),SHEET_WEB_APP_URL:'https://script.google.com/macros/s/AKfycbxabc/exec',ALLOWED_ORIGINS:'https://imajoy.github.io'})[k],request:async(url,opt)=>{sent.push(JSON.parse(JSON.parse(opt.body).payload));return new Response(JSON.stringify({ok:true}),{status:200});}});
+ const call=(path,body)=>handler(new Request('https://x.test/functions/v1/razorpay/'+path,{method:'POST',headers:{origin:'https://imajoy.github.io','content-type':'application/json'},body:JSON.stringify(body)}));
+ const t='t'.repeat(40);
+ assert.equal((await call('card-setup',{accountToken:t,method:'upi'})).status,200);assert.equal(sent.at(-1).method,'upi');
+ assert.equal((await call('card-setup',{accountToken:t,method:'wire'})).status,400);
+ assert.equal((await call('paypal-save',{accountToken:t,setupTokenId:'../x'})).status,400);
+ assert.equal((await call('paypal-save',{accountToken:t,setupTokenId:'5C991763VB2781612'})).status,200);
+ assert.equal((await call('paypal-remove',{accountToken:t,methodId:'nope'})).status,400);
+ assert.equal((await call('paypal-list',{})).status,401);
+});

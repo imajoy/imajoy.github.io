@@ -65,6 +65,10 @@ export function service({registered=true,mailFails=false,strictEmail=false}={}){
     return github.files.has(path)?result(github.files.get(path)):result({},404);
    }
    if(url.includes('/v2/checkout/orders/')){const id=url.split('/').pop();return paypalOrders.has(id)?result(paypalOrders.get(id),200):result({name:'RESOURCE_NOT_FOUND'},404);}
+   if(url.endsWith('/v3/vault/setup-tokens')&&options.method==='post')return result({id:'SETUPTOK0001',customer:{id:'cust_pp1'}},201);
+   if(url.endsWith('/v3/vault/payment-tokens')&&options.method==='post')return result({id:'ppvault0001',customer:{id:'cust_pp1'},payment_source:{paypal:{email_address:'payer@example.com'}}},201);
+   if(url.includes('/v3/vault/payment-tokens/')&&options.method==='delete')return result(null,204);
+   if(url.endsWith('/v1/oauth2/token')&&String(options.payload||'').includes('response_type=id_token'))return result({id_token:'idtok.test-vault'});
    if(url.endsWith('/v1/oauth2/token'))return result({access_token:'paypal-test-token'});
    if(url.endsWith('/v1/notifications/verify-webhook-signature'))return result({verification_status:signatureValid?'SUCCESS':'FAILURE'});
    if(url.endsWith('/v1/billing/subscriptions')&&options.method==='post'){

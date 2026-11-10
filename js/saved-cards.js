@@ -140,7 +140,9 @@ async function initPaypal(){
   ppState='loading';load.hidden=false;say(pm,'');
   try{
     await preloadPaypal();
-    await window.paypal.Buttons({style:{shape:'pill',color:'gold',label:'paypal',height:44,layout:'horizontal',tagline:false},
+    box.replaceChildren(); /* never stack a second button */
+    await window.paypal.Buttons({fundingSource:window.paypal.FUNDING.PAYPAL, /* one PayPal button only, no second funding button */
+      style:{shape:'pill',color:'gold',label:'paypal',height:44},
       createVaultSetupToken:async()=>(await call('paypal-setup')).setupTokenId,
       onApprove:async({vaultSetupToken})=>{say(pm,'Saving your PayPal account…');
         try{const r=await call('paypal-save',{setupTokenId:vaultSetupToken});paypalList=r.paypal||[];cards=merge(lastRz);paint();closeDlg();say(msg,'Done. Your PayPal account is saved.','ok');}

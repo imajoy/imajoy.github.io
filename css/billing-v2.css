@@ -1,0 +1,63 @@
+/* Billing + payment pages v2: Wrapline Pro identity (graphite + gold, warm paper in day mode).
+   The yearly offer is a slim ticket placed right under the billing-period choice (desktop), instead of a big card above the summary. */
+body.bill-v2{--gold:#F2B64F;--gold-hi:#FFE2A0;--gold-lo:#B27712;--g-ink:#1A1204;--acc:var(--gold-lo);--e3:cubic-bezier(.22,1,.36,1);--mono:ui-monospace,"SF Mono","JetBrains Mono",Menlo,Consolas,monospace;
+ --bg:#F3F1EC;--bg2:#FAF8F4;--line:#DDD8CC;--card:#FFFFFF;--card2:#FBFAF7;--blue:#C98A1E;--blue-d:#B27712;--em:#B27712}
+html[data-theme=dark] body.bill-v2{--acc:var(--gold);--bg:#09090B;--bg2:#0E0E11;--ink:#F1F2F4;--mute:#A0A3AD;--line:#24252B;--card:#131317;--card2:#1A1A1F;--blue:#F2B64F;--blue-d:#F2B64F;--em:#F2B64F}
+body.bill-v2{background:radial-gradient(60% 50% at 90% 0%,color-mix(in srgb,var(--gold) 12%,transparent),transparent 70%),var(--bg)!important}
+body.bill-v2 .commerce-main>.wrap>.eyebrow{font:700 11px/1 var(--mono);letter-spacing:.18em;text-transform:uppercase;color:var(--acc)}
+body.bill-v2 .commerce-main h1{font-weight:600;letter-spacing:-.055em;font-size:clamp(2.4rem,1rem + 4vw,4.6rem);line-height:1}
+body.bill-v2 .commerce-main h1 em{font-family:var(--serif);font-style:italic;font-weight:400;color:var(--acc);-webkit-text-fill-color:var(--acc);background:none}
+/* steps */
+body.bill-v2 .checkout-progress{background:none!important;border:0!important;box-shadow:none!important;padding:0!important;display:flex;gap:26px;border-radius:0!important}
+body.bill-v2 .checkout-progress>*{background:none!important;box-shadow:none!important;border-radius:0!important;padding:10px 0!important;font:700 11.5px/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--mute);border-bottom:2px solid var(--line)!important}
+body.bill-v2 .checkout-progress [aria-current=step]{color:var(--ink);border-bottom-color:transparent!important}
+body.bill-v2 .checkout-progress [aria-current=step]::after{left:0!important;right:0!important;bottom:-2px!important;background:linear-gradient(90deg,var(--gold),var(--gold-hi))!important}
+body.bill-v2 .commerce-main .status-box{border-radius:14px;border-style:dashed}
+/* form */
+body.bill-v2 .checkout-form fieldset{border-radius:22px!important;border-color:var(--line)!important;background:var(--card)!important}
+body.bill-v2 .checkout-form legend{border-radius:8px;font:700 11px/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;padding:10px 13px;border-color:color-mix(in srgb,var(--gold) 40%,var(--line));color:var(--ink)}
+body.bill-v2 .checkout-form :is(input:not([type=checkbox]),select,textarea),body.bill-v2 .quantity-control button{border-radius:12px!important;transition:border-color .35s var(--e3),box-shadow .35s var(--e3),background-color .35s var(--e3)}
+body.bill-v2 .checkout-form :is(input:not([type=checkbox]),select,textarea):focus{border-color:var(--gold)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 22%,transparent)!important;outline:0}
+body.bill-v2 .checkout-form input[type=checkbox]{accent-color:var(--gold-lo)}
+body.bill-v2 :is(.text-link,.check-row a){color:var(--acc)}
+/* summary */
+body.bill-v2 .order-summary{border-radius:24px!important;border-color:var(--line)!important;background:var(--card)!important}
+body.bill-v2 .license-pass{background:linear-gradient(140deg,#26222b 0%,#17151a 55%,#0d0c0f 100%)!important;box-shadow:0 22px 36px -14px rgba(0,0,0,.6),inset 0 0 0 1px rgba(242,182,79,.45),inset 0 1px 0 rgba(255,226,160,.35)!important;color:#F4E7C8!important}
+body.bill-v2 .pass-badge{border-color:rgba(242,182,79,.6)!important;color:#F2B64F!important;background:transparent!important}
+body.bill-v2 .pass-path{stroke:#F2B64F!important}body.bill-v2 .pass-diamond{fill:#FFE2A0!important}body.bill-v2 .pass-art circle{stroke:#F2B64F!important}
+body.bill-v2 .license-orbit{border-color:color-mix(in srgb,var(--gold) 35%,transparent)!important}
+body.bill-v2 .order-summary .eyebrow{font:700 10.5px/1 var(--mono);letter-spacing:.16em;color:var(--mute)}
+body.bill-v2 .order-total{border-radius:14px;background:color-mix(in srgb,var(--gold) 10%,var(--bg2))!important;border:1px solid color-mix(in srgb,var(--gold) 35%,var(--line))}
+body.bill-v2 .order-total strong{color:var(--ink)}
+body.bill-v2 .summary-list li::before,body.bill-v2 .summary-list svg{color:var(--acc)!important;border-color:var(--acc)!important}
+body.bill-v2 .completion-ring{--ring:var(--gold)}body.bill-v2 .completion-ring circle:last-child{stroke:var(--gold)!important}
+body.bill-v2 :is(.btn-blue,#pay,.mobile-pay .btn){background:linear-gradient(135deg,var(--gold-hi),var(--gold))!important;color:var(--g-ink)!important;box-shadow:0 16px 32px -16px color-mix(in srgb,var(--gold) 85%,transparent)!important;border-color:transparent!important}
+body.bill-v2 .btn-blue:hover{filter:brightness(1.05)}
+body.bill-v2 .commerce-header .mark{filter:none}
+/* the yearly offer: a slim ticket */
+body.bill-v2 .offer-checkout{display:grid!important;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:16px;margin:0!important;padding:14px 16px 14px 14px!important;border-radius:16px!important;border:1px dashed color-mix(in srgb,var(--gold) 60%,var(--line))!important;background:linear-gradient(100deg,color-mix(in srgb,var(--gold) 13%,var(--card)),var(--card) 70%)!important;box-shadow:none!important}
+body.bill-v2 .offer-checkout[hidden]{display:none!important}
+body.bill-v2 .offer-checkout::before,body.bill-v2 .offer-checkout::after{display:none!important}
+body.bill-v2 .offer-checkout .offer-stamp{min-width:0!important;min-height:0!important;height:48px!important;padding:0 12px!important;border-radius:11px!important;border:0!important;background:linear-gradient(135deg,var(--gold-hi),var(--gold))!important;color:var(--g-ink)!important;font:800 1.35rem/1 var(--sans)!important;letter-spacing:-.04em;align-items:center!important}
+body.bill-v2 .offer-checkout .offer-stamp small{font-size:.8rem!important;color:inherit}
+body.bill-v2 .offer-checkout .offer-eyebrow{font:700 9.5px/1 var(--mono)!important;letter-spacing:.16em;color:var(--acc)!important;margin:0 0 5px!important}
+body.bill-v2 .offer-checkout h2{font-size:15px!important;line-height:1.3!important;letter-spacing:-.02em!important;margin:0!important;font-weight:650}
+body.bill-v2 .offer-checkout p[data-offer-copy]{font-size:12px!important;line-height:1.5!important;margin-top:3px}
+body.bill-v2 .offer-checkout .offer-action{min-height:40px;padding:8px 14px;border-radius:10px;border-color:color-mix(in srgb,var(--gold) 55%,var(--line));background:var(--card);font-size:12px;transition:background-color .35s var(--e3),color .35s var(--e3),transform .45s var(--e3)}
+@media(hover:hover) and (pointer:fine){body.bill-v2 .offer-checkout .offer-action:hover{background:linear-gradient(135deg,var(--gold-hi),var(--gold));color:var(--g-ink);transform:translateX(3px);box-shadow:none}}
+body.bill-v2 .checkout-form>.offer-checkout{margin:-6px 0 4px!important}
+body.bill-v2 .billing-upsell{border-radius:16px;border:1px solid color-mix(in srgb,var(--gold) 40%,var(--line))!important;background:color-mix(in srgb,var(--gold) 8%,var(--card))!important}
+body.bill-v2 .upsell-badge{background:var(--gold)!important;color:var(--g-ink)!important}
+body.bill-v2 .customer-verification{border-radius:20px}
+body.bill-v2 .rs-pct{color:var(--acc)!important}
+@media(max-width:560px){body.bill-v2 .offer-checkout{grid-template-columns:auto minmax(0,1fr)}body.bill-v2 .offer-checkout .offer-action{grid-column:1/-1;justify-self:start}body.bill-v2 .checkout-progress{gap:16px}body.bill-v2 .checkout-progress>*{font-size:10px;letter-spacing:.06em}}
+body.bill-v2 .checkout-form>.offer-checkout{margin:-4px 0 22px!important}
+/* account / billing centre */
+body.bill-v2.bc-page .bc-nav a[aria-current],body.bill-v2.bc-page .bc-nav a.on{color:var(--ink)}
+body.bill-v2.bc-page h1{font-weight:600;letter-spacing:-.05em}
+body.bill-v2.bc-page .btn-dark{background:linear-gradient(135deg,var(--gold-hi),var(--gold))!important;color:var(--g-ink)!important;border-color:transparent!important;box-shadow:0 14px 28px -16px color-mix(in srgb,var(--gold) 85%,transparent)!important}
+body.bill-v2.bc-page .bc-card{border-radius:22px}
+body.bill-v2.bc-page .sc-acc{border-radius:16px}
+body.bill-v2.bc-page .sc-lock svg{stroke:var(--acc)}
+body.bill-v2 :is(.pay-bar,.sticky-pay,[class*=paybar]) button,body.bill-v2 .checkout-continue .btn{background:linear-gradient(135deg,var(--gold-hi),var(--gold))!important;color:var(--g-ink)!important;box-shadow:0 14px 28px -16px color-mix(in srgb,var(--gold) 85%,transparent)!important}
+body.bill-v2 .m-total button{background:linear-gradient(135deg,var(--gold-hi),var(--gold))!important;color:var(--g-ink)!important;box-shadow:0 14px 28px -16px color-mix(in srgb,var(--gold) 85%,transparent)!important}

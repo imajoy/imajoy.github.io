@@ -303,3 +303,6 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 html[data-theme=dark] .sc-brands em{background:#F1F2F4;border-color:transparent}
 .sc-apps em{background:#fff;border-color:rgba(14,18,32,.14)}html[data-theme=dark] .sc-apps em{background:#F1F2F4;border-color:transparent}
 @media(max-width:420px){.sc-brands em{height:22px;padding:0 6px;font-size:.64rem}}
+/* The window was centred, so every time a section opened or closed the whole window jumped up/down to re-centre (worst on UPI, the tallest).
+   Pin its top edge so it only grows downward, and keep the scrollbar space reserved so nothing shifts sideways. */
+.sc-dlg{margin-block:clamp(12px,7vh,64px) auto;max-height:calc(100dvh - clamp(24px,10vh,90px));scrollbar-gutter:stable;overscroll-behavior:contain}

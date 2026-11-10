@@ -63,7 +63,7 @@ let rzp;function loadCheckout(){
 function openDlg(){
   if(!getAccountSession()){window.dispatchEvent(new CustomEvent('ajoy-account-open',{detail:{}}));return;}
   say(dmsg,'');go.disabled=false;go.textContent='Submit Payment';
-  $$('.sc-acc',dlg).forEach((a,i)=>{a.dataset.open=String(i===0);$('.sc-acc-h',a).setAttribute('aria-expanded',String(i===0));});
+  $$('.sc-acc',dlg).forEach(a=>{a.dataset.open='false';$('.sc-acc-h',a).setAttribute('aria-expanded','false');});
   if(!dlg.open)dlg.showModal();
 }
 function closeDlg(){

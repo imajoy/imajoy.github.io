@@ -1,0 +1,31 @@
+/* Download page (Wrapline Pro): the install scene and steps use the Pro identity: graphite + gold, like the Pro setup window. */
+.fs.fs-pro{background:radial-gradient(90% 80% at 20% 0%,#2a2010 0%,#151316 52%,#0C0B0E 100%)!important;box-shadow:0 50px 90px -44px rgba(242,182,79,.45),0 0 0 1px rgba(242,182,79,.22)!important}
+.fs-pro .fs-orb.a{background:#F2B64F!important;opacity:.32!important}.fs-pro .fs-orb.b{background:#7A5CFF!important;opacity:.32!important}
+.fs-pro .fs-file{background:linear-gradient(145deg,#FFE2A0,#E8A93A)!important;box-shadow:0 10px 22px -10px #F2B64F!important;color:#1A1204}
+.fs-pro .fs-file svg{color:#1A1204;fill:#1A1204;stroke:#1A1204}
+.fs-pro .fs-track i{background:linear-gradient(90deg,#C98A1E,#FFE2A0)!important}
+.fs-pro .fs-card{background:#16141a!important;box-shadow:0 30px 60px -24px #000,0 0 0 1px rgba(242,182,79,.35)!important}
+.fs-pro .fs-card h4 svg{border-radius:8px;box-shadow:0 0 0 2px #16141a,0 0 0 3.5px #F2B64F}
+.fs-pro .fs-field{border-color:#F2B64F!important;background:#09090B!important}.fs-pro .fs-type,.fs-pro .fs-ptype{border-right-color:#F2B64F!important}
+.fs-pro .fs-code i{border-color:rgba(242,182,79,.35)}
+.fs-pro .fs-bar .fs-wl{background:linear-gradient(135deg,#FFE2A0,#F2B64F)!important;color:#1A1204!important}
+.fs-pro .fs-ripple{border-color:#F2B64F!important}
+.fs-pro .fs-dropzone{color:#FFE9BC!important}
+.fs-pro .fs-chip{background:#F2B64F!important;color:#1A1204!important;box-shadow:0 14px 28px -12px rgba(242,182,79,.9)!important}
+.fs-pro .fs-chip svg{stroke:#1A1204}
+.fs-pro .fs-ok{color:#8FE3B5}
+.fs-pro .fs-plabel{color:#A5A7B1}
+.fs-pro .fs-plans{gap:10px}
+.fs-pro .fs-plans span{background:#0F0E11!important;border:1px solid rgba(255,255,255,.12)!important;color:#8E909A!important;padding:11px 12px!important;border-radius:12px!important}
+.fs-pro .fs-plans span:first-child{border:1.5px solid #F2B64F!important;background:#1C1608!important;color:#E6D3A6!important}
+.fs-pro .fs-plans b{font-size:13px;margin-bottom:2px}
+.fs-pro .fs-dots i.on{background:#F2B64F!important}
+/* step pills + headings */
+.dl-journey .dl-eyebrow{color:#C98A1E!important}
+html[data-theme=dark] .dl-journey .dl-eyebrow{color:#F2B64F!important}
+.dl-steps4 li b{color:#C98A1E!important}
+.dl-steps4 li.on{background:linear-gradient(135deg,#FFE2A0,#F2B64F)!important;color:#1A1204!important;box-shadow:0 16px 34px -16px rgba(242,182,79,.8)!important;border-color:transparent!important}
+.dl-steps4 li.on b{color:#1A1204!important}
+.fs-pro .fs-card h4 svg{box-shadow:none!important}
+.fs-pro .fs-dots i.on{background:#F2B64F!important}
+.fs.fs-pro .fs-maya .fs-shelf .t{color:#fff}

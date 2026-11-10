@@ -21,11 +21,16 @@ test('A failing welcome email never blocks the sign-in',()=>{
  try{assert.equal(app.call({step:'verify',email:'new@gmail.com',code}).ok,true);}finally{globalThis.__mailDown=false;}
  assert.equal(app.mails.filter(m=>/Welcome/.test(m.subject)).length,0);
 });
-test('Code and welcome emails are sent the normal way unless REAL_NOREPLY is on',()=>{
+test('Code emails show noreply@wrapline.in when that address is set up, and still arrive when it is not',()=>{
  const app=service({registered:false});
  app.call({step:'code',email:'new@gmail.com',intent:'register'});
- assert.equal(app.mails.at(-1).noReply,undefined);
- app.values.set('REAL_NOREPLY','true');app.cache.delete('sends:new@gmail.com');
- app.call({step:'code',email:'new@gmail.com',intent:'register'});
- assert.equal(app.mails.at(-1).noReply,true);
+ assert.equal(app.mails.at(-1).viaGmail,undefined,'not set up: normal sending');
+ assert.equal(app.mails.at(-1).subject.includes('sign-in code'),true);
+ globalThis.__aliases=['noreply@wrapline.in'];
+ try{
+  app.cache.delete('sends:new@gmail.com');
+  app.call({step:'code',email:'new@gmail.com',intent:'register'});
+  const m=app.mails.at(-1);
+  assert.equal(m.viaGmail,true);assert.equal(m.from,'noreply@wrapline.in');assert.match(m.subject,/sign-in code/);assert.ok(m.htmlBody);
+ }finally{globalThis.__aliases=undefined;}
 });

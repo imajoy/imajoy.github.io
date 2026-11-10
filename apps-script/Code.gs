@@ -14,14 +14,28 @@ var ORDERS_SHEET = 'Orders';
 /* Optional Script properties: OWNER_EMAIL = where YOUR order reminders go (default: the Google account that owns this script);
    REPLY_TO = the address buyers see and can reply to (default: OWNER_EMAIL, or the script owner's account). */
 function ownerEmail_() { return props_().getProperty('OWNER_EMAIL') || Session.getEffectiveUser().getEmail(); }
-/* Automatic emails nobody should answer (sign-in codes, welcome). They are sent the normal way from the account's own address:
-   Gmail rejected the special Workspace "no-reply" sending mode on a new domain, so it is OFF unless the script property
-   REAL_NOREPLY is set to true. The sender name and the text still say the message is automatic. */
+/* Automatic emails nobody should answer (sign-in codes, welcome). They show as "Wrapline <noreply@wrapline.in>" when that address is
+   set up as a "Send mail as" address on the account (Gmail > Settings > Accounts); the sender is the script property SEND_FROM
+   (default noreply@wrapline.in). If it is not set up, or sending that way fails, the email goes out normally from the account's own
+   address so a sign-in code is never lost. Google's special no-reply mode is not used: Gmail rejected it on a new domain. */
+function sendFromAddress_() { return String(props_().getProperty('SEND_FROM') || 'noreply@wrapline.in').trim().toLowerCase(); }
 function sendNoReply_(message) {
-  var real = String(props_().getProperty('REAL_NOREPLY') || '').toLowerCase() === 'true';
-  if (!real) { MailApp.sendEmail(message); return; }
-  try { MailApp.sendEmail(Object.assign({ noReply: true }, message)); }
-  catch (err) { MailApp.sendEmail(message); }
+  var from = sendFromAddress_();
+  try {
+    if (from && GmailApp.getAliases().map(function (a) { return String(a).toLowerCase(); }).indexOf(from) >= 0) {
+      var o = { from: from, name: message.name || 'Wrapline' };
+      if (message.htmlBody) o.htmlBody = message.htmlBody;
+      if (message.replyTo) o.replyTo = message.replyTo;
+      GmailApp.sendEmail(message.to, message.subject, message.body || '', o);
+      return;
+    }
+  } catch (err) { /* fall back to the normal way below */ }
+  MailApp.sendEmail(message);
+}
+/* Run this ONCE in the editor (Run button) after updating the script: it asks you to allow sending as noreply@wrapline.in. */
+function authorizeSendAs_() {
+  var aliases = GmailApp.getAliases();
+  Logger.log('Send-as addresses: ' + aliases.join(', ') + (aliases.indexOf(sendFromAddress_()) >= 0 ? '  -> ' + sendFromAddress_() + ' is ready.' : '  -> ' + sendFromAddress_() + ' is NOT set up yet in Gmail.'));
 }
 /* Branded HTML for the sign-in / registration code email (plain-text body is still sent as a fallback). */
 function codeEmailHtml_(code, minutes, support) {

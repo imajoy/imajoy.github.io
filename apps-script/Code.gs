@@ -409,12 +409,6 @@ function cancelSubscription_(who, provider, ref) {
     return { ok: false, error: e && e.code ? e.code : 'unavailable', message: e && e.code && e.message ? e.message : 'The subscription could not be cancelled. Please try again.' };
   }
 }
-/* Payment-reviewer test login (optional). Only when BOTH script properties REVIEWER_EMAIL and REVIEWER_CODE (6 digits) are
-   set does that one address sign in with that fixed code and no email is sent. Delete either property to switch it off. */
-function reviewerCode_(email) {
-  var p = props_(), e = String(p.getProperty('REVIEWER_EMAIL') || '').trim().toLowerCase(), c = String(p.getProperty('REVIEWER_CODE') || '').trim();
-  return e && /^\d{6}$/.test(c) && email === e ? c : '';
-}
 /* Accounts are created only after a registration email code has been verified. */
 function safeSheetCell_(value) { return typeof value === 'string' && /^[=+@-]/.test(value) ? "'" + value : value; }
 function registeredEmail_(email) {
@@ -504,7 +498,7 @@ function handleAccount_(d) {
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) return { ok: false, error: 'email' };
   if (step !== 'code' && step !== 'verify') return { ok: false, error: 'step' };
   // New sign-ups need a reputable mailbox. Anyone who already bought from you can still sign in with the address they used.
-  if (step === 'code' && !reviewerCode_(email) && !emailDomainAllowed_(email) && (isDisposableEmail_(email) || !registeredEmail_(email))) return { ok: false, error: 'email_domain' };
+  if (step === 'code' && !emailDomainAllowed_(email) && (isDisposableEmail_(email) || !registeredEmail_(email))) return { ok: false, error: 'email_domain' };
   // Serialize code requests and consumption so a code can be used only once.
   var lock = LockService.getScriptLock();
   if (!lock.tryLock(5000)) return { ok: false, error: 'busy' };
@@ -523,12 +517,6 @@ function handleAccount_(d) {
       }
       var intent = !registered && ['register','auto'].indexOf(d.intent)>=0 ? 'register' : 'signin';
       if (!registered && intent !== 'register') return { ok: false, error: 'not_registered', registrationAvailable: true };
-      if (reviewerCode_(email)) {
-        // Reviewer test address: no email is sent; the fixed code is accepted for the next 15 minutes.
-        cache.put('intent:' + email, 'register', 900); cache.remove('tries:' + email);
-        var rExp = Date.now() + 900000;
-        return { ok: true, registered: registered, intent: registered ? 'signin' : 'register', expiresAt: rExp, expiresIn: 900 };
-      }
       cache.put('intent:' + email, intent, 120);
       var code = secureCode_();
       var expiresAt=Date.now()+120000;
@@ -544,17 +532,6 @@ function handleAccount_(d) {
     cache.put(tk, String(tries + 1), 600);
     var packed=cache.get('code:' + email), record;try{record=JSON.parse(packed||'null');}catch(error){}
     var got=String(d.code || '').trim();
-    var fixed = reviewerCode_(email);
-    if (fixed) {
-      if (got !== fixed) return { ok: false, error: 'code' };
-      var rIntent = cache.get('intent:' + email) || 'register';
-      cache.remove('intent:' + email);
-      if (!registeredEmail_(email) && rIntent !== 'register') return { ok: false, error: 'not_registered' };
-      var rFirst = registerAccount_(email);
-      if (rFirst) sendWelcome_(email);
-      var rToken = makeSession_(email), rIdentity = readSession_(rToken), rFlags = yearlyUsedFlags_(email);
-      return { ok: true, email: email, token: rToken, expiresAt: rIdentity.expiresAt, subscriptions: null, premiumYearlyUsed: rFlags.offline, yearlyOfferUsed: rFlags };
-    }
     if(!record||!Number.isFinite(record.expiresAt)||record.expiresAt<=Date.now()){cache.remove('code:' + email);cache.remove('intent:' + email);return {ok:false,error:'code_expired'};}
     if(!/^\d{6}$/.test(got)||record.hash!==hashCode_(email,got))return {ok:false,error:'code'};
     var intent = cache.get('intent:' + email);

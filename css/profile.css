@@ -81,3 +81,8 @@ html[data-theme=dark] .pmx-field input,html[data-theme=dark] .pmx-field textarea
 .pmx-clear[hidden]{display:none}
 @media(max-width:520px){.pmx-btn{width:36px;height:36px}.pmx-av{width:28px;height:28px}.pmx-form{padding:26px 20px 22px}.pmx-row{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.pmx-menu,.pmx-menu>*,.pmx-seg>i,.pmx-co,.pmx-dlg[open]{transition:none!important;animation:none!important}.pmx-menu>*{opacity:1;transform:none}}
+
+/* Signing in while the page is open: the avatar pops in instead of appearing */
+.pmx.pmx-in{animation:pmx-pop .6s cubic-bezier(.22,1,.36,1) both}
+@keyframes pmx-pop{0%{opacity:0;transform:scale(.4) rotate(-24deg)}60%{opacity:1;transform:scale(1.1) rotate(4deg)}100%{opacity:1;transform:none}}
+@media(prefers-reduced-motion:reduce){.pmx.pmx-in{animation:none}}

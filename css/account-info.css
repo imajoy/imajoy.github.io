@@ -49,3 +49,12 @@
 .ai-act{grid-template-columns:minmax(120px,32%) minmax(0,1fr) auto}.ai-mute{color:var(--mute);font-size:.875rem}
 @media(max-width:640px){.ai-act{grid-template-columns:minmax(0,1fr) auto}.ai-act .ai-v{grid-area:v}.ai-act>:last-child{grid-area:b;grid-row:1 / span 2}}
 .ai-rows+.ai-danger{border-top:1px solid var(--line)}
+
+/* Phone only: roomier name form, stacked Switch account / Sign out rows */
+@media(max-width:640px){
+ .ai-name-form{gap:12px;padding-top:16px;padding-bottom:18px}
+ .ai-form-actions{width:100%;gap:10px}.ai-form-actions .btn{flex:1 1 0;justify-content:center;min-height:46px}
+ .ai-act{grid-template-columns:minmax(0,1fr);grid-template-areas:"k" "v" "b";gap:4px;padding:16px 18px}
+ .ai-act .ai-k{grid-area:k}.ai-act .ai-v{grid-area:v}
+ .ai-act>:last-child{grid-area:b;grid-row:auto;justify-self:stretch;margin-top:12px;width:100%;min-height:46px;justify-content:center}
+}

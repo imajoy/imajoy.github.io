@@ -267,6 +267,13 @@ html[data-theme=dark] .bc-shell{--bc-ok:#4fd1a0;--bc-warn:#e2b75d;--bc-bad:#f08a
 .sc-go{margin-top:4px}.sc-note{margin:0 0 4px;color:var(--mute);font-size:.92rem;line-height:1.55}.sc-note b{color:var(--ink)}
 .sc-lock{display:flex;align-items:center;gap:8px;margin:16px 0 0;font-size:.82rem;color:var(--mute)}.sc-lock svg{width:16px;height:16px;fill:none;stroke:var(--blue-d,#2A64E8);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
 @media(max-width:560px){.sc-head{flex-wrap:wrap}.sc-add{width:100%}}
+/* Phone only: the four tabs always fit on one line, even with large system text */
+@media(max-width:560px){
+ .bc-nav{padding:5px;gap:2px}.bc-nav a{flex:1 1 0;min-width:0;padding:10px 4px;font-size:clamp(.68rem,3.5vw,.8125rem);letter-spacing:-.01em;white-space:nowrap;text-align:center}
+ .bc-method .bc-msg:empty{display:none}
+}
+.sc-acc-in{transition:padding-bottom .38s cubic-bezier(.22,1,.36,1),opacity .3s ease}
+.sc-acc[data-open=false] .sc-acc-in{opacity:0}.sc-acc[data-open=true] .sc-acc-in{opacity:1}
 /* UPI + PayPal sections */
 .sc-go:disabled{opacity:.4;cursor:not-allowed;filter:grayscale(.6)}
 .sc-field{margin:2px 0 14px}.sc-field label{display:block;margin:0 0 6px;font-size:.86rem;color:var(--mute)}

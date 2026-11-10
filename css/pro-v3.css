@@ -155,3 +155,17 @@ body.pro-page #trial .ta-c1{left:0}body.pro-page #trial .ta-c2{right:0}
 html body.pro-page #trial .ta-perf::before,html body.pro-page #trial .ta-perf::after{background:#EFAE3E!important;border-color:transparent!important;box-shadow:none!important}
 html body.pro-page #trial .ta-chip i,html body.pro-page #trial .ta-chip i::after{background:#F7C96D;color:#F7C96D;box-shadow:0 0 0 3px rgba(247,201,109,.22)}
 html body.pro-page #trial .ta-ticket::before,html body.pro-page #trial .ta-ticket::after{background:#F0B040;border:0;box-shadow:inset 0 0 0 1px rgba(0,0,0,.18)}
+/* Install window 3D: layered depth + glare + parallax orbs (driven by js/pro-install3d.js) */
+body.pro-page #install .inst-stage{perspective:1400px}
+body.pro-page #install .inst-stage .win{transform-style:preserve-3d;will-change:transform}
+body.pro-page #install .inst-stage .win>*{transform-style:preserve-3d}
+body.pro-page #install .inst-stage .win-head,body.pro-page #install .inst-stage .win-choices{transform:translateZ(calc(14px + var(--gh,0)*26px))}
+body.pro-page #install .inst-stage .win-field{transform:translateZ(calc(8px + var(--gh,0)*34px))}
+body.pro-page #install .inst-stage .win-foot{transform:translateZ(calc(10px + var(--gh,0)*46px))}
+body.pro-page #install .inst-stage .win-glare{position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:2;opacity:calc(var(--gh,0)*1);background:radial-gradient(420px circle at var(--gx,50%) var(--gy,40%),rgba(255,226,160,.18),transparent 60%);mix-blend-mode:screen;transition:opacity .5s cubic-bezier(.22,1,.36,1)}
+body.pro-page #install .inst-stage .win{box-shadow:calc(var(--sx,0px)) var(--sy,34px) 90px rgba(0,0,0,.55),0 0 0 1px rgba(242,182,79,calc(.12 + var(--gh,0)*.28))!important}
+body.pro-page #install .inst-stage .orb.o1{translate:var(--px,0) var(--py,0)}
+body.pro-page #install .inst-stage .orb.o2{translate:calc(var(--px,0)*-1.6) calc(var(--py,0)*-1.6)}
+body.pro-page #install .inst-stage .float-chip{translate:calc(var(--px,0)*-2.2) calc(var(--py,0)*-2.2)}
+html body.pro-page #install .inst-stage .win-drop{background:rgba(18,14,8,.82)!important;font-size:16px;letter-spacing:.01em}
+html[data-theme=dark] body.pro-page #install .inst-stage .orb{opacity:.55}

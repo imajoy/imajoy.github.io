@@ -43,3 +43,5 @@ html[data-theme=dark] .ty-pass-meta::before,html[data-theme=dark] .ty-pass-meta:
 @media(prefers-reduced-motion:reduce){.ty-pass,.ty-pass::before{animation:none!important}.ty-pass{rotate:0deg}}
 @media print{.ty-pass{rotate:0deg;animation:none;box-shadow:none}}
 .ty-pass-meta>div:first-child{border-top:0}
+/* The face orb (132px) was bigger than the seal (124/104px) and sat top-left, so the gold ring looked off-centre. Make it fill the seal exactly. */
+body.ty-page .ty-seal .eb{position:absolute;inset:0;width:100%;height:100%;margin:0}

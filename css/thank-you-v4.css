@@ -45,3 +45,18 @@ html[data-theme=dark] .ty-pass-meta::before,html[data-theme=dark] .ty-pass-meta:
 .ty-pass-meta>div:first-child{border-top:0}
 /* The face orb (132px) was bigger than the seal (124/104px) and sat top-left, so the gold ring looked off-centre. Make it fill the seal exactly. */
 body.ty-page .ty-seal .eb{position:absolute;inset:0;width:100%;height:100%;margin:0}
+
+/* Checklist ticks: every change eases (dot colour, tick, rail fill) the same way the page-load animation does, instead of snapping. */
+body.ty-page .ty-timeline{--tick:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4.3 8.3l2.3 2.3 5-5.3' fill='none' stroke='%23fff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")}
+body.ty-page .ty-dot{background-image:var(--tick);background-repeat:no-repeat;background-position:center;background-size:0 0;
+ transition:background-color .5s cubic-bezier(.32,.72,0,1),border-color .5s cubic-bezier(.32,.72,0,1),box-shadow .6s cubic-bezier(.32,.72,0,1),background-size .5s cubic-bezier(.34,1.4,.64,1) .08s,transform .35s cubic-bezier(.34,1.56,.64,1)}
+body.ty-page [data-step=done] .ty-dot{background-size:16px 16px!important}
+.ty-timeline li:not(:last-child)::before{background:linear-gradient(var(--ty-ok),var(--ty-ok)) top left/100% 0 no-repeat,var(--line)!important;transition:background-size .7s cubic-bezier(.32,.72,0,1)}
+body.ty-page .ty-timeline li[data-step=done]:not(:last-child)::before{background:linear-gradient(var(--ty-ok),var(--ty-ok)) top left/100% 100% no-repeat,var(--line)!important}
+.ty-step-confirm,.ty-step-confirm span{transition:opacity .4s ease}
+@media(min-width:1000px){
+ .ty-timeline li:not(:last-child)::before{background:linear-gradient(90deg,var(--ty-ok),var(--ty-ok)) left/0 100% no-repeat,var(--line)!important}
+ body.ty-page .ty-timeline li[data-step=done]:not(:last-child)::before{background:linear-gradient(90deg,var(--ty-ok),var(--ty-ok)) left/100% 100% no-repeat,var(--line)!important}
+}
+@keyframes ty4-pop{0%{transform:scale(.82)}60%{transform:scale(1.12)}100%{transform:scale(1)}}
+.ty-main:not([data-ty-state=verifying]):not([data-ty-state=delayed]) .ty-timeline.is-live li[data-step=done] .ty-dot{animation:ty4-pop .55s cubic-bezier(.34,1.56,.64,1) both;animation-delay:0s}

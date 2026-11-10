@@ -3,7 +3,7 @@ import {getAccountSession,accountRequest} from './account-session.js?v=20261023-
 import {orb} from './mood-orb.js?v=mo1';
 import {buildInvoiceDoc,printDoc,invoicePeriod} from './ty-invoice.js?v=iv9';
 import {readReceiptBilling,billingLines} from './receipt-billing.js?v=rb1';
-import {mountSetupProgress} from './setup-progress.js?v=20261101-auto1';
+import {mountSetupProgress} from './setup-progress.js?v=20261110-sm1';
 let progress=null;
 /* A real confirmation always arrives with details in the address. Opened bare, it would wrongly say "Payment confirmed", so send the visitor to the toolkit page instead. */
 if(!location.search)location.replace('wrapline.html');

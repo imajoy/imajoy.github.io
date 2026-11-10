@@ -16,7 +16,7 @@ export function mountSetupProgress(basic){
   label.className='ty-step-confirm';input.type='checkbox';input.id='ty-setup-'+index;label.htmlFor=input.id;text.textContent=labels[index];
   label.append(input,text);row.querySelector('div').append(label);
   input.addEventListener('change',()=>{
-   completed=input.checked?index+1:index;
+   completed=input.checked?index+1:index;document.querySelector('.ty-timeline')?.classList.add('is-live');
    try{localStorage.setItem(key,JSON.stringify({version:1,completed}));storageOK=true;}catch{storageOK=false;}
    sync();
   });

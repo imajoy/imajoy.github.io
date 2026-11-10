@@ -11,7 +11,7 @@ window.AJOY_CONFIG = Object.freeze({
   accountOpen: true,
   /* Email registration and account sessions (Google Sheets / Apps Script).
      This is a public address, not a secret. */
-  sheetUrl: 'https://script.google.com/macros/s/AKfycbz2Y9PbQsXraKgcNjc_gnyNKs6Qbe7RyDlB2wjhfPSyHhwgGpb_d_EzkFGSxEGipgDJ/exec',
+  sheetUrl: 'https://script.google.com/macros/s/AKfycbxdN4YqI199yVlcbMbTVHwS_5p1v8Uj-xmJN6M9_QJlyKg3BMhYGLApJYqJP-7CbeD3ng/exec',
   /* PayPal client ID, mode and plan availability are served by paypal-config.
      Actual plan IDs and merchant credentials remain on the server. */
   paypalConfigUrl: 'https://wsadhewcmpdhojgqzstw.supabase.co/functions/v1/paypal-config',

@@ -3,6 +3,8 @@
   'use strict';
   var root = document.documentElement;
   if (root.dataset.makerMotion === 'skip') return;
+  /* The drop-in plays when you arrive on the site. Moving between pages afterwards it stays put, so page changes are calm. */
+  try { if (sessionStorage.getItem('wl-pill')) return; sessionStorage.setItem('wl-pill', '1'); } catch (e) {}
   var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
   if (motion.matches) return;
   var started = false;

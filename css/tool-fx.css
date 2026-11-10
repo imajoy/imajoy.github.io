@@ -24,7 +24,7 @@ html[data-theme=dark] body:has(.tool-hero)::before{background:
 /* ---- headings: word by word ---- */
 html.tx-on .tx-h .tx-w{display:inline-block;overflow:hidden;vertical-align:top;padding:.04em .06em .16em;margin:-.04em -.06em -.16em}
 html.tx-on .tx-h .tx-w>span{display:inline-block;transform:translate3d(0,112%,0);opacity:0}
-html.tx-on .tx-h.tx-in .tx-w>span{transform:none;opacity:1;transition:transform .85s cubic-bezier(.16,1,.3,1) calc(var(--wi)*55ms),opacity .45s linear calc(var(--wi)*55ms)}
+html.tx-on .tx-h.tx-in .tx-w>span{transform:none;opacity:1;transition:transform .85s cubic-bezier(.16,1,.3,1) calc(var(--wi)*55ms),opacity .5s ease calc(var(--wi)*55ms)}
 html.tx-on .tx-h:not(.tx-in) .tx-w>span{transition:none}
 .tx-h em .tx-w>span{font-style:italic}
 
@@ -37,6 +37,6 @@ html.tx-on .tx-h:not(.tx-in) .tx-w>span{transition:none}
 
 @media(prefers-reduced-motion:reduce){
  body:has(.tool-hero)::before,.tool-hero::after{animation:none!important}
- html.tx-on .tx-h .tx-w>span{transform:none!important;transition:opacity .5s linear!important}
+ html.tx-on .tx-h .tx-w>span{transform:none!important;transition:opacity .5s ease!important}
  .guide-feature,.guide-workflow li,.guide-notes>*,.tool-visual{animation:none!important}
 }

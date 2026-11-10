@@ -101,7 +101,7 @@ body.free-page .ft-card.reveal,body.free-page .reveal{transition-delay:0s}
 html.pr-on body.free-page .ft-card[data-pr]:not(.pr-in){transform:translate3d(0,calc(36px*var(--pr-d,1)),0) rotate(calc(var(--pr-i,0)*1.6deg - 2.4deg)) scale(.92)}
 html.pr-on body.free-page .ft-card[data-pr]{transition:opacity .7s var(--fr-ease),transform 1s cubic-bezier(.34,1.5,.5,1)}
 html.pr-on body.free-page .ft-steps li[data-pr]:not(.pr-in){transform:translate3d(0,calc(30px*var(--pr-d,1)),0) rotate(-2deg)}
-body.free-page .ft-card:hover .ft-ic{animation:fr-wig .45s linear}
+body.free-page .ft-card:hover .ft-ic{animation:fr-wig .5s cubic-bezier(.36,.07,.19,.97)}
 @keyframes fr-wig{25%{transform:rotate(-14deg) scale(1.1)}60%{transform:rotate(10deg) scale(1.1)}100%{transform:rotate(-8deg) scale(1.08)}}
 
 /* download area: no loose shine, readable status card on the violet band */

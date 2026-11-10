@@ -49,10 +49,11 @@
     try { vt = document.startViewTransition(function () { paint(next); }); }
     catch (err) { root.classList.remove('theme-vt'); fade(); return; }
     vt.ready.then(function () {
-      var big = Math.ceil(Math.hypot(innerWidth, innerHeight) * 2.5) + 'px', o = { duration: 1500, easing: 'cubic-bezier(.45,.05,.25,1)', fill: 'both' };
-      root.animate({ maskSize: ['40px 40px', big + ' ' + big], webkitMaskSize: ['40px 40px', big + ' ' + big], filter: ['blur(18px) brightness(1.25)', 'blur(0px) brightness(1)'] },
+      var big = Math.ceil(Math.hypot(innerWidth, innerHeight) * 2.5) + 'px', o = { duration: 1100, easing: 'cubic-bezier(.45,.05,.25,1)', fill: 'both' };
+      /* mask and opacity only: a full-page blur filter here made the first seconds of a visit stutter */
+      root.animate({ maskSize: ['40px 40px', big + ' ' + big], webkitMaskSize: ['40px 40px', big + ' ' + big] },
         Object.assign({ pseudoElement: '::view-transition-new(root)' }, o));
-      root.animate({ filter: ['blur(0px)', 'blur(10px)'], opacity: [1, .55] },
+      root.animate({ opacity: [1, .6] },
         Object.assign({ pseudoElement: '::view-transition-old(root)' }, o, { easing: 'ease-in-out' }));
     }).catch(function () {});
     vt.finished.then(function () {}, function () {}).then(function () { root.classList.remove('theme-vt'); if (after) after(); });

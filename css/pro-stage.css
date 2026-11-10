@@ -56,11 +56,12 @@ html[data-theme=dark] .pro-floor{background:repeating-linear-gradient(90deg,rgba
 
 /* ---------- automatic tool-swap transition: the screen turns in out of depth with a light sweep ---------- */
 .pro-stage .xp-frame{transform-origin:50% 60%;backface-visibility:hidden}
-.pro-stage .xp-frame.ps-in{animation:ps-swap 1.05s cubic-bezier(.16,1,.3,1) both}
-.pro-stage .xp-frame.ps-in::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,226,154,.55) 48%,rgba(255,255,255,.7) 52%,transparent 70%);transform:translateX(-120%);animation:ps-beam 1.1s .12s ease-out forwards}
-.pro-stage.is-swap .pro-halo{animation:ps-orbit 22s linear infinite,ps-ping 1.2s ease-out 1}
-.pro-stage.is-swap .pro-halo.h2{animation:ps-orbit 34s linear infinite reverse,ps-ping 1.4s .1s ease-out 1}
-@keyframes ps-swap{0%{opacity:0;transform:perspective(900px) rotateY(-82deg) rotateX(10deg) scale(.9);filter:blur(8px)}55%{opacity:1;filter:blur(0)}100%{opacity:1;transform:none}}
+.pro-stage .xp-frame.ps-in{animation:ps-swap .45s cubic-bezier(.22,1,.36,1) both}
+.pro-stage .xp-frame.ps-in::after{content:"";position:absolute;inset:0;z-index:5;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,226,154,.55) 48%,rgba(255,255,255,.7) 52%,transparent 70%);transform:translateX(-120%);display:none}
+.pro-stage.is-swap .pro-halo{animation:ps-orbit 22s linear infinite}
+.pro-stage.is-swap .pro-halo.h2{animation:ps-orbit 34s linear infinite reverse}
+/* a calm swap: the new window fades up into place (no flip, no blur: those repainted the whole stage every frame) */
+@keyframes ps-swap{0%{opacity:0;transform:translate3d(0,10px,0) scale(.99)}100%{opacity:1;transform:none}}
 @keyframes ps-beam{to{transform:translateX(120%)}}
 @keyframes ps-ping{0%{border-color:rgba(255,226,154,.95);box-shadow:0 0 40px 4px rgba(242,182,79,.5)}100%{box-shadow:0 0 0 0 transparent}}
 

@@ -1,30 +1,54 @@
-/* Premium layer, loaded last on every page.
-   1) Dark mode: clearer surfaces, borders and secondary text.  2) Ambient light that follows the pointer.  3) Small finish details. */
+/* Finish layer, loaded last on every page: a proper neutral dark theme and a few shared details. */
 
-/* ---- 1. dark mode visibility ---- */
-html[data-theme=dark]{--line:#2A3352;--mute:#A8B2CD;--card:#131A33;--card2:#1B2546;--doc:#C3CCE4;--t62:rgba(238,242,255,.74)}
-html[data-theme=dark] body.pro-page{--line:#262E44;--mute:#A6AFC6;--card:#10151F;--card2:#181E2E;--panel-mute:#B4BEDB;--panel-line:rgba(255,255,255,.14)}
-/* cards read as raised surfaces: a faint top edge of light and a deeper drop shadow */
-html[data-theme=dark] :where(.bc-card,.ty-pass,.ty-first,.ty-explore-grid a,.order-summary,.checkout-form fieldset,.sc-acc,.qp-sum,.block,.price-card,.faq details,.h6-plan,.h6-card,.tool-card,.card){
- box-shadow:inset 0 1px 0 rgba(255,255,255,.055),0 18px 44px -28px rgba(0,0,0,.85)}
-/* form controls: visible edges and readable placeholders */
-html[data-theme=dark] :where(input,textarea,select):not([type=checkbox]):not([type=radio]):not([type=range]){border-color:#33405F}
-html[data-theme=dark] ::placeholder{color:#7F8BAA;opacity:1}
-html[data-theme=dark] :where(a.text-link,.text-link){color:#8DBBFF}
-html[data-theme=dark] :focus-visible{outline-color:#8DBBFF}
-html[data-theme=dark] ::selection{background:rgba(111,168,255,.38);color:#fff}
-html[data-theme=light] ::selection,html:not([data-theme=dark]) ::selection{background:rgba(42,100,232,.2)}
-/* thin, themed scrollbars */
-html{scrollbar-color:color-mix(in srgb,var(--mute) 55%,transparent) transparent;scrollbar-width:thin}
+/* ---- Dark theme: graphite, not navy. Neutral surfaces in clear steps, quiet borders, one blue accent. ---- */
+html[data-theme=dark]{
+ --bg:#0B0C0E;--bg2:#101114;--ink:#F1F2F4;--mute:#A0A4AE;--line:#26282E;--blue-d:#7FB0FF;
+ --card:#15161A;--card2:#1C1D22;--pill:rgba(21,22,26,.86);--pillbd:rgba(255,255,255,.09);
+ --t05:rgba(255,255,255,.05);--t07:rgba(255,255,255,.07);--t09:rgba(255,255,255,.09);--t62:rgba(241,242,244,.72);
+ --btnbg:#F1F2F4;--btnfg:#0B0C0E;--btnhov:#fff;--em:#8DB8FF;--doc:#C4C7CF;--key:#24262C;--thumb:#2C2E35;
+ --hero-a:#0E0F12;--hero-b:#0B0C0E;--hero-glow:rgba(61,139,255,.10);
+ --c-export:#141922;--c-anim:#181722;--c-rig:#131B1A;--c-scene:#1D1914;
+ --shadow:0 1px 2px rgba(0,0,0,.5),0 16px 40px -18px rgba(0,0,0,.7)}
+html[data-theme=dark] body.pro-page{--bg:#09090B;--bg2:#0E0E11;--ink:#F1F2F4;--mute:#A0A3AD;--line:#24252B;--card:#131317;--card2:#1A1A1F;
+ --panel:#121318;--panel-mute:#B3B7C2;--panel-line:rgba(255,255,255,.12);--hero-glow:rgba(90,160,255,.08)}
+/* raised surfaces: a hairline of light on the top edge instead of coloured glows */
+html[data-theme=dark] :where(.bc-card,.ty-first,.ty-explore-grid a,.order-summary,.checkout-form fieldset,.sc-acc,.qp-sum,.price-card,.h6-plan,.tool-card,.card){box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 14px 34px -24px rgba(0,0,0,.9)}
+html[data-theme=dark] :where(input,textarea,select):not([type=checkbox]):not([type=radio]):not([type=range]){border-color:#33363E}
+html[data-theme=dark] ::placeholder{color:#7C808B;opacity:1}
+html[data-theme=dark] :where(a.text-link,.text-link){color:#8DB8FF}
+html[data-theme=dark] :focus-visible{outline-color:#8DB8FF}
+html[data-theme=dark] ::selection{background:rgba(127,176,255,.34);color:#fff}
+html:not([data-theme=dark]) ::selection{background:rgba(42,100,232,.2)}
+/* landing page: the violet haze goes; one restrained blue light stays */
+html[data-theme=dark] .h-orb.o2,html[data-theme=dark] .h-orb.o3{background:radial-gradient(closest-side,hsl(215 70% 50% / .10),transparent)}
+html[data-theme=dark] .h-orb.o1{background:radial-gradient(closest-side,hsl(215 85% 52% / .18),transparent)}
+html[data-theme=dark] .hv-bg{background:radial-gradient(46% 38% at 82% 6%,rgba(61,139,255,.12),transparent 70%),radial-gradient(40% 34% at 10% 30%,rgba(242,182,79,.06),transparent 72%)}
 
-/* ---- 2. ambient pointer light (mouse only, added by js/premium.js) ---- */
-.px-light{position:fixed;left:0;top:0;width:620px;height:620px;margin:-310px 0 0 -310px;border-radius:50%;pointer-events:none;z-index:-1;opacity:0;
- background:radial-gradient(closest-side,rgba(90,150,255,.13),rgba(120,110,255,.06) 45%,transparent 72%);transition:opacity .6s ease;will-change:transform;contain:strict}
-html[data-theme=dark] .px-light.on{opacity:1}
-html:not([data-theme=dark]) .px-light{background:radial-gradient(closest-side,rgba(61,139,255,.10),rgba(61,139,255,.04) 45%,transparent 72%)}
-html:not([data-theme=dark]) .px-light.on{opacity:.9}
-@media(prefers-reduced-motion:reduce),(hover:none){.px-light{display:none}}
+/* third-party payment buttons draw their own light artwork: without this their frame gets an opaque white box in dark mode */
+.sc-ppbtn,.sc-ppbtn iframe,[data-payment-provider="paypal"] iframe{color-scheme:light}
 
-/* ---- 3. finish ---- */
-:where(h1,h2,h3){text-wrap:balance}:where(p,li){text-wrap:pretty}
-:where(.btn):active{scale:.97}
+/* Wrapline Pro: sections that are off screen really rest (some loops declared with !important kept running, blur and all) */
+html body.pro-page .ap-off:not(#_):not(#__) *,html body.pro-page .ap-off:not(#_):not(#__) *::before,html body.pro-page .ap-off:not(#_):not(#__) *::after{animation-play-state:paused!important}
+/* one progress line at the top, not two */
+body.pro-page .sb-line{display:none}
+
+html{scrollbar-color:color-mix(in srgb,var(--mute) 50%,transparent) transparent;scrollbar-width:thin}
+:where(h1,h2,h3){text-wrap:balance}
+
+/* landing page in dark: graphite sections, one blue key light on the hero (no violet / teal washes) */
+:root[data-theme=dark] .home{--sh1:#0D0E11;--sh2:#101114;--sh3:#0B0C0E;--sh4:#0F1013;--sh5:#121317;--shadow-up:0 -30px 60px -34px rgba(0,0,0,.85);--glow1:rgba(70,120,255,.07);--glow2:rgba(255,170,100,.035);--dot:rgba(255,255,255,.07);
+ --c3-line:rgba(255,255,255,.13);--c3-edge:rgba(255,255,255,.3);--c3-face:rgba(255,255,255,.025);--c3-glow:rgba(127,176,255,.22)}
+:root[data-theme=dark] .home .h-hero{background:radial-gradient(1000px 560px at 50% -14%,rgba(70,120,255,.17),transparent 64%),linear-gradient(180deg,#0A0B0D 0%,#0D0E11 60%,var(--bg) 100%)}
+:root[data-theme=dark] .h-beam{opacity:.35}
+/* Wrapline Pro hero: the per-tool colour wash stays as a hint, not a floodlight */
+html[data-theme=dark] .hv-wash{background:radial-gradient(50% 56% at 50% 46%,hsl(var(--th,220) 70% 56% / .2),hsl(var(--th,220) 70% 45% / .06) 52%,transparent 72%)}
+
+/* dark mode, remaining colour washes replaced by graphite */
+html[data-theme=dark] body.ty-page::before{filter:none;opacity:1;background:radial-gradient(44% 38% at 24% 18%,rgba(90,140,255,.09),transparent 70%),radial-gradient(36% 30% at 82% 80%,rgba(242,182,79,.045),transparent 72%)}
+html[data-theme=dark] body.ty-page::after{opacity:.28}
+html[data-theme=dark] .coffee-card{background:#17181C;border-color:rgba(255,207,138,.22)}
+html[data-theme=dark] .coffee-copy span{color:var(--mute)}
+html[data-theme=dark] .hv-grid{opacity:.38}
+html[data-theme=dark] .hv-glow{background:radial-gradient(closest-side,rgba(110,150,255,.12),transparent)}
+html[data-theme=dark] .ty-pass{box-shadow:0 30px 70px -40px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.06)}
+html[data-theme=dark] .hv-shell{background:radial-gradient(120% 90% at 50% 0%,#171b28 0%,#0f1116 52%,#09090b 100%)}

@@ -10,7 +10,7 @@ html[data-theme=dark] .ff-install-steps .ff-group-btn .ffg-n{color:#0b1020}
 .ff-install-steps .ff-group-btn .ffg-t{flex:1;min-width:0;display:grid;gap:3px}
 .ff-install-steps .ff-group-btn .ffg-t b{font-size:.95rem;font-weight:650;line-height:1.3}
 .ff-install-steps .ff-group-btn .ffg-t small{font-size:.74rem;line-height:1.4;color:var(--mute)}
-.ff-install-steps .ff-group-btn .ffg-c{flex:none;width:20px;height:20px;color:var(--mute);transition:transform .22s linear}
+.ff-install-steps .ff-group-btn .ffg-c{flex:none;width:20px;height:20px;color:var(--mute);transition:transform .32s cubic-bezier(.22,1,.36,1)}
 .ff-install-steps .ff-group.is-open .ff-group-btn .ffg-c{transform:rotate(180deg)}
 .ff-install-steps.ff-acc li:not(.ff-group){margin-left:6px;border-left:2px solid var(--line);border-radius:0 14px 14px 0}
 .ff-install-steps.ff-acc li[hidden]{display:none}

@@ -3,7 +3,7 @@
    The top pill stays put so the page feels like one app. Direction flips on Back (html[data-vt=back]). */
 @media (prefers-reduced-motion:no-preference){
  ::view-transition{background:var(--bg)}
- ::view-transition-group(root){animation-duration:.7s}
+ ::view-transition-group(root){animation-duration:.52s}
  ::view-transition-image-pair(root){isolation:auto}
  ::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal;animation-duration:.7s;animation-timing-function:cubic-bezier(.22,1,.36,1);animation-fill-mode:both}
  ::view-transition-old(root){animation-duration:.34s;animation-timing-function:cubic-bezier(.4,0,1,1)}
@@ -14,14 +14,14 @@
  html[data-vt=back]::view-transition-new(root){animation-name:vt-toward-b;z-index:1}
  ::view-transition-group(pillbar){animation-duration:.4s}
  ::view-transition-old(pillbar),::view-transition-new(pillbar){animation-duration:.4s;mix-blend-mode:normal}
- /* "Frame open": the next page opens out of a small rounded shot-frame at the spot you clicked, while the page you leave
-    sinks back and dims like the previous shot. Going Back plays it in reverse: the page you leave closes into a frame. */
- ::view-transition-old(root){animation-duration:.6s;animation-timing-function:cubic-bezier(.4,0,.2,1)}
- ::view-transition-new(root){animation-delay:0s;animation-duration:.78s;animation-timing-function:cubic-bezier(.22,1,.36,1)}
- @keyframes vt-away{to{transform:scale(.94);filter:brightness(.45) saturate(.7)}}
- @keyframes vt-toward{from{clip-path:inset(var(--ft,38%) var(--fr,36%) var(--fb,38%) var(--fl,36%) round 28px);filter:brightness(1.25)}60%{filter:none}to{clip-path:inset(0 0 0 0 round 0)}}
- @keyframes vt-away-b{from{clip-path:inset(0 0 0 0 round 0)}to{clip-path:inset(42% 40% 42% 40% round 28px);opacity:0}}
- @keyframes vt-toward-b{from{transform:scale(.94);filter:brightness(.45) saturate(.7)}}
+ /* Page change: the old page fades out quickly, the new one fades in and settles a few pixels. Only opacity and transform,
+    so the browser can run it entirely on the GPU while the new page is still starting up (no clip-path, no filters). */
+ ::view-transition-old(root){animation-duration:.16s;animation-timing-function:cubic-bezier(.4,0,1,1)}
+ ::view-transition-new(root){animation-delay:.1s;animation-duration:.42s;animation-timing-function:cubic-bezier(.22,1,.36,1)}
+ @keyframes vt-away{to{opacity:0}}
+ @keyframes vt-toward{from{opacity:0;transform:translate3d(0,10px,0)}}
+ @keyframes vt-away-b{to{opacity:0}}
+ @keyframes vt-toward-b{from{opacity:0;transform:translate3d(0,-10px,0)}}
 }
 /* Content on plain pages rises in, one block after another, as the circle opens. */
 @media (prefers-reduced-motion:no-preference){

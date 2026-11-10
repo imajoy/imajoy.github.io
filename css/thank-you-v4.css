@@ -5,7 +5,7 @@
  background:linear-gradient(var(--card),var(--card)) padding-box,linear-gradient(140deg,color-mix(in srgb,var(--ty-a,#3D8BFF) 75%,transparent),color-mix(in srgb,var(--line) 80%,transparent) 38%,color-mix(in srgb,#F2B64F 70%,transparent)) border-box;
  border:1.5px solid transparent;box-shadow:0 30px 70px -38px rgba(20,40,110,.45),0 2px 6px rgba(14,18,32,.05);overflow:hidden}
 /* holographic sheen that crosses the ticket now and then */
-.ty-pass::before{content:"";position:absolute;inset:-40% -60%;z-index:-1;background:linear-gradient(115deg,transparent 42%,color-mix(in srgb,var(--ty-a,#3D8BFF) 16%,transparent) 48%,color-mix(in srgb,#F2B64F 14%,transparent) 52%,transparent 58%);transform:translate3d(-30%,0,0);animation:ty4-sheen 7s cubic-bezier(.4,0,.2,1) 1.6s infinite}
+.ty-pass::before{content:"";position:absolute;inset:-40% -60%;z-index:-1;background:linear-gradient(115deg,transparent 42%,color-mix(in srgb,var(--ty-a,#3D8BFF) 16%,transparent) 48%,color-mix(in srgb,#F2B64F 14%,transparent) 52%,transparent 58%);transform:translate3d(-30%,0,0);animation:ty4-sheen 8s cubic-bezier(.45,.05,.25,1) 1.8s infinite}
 @keyframes ty4-sheen{0%,62%{transform:translate3d(-34%,0,0)}100%{transform:translate3d(34%,0,0)}}
 /* perforation: two notches and a dashed tear line above the details */
 .ty-pass-meta{position:relative;margin-top:22px;padding-top:20px;border-top:2px dashed color-mix(in srgb,var(--line) 90%,transparent)}
@@ -13,7 +13,7 @@
 .ty-pass-meta::before{left:-42px}.ty-pass-meta::after{right:-42px}
 .ty-pass-plan{font-size:clamp(26px,2.6vw,34px)}
 html[data-theme=dark] .ty-pass{box-shadow:0 40px 90px -40px rgba(60,120,255,.4),inset 0 1px 0 rgba(255,255,255,.07)}
-html[data-theme=dark] .ty-pass-meta::before,html[data-theme=dark] .ty-pass-meta::after{background:#070B16}
+html[data-theme=dark] .ty-pass-meta::before,html[data-theme=dark] .ty-pass-meta::after{background:var(--bg)}
 
 @media(min-width:1000px){
  .ty-grid{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(0,.92fr);gap:clamp(44px,5vw,72px) clamp(40px,5vw,80px);align-items:center}
@@ -26,8 +26,9 @@ html[data-theme=dark] .ty-pass-meta::before,html[data-theme=dark] .ty-pass-meta:
  .ty-unlock{align-items:flex-start;margin-top:26px;min-height:0}.ty-unlock-row{justify-content:flex-start}
  .ty-seal{margin-bottom:22px}
  .ty-side{display:contents}
- .ty-pass{grid-column:2;grid-row:1;width:100%;max-width:460px;justify-self:end;rotate:1.6deg;animation:ty4-float 7s ease-in-out infinite;transition:rotate .6s cubic-bezier(.22,1,.36,1),box-shadow .4s}
+ .ty-pass{grid-column:2;grid-row:1;width:100%;max-width:460px;justify-self:end;rotate:1.6deg;animation:ty4-in 1s cubic-bezier(.22,1,.36,1) .3s both,ty4-float 7s ease-in-out 1.4s infinite;transition:rotate .6s cubic-bezier(.22,1,.36,1),box-shadow .4s}
  .ty-pass:hover{rotate:0deg;animation-play-state:paused}
+ @keyframes ty4-in{from{opacity:0;translate:36px 26px;rotate:7deg;scale:.96}to{opacity:1;translate:0 0;rotate:1.6deg;scale:1}}
  @keyframes ty4-float{0%,100%{translate:0 0}50%{translate:0 -10px}}
  /* what happens next: one horizontal track */
  .ty-next{grid-column:1 / -1;padding:30px 34px 32px;border:1px solid var(--line);border-radius:24px;background:color-mix(in srgb,var(--card) 82%,transparent);backdrop-filter:blur(6px)}

@@ -4,9 +4,9 @@
 @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
  html body.pro-page :is(.btn,.hero-download,.hero-secondary,.tool-rating,.trial-banner,.tile,.plan,.workflow-choices button,.workflow-panel,.pf-cols a,.pf-free span,.pf-top-link span,.pf-logo .mark,#faq summary,.ic,.chipl):is(:not([data-pr]),.pr-set),
  html body.free-page :is(.btn,.ft-card,.ft-steps li,.ft-ic,.free-pro,.ft-coffee-card,.ft-rights li,#faq summary,.chipl):is(:not([data-pr]),.pr-set){
-  transition-duration:.18s;transition-timing-function:linear;transition-delay:0s}
- html body.pro-page.home-page #tools .tl li>div,html body.pro-page.home-page #tools .tile .ic{transition:transform .18s linear}
- html body.pro-page .tile .ic,html body.free-page .ft-card .ft-ic{transition-duration:.18s;transition-timing-function:linear}
+  transition-duration:.32s;transition-timing-function:cubic-bezier(.22,1,.36,1);transition-delay:0s}
+ html body.pro-page.home-page #tools .tl li>div,html body.pro-page.home-page #tools .tile .ic{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+ html body.pro-page .tile .ic,html body.free-page .ft-card .ft-ic{transition-duration:.32s;transition-timing-function:cubic-bezier(.22,1,.36,1)}
 }
 /* soft scroll progress line (Pro and Free pages) */
 .sb-line{position:fixed;left:0;top:0;height:3px;width:100%;z-index:9998;pointer-events:none;transform:scaleX(0);transform-origin:0 50%;background:linear-gradient(90deg,#e0a93a,#6d7cff);will-change:transform;opacity:.9}
@@ -19,24 +19,24 @@ html body.pro-page .pillbar,html body.free-page .pillbar{-webkit-backdrop-filter
 /* Clear, quick, linear hover feedback (mouse/pen only) */
 @media (hover:hover) and (pointer:fine) and (prefers-reduced-motion:no-preference){
  /* Pro tool cards: lift, gold edge, soft shadow, icon pop (outer transform is locked by the protected entrance rules, so use shadow + inner rows) */
- html body.pro-page #tools .tile{transition:box-shadow .18s linear,border-color .18s linear,background-color .18s linear!important}
+ html body.pro-page #tools .tile{transition:box-shadow .3s cubic-bezier(.22,1,.36,1),border-color .3s cubic-bezier(.22,1,.36,1),background-color .3s cubic-bezier(.22,1,.36,1)!important}
  html body.pro-page #tools .tile:hover{border-color:#e0a93a;box-shadow:0 22px 44px -22px rgba(224,169,58,.55),0 0 0 1px rgba(224,169,58,.5);background-color:color-mix(in srgb,#e0a93a 5%,var(--card))}
- html body.pro-page #tools .tile .tl li>div{transition:transform .18s linear,background-color .18s linear!important}
+ html body.pro-page #tools .tile .tl li>div{transition:transform .3s cubic-bezier(.22,1,.36,1),background-color .3s cubic-bezier(.22,1,.36,1)!important}
  html body.pro-page #tools .tile .tl li:hover>div{transform:translateX(6px);background-color:color-mix(in srgb,#e0a93a 10%,transparent)}
- html body.pro-page #tools .tile .tl li .ic{transition:transform .18s linear!important}
+ html body.pro-page #tools .tile .tl li .ic{transition:transform .3s cubic-bezier(.22,1,.36,1)!important}
  html body.pro-page #tools .tile .tl li:hover .ic{transform:scale(1.14) rotate(-6deg)}
  /* plans */
  html body.pro-page .plan:hover{box-shadow:0 30px 60px -30px rgba(13,17,28,.45),0 0 0 1px rgba(224,169,58,.55);border-color:#e0a93a}
  /* workflow panels (dark band) */
- html body.pro-page #workflows .workflow-panel{transition:border-color .18s linear,box-shadow .18s linear,background-color .18s linear}
+ html body.pro-page #workflows .workflow-panel{transition:border-color .3s cubic-bezier(.22,1,.36,1),box-shadow .3s cubic-bezier(.22,1,.36,1),background-color .3s cubic-bezier(.22,1,.36,1)}
  html body.pro-page #workflows .workflow-panel:hover{border-color:rgba(242,182,79,.55);box-shadow:0 40px 90px -50px rgba(0,0,0,.9),0 0 0 1px rgba(242,182,79,.35)}
- html body.pro-page #workflows .workflow-beats button,html body.pro-page .workflow-choices button{transition:transform .18s linear,background-color .18s linear,border-color .18s linear,color .18s linear}
+ html body.pro-page #workflows .workflow-beats button,html body.pro-page .workflow-choices button{transition:transform .3s cubic-bezier(.22,1,.36,1),background-color .3s cubic-bezier(.22,1,.36,1),border-color .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1)}
  html body.pro-page #workflows .workflow-beats button:hover{border-color:#F2B64F;color:#fff;transform:translateY(-2px)}
  /* install steps + faq rows */
  html body.pro-page #install .steps li:is(:not([data-pr]),.pr-set):hover{transform:translateX(6px)}
  html body.pro-page #faq details:is(:not([data-pr]),.pr-set):hover{border-color:#e0a93a;transform:translateX(-4px)}
  /* top nav + footer links */
- html body.pro-page .pillbar a,html body.pro-page .pf-cols a{transition:transform .18s linear,color .18s linear,opacity .18s linear}
+ html body.pro-page .pillbar a,html body.pro-page .pf-cols a{transition:transform .3s cubic-bezier(.22,1,.36,1),color .3s cubic-bezier(.22,1,.36,1),opacity .3s cubic-bezier(.22,1,.36,1)}
  html body.pro-page .pillbar a:hover{transform:translateY(-1px);color:#e0a93a}
  /* free page */
  html body.free-page .ft-steps li:hover{transform:translateY(-5px) rotate(-.6deg)}
@@ -50,7 +50,7 @@ html body.pro-page .pillbar,html body.free-page .pillbar{-webkit-backdrop-filter
 }
 html body.pro-page #theme{position:relative}
 @media (hover:hover) and (pointer:fine){
- html body.pro-page #theme::after{content:"Light / dark";position:absolute;top:calc(100% + 8px);left:50%;transform:translate(-50%,-4px);padding:5px 9px;border-radius:8px;background:#0b1020;color:#fff;font-size:11px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s linear,transform .15s linear}
+ html body.pro-page #theme::after{content:"Light / dark";position:absolute;top:calc(100% + 8px);left:50%;transform:translate(-50%,-4px);padding:5px 9px;border-radius:8px;background:#0b1020;color:#fff;font-size:11px;font-weight:600;white-space:nowrap;opacity:0;pointer-events:none;transition:opacity .15s cubic-bezier(.22,1,.36,1),transform .15s cubic-bezier(.22,1,.36,1)}
  html body.pro-page #theme:hover::after{opacity:1;transform:translate(-50%,0)}
 }
 html body.pro-page #theme:hover{rotate:none!important}

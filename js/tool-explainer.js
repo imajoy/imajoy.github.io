@@ -29,7 +29,7 @@ class Player {
   /* next tool in the loop, never the one the shelf is showing right now */
   advance() { for (let n = 0; n < this.list.length; n++) { this.li = (this.li + 1) % this.list.length; if (!this.hero || this.keyOf(this.list[this.li]) !== window.__shelfKey) break; } this.load(this.list[this.li]); }
   /* scroll-driven hero: show tool i now and stay on it (no auto-advance while manual) */
-  jump(i) { if (i === this.li && this.cfg === this.list[i]) return; this.li = i; this.load(this.list[i]); this.seek(0); this.clock = 0; this.chips.forEach(c => c.style.setProperty('--p', 0)); this.sync(); }
+  jump(i) { if (i === this.li && this.cfg === this.list[i]) return; this.li = i; this.load(this.list[i]); this.seek(0); this.clock = 0; this.chips.forEach(c => this.prog(c, 0)); this.sync(); }
   setTool(cfg) { if (this.cfg === cfg) return; this.list = [cfg]; this.li = 0; this.load(cfg); this.seek(0); this.clock = 0; this.sync(); }
   load(cfg) {
     this.cfg = cfg; if (this.hero) window.__heroKey = this.keyOf(cfg); this.announce = true; this.steps = cfg.steps; this.acts = []; this.starts = []; let t = 0;
@@ -100,8 +100,8 @@ class Player {
       case 'blur': this.root.querySelectorAll('.xp-in.focus').forEach(e => e.classList.remove('focus')); break;
       case 'toast': this.toastEl.textContent = k; this.toastEl.classList.add('vis'); break;
       case 'untoast': this.toastEl.classList.remove('vis'); break;
-      case 'type': if (el) { const t = el.querySelector('.t'); el.classList.add('has'); if (now) t.textContent = v; else this.tweens.push({ t0: at, d: d || 900, f: p => { t.textContent = v.slice(0, Math.round(v.length * p)); } }); } break;
-      case 'fill': if (el) { const i = el.querySelector('i'); el.classList.add('vis'); if (now) i.style.width = '100%'; else this.tweens.push({ t0: at, d: v || 1200, f: p => { i.style.width = (p * 100) + '%'; } }); } break;
+      case 'type': if (el) { const t = el.querySelector('.t'); el.classList.add('has'); if (now) t.textContent = v; else { let shown = -1; this.tweens.push({ t0: at, d: d || 900, f: p => { const n = Math.round(v.length * p); if (n !== shown) { shown = n; t.textContent = v.slice(0, n); } } }); } } break;
+      case 'fill': if (el) { const i = el.querySelector('i'); el.classList.add('vis'); if (now) i.style.transform = 'scaleX(1)'; else this.tweens.push({ t0: at, d: v || 1200, f: p => { i.style.transform = 'scaleX(' + p.toFixed(3) + ')'; } }); } break;
     }
   }
   seek(i) {
@@ -109,13 +109,15 @@ class Player {
     this.instant(() => { while (this.idx < this.acts.length && this.acts[this.idx].t < to) this.run(this.acts[this.idx++].a, true); });
     this.clock = to; this.show(i);
   }
-  seekEnd(i) { this.reset(); const to = this.starts[i] + this.steps[i].d; this.instant(() => { while (this.idx < this.acts.length && this.acts[this.idx].t < to) this.run(this.acts[this.idx++].a, true); }); this.clock = to; this.show(i, true); this.chips.forEach(c => c.style.setProperty('--p', 1)); this.chips.forEach((c, n) => c.style.setProperty('--p', n <= i ? 1 : 0)); }
+  seekEnd(i) { this.reset(); const to = this.starts[i] + this.steps[i].d; this.instant(() => { while (this.idx < this.acts.length && this.acts[this.idx].t < to) this.run(this.acts[this.idx++].a, true); }); this.clock = to; this.show(i, true); this.chips.forEach((c, n) => this.prog(c, n <= i ? 1 : 0)); }
   show(i, still) {
     if (i === this.chap) return; this.chap = i; const s = this.steps[i];
     this.chips.forEach((c, n) => c.classList.toggle('on', n === i));
     const swap = () => { this.capB.textContent = s.t; this.capP.textContent = s.c; this.capB.parentElement.classList.remove('sw'); };
     if (still || !this.capB.textContent) swap(); else { this.capB.parentElement.classList.add('sw'); setTimeout(swap, 180); }
   }
+  /* step progress: a transform on the little bar (never a width), written only when it actually changes, so the page is not re-laid-out every frame */
+  prog(c, p) { const v = Math.round(p * 500) / 500; if (c.__p === v) return; c.__p = v; (c.__f || (c.__f = c.querySelector('.xp-fill'))).style.transform = 'scaleX(' + v + ')'; }
   sync() {
     const want = !reduce && this.visible && !document.hidden && !this.user;
     this.btn && (this.btn.classList.toggle('paused', !want && this.user), this.btn.setAttribute('aria-label', this.user ? 'Play the demo' : 'Pause the demo'));
@@ -129,8 +131,8 @@ class Player {
     this.tweens = this.tweens.filter(w => { const p = Math.min(1, (this.clock - w.t0) / w.d); w.f(p); return p < 1; });
     let ci = 0; for (let n = 0; n < this.starts.length; n++) if (this.clock >= this.starts[n]) ci = n;
     this.show(Math.min(ci, this.steps.length - 1));
-    this.chips.forEach((c, n) => c.style.setProperty('--p', Math.max(0, Math.min(1, (this.clock - this.starts[n]) / this.steps[n].d)).toFixed(3)));
-    if (this.clock >= this.total + HOLD) { if (this.list.length > 1 && !this.manual) this.advance(); this.seek(0); this.clock = 0; this.chips.forEach(c => c.style.setProperty('--p', 0)); }
+    this.chips.forEach((c, n) => this.prog(c, Math.max(0, Math.min(1, (this.clock - this.starts[n]) / this.steps[n].d))));
+    if (this.clock >= this.total + HOLD) { if (this.list.length > 1 && !this.manual) this.advance(); this.seek(0); this.clock = 0; this.chips.forEach(c => this.prog(c, 0)); }
     requestAnimationFrame(t => this.tick(t));
   }
 }

@@ -127,3 +127,23 @@ body.pro-page #tools .category-workflow{display:inline-flex;gap:8px;align-items:
 body.pro-page #tools .t-anim .tl,body.pro-page #tools .t-export .tl{max-width:none}
 body.pro-page #tools .tile:not(.t-scene):not(.t-export) .t-sub{max-width:22ch}
 body.pro-page #tools .tile::after{font-size:clamp(64px,7.5vw,116px)}
+/* Install stage: the Pro setup window uses the Pro installer colours (graphite + gold) */
+html body.pro-page #install .inst-stage .win{background:radial-gradient(120% 80% at 50% 0%,#241b0c 0%,#141214 48%,#0E0D10 100%)!important;border:1px solid rgba(255,255,255,.1)!important;box-shadow:0 40px 90px rgba(0,0,0,.55),0 0 0 1px rgba(242,182,79,.12)!important}
+html body.pro-page #install .inst-stage .win-head small{color:#A5A7B1}
+html body.pro-page #install .inst-stage .win-logo{background:linear-gradient(135deg,#4F86F7,#2A56C8)!important;box-shadow:0 0 0 2px #0E0D10,0 0 0 4px #F2B64F,0 0 26px rgba(242,182,79,.35)!important}
+html body.pro-page #install .inst-stage .wc{background:#0F0E11;border:1px solid rgba(255,255,255,.12)}
+html body.pro-page #install .inst-stage .wc span{color:#8E909A}
+html body.pro-page #install .inst-stage .wc.on{border:2px solid #F2B64F;background:#1C1608}
+html body.pro-page #install .inst-stage .win-field{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.1)}
+html body.pro-page #install .inst-stage .field{background:#09090B;border:2px solid #F2B64F;box-shadow:0 0 22px rgba(242,182,79,.25);color:#D8D9DE}
+html body.pro-page #install .inst-stage .caret{background:#F2B64F}
+html body.pro-page #install .inst-stage .win-bar{background:#1B1A1E}
+html body.pro-page #install .inst-stage .win-bar i{background:linear-gradient(90deg,#C98A1E,#FFE2A0)}
+html body.pro-page #install .inst-stage .win-foot span{background:#17161A;border-color:rgba(255,255,255,.12);color:#ECECEF}
+html body.pro-page #install .inst-stage .win-foot .go{background:linear-gradient(135deg,#FFE2A0,#F2B64F);border-color:transparent;color:#1A1204;box-shadow:0 0 24px rgba(242,182,79,.45)}
+html body.pro-page #install .inst-stage .win-drop{border-color:#F2B64F;background:rgba(242,182,79,.08);color:#FFE9BC}
+html body.pro-page #install .inst-stage .o1{background:radial-gradient(circle at 30% 30%,#FFE2A0,#F2B64F 70%);opacity:.4}
+html body.pro-page #install .inst-stage .o2{background:radial-gradient(circle at 30% 30%,#B7A4FF,#7A5CFF 70%);opacity:.4}
+html body.pro-page #install .inst-stage .dp i{background:linear-gradient(90deg,#C98A1E,#F2B64F)}
+html body.pro-page :is(#install,#workflows,#tools,#pricing,#faq) h2 em,html body.pro-page :is(#install,#workflows,#tools,#pricing,#faq) h2 em *{background:none!important;-webkit-text-fill-color:#F2B64F!important;color:#F2B64F!important}
+html:not([data-theme=dark]) body.pro-page :is(#install,#workflows,#tools,#pricing,#faq) h2 em,html:not([data-theme=dark]) body.pro-page :is(#install,#workflows,#tools,#pricing,#faq) h2 em *{-webkit-text-fill-color:#B27712!important;color:#B27712!important}

@@ -12,17 +12,9 @@ body.pro-page .p3-track span{font:800 clamp(52px,9.5vw,150px)/1 "Inter Tight",In
 body.pro-page .p3-track span.o{color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb,var(--ink) 55%,transparent)}
 body.pro-page .p3-track em{width:clamp(10px,1.4vw,18px);aspect-ratio:1;border-radius:50%;background:var(--gold,#F2B64F);flex:none}
 @keyframes p3-run{to{transform:translate3d(-50%,0,0)}}
-/* workflows: stacked sheets */
-@media(min-width:981px){
- body.pro-page #workflows .workflow-panel{position:sticky;top:calc(92px + var(--sk,0)*18px);margin-bottom:clamp(40px,8vh,90px);transform-origin:50% 0;box-shadow:0 -24px 60px -34px rgba(0,0,0,.55),0 1px 0 var(--line)}
- body.pro-page #workflows .workflow-panel:nth-of-type(1){--sk:0}
- body.pro-page #workflows .workflow-panel:nth-of-type(2){--sk:1}
- body.pro-page #workflows .workflow-panel:nth-of-type(3){--sk:2}
- body.pro-page #workflows .workflow-panel:nth-of-type(4){--sk:3}
- body.pro-page #workflows .workflow-panel{animation:none!important;animation-timeline:auto!important}
- body.pro-page #workflows .workflow-copy h3{font-size:clamp(30px,3.4vw,48px);letter-spacing:-.035em;line-height:1.02}
-}
-html:not([data-theme=dark]) body.pro-page #workflows .workflow-panel{background:#fff}
+/* workflows: one panel at a time, normal flow (no sticky) */
+body.pro-page #workflows .workflow-panel{position:relative;top:auto;margin-bottom:0}
+body.pro-page #workflows .workflow-copy h3{font-size:clamp(30px,3.4vw,48px);letter-spacing:-.035em;line-height:1.02}
 /* tools: studio bento */
 body.pro-page #tools .bento-pro{display:grid;grid-template-columns:repeat(12,1fr);gap:clamp(12px,1.4vw,20px);perspective:none!important}
 body.pro-page #tools .tile{--th:212;position:relative;overflow:hidden;isolation:isolate;border-radius:26px;padding:clamp(24px,3vw,40px);border:1px solid var(--line);background:var(--card);animation:none!important;transition:border-color .5s var(--e3),transform .7s var(--e3)}
@@ -124,3 +116,14 @@ html body.pro-page #trial h2 em{background:none!important;-webkit-background-cli
 html body.pro-page #trial .trial-label::before{background:#15110A!important}
 html body.pro-page #trial h2 em,html body.pro-page #trial h2 em *{background:none!important;-webkit-text-fill-color:#15110A!important;color:#15110A!important;animation:none!important;filter:none!important}
 body.pro-page #install .inst-copy h2{font-size:clamp(32px,3.9vw,58px)}
+
+/* Rigging tile: single column inside the bento (old stylesheet made it a 2-col grid) */
+body.pro-page #tools .bento-pro .t-rig{display:block!important;align-items:start}
+body.pro-page #tools .bento-pro .t-rig>*{grid-column:auto!important;grid-row:auto!important}
+body.pro-page #tools .t-rig .tl li div,body.pro-page #tools .tl li>div{min-width:0;flex:1}
+body.pro-page #tools .t-rig .keycaps{margin:22px 0 10px;padding-top:0}
+body.pro-page #tools .t-rig .t-note{margin:0 0 14px}
+body.pro-page #tools .category-workflow{display:inline-flex;gap:8px;align-items:center;margin-top:6px}
+body.pro-page #tools .t-anim .tl,body.pro-page #tools .t-export .tl{max-width:none}
+body.pro-page #tools .tile:not(.t-scene):not(.t-export) .t-sub{max-width:22ch}
+body.pro-page #tools .tile::after{font-size:clamp(64px,7.5vw,116px)}

@@ -38,7 +38,7 @@
  /* pinned: js/pro-stage.js calls this every frame it moves */
  window.__hvTime=function(p,ix){scrub=true;el.classList.add('is-scrub');draw(p);key(ix);};
  /* not pinned: follow the demo */
- st.addEventListener('xp-tool',function(e){var ix=e.detail.ix;if(scrub&&document.documentElement.classList.contains('hv-pin')){key(ix);return;}
+ st.addEventListener('xp-tool',function(e){var ix=names.indexOf(e.detail.title);if(ix<0)return;if(scrub&&document.documentElement.classList.contains('hv-pin')){key(ix);return;}
   el.classList.remove('is-scrub');draw((ix+.5)/N);key(ix);});
  /* a key is a shortcut: scroll the pinned stage to that tool, or jump the demo there */
  el.addEventListener('click',function(e){var b=e.target.closest('.ptl-key');if(!b)return;var ix=+b.dataset.i,track=hero.querySelector('[data-hv-track]');

@@ -113,6 +113,7 @@
   var h=chips[e.detail.ix]?chips[e.detail.ix].style.getPropertyValue('--h'):'',hue=parseFloat(h);if(isNaN(hue))hue=220;
   front=1-front;var a=front?wa:wb,b=front?wb:wa;a.style.setProperty('--th',hue);hero.style.setProperty('--th',hue);a.classList.add('on');b.classList.remove('on');
   if(first){first=false;return;}
+  if(window.__hvEnter){window.__hvEnter(dir);return;}
   if(!reduce&&dv.animate)dv.animate([{translate:(dir*26)+'px 0',opacity:0},{translate:'0 0',opacity:1}],{duration:520,easing:'cubic-bezier(.22,1,.36,1)'});
  });
  /* the pin controller calls this before it switches tools, so the old window leaves first */

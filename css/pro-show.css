@@ -1,0 +1,41 @@
+/* Wrapline Pro hero showcase (js/pro-show.js): colour field per tool, giant passing type, ring, rules, corner "next" card. */
+@property --sh{syntax:'<number>';inherits:true;initial-value:212}
+.hero.has-psh{--sh:212;transition:--sh 1.1s cubic-bezier(.22,1,.36,1)}
+/* colour field: the whole stage takes the tool's colour (replaces the small glow) */
+.hero.has-psh .hv-shell{background:linear-gradient(180deg,hsl(var(--sh) 34% 15%) 0%,hsl(var(--sh) 40% 9%) 100%)!important;transition:background-color .9s ease}
+.hero.has-psh .hv-wash{display:none!important}
+.hero.has-psh .hv-grid,.hero.has-psh .hv-glow{display:none!important}
+html:not([data-theme=dark]) .hero.has-psh .hv-shell{background:linear-gradient(180deg,hsl(var(--sh) 46% 93%) 0%,hsl(var(--sh) 48% 86%) 100%)!important}
+.psh-back{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden;border-radius:inherit;--ink:255,255,255}
+html:not([data-theme=dark]) .psh-back{--ink:16,22,40}
+/* fine vertical rules */
+.psh-lines{position:absolute;inset:0;background:repeating-linear-gradient(90deg,rgba(var(--ink),.07) 0 1px,transparent 1px 12.5%);-webkit-mask-image:linear-gradient(180deg,transparent,#000 18%,#000 82%,transparent);mask-image:linear-gradient(180deg,transparent,#000 18%,#000 82%,transparent)}
+/* giant passing type */
+.psh-mq{position:absolute;left:0;right:0;top:50%;height:0;display:flex;align-items:center}
+.psh-mq-run{display:flex;white-space:nowrap;will-change:transform;animation:psh-mq 46s linear infinite}
+.psh-mq-run span{flex:none;padding-right:.2em;font:800 clamp(120px,19vw,330px)/1 var(--sans);letter-spacing:-.045em;color:transparent;-webkit-text-stroke:1.2px rgba(var(--ink),.16)}
+@keyframes psh-mq{to{transform:translate3d(-50%,0,0)}}
+/* ring */
+.psh-ring{position:absolute;left:50%;top:47%;width:min(96vh,64vw,980px);aspect-ratio:1;margin:calc(min(96vh,64vw,980px)/-2) 0 0 calc(min(96vh,64vw,980px)/-2);border-radius:50%;border:1.5px solid rgba(var(--ink),.2)}
+.psh-ring b{position:absolute;inset:-1.5px;border-radius:50%;border:2px solid transparent;border-top-color:rgba(var(--ink),.9);border-right-color:rgba(var(--ink),.35);animation:psh-ring 16s linear infinite}
+@keyframes psh-ring{to{transform:rotate(360deg)}}
+/* next card */
+.psh-next{position:absolute;right:clamp(18px,3.4vw,64px);bottom:clamp(96px,17vh,170px);z-index:4;display:flex;align-items:center;gap:14px;padding:0;border:0;background:transparent;color:rgba(var(--pk,255,255,255),.92);font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent}
+html:not([data-theme=dark]) .psh-next{--pk:16,22,40}
+.psh-next-k{writing-mode:vertical-rl;rotate:180deg;font:700 10px/1 var(--sans);letter-spacing:.22em;text-transform:uppercase;opacity:.6}
+.psh-next-card{position:relative;display:grid;place-items:center;width:92px;height:66px;border-radius:12px;rotate:-7deg;background:linear-gradient(160deg,hsl(var(--nh,28) 62% 56%),hsl(var(--nh,28) 58% 34%));box-shadow:0 18px 30px -16px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.35);transition:rotate .5s cubic-bezier(.34,1.56,.64,1),translate .5s cubic-bezier(.22,1,.36,1)}
+.psh-next-card i{position:absolute;left:8px;top:8px;width:22px;height:5px;border-radius:3px;background:rgba(255,255,255,.55);box-shadow:28px 0 0 -1px rgba(255,255,255,.3)}
+.psh-next-card b{font:800 17px/1 var(--sans);letter-spacing:.02em;color:#fff;margin-top:8px}
+.psh-next-t{display:flex;flex-direction:column;gap:5px;max-width:150px}
+.psh-next-t em{font:italic 400 22px/1 var(--serif);opacity:.75}
+.psh-next-t strong{font:600 13.5px/1.25 var(--sans);letter-spacing:-.01em}
+@media(hover:hover){.psh-next:hover .psh-next-card{rotate:0deg;translate:-6px -6px}}
+.psh-next:focus-visible{outline:2px solid currentColor;outline-offset:6px;border-radius:12px}
+/* text on the stage reads on the colour field in day mode */
+html:not([data-theme=dark]) .hero.has-psh .hv-nm,html:not([data-theme=dark]) .hero.has-psh .hv-ds{color:#10162a}
+/* entrance with the stage */
+html.hv-go body.pro-page .hero .psh-back{animation:psh-in 1.4s cubic-bezier(.22,1,.36,1) .5s both}
+html.hv-go body.pro-page .hero .psh-next{animation:psh-nx 1s cubic-bezier(.22,1,.36,1) 1.5s both}
+@keyframes psh-in{from{opacity:0}to{opacity:1}}@keyframes psh-nx{from{opacity:0;transform:translate3d(26px,22px,0)}to{opacity:1;transform:none}}
+@media(max-width:980px){.psh-next{display:none}.psh-ring{top:38%;width:min(92vw,560px);margin:calc(min(92vw,560px)/-2) 0 0 calc(min(92vw,560px)/-2)}.psh-mq{top:36%}}
+@media(prefers-reduced-motion:reduce){.psh-mq-run,.psh-ring b,.psh-back,.psh-next{animation:none!important}}

@@ -1,0 +1,63 @@
+/* contact v4: calmer split card, soft filled fields, brand-blue send button */
+.contact-main{padding-top:140px}
+.contact-layout{max-width:1080px!important;border-radius:32px!important}
+/* left: headline on top, cube below, one reassurance line */
+.contact-copy{justify-content:flex-start!important;padding:52px 44px 44px!important;min-height:640px!important;border-radius:32px 0 0 32px!important;gap:14px}
+html .contact-copy>.s-eyebrow.s-eyebrow{display:inline-flex!important;order:1;align-items:center;gap:9px;margin:0!important;font:600 .68rem/1 var(--mono,ui-monospace,monospace);letter-spacing:.14em;text-transform:uppercase;color:var(--blue,#3d8bff)}
+.contact-copy>.s-eyebrow::before{content:"";width:7px;height:7px;border-radius:50%;background:#2fb583;box-shadow:0 0 0 0 rgba(47,181,131,.5);animation:cv4-live 2.4s cubic-bezier(.4,0,.2,1) infinite}
+@keyframes cv4-live{70%,100%{box-shadow:0 0 0 9px rgba(47,181,131,0)}}
+.contact-copy h1{order:2!important;font-size:clamp(2.3rem,3.6vw,3.2rem)!important;max-width:none!important;line-height:1.02!important}
+.contact-copy h1 em{color:var(--blue,#3d8bff)}
+html .contact-copy>p:not(.s-eyebrow){display:block!important;order:3;margin:0;max-width:24em;font-size:.98rem;line-height:1.6;color:var(--mute)}
+.cv-scene{top:54%!important;bottom:auto;width:210px!important;height:210px!important;margin-left:-105px!important}
+.contact-assurance{display:block!important;position:absolute;left:44px;right:44px;bottom:40px;padding:14px 0 0!important;border:0!important;border-top:1px solid color-mix(in srgb,var(--ink,#0b1020) 12%,transparent)!important;background:none!important;box-shadow:none!important;border-radius:0!important}
+.contact-assurance b{font-size:.86rem;font-weight:600;color:var(--ink)}
+.contact-assurance p{display:none!important}
+/* right: form */
+.contact-form{padding:50px 50px 42px!important;border-radius:0 32px 32px 0!important}
+.contact-field label{margin-bottom:8px!important}
+.contact-field input,.contact-field select,.contact-field textarea{background:color-mix(in srgb,var(--ink,#0b1020) 4.5%,transparent)!important;border:1.5px solid transparent!important;border-radius:14px!important;padding:13px 15px!important;transition:border-color .35s,background-color .35s,box-shadow .35s}
+.contact-field input:hover,.contact-field select:hover,.contact-field textarea:hover{background:color-mix(in srgb,var(--ink,#0b1020) 7%,transparent)!important}
+.contact-field input:focus,.contact-field select:focus,.contact-field textarea:focus{border-color:var(--blue,#3d8bff)!important;background:transparent!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--blue,#3d8bff) 18%,transparent)!important}
+.contact-field::after{display:none!important}
+.contact-field textarea{min-height:128px!important}
+.attachment-picker{border-radius:14px!important}
+.contact-consent{padding:2px 0!important;background:none!important;border:0!important}
+html[data-theme=dark] .contact-consent{background:none!important;border:0!important}
+/* send button */
+html:not([data-theme=dark]) .contact-send:not(:disabled),html:not([data-theme=dark]) .contact-send:not(:disabled):hover,html:not([data-theme=dark]) .contact-send:disabled{outline:0}
+
+html .contact-send{position:relative;width:100%;min-height:58px;border-radius:16px!important;border:0!important;font-weight:650;letter-spacing:-.005em;color:#fff!important;
+ background:linear-gradient(180deg,#4d8dff 0%,#2f6bff 100%)!important;
+ box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 -2px 0 rgba(10,30,120,.18) inset,0 16px 28px -14px rgba(47,107,255,.75)!important;
+ transition:translate .4s cubic-bezier(.22,1,.36,1),box-shadow .4s cubic-bezier(.22,1,.36,1),filter .3s,background-color .45s!important}
+.contact-send::before{content:"";position:absolute;inset:0;border-radius:inherit;background:linear-gradient(105deg,transparent 30%,rgba(255,255,255,.28) 50%,transparent 70%);translate:-120% 0;transition:translate .8s cubic-bezier(.22,1,.36,1);pointer-events:none}
+html .contact-send:not(:disabled):hover{translate:0 -3px;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 -2px 0 rgba(10,30,120,.18) inset,0 24px 34px -14px rgba(47,107,255,.85)!important}
+.contact-send:not(:disabled):hover::before{translate:120% 0}
+.contact-send:not(:disabled):active{translate:0 0;transition-duration:.12s!important}
+.contact-send:not(:disabled):focus-visible{outline:3px solid color-mix(in srgb,#2f6bff 45%,#fff);outline-offset:3px}
+html .contact-send:disabled{background:color-mix(in srgb,#2f6bff 38%,var(--card,#fff))!important;color:rgba(255,255,255,.92)!important;box-shadow:none!important;filter:none!important;opacity:1!important;cursor:not-allowed}
+html[data-theme=dark] html .contact-send:disabled{background:color-mix(in srgb,#3E7BFF 30%,#131B38)!important;color:rgba(255,255,255,.7)!important}
+html[data-theme=dark] .contact-send:not(:disabled){background:linear-gradient(180deg,#5b97ff,#3a74ff)!important;box-shadow:0 1px 0 rgba(255,255,255,.3) inset,0 18px 32px -14px rgba(62,123,255,.7)!important}
+.contact-send[data-state=sent]{background:linear-gradient(180deg,#27a678,#1b7958)!important}
+html[data-theme=dark] .contact-send[data-state=sent]{background:linear-gradient(180deg,#3bc796,#2fb583)!important;color:#06231a!important}
+@media(max-width:900px){
+ .cv-scene{top:auto!important}
+ .contact-copy{min-height:0!important;padding:32px 24px 24px!important;border-radius:28px 28px 0 0!important}
+ .cv-scene{position:relative!important;bottom:auto;left:auto;margin:0 auto!important;order:0}
+ .contact-assurance{position:static;margin-top:6px;padding-top:12px!important}
+ .contact-copy>p:not(.s-eyebrow){display:none!important}
+ .contact-form{padding:24px 20px 28px!important;border-radius:0 0 28px 28px!important}
+}
+@media(prefers-reduced-motion:reduce){.contact-copy>.s-eyebrow::before,.contact-send::before{animation:none!important;transition:none!important}}
+html:not([data-theme=dark]) .contact-send:not(:disabled){box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 -2px 0 rgba(10,30,120,.18) inset,0 16px 28px -14px rgba(47,107,255,.75)!important}
+html:not([data-theme=dark]) .contact-send:not(:disabled):hover{box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 -2px 0 rgba(10,30,120,.18) inset,0 24px 34px -14px rgba(47,107,255,.85)!important}
+html:not([data-theme=dark]) .contact-send:disabled{box-shadow:none!important}
+html:not([data-theme=dark]) .contact-send[data-state=sent]{box-shadow:0 14px 28px -14px rgba(27,121,88,.7)!important}
+/* undo the old visually-hidden rule for the left-hand copy */
+html .contact-copy>p.s-eyebrow,html .contact-copy>p:not(.s-eyebrow){position:static!important;width:auto!important;height:auto!important;overflow:visible!important;clip-path:none!important;white-space:normal!important}
+html .contact-copy>p.s-eyebrow{white-space:nowrap!important}
+html .contact-copy>p:not(.s-eyebrow){margin:0!important}
+html .contact-copy>.contact-assurance{position:absolute!important;width:auto!important;height:auto!important;overflow:visible!important;clip-path:none!important;white-space:normal!important;left:44px;right:44px;bottom:40px;padding:14px 0 0!important}
+@media(max-width:900px){html .contact-copy>.contact-assurance{position:static!important}}
+@media(max-width:900px){html .contact-copy>.contact-assurance,html .contact-copy>p.s-eyebrow{display:none!important}.contact-copy{align-items:center;text-align:center}}

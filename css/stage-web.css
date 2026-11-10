@@ -1,0 +1,21 @@
+/* Download scenes: sign-in and download happen in a BROWSER on the website, then Maya takes over (drag, install).
+   Steps 0-1 show a browser window; Maya is hidden until the file is dragged in. */
+.fs-web{position:absolute;inset:6% 5%;border-radius:14px;background:#F6F7FA;box-shadow:0 30px 60px -30px #000,0 0 0 1px rgba(255,255,255,.12);overflow:hidden;display:flex;flex-direction:column;opacity:0;transform:scale(.97);transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1);pointer-events:none}
+.fs-wbar{display:flex;align-items:center;gap:7px;padding:11px 14px;background:#E8EAF0;flex:none}
+.fs-wbar>i{width:10px;height:10px;border-radius:50%;background:#C9CCD6}
+.fs-url{display:flex;align-items:center;gap:7px;margin-left:12px;flex:1;max-width:340px;padding:6px 12px;border-radius:999px;background:#fff;color:#4A5064;font:600 11.5px/1 var(--sans)}
+.fs-url svg{width:12px;height:12px;fill:none;stroke:#2FA878;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.fs-wpage{flex:1;padding:22px 28px;display:grid;align-content:start;gap:12px;opacity:.9}
+.fs-wnav{display:flex;align-items:center;gap:14px;margin-bottom:14px}.fs-wnav b{width:92px;height:12px;border-radius:6px;background:#CBD0DE}.fs-wnav span{width:44px;height:8px;border-radius:5px;background:#E0E3EC}.fs-wnav span:first-of-type{margin-left:auto}
+.fs-wh{height:22px;width:58%;border-radius:8px;background:#D5D9E6}.fs-wh.s{width:36%;height:22px}
+.fs-wl2{height:9px;width:70%;border-radius:5px;background:#E3E6EF}.fs-wl2.s{width:48%}
+.fs-wbtn{margin-top:8px;width:128px;height:34px;border-radius:999px;background:#CBD0DE}
+.fs[data-step="0"] .fs-web,.fs[data-step="1"] .fs-web{opacity:1;transform:none}
+/* Maya waits out of sight while the browser steps play */
+.fs[data-step="0"] .fs-maya,.fs[data-step="1"] .fs-maya{opacity:0;filter:none!important;transform:scale(.97)!important}
+.fs-maya{transition:opacity .6s cubic-bezier(.22,1,.36,1),transform .8s cubic-bezier(.22,1,.36,1),filter .6s}
+.fs:not([data-step]) .fs-web{display:none}
+html[data-theme=dark] .fs-web{background:#1B1D26}html[data-theme=dark] .fs-wbar{background:#12141B}
+html[data-theme=dark] .fs-url{background:#242733;color:#B9BED0}
+html[data-theme=dark] :is(.fs-wnav b,.fs-wh,.fs-wbtn){background:#2D3140}html[data-theme=dark] :is(.fs-wnav span,.fs-wl2){background:#262A37}
+@media(prefers-reduced-motion:reduce){.fs-web,.fs-maya{transition:none}}

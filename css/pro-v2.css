@@ -1,0 +1,67 @@
+/* Wrapline Pro, studio look v2: graphite surfaces, one gold accent, no blue floodlights.
+   Loaded after the other Pro styles. Dark is the lead theme; light keeps clean white with the same gold. */
+body.pro-page{--gold:#F2B64F;--gold-hi:#FFE2A0;--gold-lo:#C98A1E;--g-ink:#2B1B03}
+
+/* ---------- buttons: gold is the one "do it" colour on this page ---------- */
+html body.pro-page .btn-blue,html body.pro-page .plan.plan-lead .btn,html body.pro-page .inst-stage .go{
+ background:linear-gradient(135deg,var(--gold-hi),var(--gold) 58%,#E9A23B)!important;color:var(--g-ink)!important;border-color:transparent!important;
+ box-shadow:0 10px 26px -14px rgba(242,182,79,.75),inset 0 1px 0 rgba(255,255,255,.5)!important;text-shadow:none!important}
+@media(hover:hover){html body.pro-page .btn-blue:hover,html body.pro-page .plan.plan-lead .btn:hover{box-shadow:0 16px 34px -14px rgba(242,182,79,.9),inset 0 1px 0 rgba(255,255,255,.6)!important}}
+
+/* ---------- section rhythm: a hairline and generous air between sections ---------- */
+html body.pro-page main>section.block{position:relative}
+html body.pro-page main>section.block::before{content:"";position:absolute;left:50%;top:0;width:min(1120px,calc(100% - 48px));height:1px;translate:-50% 0;background:linear-gradient(90deg,transparent,var(--line) 18%,var(--line) 82%,transparent);pointer-events:none}
+html body.pro-page .head h2 em,html body.pro-page h2 em{background:linear-gradient(100deg,var(--gold-hi),var(--gold) 55%,var(--gold-lo));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:var(--gold)}
+html:not([data-theme=dark]) body.pro-page h2 em{background:linear-gradient(100deg,#B9781A,#C98A1E 55%,#8A5A0E);-webkit-background-clip:text;background-clip:text}
+
+/* ================= dark ================= */
+html[data-theme=dark] body.pro-page .workflow-showcase{background:linear-gradient(180deg,#0C0C0F 0%,#09090B 100%)!important}
+html[data-theme=dark] body.pro-page .workflow-panel{background:#121216!important;border-color:rgba(255,255,255,.1)!important;box-shadow:0 40px 90px -56px #000,inset 0 1px 0 rgba(255,255,255,.05)!important}
+html[data-theme=dark] body.pro-page .workflow-choices{background:#111115;border-color:rgba(255,255,255,.1)}
+
+/* trial: a black-and-gold pass instead of a blue card */
+html[data-theme=dark] body.pro-page .trial-stage{background:radial-gradient(620px 380px at 14% 18%,rgba(242,182,79,.10),transparent 64%),#101013!important;border-color:rgba(242,182,79,.28)!important;box-shadow:0 50px 110px -70px #000,inset 0 1px 0 rgba(255,255,255,.05)!important}
+html[data-theme=dark] body.pro-page .ta-ticket{background:linear-gradient(155deg,#26262C 0,#17171B 48%,#0E0E11 100%)!important;border-color:rgba(242,182,79,.5)!important;box-shadow:0 40px 70px -30px #000,inset 0 1px 0 rgba(255,226,160,.22)!important}
+html[data-theme=dark] body.pro-page .ta-ticket .ta-num,html[data-theme=dark] body.pro-page .ta-ticket .ta-free{color:var(--gold-hi)}
+html[data-theme=dark] body.pro-page .ta-glow,html[data-theme=dark] body.pro-page .ta-orb{opacity:.25;filter:saturate(.2)}
+
+/* install window */
+html[data-theme=dark] body.pro-page .inst-stage .win{background:linear-gradient(170deg,#1A1A1F 0%,#111114 60%,#0C0C0E 100%)!important;border-color:rgba(255,255,255,.12)!important;box-shadow:0 40px 90px -40px #000,inset 0 1px 0 rgba(255,255,255,.06)!important}
+html[data-theme=dark] body.pro-page .inst-stage .orb{opacity:.18;filter:saturate(.2)}
+html[data-theme=dark] body.pro-page .inst-stage .field{border-color:rgba(242,182,79,.55)!important;box-shadow:0 0 0 3px rgba(242,182,79,.12)!important}
+
+/* pricing */
+html[data-theme=dark] body.pro-page .plan{background:#111114!important;border-color:rgba(255,255,255,.09)!important}
+html[data-theme=dark] body.pro-page .plan.plan-lead{background:radial-gradient(90% 55% at 82% 0%,rgba(242,182,79,.13),transparent 70%),#141417!important;border-color:rgba(242,182,79,.55)!important;box-shadow:0 40px 90px -60px rgba(242,182,79,.45),inset 0 1px 0 rgba(255,226,160,.14)!important}
+html[data-theme=dark] body.pro-page .toggle{background:#0D0D10!important}
+html[data-theme=dark] body.pro-page .licensebox{background:#101013!important;border-color:rgba(255,255,255,.09)!important}
+html[data-theme=dark] body.pro-page .lcard{background:linear-gradient(135deg,#2A2A30 0%,#18181C 55%,#0D0D10 100%)!important;border:1px solid rgba(242,182,79,.5)!important;box-shadow:0 30px 60px -24px #000,inset 0 1px 0 rgba(255,226,160,.2)!important}
+html[data-theme=dark] body.pro-page .lcard .lc-code{color:var(--gold-hi)}
+
+/* closing panel */
+html[data-theme=dark] body.pro-page .closing .frame{background:linear-gradient(135deg,rgba(242,182,79,.85),rgba(255,255,255,.1) 38%,rgba(255,255,255,.06) 62%,rgba(242,182,79,.45))!important}
+html[data-theme=dark] body.pro-page .closing .frame-inner{background:radial-gradient(110% 80% at 0% 0%,rgba(242,182,79,.07),transparent 60%),#0F0F12!important}
+html[data-theme=dark] body.pro-page .site-footer{background:linear-gradient(180deg,transparent,#0D0D10)!important}
+
+/* tool cards: quiet until touched, then a gold edge */
+html[data-theme=dark] body.pro-page #tools .tile{background:#101013}
+@media(hover:hover){html body.pro-page #tools .tile:hover{border-color:color-mix(in srgb,var(--gold) 45%,var(--line))!important}}
+
+/* ================= light ================= */
+html:not([data-theme=dark]) body.pro-page .lcard{background:linear-gradient(135deg,#24242A 0%,#141418 60%,#0B0B0E 100%)!important;border:1px solid rgba(201,138,30,.6)!important}
+html:not([data-theme=dark]) body.pro-page .lcard .lc-code{color:var(--gold-hi)}
+html:not([data-theme=dark]) body.pro-page .ta-ticket{background:linear-gradient(155deg,#2A2A30 0,#18181C 48%,#0E0E11 100%)!important;border-color:rgba(201,138,30,.6)!important}
+html:not([data-theme=dark]) body.pro-page .closing .frame{background:linear-gradient(135deg,#C98A1E,rgba(20,24,36,.12) 40%,rgba(20,24,36,.08) 62%,#E0A53A)!important}
+
+/* ---------- motion: headings settle with their gold word drawn last ---------- */
+@media(prefers-reduced-motion:no-preference){
+ html.pr-on body.pro-page [data-pr].pr-in h2 em,html body.pro-page .head.in h2 em{animation:pv2-word 1s cubic-bezier(.22,1,.36,1) .15s both}
+ @keyframes pv2-word{from{opacity:0;transform:translate3d(0,.18em,0) skewX(-6deg);filter:none}to{opacity:1;transform:none}}
+ html body.pro-page h2 em{display:inline-block}
+}
+/* the three dark feature panels are graphite in day mode too (they were navy) */
+html:not([data-theme=dark]) body.pro-page .trial-stage{background:radial-gradient(620px 380px at 14% 18%,rgba(242,182,79,.12),transparent 64%),#111114!important;border-color:rgba(201,138,30,.4)!important}
+html:not([data-theme=dark]) body.pro-page .plan.plan-lead{background:radial-gradient(90% 55% at 82% 0%,rgba(242,182,79,.15),transparent 70%),#131316!important;border-color:rgba(201,138,30,.65)!important}
+html:not([data-theme=dark]) body.pro-page .closing .frame-inner{background:radial-gradient(110% 80% at 0% 0%,rgba(242,182,79,.09),transparent 60%),#101013!important}
+html:not([data-theme=dark]) body.pro-page .ta-glow,html:not([data-theme=dark]) body.pro-page .ta-orb{opacity:.25;filter:saturate(.2)}
+html:not([data-theme=dark]) body.pro-page .trial-copy h2 em{background:linear-gradient(100deg,var(--gold-hi),var(--gold) 55%,var(--gold-lo));-webkit-background-clip:text;background-clip:text}

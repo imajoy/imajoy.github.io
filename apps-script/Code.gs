@@ -33,7 +33,7 @@ function sendNoReply_(message) {
   MailApp.sendEmail(message);
 }
 /* Run this ONCE in the editor (Run button) after updating the script: it asks you to allow sending as noreply@wrapline.in. */
-function authorizeSendAs_() {
+function authorizeSendAs() {
   var aliases = GmailApp.getAliases();
   Logger.log('Send-as addresses: ' + aliases.join(', ') + (aliases.indexOf(sendFromAddress_()) >= 0 ? '  -> ' + sendFromAddress_() + ' is ready.' : '  -> ' + sendFromAddress_() + ' is NOT set up yet in Gmail.'));
 }

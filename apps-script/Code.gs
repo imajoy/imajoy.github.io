@@ -78,7 +78,7 @@ function ownerHtml_(subject, body, files) {
       '<td style="vertical-align:top;font-size:14px;line-height:1.4;color:#14182a;overflow-wrap:anywhere;word-break:break-all"><b>' + esc_(shown) + '</b><br><span style="font-size:12px;color:#6b7390">' + mb + '</span></td></tr></table>' +
       '<a href="' + esc_(f.url) + '" style="display:inline-block;margin-top:12px;background:#2a64e8;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;border-radius:999px;padding:9px 22px">Open file &#8599;</a></td></tr></table>';
   }).join('');
-  var isContact = /^Contact form/.test(subj), contactTopic = '', msgHtml = '';
+  var isContact = /^Contact form/.test(subj), contactTopic = '', msgHtml = '', msgParts = [], refRow = '';
   var rows = '', notes = '', paras = '';
   text.split(/\n{2,}/).forEach(function (block) {
     var lines = block.split('\n').filter(function (l) { return l.trim(); });
@@ -93,17 +93,20 @@ function ownerHtml_(subject, body, files) {
         if (m) shown = '<a href="' + esc_(m[2]) + '" style="display:inline-block;background:' + tone[1] + ';color:' + tone[0] + ';text-decoration:none;font-weight:700;font-size:14px;line-height:1.4;border-radius:10px;padding:9px 14px;overflow-wrap:anywhere;word-break:break-word">' + esc_(m[1] || 'Open link') + ' &#8599;</a>';
         else if (/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(value)) shown = '<a href="mailto:' + esc_(value) + '" style="color:#2a64e8;text-decoration:none">' + esc_(value) + '</a>';
         else shown = link(value);
-        rows += '<tr><td style="padding:12px 0 3px;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:#8a90a8;border-top:1px solid #eef0f6">' + esc_(label) + '</td></tr><tr><td style="padding:0 0 4px;font-size:15px;line-height:1.5;color:#14182a;overflow-wrap:anywhere;word-break:break-word">' + shown + '</td></tr>';
+        var rowHtml = '<tr><td style="padding:12px 0 3px;font-size:11px;letter-spacing:.7px;text-transform:uppercase;color:#8a90a8;border-top:1px solid #eef0f6">' + esc_(label) + '</td></tr><tr><td style="padding:0 0 4px;font-size:15px;line-height:1.5;color:#14182a;overflow-wrap:anywhere;word-break:break-word">' + shown + '</td></tr>';
+        if (isContact && label === 'Reference') refRow = rowHtml; else rows += rowHtml;
       } else plain.push(l);
     });
     if (!plain.length) return;
     if (/^(Mark |Verify |Create |Reply |It is also|Promise|If the buyer|FREE TRIAL|PRICE CHECK|Your access)/.test(plain[0])) {
       notes += '<div style="background:' + tone[1] + ';border-radius:12px;padding:14px 16px;margin:0 0 14px;font-size:14px;line-height:1.55;color:#2b3149">' + plain.map(link).join('<br>') + '</div>';
     } else {
-      if (isContact) msgHtml += '<div style="background:#f6f7fb;border-left:3px solid #2a64e8;border-radius:4px 12px 12px 4px;padding:14px 16px;margin:0 0 18px;font-size:16px;line-height:1.6;color:#14182a;overflow-wrap:anywhere;word-break:break-word">' + plain.map(link).join('<br>') + '</div>';
+      if (isContact) msgParts.push(plain.map(link).join('<br>'));
       else paras +=        '<p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#2b3149">' + plain.map(link).join('<br>') + '</p>';
     }
   });
+  rows = refRow + rows;
+  if (msgParts.length) msgHtml = '<div style="background:#f6f7fb;border-left:3px solid #2a64e8;border-radius:4px 12px 12px 4px;padding:14px 16px;margin:0 0 18px;font-size:16px;line-height:1.6;color:#14182a;overflow-wrap:anywhere;word-break:break-word">' + msgParts.join('<br><br>') + '</div>';
   return '<div style="background:#f3f4f8;margin:0;padding:28px 12px;font-family:Arial,Helvetica,sans-serif;color:#14182a"><div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:18px;padding:24px 20px 18px;overflow:hidden">' +
     '<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 20px"><tr><td style="width:30px;height:30px"><img src="https://wrapline.in/assets/apple-touch-icon.png" width="30" height="30" alt="W" style="display:block;border:0;border-radius:8px"></td>' +
     '<td style="padding-left:10px;font-size:16px;font-weight:700;letter-spacing:.2px;color:#14182a">WRAPLINE</td></tr></table>' +

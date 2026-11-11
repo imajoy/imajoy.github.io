@@ -39,5 +39,5 @@ html.hv-go body.pro-page .hero .psh-next{animation:psh-nx 1s cubic-bezier(.22,1,
 @keyframes psh-in{from{opacity:0}to{opacity:1}}@keyframes psh-nx{from{opacity:0;transform:translate3d(26px,22px,0)}to{opacity:1;transform:none}}
 @media(max-width:980px){.psh-next{display:none}.psh-ring{top:38%;width:min(92vw,560px);margin:calc(min(92vw,560px)/-2) 0 0 calc(min(92vw,560px)/-2)}.psh-mq{top:36%}}
 @media(prefers-reduced-motion:reduce){.psh-mq-run,.psh-ring b,.psh-back,.psh-next{animation:none!important}}
-/* phones: the big ring waits for the hero, then fades in with it (it used to sit on the empty page while everything else loaded) */
-@media(max-width:767px){html.js:not(.hv-go) .psh-ring{opacity:0}.psh-ring{transition:opacity .9s cubic-bezier(.22,1,.36,1) .3s}}
+/* phones: no big ring behind the hero (it flashed while the page loaded) */
+@media(max-width:767px){.psh-ring{display:none!important}}

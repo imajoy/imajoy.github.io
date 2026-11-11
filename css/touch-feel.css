@@ -3,9 +3,13 @@
    even when the page is busy. Laptops and desktops never load this. js/touch-feel.js adds the class. */
 @supports (animation-timeline:view()){
  .tf-drift{animation:tf-drift cubic-bezier(.22,1,.36,1) both;animation-timeline:view();animation-range:entry 0% cover 45%}
- @keyframes tf-drift{from{translate:0 34px;scale:1.045;opacity:.25}to{translate:0 0;scale:1;opacity:1}}
+ @keyframes tf-drift{from{translate:0 56px;scale:1.07;opacity:.15}to{translate:0 0;scale:1;opacity:1}}
 }
-@media(prefers-reduced-motion:reduce){.tf-drift{animation:none!important}}
+@supports (animation-timeline:view()){
+ .tf-scrub{animation:tf-scrub cubic-bezier(.22,1,.36,1) both;animation-timeline:view();animation-range:entry 0% entry 75%}
+ @keyframes tf-scrub{from{translate:0 34px;opacity:0}to{translate:0 0;opacity:1}}
+}
+@media(prefers-reduced-motion:reduce){.tf-drift,.tf-scrub{animation:none!important}}
 /* no browser flash when you tap: the pale blue box Android Chrome paints on anything you press. The site's own press feedback (js/touch-feel.js) replaces it. */
 html,*{-webkit-tap-highlight-color:transparent}
 

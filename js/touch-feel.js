@@ -25,7 +25,7 @@
     if (!press) return;
     var el = press; press = null;
     if (hold) { hold.cancel(); hold = null; }
-    el.animate([{ scale: .965 }, { scale: 1 }], { duration: 420, easing: SPRING });
+    var btn = el.matches('.btn,button,[role=button],[class*=btn]'); el.animate(btn ? [{ scale: .94, filter: 'brightness(.9)' }, { scale: 1.025, filter: 'brightness(1)', offset: .55 }, { scale: 1, filter: 'brightness(1)' }] : [{ scale: .975 }, { scale: 1.01, offset: .55 }, { scale: 1 }], { duration: 520, easing: EASE });
   }
   document.addEventListener('pointerdown', function (e) {
     if (e.pointerType !== 'touch') return;
@@ -33,35 +33,41 @@
     var el = target(e.target); if (!el) return;
     /* a short pause so a finger that is only starting to scroll does not make everything flinch */
     timer = setTimeout(function () {
-      press = el; hold = el.animate([{ scale: 1 }, { scale: .965 }], { duration: 160, easing: EASE, fill: 'forwards' });
-    }, 55);
+      press = el; var btn = el.matches('.btn,button,[role=button],[class*=btn]'); hold = el.animate(btn ? [{ scale: 1, filter: 'brightness(1)' }, { scale: .94, filter: 'brightness(.9)' }] : [{ scale: 1 }, { scale: .975 }], { duration: 140, easing: EASE, fill: 'forwards' });
+    }, 40);
   }, { passive: true });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { document.addEventListener(t, release, { passive: true, capture: true }); });
   addEventListener('scroll', release, { passive: true });
 
-  /* ---- 4. a light tick under the finger on buttons and tabs (Android; other devices ignore it) ---- */
-  if (navigator.vibrate) document.addEventListener('click', function (e) {
-    var t = e.target.closest && e.target.closest('.btn,.bc-nav a,.policy-index a,.pmx-item,[role=tab]');
-    if (t && !t.disabled) { try { navigator.vibrate(7); } catch (x) {} }
+  /* ---- 4. haptics: a short tick when a finger lifts on a control (Android; other devices ignore it).
+          buttons get a firmer tick than links, and the main call-to-action a double tap ---- */
+  if (navigator.vibrate) document.addEventListener('pointerup', function (e) {
+    if (e.pointerType !== 'touch') return;
+    var el = target(e.target); if (!el) return;
+    try {
+      if (el.matches('.btn-blue,.btn-primary,[data-continue-payment]')) navigator.vibrate([9, 36, 9]);
+      else if (el.matches('.btn,button,[role=button],[role=tab],summary,.bc-nav a,.policy-index a')) navigator.vibrate(11);
+      else navigator.vibrate(5);
+    } catch (x) {}
   }, { passive: true });
 
   /* ---- 5. pop-ups: pull the top of a window down to dismiss it (phones only; payment pages excluded) ---- */
   if (!money && matchMedia('(max-width:767px)').matches) (function () {
-    var dlg = null, y0 = 0, dy = 0, t0 = 0, drag = false;
+    var dlg = null, y0 = 0, dy = 0, t0 = 0, drag = false, pass = false;
     document.addEventListener('touchstart', function (e) {
       dlg = null; if (e.touches.length !== 1) return;
       var t = e.touches[0], n = e.target;
       if (!n.closest || n.closest('input,textarea,select,[contenteditable]')) return;
       var d = n.closest('dialog[open]'); if (!d || d.matches('.guest-prompt,.trial-nudge')) return;
       if (t.clientY - d.getBoundingClientRect().top > 64) return;
-      dlg = d; y0 = t.clientY; dy = 0; t0 = e.timeStamp; drag = false;
+      dlg = d; y0 = t.clientY; dy = 0; t0 = e.timeStamp; drag = false; pass = false;
     }, { passive: true });
     document.addEventListener('touchmove', function (e) {
       if (!dlg) return;
       var d = e.touches[0].clientY - y0;
       if (!drag) { if (d > 10) drag = true; else if (d < -10) { dlg = null; return; } else return; }
       if (e.cancelable) e.preventDefault();
-      dy = Math.max(0, d); dlg.style.transition = 'none'; dlg.style.translate = '0 ' + (dy < 160 ? dy : 160 + (dy - 160) * .35) + 'px';
+      dy = Math.max(0, d); if (!pass && dy > 110) { pass = true; try { navigator.vibrate && navigator.vibrate(9); } catch (x) {} } else if (pass && dy < 100) pass = false; dlg.style.transition = 'none'; dlg.style.translate = '0 ' + (dy < 160 ? dy : 160 + (dy - 160) * .35) + 'px';
     }, { passive: false });
     function end(e) {
       if (!dlg) return;
@@ -99,6 +105,14 @@
       });
     }
 
+    /* ---- 2a. headings rise with the scroll itself (scrubbed by the finger, so it is always in step) ---- */
+    if (window.CSS && CSS.supports && CSS.supports('animation-timeline: view()')) {
+      [].slice.call(main.querySelectorAll('h1,h2,h3,.section-eyebrow,[class*=eyebrow]')).forEach(function (el) {
+        if (!ok(el) || !below(el) || el.closest('a,button,.tf-drift,[class*=card],[class*=tile],.plan,figure,details,.faq-item,[class*=step],.policy-section,.chipl,.sp-chip')) return;
+        el.classList.add('tf-scrub');
+      });
+    }
+
     /* ---- 2. cards and figures glide in as they are reached ---- */
     var cards = [].slice.call(main.querySelectorAll('[class*=card]:not([class*=cards]),[class*=tile],.plan,figure,details,.faq-item,[class*=step]:not([class*=steps]),.policy-section,.chipl,.sp-chip'))
       .filter(function (el) { return !el.classList.contains('tf-drift') && ok(el) && below(el) && el.getBoundingClientRect().width > 120; });
@@ -107,7 +121,7 @@
     function flush() {
       flushing = 0; var batch = queue.splice(0);
       batch.forEach(function (el, i) {
-        el.animate([{ opacity: 0, translate: '0 30px' }, { opacity: 1, translate: '0 0' }], { duration: 800, delay: Math.min(i, 4) * 80, easing: EASE, fill: 'backwards' });
+        el.animate([{ opacity: 0, translate: '0 58px', scale: .955 }, { opacity: 1, translate: '0 0', scale: 1 }], { duration: 950, delay: Math.min(i, 4) * 95, easing: EASE, fill: 'backwards' });
       });
     }
     var io = new IntersectionObserver(function (entries) {

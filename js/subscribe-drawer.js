@@ -3,10 +3,12 @@
 import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261020-prices1';
 import {localFormatter} from './fx.js?v=20261020-local1';
 import {cachedGeo} from './geo.js?v=20261019-geo1';
+import {animatePrice} from './price-motion.js';
 import {YEARLY_PERCENT} from './regions.js?v=20261023-p7';
 const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 const onCheckout=!!document.querySelector('#billing-form');
 const PLANS={online:{name:'Basic',line:'All 10 Pro tools, always the newest version',foot:'Needs internet each time Maya starts'},offline:{name:'Premium',line:'All 14 tools, runs without internet',foot:'You decide when to update'}};
+const swap=(n,txt)=>{if(n.textContent===txt)return;n.textContent=txt;if(reduce()||!n.animate||!dlg?.open)return;n.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.22,1,.36,1)'});};
 const el=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
 const X='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
 const cache=new Map();let dlg=null,state={plan:'online',billing:'monthly',seats:1},mode='new',rev=0,fmt=null;
@@ -56,17 +58,17 @@ async function paint(quiet){
  const [qo,qf,qy,qm]=qs;
  for(const [p,q] of [['online',qo],['offline',qf]]){
   const n=dlg.querySelector('[data-p="'+p+'"]');if(!q){n.textContent='—';continue;}
-  n.innerHTML='';const f=await formatter(q);if(my!==rev)return;n.append(el('b',null,f(q.unitAmount)),el('small',null,'per license / '+per));
+  const f=await formatter(q);if(my!==rev)return;const t=f(q.unitAmount)+'|'+per;if(n.dataset.k===t)continue;const fresh=n.dataset.k!==undefined;n.dataset.k=t;n.replaceChildren(el('b',null,f(q.unitAmount)),el('small',null,'per license / '+per));if(fresh&&!reduce()&&dlg.open)n.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.22,1,.36,1)'});
  }
  const cur=plan==='online'?qo:qf;
  if(cur){
   const f=await formatter(cur);if(my!==rev)return;
-  dlg.querySelector('[data-total]').textContent=f(cur.unitAmount*seats);
-  dlg.querySelector('[data-sub]').textContent='Subtotal · '+seats+(seats===1?' license':' licenses')+' · billed '+(billing==='yearly'?'yearly':'monthly');
+  animatePrice(dlg.querySelector('[data-total]'),cur.unitAmount*seats,f,dlg.open);
+  swap(dlg.querySelector('[data-sub]'),'Subtotal · '+seats+(seats===1?' license':' licenses')+' · billed '+(billing==='yearly'?'yearly':'monthly'));
  }else{dlg.querySelector('[data-total]').textContent='—';dlg.querySelector('[data-sub]').textContent='Price confirmed at checkout';}
  const pct=YEARLY_PERCENT?.[plan];
  dlg.querySelector('[data-save]').textContent=pct?'Save '+pct+'%':'';
- dlg.querySelector('[data-bnote]').textContent=billing==='yearly'?'Billed once a year. The first-year saving applies to your first yearly subscription of this license.':'Billed every month. Cancel renewal any time.';
+ swap(dlg.querySelector('[data-bnote]'),billing==='yearly'?'Billed once a year. The first-year saving applies to your first yearly subscription of this license.':'Billed every month. Cancel renewal any time.');
  dlg.querySelector('.sd-go').textContent=mode==='edit'?'Update order':'Continue to checkout';
 }
 function go(){

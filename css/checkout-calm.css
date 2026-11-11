@@ -28,3 +28,12 @@ html body.bill-v2 .payment-picker .pay-item[data-open] .acc-chev{color:var(--ink
 html body.bill-v2 .upsell-badge{background:color-mix(in srgb,var(--gold) 20%,transparent)!important;color:var(--gold-lo)!important;border:1px solid color-mix(in srgb,var(--gold) 38%,transparent)!important;box-shadow:none!important}
 html[data-theme=dark] body.bill-v2 .upsell-badge{color:var(--gold)!important}
 html body.bill-v2 .billing-upsell{background:var(--card)!important}
+
+/* Motion: selections glide instead of snapping */
+html body.bill-v2 .payment-picker .pay-item>label::before{transition:border-width .38s cubic-bezier(.22,1,.36,1),border-color .3s,background-color .3s!important}
+html body.bill-v2 .payment-picker .pay-item{transition:border-color .35s cubic-bezier(.22,1,.36,1),box-shadow .35s cubic-bezier(.22,1,.36,1),background-color .3s!important}
+@keyframes cbRise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+html body.pay-single .payment-picker .pay-item{animation:cbRise .6s cubic-bezier(.22,1,.36,1) both}
+html body.pay-single .payment-picker .pay-item:nth-child(2){animation-delay:.05s}html body.pay-single .payment-picker .pay-item:nth-child(3){animation-delay:.1s}html body.pay-single .payment-picker .pay-item:nth-child(4){animation-delay:.15s}html body.pay-single .payment-picker .pay-item:nth-child(5){animation-delay:.2s}
+html body.pay-single .order-summary{animation:cbRise .6s .12s cubic-bezier(.22,1,.36,1) both}
+@media(prefers-reduced-motion:reduce){html body.bill-v2 .payment-picker .pay-item>label::before,html body.bill-v2 .payment-picker .pay-item{transition:none!important}html body.pay-single .payment-picker .pay-item,html body.pay-single .order-summary{animation:none!important}}

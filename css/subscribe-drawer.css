@@ -10,16 +10,19 @@ dialog.sd:not([open]){display:none}
 .sd-body{flex:1;overflow:auto;overscroll-behavior:contain;padding:4px 22px 22px;display:grid;align-content:start;gap:24px}
 .sd-sec h3{margin:0 0 10px;font-size:.8125rem;font-weight:650;letter-spacing:.02em;color:var(--mute)}
 .sd-opts{display:grid;gap:10px}
-.sd-opt{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:16px;border:1px solid var(--line);border-radius:14px;cursor:pointer;transition:border-color .25s,background-color .25s}
+.sd-opt{position:relative;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:16px;border:1px solid var(--line);border-radius:14px;cursor:pointer;transition:border-color .35s cubic-bezier(.22,1,.36,1),box-shadow .35s cubic-bezier(.22,1,.36,1),background-color .25s}
 .sd-opt:hover{border-color:color-mix(in srgb,var(--ink) 35%,var(--line))}
 .sd-opt input,.sd-seg input{position:absolute;opacity:0;pointer-events:none}
 .sd-opt-t{display:grid;gap:3px}.sd-opt-t b{font-size:1rem;font-weight:650}.sd-opt-t small{font-size:.8125rem;line-height:1.4;color:var(--mute)}
 .sd-opt-p{display:grid;justify-items:end;text-align:right}.sd-opt-p b{font-size:1.0625rem;font-weight:650;font-variant-numeric:tabular-nums}.sd-opt-p small{font-size:.75rem;color:var(--mute)}
 .sd-opt:has(input:checked){border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
 .sd-opt:has(input:focus-visible),.sd-seg label:has(input:focus-visible){outline:2px solid var(--ink);outline-offset:2px}
-.sd-seg{display:grid;grid-template-columns:1fr 1fr;padding:4px;border:1px solid var(--line);border-radius:12px;gap:4px}
+.sd-seg{position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border:1px solid var(--line);border-radius:12px;gap:4px}
 .sd-seg label{position:relative;display:grid;place-items:center;height:42px;border-radius:9px;font-weight:600;font-size:.9375rem;cursor:pointer;color:var(--mute);transition:background-color .3s,color .3s}
-.sd-seg label:has(input:checked){background:var(--ink);color:var(--bg,#fff)}
+.sd-seg::before{content:"";position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 12px)/2);border-radius:9px;background:var(--ink);transition:transform .5s cubic-bezier(.22,1,.36,1)}
+.sd-seg:has(label:last-child input:checked)::before{transform:translateX(calc(100% + 4px))}
+.sd-seg label:has(input:checked){color:var(--bg,#fff)}
+.sd-seg label{z-index:1}
 .sd-seg em{font:600 .75rem/1 inherit;font-family:inherit;font-style:normal;color:inherit;margin-left:6px;opacity:.85}
 .sd-seg em:empty{display:none}
 .sd-note{margin:10px 0 0;font-size:.8125rem;line-height:1.55;color:var(--mute)}
@@ -34,5 +37,13 @@ dialog.sd:not([open]){display:none}
 .sd-go:hover{opacity:.9}.sd-go:active{transform:scale(.97)}
 .sd-change{margin:4px 0 8px;padding:0;border:0;background:none;color:var(--ink);font:inherit;font-size:.875rem;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
 @media(max-width:520px){dialog.sd{width:100vw}.sd-panel{border-left:0}.sd-head{padding:16px 16px 12px}.sd-body{padding:4px 16px 18px}.sd-foot{padding-inline:16px}.sd-go{padding:0 18px}}
-@media(prefers-reduced-motion:reduce){.sd-go,.sd-opt,.sd-seg label{transition:none}}
+@keyframes sdIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+dialog.sd[open]:not([data-closing]) .sd-head,dialog.sd[open]:not([data-closing]) .sd-sec,dialog.sd[open]:not([data-closing]) .sd-foot{animation:sdIn .6s cubic-bezier(.22,1,.36,1) both}
+dialog.sd[open]:not([data-closing]) .sd-head{animation-delay:.12s}
+dialog.sd[open]:not([data-closing]) .sd-sec:nth-child(1){animation-delay:.18s}
+dialog.sd[open]:not([data-closing]) .sd-sec:nth-child(2){animation-delay:.25s}
+dialog.sd[open]:not([data-closing]) .sd-sec:nth-child(3){animation-delay:.32s}
+dialog.sd[open]:not([data-closing]) .sd-foot{animation-delay:.38s}
+.sd-qty button:active:not(:disabled){transform:scale(.9)}.sd-qty button{transition:background-color .2s,transform .25s cubic-bezier(.22,1,.36,1),opacity .25s}
+@media(prefers-reduced-motion:reduce){.sd-go,.sd-opt,.sd-seg label,.sd-seg::before,.sd-qty button{transition:none}dialog.sd .sd-head,dialog.sd .sd-sec,dialog.sd .sd-foot{animation:none!important}}
 html[data-checkout-step=billing] .license-entry{display:none!important}

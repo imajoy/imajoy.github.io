@@ -4,7 +4,7 @@
    in the head, so there is no flash), and a page left open changes by itself at 6 am / 6 pm.
    A visitor who presses the sun/moon button keeps their choice until the next 6 am / 6 pm change, then the clock takes
    over again. Nothing is sent anywhere; the choice is kept in this browser only.
-   Welcome shift: on the first page of a visit the page opens in the OTHER theme (light at night, dark by day) and, once
+   Welcome shift (laptops and tablets; phones skip it and open straight in the right theme): on the first page of a visit the page opens in the OTHER theme (light at night, dark by day) and, once
    it has loaded and settled, glows over into the right one with the same soft bloom as the sun/moon button. It plays
    once per visit (not on every page), and never with "reduce motion" on or after a manual choice. */
 (function () {
@@ -71,7 +71,8 @@
   }
   var target = wanted(), intro = false;
   try {
-    intro = !pinned() && !held() && !sessionStorage.getItem('ajoy-theme-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    intro = !pinned() && !held() && !sessionStorage.getItem('ajoy-theme-intro') && !matchMedia('(prefers-reduced-motion: reduce)').matches &&
+      !matchMedia('(hover:none) and (pointer:coarse) and (max-width:767px)').matches; /* phones open straight in the right theme: no light/dark flash while loading */
     if (intro) sessionStorage.setItem('ajoy-theme-intro', '1');
   } catch (e) { intro = false; }
   /* first page of a visit: open in the opposite theme, then shift once the page has settled */

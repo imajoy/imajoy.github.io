@@ -83,8 +83,8 @@ html:root:root:root body .contact-send[data-state=sending],html:root:root:root b
 html:root:root:root body .contact-send[data-state=sending] .send-label{opacity:1;transform:none}
 .contact-send[data-state=sending] .send-plane{animation:send-pass 1.05s .35s cubic-bezier(.6,0,.3,1) infinite!important;opacity:1}
 /* sent */
-html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sent]:disabled{background:#1b7958!important;border-color:#1b7958!important;color:#fff!important;box-shadow:none!important}
-html[data-theme=dark]:root:root:root body .contact-send[data-state=sent],html[data-theme=dark]:root:root:root body .contact-send[data-state=sent]:disabled{background:#2fb583!important;border-color:#2fb583!important;color:#06231a!important}
+html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sent]:disabled{background:var(--btnbg)!important;border-color:#1b7958!important;color:#fff!important;box-shadow:none!important;transition:border-color .5s .15s,color .35s .2s!important}
+html[data-theme=dark]:root:root:root body .contact-send[data-state=sent],html[data-theme=dark]:root:root:root body .contact-send[data-state=sent]:disabled{background:var(--btnbg)!important;border-color:#2fb583!important;color:#06231a!important}
 html:root:root:root body .contact-send[data-state=sent] .send-icon{background:#fff;color:#1b7958}
 html:root:root:root body .contact-send[data-state=sent] .send-label,html:root:root:root body .contact-send[data-state=sent] .send-label.is-new{animation:send-word .5s .12s var(--out) both}
 .contact-send[data-state=sent] .send-plane{opacity:0;animation:none!important}
@@ -142,3 +142,16 @@ html:root:root:root body .contact-send[data-up]:disabled .send-plane{animation:s
 /* Sent/sending never move or pop the button: an older pop animation and hover lift were replaying here (and re-running the page-entry rise afterwards). The entry animation is kept under the same name so it is not restarted. */
 html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sending]{animation-name:vt-rise;animation-duration:.7s;animation-timing-function:cubic-bezier(.16,1,.3,1);animation-fill-mode:both;transform:none!important;translate:0 0!important}
 html:root:root:root body .contact-send:hover,html:root:root:root body .contact-send:active{transform:none!important}
+
+/* Sending → sent, rebuilt. The arrow launches out of the badge and keeps flying through while the message travels; a bar of light runs along the base of the pill.
+   When the service confirms, green opens from the badge like a ripple across the whole pill, the badge pulses once and the tick is drawn. All of it eases; nothing resizes. */
+html:root:root:root body .contact-send::before{content:""!important;position:absolute;inset:0;border-radius:inherit;background:#1b7958;translate:0 0!important;opacity:1!important;clip-path:circle(0 at calc(100% - 28px) 50%);transition:clip-path .8s cubic-bezier(.65,0,.2,1);pointer-events:none;z-index:0}
+html[data-theme=dark]:root:root:root body .contact-send::before{background:#2fb583}
+html:root:root:root body .contact-send[data-state=sent]::before{clip-path:circle(160% at calc(100% - 28px) 50%)}
+html:root:root:root body .contact-send[data-state=sending]::after{content:""!important;position:absolute;inset:auto 0 0 0;height:3px;border-radius:0;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--btnfg) 70%,transparent),transparent);transform:translateX(-100%);animation:send-run 1.35s cubic-bezier(.5,0,.2,1) infinite!important}
+@keyframes send-run{to{transform:translateX(100%)}}
+.contact-send[data-state=sending] .send-plane{animation:send-launch 1.2s cubic-bezier(.55,0,.25,1) infinite!important;opacity:1}
+@keyframes send-launch{0%{transform:none;opacity:1}38%{transform:translate(18px,-18px);opacity:0}39%{transform:translate(-18px,18px);opacity:0}78%{transform:none;opacity:1}100%{transform:none;opacity:1}}
+html:root:root:root body .contact-send[data-state=sent] .send-icon{animation:send-badge .7s .3s cubic-bezier(.34,1.4,.5,1) both}
+@keyframes send-badge{0%{transform:scale(1)}45%{transform:scale(1.16)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){html:root:root:root body .contact-send::before{transition:none}html:root:root:root body .contact-send[data-state=sent] .send-icon{animation:none}}

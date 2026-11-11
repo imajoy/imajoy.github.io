@@ -174,3 +174,5 @@ html:root:root:root body .contact-send[data-state=sent] .send-label,html:root:ro
 /* Sent/sending never move or pop the button. */
 html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sending]{animation-name:vt-rise;animation-duration:.7s;animation-timing-function:cubic-bezier(.16,1,.3,1);animation-fill-mode:both;transform:none!important}
 html:root:root:root body .contact-send:hover,html:root:root:root body .contact-send:active{transform:none!important}
+/* No drop shadow on the send button, in any state, theme or hover. */
+html:root:root:root:root body .contact-send,html:root:root:root:root body .contact-send:hover,html:root:root:root:root body .contact-send:active,html:root:root:root:root body .contact-send:disabled,html:root:root:root:root body .contact-send[data-state]{box-shadow:none!important;filter:none!important}

@@ -16,6 +16,7 @@ function paint(){
  const s=getAccountSession();if(!s)return;
  paintAvatar(av,profile,initial());
  $('#ai-remove').hidden=!(profile&&profile.photo);
+ {const has=!!(profile&&profile.photo),up=$('.ai-upload');up.toggleAttribute('data-has',has);up.querySelector('span').textContent=has?'Change photo':'Upload photo';file.setAttribute('aria-label',has?'Change profile photo':'Upload profile photo');}
  $('#ai-name').textContent=profile?.name||'Not set';$('#ai-name').dataset.empty=String(!profile?.name);
  $('#ai-email').textContent=s.email;
  const addr=profile&&hasBilling(profile)?[profile.address,[profile.city,profile.postal].filter(Boolean).join(' '),profile.region].filter(Boolean).join(', '):'';

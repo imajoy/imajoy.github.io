@@ -58,3 +58,8 @@
  .ai-act .ai-k{grid-area:k}.ai-act .ai-v{grid-area:v}
  .ai-act>:last-child{grid-area:b;grid-row:auto;justify-self:stretch;margin-top:12px;width:100%;min-height:46px;justify-content:center}
 }
+
+/* With a photo in place the main button becomes a quiet "Change photo" (outlined, with a small camera mark); the dark/gold call to action is only for the first upload. */
+html body .ai-photo .ai-upload[data-has]{background:transparent!important;color:var(--ink)!important;border:1px solid var(--line)!important;box-shadow:none!important;gap:8px;transition:border-color .25s,background-color .25s}
+html body .ai-photo .ai-upload[data-has]::before{content:"";width:15px;height:15px;flex:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l1.6-2h6.8L17 8h3v11H4z'/%3E%3Ccircle cx='12' cy='13' r='3.2'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l1.6-2h6.8L17 8h3v11H4z'/%3E%3Ccircle cx='12' cy='13' r='3.2'/%3E%3C/svg%3E") center/contain no-repeat}
+html body .ai-photo .ai-upload[data-has]:hover{border-color:color-mix(in srgb,var(--ink) 45%,var(--line))!important;background:var(--t07,rgba(0,0,0,.04))!important;translate:0 0}

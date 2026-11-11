@@ -1,10 +1,10 @@
-/* One optional attachment. These checks are repeated by the Apps Script service. */
-export const MAX_ATTACHMENT_BYTES=5*1024*1024;
+/* Up to five optional attachments, 10 MB in total (the total is checked in contact.js and by the service). These checks are repeated by the Apps Script service. */
+export const MAX_ATTACHMENT_BYTES=10*1024*1024;
 export const attachmentTypes={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',mp4:'video/mp4',mov:'video/quicktime'};
 export function attachmentInfo(file,bytes){
  const extension=(file.name||'').split('.').pop().toLowerCase(),type=attachmentTypes[extension];
  if((file.name||'').length>180||/[\\/\x00-\x1f]/.test(file.name||''))throw Error('Please shorten the file name and remove special path characters.');
- if(!type||!file.size||file.size>MAX_ATTACHMENT_BYTES)throw Error(file.size>MAX_ATTACHMENT_BYTES?'Choose a file no larger than 5 MB.':'Choose a PNG, JPEG, GIF, MP4 or MOV file.');
+ if(!type||!file.size||file.size>MAX_ATTACHMENT_BYTES)throw Error(file.size>MAX_ATTACHMENT_BYTES?'Choose a file no larger than 10 MB.':'Choose a PNG, JPEG, GIF, MP4 or MOV file.');
  if(file.type&&file.type!==type&&!(extension==='mov'&&file.type==='video/mp4'))throw Error('The file type does not match its extension.');
  if(bytes){
   const b=new Uint8Array(bytes),text=(start,end)=>String.fromCharCode(...b.slice(start,end));

@@ -6,11 +6,11 @@ test('guest contact attachments accept PNG, JPEG, GIF, MP4 and MOV with matching
   const info=await inspectAttachment(new File([new Uint8Array(bytes)],name,{type}));assert.equal(info.type,type);
  }
 });
-test('file checks reject spoofed signatures, MIME types, disallowed extensions, paths and the 5 MB boundary',async()=>{
+test('file checks reject spoofed signatures, MIME types, disallowed extensions, paths and the 10 MB boundary',async()=>{
  await assert.rejects(inspectAttachment(new File(['not an image'],'fake.png',{type:'image/png'})),/does not appear/);
  await assert.rejects(inspectAttachment(new File(['<svg>'],'file.svg',{type:'image/svg+xml'})),/Choose a PNG/);
  assert.throws(()=>attachmentInfo({name:'../image.png',size:9,type:'image/png'}),/path characters/);
  assert.throws(()=>attachmentInfo({name:'image.png',size:9,type:'text/html'}),/does not match/);
- assert.throws(()=>attachmentInfo({name:'image.png',size:MAX_ATTACHMENT_BYTES+1,type:'image/png'}),/5 MB/);
+ assert.throws(()=>attachmentInfo({name:'image.png',size:MAX_ATTACHMENT_BYTES+1,type:'image/png'}),/10 MB/);
  assert.equal(attachmentInfo({name:'clip.mp4',size:MAX_ATTACHMENT_BYTES,type:'video/mp4'}).size,MAX_ATTACHMENT_BYTES);
 });

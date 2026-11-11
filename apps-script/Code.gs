@@ -854,8 +854,8 @@ function handleContact_(data) {
   if (!lock.tryLock(10000)) return {ok:false,error:'busy'};
   var held=true;
   try {
-    var attachment;try{attachment=contactAttachment_(data.attachment);}catch(error){return {ok:false,error:'attachment_invalid'};}
-    var cache=CacheService.getScriptCache(),who=sign_('contact:'+email),fingerprint=sign_('contact-body:'+JSON.stringify([name,email,topic,message,attachment?attachment.sha:''])),saved=cache.get('contact-receipt:'+requestId);
+    var attachments;try{attachments=contactAttachments_(data);}catch(error){return {ok:false,error:'attachment_invalid'};}
+    var cache=CacheService.getScriptCache(),who=sign_('contact:'+email),fingerprint=sign_('contact-body:'+JSON.stringify([name,email,topic,message,attachments.map(function(a){return a.sha;})])),saved=cache.get('contact-receipt:'+requestId);
     if (saved) { var receipt=JSON.parse(saved);return receipt.who===who&&receipt.fingerprint===fingerprint?{ok:true,reference:receipt.reference,attachmentSaved:!!receipt.attachmentSaved}:{ok:false,error:'invalid'}; }
     var key='contact-count:'+who,count=Number(cache.get(key)||0);
     // Per-email/hour and site/day limits reduce bulk abuse without emailing visitors.
@@ -864,14 +864,14 @@ function handleContact_(data) {
     if (count>=3 || daily.count>=200) return {ok:false,error:'limit'};
     // Reserve attempts before external uploads so failures cannot bypass quotas.
     daily.count++;p.setProperty('CONTACT_DAILY',JSON.stringify(daily));cache.put(key,String(count+1),3600);
-    var attachmentURL='';
-    // Without a GitHub token for private storage, the file is saved in a private Google Drive folder instead.
-    var driveOnly=!!attachment&&!props_().getProperty('CONTACT_GITHUB_TOKEN');
-    if(attachment&&driveOnly){try{attachmentURL=storeContactDrive_(attachment,requestId);}catch(error){return {ok:false,error:'attachment_unavailable'};}}
-    if(attachment&&!driveOnly){
+    var attachmentURLs=[];
+    // Without a GitHub token for private storage, the files are saved in a private Google Drive folder instead.
+    var hasFiles=attachments.length>0,driveOnly=hasFiles&&!props_().getProperty('CONTACT_GITHUB_TOKEN');
+    if(driveOnly){try{attachments.forEach(function(a,i){attachmentURLs.push(storeContactDrive_(a,requestId+(i?'-'+(i+1):'')));});}catch(error){return {ok:false,error:'attachment_unavailable'};}}
+    if(hasFiles&&!driveOnly){
       // Large GitHub transfers must not hold the lock used by registration and commerce.
       lock.releaseLock();held=false;
-      try{attachmentURL=storeContactAttachment_(attachment,requestId);}catch(error){return {ok:false,error:'attachment_unavailable'};}
+      try{attachments.forEach(function(a,i){attachmentURLs.push(storeContactAttachment_(a,requestId+(i?'-'+(i+1):'')));});}catch(error){return {ok:false,error:'attachment_unavailable'};}
       if(!lock.tryLock(10000))return {ok:false,error:'busy'};held=true;
       saved=cache.get('contact-receipt:'+requestId);
       if(saved){var completed=JSON.parse(saved);return completed.fingerprint===fingerprint?{ok:true,reference:completed.reference,attachmentSaved:!!completed.attachmentSaved}:{ok:false,error:'invalid'};}
@@ -881,26 +881,34 @@ function handleContact_(data) {
     sheet.getRange(1,9,1,4).setValues([['Private attachment','Attachment name','Attachment type','Attachment bytes']]);
     var reference='AJ-'+Utilities.getUuid();
     // Strip leading whitespace before formula escaping, including tabs and newlines.
-    sheet.appendRow([new Date(),reference,name,email,topic,message,'New',true,attachmentURL,attachment?attachment.name:'',attachment?attachment.type:'',attachment?attachment.bytes.length:''].map(safeSheetCell_));
-    cache.put('contact-receipt:'+requestId,JSON.stringify({who:who,fingerprint:fingerprint,reference:reference,attachmentSaved:!!attachment}),21600);
+    sheet.appendRow([new Date(),reference,name,email,topic,message,'New',true,attachmentURLs.join('\n'),attachments.map(function(a){return a.name;}).join(', '),attachments.map(function(a){return a.type;}).join(', '),hasFiles?attachments.reduce(function(n,a){return n+a.bytes.length;},0):''].map(safeSheetCell_));
+    cache.put('contact-receipt:'+requestId,JSON.stringify({who:who,fingerprint:fingerprint,reference:reference,attachmentSaved:hasFiles}),21600);
     // A copy to your own support inbox (labelled "Wrapline/Contact" by the Gmail filter). Reply to it and the answer goes to the visitor. A mail problem never loses the message: it is already in the Contacts tab.
     try {
       var copy = { to: replyTo_(), name: 'Wrapline contact form', replyTo: email, subject: 'Contact form (' + topic + '): ' + name.replace(/[\r\n]+/g, ' '),
-        body: 'From: ' + name + ' <' + email + '>\nTopic: ' + topic + '\nReference: ' + reference + (attachmentURL ? '\nAttachment: ' + attachmentURL : '') + '\n\n' + message + '\n\nReply to this email to answer them directly.' };
+        body: 'From: ' + name + ' <' + email + '>\nTopic: ' + topic + '\nReference: ' + reference + attachmentURLs.map(function (u, i) { return '\nAttachment' + (attachmentURLs.length > 1 ? ' ' + (i + 1) : '') + ': ' + u; }).join('') + '\n\n' + message + '\n\nReply to this email to answer them directly.' };
       copy.htmlBody = ownerHtml_(copy.subject, copy.body);
       sendNoReply_(copy);
     } catch (mailError) {}
-    return {ok:true,reference:reference,attachmentSaved:!!attachment};
+    return {ok:true,reference:reference,attachmentSaved:hasFiles};
   } catch (error) {return {ok:false,error:'unavailable'};}
   finally {if(held)lock.releaseLock();}
 }
 
 /* Optional media never goes into the public website repository. */
+/* Up to 5 files, 10 MB in total. The older single "attachment" field is still accepted. */
+function contactAttachments_(data) {
+  var list = Array.isArray(data.attachments) ? data.attachments : (data.attachment !== undefined && data.attachment !== null ? [data.attachment] : []);
+  if (list.length > 5) throw Error('attachment');
+  var total = 0, out = list.map(function (f) { var a = contactAttachment_(f); total += a.bytes.length; return a; });
+  if (total > 10 * 1024 * 1024) throw Error('attachment');
+  return out;
+}
 function contactAttachment_(file) {
   if(file===undefined||file===null)return null;
   if(typeof file!=='object'||Array.isArray(file)||typeof file.name!=='string'||file.name.length>180||/[\\/\x00-\x1f]/.test(file.name))throw Error('attachment');
   var ext=file.name.split('.').pop().toLowerCase(),types={png:'image/png',jpg:'image/jpeg',jpeg:'image/jpeg',gif:'image/gif',mp4:'video/mp4',mov:'video/quicktime'};
-  if(!types[ext]||file.type!==types[ext]||!Number.isInteger(file.size)||file.size<1||file.size>5*1024*1024||typeof file.base64!=='string'||file.base64.length>6990508||file.base64.length%4||!/^[A-Za-z0-9+/]*={0,2}$/.test(file.base64))throw Error('attachment');
+  if(!types[ext]||file.type!==types[ext]||!Number.isInteger(file.size)||file.size<1||file.size>10*1024*1024||typeof file.base64!=='string'||file.base64.length>13981016||file.base64.length%4||!/^[A-Za-z0-9+/]*={0,2}$/.test(file.base64))throw Error('attachment');
   var bytes=Utilities.base64Decode(file.base64);if(bytes.length!==file.size)throw Error('attachment');
   var b=bytes.slice(0,32).map(function(n){return(n+256)%256;}),text=function(start,end){return String.fromCharCode.apply(null,b.slice(start,end));};
   var valid=ext==='png'?b.length>=8&&[137,80,78,71,13,10,26,10].every(function(n,i){return b[i]===n;}):ext==='jpg'||ext==='jpeg'?b[0]===255&&b[1]===216&&b[2]===255:ext==='gif'?['GIF87a','GIF89a'].indexOf(text(0,6))>=0:b.length>=12&&(text(4,8)==='ftyp'||ext==='mov'&&['moov','mdat','wide','free'].indexOf(text(4,8))>=0);

@@ -74,3 +74,14 @@ test('without a GitHub token the attachment is saved in a private Drive folder i
  assert.match(s.mails.at(-1).body,/drive\.google\.com/);assert.equal(s.mails.at(-1).attachments,undefined);
  assert.equal(send(s,data).attachmentSaved,true);assert.equal(s.drive.files.length,1,'a retry reuses the saved file');
 });
+test('up to five files totalling no more than 10 MB are saved together; a sixth file or an oversize total is refused',()=>{
+ const s=storageService();s.values.delete('CONTACT_GITHUB_TOKEN');
+ const five=mediaFixtures.slice(0,5).map((f,i)=>({...f,name:'shot'+i+'.'+f.name.split('.').pop()}));
+ const ok=send(s,message({attachments:five}));assert.equal(ok.ok,true);assert.equal(ok.attachmentSaved,true);
+ const row=s.sheets.get('Contacts').rows[1];assert.equal(String(row[8]).split('\n').length,5);assert.equal(row[11],five.reduce((n,f)=>n+f.size,0));
+ const t=storageService();t.values.delete('CONTACT_GITHUB_TOKEN');
+ assert.equal(send(t,message({attachments:[...five,...five.slice(0,1)]})).error,'attachment_invalid','six files');
+ const big=bytes=>{const b=Buffer.concat([Buffer.from([137,80,78,71,13,10,26,10]),Buffer.alloc(bytes-8)]);return {name:'big.png',type:'image/png',size:b.length,base64:b.toString('base64')};};
+ assert.equal(send(t,message({attachments:[big(6*1024*1024),{...big(5*1024*1024),name:'big2.png'}]})).error,'attachment_invalid','11 MB in total');
+ assert.equal(send(t,message({attachments:[big(6*1024*1024),{...big(4*1024*1024),name:'big2.png'}]})).ok,true,'10 MB in total is fine');
+});

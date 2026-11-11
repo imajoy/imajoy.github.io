@@ -3,7 +3,7 @@ const L=()=>window.AjoyLang;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const calm=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 let dlg=null,restore=null;
-function ensureCss(){if(document.querySelector('link[data-lang-css]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/language.css?v=lg4';l.dataset.langCss='';document.head.append(l);}
+function ensureCss(){if(document.querySelector('link[data-lang-css]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/language.css?v=lg5';l.dataset.langCss='';document.head.append(l);}
 function draw(){
  const api=L();if(!api)return;const cur=api.current();
  dlg.innerHTML='<div class="lng-box"><button class="lng-x" type="button" aria-label="Close" data-x>×</button><h2 id="lng-title">Select a language</h2>'+
@@ -36,19 +36,21 @@ function close(){
  if(calm())done();else setTimeout(done,220);
 }
 function warn(){
- dlg.innerHTML='<div class="lng-box lng-warn"><button class="lng-x" type="button" aria-label="Close" data-x>×</button><h2 id="lng-title">Language is not available here</h2>'+
+ dlg.innerHTML='<div class="lng-box lng-warn"><h2 id="lng-title">Language is not available here</h2>'+
   '<p class="lng-note">For your security, checkout and payment pages always stay in English. Your language applies on the other pages.</p><button class="lng-ok" type="button" data-x>Got it</button></div>';
  dlg.querySelectorAll('[data-x]').forEach(b=>b.onclick=close);
  return dlg.querySelector('.lng-ok');
 }
 export function openLanguage(){
  ensureCss();
- if(!dlg){dlg=document.createElement('dialog');dlg.className='lng-dlg';dlg.setAttribute('aria-labelledby','lng-title');document.body.append(dlg);
+ if(!dlg){dlg=document.createElement('dialog');dlg.className='lng-dlg';dlg.tabIndex=-1;dlg.setAttribute('aria-labelledby','lng-title');document.body.append(dlg);
   dlg.addEventListener('cancel',e=>{e.preventDefault();close();});dlg.addEventListener('click',e=>{if(e.target===dlg)close();});}
  restore=document.activeElement;
- if(L()&&!L().supported){const ok=warn();if(!dlg.open)dlg.showModal();requestAnimationFrame(()=>ok.focus({preventScroll:true}));return;}
+ if(L()&&!L().supported&&/^\/(checkout|payment)(\.html)?\/?$/.test(location.pathname)){const ok=warn();if(!dlg.open)dlg.showModal();requestAnimationFrame(()=>ok.focus({preventScroll:true}));return;}
  const {list,input}=draw()||{};if(!list)return;
  if(!dlg.open)dlg.showModal();
- requestAnimationFrame(()=>{list.querySelector('[aria-selected=true]')?.scrollIntoView({block:'center'});input.focus({preventScroll:true});});
+ /* no jumping: position the list before it is painted, and only open the keyboard on devices that have one built in */
+ list.querySelector('[aria-selected=true]')?.scrollIntoView({block:'center',behavior:'instant'});
+ if(matchMedia('(hover:hover) and (pointer:fine)').matches)input.focus({preventScroll:true});else dlg.focus({preventScroll:true});
 }
 export const currentLabel=()=>{const a=L();return a?a.entry()[1]:'English';};

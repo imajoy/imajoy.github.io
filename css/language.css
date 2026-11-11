@@ -4,8 +4,8 @@ html[data-theme=dark] .lng-dlg{background:linear-gradient(180deg,#10172f,#0b1124
 .lng-dlg::backdrop{background:rgba(8,12,28,.5);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
 .lng-dlg[open]{animation:lng-in .42s cubic-bezier(.22,1,.36,1)}
 .lng-dlg[data-closing]{animation:lng-out .22s ease forwards}
-@keyframes lng-in{from{opacity:0;transform:translateY(18px) scale(.97)}}
-@keyframes lng-out{to{opacity:0;transform:translateY(10px) scale(.98)}}
+@keyframes lng-in{from{opacity:0}}
+@keyframes lng-out{to{opacity:0}}
 .lng-box{position:relative;display:flex;flex-direction:column;max-height:calc(100dvh - 30px);padding:26px 18px 14px}
 .lng-box h2{margin:0 40px 4px 8px;font-size:1.25rem;letter-spacing:-.02em}
 .lng-note{margin:0 8px 14px;font-size:.8125rem;line-height:1.55;color:var(--mute,#586072)}
@@ -20,7 +20,7 @@ html[data-theme=dark] .lng-search{background:#0d1530}
 .lng-search input::placeholder{color:var(--mute,#586072)}
 .lng-list{list-style:none;margin:0;padding:2px 4px 6px;overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;max-height:min(52dvh,420px)}
 .lng-list li{display:flex;align-items:center;gap:14px;padding:10px 12px;border-radius:14px;cursor:pointer;outline:none;transition:background-color .18s,transform .18s;animation:lng-row .45s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--i,0)*22ms + 120ms)}
-@keyframes lng-row{from{opacity:0;transform:translateY(8px)}}
+@keyframes lng-row{from{opacity:0}}
 .lng-list li[hidden]{display:none}
 .lng-list li:hover,.lng-list li:focus-visible{background:color-mix(in srgb,var(--blue,#3d8bff) 9%,transparent)}
 .lng-list li:focus-visible{box-shadow:0 0 0 2px var(--blue,#3d8bff) inset}
@@ -44,3 +44,4 @@ html[data-theme=dark] .lng-search{background:#0d1530}
 .lng-here{margin:6px 12px 0;padding:9px 12px;border-radius:12px;font-size:.78rem;line-height:1.5;color:var(--mute,#586072);background:color-mix(in srgb,var(--blue,#3d8bff) 8%,transparent)}
 
 .lng-warn{text-align:center}.lng-warn h2{margin-right:0}.lng-ok{all:unset;box-sizing:border-box;display:inline-flex;align-items:center;justify-content:center;margin:14px auto 4px;padding:11px 26px;border-radius:999px;font-weight:600;font-size:.9rem;cursor:pointer;color:#fff;background:var(--blue-d,#2a64e8);transition:transform .25s cubic-bezier(.22,1,.36,1),filter .2s}.lng-ok:hover{filter:brightness(1.08);transform:translateY(-1px)}.lng-ok:focus-visible{outline:2px solid var(--blue,#3d8bff);outline-offset:3px}
+.lng-dlg:focus{outline:none}

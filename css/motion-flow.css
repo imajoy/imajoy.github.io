@@ -1,0 +1,17 @@
+/* Checkout motion (see js/motion-flow.js) */
+.mf-host{position:relative;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.mf-ink{position:absolute;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(255,226,160,.0) 38%,rgba(242,182,79,.55) 52%,rgba(255,226,160,.28) 60%,rgba(242,182,79,0) 70%);mix-blend-mode:normal}
+.mf{opacity:0;transform:translateY(22px) scale(.985);transform-origin:50% 0}
+.mf.mf-in{opacity:1;transform:none;transition:opacity .8s cubic-bezier(.22,1,.36,1) var(--mf-d,0ms),transform 1s cubic-bezier(.22,1,.36,1) var(--mf-d,0ms)}
+/* fields: the border warms to gold and a soft ring opens */
+body.bill-v2 .checkout-form :is(input:not([type=checkbox]):not([type=radio]),textarea,select){transition:border-color .4s cubic-bezier(.22,1,.36,1),box-shadow .5s cubic-bezier(.22,1,.36,1),background-color .4s}
+body.bill-v2 .checkout-form :is(input:not([type=checkbox]):not([type=radio]),textarea,select):focus{border-color:var(--gold,#F2B64F)!important;box-shadow:0 0 0 4px color-mix(in srgb,var(--gold,#F2B64F) 20%,transparent)!important;outline:0}
+/* payment method opened: its contents arrive one after another */
+@keyframes mfStep{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.pay-item[data-open] .acc-inner .razorpay-panel>*{animation:mfStep .6s cubic-bezier(.22,1,.36,1) both}
+.pay-item[data-open] .acc-inner .razorpay-panel>*:nth-child(2){animation-delay:.06s}.pay-item[data-open] .acc-inner .razorpay-panel>*:nth-child(3){animation-delay:.12s}.pay-item[data-open] .acc-inner .razorpay-panel>*:nth-child(4){animation-delay:.18s}.pay-item[data-open] .acc-inner .razorpay-panel>*:nth-child(n+5){animation-delay:.24s}
+/* pay button: the label breathes a slow gold line underneath while it waits for the tap */
+body.pay-single .razorpay-panel .rzp-pay{position:relative;overflow:hidden}
+body.pay-single .razorpay-panel .rzp-pay:not(:disabled)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold,#F2B64F) 35%,var(--gold-hi,#FFE2A0) 50%,var(--gold,#F2B64F) 65%,transparent);transform:translateX(-101%);animation:mfSweep 3.2s cubic-bezier(.45,0,.2,1) infinite}
+@keyframes mfSweep{0%{transform:translateX(-101%)}55%,100%{transform:translateX(101%)}}
+@media(prefers-reduced-motion:reduce){.mf{opacity:1;transform:none}.pay-item[data-open] .acc-inner .razorpay-panel>*,body.pay-single .razorpay-panel .rzp-pay::after{animation:none!important}}

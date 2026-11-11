@@ -72,7 +72,7 @@ function build(){
   if(e.target===qty){state.seats=clampQty();qty.value=String(state.seats);}paint();
  });
  qty.addEventListener('input',()=>{const n=Math.round(Number(qty.value));if(qty.value!==''&&Number.isFinite(n)){state.seats=Math.min(100,Math.max(1,n));paint(true);}});
- for(const b of dlg.querySelectorAll('[data-q]'))b.addEventListener('click',()=>{state.seats=Math.min(100,Math.max(1,state.seats+Number(b.dataset.q)));qty.value=String(state.seats);paint();});
+ for(const b of dlg.querySelectorAll('[data-q]'))b.addEventListener('click',()=>{const dir=Number(b.dataset.q),was=state.seats;state.seats=Math.min(100,Math.max(1,state.seats+dir));qty.value=String(state.seats);if(was!==state.seats&&!reduce())qty.animate([{transform:'translateY('+(dir>0?12:-12)+'px)',opacity:0},{transform:'none',opacity:1}],{duration:380,easing:'cubic-bezier(.22,1,.36,1)'});paint();});
  dlg.querySelector('.sd-swap').addEventListener('click',()=>{expanded=!expanded;paint(true);});
  dlg.querySelector('.sd-x').addEventListener('click',close);
  dlg.addEventListener('cancel',e=>{e.preventDefault();close();});

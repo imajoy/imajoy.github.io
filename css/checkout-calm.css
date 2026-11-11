@@ -60,3 +60,12 @@ html body.bill-v2 [data-continue-payment].is-go{pointer-events:none}
 
 /* The yearly upsell card repeated the "Choose yearly" offer above the form, so it stays out of the page */
 html body #yearly-upsell{display:none!important}
+
+/* Billing page on phones: the form comes into view fast (no big illustration, no repeated intro), with the order summary kept short */
+@media(max-width:700px){
+ body.bill-v2:not(.pay-single) .eyebrow,body.bill-v2:not(.pay-single) .commerce-intro{display:none}
+ body.bill-v2:not(.pay-single) .commerce-main h1{margin-bottom:14px}
+ body.bill-v2:not(.pay-single) .order-summary :is(.license-preview,.creative-flow){display:none}
+ body.bill-v2:not(.pay-single) .order-summary .summary-list,body.bill-v2:not(.pay-single) .order-summary a.text-link[href*="pricing"]{display:none}
+ body.bill-v2:not(.pay-single) .checkout-progress{margin-bottom:14px}
+}

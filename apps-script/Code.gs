@@ -42,6 +42,7 @@ function authorizeSendAs() {
 function labelSentMail() {
   cleanContactUploads_();
   cleanTestMessages_();
+  cleanOrphanContactFiles_();
   var rules = [
     ['Wrapline/Codes', 'subject:"sign-in code"'],
     ['Wrapline/Welcome', 'subject:"Welcome to Wrapline"'],
@@ -1035,6 +1036,23 @@ function cleanTestMessages_() {
       if (inside) file.setTrashed(true);
     } catch (error) {}
   });
+}
+/* A contact file whose message row no longer exists in the Contacts tab (removed by hand or by the test clean-up above) goes to the Drive bin after an hour.
+   Files still linked from a row are never touched, and nothing runs unless the Contacts tab is found with its header intact. */
+function cleanOrphanContactFiles_() {
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Contacts');
+    if (!sheet || String(sheet.getRange(1, 1, 1, 1).getValues()[0][0]) !== 'Received at') return;
+    var linked = {}, last = sheet.getLastRow();
+    if (last >= 2) sheet.getRange(2, 9, last - 1, 1).getValues().forEach(function (r) { String(r[0] || '').replace(/\/d\/([A-Za-z0-9_-]{20,})/g, function (m, id) { linked[id] = true; return m; }); });
+    var folders = DriveApp.getFoldersByName('Wrapline contact files'); if (!folders.hasNext()) return;
+    var files = folders.next().getFiles(), cutoff = Date.now() - 3600000, done = 0;
+    while (files.hasNext() && done < 50) {
+      var f = files.next();
+      if (/^unsent-/.test(f.getName()) || linked[f.getId()] || f.getDateCreated().getTime() > cutoff) continue;
+      f.setTrashed(true); done++;
+    }
+  } catch (error) {}
 }
 /* Files that were attached but never sent go to the Drive bin after six hours (they stay recoverable there for 30 days). Runs with the hourly sent-mail labeller. */
 function cleanContactUploads_() {

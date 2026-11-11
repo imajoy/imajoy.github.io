@@ -120,3 +120,16 @@ test('contact messages from the owner\'s test addresses are removed after 24 hou
  assert.deepEqual(sheet().rows.slice(1).map(r=>r[3]),['real.customer@example.com'],'only the three test addresses are cleaned');
  assert.equal(files.size,1,'their attachment files were binned, the customer\'s kept');
 });
+test('contact files that no message row links to any more are binned after an hour; linked and fresh files stay',()=>{
+ const s=storageService();s.values.delete('CONTACT_GITHUB_TOKEN');
+ assert.equal(send(s,message({email:'real.customer@example.com',name:'Real',attachments:[mediaFixtures[0]]})).ok,true);
+ assert.equal(send(s,message({email:'real2@example.com',name:'Real2',attachments:[mediaFixtures[1]]})).ok,true);
+ const files=s.drive.folders.get('Wrapline contact files').files;assert.equal(files.size,2);
+ for(const f of files.values())f.created=new Date(Date.now()-2*3600000);
+ s.ctx.cleanOrphanContactFiles_();assert.equal(files.size,2,'both files are still linked from rows');
+ s.sheets.get('Contacts').rows.splice(2,1);
+ const fresh=[...files.values()][1];fresh.created=new Date();
+ s.ctx.cleanOrphanContactFiles_();assert.equal(files.size,2,'an unlinked file younger than an hour waits');
+ fresh.created=new Date(Date.now()-2*3600000);s.ctx.cleanOrphanContactFiles_();assert.equal(files.size,1,'the unlinked file is binned');
+ s.sheets.get('Contacts').rows[0][0]='something else';s.ctx.cleanOrphanContactFiles_();assert.equal(files.size,1,'nothing runs when the header is not intact');
+});

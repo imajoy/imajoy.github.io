@@ -59,3 +59,12 @@
 figure.tool-visual.xp-fig[data-explainer]:not(:has(.xp-frame)){aspect-ratio:1/.93}
 @media(max-width:700px){figure.tool-visual.xp-fig[data-explainer]:not(:has(.xp-frame)){aspect-ratio:1/1.38}}
 figure.tool-visual.xp-fig[data-explainer]:has(.xp-frame){aspect-ratio:auto}
+
+/* One look for every tool's showcase: the step chips match the recording pages (soft chip, gold-tinted when active, gold-to-coral progress line). */
+html body .xp-steps{gap:8px}
+html body .xp-step{border-radius:12px;padding:10px 12px 12px;background:color-mix(in srgb,var(--card,#fff) 75%,transparent)}
+html body .xp-step small{color:var(--mute)}
+html body .xp-step.on{border-color:color-mix(in srgb,var(--gold,#F2B64F) 70%,var(--line));background:color-mix(in srgb,var(--gold,#F2B64F) 10%,var(--card,#fff))}
+html body .xp-step.on span{color:var(--ink)}
+html body .xp-fill{height:3px;background:linear-gradient(90deg,var(--gold,#F2B64F),var(--coral,#FF7A5C))}
+html body .tool-visual.xp-fig .visual-heading{font-size:.68rem;letter-spacing:.14em}

@@ -42,7 +42,7 @@ test('all five supported formats save privately with a Sheet link and never regi
  }
 });
 test('a public repository, missing token, or unavailable GitHub cannot receive files or record partial messages',()=>{
- for(const configure of [s=>s.github.private=false,s=>s.values.delete('CONTACT_GITHUB_TOKEN'),s=>s.github.available=false]){
+ for(const configure of [s=>s.github.private=false,s=>s.github.available=false]){
   const s=storageService();configure(s);assert.equal(send(s,message({attachment:mediaFixtures[0]})).error,'attachment_unavailable');assert.equal(s.github.uploads,0);assert.equal(s.sheets.has('Contacts'),false);
   assert.equal(send(s,message()).ok,true,'Guest messages still work without an upload.');
  }
@@ -64,4 +64,11 @@ test('upload retry reuses a matching Git blob after a failed Sheet write and rej
 test('first attachment initializes an empty private repository without a manual README',()=>{
  const s=storageService();s.github.empty=true;
  assert.equal(send(s,message({attachment:mediaFixtures[0]})).ok,true);assert.equal(s.github.uploads,1);assert.equal(s.github.empty,false);
+});
+test('without a GitHub token the attachment is emailed to the support inbox instead of being refused',()=>{
+ const s=storageService();s.values.delete('CONTACT_GITHUB_TOKEN');
+ const result=send(s,message({attachment:mediaFixtures[0]}));
+ assert.equal(result.ok,true);assert.equal(result.attachmentSaved,true);assert.equal(s.github.uploads,0);
+ const mail=s.mails.at(-1);assert.match(mail.subject,/^Contact form/);assert.ok(mail.attachments&&mail.attachments.length===1,'the file travels with the email');
+ assert.equal(s.sheets.get('Contacts').rows[1][8],'Emailed to the support inbox');
 });

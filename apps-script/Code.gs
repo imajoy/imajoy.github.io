@@ -25,7 +25,7 @@ function sendNoReply_(message) {
     if (from && GmailApp.getAliases().map(function (a) { return String(a).toLowerCase(); }).indexOf(from) >= 0) {
       var o = { from: from, name: message.name || 'Wrapline' };
       if (message.htmlBody) o.htmlBody = message.htmlBody;
-      if (message.replyTo) o.replyTo = message.replyTo;
+      if (message.replyTo) o.replyTo = message.replyTo; if (message.attachments) o.attachments = message.attachments;
       GmailApp.sendEmail(message.to, message.subject, message.body || '', o);
       return;
     }
@@ -833,7 +833,10 @@ function handleContact_(data) {
     // Reserve attempts before external uploads so failures cannot bypass quotas.
     daily.count++;p.setProperty('CONTACT_DAILY',JSON.stringify(daily));cache.put(key,String(count+1),3600);
     var attachmentURL='';
-    if(attachment){
+    // Without a GitHub token for private storage, the file is emailed to your support inbox instead (see the copy below).
+    var emailOnly=!!attachment&&!props_().getProperty('CONTACT_GITHUB_TOKEN');
+    if(attachment&&emailOnly)attachmentURL='Emailed to the support inbox';
+    if(attachment&&!emailOnly){
       // Large GitHub transfers must not hold the lock used by registration and commerce.
       lock.releaseLock();held=false;
       try{attachmentURL=storeContactAttachment_(attachment,requestId);}catch(error){return {ok:false,error:'attachment_unavailable'};}
@@ -849,8 +852,12 @@ function handleContact_(data) {
     sheet.appendRow([new Date(),reference,name,email,topic,message,'New',true,attachmentURL,attachment?attachment.name:'',attachment?attachment.type:'',attachment?attachment.bytes.length:''].map(safeSheetCell_));
     cache.put('contact-receipt:'+requestId,JSON.stringify({who:who,fingerprint:fingerprint,reference:reference,attachmentSaved:!!attachment}),21600);
     // A copy to your own support inbox (labelled "Wrapline/Contact" by the Gmail filter). Reply to it and the answer goes to the visitor. A mail problem never loses the message: it is already in the Contacts tab.
-    try { sendNoReply_({ to: replyTo_(), name: 'Wrapline contact form', replyTo: email, subject: 'Contact form (' + topic + '): ' + name.replace(/[\r\n]+/g, ' '),
-      body: 'From: ' + name + ' <' + email + '>\nTopic: ' + topic + '\nReference: ' + reference + (attachmentURL ? '\nAttachment: ' + attachmentURL : '') + '\n\n' + message + '\n\nReply to this email to answer them directly.' }); } catch (mailError) {}
+    try {
+      var copy = { to: replyTo_(), name: 'Wrapline contact form', replyTo: email, subject: 'Contact form (' + topic + '): ' + name.replace(/[\r\n]+/g, ' '),
+        body: 'From: ' + name + ' <' + email + '>\nTopic: ' + topic + '\nReference: ' + reference + (attachmentURL ? '\nAttachment: ' + attachmentURL : '') + '\n\n' + message + '\n\nReply to this email to answer them directly.' };
+      if (emailOnly) copy.attachments = [Utilities.newBlob(attachment.bytes, attachment.type, attachment.name)];
+      sendNoReply_(copy);
+    } catch (mailError) {}
     return {ok:true,reference:reference,attachmentSaved:!!attachment};
   } catch (error) {return {ok:false,error:'unavailable'};}
   finally {if(held)lock.releaseLock();}

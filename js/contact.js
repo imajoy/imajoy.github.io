@@ -11,7 +11,7 @@ if(form){
  if(topics.includes(topic))form.elements.topic.value=topic;
  const refParam=(new URLSearchParams(location.search).get('ref')||'').match(/^ORD-[A-F0-9]{8}$/)?.[0];
  if(refParam&&!form.elements.message.value)form.elements.message.value='Order ID: '+refParam+'\n\nWhat happened: ';
- let requestId=crypto.randomUUID(),lastPayload='',busy=false,selecting=false,files=[],objectURLs=[],fileVersion=0,typingTimer,visible=true;
+ let requestId=crypto.randomUUID(),lastPayload='',busy=false,selecting=false,files=[],fileVersion=0,typingTimer,visible=true;
  let identityMode=getAccountSession()?'account':'guest',wantsAccount=false;
  const announce=(message,error=false)=>{status.textContent=message;status.dataset.error=String(error);};
  const setArt=(state,text)=>{art.dataset.state=state;if(text)caption.textContent=text;};
@@ -57,7 +57,7 @@ if(form){
  syncEmail();onAccountChange(syncEmail);
  const syncMotion=()=>art.toggleAttribute('data-motion-active',visible&&!document.hidden&&!motion.matches);
  if('IntersectionObserver'in window)new IntersectionObserver(entries=>{visible=entries[0].isIntersecting;syncMotion();}).observe(art);
- document.addEventListener('visibilitychange',syncMotion);motion.addEventListener('change',()=>{syncMotion();if(files.length)renderList();});syncMotion();
+ document.addEventListener('visibilitychange',syncMotion);motion.addEventListener('change',syncMotion);syncMotion();
  const syncValidity=el=>{if(el.willValidate)el.setAttribute('aria-invalid',String(!el.validity.valid));};
  form.addEventListener('invalid',event=>syncValidity(event.target),true);
  form.addEventListener('blur',event=>{if(event.target.matches('input,textarea,select'))syncValidity(event.target);},true);
@@ -68,31 +68,53 @@ if(form){
    typingTimer=setTimeout(()=>{art.removeAttribute('data-typing');form.removeAttribute('data-typing');if(!busy)setArt('draft','Ready whenever you are.');},1000);
   }
  });
- /* Up to 5 files, 10 MB in total. Each file is checked here and again by the service. */
+ /* Up to 5 files, 10 MB in total. Each file is checked here and again by the service, and starts uploading the moment it is attached, so Send has nothing left to upload. */
  const MAX_FILES=5,MAX_TOTAL=10*1024*1024,megabytes=bytes=>(bytes/1048576).toFixed(2)+' MB',list=document.querySelector('#attachment-list');
+ let uploadId=crypto.randomUUID(),queue=Promise.resolve();
  const totalBytes=()=>files.reduce((n,f)=>n+f.info.size,0);
+ const summary=()=>files.length?`${files.length} of ${MAX_FILES} files · ${megabytes(totalBytes())} of 10 MB. Files upload privately as soon as you attach them.`:'';
  function setNote(text,error=false){attachmentStatus.textContent=text;if(error){attachmentStatus.dataset.error='true';picker.dataset.state='error';fileInput.setAttribute('aria-invalid','true');}else{delete attachmentStatus.dataset.error;delete picker.dataset.state;fileInput.removeAttribute('aria-invalid');}}
+ function dropEntry(entry){entry.gone=true;entry.abort?.abort();if(entry.url)URL.revokeObjectURL(entry.url);entry.row?.remove();}
  function clearAttachment(resetInput=true){
-  fileVersion++;selecting=false;submit.disabled=busy;files=[];if(resetInput)fileInput.value='';renderList();setNote('');
+  fileVersion++;selecting=false;submit.disabled=busy;files.forEach(dropEntry);files=[];uploadId=crypto.randomUUID();if(resetInput)fileInput.value='';list.hidden=true;setNote('');
  }
- function removeFile(index){if(busy)return;files.splice(index,1);renderList();setNote(files.length?`${files.length} of ${MAX_FILES} files · ${megabytes(totalBytes())} of 10 MB. Uploaded only when you send your message.`:'');fileInput.focus();}
- function renderList(){
-  for(const url of objectURLs)URL.revokeObjectURL(url);objectURLs=[];list.replaceChildren();
-  files.forEach((entry,index)=>{
-   const {file,info}=entry,item=document.createElement('div'),thumb=document.createElement('div'),text=document.createElement('div'),name=document.createElement('b'),size=document.createElement('span'),remove=document.createElement('button');
-   item.className='attachment-preview';thumb.className='attachment-media';text.className='attachment-file-info';
-   name.textContent=info.name;size.textContent=`${megabytes(info.size)} · ${info.extension.toUpperCase()}`;text.append(name,size);
-   if(info.extension==='gif'&&motion.matches)thumb.textContent='GIF';
-   else{
-    const url=URL.createObjectURL(file);objectURLs.push(url);const video=info.type.startsWith('video/'),element=document.createElement(video?'video':'img');
-    if(video){element.muted=true;element.playsInline=true;element.preload='metadata';element.setAttribute('aria-label','Video preview');element.addEventListener('error',()=>{thumb.textContent=info.extension.toUpperCase();});}
-    else element.alt='';
-    element.src=url;thumb.append(element);
-   }
-   remove.type='button';remove.textContent='×';remove.setAttribute('aria-label','Remove '+info.name);remove.addEventListener('click',()=>removeFile(index));
-   item.append(thumb,text,remove);list.append(item);
-  });
-  list.hidden=!files.length;
+ function removeFile(entry){if(busy)return;const i=files.indexOf(entry);if(i<0)return;files.splice(i,1);entry.row.classList.add('is-leaving');setTimeout(()=>dropEntry(entry),motion.matches?0:260);entry.gone=true;entry.abort?.abort();list.hidden=!files.length;setNote(summary());fileInput.focus();}
+ const svgIcon=(d,cls)=>{const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),path=document.createElementNS(ns,'path');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2.4');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');if(cls)svg.setAttribute('class',cls);path.setAttribute('d',d);svg.append(path);return svg;};
+ function addRow(entry){
+  const {file,info}=entry,item=document.createElement('div'),thumb=document.createElement('div'),text=document.createElement('div'),name=document.createElement('b'),meta=document.createElement('span'),track=document.createElement('div'),fill=document.createElement('i'),tag=document.createElement('em'),done=document.createElement('span'),remove=document.createElement('button');
+  item.className='attachment-preview';item.dataset.state='queued';thumb.className='attachment-media';text.className='attachment-file-info';track.className='attachment-track';tag.className='attachment-pct';done.className='attachment-done';
+  name.textContent=info.name;meta.textContent=`${megabytes(info.size)} · ${info.extension.toUpperCase()} · Waiting`;tag.textContent='0%';track.append(fill,tag);track.setAttribute('aria-hidden','true');done.append(svgIcon('M5 12.5l4.3 4.3L19 7'));done.setAttribute('aria-hidden','true');text.append(name,meta,track);
+  if(info.extension==='gif'&&motion.matches)thumb.textContent='GIF';
+  else{
+   entry.url=URL.createObjectURL(file);const video=info.type.startsWith('video/'),element=document.createElement(video?'video':'img');
+   if(video){element.muted=true;element.playsInline=true;element.preload='metadata';element.setAttribute('aria-label','Video preview');element.addEventListener('error',()=>{thumb.textContent=info.extension.toUpperCase();});}
+   else element.alt='';
+   element.src=entry.url;thumb.append(element);
+  }
+  remove.type='button';remove.textContent='×';remove.setAttribute('aria-label','Remove '+info.name);remove.addEventListener('click',()=>removeFile(entry));
+  item.append(thumb,text,done,remove);entry.row=item;entry.meta=meta;
+  entry.paint=n=>{entry.pct=Math.max(entry.pct||0,Math.min(100,n));item.style.setProperty('--p',String(entry.pct/100));tag.textContent=Math.round(entry.pct)+'%';};
+  list.append(item);list.hidden=false;
+ }
+ /* One file at a time. The browser cannot report how much of a request has left the device, so after the file is read (a real figure) the rest of the bar is paced by file size and completes only when the service confirms the save. */
+ async function uploadEntry(entry){
+  const endpoint=window.AJOY_CONFIG?.sheetUrl,{file,info}=entry,label=`${megabytes(info.size)} · ${info.extension.toUpperCase()}`;
+  if(entry.gone)return;let timer;
+  try{
+   if(!endpoint)throw Error('service');
+   entry.abort=new AbortController();entry.row.dataset.state='uploading';entry.meta.textContent=label+' · Uploading';
+   const base64=await readAttachment(file,fraction=>entry.paint(fraction*30));if(entry.gone)return;
+   const started=performance.now(),expected=2200+info.size/1048576*1800;
+   timer=setInterval(()=>{const t=(performance.now()-started)/expected;entry.paint(30+64*(1-Math.exp(-2.2*t)));},120);
+   const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'contact-upload',upload:{uploadId,file:{name:info.name,type:info.type,size:info.size,base64}}}),signal:AbortSignal.any?AbortSignal.any([entry.abort.signal,AbortSignal.timeout(90000)]):entry.abort.signal});
+   if(!response.ok)throw Error('service');const result=await response.json();if(!result.ok||!result.file?.token)throw Error(result.error||'service');
+   if(entry.gone)return;clearInterval(timer);entry.receipt=result.file;entry.paint(100);
+   setTimeout(()=>{if(!entry.gone){entry.row.dataset.state='done';entry.meta.textContent=label+' · Uploaded';}},motion.matches?0:420);
+  }catch(error){
+   clearInterval(timer);if(entry.gone)return;
+   /* Not fatal: the file simply travels with the message instead, as before. */
+   entry.row.dataset.state='later';entry.meta.textContent=label+' · Will upload when you send';
+  }
  }
  async function addFiles(incoming){
   if(busy)return;const version=fileVersion,problems=[];selecting=true;submit.disabled=true;
@@ -101,38 +123,39 @@ if(form){
     if(files.length>=MAX_FILES){problems.push(`You can attach up to ${MAX_FILES} files. The rest were not added.`);break;}
     if(file.size>MAX_TOTAL){problems.push(`${file.name} is ${megabytes(file.size)}, over the 10 MB limit. Try a smaller export.`);continue;}
     if(totalBytes()+file.size>MAX_TOTAL){problems.push(`${file.name} would take the total over 10 MB (now ${megabytes(totalBytes())}). Remove a file first.`);continue;}
-    try{const info=await inspectAttachment(file);if(version!==fileVersion)return;files.push({file,info});}
+    try{
+     const info=await inspectAttachment(file);if(version!==fileVersion)return;
+     const entry={file,info};files.push(entry);addRow(entry);
+     entry.promise=queue=queue.then(()=>uploadEntry(entry));
+    }
     catch(error){if(version!==fileVersion)return;problems.push(`${file.name}: ${error.message}`);}
    }
-   renderList();fileInput.value='';
-   const summary=files.length?`${files.length} of ${MAX_FILES} files · ${megabytes(totalBytes())} of 10 MB. Uploaded only when you send your message.`:'';
-   setNote(problems.length?(problems.join(' ')+(summary?' '+summary:'')):summary,problems.length>0);
+   fileInput.value='';
+   setNote(problems.length?(problems.join(' ')+(summary()?' '+summary():'')):summary(),problems.length>0);
   }finally{if(version===fileVersion){selecting=false;submit.disabled=busy;}}
  }
  fileInput.addEventListener('change',()=>addFiles(fileInput.files));
  for(const type of ['dragenter','dragover'])picker.addEventListener(type,event=>{event.preventDefault();if(!busy)picker.setAttribute('data-dragging','');});
  picker.addEventListener('dragleave',event=>{if(!picker.contains(event.relatedTarget))picker.removeAttribute('data-dragging');});
  picker.addEventListener('drop',event=>{event.preventDefault();picker.removeAttribute('data-dragging');addFiles(event.dataTransfer.files);});
- window.addEventListener('pagehide',()=>{for(const url of objectURLs)URL.revokeObjectURL(url);});
+ window.addEventListener('pagehide',()=>{for(const entry of files)if(entry.url)URL.revokeObjectURL(entry.url);});
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(busy||selecting||!form.reportValidity())return;
   const payload={name:form.elements.name.value.trim(),email:form.elements.email.value.trim(),topic:form.elements.topic.value,message:form.elements.message.value.trim(),consent:form.elements.consent.checked,website:form.elements.website.value};
   if(payload.message.length<10){announce('Please write at least 10 characters so we can help.',true);form.elements.message.focus();return;}
   const endpoint=window.AJOY_CONFIG?.sheetUrl;if(!endpoint){announce('The contact service is unavailable. Please try again later.',true);return;}
   const controls=[...form.elements].filter(el=>el!==submit),disabled=controls.map(el=>el.disabled);
-  busy=true;submit.disabled=true;controls.forEach(el=>el.disabled=true);form.setAttribute('aria-busy','true');clearReceipt();setSend('sending',files.length?'Uploading your files':'Sending your message');if(!files.length)submit.dataset.wait='';else setPct(0);art.removeAttribute('data-typing');form.removeAttribute('data-typing');clearTimeout(typingTimer);announce('Preparing your message…');
+  busy=true;submit.disabled=true;controls.forEach(el=>el.disabled=true);form.setAttribute('aria-busy','true');clearReceipt();setSend('sending','Sending your message');art.removeAttribute('data-typing');form.removeAttribute('data-typing');clearTimeout(typingTimer);announce(files.some(f=>!f.receipt&&/uploading|queued/.test(f.row?.dataset.state))?'Finishing your uploads…':'Sending your message…');
   try{
    if(files.length){
-    transfer.hidden=false;progress.value=0;progressLabel.textContent='Preparing attachments…';
-    const all=totalBytes()||1;let done=0;payload.attachments=[];
-    for(const {file,info} of files){
-     const base64=await readAttachment(file,fraction=>{progress.value=Math.round((done+fraction*info.size)/all*100);setPct(progress.value);});
-     done+=info.size;payload.attachments.push({name:info.name,type:info.type,size:info.size,base64});
-    }
-    progress.removeAttribute('value');progressLabel.textContent='Uploading privately and saving your message…';setPct(100);
+    /* Most files are already saved; wait for any still on their way, and carry along only those that could not be uploaded early. */
+    await Promise.allSettled(files.map(f=>f.promise));
+    const early=files.filter(f=>f.receipt),late=files.filter(f=>!f.receipt);
+    if(early.length){payload.uploadId=uploadId;payload.uploads=early.map(f=>f.receipt);}
+    if(late.length){payload.attachments=[];for(const {file,info} of late)payload.attachments.push({name:info.name,type:info.type,size:info.size,base64:await readAttachment(file)});}
    }
    const serialized=JSON.stringify(payload);if(lastPayload&&lastPayload!==serialized)requestId=crypto.randomUUID();lastPayload=serialized;
-   setArt('sending','Sending your message to Ajoy…');announce(files.length?'Uploading your attachments and sending your message…':'Sending your message…');
+   setArt('sending','Sending your message to Ajoy…');announce('Sending your message…');
    const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'contact',contact:{...payload,requestId}}),signal:AbortSignal.timeout(90000)});
    if(!response.ok)throw Error('service');let result;try{result=await response.json();}catch{throw Error('service');}
    if(!result.ok||!/^AJ-[a-zA-Z0-9-]{20,80}$/.test(result.reference||'')){throw Error(['limit','invalid','attachment_invalid','attachment_unavailable'].includes(result.error)?result.error:'service');}
@@ -142,7 +165,7 @@ if(form){
   }catch(error){
    const errors={limit:'You’ve reached the message limit. Please try again later.',invalid:'Please check your details and try again.',attachment_invalid:'The attachments could not be accepted. Choose up to 5 supported files, 10 MB in total.',attachment_unavailable:'Attachment uploads are temporarily unavailable. You can remove the files and send your message without them.'};
    announce(errors[error.message]||'Your message could not be confirmed. Your text and attachment are still here—please retry in a moment.',true);setArt('error','Your draft is safe here. Please try again.');setSend('error','Try again');
-  }finally{busy=false;submit.disabled=false;controls.forEach((el,i)=>el.disabled=disabled[i]);form.removeAttribute('aria-busy');transfer.hidden=true;}
+  }finally{busy=false;submit.disabled=false;controls.forEach((el,i)=>el.disabled=disabled[i]);form.removeAttribute('aria-busy');}
  });
  submit.disabled=false;submit.removeAttribute('title');
 }

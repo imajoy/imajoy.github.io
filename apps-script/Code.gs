@@ -40,6 +40,7 @@ function authorizeSendAs() {
 /* Gmail filters cannot label mail you SEND, so the copies of customer emails (codes, welcome, confirmations) are labelled here.
    Run installSentLabeler once; after that it runs by itself every hour. Labels sit under "Wrapline" like the filter labels. */
 function labelSentMail() {
+  cleanContactUploads_();
   var rules = [
     ['Wrapline/Codes', 'subject:"sign-in code"'],
     ['Wrapline/Welcome', 'subject:"Welcome to Wrapline"'],
@@ -150,6 +151,7 @@ function doPost(e) {
     var raw = (e && e.postData && e.postData.contents) || '';
     var data = {};
     try { data = JSON.parse(raw); } catch (err) { data = { email: (e && e.parameter && e.parameter.email) || '' }; }
+    if (data.type === 'contact-upload') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleContactUpload_(data.upload || {}))); }
     if (data.type === 'contact') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleContact_(data.contact || {}))); }
     if (data.type === 'commerce') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleCommerceEnvelope_(data))); }
     if (data.type === 'order') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify({ r: 'secure_checkout_required' })); }
@@ -882,6 +884,10 @@ function handleContact_(data) {
   var held=true;
   try {
     var attachments;try{attachments=contactAttachments_(data);}catch(error){return {ok:false,error:'attachment_invalid'};}
+    // Files already uploaded while the visitor was typing (see handleContactUpload_): each carries a signed receipt, so nothing is uploaded twice.
+    var pre;try{pre=contactUploads_(data);}catch(error){return {ok:false,error:'attachment_invalid'};}
+    if(pre.length+attachments.length>5||pre.concat(attachments).reduce(function(n,a){return n+a.bytes.length;},0)>10*1024*1024)return {ok:false,error:'attachment_invalid'};
+    var inline=attachments;attachments=pre.concat(inline);
     var cache=CacheService.getScriptCache(),who=sign_('contact:'+email),fingerprint=sign_('contact-body:'+JSON.stringify([name,email,topic,message,attachments.map(function(a){return a.sha;})])),saved=cache.get('contact-receipt:'+requestId);
     if (saved) { var receipt=JSON.parse(saved);return receipt.who===who&&receipt.fingerprint===fingerprint?{ok:true,reference:receipt.reference,attachmentSaved:!!receipt.attachmentSaved}:{ok:false,error:'invalid'}; }
     var key='contact-count:'+who,count=Number(cache.get(key)||0);
@@ -891,14 +897,14 @@ function handleContact_(data) {
     if ((count>=3 && !testEmail_(email)) || daily.count>=200) return {ok:false,error:'limit'};
     // Reserve attempts before external uploads so failures cannot bypass quotas.
     daily.count++;p.setProperty('CONTACT_DAILY',JSON.stringify(daily));cache.put(key,String(count+1),3600);
-    var attachmentURLs=[];
+    var attachmentURLs=pre.map(function(a){return a.url;});
     // Without a GitHub token for private storage, the files are saved in a private Google Drive folder instead.
-    var hasFiles=attachments.length>0,driveOnly=hasFiles&&!props_().getProperty('CONTACT_GITHUB_TOKEN');
-    if(driveOnly){try{attachments.forEach(function(a,i){attachmentURLs.push(storeContactDrive_(a,requestId+(i?'-'+(i+1):'')));});}catch(error){return {ok:false,error:'attachment_unavailable'};}}
-    if(hasFiles&&!driveOnly){
+    var hasFiles=attachments.length>0,hasInline=inline.length>0,driveOnly=hasInline&&!props_().getProperty('CONTACT_GITHUB_TOKEN');
+    if(driveOnly){try{inline.forEach(function(a,i){attachmentURLs.push(storeContactDrive_(a,requestId+(i?'-'+(i+1):'')));});}catch(error){return {ok:false,error:'attachment_unavailable'};}}
+    if(hasInline&&!driveOnly){
       // Large GitHub transfers must not hold the lock used by registration and commerce.
       lock.releaseLock();held=false;
-      try{attachments.forEach(function(a,i){attachmentURLs.push(storeContactAttachment_(a,requestId+(i?'-'+(i+1):'')));});}catch(error){return {ok:false,error:'attachment_unavailable'};}
+      try{inline.forEach(function(a,i){attachmentURLs.push(storeContactAttachment_(a,requestId+(i?'-'+(i+1):'')));});}catch(error){return {ok:false,error:'attachment_unavailable'};}
       if(!lock.tryLock(10000))return {ok:false,error:'busy'};held=true;
       saved=cache.get('contact-receipt:'+requestId);
       if(saved){var completed=JSON.parse(saved);return completed.fingerprint===fingerprint?{ok:true,reference:completed.reference,attachmentSaved:!!completed.attachmentSaved}:{ok:false,error:'invalid'};}
@@ -909,6 +915,7 @@ function handleContact_(data) {
     var reference='AJ-'+Utilities.getUuid();
     // Strip leading whitespace before formula escaping, including tabs and newlines.
     sheet.appendRow([new Date(),reference,name,email,topic,message,'New',true,attachmentURLs.join('\n'),attachments.map(function(a){return a.name;}).join(', '),attachments.map(function(a){return a.type;}).join(', '),hasFiles?attachments.reduce(function(n,a){return n+a.bytes.length;},0):''].map(safeSheetCell_));
+    pre.forEach(function(a){keepContactUpload_(a.stored,requestId,data.uploadId);});
     cache.put('contact-receipt:'+requestId,JSON.stringify({who:who,fingerprint:fingerprint,reference:reference,attachmentSaved:hasFiles}),21600);
     // A copy to your own support inbox (labelled "Wrapline/Contact" by the Gmail filter). Reply to it and the answer goes to the visitor. A mail problem never loses the message: it is already in the Contacts tab.
     try {
@@ -942,6 +949,58 @@ function contactAttachment_(file) {
   if(!valid)throw Error('attachment');
   var header=Utilities.newBlob('blob '+bytes.length+'\0').getBytes(),sha=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_1,header.concat(bytes)).map(function(n){return('0'+((n+256)%256).toString(16)).slice(-2);}).join('');
   return {name:file.name,type:types[ext],extension:ext==='jpeg'?'jpg':ext,bytes:bytes,base64:Utilities.base64Encode(bytes),sha:sha};
+}
+/* Upload-on-attach: the contact form sends each file here the moment it is chosen, so pressing Send has nothing left to upload.
+   The file waits in the private Drive folder as "unsent-..." and the visitor's browser gets a signed receipt; handleContact_ accepts
+   only receipts this script signed. Limits: 5 files and 10 MB per form, 150 uploads a day for the whole site. */
+function handleContactUpload_(data) {
+  var uploadId = typeof data.uploadId === 'string' ? data.uploadId : '';
+  if (!/^[a-zA-Z0-9-]{20,80}$/.test(uploadId)) return { ok: false, error: 'invalid' };
+  if (props_().getProperty('CONTACT_GITHUB_TOKEN')) return { ok: false, error: 'unsupported' };
+  var a; try { a = contactAttachment_(data.file); } catch (error) { return { ok: false, error: 'attachment_invalid' }; }
+  if (!a) return { ok: false, error: 'attachment_invalid' };
+  var lock = LockService.getScriptLock(), n;
+  if (!lock.tryLock(10000)) return { ok: false, error: 'busy' };
+  try {
+    var cache = CacheService.getScriptCache(), key = 'contact-upload:' + uploadId, used = JSON.parse(cache.get(key) || '{"n":0,"bytes":0}');
+    var day = new Date().toISOString().slice(0, 10), p = props_(), daily = JSON.parse(p.getProperty('CONTACT_UPLOAD_DAILY') || '{}');
+    if (daily.day !== day) daily = { day: day, count: 0 };
+    if (used.n >= 8 || used.bytes + a.bytes.length > 20 * 1024 * 1024 || daily.count >= 150) return { ok: false, error: 'limit' };
+    n = ++used.n; used.bytes += a.bytes.length; daily.count++;
+    cache.put(key, JSON.stringify(used), 21600); p.setProperty('CONTACT_UPLOAD_DAILY', JSON.stringify(daily));
+  } finally { lock.releaseLock(); }
+  var stored = 'unsent-' + uploadId + '-' + n, url;
+  try { url = storeContactDrive_(a, stored); } catch (error) { return { ok: false, error: 'attachment_unavailable' }; }
+  var file = { name: a.name, type: a.type, size: a.bytes.length, sha: a.sha, url: url, n: n };
+  file.token = sign_('contact-upload|' + [uploadId, n, a.name, a.type, a.bytes.length, a.sha, url].join('|'));
+  return { ok: true, file: file };
+}
+/* Checks the receipts sent back with the message; anything not signed here is refused. */
+function contactUploads_(data) {
+  var list = Array.isArray(data.uploads) ? data.uploads : [], uploadId = typeof data.uploadId === 'string' ? data.uploadId : '', seen = {};
+  if (!list.length) return [];
+  if (list.length > 5 || !/^[a-zA-Z0-9-]{20,80}$/.test(uploadId)) throw Error('attachment');
+  return list.map(function (f) {
+    if (!f || typeof f !== 'object' || typeof f.name !== 'string' || typeof f.url !== 'string' || !Number.isInteger(f.size) || !Number.isInteger(f.n) || seen[f.n]) throw Error('attachment');
+    if (f.token !== sign_('contact-upload|' + [uploadId, f.n, f.name, f.type, f.size, f.sha, f.url].join('|'))) throw Error('attachment');
+    seen[f.n] = true;
+    return { name: f.name, type: f.type, bytes: { length: f.size }, sha: f.sha, url: f.url, stored: 'unsent-' + uploadId + '-' + f.n + '-' + f.name };
+  });
+}
+/* Once the message is saved, the waiting file gets its final name (the message's request id), so it is no longer "unsent". */
+function keepContactUpload_(stored, requestId, uploadId) {
+  try {
+    var folders = DriveApp.getFoldersByName('Wrapline contact files'); if (!folders.hasNext()) return;
+    var found = folders.next().getFilesByName(stored); if (found.hasNext()) found.next().setName(requestId + stored.slice(('unsent-' + uploadId).length));
+  } catch (error) {}
+}
+/* Files that were attached but never sent go to the Drive bin after two days (they stay recoverable there for 30 days). Runs with the hourly sent-mail labeller. */
+function cleanContactUploads_() {
+  try {
+    var folders = DriveApp.getFoldersByName('Wrapline contact files'); if (!folders.hasNext()) return;
+    var files = folders.next().searchFiles('title contains "unsent-"'), cutoff = Date.now() - 2 * 86400000, done = 0;
+    while (files.hasNext() && done < 50) { var f = files.next(); if (/^unsent-/.test(f.getName()) && f.getDateCreated().getTime() < cutoff) { f.setTrashed(true); done++; } }
+  } catch (error) {}
 }
 /* Private Google Drive folder "Wrapline contact files" in your own Drive; nothing is shared publicly. Run authorizeDrive once after pasting. */
 function storeContactDrive_(file,requestId) {

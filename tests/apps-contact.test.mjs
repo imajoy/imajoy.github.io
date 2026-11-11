@@ -85,3 +85,17 @@ test('up to five files totalling no more than 10 MB are saved together; a sixth 
  assert.equal(send(t,message({attachments:[big(6*1024*1024),{...big(5*1024*1024),name:'big2.png'}]})).error,'attachment_invalid','11 MB in total');
  assert.equal(send(t,message({attachments:[big(6*1024*1024),{...big(4*1024*1024),name:'big2.png'}]})).ok,true,'10 MB in total is fine');
 });
+test('files uploaded on attach are stored once, and the message accepts only receipts this service signed',()=>{
+ const s=storageService();s.values.delete('CONTACT_GITHUB_TOKEN');
+ const upload=(uploadId,file)=>JSON.parse(s.ctx.doPost({postData:{contents:JSON.stringify({type:'contact-upload',upload:{uploadId,file}})}}).text);
+ const uploadId=randomUUID(),a=upload(uploadId,mediaFixtures[0]),b=upload(uploadId,{...mediaFixtures[1],name:'second.'+mediaFixtures[1].name.split('.').pop()});
+ assert.equal(a.ok,true);assert.equal(b.ok,true);assert.match(a.file.url,/^https:\/\/drive\.google\.com\//);assert.equal(s.drive.files.length,2);
+ assert.match([...s.drive.folders.get('Wrapline contact files').files.keys()][0],/^unsent-/);
+ const result=send(s,message({uploadId,uploads:[a.file,b.file]}));
+ assert.equal(result.ok,true);assert.equal(result.attachmentSaved,true);assert.equal(s.drive.files.length,2,'nothing is uploaded a second time');assert.ok(s.drive.files.every(f=>!/^unsent-/.test(f.name)),'sent files lose the unsent- prefix');
+ const row=s.sheets.get('Contacts').rows[1];assert.equal(row[8].split('\n').length,2);assert.match(s.mails.at(-1).body,/second\./);
+ assert.equal(send(s,message({uploadId,uploads:[{...a.file,url:'https://evil.example/x'}]})).error,'attachment_invalid');
+ assert.equal(send(s,message({uploadId:randomUUID(),uploads:[a.file]})).error,'attachment_invalid');
+ assert.equal(upload('short',mediaFixtures[0]).error,'invalid');
+ assert.equal(upload(uploadId,{...mediaFixtures[0],base64:'AAAA',size:3}).error,'attachment_invalid');
+});

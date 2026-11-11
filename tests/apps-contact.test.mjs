@@ -108,3 +108,15 @@ test('a file removed or abandoned before sending is deleted again, and only with
  assert.equal(call('contact-upload-remove',{uploadId:randomUUID(),file:a.file}).ok,false,'wrong upload id');assert.equal(folder().size,1);
  assert.equal(call('contact-upload-remove',{uploadId,file:a.file}).ok,true);assert.equal(folder().size,0,'file is gone from the folder');
 });
+test('contact messages from the owner\'s test addresses are removed after 24 hours, with their Drive files; customers\' messages stay',()=>{
+ const s=storageService();s.values.delete('CONTACT_GITHUB_TOKEN');
+ const sheet=()=>s.sheets.get('Contacts');
+ const send1=(email,name)=>send(s,message({email,name,attachments:[mediaFixtures[0]]}));
+ assert.equal(send1('contactmy3dart@gmail.com','mine').ok,true);assert.equal(send1('ajoypal41@gmail.com','mine2').ok,true);assert.equal(send1('test@wrapline.in','mine3').ok,true);assert.equal(send1('real.customer@example.com','Real').ok,true);
+ assert.equal(sheet().rows.length,5);const files=s.drive.folders.get('Wrapline contact files').files;assert.equal(files.size,4);
+ s.ctx.cleanTestMessages_();assert.equal(sheet().rows.length,5,'nothing is removed while the messages are fresh');
+ for(const r of sheet().rows.slice(1))r[0]=new Date(Date.now()-25*3600000);
+ s.ctx.cleanTestMessages_();
+ assert.deepEqual(sheet().rows.slice(1).map(r=>r[3]),['real.customer@example.com'],'only the three test addresses are cleaned');
+ assert.equal(files.size,1,'their attachment files were binned, the customer\'s kept');
+});

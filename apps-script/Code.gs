@@ -41,6 +41,7 @@ function authorizeSendAs() {
    Run installSentLabeler once; after that it runs by itself every hour. Labels sit under "Wrapline" like the filter labels. */
 function labelSentMail() {
   cleanContactUploads_();
+  cleanTestMessages_();
   var rules = [
     ['Wrapline/Codes', 'subject:"sign-in code"'],
     ['Wrapline/Welcome', 'subject:"Welcome to Wrapline"'],
@@ -1007,6 +1008,33 @@ function keepContactUpload_(stored, requestId, uploadId) {
     var folders = DriveApp.getFoldersByName('Wrapline contact files'); if (!folders.hasNext()) return;
     var found = folders.next().getFilesByName(stored); if (found.hasNext()) found.next().setName(requestId + stored.slice(('unsent-' + uploadId).length));
   } catch (error) {}
+}
+/* Messages sent from the owner's own test addresses are throw-away: after 24 hours the row is removed from the Contacts tab and its attachment files
+   (only those inside "Wrapline contact files") go to the Drive bin. Customers' messages are never touched. Orders, invoices and payments are never touched either. */
+var TEST_EMAILS_ = ['contactmy3dart@gmail.com', 'ajoypal41@gmail.com', 'test@wrapline.in'];
+var TEST_MESSAGE_HOURS_ = 24;
+function cleanTestMessages_() {
+  var ids = [];
+  try {
+    var sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName('Contacts'); if (!sheet || sheet.getLastRow() < 2) return;
+    var lock = LockService.getScriptLock(); if (!lock.tryLock(8000)) return;
+    try {
+      var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 9).getValues(), cutoff = Date.now() - TEST_MESSAGE_HOURS_ * 3600000, removed = 0;
+      for (var i = values.length - 1; i >= 0 && removed < 200; i--) {
+        var row = values[i], at = row[0] instanceof Date ? row[0].getTime() : Date.parse(row[0]);
+        if (TEST_EMAILS_.indexOf(String(row[3]).trim().toLowerCase()) < 0 || !(at < cutoff)) continue;
+        String(row[8] || '').replace(/\/d\/([A-Za-z0-9_-]{20,})/g, function (m, id) { ids.push(id); return m; });
+        sheet.deleteRow(i + 2); removed++;
+      }
+    } finally { lock.releaseLock(); }
+  } catch (error) { return; }
+  ids.forEach(function (id) {
+    try {
+      var file = DriveApp.getFileById(id), parents = file.getParents(), inside = false;
+      while (parents.hasNext()) if (parents.next().getName() === 'Wrapline contact files') inside = true;
+      if (inside) file.setTrashed(true);
+    } catch (error) {}
+  });
 }
 /* Files that were attached but never sent go to the Drive bin after six hours (they stay recoverable there for 30 days). Runs with the hourly sent-mail labeller. */
 function cleanContactUploads_() {

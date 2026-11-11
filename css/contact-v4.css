@@ -79,8 +79,8 @@ html:root:root:root body .contact-send:disabled:not([data-state=sending]):not([d
 .contact-send .send-icon .send-check{opacity:0;transform:scale(.6)}
 .contact-send .send-icon .send-check path{stroke-dasharray:22;stroke-dashoffset:22}
 /* sending */
-html:root:root:root body .contact-send[data-state=sending],html:root:root:root body .contact-send[data-state=sending]:disabled{background:var(--btnbg)!important;border-color:var(--btnbg)!important;color:var(--btnfg)!important;cursor:progress;animation:send-close .55s cubic-bezier(.7,0,.2,1) both}
-html:root:root:root body .contact-send[data-state=sending] .send-label{opacity:0;transform:translateX(18px);animation:none}
+html:root:root:root body .contact-send[data-state=sending],html:root:root:root body .contact-send[data-state=sending]:disabled{background:var(--btnbg)!important;border-color:var(--btnbg)!important;color:var(--btnfg)!important;cursor:progress}
+html:root:root:root body .contact-send[data-state=sending] .send-label{opacity:1;transform:none;animation:none}
 .contact-send[data-state=sending] .send-plane{animation:send-pass 1.05s .35s cubic-bezier(.6,0,.3,1) infinite!important;opacity:1}
 /* sent */
 html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sent]:disabled{background:#1b7958!important;border-color:#1b7958!important;color:#fff!important;box-shadow:none!important;animation:send-open .6s .7s cubic-bezier(.3,1.15,.4,1) both}
@@ -130,3 +130,13 @@ html .attachment-preview button:hover{background:var(--t07);color:var(--ink)}
 html .attachment-transfer{display:none!important}
 @keyframes att-in{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){html .attachment-preview,.attachment-track,.attachment-track i,.attachment-pct,.attachment-done,.attachment-done path{animation:none!important;transition:none!important}}
+
+/* Sending keeps the button whole: a soft light sweeps across it while the arrow keeps flying in the badge. Nothing shrinks or moves. */
+html:root:root:root body .contact-send[data-state=sending]::after{content:""!important;position:absolute;inset:0;border-radius:inherit;background:linear-gradient(100deg,transparent 30%,color-mix(in srgb,var(--btnfg) 22%,transparent) 50%,transparent 70%);transform:translateX(-100%);animation:send-sweep 1.5s cubic-bezier(.45,0,.2,1) infinite!important;pointer-events:none}
+@keyframes send-sweep{to{transform:translateX(100%)}}
+/* Waiting for uploads: the button itself is the progress bar, tinted from the left as the files go up. */
+html:root:root:root body .contact-send[data-up]:disabled{position:relative;color:var(--ink)!important;background:linear-gradient(90deg,color-mix(in srgb,var(--gold,#F2B64F) 26%,var(--card,#fff)) calc(var(--up,0)*100%),transparent calc(var(--up,0)*100%))!important;border-color:color-mix(in srgb,var(--gold,#F2B64F) 60%,var(--line))!important;transition:background .6s cubic-bezier(.22,1,.36,1)!important}
+html:root:root:root body .contact-send[data-up]:disabled .send-label{font-variant-numeric:tabular-nums}
+html:root:root:root body .contact-send[data-up]:disabled .send-icon{background:color-mix(in srgb,var(--gold,#F2B64F) 45%,var(--card,#fff));color:var(--ink)}
+html:root:root:root body .contact-send[data-up]:disabled .send-plane{animation:send-pass 1.4s cubic-bezier(.6,0,.3,1) infinite!important}
+@media(prefers-reduced-motion:reduce){html:root:root:root body .contact-send[data-state=sending]::after{animation:none!important;display:none}}

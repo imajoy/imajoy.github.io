@@ -18,7 +18,7 @@ if(form){
  /* Send button states (idle, sending, sent, error) and the animated receipt card. */
  const sendLabel=submit.querySelector('.send-label');let resetTimer;
  const setPct=n=>{submit.style.setProperty('--p',String(n/100));const el=submit.querySelector('.send-pct');if(el)el.textContent=Math.round(n)+'%';};
- const setSend=(state,text)=>{clearTimeout(resetTimer);if(state!=='sending'){delete submit.dataset.wait;submit.style.removeProperty('--p');const pc=submit.querySelector('.send-pct');if(pc)pc.textContent='';}submit.dataset.state=state;if(sendLabel&&text&&sendLabel.textContent!==text){sendLabel.textContent=text;sendLabel.classList.remove('is-new');void sendLabel.offsetWidth;sendLabel.classList.add('is-new');}};
+ const setSend=(state,text)=>{clearTimeout(resetTimer);if(state!=='idle'){delete submit.dataset.up;submit.style.removeProperty('--up');}if(state!=='sending'){delete submit.dataset.wait;submit.style.removeProperty('--p');const pc=submit.querySelector('.send-pct');if(pc)pc.textContent='';}submit.dataset.state=state;if(sendLabel&&text&&sendLabel.textContent!==text){sendLabel.textContent=text;sendLabel.classList.remove('is-new');void sendLabel.offsetWidth;sendLabel.classList.add('is-new');}};
  const clearReceipt=()=>{const card=status.querySelector('.contact-receipt');if(!card)return;card.classList.add('is-leaving');setTimeout(()=>{if(card.isConnected){card.remove();}},360);};
  const showReceipt=(reference,email)=>{
   const svg='http://www.w3.org/2000/svg',el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
@@ -77,9 +77,14 @@ if(form){
  const waiting=()=>files.some(f=>!f.done&&!f.gone);
  function refreshSend(){
   if(busy)return;const wait=waiting();submit.disabled=selecting||wait;
-  if(submit.dataset.state==='idle'||!submit.dataset.state||submit.dataset.state==='error'){
-   if(wait){if(sendLabel&&sendLabel.textContent!=='Uploading your files'){sendLabel.textContent='Uploading your files';}submit.title='Please wait until your files finish uploading.';}
-   else{submit.removeAttribute('title');if(sendLabel&&sendLabel.textContent==='Uploading your files'){sendLabel.textContent='Send message';sendLabel.classList.remove('is-new');void sendLabel.offsetWidth;sendLabel.classList.add('is-new');}}
+  const st=submit.dataset.state;if(st&&st!=='idle'&&st!=='error')return;
+  if(wait){
+   const live=files.filter(f=>!f.gone),pct=Math.round(live.reduce((t,f)=>t+(f.done?100:(f.pct||0)),0)/Math.max(1,live.length));
+   submit.dataset.up='1';submit.style.setProperty('--up',String(pct/100));submit.title='Please wait until your files finish uploading.';
+   if(sendLabel){const text=(live.length>1?'Uploading '+live.length+' files':'Uploading file')+' · '+pct+'%';if(sendLabel.textContent!==text)sendLabel.textContent=text;}
+  }else if(submit.dataset.up){
+   delete submit.dataset.up;submit.style.removeProperty('--up');submit.removeAttribute('title');
+   if(sendLabel){sendLabel.textContent='Send message';sendLabel.classList.remove('is-new');void sendLabel.offsetWidth;sendLabel.classList.add('is-new');}
   }
  }
  function dropEntry(entry){entry.gone=true;entry.abort?.abort();if(entry.url)URL.revokeObjectURL(entry.url);entry.row?.remove();}
@@ -101,7 +106,7 @@ if(form){
   }
   remove.type='button';remove.textContent='×';remove.setAttribute('aria-label','Remove '+info.name);remove.addEventListener('click',()=>removeFile(entry));
   item.append(thumb,text,done,remove);entry.row=item;entry.meta=meta;
-  entry.paint=n=>{entry.pct=Math.max(entry.pct||0,Math.min(100,n));item.style.setProperty('--p',String(entry.pct/100));tag.textContent=Math.round(entry.pct)+'%';};
+  entry.paint=n=>{entry.pct=Math.max(entry.pct||0,Math.min(100,n));item.style.setProperty('--p',String(entry.pct/100));tag.textContent=Math.round(entry.pct)+'%';refreshSend();};
   list.append(item);list.hidden=false;
  }
  /* One file at a time. The browser cannot report how much of a request has left the device, so after the file is read (a real figure) the rest of the bar is paced by file size and completes only when the service confirms the save. */

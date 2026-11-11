@@ -6,3 +6,5 @@
  @keyframes tf-drift{from{translate:0 34px;scale:1.045;opacity:.25}to{translate:0 0;scale:1;opacity:1}}
 }
 @media(prefers-reduced-motion:reduce){.tf-drift{animation:none!important}}
+/* no browser flash when you tap: the pale blue box Android Chrome paints on anything you press. The site's own press feedback (js/touch-feel.js) replaces it. */
+html,*{-webkit-tap-highlight-color:transparent}

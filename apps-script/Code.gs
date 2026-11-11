@@ -824,6 +824,9 @@ function handleContact_(data) {
     // Strip leading whitespace before formula escaping, including tabs and newlines.
     sheet.appendRow([new Date(),reference,name,email,topic,message,'New',true,attachmentURL,attachment?attachment.name:'',attachment?attachment.type:'',attachment?attachment.bytes.length:''].map(safeSheetCell_));
     cache.put('contact-receipt:'+requestId,JSON.stringify({who:who,fingerprint:fingerprint,reference:reference,attachmentSaved:!!attachment}),21600);
+    // A copy to your own support inbox (labelled "Wrapline/Contact" by the Gmail filter). Reply to it and the answer goes to the visitor. A mail problem never loses the message: it is already in the Contacts tab.
+    try { sendNoReply_({ to: replyTo_(), name: 'Wrapline contact form', replyTo: email, subject: 'Contact form (' + topic + '): ' + name.replace(/[\r\n]+/g, ' '),
+      body: 'From: ' + name + ' <' + email + '>\nTopic: ' + topic + '\nReference: ' + reference + (attachmentURL ? '\nAttachment: ' + attachmentURL : '') + '\n\n' + message + '\n\nReply to this email to answer them directly.' }); } catch (mailError) {}
     return {ok:true,reference:reference,attachmentSaved:!!attachment};
   } catch (error) {return {ok:false,error:'unavailable'};}
   finally {if(held)lock.releaseLock();}

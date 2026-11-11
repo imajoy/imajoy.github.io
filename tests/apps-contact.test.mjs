@@ -4,12 +4,13 @@ import {randomUUID} from 'node:crypto';
 import {service} from './helpers/apps-service.mjs';
 const message=(overrides={})=>({name:'A Maya artist',email:'artist@example.com',topic:'support',message:'I need help with a studio installation.',consent:true,requestId:randomUUID(),website:'',...overrides});
 const send=(s,data)=>JSON.parse(s.ctx.doPost({postData:{contents:JSON.stringify({type:'contact',contact:data})}}).text);
-test('contact route saves a private message and receipt without creating accounts or sending email',()=>{
+test('contact route saves a private message and receipt without creating accounts, and mails you a copy',()=>{
  const s=service({registered:false}),data=message(),result=send(s,data);
  assert.equal(result.ok,true);assert.match(result.reference,/^AJ-/);
  const rows=s.sheets.get('Contacts').rows;assert.equal(rows.length,2);assert.equal(rows[1][3],data.email);assert.equal(rows[1][5],data.message);assert.equal(rows[1][7],true);
- assert.equal(s.sheets.has('Accounts'),false);assert.equal(s.sheets.has('Sheet1'),false);assert.equal(s.mails.length,0);assert.equal(s.requests.length,0);
- assert.deepEqual(send(s,data),result);assert.equal(rows.length,2,'Retry must not append another row.');
+ assert.equal(s.sheets.has('Accounts'),false);assert.equal(s.sheets.has('Sheet1'),false);assert.equal(s.mails.filter(m=>!/^Contact form/.test(m.subject)).length,0);assert.equal(s.requests.length,0);
+ assert.equal(s.mails.length,1);assert.equal(s.mails[0].to,'owner@example.com');assert.equal(s.mails[0].replyTo,data.email);assert.match(s.mails[0].subject,/^Contact form \(support\): /);assert.match(s.mails[0].body,/I need help/);
+ assert.deepEqual(send(s,data),result);assert.equal(s.mails.length,1,'A retry must not email again.');assert.equal(rows.length,2,'Retry must not append another row.');
  assert.equal(send(s,{...data,message:'A different message for the same request.'}).error,'invalid');
  assert.equal(send(s,{...data,email:'other@example.com'}).error,'invalid');
 });
@@ -37,7 +38,7 @@ test('all five supported formats save privately with a Sheet link and never regi
  for(const attachment of mediaFixtures){
   const s=storageService(),data=message({attachment}),result=send(s,data);assert.equal(result.ok,true);assert.equal(result.attachmentSaved,true);assert.equal(s.github.uploads,1);
   const row=s.sheets.get('Contacts').rows[1];assert.match(row[8],/^https:\/\/github.com\/imajoy\/Ajoy-Tools-Contact-Details\/blob\/main\/contact-details\//);assert.equal(row[9],attachment.name);assert.equal(row[11],attachment.size);
-  assert.equal(s.sheets.has('Accounts'),false);assert.equal(s.mails.length,0);assert(!JSON.stringify(result).includes('private-test-upload-token'));assert.equal(send(s,data).attachmentSaved,true);assert.equal(s.github.uploads,1);
+  assert.equal(s.sheets.has('Accounts'),false);assert.equal(s.mails.filter(m=>!/^Contact form/.test(m.subject)).length,0);assert(!JSON.stringify(result).includes('private-test-upload-token'));assert.equal(send(s,data).attachmentSaved,true);assert.equal(s.github.uploads,1);
  }
 });
 test('a public repository, missing token, or unavailable GitHub cannot receive files or record partial messages',()=>{

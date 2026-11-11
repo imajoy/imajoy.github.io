@@ -37,6 +37,30 @@ function authorizeSendAs() {
   var aliases = GmailApp.getAliases();
   Logger.log('Send-as addresses: ' + aliases.join(', ') + (aliases.indexOf(sendFromAddress_()) >= 0 ? '  -> ' + sendFromAddress_() + ' is ready.' : '  -> ' + sendFromAddress_() + ' is NOT set up yet in Gmail.'));
 }
+/* Gmail filters cannot label mail you SEND, so the copies of customer emails (codes, welcome, confirmations) are labelled here.
+   Run installSentLabeler once; after that it runs by itself every hour. Labels sit under "Wrapline" like the filter labels. */
+function labelSentMail() {
+  var rules = [
+    ['Wrapline/Codes', 'subject:"sign-in code"'],
+    ['Wrapline/Welcome', 'subject:"Welcome to Wrapline"'],
+    ['Wrapline/Razorpay Payments', '(subject:"subscription is confirmed" OR subject:"order is confirmed" OR subject:"Pro invoice")'],
+    ['Wrapline/Trials', 'subject:"trial request"']
+  ];
+  rules.forEach(function (rule) {
+    try {
+      var label = GmailApp.getUserLabelByName(rule[0]);
+      if (!label) return;
+      var threads = GmailApp.search('in:sent newer_than:2d -label:"' + rule[0] + '" ' + rule[1], 0, 100);
+      if (threads.length) label.addToThreads(threads);
+    } catch (err) {}
+  });
+}
+function installSentLabeler() {
+  ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === 'labelSentMail') ScriptApp.deleteTrigger(t); });
+  ScriptApp.newTrigger('labelSentMail').timeBased().everyHours(1).create();
+  labelSentMail();
+  Logger.log('Sent mail will be labelled every hour.');
+}
 /* Branded HTML for the sign-in / registration code email (plain-text body is still sent as a fallback). */
 function codeEmailHtml_(code, minutes, support) {
   var spaced = String(code).split('').join('&#8202;&nbsp;');

@@ -247,3 +247,6 @@ html:not([data-theme=dark]) body.pro-page .hv-portal .pro-now{color:#4A5578}
  @keyframes hv-dd{to{translate:0 -14px}}
 }
 .hv-rail li span{color:inherit;font:inherit;letter-spacing:inherit;text-transform:uppercase}
+
+/* No index counter ("01 / 10") in the hero */
+.hv-no{display:none!important}

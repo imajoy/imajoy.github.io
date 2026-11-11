@@ -38,6 +38,10 @@ function placeIndicator(){
   const a=$('.bc-nav a[aria-current="page"]');if(!a||!ind)return;
   ind.style.cssText='left:'+a.offsetLeft+'px;top:'+a.offsetTop+'px;width:'+a.offsetWidth+'px;height:'+a.offsetHeight+'px';
 }
+/* Tabs keep a short address (wrapline.in/account, /payment-history, /payment-methods) instead of #history, #methods ...
+   Each short address is a tiny forwarder page (scripts/make-aliases.mjs), so refresh, sharing and bookmarks still work. */
+const CLEAN=/(^|\.)wrapline\.in$|\.github\.io$/.test(location.hostname),PATHS={subscriptions:'/account',account:'/account-info',history:'/payment-history',methods:'/payment-methods'};
+function tidy(){try{const to=CLEAN?PATHS[tab]+location.search:'#'+tab;if(CLEAN?(location.pathname+location.search+location.hash)!==to:location.hash!=='#'+tab)history.replaceState(null,'',to);}catch{}}
 function show(next,{push=true}={}){
   if(!TABS[next])next='subscriptions';
   const changed=next!==tab;tab=next;
@@ -46,7 +50,7 @@ function show(next,{push=true}={}){
   $('#bc-title').textContent=TABS[tab];$('#bc-crumb').textContent=TABS[tab];
   document.title=TABS[tab]+' · Billing · Wrapline Pro';
   placeIndicator();
-  if(push&&location.hash!=='#'+tab)history.replaceState(null,'','#'+tab);
+  if(push||location.hash)tidy();
   if(changed)scrollTo({top:0,behavior:calm()?'auto':'smooth'});
 }
 nav.addEventListener('click',e=>{const a=e.target.closest('a[data-tab]');if(!a)return;e.preventDefault();show(a.dataset.tab);});

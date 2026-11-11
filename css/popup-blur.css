@@ -1,0 +1,9 @@
+/* Every pop-up window: a gentle blur behind it so the window is the one thing in focus. */
+dialog:is(*,#bc-invoice,#sc-dlg)::backdrop{-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}
+@keyframes pb-in{from{-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}to{-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}}
+@keyframes pb-out{from{-webkit-backdrop-filter:blur(5px);backdrop-filter:blur(5px)}to{-webkit-backdrop-filter:blur(0);backdrop-filter:blur(0)}}
+/* windows that already fade their backdrop (invoice, add-payment-method, quick pay) fade the blur with it */
+dialog[open]:not([data-closing]):not(#bc-invoice):not(#sc-dlg):not(.qp-dlg):not(.cl-dlg):not(.guest-prompt):not(.trial-nudge)::backdrop{animation:pb-in .32s cubic-bezier(.22,1,.36,1) both}
+dialog[data-closing]:not(#bc-invoice):not(#sc-dlg):not(.qp-dlg):not(.cl-dlg)::backdrop{animation:pb-out .22s ease both}
+dialog:is(.guest-prompt,.trial-nudge)::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}
+@media(prefers-reduced-motion:reduce){dialog::backdrop{animation:none!important}}

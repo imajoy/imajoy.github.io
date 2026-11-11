@@ -833,10 +833,10 @@ function handleContact_(data) {
     // Reserve attempts before external uploads so failures cannot bypass quotas.
     daily.count++;p.setProperty('CONTACT_DAILY',JSON.stringify(daily));cache.put(key,String(count+1),3600);
     var attachmentURL='';
-    // Without a GitHub token for private storage, the file is emailed to your support inbox instead (see the copy below).
-    var emailOnly=!!attachment&&!props_().getProperty('CONTACT_GITHUB_TOKEN');
-    if(attachment&&emailOnly)attachmentURL='Emailed to the support inbox';
-    if(attachment&&!emailOnly){
+    // Without a GitHub token for private storage, the file is saved in a private Google Drive folder instead.
+    var driveOnly=!!attachment&&!props_().getProperty('CONTACT_GITHUB_TOKEN');
+    if(attachment&&driveOnly){try{attachmentURL=storeContactDrive_(attachment,requestId);}catch(error){return {ok:false,error:'attachment_unavailable'};}}
+    if(attachment&&!driveOnly){
       // Large GitHub transfers must not hold the lock used by registration and commerce.
       lock.releaseLock();held=false;
       try{attachmentURL=storeContactAttachment_(attachment,requestId);}catch(error){return {ok:false,error:'attachment_unavailable'};}
@@ -855,7 +855,6 @@ function handleContact_(data) {
     try {
       var copy = { to: replyTo_(), name: 'Wrapline contact form', replyTo: email, subject: 'Contact form (' + topic + '): ' + name.replace(/[\r\n]+/g, ' '),
         body: 'From: ' + name + ' <' + email + '>\nTopic: ' + topic + '\nReference: ' + reference + (attachmentURL ? '\nAttachment: ' + attachmentURL : '') + '\n\n' + message + '\n\nReply to this email to answer them directly.' };
-      if (emailOnly) copy.attachments = [Utilities.newBlob(attachment.bytes, attachment.type, attachment.name)];
       sendNoReply_(copy);
     } catch (mailError) {}
     return {ok:true,reference:reference,attachmentSaved:!!attachment};
@@ -875,6 +874,18 @@ function contactAttachment_(file) {
   if(!valid)throw Error('attachment');
   var header=Utilities.newBlob('blob '+bytes.length+'\0').getBytes(),sha=Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_1,header.concat(bytes)).map(function(n){return('0'+((n+256)%256).toString(16)).slice(-2);}).join('');
   return {name:file.name,type:types[ext],extension:ext==='jpeg'?'jpg':ext,bytes:bytes,base64:Utilities.base64Encode(bytes),sha:sha};
+}
+/* Private Google Drive folder "Wrapline contact files" in your own Drive; nothing is shared publicly. Run authorizeDrive once after pasting. */
+function storeContactDrive_(file,requestId) {
+  var name='Wrapline contact files',folders=DriveApp.getFoldersByName(name),folder=folders.hasNext()?folders.next():DriveApp.createFolder(name);
+  var stored=requestId+'-'+file.name,existing=folder.getFilesByName(stored);
+  var saved=existing.hasNext()?existing.next():folder.createFile(Utilities.newBlob(file.bytes,file.type,stored));
+  return saved.getUrl();
+}
+function authorizeDrive() {
+  var name='Wrapline contact files',folders=DriveApp.getFoldersByName(name);
+  if(!folders.hasNext())DriveApp.createFolder(name);
+  Logger.log('Drive is ready: contact attachments are saved in the private folder "'+name+'".');
 }
 function storeContactAttachment_(file,requestId) {
   var repo=props_().getProperty('CONTACT_GITHUB_REPO')||'imajoy/Ajoy-Tools-Contact-Details',token=props_().getProperty('CONTACT_GITHUB_TOKEN');

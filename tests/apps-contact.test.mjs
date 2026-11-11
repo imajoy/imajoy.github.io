@@ -65,10 +65,12 @@ test('first attachment initializes an empty private repository without a manual 
  const s=storageService();s.github.empty=true;
  assert.equal(send(s,message({attachment:mediaFixtures[0]})).ok,true);assert.equal(s.github.uploads,1);assert.equal(s.github.empty,false);
 });
-test('without a GitHub token the attachment is emailed to the support inbox instead of being refused',()=>{
+test('without a GitHub token the attachment is saved in a private Drive folder instead of being refused',()=>{
  const s=storageService();s.values.delete('CONTACT_GITHUB_TOKEN');
- const result=send(s,message({attachment:mediaFixtures[0]}));
+ const data=message({attachment:mediaFixtures[0]}),result=send(s,data);
  assert.equal(result.ok,true);assert.equal(result.attachmentSaved,true);assert.equal(s.github.uploads,0);
- const mail=s.mails.at(-1);assert.match(mail.subject,/^Contact form/);assert.ok(mail.attachments&&mail.attachments.length===1,'the file travels with the email');
- assert.equal(s.sheets.get('Contacts').rows[1][8],'Emailed to the support inbox');
+ assert.equal(s.drive.folders.get('Wrapline contact files').files.size,1);
+ const row=s.sheets.get('Contacts').rows[1];assert.match(row[8],/^https:\/\/drive\.google\.com\/file\/d\//);
+ assert.match(s.mails.at(-1).body,/drive\.google\.com/);assert.equal(s.mails.at(-1).attachments,undefined);
+ assert.equal(send(s,data).attachmentSaved,true);assert.equal(s.drive.files.length,1,'a retry reuses the saved file');
 });

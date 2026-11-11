@@ -57,3 +57,6 @@ html body.bill-v2 [data-continue-payment].is-go{pointer-events:none}
 @keyframes cpArm{0%{transform:translateX(-101%)}100%{transform:translateX(101%)}}
 [data-continue-payment]:not(:disabled):not(.is-go) .cp-line{animation:cpArm 1.6s .4s cubic-bezier(.22,1,.36,1) 1 both}
 @media(prefers-reduced-motion:reduce){.cp-line,.cp-arrow svg{transition:none!important;animation:none!important}}
+
+/* The yearly upsell card repeated the "Choose yearly" offer above the form, so it stays out of the page */
+html body #yearly-upsell{display:none!important}

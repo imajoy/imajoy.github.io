@@ -69,13 +69,16 @@ function ownerHtml_(subject, body, files) {
   var link = function (t) { return esc_(t).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" style="color:#2a64e8;overflow-wrap:anywhere;word-break:break-all">$1</a>'); };
   /* A value that is only a link becomes a tidy button instead of a long address. */
   var value = function (t) { return /^https?:\/\/\S+$/.test(t) ? '<a href="' + esc_(t) + '" style="display:inline-block;background:#2a64e8;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;border-radius:999px;padding:7px 16px">Open</a>' : link(t); };
-  var fileRows = (files || []).map(function (f, i) {
-    var ext = (String(f.name).split('.').pop() || '').slice(0, 4).toUpperCase(), mb = f.bytes >= 1048576 ? (f.bytes / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(f.bytes / 1024)) + ' KB';
-    return '<table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;margin:0 0 8px;background:#f3f4f8;border-radius:12px"><tr>' +
-      '<td style="width:44px;padding:12px 0 12px 12px;vertical-align:middle"><div style="width:40px;height:40px;line-height:40px;text-align:center;background:#2a64e8;color:#ffffff;border-radius:10px;font-size:11px;font-weight:700">' + esc_(ext) + '</div></td>' +
-      '<td style="padding:12px;vertical-align:middle;font-size:14px;line-height:1.35;color:#14182a;word-break:break-word"><b>' + esc_(f.name) + '</b><br><span style="font-size:12px;color:#6b7390">' + mb + '</span></td>' +
-      '<td style="padding:12px 12px 12px 0;vertical-align:middle;text-align:right;white-space:nowrap"><a href="' + esc_(f.url) + '" style="display:inline-block;background:#2a64e8;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;border-radius:999px;padding:7px 16px">Open</a></td></tr></table>';
+  var fileRows = (files || []).map(function (f) {
+    var name = String(f.name || 'file'), ext = (name.split('.').pop() || '').slice(0, 4).toUpperCase(), mb = f.bytes >= 1048576 ? (f.bytes / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(f.bytes / 1024)) + ' KB';
+    var shown = name.length > 34 ? name.slice(0, 20) + '\u2026' + name.slice(-11) : name;
+    return '<table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;margin:0 0 10px;background:#f3f4f8;border-radius:14px"><tr><td style="padding:14px">' +
+      '<table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed"><tr>' +
+      '<td style="width:52px;vertical-align:top"><div style="width:42px;height:42px;line-height:42px;text-align:center;background:#2a64e8;color:#ffffff;border-radius:10px;font-size:11px;font-weight:700">' + esc_(ext) + '</div></td>' +
+      '<td style="vertical-align:top;font-size:14px;line-height:1.4;color:#14182a;overflow-wrap:anywhere;word-break:break-all"><b>' + esc_(shown) + '</b><br><span style="font-size:12px;color:#6b7390">' + mb + '</span></td></tr></table>' +
+      '<a href="' + esc_(f.url) + '" style="display:inline-block;margin-top:12px;background:#2a64e8;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;border-radius:999px;padding:9px 22px">Open file &#8599;</a></td></tr></table>';
   }).join('');
+  var isContact = /^Contact form/.test(subj), contactTopic = '', msgHtml = '';
   var rows = '', notes = '', paras = '';
   text.split(/\n{2,}/).forEach(function (block) {
     var lines = block.split('\n').filter(function (l) { return l.trim(); });
@@ -85,6 +88,8 @@ function ownerHtml_(subject, body, files) {
       if (files && files.length && /^(Attachment|File)( \d+)?: /.test(l)) return;
       if (/^[A-Za-z][^:\n]{1,40}: .+/.test(l) && !/^(Mark |Verify |Create |Reply |It is also|Promise|If the buyer|FREE TRIAL|PRICE CHECK|Someone asked|If you)/.test(l)) {
         var i = l.indexOf(': '), label = l.slice(0, i), value = l.slice(i + 2), m = /^(.*?)\s*(https?:\/\/\S+)$/.exec(value), shown;
+        if (isContact && label === 'From') label = 'Name';
+        if (isContact && label === 'Topic') contactTopic = value;
         if (m) shown = '<a href="' + esc_(m[2]) + '" style="display:inline-block;background:' + tone[1] + ';color:' + tone[0] + ';text-decoration:none;font-weight:700;font-size:14px;line-height:1.4;border-radius:10px;padding:9px 14px;overflow-wrap:anywhere;word-break:break-word">' + esc_(m[1] || 'Open link') + ' &#8599;</a>';
         else if (/^[^\s@<>]+@[^\s@<>]+\.[^\s@<>]+$/.test(value)) shown = '<a href="mailto:' + esc_(value) + '" style="color:#2a64e8;text-decoration:none">' + esc_(value) + '</a>';
         else shown = link(value);
@@ -95,17 +100,17 @@ function ownerHtml_(subject, body, files) {
     if (/^(Mark |Verify |Create |Reply |It is also|Promise|If the buyer|FREE TRIAL|PRICE CHECK|Your access)/.test(plain[0])) {
       notes += '<div style="background:' + tone[1] + ';border-radius:12px;padding:14px 16px;margin:0 0 14px;font-size:14px;line-height:1.55;color:#2b3149">' + plain.map(link).join('<br>') + '</div>';
     } else {
-      paras += /^Contact form/.test(subj)
-        ? '<div style="background:#f6f7fb;border-left:3px solid #2a64e8;border-radius:4px 12px 12px 4px;padding:14px 16px;margin:0 0 18px;font-size:16px;line-height:1.6;color:#14182a;overflow-wrap:anywhere;word-break:break-word">' + plain.map(link).join('<br>') + '</div>'
-        : '<p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#2b3149">' + plain.map(link).join('<br>') + '</p>';
+      if (isContact) msgHtml += '<div style="background:#f6f7fb;border-left:3px solid #2a64e8;border-radius:4px 12px 12px 4px;padding:14px 16px;margin:0 0 18px;font-size:16px;line-height:1.6;color:#14182a;overflow-wrap:anywhere;word-break:break-word">' + plain.map(link).join('<br>') + '</div>';
+      else paras +=        '<p style="font-size:16px;line-height:1.55;margin:0 0 16px;color:#2b3149">' + plain.map(link).join('<br>') + '</p>';
     }
   });
   return '<div style="background:#f3f4f8;margin:0;padding:28px 12px;font-family:Arial,Helvetica,sans-serif;color:#14182a"><div style="max-width:560px;margin:0 auto;background:#ffffff;border-radius:18px;padding:24px 20px 18px;overflow:hidden">' +
     '<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 20px"><tr><td style="width:30px;height:30px"><img src="https://wrapline.in/assets/apple-touch-icon.png" width="30" height="30" alt="W" style="display:block;border:0;border-radius:8px"></td>' +
     '<td style="padding-left:10px;font-size:16px;font-weight:700;letter-spacing:.2px;color:#14182a">WRAPLINE</td></tr></table>' +
-    '<div style="display:inline-block;background:' + tone[1] + ';color:' + tone[0] + ';border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;letter-spacing:.4px;margin:0 0 12px">' + esc_(/^\[TEST\]/.test(subj) ? 'TEST' : /CHECK|stopped|cancelled/i.test(subj) ? 'NEEDS A LOOK' : 'NEW') + '</div>' +
-    '<h1 style="font-size:22px;line-height:1.3;margin:0 0 18px;font-weight:700;color:#14182a">' + esc_(subj.replace(/^\[TEST\]\s*/, '')) + '</h1>' + paras +
+    '<div style="display:inline-block;background:' + tone[1] + ';color:' + tone[0] + ';border-radius:999px;padding:5px 12px;font-size:12px;font-weight:700;letter-spacing:.4px;margin:0 0 12px">' + esc_(isContact ? 'CUSTOMER MESSAGE' : /^\[TEST\]/.test(subj) ? 'TEST' : /CHECK|stopped|cancelled/i.test(subj) ? 'NEEDS A LOOK' : 'NEW') + '</div>' +
+    '<h1 style="font-size:22px;line-height:1.3;margin:0 0 18px;font-weight:700;color:#14182a">' + esc_(isContact ? 'New message from a customer' + (contactTopic ? ' \u00b7 ' + contactTopic : '') : subj.replace(/^\[TEST\]\s*/, '')) + '</h1>' + paras +
     (rows ? '<table role="presentation" cellspacing="0" cellpadding="0" style="width:100%;table-layout:fixed;margin:0 0 18px">' + rows + '</table>' : '') +
+    (msgHtml ? '<div style="font-size:13px;font-weight:700;color:#6b7390;margin:0 0 8px;letter-spacing:.3px">THEIR MESSAGE</div>' + msgHtml : '') +
     (fileRows ? '<div style="font-size:13px;font-weight:700;color:#6b7390;margin:0 0 8px;letter-spacing:.3px">ATTACHMENTS (' + files.length + ')</div>' + fileRows + '<div style="height:10px"></div>' : '') + notes +
     '<p style="font-size:12px;line-height:1.5;color:#8a90a8;margin:6px 0 0">Automatic message from your Wrapline site. It is filed under Wrapline in Gmail.</p></div></div>';
 }
@@ -903,7 +908,7 @@ function handleContact_(data) {
     // A copy to your own support inbox (labelled "Wrapline/Contact" by the Gmail filter). Reply to it and the answer goes to the visitor. A mail problem never loses the message: it is already in the Contacts tab.
     try {
       var copy = { to: replyTo_(), name: 'Wrapline contact form', replyTo: email, subject: 'Contact form (' + topic + '): ' + name.replace(/[\r\n]+/g, ' '),
-        body: 'From: ' + name + '\nEmail: ' + email + '\nTopic: ' + topic + '\nReference: ' + reference + attachmentURLs.map(function (u, i) { var a = attachments[i] || {}; var mb = a.bytes ? ' · ' + (a.bytes.length / 1048576).toFixed(2) + ' MB' : ''; return '\nFile' + (attachmentURLs.length > 1 ? ' ' + (i + 1) : '') + ': ' + (a.name || 'Attachment') + mb + ' ' + u; }).join('') + '\n\n' + message + '\n\nReply to this email to answer them directly.' };
+        body: 'Name: ' + name + '\nEmail: ' + email + '\nTopic: ' + topic + '\nReference: ' + reference + attachmentURLs.map(function (u, i) { var a = attachments[i] || {}; var mb = a.bytes ? ' · ' + (a.bytes.length / 1048576).toFixed(2) + ' MB' : ''; return '\nFile' + (attachmentURLs.length > 1 ? ' ' + (i + 1) : '') + ': ' + (a.name || 'Attachment') + mb + ' ' + u; }).join('') + '\n\n' + message + '\n\nReply to this email to answer them directly.' };
       copy.htmlBody = ownerHtml_(copy.subject, copy.body, attachments.map(function (a, i) { return { name: a.name, bytes: a.bytes.length, url: attachmentURLs[i] }; }).filter(function (f) { return /^https?:/.test(f.url || ''); }));
       sendNoReply_(copy);
     } catch (mailError) {}

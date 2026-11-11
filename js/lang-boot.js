@@ -35,7 +35,7 @@
   }
   /* things that must stay exactly as written, in every language */
   function protect() {
-    try { document.querySelectorAll('code,pre,kbd,samp,.notranslate,#iv-print,.iv-paper,[data-price],.brand,.logo,.wordmark').forEach(function (e) { e.setAttribute('translate', 'no'); e.classList.add('notranslate'); }); } catch (e) {}
+    try { document.querySelectorAll('code,pre,kbd,samp,select,option,textarea,.notranslate,#iv-print,.iv-paper,[data-price],.brand,.logo,.wordmark').forEach(function (e) { e.setAttribute('translate', 'no'); e.classList.add('notranslate'); }); } catch (e) {}
   }
   function style() {
     if (document.getElementById('lang-style')) return;

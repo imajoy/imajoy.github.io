@@ -11,8 +11,8 @@ export const BUSTER="if(window.top!==window.self){try{window.top.location=window
 const hash=text=>"'sha256-"+createHash('sha256').update(text,'utf8').digest('base64')+"'";
 const PAYPAL='https://www.paypal.com https://*.paypal.com https://www.paypalobjects.com https://*.paypalobjects.com';
 /* Google's page translator needs inline + eval script permission, so it is allowed only on pages that opt in with
-   <meta name="ajoy-translate" content="on"> (marketing pages). Checkout, account, billing, download, thank-you, support and
-   contact keep the strict hash-only policy and stay in English. */
+   <meta name="ajoy-translate" content="on">. The payment pages (checkout and payment) keep the strict hash-only policy and stay in
+   English, so the language window warns there instead of opening. */
 const TRANSLATE='https://translate.google.com https://translate.googleapis.com https://www.gstatic.com';
 const TRANSLATE_SCRIPT="'unsafe-inline' 'unsafe-eval' https://*.google.com https://*.googleapis.com https://*.gstatic.com";
 export const translates=html=>/<meta name="ajoy-translate" content="on">/.test(html);

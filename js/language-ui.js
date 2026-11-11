@@ -3,14 +3,14 @@ const L=()=>window.AjoyLang;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const calm=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 let dlg=null,restore=null;
-function ensureCss(){if(document.querySelector('link[data-lang-css]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/language.css?v=lg3';l.dataset.langCss='';document.head.append(l);}
+function ensureCss(){if(document.querySelector('link[data-lang-css]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/language.css?v=lg4';l.dataset.langCss='';document.head.append(l);}
 function draw(){
  const api=L();if(!api)return;const cur=api.current();
  dlg.innerHTML='<div class="lng-box"><button class="lng-x" type="button" aria-label="Close" data-x>×</button><h2 id="lng-title">Select a language</h2>'+
   '<p class="lng-note">Wrapline will be shown in this language on this device.</p>'+
   '<label class="lng-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input type="search" placeholder="Search for a language" aria-label="Search for a language" autocomplete="off" spellcheck="false"></label>'+
   '<ul class="lng-list notranslate" translate="no" role="listbox" aria-label="Languages">'+api.list.map((l,i)=>'<li role="option" aria-selected="'+(l[0]===cur)+'" data-code="'+esc(l[0])+'" data-q="'+esc((l[1]+' '+l[2]+' '+l[0]).toLowerCase())+'" style="--i:'+Math.min(i,14)+'" tabindex="-1"><span class="lng-badge"><img src="img/flags/'+esc(l[3])+'.png" alt="" width="36" height="36" decoding="async" draggable="false"></span><span class="lng-name"><b>'+esc(l[1])+'</b><small>'+esc(l[2])+'</small></span><svg class="lng-tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></li>').join('')+'</ul>'+
-  (api.supported?'':'<p class="lng-here">This page stays in English for your security. Your language applies on the other pages.</p>')+'<p class="lng-empty" hidden>No language found.</p><p class="lng-msg" role="status" aria-live="polite"></p></div>';
+  '<p class="lng-empty" hidden>No language found.</p><p class="lng-msg" role="status" aria-live="polite"></p></div>';
  const list=dlg.querySelector('.lng-list'),input=dlg.querySelector('input'),empty=dlg.querySelector('.lng-empty'),msg=dlg.querySelector('.lng-msg');
  const rows=()=>[...list.children];
  input.addEventListener('input',()=>{const q=input.value.trim().toLowerCase();let n=0;rows().forEach(r=>{const show=!q||r.dataset.q.includes(q);r.hidden=!show;if(show)n++;});empty.hidden=n>0;});
@@ -35,11 +35,19 @@ function close(){
  const done=()=>{dlg.close();delete dlg.dataset.closing;if(restore)restore.focus?.({preventScroll:true});};
  if(calm())done();else setTimeout(done,220);
 }
+function warn(){
+ dlg.innerHTML='<div class="lng-box lng-warn"><button class="lng-x" type="button" aria-label="Close" data-x>×</button><h2 id="lng-title">Language is not available here</h2>'+
+  '<p class="lng-note">For your security, checkout and payment pages always stay in English. Your language applies on the other pages.</p><button class="lng-ok" type="button" data-x>Got it</button></div>';
+ dlg.querySelectorAll('[data-x]').forEach(b=>b.onclick=close);
+ return dlg.querySelector('.lng-ok');
+}
 export function openLanguage(){
  ensureCss();
  if(!dlg){dlg=document.createElement('dialog');dlg.className='lng-dlg';dlg.setAttribute('aria-labelledby','lng-title');document.body.append(dlg);
   dlg.addEventListener('cancel',e=>{e.preventDefault();close();});dlg.addEventListener('click',e=>{if(e.target===dlg)close();});}
- restore=document.activeElement;const {list,input}=draw()||{};if(!list)return;
+ restore=document.activeElement;
+ if(L()&&!L().supported){const ok=warn();if(!dlg.open)dlg.showModal();requestAnimationFrame(()=>ok.focus({preventScroll:true}));return;}
+ const {list,input}=draw()||{};if(!list)return;
  if(!dlg.open)dlg.showModal();
  requestAnimationFrame(()=>{list.querySelector('[aria-selected=true]')?.scrollIntoView({block:'center'});input.focus({preventScroll:true});});
 }

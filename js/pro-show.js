@@ -5,16 +5,16 @@
 (function(){
  var hero=document.querySelector('.hero.hv'),portal=hero&&hero.querySelector('.hv-portal'),st=hero&&hero.querySelector('.hv-stage'),dv=st&&st.querySelector('.pro-device');
  if(!portal||!dv)return;
- var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ var reduce=matchMedia('(prefers-reduced-motion: reduce)').matches,phone=matchMedia('(max-width:767px)').matches;
  var T=['Advanced IK FK Switch','FBX Exporter','Rivet','Rebake IK Space','Playblast','Drag & Drop','Alembic Exporter','Hotkey Manager','Audio Exporter','Revert to Last Saved'],
   A=['IK','FBX','RVT','RBK','PB','D&D','ABC','HK','AUD','REV'],H=[212,28,168,262,352,44,190,286,330,140],N=T.length;
  var back=document.createElement('div');back.className='psh-back';back.setAttribute('aria-hidden','true');
- back.innerHTML='<i class="psh-lines"></i><div class="psh-mq"><div class="psh-mq-run"><span></span><span></span></div></div><i class="psh-ring"><b></b></i>';
+ back.innerHTML='<i class="psh-lines"></i><div class="psh-mq"><div class="psh-mq-run"><span></span><span></span></div></div>'+(phone?'':'<i class="psh-ring"><b></b></i>');
  portal.insertBefore(back,portal.firstChild.nextSibling);
  var next=document.createElement('button');next.type='button';next.className='psh-next';
  next.innerHTML='<span class="psh-next-k">Next</span><span class="psh-next-card"><i></i><b></b></span><span class="psh-next-t"><em></em><strong></strong></span>';
  portal.appendChild(next);hero.classList.add('has-psh');
- var mq=back.querySelectorAll('.psh-mq-run span'),run=back.querySelector('.psh-mq-run'),ring=back.querySelector('.psh-ring'),
+ var mq=back.querySelectorAll('.psh-mq-run span'),run=back.querySelector('.psh-mq-run'),ring=back.querySelector('.psh-ring')||{animate:function(){}},
   nCard=next.querySelector('.psh-next-card'),nAb=nCard.querySelector('b'),nNo=next.querySelector('em'),nNm=next.querySelector('strong'),cur=-1;
  var E='cubic-bezier(.22,1,.36,1)';
  function setNext(ix){var n=(ix+1)%N;nAb.textContent=A[n];nNo.textContent=(n+1<10?'0':'')+(n+1);nNm.textContent=T[n];next.style.setProperty('--nh',H[n]);next.dataset.i=n;next.setAttribute('aria-label','Next tool: '+T[n]);}
@@ -32,9 +32,11 @@
  /* the pin controller (js/pro-stage.js) asks for these two moves around a tool change */
  if(!reduce&&dv.animate){
   window.__hvLeave=function(dir,done){
+   if(phone){var pa=dv.animate([{opacity:1,scale:1},{opacity:0,scale:.97}],{duration:160,easing:'ease-out',fill:'forwards'});pa.onfinish=function(){done();pa.cancel();};return;}
    var an=dv.animate([{translate:'0 0',scale:1,rotate:'0deg',opacity:1},{translate:(-dir*16)+'vw -9vh',scale:.5,rotate:(-dir*7)+'deg',opacity:0}],{duration:300,easing:'cubic-bezier(.5,0,.8,.3)',fill:'forwards'});
    an.onfinish=function(){done();an.cancel();};};
   window.__hvEnter=function(dir){
+   if(phone){dv.animate([{opacity:0,scale:.97},{opacity:1,scale:1}],{duration:420,easing:E});return;}
    dv.animate([{translate:(dir*24)+'vw 20vh',scale:.34,rotate:(dir*9)+'deg',opacity:0},{opacity:1,offset:.35},{translate:'0 0',scale:1,rotate:'0deg',opacity:1}],{duration:820,easing:E});};
  }
  /* the corner card is a shortcut to the next tool */

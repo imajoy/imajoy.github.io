@@ -3,6 +3,7 @@
 import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261020-prices1';
 import {localFormatter} from './fx.js?v=20261020-local1';
 import {cachedGeo} from './geo.js?v=20261019-geo1';
+import {getAccountSession} from './account-session.js';
 import {animatePrice} from './price-motion.js';
 import {YEARLY_PERCENT} from './regions.js?v=20261023-p7';
 const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -11,7 +12,12 @@ const PLANS={online:{name:'Basic',line:'All 10 Pro tools, always the newest vers
 const swap=(n,txt)=>{if(n.textContent===txt)return;n.textContent=txt;if(reduce()||!n.animate||!dlg?.open)return;n.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.22,1,.36,1)'});};
 const el=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
 const X='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
-const cache=new Map();let dlg=null,state={plan:'online',billing:'monthly',seats:1},mode='new',rev=0,fmt=null;
+const cache=new Map();let dlg=null,state={plan:'online',billing:'monthly',seats:1},mode='new',rev=0,fmt=null,expanded=false;
+const CHK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',CHEV='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
+function owned(plan){
+ if(document.querySelector('[data-buy="'+plan+'"].is-covered'))return true;
+ try{const subs=getAccountSession()?.subscriptions;return Array.isArray(subs)&&subs.some(x=>x&&x.plan===plan&&!x.trial&&x.status!=='UNKNOWN'&&x.endsAt&&new Date(x.endsAt).getTime()>Date.now());}catch{return false;}
+}
 async function quoteFor(plan,billing){
  const k=plan+'|'+billing;if(cache.has(k))return cache.get(k);
  const p=(async()=>{try{return apiBase?await getQuote(plan,billing):previewPrice(plan,billing);}catch{try{return previewPrice(plan,billing);}catch{return null;}}})();
@@ -23,20 +29,21 @@ function build(){
  dlg.innerHTML='<div class="sd-panel"><header class="sd-head"><h2 id="sd-title">Choose your plan</h2><button type="button" class="sd-x" aria-label="Close">'+X+'</button></header>'+
  '<div class="sd-body">'+
  '<section class="sd-sec" aria-labelledby="sd-h1"><h3 id="sd-h1">License</h3><div class="sd-opts" role="radiogroup" aria-labelledby="sd-h1">'+
- ['online','offline'].map(p=>'<label class="sd-opt"><input type="radio" name="sd-plan" value="'+p+'"><span class="sd-opt-t"><b>'+PLANS[p].name+'</b><small>'+PLANS[p].line+'</small></span><span class="sd-opt-p" data-p="'+p+'">—</span></label>').join('')+'</div></section>'+
+ ['online','offline'].map(p=>'<div class="sd-wrap" data-wrap="'+p+'"><div class="sd-cell"><label class="sd-opt" data-opt="'+p+'"><input type="radio" name="sd-plan" value="'+p+'"><span class="sd-ring">'+CHK+'</span><span class="sd-opt-t"><b>'+PLANS[p].name+'</b><small>'+PLANS[p].line+'</small></span><span class="sd-opt-p" data-p="'+p+'">—</span></label></div></div>').join('')+'</div><button type="button" class="sd-swap" aria-expanded="false"><span></span>'+CHEV+'</button></section>'+
  '<section class="sd-sec" aria-labelledby="sd-h2"><h3 id="sd-h2">Billing period</h3><div class="sd-seg" role="radiogroup" aria-labelledby="sd-h2">'+
  '<label><input type="radio" name="sd-bill" value="monthly"><span>Monthly</span></label><label><input type="radio" name="sd-bill" value="yearly"><span>Yearly <em data-save></em></span></label></div><p class="sd-note" data-bnote></p></section>'+
  '<section class="sd-sec" aria-labelledby="sd-h3"><h3 id="sd-h3">Number of licenses</h3><div class="sd-qty"><button type="button" data-q="-1" aria-label="Remove one license">−</button><input type="number" inputmode="numeric" min="1" max="100" step="1" value="1" aria-labelledby="sd-h3"><button type="button" data-q="1" aria-label="Add one license">+</button></div><p class="sd-note">One license covers one computer. Choose 1–100.</p></section>'+
- '</div><footer class="sd-foot"><div class="sd-sum"><strong data-total>—</strong><small data-sub>Subtotal</small></div><button type="button" class="sd-go">Continue to checkout</button></footer></div>';
+ '</div><footer class="sd-foot"><div class="sd-sum"><strong data-total>—</strong><small data-sub>Subtotal</small></div><button type="button" class="sd-go"><span>Continue to checkout</span></button></footer></div>';
  document.body.append(dlg);
  const qty=dlg.querySelector('.sd-qty input');
  const clampQty=()=>{const n=Math.round(Number(qty.value));return Number.isFinite(n)?Math.min(100,Math.max(1,n)):1;};
  dlg.addEventListener('change',e=>{
-  if(e.target.name==='sd-plan')state.plan=e.target.value;if(e.target.name==='sd-bill')state.billing=e.target.value;
+  if(e.target.name==='sd-plan'){state.plan=e.target.value;expanded=false;}if(e.target.name==='sd-bill')state.billing=e.target.value;
   if(e.target===qty){state.seats=clampQty();qty.value=String(state.seats);}paint();
  });
  qty.addEventListener('input',()=>{const n=Math.round(Number(qty.value));if(qty.value!==''&&Number.isFinite(n)){state.seats=Math.min(100,Math.max(1,n));paint(true);}});
  for(const b of dlg.querySelectorAll('[data-q]'))b.addEventListener('click',()=>{state.seats=Math.min(100,Math.max(1,state.seats+Number(b.dataset.q)));qty.value=String(state.seats);paint();});
+ dlg.querySelector('.sd-swap').addEventListener('click',()=>{expanded=!expanded;paint(true);});
  dlg.querySelector('.sd-x').addEventListener('click',close);
  dlg.addEventListener('cancel',e=>{e.preventDefault();close();});
  dlg.addEventListener('click',e=>{if(e.target===dlg)close();});
@@ -50,6 +57,15 @@ function build(){
 async function paint(quiet){
  const my=++rev,{plan,billing,seats}=state;
  for(const r of dlg.querySelectorAll('input[name=sd-plan]'))r.checked=r.value===plan;
+ const other=plan==='online'?'offline':'online';
+ for(const p of ['online','offline']){
+  const own=owned(p),w=dlg.querySelector('[data-wrap="'+p+'"]'),o=w.querySelector('.sd-opt'),hide=p!==plan&&!expanded;
+  w.toggleAttribute('data-hide',hide);w.inert=hide;o.toggleAttribute('data-owned',own);o.querySelector('input').disabled=own;
+  const t=o.querySelector('.sd-opt-t'),tag=t.querySelector('.sd-tag');
+  if(own&&!tag)t.append(el('span','sd-tag','Your current plan'));else if(!own&&tag)tag.remove();
+ }
+ const sw=dlg.querySelector('.sd-swap');sw.setAttribute('aria-expanded',String(expanded));sw.hidden=false;
+ sw.firstElementChild.textContent=expanded?'Show only '+PLANS[plan].name:'Compare with '+PLANS[other].name;
  for(const r of dlg.querySelectorAll('input[name=sd-bill]'))r.checked=r.value===billing;
  dlg.querySelector('.sd-qty [data-q="-1"]').disabled=seats<=1;dlg.querySelector('.sd-qty [data-q="1"]').disabled=seats>=100;
  const per=billing==='yearly'?'year':'month';
@@ -69,7 +85,7 @@ async function paint(quiet){
  const pct=YEARLY_PERCENT?.[plan];
  dlg.querySelector('[data-save]').textContent=pct?'Save '+pct+'%':'';
  swap(dlg.querySelector('[data-bnote]'),billing==='yearly'?'Billed once a year. The first-year saving applies to your first yearly subscription of this license.':'Billed every month. Cancel renewal any time.');
- dlg.querySelector('.sd-go').textContent=mode==='edit'?'Update order':'Continue to checkout';
+ dlg.querySelector('.sd-go span').textContent=mode==='edit'?'Update order':'Continue to checkout';
 }
 function go(){
  const {plan,billing,seats}=state;
@@ -88,7 +104,8 @@ function go(){
 export function openPlanDrawer(opts={}){
  if(!dlg)build();
  state={plan:opts.plan==='offline'?'offline':'online',billing:opts.billing==='yearly'?'yearly':'monthly',seats:Math.min(100,Math.max(1,Math.round(Number(opts.seats))||1))};
- mode=opts.mode==='edit'?'edit':'new';
+ mode=opts.mode==='edit'?'edit':'new';expanded=false;
+ if(owned(state.plan)&&!owned(state.plan==='online'?'offline':'online'))state.plan=state.plan==='online'?'offline':'online';
  dlg.querySelector('.sd-qty input').value=String(state.seats);
  dlg.querySelector('#sd-title').textContent=mode==='edit'?'Change your plan':'Choose your plan';
  dlg.removeAttribute('data-closing');

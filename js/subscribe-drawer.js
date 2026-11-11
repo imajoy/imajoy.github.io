@@ -59,12 +59,13 @@ async function paint(quiet){
  for(const r of dlg.querySelectorAll('input[name=sd-plan]'))r.checked=r.value===plan;
  const other=plan==='online'?'offline':'online';
  for(const p of ['online','offline']){
-  const own=owned(p),w=dlg.querySelector('[data-wrap="'+p+'"]'),o=w.querySelector('.sd-opt'),hide=p!==plan&&!expanded&&!own;
+  const own=owned(p),w=dlg.querySelector('[data-wrap="'+p+'"]'),o=w.querySelector('.sd-opt'),hide=p!==plan&&!expanded&&!own&&!owned(plan);
   w.toggleAttribute('data-hide',hide);w.inert=hide;o.toggleAttribute('data-owned',own);o.querySelector('input').disabled=own;
   const t=o.querySelector('.sd-opt-t'),tag=t.querySelector('.sd-tag');
   if(own&&!tag)t.append(el('span','sd-tag','Your current plan'));else if(!own&&tag)tag.remove();
  }
- const sw=dlg.querySelector('.sd-swap');sw.setAttribute('aria-expanded',String(expanded));sw.hidden=owned(other);
+ const mine=owned(plan),go=dlg.querySelector('.sd-go');go.disabled=mine;go.style.opacity=mine?'.45':'';go.style.cursor=mine?'not-allowed':'';
+ const sw=dlg.querySelector('.sd-swap');sw.setAttribute('aria-expanded',String(expanded));sw.hidden=owned(other)||mine;
  sw.firstElementChild.textContent=expanded?'Show only '+PLANS[plan].name:'Compare with '+PLANS[other].name;
  for(const r of dlg.querySelectorAll('input[name=sd-bill]'))r.checked=r.value===billing;
  dlg.querySelector('.sd-qty [data-q="-1"]').disabled=seats<=1;dlg.querySelector('.sd-qty [data-q="1"]').disabled=seats>=100;
@@ -80,7 +81,7 @@ async function paint(quiet){
  if(cur){
   const f=await formatter(cur);if(my!==rev)return;
   animatePrice(dlg.querySelector('[data-total]'),cur.unitAmount*seats,f,dlg.open);
-  swap(dlg.querySelector('[data-sub]'),'Subtotal · '+seats+(seats===1?' license':' licenses')+' · billed '+(billing==='yearly'?'yearly':'monthly'));
+  swap(dlg.querySelector('[data-sub]'),mine?'You already have this plan. Choose the other license.':'Subtotal · '+seats+(seats===1?' license':' licenses')+' · billed '+(billing==='yearly'?'yearly':'monthly'));
  }else{dlg.querySelector('[data-total]').textContent='—';dlg.querySelector('[data-sub]').textContent='Price confirmed at checkout';}
  const pct=YEARLY_PERCENT?.[plan];
  dlg.querySelector('[data-save]').textContent=pct?'Save '+pct+'%':'';
@@ -105,7 +106,6 @@ export function openPlanDrawer(opts={}){
  if(!dlg)build();
  state={plan:opts.plan==='offline'?'offline':'online',billing:opts.billing==='yearly'?'yearly':'monthly',seats:Math.min(100,Math.max(1,Math.round(Number(opts.seats))||1))};
  mode=opts.mode==='edit'?'edit':'new';expanded=false;
- if(owned(state.plan)&&!owned(state.plan==='online'?'offline':'online'))state.plan=state.plan==='online'?'offline':'online';
  dlg.querySelector('.sd-qty input').value=String(state.seats);
  dlg.querySelector('#sd-title').textContent=mode==='edit'?'Change your plan':'Choose your plan';
  dlg.removeAttribute('data-closing');

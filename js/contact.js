@@ -119,7 +119,7 @@ if(form){
   if(payload.message.length<10){announce('Please write at least 10 characters so we can help.',true);form.elements.message.focus();return;}
   const endpoint=window.AJOY_CONFIG?.sheetUrl;if(!endpoint){announce('The contact service is unavailable. Please try again later.',true);return;}
   const controls=[...form.elements].filter(el=>el!==submit),disabled=controls.map(el=>el.disabled);
-  busy=true;submit.disabled=true;controls.forEach(el=>el.disabled=true);form.setAttribute('aria-busy','true');clearReceipt();setSend('sending',files.length?'Uploading…':'Sending…');art.removeAttribute('data-typing');form.removeAttribute('data-typing');clearTimeout(typingTimer);announce('Preparing your message…');
+  busy=true;submit.disabled=true;controls.forEach(el=>el.disabled=true);form.setAttribute('aria-busy','true');clearReceipt();setSend('sending',files.length?'Uploading your files':'Sending your message');art.removeAttribute('data-typing');form.removeAttribute('data-typing');clearTimeout(typingTimer);announce('Preparing your message…');
   try{
    if(files.length){
     transfer.hidden=false;progress.value=0;progressLabel.textContent='Preparing attachments…';

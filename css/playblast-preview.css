@@ -38,3 +38,24 @@
 @media(max-width:520px){.tool-visual.playblast-screens{padding:16px 10px 10px}.playblast-depth{padding:16px 9px 25px}.playblast-device{border-radius:10px}.playblast-window{min-height:28px;padding:5px 8px;font-size:.5625rem}.playblast-window-shot{font-size:.4375rem;letter-spacing:.03em}.playblast-media{border-radius:0 0 9px 9px}.playblast-screens .visual-heading{font-size:.5rem;letter-spacing:.04em}.playblast-screen-steps li{font-size:.5625rem}}
 @media(prefers-reduced-motion:reduce){.playblast-device,.playblast-device::before{transform:none;transition:none}.playblast-video,.playblast-screen-steps li{transition:none}}
 @media(prefers-reduced-motion:reduce){.playblast-screens[data-preview-entered] :is(.playblast-arrival,.visual-heading,.playblast-screen-steps li){animation:none}}
+/* Recording showcase, restyled to sit with the rest of the tool pages: the same rounded card as every other tool's preview, a flat dark
+   screen with a quiet title bar (no stacked blue frame), and the steps as soft chips whose active one carries the page accent. */
+html body .tool-visual.playblast-screens{max-width:608px;padding:20px 22px 18px;border:1px solid var(--line);border-radius:28px;text-align:left}
+html body .playblast-screens .visual-heading{font-size:.68rem;letter-spacing:.14em;margin:0 0 12px}
+html body .playblast-depth{padding:0}
+html body .playblast-depth::after{content:none}
+html body .playblast-device{border:0;border-radius:16px;overflow:hidden;background:#12141b;box-shadow:0 34px 60px -34px rgba(12,24,70,.55),0 0 0 1px rgba(255,255,255,.07)}
+html body .playblast-device::before{content:none}
+html body .playblast-window{min-height:34px;padding:8px 14px;gap:9px;background:#1c1f28;color:#dfe5f3;font:600 .6875rem/1.2 var(--sans);border-bottom:1px solid rgba(255,255,255,.06)}
+html body .playblast-window::before{content:"";flex:none;width:8px;height:8px;margin-right:30px;border-radius:50%;background:#ff5f57;box-shadow:13px 0 0 #febc2e,26px 0 0 #28c840}
+html body .playblast-window-icon{display:none}
+html body .playblast-window-shot{color:#8f9ab3;font:500 .5625rem/1 var(--mono,ui-monospace,monospace);letter-spacing:.08em}
+html body .playblast-media{border-radius:0}
+html body .playblast-screen-steps{gap:8px;margin:14px 0 0}
+html body .playblast-screen-steps li{position:relative;overflow:hidden;padding:10px 12px 12px;border:1px solid var(--line);border-top-width:1px;border-radius:12px;background:color-mix(in srgb,var(--card,#fff) 75%,transparent);color:var(--mute);font:600 .8rem/1.25 var(--sans);transition:border-color .35s,background-color .35s,color .35s}
+html body .playblast-screen-steps li::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--gold,#F2B64F),var(--coral,#FF7A5C));transform:scaleX(0);transform-origin:left;transition:transform .5s cubic-bezier(.22,1,.36,1)}
+html body .playblast-screen-steps li[aria-current="step"]{border-color:color-mix(in srgb,var(--gold,#F2B64F) 70%,var(--line));background:color-mix(in srgb,var(--gold,#F2B64F) 10%,var(--card,#fff));color:var(--ink)}
+html body .playblast-screen-steps li[aria-current="step"]::after{transform:none}
+html body .playblast-screen-steps span{display:none}
+@media(max-width:520px){html body .tool-visual.playblast-screens{padding:14px 12px 12px;border-radius:22px}html body .playblast-device{border-radius:12px}html body .playblast-screen-steps{grid-template-columns:1fr 1fr;gap:6px}html body .playblast-screen-steps li{padding:9px 10px 11px;font-size:.75rem}html body .playblast-window::before{margin-right:26px}}
+@media(prefers-reduced-motion:reduce){html body .playblast-screen-steps li,html body .playblast-screen-steps li::after{transition:none}}

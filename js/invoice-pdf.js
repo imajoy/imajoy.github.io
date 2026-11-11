@@ -9,7 +9,7 @@ const T=n=>(n?.textContent||'').replace(/\s+/g,' ').trim();
 /* the standard PDF fonts cannot draw the rupee sign, so it is drawn by hand; anything else outside Latin-1 becomes a plain look-alike */
 const plain=s=>String(s).replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"').replace(/\u00a0/g,' ').replace(/[\u2013\u2014]/g,'-').replace(/[^\x20-\x7e\u00a0-\u00ff\u20ac\u2022\u20b9]/g,'?');
 export async function invoicesToPdf(docs){
-  const {PDFDocument,StandardFonts,rgb}=await load();
+  const {PDFDocument,StandardFonts,rgb,LineCapStyle}=await load();
   const pdf=await PDFDocument.create(),reg=await pdf.embedFont(StandardFonts.Helvetica),bold=await pdf.embedFont(StandardFonts.HelveticaBold);
   const ink=rgb(.08,.09,.16),mute=rgb(.4,.43,.5),line=rgb(.86,.88,.92),blue=rgb(.24,.55,1);
   const W=595.28,H=841.89,M=48;
@@ -23,11 +23,12 @@ export async function invoicesToPdf(docs){
       parts.forEach((p,i)=>{
         if(p){page.drawText(p,{x:cx,y:yy,size:s,font:f,color:c});cx+=f.widthOfTextAtSize(p,s);}
         if(i<parts.length-1){ /* hand-drawn rupee sign */
-          const g=s*.62,h=s*.7,x0=cx+g*.05,top=yy+h,t2=0.012*s+.5;
-          const L=(x1,y1,x2,y2)=>page.drawLine({start:{x:x1,y:y1},end:{x:x2,y:y2},thickness:t2*1.4,color:c});
-          L(x0,top,x0+g*.82,top);L(x0,top-h*.2,x0+g*.82,top-h*.2);
-          page.drawSvgPath('M0 0 C'+(g*.62)+' 0 '+(g*.62)+' '+(-h*.46)+' 0 '+(-h*.46),{x:x0+g*.08,y:top,borderColor:c,borderWidth:t2*1.4});
-          L(x0+g*.08,top-h*.46,x0+g*.78,yy);
+          const g=s*.62,h=s*.7,x0=cx+g*.06,top=yy+h,w=Math.max(.7,s*.075);
+          const bar=yy2=>page.drawLine({start:{x:x0,y:yy2},end:{x:x0+g*.86,y:yy2},thickness:w,color:c});
+          bar(top);bar(top-h*.21);
+          /* bowl: leaves the top bar, curves round and returns on the left; then the diagonal leg */
+          page.drawSvgPath('M0 0 H'+(g*.3)+' C'+(g*.9)+' 0 '+(g*.9)+' '+(h*.5)+' '+(g*.3)+' '+(h*.5)+' H0',{x:x0,y:top,borderColor:c,borderWidth:w,borderLineCap:LineCapStyle.Butt});
+          page.drawLine({start:{x:x0+g*.08,y:top-h*.5},end:{x:x0+g*.7,y:yy},thickness:w,color:c});
           cx+=g;
         }
       });
@@ -35,9 +36,14 @@ export async function invoicesToPdf(docs){
     const wrap=(t,f,s,max)=>{const out=[];let cur='';for(const w of plain(t).split(' ')){const n=cur?cur+' '+w:w;if(width(n,f,s)>max&&cur){out.push(cur);cur=w;}else cur=n;}if(cur)out.push(cur);return out;};
     const rule=yy=>page.drawLine({start:{x:M,y:yy},end:{x:W-M,y:yy},thickness:.7,color:line});
     /* header: brand + seller (left), title and key facts (right) */
-    page.drawRectangle({x:M,y:y-18,width:20,height:20,color:blue});
-    text('WRAPLINE',M+28,y-12,{f:bold,s:13});
-    let ly=y-34;
+    /* the real Wrapline mark (assets/logo-mark.svg), scaled from its 32-unit box to 24pt */
+    const mk={x:M,y:y+4,scale:.75};
+    page.drawSvgPath('M8 0H24Q32 0 32 8V24Q32 32 24 32H8Q0 32 0 24V8Q0 0 8 0Z',{...mk,color:blue,borderWidth:0});
+    page.drawSvgPath('M7.5 23.5C15 23.5 17 8.5 24.5 8.5',{...mk,borderColor:rgb(1,1,1),borderWidth:1.7,borderLineCap:LineCapStyle.Round});
+    page.drawSvgPath('M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z',{...mk,color:rgb(1,1,1),borderWidth:0});
+    page.drawSvgPath('M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z',{...mk,color:rgb(1,1,1),borderWidth:0});
+    text('WRAPLINE',M+34,y-9,{f:bold,s:13});
+    let ly=y-38;
     [...paper.querySelectorAll('.iv-from>span')].forEach((s,i)=>{text(T(s),M,ly,{f:i?reg:bold,s:9,c:i?mute:ink});ly-=12;});
     text(T(paper.querySelector('.iv-title h3')),W-M,y-6,{f:bold,s:20,right:true});
     let ry=y-26;

@@ -36,7 +36,7 @@ export function buildInvoiceDoc(o){
  const node=(t,at)=>{const n=document.createElementNS(NS,t);for(const k in at)n.setAttribute(k,at[k]);return n;};
  svg.append(node('rect',{width:32,height:32,rx:8,fill:'#3D8BFF'}),node('path',{d:'M7.5 23.5C15 23.5 17 8.5 24.5 8.5',fill:'none',stroke:'#fff','stroke-width':2.2,'stroke-linecap':'round'}),node('path',{d:'M7.5 20.3l3.2 3.2-3.2 3.2-3.2-3.2z',fill:'#fff'}),node('path',{d:'M24.5 5.3l3.2 3.2-3.2 3.2-3.2-3.2z',fill:'#fff'}));
  brand.append(svg,el('b',null,'WRAPLINE'));
- from.append(brand,el('span','iv-sel',seller),el('span',null,'Production tools for Autodesk Maya'),el('span',null,'wrapline.in'),el('span',null,'Support: wrapline.in/contact.html'));
+ from.append(brand,el('span','iv-sel',seller),el('span',null,'Production tools for Autodesk Maya'),el('span',null,'wrapline.in'),el('span',null,'Support: wrapline.in/contact'));
  const ttl=el('div','iv-title');ttl.append(el('h3',null,kind));
  const facts=el('dl','iv-facts');
  const fact=(k,v)=>{if(!v)return;const r=el('div');r.append(el('dt',null,k),el('dd',null,v));facts.append(r);};

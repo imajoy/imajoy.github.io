@@ -3,8 +3,8 @@
 import {getAccountSession,accountRequest,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
 import {loadProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm3';
 import {bindPostal} from './billing-postal.js?v=bp3';
-import {buildInvoiceDoc,printDoc,printDocs,invoicePeriod} from './ty-invoice.js?v=iv10';
-import {downloadInvoices} from './invoice-pdf.js?v=pdf1';
+import {buildInvoiceDoc,printDoc,printDocs,invoicePeriod} from './ty-invoice.js?v=iv11';
+import {downloadInvoices} from './invoice-pdf.js?v=pdf2';
 
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;};

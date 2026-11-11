@@ -8,7 +8,7 @@ const root=new URL('../',import.meta.url);
 export const PAGES={wrapline:'pro','wrapline-free':'free'};
 for(const f of readdirSync(root))if(/^tool-.+\.html$/.test(f))PAGES[f.slice(0,-5)]=f.slice(5,-5);
 export const SECTIONS={pricing:'pricing',tools:'tools',install:'install',faq:'faq'};
-const stub=(to,title)=>`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="color-scheme" content="dark light"><title>${title}</title><link rel="canonical" href="https://wrapline.in${to.replace(/#.*/,'')}.html"><meta http-equiv="refresh" content="0;url=${to}"></head><body><p><a href="${to}">Continue to Wrapline</a></p></body></html>\n`;
+const stub=(to,title)=>`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="color-scheme" content="dark light"><title>${title}</title><link rel="canonical" href="https://wrapline.in${to.replace(/#.*/,'')}.html"><meta http-equiv="refresh" content="0;url=${to}"><style>body{visibility:hidden}</style><noscript><style>body{visibility:visible}</style></noscript><script>location.replace("${to}")</script></head><body><p><a href="${to}">Continue to Wrapline</a></p></body></html>\n`;
 const out=new Map();
 for(const [real,alias] of Object.entries(PAGES))out.set(alias+'.html',stub('/'+real,'Wrapline'));
 for(const s of Object.keys(SECTIONS))out.set(s+'.html',stub('/wrapline#'+s,'Wrapline Pro'));

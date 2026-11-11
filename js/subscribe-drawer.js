@@ -89,7 +89,7 @@ async function paint(quiet){
  for(const r of dlg.querySelectorAll('input[name=sd-plan]'))r.checked=r.value===plan;
  const other=plan==='online'?'offline':'online';
  for(const p of ['online','offline']){
-  const own=owned(p),w=dlg.querySelector('[data-wrap="'+p+'"]'),o=w.querySelector('.sd-opt'),hide=p!==plan&&!expanded&&!own&&!owned(plan);
+  const own=owned(p),w=dlg.querySelector('[data-wrap="'+p+'"]'),o=w.querySelector('.sd-opt'),hide=p!==plan&&!expanded&&!owned(plan);
   w.toggleAttribute('data-hide',hide);w.inert=hide;o.toggleAttribute('data-owned',own);o.querySelector('input').disabled=own;
   const t=o.querySelector('.sd-opt-t'),tag=t.querySelector('.sd-tag');
   if(own&&!tag)t.append(el('span','sd-tag','Your current plan'));else if(!own&&tag)tag.remove();

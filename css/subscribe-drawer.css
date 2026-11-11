@@ -5,18 +5,18 @@ html[data-theme=dark] dialog.sd{--sd-bg:#0E0E11;--sd-soft:#16161B;--sd-ink:#F1F2
 dialog.sd{position:fixed;inset:0 0 0 auto;margin:0;padding:0;width:min(460px,100%);max-width:100%;height:100dvh;max-height:100dvh;border:0;background:transparent;color:var(--sd-ink);overflow:hidden;font-family:inherit}
 dialog.sd:not([open]){display:none}
 .sd-panel{position:relative;display:flex;flex-direction:column;height:100%;background:var(--sd-bg);border-left:1px solid var(--sd-line);box-shadow:-30px 0 60px -40px rgba(0,0,0,.6);will-change:transform}
-.sd-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:22px 22px 14px}
+.sd-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:clamp(14px,2.4vh,22px) 22px clamp(8px,1.6vh,14px)}
 .sd-head h2{margin:0;font-size:1.3rem;font-weight:650;letter-spacing:-.01em;color:var(--sd-ink)}
 .sd-x{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;border:1px solid var(--sd-line);background:transparent;color:var(--sd-ink);cursor:pointer;transition:background-color .3s,border-color .3s,transform .5s var(--sd-e)}
 .sd-x svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round}
 .sd-x:hover{background:color-mix(in srgb,var(--sd-gold) 14%,transparent);border-color:var(--sd-gold);transform:rotate(90deg)}
-.sd-body{flex:1;overflow:auto;overscroll-behavior:contain;padding:6px 22px 22px;display:flex;flex-direction:column;gap:26px}
-.sd-sec h3{margin:0 0 12px;font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--sd-mute)}
+.sd-body{flex:1;min-height:0;overflow:auto;overscroll-behavior:contain;padding:4px 22px 16px;display:flex;flex-direction:column;gap:clamp(14px,2.6vh,24px)}
+.sd-sec h3{margin:0 0 clamp(8px,1.4vh,12px);font-size:.78rem;font-weight:650;letter-spacing:.08em;text-transform:uppercase;color:var(--sd-mute)}
 .sd-opts{display:grid}
 .sd-wrap{display:grid;grid-template-rows:1fr;opacity:1;transition:grid-template-rows .6s var(--sd-e),opacity .45s var(--sd-e)}
 .sd-wrap[data-hide]{grid-template-rows:0fr;opacity:0;pointer-events:none}
 .sd-cell{min-height:0;overflow:hidden;padding:2px}
-.sd-opt{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:18px 16px;margin-bottom:10px;border:1px solid var(--sd-line);border-radius:16px;background:var(--sd-soft);cursor:pointer;transition:border-color .45s var(--sd-e),background-color .45s var(--sd-e),transform .45s var(--sd-e),opacity .4s}
+.sd-opt{position:relative;display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:14px;padding:clamp(12px,2vh,18px) 16px;margin-bottom:10px;border:1px solid var(--sd-line);border-radius:16px;background:var(--sd-soft);cursor:pointer;transition:border-color .45s var(--sd-e),background-color .45s var(--sd-e),transform .45s var(--sd-e),opacity .4s}
 .sd-opt:hover{border-color:color-mix(in srgb,var(--sd-gold) 55%,var(--sd-line))}
 .sd-opt:active{transform:scale(.985)}
 .sd-opt input,.sd-seg input{position:absolute;opacity:0;pointer-events:none}
@@ -43,7 +43,7 @@ html:not([data-theme=dark]) .sd-swap{color:var(--sd-lo)}
 .sd-seg label:has(input:checked){color:var(--sd-gi)}
 .sd-seg label:has(input:focus-visible){outline:2px solid var(--sd-gold);outline-offset:2px}
 .sd-seg em{font:inherit;font-family:inherit;color:inherit;font-style:normal;font-weight:700;font-size:.75rem;margin-left:6px;opacity:.9}.sd-seg em:empty{display:none}
-.sd-note{margin:12px 0 0;font-size:.8125rem;line-height:1.55;color:var(--sd-mute)}
+.sd-note{margin:clamp(8px,1.2vh,12px) 0 0;font-size:.8125rem;line-height:1.55;color:var(--sd-mute)}
 .sd-qty{display:inline-grid;grid-template-columns:46px 70px 46px;border:1px solid var(--sd-line);border-radius:14px;overflow:hidden;background:var(--sd-soft)}
 .sd-qty button{height:48px;border:0;background:transparent;color:var(--sd-ink);font-size:1.25rem;cursor:pointer;transition:background-color .3s,transform .4s var(--sd-e),opacity .3s}
 .sd-qty button:hover:not(:disabled){background:color-mix(in srgb,var(--sd-gold) 16%,transparent)}.sd-qty button:active:not(:disabled){transform:scale(.88)}.sd-qty button:disabled{opacity:.3;cursor:not-allowed}
@@ -84,7 +84,8 @@ dialog.sd[open]:not([data-closing]) .sd-sec:nth-child(2){animation-delay:.24s}
 dialog.sd[open]:not([data-closing]) .sd-sec:nth-child(3){animation-delay:.32s}
 dialog.sd[open]:not([data-closing]) .sd-sec:nth-child(4){animation-delay:.4s}
 dialog.sd[open]:not([data-closing]) .sd-foot{animation-delay:.46s}
-@media(max-width:520px){dialog.sd{width:100%}.sd-panel{border-left:0}.sd-head{padding:18px 16px 12px}.sd-body{padding:4px 16px 18px}.sd-foot{padding-inline:16px}.sd-go{padding:0 16px}.sd-slides{height:120px}}
+@media(max-height:780px){.sd-slides{height:96px}.sd-slide{padding:10px 14px;row-gap:6px}.sd-ico{width:34px;height:34px}.sd-pbtn{height:28px}.sd-seg label{height:40px}.sd-qty button,.sd-qty input{height:42px}.sd-swap{padding:2px 0}.sd-foot{padding-block:12px}.sd-promo{gap:8px}}
+@media(max-width:520px){dialog.sd{width:100%}.sd-panel{border-left:0}.sd-head{padding:18px 16px 12px}.sd-body{padding:4px 16px 18px}.sd-foot{padding-inline:16px}.sd-go{padding:0 16px}}
 @media(prefers-reduced-motion:reduce){.sd-slides::before{display:none}dialog.sd *,dialog.sd *::before,dialog.sd *::after{transition:none!important;animation:none!important}}
 html[data-checkout-step=billing] .license-entry{display:none!important}
 .sd-change{margin:4px 0 8px;padding:0;border:0;background:none;color:var(--ink);font:inherit;font-size:.875rem;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}

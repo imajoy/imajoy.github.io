@@ -151,6 +151,7 @@ function doPost(e) {
     var raw = (e && e.postData && e.postData.contents) || '';
     var data = {};
     try { data = JSON.parse(raw); } catch (err) { data = { email: (e && e.parameter && e.parameter.email) || '' }; }
+    if (data.type === 'contact-upload-remove') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleContactUploadRemove_(data.upload || {}))); }
     if (data.type === 'contact-upload') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleContactUpload_(data.upload || {}))); }
     if (data.type === 'contact') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleContact_(data.contact || {}))); }
     if (data.type === 'commerce') { out.setMimeType(ContentService.MimeType.JSON); return out.setContent(JSON.stringify(handleCommerceEnvelope_(data))); }
@@ -976,6 +977,18 @@ function handleContactUpload_(data) {
   file.token = sign_('contact-upload|' + [uploadId, n, a.name, a.type, a.bytes.length, a.sha, url].join('|'));
   return { ok: true, file: file };
 }
+/* The visitor removed a file or left the page without sending: the waiting file is trashed right away. Needs the signed receipt, and only touches files still named "unsent-". */
+function handleContactUploadRemove_(data) {
+  try {
+    var f = data.file || {}, uploadId = typeof data.uploadId === 'string' ? data.uploadId : '';
+    if (!/^[a-zA-Z0-9-]{20,80}$/.test(uploadId) || typeof f.name !== 'string' || !Number.isInteger(f.n) || !Number.isInteger(f.size)) return { ok: false };
+    if (f.token !== sign_('contact-upload|' + [uploadId, f.n, f.name, f.type, f.size, f.sha, f.url].join('|'))) return { ok: false };
+    var folders = DriveApp.getFoldersByName('Wrapline contact files'); if (!folders.hasNext()) return { ok: true };
+    var found = folders.next().getFilesByName('unsent-' + uploadId + '-' + f.n + '-' + f.name);
+    while (found.hasNext()) found.next().setTrashed(true);
+    return { ok: true };
+  } catch (error) { return { ok: false }; }
+}
 /* Checks the receipts sent back with the message; anything not signed here is refused. */
 function contactUploads_(data) {
   var list = Array.isArray(data.uploads) ? data.uploads : [], uploadId = typeof data.uploadId === 'string' ? data.uploadId : '', seen = {};
@@ -995,11 +1008,11 @@ function keepContactUpload_(stored, requestId, uploadId) {
     var found = folders.next().getFilesByName(stored); if (found.hasNext()) found.next().setName(requestId + stored.slice(('unsent-' + uploadId).length));
   } catch (error) {}
 }
-/* Files that were attached but never sent go to the Drive bin after two days (they stay recoverable there for 30 days). Runs with the hourly sent-mail labeller. */
+/* Files that were attached but never sent go to the Drive bin after six hours (they stay recoverable there for 30 days). Runs with the hourly sent-mail labeller. */
 function cleanContactUploads_() {
   try {
     var folders = DriveApp.getFoldersByName('Wrapline contact files'); if (!folders.hasNext()) return;
-    var files = folders.next().searchFiles('title contains "unsent-"'), cutoff = Date.now() - 2 * 86400000, done = 0;
+    var files = folders.next().searchFiles('title contains "unsent-"'), cutoff = Date.now() - 6 * 3600000, done = 0;
     while (files.hasNext() && done < 50) { var f = files.next(); if (/^unsent-/.test(f.getName()) && f.getDateCreated().getTime() < cutoff) { f.setTrashed(true); done++; } }
   } catch (error) {}
 }

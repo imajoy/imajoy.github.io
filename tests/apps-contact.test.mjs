@@ -99,3 +99,12 @@ test('files uploaded on attach are stored once, and the message accepts only rec
  assert.equal(upload('short',mediaFixtures[0]).error,'invalid');
  assert.equal(upload(uploadId,{...mediaFixtures[0],base64:'AAAA',size:3}).error,'attachment_invalid');
 });
+test('a file removed or abandoned before sending is deleted again, and only with its signed receipt',()=>{
+ const s=storageService();s.values.delete('CONTACT_GITHUB_TOKEN');
+ const call=(type,upload)=>JSON.parse(s.ctx.doPost({postData:{contents:JSON.stringify({type,upload})}}).text);
+ const uploadId=randomUUID(),a=call('contact-upload',{uploadId,file:mediaFixtures[0]});assert.equal(a.ok,true);
+ const folder=()=>s.drive.folders.get('Wrapline contact files').files;assert.equal(folder().size,1);
+ assert.equal(call('contact-upload-remove',{uploadId,file:{...a.file,token:'x'}}).ok,false,'bad receipt');assert.equal(folder().size,1);
+ assert.equal(call('contact-upload-remove',{uploadId:randomUUID(),file:a.file}).ok,false,'wrong upload id');assert.equal(folder().size,1);
+ assert.equal(call('contact-upload-remove',{uploadId,file:a.file}).ok,true);assert.equal(folder().size,0,'file is gone from the folder');
+});

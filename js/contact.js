@@ -91,7 +91,9 @@ if(form){
  function clearAttachment(resetInput=true){
   fileVersion++;selecting=false;submit.disabled=busy;files.forEach(dropEntry);files=[];uploadId=crypto.randomUUID();if(resetInput)fileInput.value='';list.hidden=true;setNote('');refreshSend();
  }
- function removeFile(entry){if(busy)return;const i=files.indexOf(entry);if(i<0)return;files.splice(i,1);entry.row.classList.add('is-leaving');setTimeout(()=>dropEntry(entry),motion.matches?0:260);entry.gone=true;entry.abort?.abort();list.hidden=!files.length;setNote(summary());fileInput.focus();}
+ /* A file that was uploaded early but is not going to be sent is deleted from the Drive folder again (the hourly clean-up is the safety net if this call never arrives). */
+ function discard(entry){if(!entry.receipt||entry.discarded)return;entry.discarded=true;const endpoint=window.AJOY_CONFIG?.sheetUrl;if(!endpoint)return;try{fetch(endpoint,{method:'POST',keepalive:true,headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'contact-upload-remove',upload:{uploadId:entry.uid,file:entry.receipt}})}).catch(()=>{});}catch{}}
+ function removeFile(entry){if(busy)return;const i=files.indexOf(entry);if(i<0)return;files.splice(i,1);discard(entry);entry.row.classList.add('is-leaving');setTimeout(()=>dropEntry(entry),motion.matches?0:260);entry.gone=true;entry.abort?.abort();list.hidden=!files.length;setNote(summary());refreshSend();fileInput.focus();}
  const svgIcon=(d,cls)=>{const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),path=document.createElementNS(ns,'path');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2.4');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');if(cls)svg.setAttribute('class',cls);path.setAttribute('d',d);svg.append(path);return svg;};
  function addRow(entry){
   const {file,info}=entry,item=document.createElement('div'),thumb=document.createElement('div'),text=document.createElement('div'),name=document.createElement('b'),meta=document.createElement('span'),track=document.createElement('div'),fill=document.createElement('i'),tag=document.createElement('em'),done=document.createElement('span'),remove=document.createElement('button');
@@ -117,11 +119,11 @@ if(form){
    if(!endpoint)throw Error('service');
    entry.abort=new AbortController();entry.row.dataset.state='uploading';entry.meta.textContent=label+' · Uploading';
    const base64=await readAttachment(file,fraction=>entry.paint(fraction*30));if(entry.gone)return;
-   const started=performance.now(),expected=2200+info.size/1048576*1800;
+   const uid=uploadId,started=performance.now(),expected=2200+info.size/1048576*1800;
    timer=setInterval(()=>{const t=(performance.now()-started)/expected;entry.paint(30+64*(1-Math.exp(-2.2*t)));},120);
    const response=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({type:'contact-upload',upload:{uploadId,file:{name:info.name,type:info.type,size:info.size,base64}}}),signal:AbortSignal.any?AbortSignal.any([entry.abort.signal,AbortSignal.timeout(90000)]):entry.abort.signal});
    if(!response.ok)throw Error('service');const result=await response.json();if(!result.ok||!result.file?.token)throw Error(result.error||'service');
-   if(entry.gone)return;clearInterval(timer);entry.receipt=result.file;entry.paint(100);
+   if(entry.gone){entry.receipt=result.file;entry.uid=uid;discard(entry);return;}clearInterval(timer);entry.receipt=result.file;entry.uid=uid;entry.paint(100);
    setTimeout(()=>{if(!entry.gone){entry.row.dataset.state='done';entry.meta.textContent=label+' · Uploaded';}},motion.matches?0:420);
   }catch(error){
    clearInterval(timer);if(entry.gone)return;
@@ -151,7 +153,7 @@ if(form){
  for(const type of ['dragenter','dragover'])picker.addEventListener(type,event=>{event.preventDefault();if(!busy)picker.setAttribute('data-dragging','');});
  picker.addEventListener('dragleave',event=>{if(!picker.contains(event.relatedTarget))picker.removeAttribute('data-dragging');});
  picker.addEventListener('drop',event=>{event.preventDefault();picker.removeAttribute('data-dragging');addFiles(event.dataTransfer.files);});
- window.addEventListener('pagehide',()=>{for(const entry of files)if(entry.url)URL.revokeObjectURL(entry.url);});
+ window.addEventListener('pagehide',event=>{if(!busy&&!event.persisted)files.forEach(discard);for(const entry of files)if(entry.url)URL.revokeObjectURL(entry.url);});
  form.addEventListener('submit',async event=>{
   event.preventDefault();if(busy||selecting||waiting()||!form.reportValidity())return;
   const payload={name:form.elements.name.value.trim(),email:form.elements.email.value.trim(),topic:form.elements.topic.value,message:form.elements.message.value.trim(),consent:form.elements.consent.checked,website:form.elements.website.value};

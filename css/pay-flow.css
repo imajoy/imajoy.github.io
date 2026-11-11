@@ -1,29 +1,24 @@
-/* Payment, step by step: the order summary page leads on to a clean page with only the payment methods. */
-.pay-next-wrap{display:grid;gap:10px;margin:6px 0 0}
-.pay-next{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none}
-.pay-next svg,.pay-back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .45s cubic-bezier(.22,1,.36,1)}
-@media(hover:hover) and (pointer:fine){.pay-next:hover svg{transform:translateX(4px)}.pay-back:hover svg{transform:translateX(-4px)}}
-.pay-next-note{margin:0;text-align:center;font-size:13px;color:var(--mute)}
-html[data-billing-blocked=true] .pay-next-wrap{display:none}
-/* summary page: the methods live on the next page */
-body.pay-review .payment-picker,body.pay-review .pay-skel{display:none!important}
-/* payment methods page: only the methods (plus the total) */
-body.pay-only .commerce-intro,body.pay-only .checkout-progress,body.pay-only .payment-billing-summary,body.pay-only .order-summary,body.pay-only .checkout-side,body.pay-only .offer-checkout,body.pay-only #yearly-upsell,body.pay-only #customer-verification,body.pay-only .m-total{display:none!important}
-body.pay-only .checkout-grid{display:block;max-width:640px;margin-inline:auto}
-body.pay-only .checkout-form{display:grid;gap:14px}
-body.pay-only main h1{margin-bottom:14px}
-.pay-back{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;font-size:14px;font-weight:600;color:var(--mute);text-decoration:none;transition:color .25s}
-.pay-back:hover{color:var(--ink)}
-.pay-total{order:-3;display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 18px;border:1px solid color-mix(in srgb,var(--gold,#F2B64F) 32%,var(--line));border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,var(--gold,#F2B64F) 12%,var(--card)),var(--card) 70%)}
-.pay-total span{font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--mute)}
-.pay-total strong{font-size:clamp(22px,6vw,28px);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-body.pay-only #availability:empty{display:none}
-@media(prefers-reduced-motion:no-preference){body.pay-only .pay-total{animation:pay-total-in .7s cubic-bezier(.22,1,.36,1) both}@keyframes pay-total-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}}
-body.pay-only #availability{display:none}
-html[data-billing-blocked=true] body.pay-only #availability{display:block}
-body.pay-only main .wrap>:is(.pay-back,.eyebrow,h1){max-width:640px;margin-inline:auto}
-body.pay-only main .wrap>.pay-back{display:flex;width:fit-content;max-width:640px;margin-left:max(0px,calc(50% - 320px))}
-
+/* One payment page: the methods lead, the order summary sits beside them (below on phones). */
+body.pay-single .payment-picker,body.pay-single .pay-skel{order:-2}
+body.pay-single .razorpay-panel .rzp-head,body.pay-single .razorpay-panel .rzp-methods,body.pay-single .razorpay-panel .rzp-coupon,body.pay-single .razorpay-panel .terms-in-card{display:none!important}
+/* "Today you'll be charged" as a quiet row, not a big number */
+body.pay-single .razorpay-panel .rzp-total{display:flex;align-items:baseline;justify-content:space-between;gap:14px;flex-wrap:wrap;padding:20px 24px 14px;border-bottom:1px solid var(--line)}
+body.pay-single .razorpay-panel .rzp-total small{font-size:14px;font-weight:500;letter-spacing:0;text-transform:none;color:var(--ink)}
+body.pay-single .razorpay-panel .razorpay-amount{margin:0;gap:2px 10px;justify-content:flex-end;font-size:17px;font-weight:700}
+body.pay-single .razorpay-panel .razorpay-amount *{font-size:inherit}
+body.pay-single .razorpay-panel .razorpay-amount small{font-size:13px;font-weight:500;color:var(--mute);text-transform:none;letter-spacing:0}
+/* the pay button: solid, calm, tactile */
+body.pay-single .razorpay-panel .rzp-pay{height:56px;margin-top:18px;border-radius:14px;font-size:16px;font-weight:650;letter-spacing:.005em;background:linear-gradient(180deg,color-mix(in srgb,var(--gold-hi,#FFE2A0) 55%,var(--gold,#F2B64F)),var(--gold,#F2B64F))!important;color:var(--g-ink,#1A1204)!important;border:1px solid color-mix(in srgb,var(--gold-lo,#B27712) 70%,transparent)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.25),0 10px 18px -14px var(--gold-lo,#B27712)!important;transition:transform .35s cubic-bezier(.22,1,.36,1),filter .3s,box-shadow .35s}
+body.pay-single .razorpay-panel .rzp-pay:not(:disabled):active{transform:translateY(1px) scale(.992);filter:brightness(.96);box-shadow:inset 0 1px 2px rgba(0,0,0,.25),0 4px 8px -6px var(--gold-lo,#B27712)!important}
+@media(hover:hover) and (pointer:fine){body.pay-single .razorpay-panel .rzp-pay:not(:disabled):hover{transform:translateY(-1px);filter:brightness(1.04)}}
+body.pay-single .razorpay-panel .rzp-pay:disabled{filter:grayscale(.55) brightness(.9);opacity:.55;cursor:not-allowed}
+.pay-note{display:grid;gap:12px;margin:16px 24px 0}
+.pay-secure{display:flex;align-items:center;gap:9px;margin:0;font-size:14px;color:var(--mute)}
+.pay-secure svg{width:17px;height:17px;flex:none;fill:none;stroke:var(--gold-lo,#B27712);stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+html[data-theme=dark] .pay-secure svg{stroke:var(--gold,#F2B64F)}
+.pay-agree{margin:0;font-size:12.5px;line-height:1.6;color:var(--mute)}
+.pay-agree a{color:inherit;text-decoration:underline;text-underline-offset:2px}
+@media(max-width:560px){body.pay-single .razorpay-panel .rzp-total{padding-inline:18px}.pay-note{margin-inline:18px}}
 /* coupon under the order total */
 .sum-coupon{display:grid;gap:10px;margin:16px 0 4px;padding-top:16px;border-top:1px solid var(--line)}
 .sum-coupon-t{margin:0;font-size:14px;font-weight:700;color:var(--gold-lo,#B27712)}
@@ -38,3 +33,12 @@ html[data-theme=dark] .sum-coupon-t{color:var(--gold,#F2B64F)}
 .sum-coupon-msg[data-kind=error]{color:#d4483b}.sum-coupon-msg[data-kind=ok]{color:#1f9d6b}
 html[data-theme=dark] .sum-coupon-msg[data-kind=error]{color:#ff8f86}html[data-theme=dark] .sum-coupon-msg[data-kind=ok]{color:#58d6a1}
 .sum-coupon-remove{justify-self:start;background:none;border:0;padding:0;cursor:pointer}
+/* layout: methods first */
+body.pay-single .checkout-form{display:flex;flex-direction:column}
+body.pay-single .payment-billing-summary{order:3;margin:22px 0 0}
+body.pay-single .payment-picker{margin:0}
+body.pay-single .payment-picker{padding:16px;border-radius:24px;background:var(--card);box-shadow:none}
+body.pay-single .payment-picker::before,body.pay-single .payment-picker::after,body.pay-single .pay-skel::before{display:none!important}
+body.pay-single .pay-skel{padding:16px}
+@media(max-width:800px){body.pay-single .order-summary{grid-row:auto}body.pay-single .checkout-side{order:2}}
+@media(max-width:420px){body.pay-single .payment-picker{padding:10px}}

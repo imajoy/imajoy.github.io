@@ -1,20 +1,12 @@
-/* Payment is two short steps: "payment" (order summary + billing details) and "pay" (only the payment methods).
-   Both pages run the same payment code; this file only adds the small bridge between them. */
-const body=document.body,view=body.dataset.payView,params=new URLSearchParams(location.search);
+/* Payment page extras: a coupon box under the order total, and the secure-payment note under the pay button. */
+const body=document.body,view=body.classList.contains('pay-single')?'single':'',params=new URLSearchParams(location.search);
 const returning=/^[-a-f0-9]{36}$/i.test(params.get('checkout')||'');
 const form=document.querySelector('#billing-form');
 const el=(tag,cls,html)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e;};
 const ARROW='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>';
 /* Coming back from PayPal or Razorpay the result is shown on the payment methods themselves, so keep them visible there. */
-if(view==='review'&&returning)body.classList.remove('pay-review');
-if(view==='review'&&!returning&&form){
- const next=el('a','btn btn-blue btn-block pay-next','<span>Continue to payment</span>'+ARROW);
- next.href='pay.html';next.dataset.payNext='';
- const note=el('p','pay-next-note','Next: choose Cards, UPI, net banking or PayPal.');
- const wrap=el('div','pay-next-wrap');wrap.append(next,note);form.append(wrap);
-}
 /* Order summary: a coupon box under the total. It drives the page's own coupon controls, so prices, checks and messages stay exactly the same. */
-if(view==='review'&&!returning&&form){
+if(view==='single'&&!returning&&form){
  const side=document.querySelector('.order-summary'),total=side?.querySelector('.order-total'),orig={input:document.querySelector('#coupon-code'),apply:document.querySelector('#coupon-apply'),status:document.querySelector('#coupon-status'),remove:document.querySelector('#coupon-remove')};
  if(total&&orig.input&&orig.apply&&orig.status&&orig.remove){
   const box=el('div','sum-coupon','<p class="sum-coupon-t">Have a coupon code?</p><div class="sum-coupon-row"><input type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code"><button type="button" class="btn btn-light">Apply</button></div><p class="sum-coupon-msg" role="status" aria-live="polite"></p><button type="button" class="text-link sum-coupon-remove" hidden>Remove coupon</button>');
@@ -35,23 +27,14 @@ if(view==='review'&&!returning&&form){
   sync();
  }
 }
-/* Going on to the payment methods: remember the coupon with the saved checkout details so the next page prices it the same way. */
-document.querySelector('[data-pay-next]')?.addEventListener('click',()=>{
- try{
-  const draft=JSON.parse(sessionStorage.getItem('ajoy.billing-draft')||'null'),applied=document.querySelector('#coupon-remove'),code=String(document.querySelector('#coupon-code')?.value||'').trim().toUpperCase();
-  if(!draft)return;
-  if(applied&&!applied.hidden&&/^[A-Z0-9][A-Z0-9-]{2,31}$/.test(code))draft.coupon=code;else delete draft.coupon;
-  sessionStorage.setItem('ajoy.billing-draft',JSON.stringify(draft));
- }catch{}
-});
-if(view==='options'){
- const wrap=document.querySelector('main .wrap');
- if(wrap){const back=el('a','pay-back','<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg><span>Order summary</span>');back.href='payment.html';wrap.prepend(back);}
- if(form){
-  const total=el('div','pay-total','<span>Total today</span><strong>—</strong>');
-  const out=total.querySelector('strong'),src=document.querySelector('#summary-total');
-  const sync=()=>{const t=(src?.textContent||'').trim();out.textContent=t||'—';};
-  if(src)new MutationObserver(sync).observe(src,{childList:true,characterData:true,subtree:true});
-  sync();form.prepend(total);
- }
+/* Under the pay button: a quiet secure-payment line and the agreement. The agreement checkbox was ticked on the billing page; it stays ticked in the form. */
+if(view==='single'&&form){
+ const LOCK='<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V7.8a3.5 3.5 0 0 1 7 0v2.7"/></svg>';
+ const add=()=>{
+  const btn=document.querySelector('.razorpay-panel [data-razorpay-start]');
+  if(!btn||btn.parentElement.querySelector('.pay-secure'))return !!btn;
+  const wrap=el('div','pay-note','<p class="pay-secure">'+LOCK+'<span>Encrypted and secure payments</span></p><p class="pay-agree">By paying you agree to the <a href="license.html" target="_blank" rel="noopener">license terms</a> and <a href="privacy.html" target="_blank" rel="noopener">privacy notice</a>, and understand this is a recurring subscription. You can cancel renewal at any time.</p>');
+  btn.after(wrap);return true;
+ };
+ if(!add()){const mo=new MutationObserver(()=>{if(add())mo.disconnect();});mo.observe(form,{childList:true,subtree:true});}
 }

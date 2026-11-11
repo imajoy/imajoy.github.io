@@ -61,3 +61,15 @@ body.bill-v2.bc-page .sc-acc{border-radius:16px}
 body.bill-v2.bc-page .sc-lock svg{stroke:var(--acc)}
 body.bill-v2 :is(.pay-bar,.sticky-pay,[class*=paybar]) button,body.bill-v2 .checkout-continue .btn{background:linear-gradient(135deg,var(--gold-hi),var(--gold))!important;color:var(--g-ink)!important;box-shadow:0 14px 28px -16px color-mix(in srgb,var(--gold) 85%,transparent)!important}
 body.bill-v2 .m-total button{background:linear-gradient(135deg,var(--gold-hi),var(--gold))!important;color:var(--g-ink)!important;box-shadow:0 14px 28px -16px color-mix(in srgb,var(--gold) 85%,transparent)!important}
+
+/* reward steps: gold badges with dark ink (the blue badges clashed with the gold checkout, and gold text on blue was hard to read) */
+body.bill-v2 .rs-pct{background:linear-gradient(145deg,var(--gold-hi),var(--gold));color:var(--g-ink)!important;box-shadow:0 8px 16px -8px color-mix(in srgb,var(--gold-lo) 70%,transparent),inset 0 1px 0 rgba(255,255,255,.55)}
+body.bill-v2 .reward-steps li:nth-child(3) .rs-pct{background:linear-gradient(145deg,#F6C46A,#E48F2E);box-shadow:0 8px 16px -8px rgba(178,119,18,.8),inset 0 1px 0 rgba(255,255,255,.45)}
+body.bill-v2 .reward-steps li{border-color:color-mix(in srgb,var(--gold) 38%,var(--line))}
+body.bill-v2 .reward-steps li:hover{border-color:var(--gold-lo);box-shadow:0 10px 24px -12px color-mix(in srgb,var(--gold-lo) 55%,transparent)}
+body.bill-v2 .customer-verification{border-color:color-mix(in srgb,var(--gold) 40%,var(--line))}
+body.bill-v2 .customer-verification::before{background:radial-gradient(closest-side,color-mix(in srgb,var(--gold) 26%,transparent),transparent)}
+@media (prefers-reduced-motion:no-preference){
+ @keyframes rs-glow-g{0%,22%,100%{box-shadow:0 0 0 0 transparent}8%{box-shadow:0 0 0 4px color-mix(in srgb,var(--gold) 28%,transparent)}}
+ body.bill-v2 .reward-steps li{animation-name:rs-glow-g}
+}

@@ -34,6 +34,7 @@ html[data-theme=dark] .nb-visa,html[data-theme=dark] .nb-rupay,html[data-theme=d
  .payment-picker:not([hidden]) .pay-item{animation:pay-rise .8s var(--ez) both}
  .payment-picker:not([hidden]) .pay-item:nth-of-type(2){animation-delay:.09s}
  .payment-picker:not([hidden]) .pay-item:nth-of-type(3){animation-delay:.18s}
+ .payment-picker:not([hidden]) .pay-item:nth-of-type(4){animation-delay:.27s}
  @keyframes pay-rise{from{opacity:0;transform:translateY(46px) scale(.95)}to{opacity:1;transform:none}}
  .payment-picker:not([hidden])::after{content:"";position:absolute;left:50%;top:13px;width:44%;max-width:190px;height:2px;transform:translateX(-50%) scaleX(0);border-radius:2px;background:linear-gradient(90deg,transparent,var(--gd),transparent);animation:pay-slot .9s .1s var(--ez) both}
  @keyframes pay-slot{0%{opacity:0;transform:translateX(-50%) scaleX(0)}40%{opacity:1}100%{opacity:0;transform:translateX(-50%) scaleX(1.25)}}
@@ -58,3 +59,7 @@ html[data-theme=dark] .nb-visa,html[data-theme=dark] .nb-rupay,html[data-theme=d
 @keyframes pay-breathe{50%{opacity:.55}}
 @media(prefers-reduced-motion:reduce){.pay-skel .sk-chip{animation:none}}
 @media(max-width:420px){.payment-picker{padding:28px 10px 12px;border-radius:24px}.payment-picker .pay-item>label{column-gap:12px;padding:14px 12px 14px 12px}.pk-t b{font-size:15px}.pay-skel{padding:28px 10px 12px}}
+
+/* one row per way to pay: the method chips and the UPI note belong to their own rows now */
+.payment-picker .rzp-methods{display:none}
+.payment-picker:not([data-m=upi]) .rzp-hint{display:none!important}

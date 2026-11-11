@@ -25,8 +25,13 @@ if(form&&paypal&&url){
   const radio=label.querySelector('input');radio.setAttribute('aria-controls',body.id);
   picker.append(item);inner.append(node);body.append(inner);item.append(label,body);accItems.push(item);
  }
+ /* Razorpay shows one row per way to pay in India (Card, UPI, Net banking); the single panel moves into the open row. */
+ let rzpMethod='card';
+ const razorpayItem=accItems[0];razorpayItem.dataset.m='card';razorpayItem.querySelector('input').dataset.m='card';
+ const extraRow=(m,title,small,nets)=>{const label=document.createElement('label');label.hidden=true;label.innerHTML='<input type="radio" name="payment-provider" value="razorpay" data-m="'+m+'"><span class="pk-t"><b>'+title+'</b><small>'+small+'</small><em class="nets" aria-hidden="true">'+nets+'</em></span><svg class="acc-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';const item=document.createElement('div'),body=document.createElement('div'),inner=document.createElement('div');item.className='pay-item';item.dataset.key='razorpay';item.dataset.m=m;body.className='acc-body';inner.className='acc-inner';body.id='acc-razorpay-'+m;label.querySelector('input').setAttribute('aria-controls',body.id);body.append(inner);item.append(label,body);accItems.push(item);return item;};
+ razorpayItem.after(extraRow('upi','UPI','Any UPI app: Google Pay, PhonePe, Paytm','<i class="nb nb-upi">UPI</i>'),extraRow('netbanking','Net banking','Pay from your bank account','<i class="nb">Net banking</i>'));
  picker.dataset.acc='';
- const syncAcc=()=>{for(const item of accItems){const open=item.dataset.key===provider;item.toggleAttribute('data-open',open);const body=item.querySelector('.acc-body');body.inert=!open;item.querySelector('input').setAttribute('aria-expanded',String(open));}};
+ const syncAcc=()=>{picker.dataset.m=rzpMethod;for(const item of accItems){const open=item.dataset.key===provider&&(provider!=='razorpay'||item.dataset.m===rzpMethod);item.toggleAttribute('data-open',open);const body=item.querySelector('.acc-body');if(open&&provider==='razorpay'){const inner=body.querySelector('.acc-inner');if(panel.parentElement!==inner)inner.append(panel);}body.inert=!open;item.querySelector('input').setAttribute('aria-expanded',String(open));}};
  const skel=document.createElement('div');skel.className='pay-skel';skel.setAttribute('aria-hidden','true');skel.innerHTML='<span class="sk-bar sk-lg"></span>'+'<div class="sk-card"><i class="sk-chip"></i><span class="sk-t"><span class="sk-bar"></span><span class="sk-bar sk-s"></span></span><span class="sk-bar sk-logo"></span></div>'.repeat(2);picker.before(skel);
  const status=panel.querySelector('.razorpay-status'),start=panel.querySelector('[data-razorpay-start]'),check=panel.querySelector('[data-razorpay-check]'),link=panel.querySelector('[data-razorpay-open]'),cancelBtn=panel.querySelector('[data-razorpay-cancel]');
  const pageCoupon={input:document.querySelector('#coupon-code'),remove:document.querySelector('#coupon-remove'),status:document.querySelector('#coupon-status')};
@@ -84,7 +89,7 @@ if(form&&paypal&&url){
  }
  function selected(next){
   provider=next;document.documentElement.dataset.paymentProvider=provider;
-  for(const radio of picker.querySelectorAll('input'))radio.checked=radio.value===provider;
+  for(const radio of picker.querySelectorAll('input[name="payment-provider"]'))radio.checked=radio.value===provider&&(provider!=='razorpay'||radio.dataset.m===rzpMethod);
   panel.hidden=provider!=='razorpay';paypal.hidden=provider!=='paypal';
   review.hidden=provider!=='review';
   // Offers and coupons work with PayPal and Razorpay alike.
@@ -102,7 +107,7 @@ if(form&&paypal&&url){
   const c=choice(),country=c.country,canRazorpay=razorpayAvailable(config,country),canPaypal=!!paypalConfig?.clientId&&/^[A-Z]{2}$/.test(country)&&availability(country,paypalConfig.closedCountries||[]).open&&(document.documentElement.dataset.billingTester==='true'||countryCheck(country,paypalConfig.mode==='live'?paypalConfig.country:'').ok)&&!!paypalConfig.plans?.tiers?.[tierFor(country)]?.[c.plan]?.[c.billing];
   if(!restoredProvider&&(canRazorpay||canPaypal)){restoredProvider=true;if(draft?.provider==='razorpay'&&canRazorpay)selected('razorpay');}
   if(!prefApplied&&(canRazorpay||canPaypal)&&cachedProfile()!==undefined){prefApplied=true;const want=savedPref();if(!userPicked&&!draft?.provider&&want){if(want==='razorpay'&&canRazorpay)selected('razorpay');else if(want==='paypal'&&canPaypal)selected('paypal');}}
-  pickLabels();picker.hidden=!canRazorpay&&!canPaypal;picker.querySelector('[value="razorpay"]').parentElement.hidden=!canRazorpay;picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
+  pickLabels();picker.hidden=!canRazorpay&&!canPaypal;if(c.country!=='IN'&&rzpMethod!=='card'){rzpMethod='card';if(provider==='razorpay')syncAcc();}for(const r of picker.querySelectorAll('[value="razorpay"]'))r.parentElement.hidden=!canRazorpay||(r.dataset.m!=='card'&&c.country!=='IN');picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
   if(!canRazorpay&&!canPaypal&&provider!=='review')selected('review');
   else if(canRazorpay&&!canPaypal&&provider!=='razorpay')selected('razorpay');
   else if(canPaypal&&(provider==='review'||provider==='razorpay'&&!canRazorpay))selected('paypal');
@@ -180,9 +185,9 @@ if(form&&paypal&&url){
  /* Method names, currency and card networks follow the billing country (also while PayPal is the open method). */
  function pickLabels(){
   const local=choice().country==='IN',cur=rzpCurrency(),t=picker.querySelector('[data-rzp-title]'),sm=picker.querySelector('[data-rzp-pick]'),n=picker.querySelector('[data-rzp-nets]');
-  if(t)t.textContent=local?'Cards, UPI & net banking':'International cards';
-  if(sm)sm.textContent='Pay in '+cur+' · secure checkout by Razorpay';
-  if(n){const want=local?'VISA,Mastercard,RuPay,UPI':'VISA,Mastercard,Amex';if(n.dataset.set!==want){n.dataset.set=want;n.replaceChildren(...want.split(',').map(x=>Object.assign(document.createElement('i'),{className:'nb nb-'+x.toLowerCase(),textContent:x})));}}
+  if(t)t.textContent=local?'Card':'International cards';
+  if(sm)sm.textContent=local?'Credit or debit card · pay in '+cur:'Pay in '+cur+' · secure checkout by Razorpay';
+  if(n){const want=local?'VISA,Mastercard,RuPay':'VISA,Mastercard,Amex';if(n.dataset.set!==want){n.dataset.set=want;n.replaceChildren(...want.split(',').map(x=>Object.assign(document.createElement('i'),{className:'nb nb-'+x.toLowerCase(),textContent:x})));}}
  }
  /* Load the Razorpay window code while the customer reads the page, so pressing Pay opens it at once. Only when Razorpay is the chosen method. */
  let warmed=false;
@@ -285,7 +290,7 @@ if(form&&paypal&&url){
    let paid=false,failure='';
    const rzp=new window.Razorpay({key:config.keyId,subscription_id:result.subscriptionId,name:'Wrapline Pro',
     description:(trialing?'4-day free trial · then ':'')+'Wrapline Pro '+(sel.plan==='offline'?'Premium':'Basic')+' · '+sel.billing+' · '+sel.seats+' license(s)',
-    prefill:{email:getAccountSession().email,name:form.elements.name.value},theme:{color:'#2A64E8'},remember_customer:cachedProfile()?.saveCard===true,
+    prefill:{email:getAccountSession().email,name:form.elements.name.value,method:rzpMethod},theme:{color:'#2A64E8'},remember_customer:cachedProfile()?.saveCard===true,
     handler:()=>{paid=true;goThankYou(result.checkoutId,sel);},
     modal:{escape:true,confirm_close:true,ondismiss:()=>{if(!paid)abandon(result.checkoutId,failure);}}});
    rzp.on('payment.failed',event=>{failure=(event?.error?.description||'The bank declined the payment.').replace(/\.?$/,'.');say('Payment failed: '+failure+' Try another card or method in the Razorpay window, or close it to cancel.','error');});
@@ -296,7 +301,7 @@ if(form&&paypal&&url){
  check.onclick=confirm;
  cancelBtn.onclick=()=>{if(pending&&!busy)abandon(pending.id,'');};
  window.addEventListener('focus',()=>{if(provider==='razorpay'&&pending&&usingPopup)confirm();});
- for(const radio of picker.querySelectorAll('input'))radio.onchange=()=>{userPicked=true;selected(radio.value);if(getAccountSession())saveProfile({payment:radio.value}).catch(()=>{});};
+ for(const radio of picker.querySelectorAll('input'))radio.onchange=()=>{userPicked=true;if(radio.dataset.m)rzpMethod=radio.dataset.m;selected(radio.value);if(getAccountSession())saveProfile({payment:radio.value}).catch(()=>{});};
  for(const name of ['plan','billing','seats','country'])form.elements[name].addEventListener('change',()=>{sync();if(provider==='razorpay')refresh();});
  form.elements.seats.addEventListener('input',()=>{if(provider==='razorpay')refresh();});
  document.addEventListener('ajoy:currency-ready',()=>{if(provider==='razorpay')paint();});

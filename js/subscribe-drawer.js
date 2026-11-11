@@ -24,6 +24,33 @@ async function quoteFor(plan,billing){
  cache.set(k,p);const q=await p;if(!q)cache.delete(k);return q;
 }
 async function formatter(q){if(q?.currency==='USD'){if(fmt===null)fmt=await localFormatter(cachedGeo()).catch(()=>false);if(fmt)return c=>fmt(c);}return c=>money(c,q.currency);}
+let promoSig='',promoIdx=0,promoTimer=0;
+const ICON={year:'<path d="M4 7h16M7 3v4M17 3v4M5 7v12h14V7M9 14l2 2 4-4"/>',offline:'<path d="M12 3v9M7.5 6.5a7 7 0 1 0 9 0"/>',fresh:'<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/>',team:'<path d="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19M10 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM20 19v-1.5a3.5 3.5 0 0 0-2.5-3.3M15.5 5.2a3 3 0 0 1 0 5.6"/>'};
+function promoList(){
+ const {plan,billing,seats}=state,other=plan==='online'?'offline':'online',pct=YEARLY_PERCENT?.[plan],list=[];
+ if(billing==='monthly'&&pct)list.push({k:'year',t:'Pay yearly and keep '+pct+'% more',d:'Compared with 12 monthly payments, billed once a year.',b:'Switch to yearly',a:()=>{state.billing='yearly';}});
+ if(!owned(other))list.push(plan==='online'?{k:'offline',t:'Need it without internet?',d:'Premium has all 14 tools and runs offline. You decide when to update.',b:'See Premium',a:()=>{state.plan='offline';expanded=false;}}:{k:'fresh',t:'Always the newest tools',d:'Basic keeps all 10 Pro tools up to date, every time Maya starts.',b:'See Basic',a:()=>{state.plan='online';expanded=false;}});
+ if(seats<100)list.push({k:'team',t:'Working with a team?',d:'One license covers one computer, so add a license for each machine.',b:'Add a license',a:()=>{state.seats=Math.min(100,state.seats+1);dlg.querySelector('.sd-qty input').value=String(state.seats);}});
+ return list;
+}
+function promoShow(i,instant){
+ const slides=[...dlg.querySelectorAll('.sd-slide')],dots=[...dlg.querySelectorAll('.sd-dots button')];if(!slides.length)return;
+ promoIdx=(i+slides.length)%slides.length;
+ slides.forEach((n,j)=>{n.toggleAttribute('data-on',j===promoIdx);n.dataset.pos=j<promoIdx?'prev':j>promoIdx?'next':'now';n.inert=j!==promoIdx;});
+ dots.forEach((d,j)=>{d.toggleAttribute('data-on',j===promoIdx);d.setAttribute('aria-selected',String(j===promoIdx));});
+ clearTimeout(promoTimer);if(!reduce()&&slides.length>1&&dlg.open)promoTimer=setTimeout(()=>promoShow(promoIdx+1),5200);
+}
+function promoPaint(){
+ const list=promoList(),sig=list.map(x=>x.k).join('|');if(sig===promoSig)return;promoSig=sig;
+ const box=dlg.querySelector('.sd-slides'),dots=dlg.querySelector('.sd-dots');box.replaceChildren();dots.replaceChildren();
+ list.forEach((x,j)=>{
+  const n=el('div','sd-slide');n.innerHTML='<span class="sd-ico"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[x.k]+'</svg></span><div class="sd-slide-t"><b></b><small></small></div><button type="button" class="sd-pbtn"></button>';
+  n.querySelector('b').textContent=x.t;n.querySelector('small').textContent=x.d;const bt=n.querySelector('button');bt.textContent=x.b;
+  bt.addEventListener('click',()=>{x.a();promoSig='';paint();});box.append(n);
+  const d=el('button');d.type='button';d.setAttribute('role','tab');d.setAttribute('aria-label','Offer '+(j+1));d.addEventListener('click',()=>promoShow(j));dots.append(d);
+ });
+ dots.hidden=list.length<2;promoIdx=Math.min(promoIdx,list.length-1);promoShow(promoIdx);
+}
 function build(){
  dlg=el('dialog','sd');dlg.setAttribute('aria-labelledby','sd-title');
  dlg.innerHTML='<div class="sd-panel"><header class="sd-head"><h2 id="sd-title">Choose your plan</h2><button type="button" class="sd-x" aria-label="Close">'+X+'</button></header>'+
@@ -33,8 +60,10 @@ function build(){
  '<section class="sd-sec" aria-labelledby="sd-h2"><h3 id="sd-h2">Billing period</h3><div class="sd-seg" role="radiogroup" aria-labelledby="sd-h2">'+
  '<label><input type="radio" name="sd-bill" value="monthly"><span>Monthly</span></label><label><input type="radio" name="sd-bill" value="yearly"><span>Yearly <em data-save></em></span></label></div><p class="sd-note" data-bnote></p></section>'+
  '<section class="sd-sec" aria-labelledby="sd-h3"><h3 id="sd-h3">Number of licenses</h3><div class="sd-qty"><button type="button" data-q="-1" aria-label="Remove one license">−</button><input type="number" inputmode="numeric" min="1" max="100" step="1" value="1" aria-labelledby="sd-h3"><button type="button" data-q="1" aria-label="Add one license">+</button></div><p class="sd-note">One license covers one computer. Choose 1–100.</p></section>'+
+ '<section class="sd-promo" aria-label="Good to know"><div class="sd-slides" aria-live="off"></div><div class="sd-dots" role="tablist" aria-label="Offers"></div></section>'+
  '</div><footer class="sd-foot"><div class="sd-sum"><strong data-total>—</strong><small data-sub>Subtotal</small></div><button type="button" class="sd-go"><span>Continue to checkout</span></button></footer></div>';
  document.body.append(dlg);
+ {const pr=dlg.querySelector('.sd-promo');pr.addEventListener('pointerenter',()=>clearTimeout(promoTimer));pr.addEventListener('pointerleave',()=>promoShow(promoIdx));}
  const qty=dlg.querySelector('.sd-qty input');
  const clampQty=()=>{const n=Math.round(Number(qty.value));return Number.isFinite(n)?Math.min(100,Math.max(1,n)):1;};
  dlg.addEventListener('change',e=>{
@@ -56,6 +85,7 @@ function build(){
 }
 async function paint(quiet){
  const my=++rev,{plan,billing,seats}=state;
+ promoPaint();
  for(const r of dlg.querySelectorAll('input[name=sd-plan]'))r.checked=r.value===plan;
  const other=plan==='online'?'offline':'online';
  for(const p of ['online','offline']){
@@ -118,7 +148,7 @@ export function openPlanDrawer(opts={}){
 function close(){
  if(!dlg||!dlg.open)return;
  const panel=dlg.querySelector('.sd-panel');dlg.setAttribute('data-closing','');
- const done=()=>{dlg.removeAttribute('data-closing');if(dlg.open)dlg.close();};
+ const done=()=>{clearTimeout(promoTimer);dlg.removeAttribute('data-closing');if(dlg.open)dlg.close();};
  if(reduce())return done();
  panel.animate([{transform:'none'},{transform:'translateX(100%)'}],{duration:300,easing:'cubic-bezier(.4,0,.2,1)'}).finished.then(done,done);
 }

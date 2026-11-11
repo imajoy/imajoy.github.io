@@ -98,3 +98,26 @@
  .policy-end{margin-top:40px}
  .policy-end .btn{width:100%;text-align:center;justify-content:center}
 }
+
+/* at a glance: icon tile + title + text */
+.policy-highlights{box-shadow:0 1px 2px rgba(20,30,60,.04),0 14px 30px -24px rgba(20,30,60,.25)}
+.policy-highlights article{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:16px;align-items:start;padding:28px 30px;transform:none!important}
+.policy-highlights .pg-ic{grid-row:1 / span 2;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;background:color-mix(in srgb,var(--blue) 10%,transparent);color:var(--blue-d)}
+.policy-highlights .pg-ic svg{width:22px;height:22px}
+.policy-highlights h2{margin:2px 0 8px}
+.policy-highlights p{grid-column:2}
+html[data-theme=dark] .policy-highlights .pg-ic{background:color-mix(in srgb,var(--blue) 18%,transparent);color:#9cc0ff}
+@media(max-width:980px){.policy-highlights article{padding:22px 20px;column-gap:14px}}
+@media(max-width:680px){.policy-highlights article{padding:16px 18px;grid-template-columns:38px minmax(0,1fr)}.policy-highlights .pg-ic{width:38px;height:38px;border-radius:10px}.policy-highlights .pg-ic svg{width:20px;height:20px}.policy-highlights h2{margin:0 0 4px}}
+
+/* at a glance: icon + text, calmer band; no cursor glow or hover lift on these pages */
+.policy-page :is(.btn,.policy-highlights article,.policy-help,.policy-switch a)::before{content:none!important;display:none!important}
+.policy-page .policy-highlights article,.policy-page .policy-highlights article:hover{transform:none!important;box-shadow:none!important;translate:none!important}
+.policy-highlights{margin-bottom:72px;border-radius:18px}
+.policy-highlights article{display:grid;grid-template-columns:44px minmax(0,1fr);column-gap:16px;align-items:start;padding:28px 30px}
+.policy-highlights .ph-ic{grid-row:1 / span 2;display:grid;place-items:center;width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:var(--t05);color:var(--blue-d)}
+.policy-highlights .ph-ic svg{width:21px;height:21px}
+.policy-highlights h2{margin:2px 0 8px;font-size:1.0625rem}
+.policy-highlights p{font-size:.875rem;line-height:1.65}
+@media(max-width:980px) and (min-width:681px){.policy-highlights article{grid-template-columns:1fr;row-gap:0;padding:24px}.policy-highlights .ph-ic{grid-row:auto;margin-bottom:16px}}
+@media(max-width:680px){.policy-highlights article{grid-template-columns:40px minmax(0,1fr);column-gap:14px;padding:16px 18px}.policy-highlights .ph-ic{width:40px;height:40px;border-radius:11px}.policy-highlights .ph-ic svg{width:19px;height:19px}.policy-highlights h2{font-size:.9375rem;margin:1px 0 4px}}

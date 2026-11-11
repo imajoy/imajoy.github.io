@@ -1,0 +1,30 @@
+/* Checkout, calmer: solid buttons and flat tints instead of gold gradients and glows. Loaded last on the billing and payment pages. */
+html{--cb-bg:#17181B;--cb-fg:#fff}
+html[data-theme=dark]{--cb-bg:#F1F2F4;--cb-fg:#0B0B0D}
+/* primary buttons */
+html body.bill-v2 :is(.btn-blue,#pay,.mobile-pay .btn,.m-total button,[data-continue-payment],.rzp-pay,.pay-next,.sd-go){background:var(--cb-bg)!important;color:var(--cb-fg)!important;border:1px solid var(--cb-bg)!important;border-radius:10px!important;box-shadow:none!important;font-weight:600!important;letter-spacing:0!important;text-shadow:none!important;filter:none!important;transition:opacity .25s,transform .3s cubic-bezier(.22,1,.36,1)!important}
+html body.bill-v2 :is(.btn-blue,#pay,.m-total button,[data-continue-payment],.rzp-pay,.pay-next):not(:disabled):hover{opacity:.9;transform:none!important;filter:none!important}
+html body.bill-v2 :is(.btn-blue,#pay,.m-total button,[data-continue-payment],.rzp-pay,.pay-next):not(:disabled):active{transform:scale(.985)!important}
+html body.bill-v2 :is(.btn-blue,#pay,.m-total button,[data-continue-payment],.rzp-pay):disabled{opacity:.4!important;cursor:not-allowed}
+html body.bill-v2 .m-total{border-radius:14px}
+html body.bill-v2 .m-total button{padding:12px 18px}
+/* secondary buttons: outline */
+html body.bill-v2 .btn-light,html body.bill-v2 .btn-dark{border-radius:10px!important;box-shadow:none!important}
+/* percentage chips and reward badges: flat gold tint, no gradient, no glow */
+html body.bill-v2 .rs-pct,html body.bill-v2 .reward-steps li:nth-child(3) .rs-pct,html body.bill-v2 .offer-checkout .offer-stamp{background:color-mix(in srgb,var(--gold) 20%,transparent)!important;color:var(--gold-lo)!important;box-shadow:none!important;border:1px solid color-mix(in srgb,var(--gold) 38%,transparent)!important}
+html[data-theme=dark] body.bill-v2 :is(.rs-pct,.offer-stamp){color:var(--gold)!important}
+html body.bill-v2 .reward-steps li{animation:none!important}
+html body.bill-v2 .offer-checkout{border-style:solid!important;background:var(--card)!important}
+/* totals: plain panel, one thin line */
+html body.bill-v2 .order-total{background:color-mix(in srgb,var(--ink) 5%,transparent)!important;border:1px solid var(--line)!important;box-shadow:none!important}
+.pay-total{background:color-mix(in srgb,var(--ink) 5%,transparent)!important;border-color:var(--line)!important}
+/* payment method rows: flat cards, ink outline when chosen */
+html body.bill-v2 .payment-picker .pay-item{background:var(--card)!important;border-color:var(--line)!important;box-shadow:none!important}
+html body.bill-v2 .payment-picker .pay-item[data-open]{border-color:var(--ink)!important;box-shadow:inset 0 0 0 1px var(--ink)!important;transform:none!important}
+html body.bill-v2 .payment-picker:has(.pay-item[data-open]) .pay-item:not([data-open]){opacity:1;transform:none}
+html body.bill-v2 .payment-picker .pay-item>label::before{background:none!important;box-shadow:none!important;width:22px;height:22px;border-radius:50%;border:2px solid color-mix(in srgb,var(--ink) 35%,var(--line))!important;transform:none!important}
+html body.bill-v2 .payment-picker .pay-item[data-open]>label::before{border:6px solid var(--ink)!important;background:var(--card)!important}
+html body.bill-v2 .payment-picker .pay-item[data-open] .acc-chev{color:var(--ink)}
+html body.bill-v2 .upsell-badge{background:color-mix(in srgb,var(--gold) 20%,transparent)!important;color:var(--gold-lo)!important;border:1px solid color-mix(in srgb,var(--gold) 38%,transparent)!important;box-shadow:none!important}
+html[data-theme=dark] body.bill-v2 .upsell-badge{color:var(--gold)!important}
+html body.bill-v2 .billing-upsell{background:var(--card)!important}

@@ -50,7 +50,7 @@ export function initializeCheckoutSteps(form){
    E.companyOn.checked=draft.companyOn;
   }
   for(const name of ['plan','billing'])if(!params.has(name))form.elements[name].value=draft[name];
-  form.elements.seats.value=String(draft.seats);form.elements.terms.checked=draft.terms;
+  if(!params.has('seats'))form.elements.seats.value=String(draft.seats);form.elements.terms.checked=draft.terms;
  }
  let restoredCountry=false;
  document.addEventListener('ajoy:billing-network',event=>{

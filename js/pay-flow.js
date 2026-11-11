@@ -15,7 +15,7 @@ if(view==='single'&&!returning&&form){
   const sync=()=>{
    const applied=!orig.remove.hidden,flag=orig.status.dataset.error,text=(orig.status.textContent||'').trim();
    const show=applied||flag==='true'||(flag==='false'&&!!text&&!/^(Sign in, then|Enter your code and choose Apply)/.test(text));
-   msg.textContent=show?text:'';msg.dataset.kind=flag==='true'?'error':applied?'ok':'';
+   const dflt=/^(Sign in, then|Enter your code and choose Apply)/.test(text);msg.textContent=show?(applied&&dflt?(orig.input.value||'Your code')+' is added to this order.':text):'';msg.dataset.kind=flag==='true'?'error':applied?'ok':'';
    rm.hidden=!applied;apply.hidden=applied;
    if(applied&&orig.input.value){input.value=orig.input.value;input.readOnly=true;}else input.readOnly=false;
   };
@@ -38,3 +38,26 @@ if(view==='single'&&form){
  };
  if(!add()){const mo=new MutationObserver(()=>{if(add())mo.disconnect();});mo.observe(form,{childList:true,subtree:true});}
 }
+
+/* Billing page: the coupon box lives under the order total. The code is kept with the billing details and checked on the payment page. */
+if(document.documentElement.dataset.checkoutStep==='billing'&&form){
+ const KEY='ajoy.coupon-pending',OK=/^[A-Z0-9][A-Z0-9-]{2,31}$/;
+ const total=document.querySelector('.order-summary .order-total');
+ const read=()=>{try{return sessionStorage.getItem(KEY)||'';}catch{return '';}};
+ const write=v=>{try{if(v)sessionStorage.setItem(KEY,v);else sessionStorage.removeItem(KEY);}catch{}};
+ try{const d=JSON.parse(sessionStorage.getItem('ajoy.billing-draft')||'null');if(d)write(OK.test(d.coupon||'')?d.coupon:'');}catch{}
+ if(total){
+  const box=el('div','sum-coupon','<p class="sum-coupon-t">Have a coupon code?</p><div class="sum-coupon-row"><input type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code"><button type="button" class="btn btn-light">Apply</button></div><p class="sum-coupon-msg" role="status" aria-live="polite"></p><button type="button" class="text-link sum-coupon-remove" hidden>Remove coupon</button>');
+  const input=box.querySelector('input'),apply=box.querySelector('.btn'),msg=box.querySelector('.sum-coupon-msg'),rm=box.querySelector('.sum-coupon-remove');
+  total.after(box);
+  const show=()=>{const c=read();if(c){input.value=c;input.readOnly=true;apply.hidden=true;rm.hidden=false;msg.textContent=c+' is saved. We check it with your price on the next page.';msg.dataset.kind='ok';}else{input.readOnly=false;apply.hidden=false;rm.hidden=true;}};
+  const go=()=>{const code=input.value.trim().toUpperCase();input.value=code;if(!OK.test(code)){msg.textContent='Enter a valid coupon code (letters, numbers or hyphens).';msg.dataset.kind='error';input.focus();return;}write(code);show();};
+  apply.addEventListener('click',go);
+  input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go();}});
+  rm.addEventListener('click',()=>{write('');input.value='';msg.textContent='';msg.dataset.kind='';show();});
+  show();
+ }
+ document.addEventListener('ajoy:checkout-draft',e=>{const c=read();if(c)e.detail.coupon=c;else delete e.detail.coupon;});
+}
+/* Payment page: only show the coupon result (applied or not) under the total. */
+document.addEventListener('ajoy:payment-complete',()=>{try{sessionStorage.removeItem('ajoy.coupon-pending');}catch{}});

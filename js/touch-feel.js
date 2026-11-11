@@ -39,6 +39,50 @@
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { document.addEventListener(t, release, { passive: true, capture: true }); });
   addEventListener('scroll', release, { passive: true });
 
+  /* ---- 4. a light tick under the finger on buttons and tabs (Android; other devices ignore it) ---- */
+  if (navigator.vibrate) document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('.btn,.bc-nav a,.policy-index a,.pmx-item,[role=tab]');
+    if (t && !t.disabled) { try { navigator.vibrate(7); } catch (x) {} }
+  }, { passive: true });
+
+  /* ---- 5. pop-ups: pull the top of a window down to dismiss it (phones only; payment pages excluded) ---- */
+  if (!money && matchMedia('(max-width:767px)').matches) (function () {
+    var dlg = null, y0 = 0, dy = 0, t0 = 0, drag = false;
+    document.addEventListener('touchstart', function (e) {
+      dlg = null; if (e.touches.length !== 1) return;
+      var t = e.touches[0], n = e.target;
+      if (!n.closest || n.closest('input,textarea,select,[contenteditable]')) return;
+      var d = n.closest('dialog[open]'); if (!d || d.matches('.guest-prompt,.trial-nudge')) return;
+      if (t.clientY - d.getBoundingClientRect().top > 64) return;
+      dlg = d; y0 = t.clientY; dy = 0; t0 = e.timeStamp; drag = false;
+    }, { passive: true });
+    document.addEventListener('touchmove', function (e) {
+      if (!dlg) return;
+      var d = e.touches[0].clientY - y0;
+      if (!drag) { if (d > 10) drag = true; else if (d < -10) { dlg = null; return; } else return; }
+      if (e.cancelable) e.preventDefault();
+      dy = Math.max(0, d); dlg.style.transition = 'none'; dlg.style.translate = '0 ' + (dy < 160 ? dy : 160 + (dy - 160) * .35) + 'px';
+    }, { passive: false });
+    function end(e) {
+      if (!dlg) return;
+      var d = dlg; dlg = null;
+      if (!drag) return;
+      d.style.transition = '';
+      var fast = dy / Math.max(1, e.timeStamp - t0) > .6;
+      if (dy > 110 || (fast && dy > 40)) {
+        var ev = new Event('cancel', { cancelable: true }); d.dispatchEvent(ev);
+        if (!ev.defaultPrevented) { d.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 160, easing: EASE, fill: 'forwards' }).onfinish = function () { d.close(); d.style.translate = ''; }; }
+        else setTimeout(function () { d.style.translate = ''; }, 420);
+      } else {
+        var from = d.style.translate || '0 0';
+        d.animate([{ translate: from }, { translate: '0 0' }], { duration: 380, easing: SPRING });
+        d.style.translate = '';
+      }
+    }
+    document.addEventListener('touchend', end, { passive: true });
+    document.addEventListener('touchcancel', end, { passive: true });
+  })();
+
   if (money || !('IntersectionObserver' in window)) return;
 
   function ready() {

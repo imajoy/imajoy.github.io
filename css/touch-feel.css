@@ -8,3 +8,13 @@
 @media(prefers-reduced-motion:reduce){.tf-drift{animation:none!important}}
 /* no browser flash when you tap: the pale blue box Android Chrome paints on anything you press. The site's own press feedback (js/touch-feel.js) replaces it. */
 html,*{-webkit-tap-highlight-color:transparent}
+
+/* touch comfort (this file only loads on touch devices) */
+a,button,summary,label,input,select,textarea,[role=button]{touch-action:manipulation}
+dialog{overscroll-behavior:contain}
+input,textarea,select{scroll-margin-block:130px}
+/* phones: fields at 16px so the browser never zooms the page when you tap one */
+@media(max-width:767px){
+ html body input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]):not([type=color]){font-size:16px!important}
+ html body select,html body textarea{font-size:16px!important}
+}

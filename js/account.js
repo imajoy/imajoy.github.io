@@ -165,7 +165,7 @@ function init() {
       try{
         const result=await accountRequest({step:'verify',email,code:value});if(operation!==generation)return;
         if(!result.ok){
-          if(result.error==='code_expired'){codeDeadline=0;syncCountdown();return;}
+          if(result.error==='code_expired'){codeDeadline=0;msg='';syncCountdown();return;}
           announce(result.error==='limit'?'Too many incorrect codes. Please wait before trying again.':'That code is incorrect. Check your email and try again.',true);input.setAttribute('aria-invalid','true');input.closest('.acct-otp')?.setAttribute('data-bad','');setTimeout(()=>{if(operation===generation&&input.isConnected){input.value='';input.dispatchEvent(new Event('input',{bubbles:true}));input.closest('.acct-otp')?.removeAttribute('data-bad');}},650);input.focus();return;
         }
         if(!result.token||!result.email||(result.subscriptions!==null&&!Array.isArray(result.subscriptions)))throw new Error('Sign-in could not be completed. Please try again.');
@@ -211,7 +211,8 @@ function init() {
     timer.textContent=seconds?'Code expires in '+Math.floor(seconds/60)+':'+String(seconds%60).padStart(2,'0'):'Code expired';
     body.querySelector('[type=submit]').disabled=busy||seconds===0;
     body.querySelector('[data-resend]').disabled=busy||seconds>0;
-    if(!seconds){clearInterval(countdownTimer);announce('This code has expired. Resend to receive a new code.',true);}
+    /* say "expired" once, never while a request is running and never over a real error (a failed resend used to be hidden by this line) */
+    if(!seconds){clearInterval(countdownTimer);if(!busy&&!msg)announce('This code has expired. Resend to receive a new code.',true);}
   }
   async function requestCode(){
     if(isDisposableEmail(email)){announce(EMAIL_TEMP_TEXT,true);return;}

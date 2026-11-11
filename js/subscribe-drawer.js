@@ -16,7 +16,7 @@ const cache=new Map();let dlg=null,state={plan:'online',billing:'monthly',seats:
 const CHK='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',CHEV='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>';
 function owned(plan){
  if(document.querySelector('[data-buy="'+plan+'"].is-covered'))return true;
- try{const subs=getAccountSession()?.subscriptions;return Array.isArray(subs)&&subs.some(x=>x&&x.plan===plan&&!x.trial&&x.status!=='UNKNOWN'&&x.endsAt&&new Date(x.endsAt).getTime()>Date.now());}catch{return false;}
+ try{const subs=getAccountSession()?.subscriptions;return Array.isArray(subs)&&subs.some(x=>x&&x.plan===plan&&x.status!=='UNKNOWN'&&x.endsAt&&new Date(x.endsAt).getTime()>Date.now());}catch{return false;}
 }
 async function quoteFor(plan,billing){
  const k=plan+'|'+billing;if(cache.has(k))return cache.get(k);
@@ -59,12 +59,12 @@ async function paint(quiet){
  for(const r of dlg.querySelectorAll('input[name=sd-plan]'))r.checked=r.value===plan;
  const other=plan==='online'?'offline':'online';
  for(const p of ['online','offline']){
-  const own=owned(p),w=dlg.querySelector('[data-wrap="'+p+'"]'),o=w.querySelector('.sd-opt'),hide=p!==plan&&!expanded;
+  const own=owned(p),w=dlg.querySelector('[data-wrap="'+p+'"]'),o=w.querySelector('.sd-opt'),hide=p!==plan&&!expanded&&!own;
   w.toggleAttribute('data-hide',hide);w.inert=hide;o.toggleAttribute('data-owned',own);o.querySelector('input').disabled=own;
   const t=o.querySelector('.sd-opt-t'),tag=t.querySelector('.sd-tag');
   if(own&&!tag)t.append(el('span','sd-tag','Your current plan'));else if(!own&&tag)tag.remove();
  }
- const sw=dlg.querySelector('.sd-swap');sw.setAttribute('aria-expanded',String(expanded));sw.hidden=false;
+ const sw=dlg.querySelector('.sd-swap');sw.setAttribute('aria-expanded',String(expanded));sw.hidden=owned(other);
  sw.firstElementChild.textContent=expanded?'Show only '+PLANS[plan].name:'Compare with '+PLANS[other].name;
  for(const r of dlg.querySelectorAll('input[name=sd-bill]'))r.checked=r.value===billing;
  dlg.querySelector('.sd-qty [data-q="-1"]').disabled=seats<=1;dlg.querySelector('.sd-qty [data-q="1"]').disabled=seats>=100;

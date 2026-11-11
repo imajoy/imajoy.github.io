@@ -50,12 +50,40 @@ if(document.documentElement.dataset.checkoutStep==='billing'&&form){
   const box=el('div','sum-coupon','<p class="sum-coupon-t">Have a coupon code?</p><div class="sum-coupon-row"><input type="text" maxlength="32" autocomplete="off" autocapitalize="characters" spellcheck="false" aria-label="Coupon code"><button type="button" class="btn btn-light">Apply</button></div><p class="sum-coupon-msg" role="status" aria-live="polite"></p><button type="button" class="text-link sum-coupon-remove" hidden>Remove coupon</button>');
   const input=box.querySelector('input'),apply=box.querySelector('.btn'),msg=box.querySelector('.sum-coupon-msg'),rm=box.querySelector('.sum-coupon-remove');
   total.after(box);
-  const show=()=>{const c=read();if(c){input.value=c;input.readOnly=true;apply.hidden=true;rm.hidden=false;msg.textContent=c+' is saved. We check it with your price on the next page.';msg.dataset.kind='ok';}else{input.readOnly=false;apply.hidden=false;rm.hidden=true;}};
-  const go=()=>{const code=input.value.trim().toUpperCase();input.value=code;if(!OK.test(code)){msg.textContent='Enter a valid coupon code (letters, numbers or hyphens).';msg.dataset.kind='error';input.focus();return;}write(code);show();};
+  let deal=null,seq=0,timer=0;
+  const F=form.elements,keyNow=()=>[F.plan.value,F.billing.value,F.seats.value,F.country.value].join('|');
+  const rowHide=()=>{const r=document.getElementById('coupon-summary-row');if(r)r.hidden=true;};
+  const say=(t,k)=>{msg.textContent=t;msg.dataset.kind=k||'';};
+  const show=()=>{const c=read();if(c){input.value=c;input.readOnly=true;apply.hidden=true;rm.hidden=false;if(deal&&deal.code===c&&deal.key===keyNow()){const d=deal.p.discount;say(c+' applied: '+d.percent+'% off '+(d.payments>1?'your first '+d.payments+' payments':'your first payment')+'.','ok');}else if(!msg.dataset.kind||msg.dataset.kind==='error')say('Checking '+c+'…','');}else{input.readOnly=false;apply.hidden=false;rm.hidden=true;}};
+  const paintDeal=async()=>{
+   if(!deal||deal.key!==keyNow()){rowHide();if(read()&&(!deal||deal.key!==keyNow())){clearTimeout(timer);timer=setTimeout(()=>check(read(),true),350);}return;}
+   const {setMoney}=await import('./currency-display.js?v=20261020-local1'),p=deal.p,d=p.discount,country=F.country.value;
+   const row=document.getElementById('coupon-summary-row');if(row)row.hidden=false;
+   setMoney(document.getElementById('summary-coupon'),-(p.unitAmount-d.unitAmount)*p.seats*d.payments,p.currency,country);
+   setMoney(document.getElementById('summary-total'),p.total,p.currency,country);
+   show();
+  };
+  async function check(code,quiet){
+   const mine=++seq,url=window.AJOY_CONFIG?.razorpayUrl;
+   const {getAccountSession,openAccount}=await import('./account-session.js?v=20261023-p7');const session=getAccountSession();
+   if(!session){if(!quiet){say('Sign in or register first, then apply your coupon.','error');openAccount({purpose:'checkout'});}else say(code+' is saved. Sign in and we apply it to your price.','ok');return;}
+   if(!url){say(code+' is saved. We check it with your price on the next page.','ok');return;}
+   apply.disabled=true;if(!quiet||!msg.textContent)say('Checking '+code+'…','');
+   try{
+    const key=keyNow(),res=await fetch(url+'/quote',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({plan:F.plan.value,billing:F.billing.value,seats:Number(F.seats.value),country:F.country.value,offer:'standard',coupon:code,accountToken:session.token}),signal:AbortSignal.timeout(30000)});
+    const data=await res.json().catch(()=>null);if(mine!==seq)return;
+    if(!res.ok||!data?.ok||!data.pricing?.discount?.coupon){if(mine!==seq)return;write('');deal=null;rowHide();input.readOnly=false;apply.hidden=false;rm.hidden=true;say(data?.message||'This coupon cannot be applied to this order.','error');document.dispatchEvent(new CustomEvent('ajoy:quote-rendered'));return;}
+    write(code);deal={code,p:data.pricing,key};show();await paintDeal();
+   }catch{if(mine===seq)say(code+' is saved. We check it again on the next page.','ok');}
+   finally{if(mine===seq)apply.disabled=false;}
+  }
+  const go=()=>{const code=input.value.trim().toUpperCase();input.value=code;if(!OK.test(code)){say('Enter a valid coupon code (letters, numbers or hyphens).','error');input.focus();return;}check(code,false);};
   apply.addEventListener('click',go);
   input.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();go();}});
-  rm.addEventListener('click',()=>{write('');input.value='';msg.textContent='';msg.dataset.kind='';show();});
-  show();
+  rm.addEventListener('click',()=>{seq++;write('');deal=null;input.value='';say('','');rowHide();show();form.elements.seats.dispatchEvent(new Event('change',{bubbles:true}));});
+  document.addEventListener('ajoy:quote-rendered',()=>{paintDeal();});
+  const pending=read();if(pending){show();check(pending,true);}
+  if(!pending)show();
  }
  document.addEventListener('ajoy:checkout-draft',e=>{const c=read();if(c)e.detail.coupon=c;else delete e.detail.coupon;});
 }

@@ -21,6 +21,29 @@ function profilePhoto_(v) {
   var s = String(v == null ? '' : v);
   return /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(s) && s.length <= 40000 ? s : '';
 }
+/* The picture is also kept as a real file in the owner's private Drive: "Wrapline profile photos" / <account email> / profile-photo.jpg.
+   A new picture replaces the old file; removing it (or deleting the account) moves the file and the account's folder to the Drive bin. Drive trouble never blocks saving the profile. */
+var PROFILE_PHOTO_ROOT_ = 'Wrapline profile photos';
+function profilePhotoFolder_(email, create) {
+  var roots = DriveApp.getFoldersByName(PROFILE_PHOTO_ROOT_), root = roots.hasNext() ? roots.next() : (create ? DriveApp.createFolder(PROFILE_PHOTO_ROOT_) : null);
+  if (!root) return null;
+  var own = root.getFoldersByName(email);
+  return own.hasNext() ? own.next() : (create ? root.createFolder(email) : null);
+}
+function profilePhotoSave_(email, photo) {
+  try {
+    var folder = profilePhotoFolder_(email, true), old = folder.getFiles();
+    while (old.hasNext()) old.next().setTrashed(true);
+    folder.createFile(Utilities.newBlob(Utilities.base64Decode(photo.split(',')[1]), 'image/jpeg', 'profile-photo.jpg'));
+  } catch (error) {}
+}
+function profilePhotoDrop_(email) {
+  try {
+    var folder = profilePhotoFolder_(email, false); if (!folder) return;
+    var files = folder.getFiles(); while (files.hasNext()) files.next().setTrashed(true);
+    folder.setTrashed(true);
+  } catch (error) {}
+}
 function profileClean_(input) {
   var p = input && typeof input === 'object' ? input : {}, text = function (v, n) { return clip_(String(v == null ? '' : v), n).replace(/[\u0000-\u001f\u007f]+/g, ' ').trim(); };
   var multi = function (v, n) { return clip_(String(v == null ? '' : v), n).replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]+/g, ' ').trim(); };
@@ -70,7 +93,9 @@ function handleProfile_(d, step) {
   if (!who || who.sub) return { ok: false, error: 'expired' };
   if (!registeredEmail_(who.email)) return { ok: false, error: 'not_registered' };
   if (step === 'profile-get') return { ok: true, profile: profileRead_(who.email) };
-  if (step === 'profile-clear') return profileDelete_(who.email) ? { ok: true, profile: null } : { ok: false, error: 'busy' };
+  if (step === 'profile-clear') { if (!profileDelete_(who.email)) return { ok: false, error: 'busy' }; profilePhotoDrop_(who.email); return { ok: true, profile: null }; }
   var current = profileRead_(who.email) || profileClean_({}), next = profileClean_(Object.assign({}, current, d.profile && typeof d.profile === 'object' ? d.profile : {}));
-  return profileWrite_(who.email, next) ? { ok: true, profile: next } : { ok: false, error: 'busy' };
+  if (!profileWrite_(who.email, next)) return { ok: false, error: 'busy' };
+  if (next.photo !== current.photo) { if (next.photo) profilePhotoSave_(who.email, next.photo); else profilePhotoDrop_(who.email); }
+  return { ok: true, profile: next };
 }

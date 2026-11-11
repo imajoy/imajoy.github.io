@@ -74,9 +74,17 @@ if(form){
  const totalBytes=()=>files.reduce((n,f)=>n+f.info.size,0);
  const summary=()=>files.length?`${files.length} of ${MAX_FILES} files · ${megabytes(totalBytes())} of 10 MB. Files upload privately as soon as you attach them.`:'';
  function setNote(text,error=false){attachmentStatus.textContent=text;if(error){attachmentStatus.dataset.error='true';picker.dataset.state='error';fileInput.setAttribute('aria-invalid','true');}else{delete attachmentStatus.dataset.error;delete picker.dataset.state;fileInput.removeAttribute('aria-invalid');}}
+ const waiting=()=>files.some(f=>!f.done&&!f.gone);
+ function refreshSend(){
+  if(busy)return;const wait=waiting();submit.disabled=selecting||wait;
+  if(submit.dataset.state==='idle'||!submit.dataset.state||submit.dataset.state==='error'){
+   if(wait){if(sendLabel&&sendLabel.textContent!=='Uploading your files'){sendLabel.textContent='Uploading your files';}submit.title='Please wait until your files finish uploading.';}
+   else{submit.removeAttribute('title');if(sendLabel&&sendLabel.textContent==='Uploading your files'){sendLabel.textContent='Send message';sendLabel.classList.remove('is-new');void sendLabel.offsetWidth;sendLabel.classList.add('is-new');}}
+  }
+ }
  function dropEntry(entry){entry.gone=true;entry.abort?.abort();if(entry.url)URL.revokeObjectURL(entry.url);entry.row?.remove();}
  function clearAttachment(resetInput=true){
-  fileVersion++;selecting=false;submit.disabled=busy;files.forEach(dropEntry);files=[];uploadId=crypto.randomUUID();if(resetInput)fileInput.value='';list.hidden=true;setNote('');
+  fileVersion++;selecting=false;submit.disabled=busy;files.forEach(dropEntry);files=[];uploadId=crypto.randomUUID();if(resetInput)fileInput.value='';list.hidden=true;setNote('');refreshSend();
  }
  function removeFile(entry){if(busy)return;const i=files.indexOf(entry);if(i<0)return;files.splice(i,1);entry.row.classList.add('is-leaving');setTimeout(()=>dropEntry(entry),motion.matches?0:260);entry.gone=true;entry.abort?.abort();list.hidden=!files.length;setNote(summary());fileInput.focus();}
  const svgIcon=(d,cls)=>{const ns='http://www.w3.org/2000/svg',svg=document.createElementNS(ns,'svg'),path=document.createElementNS(ns,'path');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('fill','none');svg.setAttribute('stroke','currentColor');svg.setAttribute('stroke-width','2.4');svg.setAttribute('stroke-linecap','round');svg.setAttribute('stroke-linejoin','round');svg.setAttribute('aria-hidden','true');if(cls)svg.setAttribute('class',cls);path.setAttribute('d',d);svg.append(path);return svg;};
@@ -117,7 +125,7 @@ if(form){
   }
  }
  async function addFiles(incoming){
-  if(busy)return;const version=fileVersion,problems=[];selecting=true;submit.disabled=true;
+  if(busy)return;const version=fileVersion,problems=[];selecting=true;refreshSend();
   try{
    for(const file of Array.from(incoming)){
     if(files.length>=MAX_FILES){problems.push(`You can attach up to ${MAX_FILES} files. The rest were not added.`);break;}
@@ -126,13 +134,13 @@ if(form){
     try{
      const info=await inspectAttachment(file);if(version!==fileVersion)return;
      const entry={file,info};files.push(entry);addRow(entry);
-     entry.promise=queue=queue.then(()=>uploadEntry(entry));
+     entry.promise=queue=queue.then(()=>uploadEntry(entry)).finally(()=>{entry.done=true;refreshSend();});
     }
     catch(error){if(version!==fileVersion)return;problems.push(`${file.name}: ${error.message}`);}
    }
    fileInput.value='';
    setNote(problems.length?(problems.join(' ')+(summary()?' '+summary():'')):summary(),problems.length>0);
-  }finally{if(version===fileVersion){selecting=false;submit.disabled=busy;}}
+  }finally{if(version===fileVersion){selecting=false;refreshSend();}}
  }
  fileInput.addEventListener('change',()=>addFiles(fileInput.files));
  for(const type of ['dragenter','dragover'])picker.addEventListener(type,event=>{event.preventDefault();if(!busy)picker.setAttribute('data-dragging','');});
@@ -140,7 +148,7 @@ if(form){
  picker.addEventListener('drop',event=>{event.preventDefault();picker.removeAttribute('data-dragging');addFiles(event.dataTransfer.files);});
  window.addEventListener('pagehide',()=>{for(const entry of files)if(entry.url)URL.revokeObjectURL(entry.url);});
  form.addEventListener('submit',async event=>{
-  event.preventDefault();if(busy||selecting||!form.reportValidity())return;
+  event.preventDefault();if(busy||selecting||waiting()||!form.reportValidity())return;
   const payload={name:form.elements.name.value.trim(),email:form.elements.email.value.trim(),topic:form.elements.topic.value,message:form.elements.message.value.trim(),consent:form.elements.consent.checked,website:form.elements.website.value};
   if(payload.message.length<10){announce('Please write at least 10 characters so we can help.',true);form.elements.message.focus();return;}
   const endpoint=window.AJOY_CONFIG?.sheetUrl;if(!endpoint){announce('The contact service is unavailable. Please try again later.',true);return;}
@@ -165,7 +173,7 @@ if(form){
   }catch(error){
    const errors={limit:'You’ve reached the message limit. Please try again later.',invalid:'Please check your details and try again.',attachment_invalid:'The attachments could not be accepted. Choose up to 5 supported files, 10 MB in total.',attachment_unavailable:'Attachment uploads are temporarily unavailable. You can remove the files and send your message without them.'};
    announce(errors[error.message]||'Your message could not be confirmed. Your text and attachment are still here—please retry in a moment.',true);setArt('error','Your draft is safe here. Please try again.');setSend('error','Try again');
-  }finally{busy=false;submit.disabled=false;controls.forEach((el,i)=>el.disabled=disabled[i]);form.removeAttribute('aria-busy');}
+  }finally{busy=false;refreshSend();controls.forEach((el,i)=>el.disabled=disabled[i]);form.removeAttribute('aria-busy');}
  });
  submit.disabled=false;submit.removeAttribute('title');
 }

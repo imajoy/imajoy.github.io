@@ -42,3 +42,7 @@ body.pay-single .payment-picker::before,body.pay-single .payment-picker::after,b
 body.pay-single .pay-skel{padding:16px}
 @media(max-width:800px){body.pay-single .order-summary{grid-row:auto}body.pay-single .checkout-side{order:2}}
 @media(max-width:420px){body.pay-single .payment-picker{padding:10px}}
+
+/* payment page: the coupon box only reports the result; the code itself is entered on the billing page */
+body.pay-single .sum-coupon .sum-coupon-t,body.pay-single .sum-coupon .sum-coupon-row{display:none}
+body.pay-single .sum-coupon:has(.sum-coupon-msg:empty):not(:has(.sum-coupon-remove:not([hidden]))){display:none}

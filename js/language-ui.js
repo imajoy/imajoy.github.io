@@ -3,7 +3,19 @@ const L=()=>window.AjoyLang;
 const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const calm=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
 let dlg=null,restore=null;
-function ensureCss(){if(document.querySelector('link[data-lang-css]'))return;const l=document.createElement('link');l.rel='stylesheet';l.href='css/language.css?v=lg5';l.dataset.langCss='';document.head.append(l);}
+/* the window is shown only after its stylesheet has loaded, so it never flashes unstyled in a corner on the first open */
+let cssReady=null;
+function ensureCss(){
+ if(cssReady)return cssReady;
+ let l=document.querySelector('link[data-lang-css]');
+ cssReady=new Promise(res=>{
+  const done=()=>res();
+  if(!l){l=document.createElement('link');l.rel='stylesheet';l.href='css/language.css?v=lg6';l.dataset.langCss='';l.addEventListener('load',done,{once:true});l.addEventListener('error',done,{once:true});document.head.append(l);}
+  else if(l.sheet)done();else{l.addEventListener('load',done,{once:true});l.addEventListener('error',done,{once:true});}
+  setTimeout(done,2500);
+ });
+ return cssReady;
+}
 function draw(){
  const api=L();if(!api)return;const cur=api.current();
  dlg.innerHTML='<div class="lng-box"><button class="lng-x" type="button" aria-label="Close" data-x>×</button><h2 id="lng-title">Select a language</h2>'+
@@ -41,8 +53,8 @@ function warn(){
  dlg.querySelectorAll('[data-x]').forEach(b=>b.onclick=close);
  return dlg.querySelector('.lng-ok');
 }
-export function openLanguage(){
- ensureCss();
+export function openLanguage(){ensureCss().then(show);}
+function show(){
  if(!dlg){dlg=document.createElement('dialog');dlg.className='lng-dlg';dlg.tabIndex=-1;dlg.setAttribute('aria-labelledby','lng-title');document.body.append(dlg);
   dlg.addEventListener('cancel',e=>{e.preventDefault();close();});dlg.addEventListener('click',e=>{if(e.target===dlg)close();});}
  restore=document.activeElement;

@@ -24,13 +24,13 @@ async function quoteFor(plan,billing){
  cache.set(k,p);const q=await p;if(!q)cache.delete(k);return q;
 }
 async function formatter(q){if(q?.currency==='USD'){if(fmt===null)fmt=await localFormatter(cachedGeo()).catch(()=>false);if(fmt)return c=>fmt(c);}return c=>money(c,q.currency);}
-let promoSig='',promoIdx=0,promoTimer=0;
+let promoFig='',promoSig='',promoIdx=0,promoTimer=0;
 const ICON={year:'<path d="M4 7h16M7 3v4M17 3v4M5 7v12h14V7M9 14l2 2 4-4"/>',offline:'<path d="M12 3v9M7.5 6.5a7 7 0 1 0 9 0"/>',fresh:'<path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v5h-5"/>',team:'<path d="M16 19v-1.5a3.5 3.5 0 0 0-3.5-3.5h-5A3.5 3.5 0 0 0 4 17.5V19M10 11a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM20 19v-1.5a3.5 3.5 0 0 0-2.5-3.3M15.5 5.2a3 3 0 0 1 0 5.6"/>'};
 function promoList(){
  const {plan,billing,seats}=state,other=plan==='online'?'offline':'online',pct=YEARLY_PERCENT?.[plan],list=[];
- if(billing==='monthly'&&pct)list.push({k:'year',t:'Pay yearly and keep '+pct+'% more',d:'Compared with 12 monthly payments, billed once a year.',b:'Switch to yearly',a:()=>{state.billing='yearly';}});
- if(!owned(other))list.push(plan==='online'?{k:'offline',t:'Need it without internet?',d:'Premium has all 14 tools and runs offline. You decide when to update.',b:'See Premium',a:()=>{state.plan='offline';expanded=false;}}:{k:'fresh',t:'Always the newest tools',d:'Basic keeps all 10 Pro tools up to date, every time Maya starts.',b:'See Basic',a:()=>{state.plan='online';expanded=false;}});
- if(seats<100)list.push({k:'team',t:'Working with a team?',d:'One license covers one computer, so add a license for each machine.',b:'Add a license',a:()=>{state.seats=Math.min(100,state.seats+1);dlg.querySelector('.sd-qty input').value=String(state.seats);}});
+ if(billing==='monthly'&&pct)list.push({k:'year',f:promoFig?[promoFig,'saved per license, every year']:null,t:'Pay yearly and keep '+pct+'% more',d:'Compared with 12 monthly payments, billed once a year.',b:'Switch to yearly',a:()=>{state.billing='yearly';}});
+ if(!owned(other))list.push(plan==='online'?{k:'offline',f:['14 tools','works without internet'],t:'Need it without internet?',d:'Premium has all 14 tools and runs offline. You decide when to update.',b:'See Premium',a:()=>{state.plan='offline';expanded=false;}}:{k:'fresh',f:['10 tools','always the newest'],t:'Always the newest tools',d:'Basic keeps all 10 Pro tools up to date, every time Maya starts.',b:'See Basic',a:()=>{state.plan='online';expanded=false;}});
+ if(seats<100)list.push({k:'team',f:[String(seats)+(seats===1?' license':' licenses'),'1 license = 1 computer'],t:'Working with a team?',d:'One license covers one computer, so add a license for each machine.',b:'Add a license',a:()=>{state.seats=Math.min(100,state.seats+1);dlg.querySelector('.sd-qty input').value=String(state.seats);}});
  return list;
 }
 function promoShow(i,instant){
@@ -41,11 +41,12 @@ function promoShow(i,instant){
  clearTimeout(promoTimer);if(!reduce()&&slides.length>1&&dlg.open)promoTimer=setTimeout(()=>promoShow(promoIdx+1),5200);
 }
 function promoPaint(){
- const list=promoList(),sig=list.map(x=>x.k).join('|');if(sig===promoSig)return;promoSig=sig;
+ const list=promoList(),sig=list.map(x=>x.k+(x.f?x.f[0]:'')).join('|');if(sig===promoSig)return;promoSig=sig;
  const box=dlg.querySelector('.sd-slides'),dots=dlg.querySelector('.sd-dots');box.replaceChildren();dots.replaceChildren();
  list.forEach((x,j)=>{
-  const n=el('div','sd-slide');n.innerHTML='<span class="sd-ico"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[x.k]+'</svg></span><div class="sd-slide-t"><b></b><small></small></div><button type="button" class="sd-pbtn"></button>';
-  n.querySelector('b').textContent=x.t;n.querySelector('small').textContent=x.d;const bt=n.querySelector('button');bt.textContent=x.b;
+  const n=el('div','sd-slide');n.innerHTML='<span class="sd-ico"><svg viewBox="0 0 24 24" aria-hidden="true">'+ICON[x.k]+'</svg></span><span class="sd-fig"></span><div class="sd-slide-t"><b></b><small></small></div><button type="button" class="sd-pbtn"></button>';
+  if(x.f){const fg=n.querySelector('.sd-fig');fg.append(document.createTextNode(x.f[0]));fg.append(el('small',null,x.f[1]));}
+  n.querySelector('b').textContent=x.t;n.querySelector('.sd-slide-t small').textContent=x.d;const bt=n.querySelector('button');bt.textContent=x.b;
   bt.addEventListener('click',()=>{x.a();promoSig='';paint();});box.append(n);
   const d=el('button');d.type='button';d.setAttribute('role','tab');d.setAttribute('aria-label','Offer '+(j+1));d.addEventListener('click',()=>promoShow(j));dots.append(d);
  });
@@ -103,6 +104,7 @@ async function paint(quiet){
  const qs=await Promise.all([['online','offline'].map(p=>quoteFor(p,billing)),quoteFor(plan,'yearly'),quoteFor(plan,'monthly')].flat());
  if(my!==rev)return;
  const [qo,qf,qy,qm]=qs;
+ if(qy&&qm&&qy.currency===qm.currency){const ff=await formatter(qm);if(my!==rev)return;const save=Math.max(0,qm.unitAmount*12-qy.unitAmount),fig=save>0?ff(save):'';if(fig!==promoFig){promoFig=fig;promoPaint();}}
  for(const [p,q] of [['online',qo],['offline',qf]]){
   const n=dlg.querySelector('[data-p="'+p+'"]');if(!q){n.textContent='—';continue;}
   const f=await formatter(q);if(my!==rev)return;const t=f(q.unitAmount)+'|'+per;if(n.dataset.k===t)continue;const fresh=n.dataset.k!==undefined;n.dataset.k=t;n.replaceChildren(el('b',null,f(q.unitAmount)),el('small',null,'per license / '+per));if(fresh&&!reduce()&&dlg.open)n.animate([{opacity:0,transform:'translateY(6px)'},{opacity:1,transform:'none'}],{duration:380,easing:'cubic-bezier(.22,1,.36,1)'});

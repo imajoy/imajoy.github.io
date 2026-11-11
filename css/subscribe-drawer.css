@@ -56,13 +56,14 @@ html:not([data-theme=dark]) .sd-swap{color:var(--sd-lo)}
 .sd-go:hover::after{transform:translateX(120%)}.sd-go:hover{filter:brightness(1.03)}.sd-go:active{transform:scale(.97)}
 .sd-go span{position:relative;z-index:1}
 /* Good-to-know slides: one at a time, sliding past each other */
-.sd-promo{margin-top:auto;display:grid;gap:12px}
-.sd-slides{position:relative;height:112px;border:1px solid var(--sd-line);border-radius:18px;background:var(--sd-soft);overflow:hidden}
+.sd-promo{margin-top:auto;flex:1 1 auto;min-height:0;max-height:420px;display:flex;flex-direction:column;gap:12px}
+.sd-slides{position:relative;flex:1 1 auto;min-height:112px;container-type:size;border:1px solid var(--sd-line);border-radius:18px;background:var(--sd-soft);overflow:hidden}
 .sd-slides::before{content:"";position:absolute;inset:0 auto auto 0;width:100%;height:2px;background:linear-gradient(90deg,transparent,var(--sd-gold),transparent);transform:translateX(-100%);animation:sdSheen 5.2s cubic-bezier(.45,0,.2,1) infinite}
 .sd-slide{position:absolute;inset:0;display:grid;grid-template-columns:auto minmax(0,1fr);grid-template-areas:"i t" "i b";column-gap:14px;row-gap:8px;align-content:center;padding:14px 16px;opacity:0;transform:translateX(34px);transition:opacity .55s var(--sd-e),transform .7s var(--sd-e);pointer-events:none}
 .sd-slide[data-pos=prev]{transform:translateX(-34px)}
 .sd-slide[data-on]{opacity:1;transform:none;pointer-events:auto}
-.sd-ico{grid-area:i;align-self:start;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:color-mix(in srgb,var(--sd-gold) 16%,transparent);color:var(--sd-gold)}
+.sd-fig{display:none}
+.sd-ico{grid-area:i;position:relative;align-self:start;display:grid;place-items:center;width:40px;height:40px;border-radius:12px;background:color-mix(in srgb,var(--sd-gold) 16%,transparent);color:var(--sd-gold)}
 html:not([data-theme=dark]) .sd-ico{color:var(--sd-lo)}
 .sd-ico svg{width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
 .sd-slide[data-on] .sd-ico svg{animation:sdBob 3.2s cubic-bezier(.45,0,.2,1) infinite}
@@ -84,9 +85,27 @@ dialog.sd[open]:not([data-closing]) .sd-sec:nth-child(2){animation-delay:.24s}
 dialog.sd[open]:not([data-closing]) .sd-sec:nth-child(3){animation-delay:.32s}
 dialog.sd[open]:not([data-closing]) .sd-sec:nth-child(4){animation-delay:.4s}
 dialog.sd[open]:not([data-closing]) .sd-foot{animation-delay:.46s}
-@media(max-height:780px){.sd-slides{height:96px}.sd-slide{padding:10px 14px;row-gap:6px}.sd-ico{width:34px;height:34px}.sd-pbtn{height:28px}.sd-seg label{height:40px}.sd-qty button,.sd-qty input{height:42px}.sd-swap{padding:2px 0}.sd-foot{padding-block:12px}.sd-promo{gap:8px}}
+@media(max-height:780px){.sd-slides{min-height:96px}.sd-slide{padding:10px 14px;row-gap:6px}.sd-ico{width:34px;height:34px}.sd-pbtn{height:28px}.sd-seg label{height:40px}.sd-qty button,.sd-qty input{height:42px}.sd-swap{padding:2px 0}.sd-foot{padding-block:12px}.sd-promo{gap:8px}}
 @media(max-width:520px){dialog.sd{width:100%}.sd-panel{border-left:0}.sd-head{padding:18px 16px 12px}.sd-body{padding:4px 16px 18px}.sd-foot{padding-inline:16px}.sd-go{padding:0 16px}}
 @media(prefers-reduced-motion:reduce){.sd-slides::before{display:none}dialog.sd *,dialog.sd *::before,dialog.sd *::after{transition:none!important;animation:none!important}}
 html[data-checkout-step=billing] .license-entry{display:none!important}
 .sd-change{margin:4px 0 8px;padding:0;border:0;background:none;color:var(--ink);font:inherit;font-size:.875rem;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-@media(max-width:520px){.sd-slides{height:122px}}
+@media(max-width:520px){.sd-slides{min-height:122px}}
+
+/* Roomy banner: when the drawer has spare height the offer grows into it */
+.sd-slides::after{content:"";position:absolute;inset:-30% -20% auto auto;width:70%;height:160%;background:radial-gradient(closest-side,color-mix(in srgb,var(--sd-gold) 13%,transparent),transparent);animation:sdDrift 9s cubic-bezier(.45,0,.2,1) infinite alternate;pointer-events:none}
+@keyframes sdDrift{from{transform:translate(0,0)}to{transform:translate(-18%,14%)}}
+.sd-ico::before,.sd-ico::after{content:"";position:absolute;inset:0;border-radius:inherit;border:1px solid var(--sd-gold);opacity:0}
+.sd-slide[data-on] .sd-ico::before{animation:sdRing 2.8s cubic-bezier(.22,1,.36,1) infinite}
+.sd-slide[data-on] .sd-ico::after{animation:sdRing 2.8s 1.4s cubic-bezier(.22,1,.36,1) infinite}
+@keyframes sdRing{0%{opacity:.7;transform:scale(1)}100%{opacity:0;transform:scale(1.9)}}
+@container (min-height:190px){
+ .sd-slide{grid-template-columns:auto 1fr;grid-template-areas:"i f" "t t" "b b";align-content:space-evenly;padding:18px 20px;row-gap:10px}
+ .sd-ico{width:52px;height:52px;border-radius:16px}.sd-ico svg{width:26px;height:26px}
+ .sd-fig{display:block;grid-area:f;justify-self:end;align-self:center;text-align:right;font-size:clamp(1.5rem,7cqh,2.4rem);font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;color:var(--sd-gold);line-height:1.05}
+ html:not([data-theme=dark]) .sd-fig{color:var(--sd-lo)}
+ .sd-fig small{display:block;margin-top:4px;font-size:.72rem;font-weight:600;letter-spacing:.02em;color:var(--sd-mute)}
+ .sd-slide-t b{font-size:1.15rem}.sd-slide-t small{font-size:.85rem;line-height:1.5}
+ .sd-pbtn{height:38px;padding:0 18px;font-size:.875rem}
+}
+@media(prefers-reduced-motion:reduce){.sd-slides::after,.sd-ico::before,.sd-ico::after{animation:none}}

@@ -3,7 +3,7 @@
    the payment method (a saved card, Razorpay or PayPal) and a Complete payment button. It reuses the real form behind it,
    so prices, coupons, country checks and the payment step all stay exactly the same. Card numbers are never seen here. */
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
-import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261112-sd1';
+import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261112-sd2';
 import {cachedProfile,loadProfile} from './profile-store.js?v=pm3';
 const form=document.querySelector('#billing-form');
 const params=new URLSearchParams(location.search);

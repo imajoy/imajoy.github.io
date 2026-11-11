@@ -1,6 +1,6 @@
 import {billingParts} from './receipt-billing.js?v=rb1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261112-sd1';
+import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261112-sd2';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
 import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261023-p7';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';

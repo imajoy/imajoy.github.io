@@ -70,7 +70,7 @@ export function initializeCheckoutSteps(form){
   for(const link of document.querySelectorAll('a[href="checkout.html"]'))link.addEventListener('click',()=>{try{writeBillingDraft(form);}catch{}});
  }else{
   const next=document.createElement('section');next.className='checkout-continue';
-  next.innerHTML='<button type="button" class="btn btn-blue btn-block" data-continue-payment>Continue to checkout <span aria-hidden="true">→</span></button><p class="form-hint">Choose from the payment methods available for your country on the next page.</p><p class="form-status" data-payment-step-status role="status" aria-live="polite"></p>';
+  next.innerHTML='<button type="button" class="btn btn-blue btn-block" data-continue-payment><span class="cp-label">Continue to payment</span><span class="cp-arrow" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg><svg viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span><i class="cp-line" aria-hidden="true"></i></button><p class="form-hint">Choose from the payment methods available for your country on the next page.</p><p class="form-status" data-payment-step-status role="status" aria-live="polite"></p>';
   form.append(next);
   function continueToPayment(){
    const notice=next.querySelector('[data-payment-step-status]'),session=getAccountSession();notice.textContent='';
@@ -78,9 +78,11 @@ export function initializeCheckoutSteps(form){
    if(!session){openAccount({purpose:'checkout'});return;}
    if(!form.reportValidity())return;
    try{writeBillingDraft(form);}catch{notice.textContent='Allow storage for this tab so your billing details can continue securely.';return;}
+   const goBtn=next.querySelector('button');goBtn.classList.add('is-go');goBtn.querySelector('.cp-label').textContent='Opening payment…';
    location.assign('payment.html');
   }
   next.querySelector('button').onclick=continueToPayment;
+  addEventListener('pageshow',e=>{if(e.persisted){const b=next.querySelector('button');b.classList.remove('is-go');b.querySelector('.cp-label').textContent='Continue to payment';}});
   form.addEventListener('submit',event=>{event.preventDefault();event.stopImmediatePropagation();continueToPayment();},true);
  }
  let accountEmail=getAccountSession()?.email;

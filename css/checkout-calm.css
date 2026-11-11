@@ -37,3 +37,23 @@ html body.pay-single .payment-picker .pay-item{animation:cbRise .6s cubic-bezier
 html body.pay-single .payment-picker .pay-item:nth-child(2){animation-delay:.05s}html body.pay-single .payment-picker .pay-item:nth-child(3){animation-delay:.1s}html body.pay-single .payment-picker .pay-item:nth-child(4){animation-delay:.15s}html body.pay-single .payment-picker .pay-item:nth-child(5){animation-delay:.2s}
 html body.pay-single .order-summary{animation:cbRise .6s .12s cubic-bezier(.22,1,.36,1) both}
 @media(prefers-reduced-motion:reduce){html body.bill-v2 .payment-picker .pay-item>label::before,html body.bill-v2 .payment-picker .pay-item{transition:none!important}html body.pay-single .payment-picker .pay-item,html body.pay-single .order-summary{animation:none!important}}
+
+/* Continue to payment: the arrow keeps travelling, a gold line sweeps the edge, and the button fills gold when pressed */
+html body.bill-v2 [data-continue-payment]{position:relative;overflow:hidden;height:56px;border-radius:14px!important;gap:12px!important}
+.cp-label{position:relative;z-index:1;transition:opacity .3s}
+.cp-arrow{position:relative;z-index:1;width:22px;height:22px;overflow:hidden;display:block;flex:none}
+.cp-arrow svg{position:absolute;inset:0;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .6s cubic-bezier(.22,1,.36,1)}
+.cp-arrow svg+svg{transform:translateX(-170%)}
+.cp-line{position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold,#F2B64F) 35%,var(--gold-hi,#FFE2A0) 50%,var(--gold,#F2B64F) 65%,transparent);transform:translateX(-101%);transition:transform 1s cubic-bezier(.22,1,.36,1)}
+@media(hover:hover){
+ [data-continue-payment]:not(:disabled):hover .cp-arrow svg:first-child{transform:translateX(170%)}
+ [data-continue-payment]:not(:disabled):hover .cp-arrow svg+svg{transform:none}
+ [data-continue-payment]:not(:disabled):hover .cp-line{transform:translateX(101%)}
+}
+[data-continue-payment]:focus-visible .cp-line{transform:none}
+html body.bill-v2 [data-continue-payment].is-go{pointer-events:none}
+[data-continue-payment].is-go .cp-line{height:100%;background:linear-gradient(135deg,var(--gold-hi,#FFE2A0),var(--gold,#F2B64F));transform:none;transition:height .55s cubic-bezier(.22,1,.36,1)}
+[data-continue-payment].is-go .cp-label,[data-continue-payment].is-go .cp-arrow{color:#1A1204}
+@keyframes cpArm{0%{transform:translateX(-101%)}100%{transform:translateX(101%)}}
+[data-continue-payment]:not(:disabled):not(.is-go) .cp-line{animation:cpArm 1.6s .4s cubic-bezier(.22,1,.36,1) 1 both}
+@media(prefers-reduced-motion:reduce){.cp-line,.cp-arrow svg{transition:none!important;animation:none!important}}

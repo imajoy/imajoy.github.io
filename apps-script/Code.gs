@@ -604,7 +604,7 @@ function handleAccount_(d) {
     var cache = CacheService.getScriptCache();
     if (step === 'code') {
       var key = 'sends:' + email, n = Number(cache.get(key) || 0);
-      if (n >= 5) return { ok: false, error: 'limit' };
+      if (n >= 5 && !testEmail_(email)) return { ok: false, error: 'limit' };
       cache.put(key, String(n + 1), 3600);
       // Legacy sign-in-only requests still reject unknown emails; unified requests register only after verification.
       var registered = registeredEmail_(email);
@@ -869,6 +869,8 @@ function renamePayPalPlans() {
 }
 
 /* ---------- Contact form: private Contacts tab, no account or marketing enrolment ---------- */
+/* Ajoy's own testing address: it is never held back by the per-email hourly limits (the site-wide daily cap still applies). */
+function testEmail_(email) { return String(email || '').toLowerCase() === 'contactmy3dart@gmail.com'; }
 function handleContact_(data) {
   var text = function(value) { return typeof value === 'string' ? value.trim() : ''; };
   var name=text(data.name),email=text(data.email).toLowerCase(),message=text(data.message),topic=text(data.topic),requestId=text(data.requestId);
@@ -886,7 +888,7 @@ function handleContact_(data) {
     // Per-email/hour and site/day limits reduce bulk abuse without emailing visitors.
     var day=new Date().toISOString().slice(0,10),p=props_(),daily=JSON.parse(p.getProperty('CONTACT_DAILY')||'{}');
     if (daily.day!==day)daily={day:day,count:0};
-    if (count>=3 || daily.count>=200) return {ok:false,error:'limit'};
+    if ((count>=3 && !testEmail_(email)) || daily.count>=200) return {ok:false,error:'limit'};
     // Reserve attempts before external uploads so failures cannot bypass quotas.
     daily.count++;p.setProperty('CONTACT_DAILY',JSON.stringify(daily));cache.put(key,String(count+1),3600);
     var attachmentURLs=[];

@@ -344,3 +344,27 @@ html[data-theme=dark] body.ty-page::after{opacity:.4}
 
 /* invoice lives in Profile > Payment history; the thank-you page only links there */
 .ty-page #ty-receipt-sec,.ty-page #ty-archive{display:none!important}
+
+/* Invoice print-out: the page feeds out of a slim slot in one smooth pass, its lower edge torn like a receipt; a small light shows printing (blue) then done (green), and the PAID mark presses in last. */
+.iv-wrap{position:relative;box-sizing:border-box;width:min(100%,828px);margin-inline:auto;padding-top:9px}
+.iv-slot{position:absolute;top:0;left:0;right:0;height:18px;border-radius:9px;background:#0E1220;z-index:2;box-shadow:0 8px 14px -10px rgba(14,18,32,.55)}
+.iv-slot::before{content:"";position:absolute;left:14px;right:38px;top:8px;height:3px;border-radius:3px;background:#000;opacity:.6}
+.iv-slot i{position:absolute;right:15px;top:6px;width:6px;height:6px;border-radius:50%;background:#5b6480;transition:background-color .4s}
+.iv-wrap.is-in .iv-slot i{background:#3D8BFF;animation:iv-light .9s ease-in-out infinite}
+.iv-wrap.is-done .iv-slot i{background:#2fb583;animation:none}
+html[data-theme=dark] .iv-slot{background:#1A2342;box-shadow:0 0 0 1px #2c3760,0 8px 14px -10px rgba(0,0,0,.7)}
+.iv-feed{overflow:hidden;padding:0 14px 30px;transition:filter .5s}
+.iv-wrap.is-done .iv-feed{filter:drop-shadow(0 16px 18px rgba(0,0,0,.14))}
+.iv-wrap .iv-feed .iv-paper{width:100%;border-top:0;border-bottom:0;border-radius:0;box-shadow:none;padding-bottom:calc(clamp(22px,5vw,52px) + 8px);
+ -webkit-mask:linear-gradient(#000 0 0) top/100% calc(100% - 7px) no-repeat,conic-gradient(from -45deg at 50% 100%,#000 90deg,#0000 0) bottom/14px 7px repeat-x;
+ mask:linear-gradient(#000 0 0) top/100% calc(100% - 7px) no-repeat,conic-gradient(from -45deg at 50% 100%,#000 90deg,#0000 0) bottom/14px 7px repeat-x}
+.iv-wrap .iv-feed .iv-paper:not(.is-in):not(.is-print){opacity:1;transform:translate3d(0,-101%,0)}
+.iv-wrap .iv-feed .iv-paper.is-in{animation:iv-feed 1.9s cubic-bezier(.45,.05,.2,1) both;will-change:transform}
+.iv-wrap.is-done .iv-feed .iv-paper.is-in{will-change:auto}
+.iv-wrap .iv-paid{display:inline-block;transform-origin:left center;opacity:0}
+.iv-wrap.is-done .iv-paid{animation:iv-paid .55s cubic-bezier(.2,1.4,.4,1) both}
+@keyframes iv-feed{from{transform:translate3d(0,-101%,0)}to{transform:none}}
+@keyframes iv-light{50%{opacity:.35}}
+@keyframes iv-paid{from{opacity:0;transform:scale(1.5)}60%{opacity:1}to{opacity:1;transform:none}}
+#iv-print .iv-paper{-webkit-mask:none!important;mask:none!important}#iv-print .iv-paid{opacity:1!important;animation:none!important}
+@media(prefers-reduced-motion:reduce){.iv-wrap .iv-feed .iv-paper,.iv-wrap .iv-feed .iv-paper.is-in{transform:none!important;animation:none!important}.iv-wrap .iv-paid{opacity:1;animation:none!important}.iv-slot i{animation:none!important}}

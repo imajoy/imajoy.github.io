@@ -1,7 +1,7 @@
 /* Confirmation page. Razorpay buyers arrive the moment Razorpay reports success; the server check finishes here, live. */
 import {getAccountSession,accountRequest} from './account-session.js?v=20261023-p7';
 import {orb} from './mood-orb.js?v=mo1';
-import {buildInvoiceDoc,printDoc,invoicePeriod} from './ty-invoice.js?v=iv9';
+import {buildInvoiceDoc,printDoc,invoicePeriod} from './ty-invoice.js?v=iv10';
 import {readReceiptBilling,billingLines} from './receipt-billing.js?v=rb1';
 import {mountSetupProgress} from './setup-progress.js?v=20261110-sm1';
 let progress=null;

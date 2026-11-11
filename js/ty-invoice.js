@@ -78,9 +78,13 @@ export function buildInvoiceDoc(o){
  const foot=el('footer','iv-foot');
  foot.append(el('span',null,'This is a computer-generated document and is valid without a signature.'),el('span',null,seller+' · wrapline.in'));
  paper.append(top,parties,table,below,foot);
- wrap.append(paper);
- const go=()=>paper.classList.add('is-in');
- if('IntersectionObserver' in window&&!reduce()){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){go();io.disconnect();}},{threshold:.12});queueMicrotask(()=>io.observe(paper));}
+ /* The page is fed out of a slim slot, like a receipt leaving a printer; the small light is blue while it prints and green when it is done. */
+ const slot=el('div','iv-slot'),feed=el('div','iv-feed');slot.setAttribute('aria-hidden','true');slot.append(el('i'));feed.append(paper);
+ wrap.append(slot,feed);
+ let started=false;
+ const done=()=>wrap.classList.add('is-done');
+ const go=()=>{if(started)return;started=true;paper.classList.add('is-in');wrap.classList.add('is-in');if(reduce())done();else{paper.addEventListener('animationend',e=>{if(e.target===paper)done();});setTimeout(done,2600);}};
+ if('IntersectionObserver' in window&&!reduce()){const io=new IntersectionObserver(es=>{if(es[0].isIntersecting){go();io.disconnect();}},{threshold:.05});queueMicrotask(()=>io.observe(wrap));}
  else go();
  wrap.go=go;
  return wrap;

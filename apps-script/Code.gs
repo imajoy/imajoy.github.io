@@ -43,7 +43,7 @@ function codeEmailHtml_(code, minutes, support) {
   return '<div style="background:#ffffff;margin:0;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#14182a">' +
     '<div style="max-width:560px;margin:0 auto">' +
     '<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px"><tr>' +
-      '<td style="width:34px;height:34px;background:#2a64e8;border-radius:9px;color:#ffffff;font-weight:700;font-size:19px;text-align:center;line-height:34px">W</td>' +
+      '<td style="width:34px;height:34px"><img src="https://wrapline.in/assets/apple-touch-icon.png" width="34" height="34" alt="W" style="display:block;border:0;border-radius:9px;background:#2a64e8;color:#ffffff;font-weight:700;font-size:19px;text-align:center;line-height:34px"></td>' +
       '<td style="padding-left:11px;font-size:19px;font-weight:700;letter-spacing:.2px;color:#14182a">WRAPLINE</td></tr></table>' +
     '<h1 style="font-size:28px;line-height:1.2;margin:0 0 22px;font-weight:700;color:#14182a">Here is your verification code:</h1>' +
     '<div style="border:1px solid #e3e6ef;border-radius:16px;padding:26px 28px;margin:0 0 26px">' +
@@ -460,7 +460,7 @@ function welcomeEmailHtml_(support) {
   return '<div style="background:#ffffff;margin:0;padding:32px 16px;font-family:Arial,Helvetica,sans-serif;color:#14182a">' +
     '<div style="max-width:560px;margin:0 auto">' +
     '<table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 28px"><tr>' +
-      '<td style="width:34px;height:34px;background:#2a64e8;border-radius:9px;color:#ffffff;font-weight:700;font-size:19px;text-align:center;line-height:34px">W</td>' +
+      '<td style="width:34px;height:34px"><img src="https://wrapline.in/assets/apple-touch-icon.png" width="34" height="34" alt="W" style="display:block;border:0;border-radius:9px;background:#2a64e8;color:#ffffff;font-weight:700;font-size:19px;text-align:center;line-height:34px"></td>' +
       '<td style="padding-left:11px;font-size:19px;font-weight:700;letter-spacing:.2px;color:#14182a">WRAPLINE</td></tr></table>' +
     '<h1 style="font-size:28px;line-height:1.2;margin:0 0 16px;font-weight:700;color:#14182a">Thanks for registering.</h1>' +
     '<p style="font-size:16px;line-height:1.6;margin:0 0 22px;color:#2b3149">Your Wrapline account is ready. You can sign in any time with just your email and a one-time code. There is no password to remember.</p>' +

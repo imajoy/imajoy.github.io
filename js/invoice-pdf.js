@@ -45,10 +45,15 @@ export async function invoicesToPdf(docs){
     text('WRAPLINE',M+34,y-9,{f:bold,s:13});
     let ly=y-38;
     [...paper.querySelectorAll('.iv-from>span')].forEach((s,i)=>{text(T(s),M,ly,{f:i?reg:bold,s:9,c:i?mute:ink});ly-=12;});
-    text(T(paper.querySelector('.iv-title h3')),W-M,y-6,{f:bold,s:20,right:true});
-    let ry=y-26;
-    [...paper.querySelectorAll('.iv-facts>div')].forEach(r=>{const k=T(r.querySelector('dt')),v=T(r.querySelector('dd'));const vw=width(v,bold,9);text(v,W-M,ry,{f:bold,s:9,right:true});text(k,W-M-vw-8,ry,{s:9,c:mute,right:true});ry-=13;});
-    const stamp=T(paper.querySelector('.iv-paid'));if(stamp){text(stamp,W-M,ry-4,{f:bold,s:10,c:/PAID|DONE/.test(stamp)?rgb(.11,.6,.42):mute,right:true});ry-=18;}
+    text(T(paper.querySelector('.iv-title h3')),W-M,y-6,{f:bold,s:22,right:true});
+    /* key facts: labels line up in one column, values line up on the right edge */
+    let ry=y-34;const lx=W-M-210;
+    [...paper.querySelectorAll('.iv-facts>div')].forEach(r=>{const k=T(r.querySelector('dt')),v=T(r.querySelector('dd'));text(k,lx,ry,{s:8.5,c:mute});text(v,W-M,ry,{f:bold,s:9.5,right:true});ry-=17;});
+    /* status as a small pill */
+    const stamp=T(paper.querySelector('.iv-paid'));
+    if(stamp){const good=/PAID|DONE|ACTIVE|CONFIRMED/.test(stamp),col=good?rgb(.11,.6,.42):mute,sw=width(stamp,bold,8.5)+22,ph=20,px=W-M-sw,py=ry-11;
+      page.drawSvgPath('M10 0H'+(sw-10)+'Q'+sw+' 0 '+sw+' 10Q'+sw+' '+ph+' '+(sw-10)+' '+ph+'H10Q0 '+ph+' 0 10Q0 0 10 0Z',{x:px,y:py+ph,color:good?rgb(.91,.97,.94):rgb(.95,.96,.97),borderColor:col,borderWidth:.7});
+      text(stamp,px+11,py+6.5,{f:bold,s:8.5,c:col});ry=py-10;}
     y=Math.min(ly,ry)-18;rule(y);y-=24;
     /* billed to */
     text('BILLED TO',M,y,{f:bold,s:8,c:mute});y-=14;
@@ -58,15 +63,16 @@ export async function invoicesToPdf(docs){
     y-=12;
     /* items */
     const cols=[...paper.querySelectorAll('.iv-table thead th')].map(T),x=[M,W-M-250,W-M-150,W-M];
-    rule(y+10);cols.forEach((c,i)=>text(c.toUpperCase(),i===3?x[3]:x[i],y-6,{f:bold,s:8,c:mute,right:i===3}));
-    y-=14;rule(y);y-=18;
+    page.drawRectangle({x:M,y:y-12,width:W-2*M,height:26,color:rgb(.955,.965,.985)});
+    cols.forEach((c,i)=>text(c.toUpperCase(),i===3?x[3]-8:x[i]+(i?0:8),y-3,{f:bold,s:8,c:mute,right:i===3}));
+    y-=24;y-=8;
     const cells=[...paper.querySelectorAll('.iv-table tbody tr:first-child td')];
     const desc=[...cells[0].children].map(T);let dy=y;
-    desc.forEach((d,i)=>{for(const l of wrap(d,i?reg:bold,i?9:10,x[1]-M-14)){text(l,M,dy,{f:i?reg:bold,s:i?9:10,c:i?mute:ink});dy-=13;}});
-    text(T(cells[1]),x[1],y,{s:9});text(T(cells[2]),x[2],y,{s:9});text(T(cells[3]),x[3],y,{f:bold,s:10,right:true});
-    y=dy-4;rule(y);y-=22;
+    desc.forEach((d,i)=>{for(const l of wrap(d,i?reg:bold,i?9:10,x[1]-M-22)){text(l,M+8,dy,{f:i?reg:bold,s:i?9:10,c:i?mute:ink});dy-=14;}});
+    text(T(cells[1]),x[1],y,{s:9.5});text(T(cells[2]),x[2],y,{s:9.5});text(T(cells[3]),x[3]-8,y,{f:bold,s:10,right:true});
+    y=dy-8;rule(y);y-=26;
     /* totals */
-    [...paper.querySelectorAll('.iv-totals>div')].forEach(r=>{const big=r.classList.contains('iv-grand');text(T(r.querySelector('dt')),W-M-150,y,{f:big?bold:reg,s:big?11:10,c:big?ink:mute});text(T(r.querySelector('dd')),W-M,y,{f:big?bold:reg,s:big?11:10,right:true});y-=big?20:16;});
+    [...paper.querySelectorAll('.iv-totals>div')].forEach(r=>{const big=r.classList.contains('iv-grand');if(big){page.drawLine({start:{x:W-M-170,y:y+15},end:{x:W-M,y:y+15},thickness:.7,color:line});y-=4;}text(T(r.querySelector('dt')),W-M-170,y,{f:big?bold:reg,s:big?12:9.5,c:big?ink:mute});text(T(r.querySelector('dd')),W-M,y,{f:big?bold:reg,s:big?13:9.5,right:true});y-=big?24:18;});
     y-=10;
     /* notes */
     [...paper.querySelectorAll('.iv-notes p')].forEach(p=>{for(const l of wrap(T(p),reg,9,W-2*M)){text(l,M,y,{s:9,c:mute});y-=12;}y-=4;});

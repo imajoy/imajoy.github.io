@@ -40,9 +40,9 @@ export function buildInvoiceDoc(o){
  const ttl=el('div','iv-title');ttl.append(el('h3',null,kind));
  const facts=el('dl','iv-facts');
  const fact=(k,v)=>{if(!v)return;const r=el('div');r.append(el('dt',null,k),el('dd',null,v));facts.append(r);};
- fact('Invoice #',o.number?o.number+(o.test?' (TEST)':''):'');fact('Invoice Issued #',o.date);
- if(known)fact('Invoice Amount #',m(o.total)+cc);
- fact('Next Billing Date #',o.nextBilling);fact('Order Nr. #',o.orderId);fact('Payment method #',o.provider);fact('Reference #',o.reference);
+ fact('Invoice number',o.number?o.number+(o.test?' (TEST)':''):'');fact('Date issued',o.date);
+ if(known)fact('Amount',m(o.total)+cc);
+ fact('Next billing',o.nextBilling);fact('Order',o.orderId);fact('Paid with',o.provider);fact('Reference',o.reference);
  const paidTxt=o.statusKind==='paid'?'PAID':/trial/i.test(o.statusText||'')?'TRIAL ACTIVE':/payment done/i.test(o.statusText||'')?'PAYMENT DONE':'CONFIRMED';
  const paid=el('p','iv-paid',paidTxt);paid.dataset.kind=o.statusKind==='paid'?'paid':'free';
  ttl.append(facts,paid);
@@ -63,17 +63,17 @@ export function buildInvoiceDoc(o){
  thead.append(hr);
  const tbody=el('tbody'),tr=el('tr'),d=el('td','d');
  d.append(el('b',null,o.title));if(o.sub)d.append(el('span',null,o.sub+' · '+o.seats+(o.seats===1?' license':' licenses')));if(o.period)d.append(el('small',null,o.period));
- tr.append(d,el('td','u',known&&o.seats>0?m(o.total/o.seats)+' x '+o.seats:price()),el('td','x',o.coupon?'Code '+o.coupon:'—'),el('td','a',known?m(o.total):'As invoiced'));
+ tr.append(d,el('td','u',known&&o.seats>0?m(o.total/o.seats)+' × '+o.seats:price()),el('td','x',o.coupon?'Code '+o.coupon:'—'),el('td','a',known?m(o.total):'As invoiced'));
  tbody.append(tr);table.append(cap,thead,tbody);
  /* totals */
  const tot=el('dl','iv-totals');
  const line=(k,v,cls)=>{const r=el('div',cls);r.append(el('dt',null,k),el('dd',null,v));tot.append(r);};
  line('Total',known?m(o.total):'As invoiced','iv-grand');
- line('Payments',known?'('+m(o.statusKind==='paid'?o.total:0)+')':'—');
- line('Amount Due'+cc,known?m(0):'—','iv-due');
+ line('Paid',known?'('+m(o.statusKind==='paid'?o.total:0)+')':'—');
+ line('Balance due'+cc,known?m(0):'—','iv-due');
  const below=el('div','iv-below'),notes=el('div','iv-notes');
  notes.append(el('p',null,o.note||'Thank you for choosing Wrapline.'));
- notes.append(el('p',null,'Amounts are shown in the currency charged. Manage or stop automatic renewal any time from your Account on the Wrapline Pro page.'));
+ notes.append(el('p',null,'Amounts are in the currency you were charged. You can manage or stop automatic renewal at any time from your account.'));
  below.append(notes,tot);
  const foot=el('footer','iv-foot');
  foot.append(el('span',null,'This is a computer-generated document and is valid without a signature.'),el('span',null,seller+' · wrapline.in'));

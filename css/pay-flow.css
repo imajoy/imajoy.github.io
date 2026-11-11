@@ -23,3 +23,18 @@ body.pay-only #availability{display:none}
 html[data-billing-blocked=true] body.pay-only #availability{display:block}
 body.pay-only main .wrap>:is(.pay-back,.eyebrow,h1){max-width:640px;margin-inline:auto}
 body.pay-only main .wrap>.pay-back{display:flex;width:fit-content;max-width:640px;margin-left:max(0px,calc(50% - 320px))}
+
+/* coupon under the order total */
+.sum-coupon{display:grid;gap:10px;margin:16px 0 4px;padding-top:16px;border-top:1px solid var(--line)}
+.sum-coupon-t{margin:0;font-size:14px;font-weight:700;color:var(--gold-lo,#B27712)}
+html[data-theme=dark] .sum-coupon-t{color:var(--gold,#F2B64F)}
+.sum-coupon-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}
+.sum-coupon-row input{min-width:0;height:48px;padding:0 14px;font:inherit;font-size:16px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:14px;transition:border-color .25s,box-shadow .3s}
+.sum-coupon-row input:focus{outline:0;border-color:var(--gold-lo,#B27712);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold,#F2B64F) 28%,transparent)}
+.sum-coupon-row input[readonly]{opacity:.8}
+.sum-coupon-row .btn{height:48px;padding-inline:20px;border-radius:14px;box-shadow:none}
+.sum-coupon-msg{margin:0;font-size:13px;line-height:1.45;color:var(--mute)}
+.sum-coupon-msg:empty{display:none}
+.sum-coupon-msg[data-kind=error]{color:#d4483b}.sum-coupon-msg[data-kind=ok]{color:#1f9d6b}
+html[data-theme=dark] .sum-coupon-msg[data-kind=error]{color:#ff8f86}html[data-theme=dark] .sum-coupon-msg[data-kind=ok]{color:#58d6a1}
+.sum-coupon-remove{justify-self:start;background:none;border:0;padding:0;cursor:pointer}

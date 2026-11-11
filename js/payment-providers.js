@@ -39,7 +39,7 @@ if(form&&paypal&&url){
  let userPicked=false,prefApplied=false;const savedPref=()=>'';
  /* Quick checkout: the customer already pressed Complete payment on the billing page, so open the Razorpay window as soon as the price is confirmed (never for a free trial). */
  let quickStart=false;try{const q=JSON.parse(sessionStorage.getItem('ajoy.quickpay')||'null');sessionStorage.removeItem('ajoy.quickpay');quickStart=paymentStep&&!!q&&q.provider==='razorpay'&&q.email===getAccountSession()?.email&&Date.now()-q.at<120000;}catch{}
- let config=null,paypalConfig=null,provider='review',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
+ let hold=true,config=null,paypalConfig=null,provider='review',quote=null,pending=null,busy=false,revision=0,timer,creating=false;
  document.documentElement.dataset.paymentProvider='review';paypal.hidden=true;
  document.querySelector('#customer-verification').hidden=true;document.querySelector('.coupon-panel').hidden=true;
  const draft=readBillingDraft();let restoredProvider=false;
@@ -50,7 +50,8 @@ if(form&&paypal&&url){
  const rzpCurrency=()=>quote?.currency||(choice().country!=='IN'&&config?.intlCurrency==='USD'?'USD':'INR');
  const money=value=>displayMoney(value,rzpCurrency(),choice().country);
  const showAmount=(id,value)=>setMoney(document.getElementById(id),value,rzpCurrency(),choice().country);
- const say=(text,kind='')=>{status.textContent=text;status.dataset.kind=kind;};
+ const release=()=>{if(!hold)return;hold=false;skel.classList.add('is-done');setTimeout(()=>skel.remove(),380);sync();};
+ const say=(text,kind='')=>{if(/^Price confirmed/.test(text))text='';status.textContent=text;status.dataset.kind=kind;};
  /* Confirmed quotes are remembered for 10 minutes so the next step shows the price at once.
     Display only: checkout re-sends the expected total and the server refuses any changed price. */
  const quoteKey=extra=>'ajoy.rzpq:'+JSON.stringify([getAccountSession()?.email||'',choice(),extra]);
@@ -108,7 +109,7 @@ if(form&&paypal&&url){
   const c=choice(),country=c.country,canRazorpay=razorpayAvailable(config,country),canPaypal=!!paypalConfig?.clientId&&/^[A-Z]{2}$/.test(country)&&availability(country,paypalConfig.closedCountries||[]).open&&(document.documentElement.dataset.billingTester==='true'||countryCheck(country,paypalConfig.mode==='live'?paypalConfig.country:'').ok)&&!!paypalConfig.plans?.tiers?.[tierFor(country)]?.[c.plan]?.[c.billing];
   if(!restoredProvider&&(canRazorpay||canPaypal)){restoredProvider=true;if(draft?.provider==='razorpay'&&canRazorpay)selected('razorpay');}
   if(!prefApplied&&(canRazorpay||canPaypal)&&cachedProfile()!==undefined){prefApplied=true;const want=savedPref();if(!userPicked&&!draft?.provider&&want){if(want==='razorpay'&&canRazorpay)selected('razorpay');else if(want==='paypal'&&canPaypal)selected('paypal');}}
-  pickLabels();picker.hidden=!canRazorpay&&!canPaypal;if(c.country!=='IN'&&rzpMethod!=='card'){rzpMethod='card';if(provider==='razorpay')syncAcc();}for(const r of picker.querySelectorAll('[value="razorpay"]'))r.parentElement.hidden=!canRazorpay||(r.dataset.m!=='card'&&c.country!=='IN');picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
+  pickLabels();picker.hidden=hold||(!canRazorpay&&!canPaypal);if(c.country!=='IN'&&rzpMethod!=='card'){rzpMethod='card';if(provider==='razorpay')syncAcc();}for(const r of picker.querySelectorAll('[value="razorpay"]'))r.parentElement.hidden=!canRazorpay||(r.dataset.m!=='card'&&c.country!=='IN');picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
   if(!canRazorpay&&!canPaypal&&provider!=='review')selected('review');
   else if(canRazorpay&&!canPaypal&&provider!=='razorpay')selected('razorpay');
   else if(canPaypal&&(provider==='review'||provider==='razorpay'&&!canRazorpay))selected('paypal');
@@ -258,7 +259,7 @@ if(form&&paypal&&url){
   paint();
   if(remembered&&remembered._age<60000)return;
   timer=setTimeout(async()=>{try{const data=await quoteOnce(extra,{...c,offer:trialing?'trial':'standard',...(sentCoupon&&!trialing?{coupon:sentCoupon}:{})});if(operation!==revision||key()!==selection||getAccountSession()?.token!==token)return;quote=data.pricing;saveQuote(extra,data.pricing);say('Price confirmed. Review the total before continuing.');couponNote();}
-   catch(error){if(operation!==revision)return;quote=null;if(sentCoupon&&String(error.code||'').startsWith('coupon_')){coupon='';couponNote(error.message+' No coupon discount is applied.',true);busy=false;refresh();return;}say(error.message);}finally{if(operation===revision){busy=false;paint();}}},remembered?0:180);
+   catch(error){if(operation!==revision)return;quote=null;if(sentCoupon&&String(error.code||'').startsWith('coupon_')){coupon='';couponNote(error.message+' No coupon discount is applied.',true);busy=false;refresh();return;}say(error.message);}finally{if(operation===revision){busy=false;paint();release();}}},remembered?0:180);
  }
  async function confirm(){
   if(!pending||busy||getAccountSession()?.email!==pending.email)return;
@@ -311,7 +312,8 @@ if(form&&paypal&&url){
  let pricedFor=getAccountSession()?.token;
  onAccountChange(()=>{const t=getAccountSession()?.token;if(t===pricedFor)return;pricedFor=t;if(provider==='razorpay')refresh();});
  document.addEventListener('ajoy:billing-network',()=>{sync();if(provider==='razorpay')refresh();});
- Promise.all([loadRazorpayConfig(),fetch(window.AJOY_CONFIG.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():null).catch(()=>null)]).then(([rzp,pp])=>{config=rzp;paypalConfig=pp;skel.remove();sync();},()=>skel.remove());
+ Promise.all([loadRazorpayConfig(),fetch(window.AJOY_CONFIG.paypalConfigUrl,{cache:'no-store',signal:AbortSignal.timeout(10000)}).then(r=>r.ok?r.json():null).catch(()=>null)]).then(([rzp,pp])=>{config=rzp;paypalConfig=pp;sync();if(provider!=='razorpay'||!getAccountSession()||document.documentElement.dataset.billingBlocked==='true')release();else if(!busy)release();},()=>release());
+ setTimeout(release,7000);
  if(getAccountSession())loadProfile().then(p=>{if(p!==undefined)sync();});
  try{const saved=JSON.parse(sessionStorage.getItem('ajoy.razorpay.pending')||'null');if(saved?.email===getAccountSession()?.email&&/^[-a-f0-9]{36}$/i.test(saved.id)){pending=saved;check.hidden=false;}}catch{}
 }

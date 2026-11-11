@@ -46,3 +46,4 @@ body.pay-single .pay-skel{padding:16px}
 /* payment page: the coupon box only reports the result; the code itself is entered on the billing page */
 body.pay-single .sum-coupon .sum-coupon-t,body.pay-single .sum-coupon .sum-coupon-row{display:none}
 body.pay-single .sum-coupon:has(.sum-coupon-msg:empty):not(:has(.sum-coupon-remove:not([hidden]))){display:none}
+.pay-skel{transition:opacity .35s cubic-bezier(.22,1,.36,1)}.pay-skel.is-done{opacity:0}

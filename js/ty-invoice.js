@@ -64,6 +64,7 @@ export function buildInvoiceDoc(o){
  const tbody=el('tbody'),tr=el('tr'),d=el('td','d');
  d.append(el('b',null,o.title));if(o.sub)d.append(el('span',null,o.sub+' · '+o.seats+(o.seats===1?' license':' licenses')));if(o.period)d.append(el('small',null,o.period));
  tr.append(d,el('td','u',known&&o.seats>0?m(o.total/o.seats)+' × '+o.seats:price()),el('td','x',o.coupon?'Code '+o.coupon:'—'),el('td','a',known?m(o.total):'As invoiced'));
+ for(const [td,l] of [[tr.children[1],'Price'],[tr.children[2],'Discount'],[tr.children[3],'Amount'+cc]]){td.dataset.label=l;if(/^[—-]$/.test(td.textContent.trim()))td.dataset.empty='';}
  tbody.append(tr);table.append(cap,thead,tbody);
  /* totals */
  const tot=el('dl','iv-totals');

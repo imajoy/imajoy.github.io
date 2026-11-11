@@ -1,0 +1,67 @@
+/* Invoice on screen: the same design as the downloaded PDF (js/invoice-pdf.js). Same words, same colours, same order.
+   Wide screens: brand and seller left, title and key facts right. Phones: everything stacks, the item table becomes a
+   small card, and nothing is ever cut off. Colours match the PDF: ink #151729, soft text #666E80, lines #DBE0EB, green #1C996B. */
+@media screen{
+ .iv-wrap .iv-paper{--ivi:#151729;--ivm:#666e80;--ivl:#dbe0eb;--ivg:#1c996b;color:var(--ivi);border-color:var(--ivl);font:400 clamp(12.5px,.35vw + 11.4px,13.5px)/1.55 var(--sans);padding:clamp(18px,4.6vw,48px);min-width:0}
+ .iv-wrap .iv-paper :is(span,b,p,dd,dt,small,h3,h4){color:inherit;overflow-wrap:anywhere}
+ .iv-wrap .iv-paper .iv-top{display:flex;justify-content:space-between;align-items:flex-start;gap:clamp(16px,4vw,32px);padding:0 0 24px;border:0}
+ .iv-wrap .iv-paper .iv-from{min-width:0;gap:3px}
+ .iv-wrap .iv-paper .iv-brand{margin-bottom:14px;gap:10px}
+ .iv-wrap .iv-paper .iv-brand b{font-size:clamp(14px,1.2vw + 11px,16px);font-weight:700;letter-spacing:.04em}
+ .iv-wrap .iv-paper .iv-from span{font-size:12px;color:var(--ivm)}
+ .iv-wrap .iv-paper .iv-from .iv-sel{margin-top:2px;color:var(--ivi);font-weight:700}
+ .iv-wrap .iv-paper .iv-title{flex:0 1 330px;min-width:0;text-align:right}
+ .iv-wrap .iv-paper .iv-title h3{margin:0 0 16px;font:700 clamp(24px,3.2vw + 14px,30px)/1 var(--sans);letter-spacing:-.01em;color:var(--ivi)}
+ .iv-wrap .iv-paper .iv-facts>div{display:grid;grid-template-columns:auto minmax(0,1fr);gap:4px 18px;align-items:baseline;padding:4px 0}
+ .iv-wrap .iv-paper .iv-facts dt{font-size:12px;color:var(--ivm);white-space:nowrap}
+ .iv-wrap .iv-paper .iv-facts dd{margin:0;text-align:right;font-weight:700;font-size:13px;color:var(--ivi)}
+ .iv-wrap .iv-paper .iv-paid,.iv-wrap .iv-paper .iv-paid[data-kind=free]{display:inline-block;margin:14px 0 0;padding:6px 14px;border:1px solid var(--ivg);border-radius:999px;background:#e8f7f0;color:var(--ivg)!important;font:700 11px/1 var(--sans);letter-spacing:.06em}
+ .iv-wrap .iv-paper .iv-parties{display:block;margin:0;padding:22px 0 20px;border:0;border-top:1px solid var(--ivl)}
+ .iv-wrap .iv-paper .iv-parties h4{margin:0 0 10px;font:700 10px/1 var(--sans);letter-spacing:.1em;color:var(--ivm)}
+ .iv-wrap .iv-paper .iv-parties b{font-size:14.5px;color:var(--ivi)}
+ .iv-wrap .iv-paper .iv-parties span{font-size:13px;color:var(--ivm)}
+ .iv-wrap .iv-paper .iv-parties small{color:var(--ivm);font-size:11px}
+ .iv-wrap .iv-paper .iv-table{margin:6px 0 0;border-collapse:separate;border-spacing:0}
+ .iv-wrap .iv-paper .iv-table th{padding:11px 10px;border:0;background:#f4f6fa;color:var(--ivm);font:700 10px/1.2 var(--sans);letter-spacing:.08em}
+.iv-wrap .iv-paper .iv-table th.u,.iv-wrap .iv-paper .iv-table th.x,.iv-wrap .iv-paper .iv-table th.a{color:var(--ivm)}
+ .iv-wrap .iv-paper .iv-table th:first-child{border-radius:8px 0 0 8px}.iv-wrap .iv-paper .iv-table th:last-child{border-radius:0 8px 8px 0}
+ .iv-wrap .iv-paper .iv-table td{padding:18px 10px;border:0;border-bottom:1px solid var(--ivl)}
+ .iv-wrap .iv-paper .iv-table .d b{font-size:14px;color:var(--ivi)}
+ .iv-wrap .iv-paper .iv-table .d span{margin-top:3px;font-size:12.5px;color:var(--ivm)}
+ .iv-wrap .iv-paper .iv-table .d small{margin-top:3px;font-size:12px;color:var(--ivm)}
+ .iv-wrap .iv-paper .iv-table .u,.iv-wrap .iv-paper .iv-table .x{color:var(--ivi)}
+ .iv-wrap .iv-paper .iv-table .a{font-weight:700;color:var(--ivi)}
+ .iv-wrap .iv-paper .iv-below{margin-top:24px;gap:22px}
+ .iv-wrap .iv-paper .iv-totals{max-width:320px;margin-left:auto;width:100%}
+ .iv-wrap .iv-paper .iv-totals>div{padding:7px 0;border:0;font-size:13px}
+ .iv-wrap .iv-paper .iv-totals dt{color:var(--ivm)}
+ .iv-wrap .iv-paper .iv-totals dd{font-weight:600;color:var(--ivi)}
+ .iv-wrap .iv-paper .iv-totals .iv-grand{margin:0 0 6px;padding:14px 0 10px;border:0;border-top:1px solid var(--ivl);font-size:16px}
+ .iv-wrap .iv-paper .iv-totals .iv-grand dt,.iv-wrap .iv-paper .iv-totals .iv-grand dd{font-weight:700;color:var(--ivi)}
+ .iv-wrap .iv-paper .iv-totals .iv-due{margin:0;border:0}
+ .iv-wrap .iv-paper .iv-totals .iv-due dd{font-weight:600}
+ .iv-wrap .iv-paper .iv-notes p{font-size:12px;color:var(--ivm)}
+ .iv-wrap .iv-paper .iv-foot{margin-top:30px;padding-top:14px;border-top:1px solid var(--ivl);font-size:11px;color:var(--ivm)}
+ .iv-wrap .iv-stamp{display:none}
+}
+/* phones and narrow windows: stack the header, turn the table into a card, never cut anything off */
+@media screen and (max-width:620px){
+ .iv-feed{padding-left:8px!important;padding-right:8px!important}
+ .iv-wrap .iv-paper .iv-top{flex-direction:column;gap:20px;padding-bottom:18px}
+ .iv-wrap .iv-paper .iv-title{flex:none;width:100%;text-align:left}
+ .iv-wrap .iv-paper .iv-title h3{margin-bottom:10px}
+ .iv-wrap .iv-paper .iv-facts>div{grid-template-columns:auto minmax(0,1fr);padding:9px 0;border-top:1px solid var(--ivl)}
+ .iv-wrap .iv-paper .iv-facts>div:first-child{border-top:0}
+ .iv-wrap .iv-paper .iv-facts dd{font-size:12.5px}
+ .iv-wrap .iv-paper .iv-table,.iv-wrap .iv-paper .iv-table tbody,.iv-wrap .iv-paper .iv-table tr,.iv-wrap .iv-paper .iv-table td{display:block;width:100%}
+ .iv-wrap .iv-paper .iv-table thead{display:none}
+ .iv-wrap .iv-paper .iv-table tr{padding:16px;border:1px solid var(--ivl);border-radius:14px;background:#fafbfd}
+ .iv-wrap .iv-paper .iv-table td{padding:0;border:0;white-space:normal}
+ .iv-wrap .iv-paper .iv-table td.d{margin-bottom:12px;padding-bottom:12px;border-bottom:1px solid var(--ivl)}
+ .iv-wrap .iv-paper .iv-table td[data-label]{display:flex;justify-content:space-between;gap:14px;padding:4px 0;text-align:right;padding-left:0}
+ .iv-wrap .iv-paper .iv-table td[data-label]::before{content:attr(data-label);color:var(--ivm);font-weight:400;text-align:left}
+ .iv-wrap .iv-paper .iv-table td[data-empty]{display:none}
+ .iv-wrap .iv-paper .iv-table td.a{margin-top:4px;padding-top:10px;border-top:1px solid var(--ivl)}
+ .iv-wrap .iv-paper .iv-totals{max-width:none}
+ .iv-wrap .iv-paper .iv-foot{flex-direction:column;gap:6px}
+}

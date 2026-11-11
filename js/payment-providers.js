@@ -50,7 +50,7 @@ if(form&&paypal&&url){
  const rzpCurrency=()=>quote?.currency||(choice().country!=='IN'&&config?.intlCurrency==='USD'?'USD':'INR');
  const money=value=>displayMoney(value,rzpCurrency(),choice().country);
  const showAmount=(id,value)=>setMoney(document.getElementById(id),value,rzpCurrency(),choice().country);
- const release=()=>{if(!hold)return;hold=false;skel.classList.add('is-done');setTimeout(()=>skel.remove(),380);sync();};
+ const release=()=>{if(!hold)return;hold=false;skel.remove();sync();document.dispatchEvent(new Event('ajoy:page-ready'));};
  const say=(text,kind='')=>{if(/^Price confirmed/.test(text))text='';status.textContent=text;status.dataset.kind=kind;};
  /* Confirmed quotes are remembered for 10 minutes so the next step shows the price at once.
     Display only: checkout re-sends the expected total and the server refuses any changed price. */

@@ -89,3 +89,4 @@ dialog.sd[open]:not([data-closing]) .sd-foot{animation-delay:.46s}
 @media(prefers-reduced-motion:reduce){.sd-slides::before{display:none}dialog.sd *,dialog.sd *::before,dialog.sd *::after{transition:none!important;animation:none!important}}
 html[data-checkout-step=billing] .license-entry{display:none!important}
 .sd-change{margin:4px 0 8px;padding:0;border:0;background:none;color:var(--ink);font:inherit;font-size:.875rem;font-weight:600;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+@media(max-width:520px){.sd-slides{height:122px}}

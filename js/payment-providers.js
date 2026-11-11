@@ -9,7 +9,7 @@ import {loadRazorpayConfig,razorpayAvailable} from './razorpay-config.js?v=20261
 import {secureCommerce,browserDeviceId} from './commerce-gateway.js?v=20261020-country1';
 const form=document.querySelector('#billing-form'),paypal=document.querySelector('[data-payment-provider="paypal"]'),url=window.AJOY_CONFIG?.razorpayUrl;
 if(form&&paypal&&url){
- const picker=document.createElement('fieldset');picker.className='payment-picker';picker.hidden=true;
+ const picker=document.createElement('fieldset');picker.className='payment-picker';picker.setAttribute('aria-label','Choose a payment method');picker.hidden=true;
  picker.innerHTML='<legend>Choose a payment method</legend><label hidden><input type="radio" name="payment-provider" value="paypal" checked><span class="pk-t"><b>PayPal</b><small>Pay in USD · PayPal account or card</small><em class="nets" aria-hidden="true"><i class="nb nb-paypal">PayPal</i></em></span><i class="pick-badge pick-paypal" aria-hidden="true">USD</i></label><label hidden><input type="radio" name="payment-provider" value="razorpay"><span class="pk-t"><b data-rzp-title>Cards &amp; UPI</b><small data-rzp-pick>Pay in INR · secure checkout by Razorpay</small><em class="nets" data-rzp-nets aria-hidden="true"></em></span><i class="pick-badge pick-rzp" aria-hidden="true">INR</i></label>';
  const panel=document.createElement('section');panel.className='razorpay-panel';panel.hidden=true;
  const review=document.createElement('section');review.className='billing-review';
@@ -239,7 +239,7 @@ if(form&&paypal&&url){
   document.querySelector('#annual-summary-row').hidden=shownQuote.billing!=='yearly'||savings<=0;showAmount('summary-annual',-savings);
   const annual=document.querySelector('#annual-summary');annual.hidden=shownQuote.billing!=='yearly'||savings<=0;const pct=shownQuote.plan==='offline'?20:15;const tag=document.querySelector('[data-saving-percent]');if(tag)tag.textContent=pct+'%';annual.textContent=pct+'% off your first yearly plan · '+money(shownQuote.unitAmount/12)+' per license/month, billed annually.';
   document.querySelector('#quote-note').textContent='Razorpay charges '+rzpCurrency()+'. Converted local-currency amounts are estimates. Review the confirmed recurring amount before authorizing.';
-  document.querySelector('#availability').textContent='Review your billing details, then authorize securely with Razorpay.';
+  document.querySelector('#availability').textContent='';
  }
  async function api(operation,body={}){
   const session=getAccountSession();if(!session){openAccount({purpose:'checkout'});throw Error('Sign in or register to continue.');}

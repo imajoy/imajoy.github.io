@@ -22,7 +22,7 @@ function profilePhoto_(v) {
   return /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(s) && s.length <= 40000 ? s : '';
 }
 /* The picture is also kept as a real file in the owner's private Drive: "Wrapline profile photos" / <account email> / profile-photo.jpg.
-   A new picture replaces the old file; removing it (or deleting the account) moves the file and the account's folder to the Drive bin. Drive trouble never blocks saving the profile. */
+   The site asks for this in the background right after a picture is saved or removed (step profile-photo-sync). A new picture replaces the old file; removing it (or deleting the account) moves the file and the account's folder to the Drive bin. Drive trouble never blocks saving the profile. */
 var PROFILE_PHOTO_ROOT_ = 'Wrapline profile photos';
 function profilePhotoFolder_(email, create) {
   var roots = DriveApp.getFoldersByName(PROFILE_PHOTO_ROOT_), root = roots.hasNext() ? roots.next() : (create ? DriveApp.createFolder(PROFILE_PHOTO_ROOT_) : null);
@@ -92,10 +92,15 @@ function handleProfile_(d, step) {
   var who = readSession_(d.token);
   if (!who || who.sub) return { ok: false, error: 'expired' };
   if (!registeredEmail_(who.email)) return { ok: false, error: 'not_registered' };
+  if (step === 'profile-photo-sync') {
+    /* Called by the site right after a picture is saved or removed (in the background, so the upload itself stays quick): files the saved picture in Drive, or removes the file. */
+    var lock = LockService.getScriptLock(); if (!lock.tryLock(15000)) return { ok: false, error: 'busy' };
+    try { var saved = profileRead_(who.email); if (saved && saved.photo) profilePhotoSave_(who.email, saved.photo); else profilePhotoDrop_(who.email); } finally { lock.releaseLock(); }
+    return { ok: true };
+  }
   if (step === 'profile-get') return { ok: true, profile: profileRead_(who.email) };
   if (step === 'profile-clear') { if (!profileDelete_(who.email)) return { ok: false, error: 'busy' }; profilePhotoDrop_(who.email); return { ok: true, profile: null }; }
   var current = profileRead_(who.email) || profileClean_({}), next = profileClean_(Object.assign({}, current, d.profile && typeof d.profile === 'object' ? d.profile : {}));
   if (!profileWrite_(who.email, next)) return { ok: false, error: 'busy' };
-  if (next.photo !== current.photo) { if (next.photo) profilePhotoSave_(who.email, next.photo); else profilePhotoDrop_(who.email); }
   return { ok: true, profile: next };
 }

@@ -28,15 +28,17 @@ test('a profile picture is kept only when it is a small JPEG data URL, and survi
   assert.equal(s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{photo:bad}}).profile.photo,'',bad.slice(0,30));
 });
 
-test('a profile picture is also saved in the Drive folder structure, replaced on a new upload, and deleted when removed',()=>{
+test('a profile picture is filed in the Drive folder structure by the background sync, replaced on a new upload, and deleted when removed',()=>{
  const s=service();s.register('pic2@example.com');const tok=s.ctx.makeSession_('pic2@example.com');
  const jpg1='data:image/jpeg;base64,/9j/4AAQSkZJRgABAQ==',jpg2='data:image/jpeg;base64,/9j/4AAQSkZJRgACAQ==';
  const folder=()=>{const root=s.drive.folders.get('Wrapline profile photos');return root&&root.subs.get('pic2@example.com');};
- s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{photo:jpg1}});
- assert.deepEqual([...folder().files.keys()],['profile-photo.jpg'],'Wrapline profile photos / email / profile-photo.jpg');
- s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{name:'Pic'}});assert.equal(folder().files.size,1,'editing other details does not touch the file');assert.equal(s.drive.files.length,1);
- s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{photo:jpg2}});assert.equal(folder().files.size,1,'a new picture replaces the old file');assert.equal(s.drive.files.length,2);
- s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{photo:''}});assert.equal(folder().files.size,0,'removing the picture deletes the file');assert.equal(folder().trashed,true);
- s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{photo:jpg1}});assert.equal(folder().files.size,1,'uploading again starts a fresh folder');
+ const set=photo=>s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{photo}}),sync=()=>s.ctx.handleAccount_({step:'profile-photo-sync',token:tok});
+ set(jpg1);assert.equal(s.drive.files.length,0,'saving the picture itself does not wait for Drive');
+ assert.equal(sync().ok,true);assert.deepEqual([...folder().files.keys()],['profile-photo.jpg'],'Wrapline profile photos / email / profile-photo.jpg');
+ s.ctx.handleAccount_({step:'profile-set',token:tok,profile:{name:'Pic'}});sync();assert.equal(folder().files.size,1);
+ set(jpg2);sync();assert.equal(folder().files.size,1,'a new picture replaces the old file');assert.equal(s.drive.files.length,3,'(each sync files the current picture again)');
+ set('');sync();assert.equal(folder().files.size,0,'removing the picture deletes the file');assert.equal(folder().trashed,true);
+ set(jpg1);sync();assert.equal(folder().files.size,1,'uploading again starts a fresh folder');
  s.ctx.handleAccount_({step:'profile-clear',token:tok});assert.equal(folder().trashed,true,'clearing the profile removes the picture too');
+ assert.equal(s.ctx.handleAccount_({step:'profile-photo-sync',token:'bad'}).error,'expired');
 });

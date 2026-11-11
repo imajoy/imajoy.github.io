@@ -16,7 +16,7 @@ function paint(){
  const s=getAccountSession();if(!s)return;
  paintAvatar(av,profile,initial());
  $('#ai-remove').hidden=!(profile&&profile.photo);
- {const has=!!(profile&&profile.photo),up=$('.ai-upload');up.toggleAttribute('data-has',has);up.querySelector('span').textContent=has?'Change photo':'Upload photo';file.setAttribute('aria-label',has?'Change profile photo':'Upload profile photo');}
+ {const has=!!(profile&&profile.photo),up=$('.ai-upload');up.toggleAttribute('data-has',has);up.querySelector('span').textContent=has?'Change photo':'Upload photo';$('#ai-file').setAttribute('aria-label',has?'Change profile photo':'Upload profile photo');}
  $('#ai-name').textContent=profile?.name||'Not set';$('#ai-name').dataset.empty=String(!profile?.name);
  $('#ai-email').textContent=s.email;
  const addr=profile&&hasBilling(profile)?[profile.address,[profile.city,profile.postal].filter(Boolean).join(' '),profile.region].filter(Boolean).join(', '):'';
@@ -44,6 +44,8 @@ form.addEventListener('submit',async e=>{
 
 /* picture: centre-crop to a square, shrink to 192px and keep the JPEG under the server limit */
 const pmsg=$('#ai-photo-msg'),file=$('#ai-file');
+/* The picture is saved at once; its copy in the owner's Drive is filed in the background so the upload never waits for it. */
+const syncPhoto=()=>{const t=getAccountSession()?.token;if(t)accountRequest({step:'profile-photo-sync',token:t},60000).catch(()=>{});};
 async function shrink(f){
  const bmp=await createImageBitmap(f);
  const side=Math.min(bmp.width,bmp.height),c=document.createElement('canvas');c.width=c.height=192;
@@ -60,13 +62,13 @@ file.addEventListener('change',async()=>{
  try{
   const photo=await shrink(f),saved=await saveProfile({photo});
   if(!saved.photo)throw new Error('Pictures are not enabled on the server yet. Please try again soon.');
-  profile=saved;paint();say(pmsg,'Picture updated.','ok');
+  profile=saved;paint();say(pmsg,'Picture updated.','ok');syncPhoto();
  }catch(err){say(pmsg,err.message||'Could not use that picture.','error');}
  finally{delete av.dataset.busy;}
 });
 $('#ai-remove').addEventListener('click',async()=>{
  say(pmsg,'Removing…');
- try{profile=await saveProfile({photo:''});paint();say(pmsg,'Picture removed.','ok');}catch{say(pmsg,'Could not remove. Please try again.','error');}
+ try{profile=await saveProfile({photo:''});paint();say(pmsg,'Picture removed.','ok');syncPhoto();}catch{say(pmsg,'Could not remove. Please try again.','error');}
 });
 
 /* delete: opens the same emailed-code flow the sign-in window already has */

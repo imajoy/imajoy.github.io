@@ -48,18 +48,6 @@
 .contact-send[data-state=sending] .send-bar{opacity:1}
 .contact-send[data-state=sending] .send-bar::before{animation:send-bar 1.25s ease-in-out infinite}
 .contact-send[data-state=sending]::after{animation:send-sheen 1.6s ease-in-out infinite}
-/* Sending, refined: the button keeps its full colour, a slim ring turns beside a softly shimmering label, and a fine light travels the lower edge */
-.contact-send[data-state=sending],.contact-send[data-state=sending]:disabled{opacity:1;filter:none;cursor:progress}
-.contact-send[data-state=sending] .send-plane{display:none}
-.contact-send[data-state=sending] .send-dots{width:16px;height:16px;gap:0;border-radius:50%;border:2px solid color-mix(in srgb,currentColor 24%,transparent);border-top-color:currentColor;animation:send-ring .85s cubic-bezier(.45,.1,.55,.9) infinite}
-.contact-send[data-state=sending] .send-dots i{display:none}
-.contact-send[data-state=sending] .send-label{background:linear-gradient(100deg,currentColor 38%,color-mix(in srgb,currentColor 45%,transparent) 50%,currentColor 62%) 100% 0/260% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:send-text 1.9s cubic-bezier(.4,0,.2,1) infinite}
-.contact-send[data-state=sending] .send-bar{height:2px;bottom:0}
-.contact-send[data-state=sending] .send-bar::before{background:linear-gradient(90deg,transparent,currentColor,transparent);opacity:.75;animation:send-bar 1.5s cubic-bezier(.45,0,.25,1) infinite}
-.contact-send[data-state=sending]::after{animation:none;opacity:0}
-@keyframes send-ring{to{transform:rotate(360deg)}}
-@keyframes send-text{from{background-position:100% 0}to{background-position:0 0}}
-@media(prefers-reduced-motion:reduce){.contact-send[data-state=sending] .send-label{background:none;-webkit-text-fill-color:currentColor}}
 /* Sent: turns green, the tick draws itself, a soft ring spreads out */
 .contact-send[data-state=sent]{background:#1b7958;color:#fff;box-shadow:0 12px 30px rgba(27,121,88,.32);animation:send-pop .5s var(--send-ease)}
 .contact-send[data-state=sent] .send-plane{opacity:0;transform:translate(10px,-10px) scale(.5)}

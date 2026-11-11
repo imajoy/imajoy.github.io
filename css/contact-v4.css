@@ -61,6 +61,26 @@ html .contact-copy>p:not(.s-eyebrow){margin:0!important}
 html .contact-copy>.contact-assurance{position:absolute!important;width:auto!important;height:auto!important;overflow:visible!important;clip-path:none!important;white-space:normal!important;left:44px;right:44px;bottom:40px;padding:14px 0 0!important}
 @media(max-width:900px){html .contact-copy>.contact-assurance{position:static!important}}
 @media(max-width:900px){html .contact-copy>.contact-assurance,html .contact-copy>p.s-eyebrow{display:none!important}.contact-copy{align-items:center;text-align:center}}
-/* Sending keeps the full brand colour (the dimmed look is only for a form that is not ready yet) */
-html .contact-send[data-state=sending]:disabled{background:linear-gradient(180deg,#4d8dff 0%,#2f6bff 100%)!important;color:#fff!important;cursor:progress;opacity:1!important;filter:none!important;box-shadow:0 1px 0 rgba(255,255,255,.35) inset,0 -2px 0 rgba(10,30,120,.18) inset,0 16px 28px -14px rgba(47,107,255,.75)!important;overflow:hidden}
-html[data-theme=dark] .contact-send[data-state=sending]:disabled{background:linear-gradient(95deg,#3e7bff,#8a5cff)!important;box-shadow:0 1px 0 rgba(255,255,255,.25) inset,0 24px 34px -16px rgba(80,100,255,.6)!important}
+/* Send button, redesigned: flat ink, no gradient or glow. Quiet outline until the form is ready; while sending a darker-to-lighter band fills the button with the real upload percentage. */
+html:root:root:root body .contact-send{position:relative;overflow:hidden;justify-content:space-between;gap:16px;min-height:56px;padding:0 22px;border:1px solid var(--btnbg)!important;border-radius:14px!important;background:var(--btnbg)!important;color:var(--btnfg)!important;box-shadow:none!important;filter:none!important;opacity:1!important;font-weight:600;letter-spacing:-.01em;transition:background-color .35s,border-color .35s,color .35s,translate .35s var(--out)!important}
+html:root:root:root body .contact-send::before,html:root:root:root body .contact-send::after{content:none!important;animation:none!important}
+html:root:root:root body .contact-send:not(:disabled):hover{background:var(--btnhov)!important;translate:0 -1px}
+html:root:root:root body .contact-send:not(:disabled):active{translate:0 0;transition-duration:.1s!important}
+html:root:root:root body .contact-send:disabled{background:transparent!important;border-color:var(--line)!important;color:var(--mute)!important;cursor:not-allowed}
+html:root:root:root body .contact-send .send-label,html:root:root:root body .contact-send .send-icon,html:root:root:root body .contact-send .send-pct{position:relative;z-index:1}
+html:root:root:root body .contact-send .send-icon{margin-left:auto}
+.contact-send .send-icon svg{transition:transform .4s var(--out),opacity .25s}
+.contact-send:not(:disabled):hover .send-plane{transform:translate(2px,-2px)}
+.contact-send .send-fill{position:absolute;inset:0;background:color-mix(in srgb,var(--btnfg) 20%,transparent);transform:scaleX(0);transform-origin:left;transition:transform .55s var(--out);pointer-events:none}
+.contact-send .send-pct{display:none;font:500 13px/1 var(--mono,ui-monospace,'SFMono-Regular',Consolas,monospace);font-variant-numeric:tabular-nums;letter-spacing:0;opacity:.85}
+html:root:root:root body .contact-send[data-state=sending],html:root:root:root body .contact-send[data-state=sending]:disabled{background:var(--btnbg)!important;border-color:var(--btnbg)!important;color:var(--btnfg)!important;cursor:progress}
+.contact-send[data-state=sending] .send-fill{transform:scaleX(var(--p,.08))}
+.contact-send[data-state=sending][data-wait] .send-fill{transform:scaleX(.9);transition:transform 9s cubic-bezier(.1,.6,.2,1)}
+.contact-send[data-state=sending] .send-icon,.contact-send[data-state=sending] .send-bar,.contact-send[data-state=sending] .send-dots{display:none}
+.contact-send[data-state=sending] .send-pct:not(:empty){display:block}
+.contact-send[data-state=sending] .send-label::after{content:'...';display:inline-block;width:0;overflow:hidden;vertical-align:bottom;animation:send-ell 1.3s steps(4,end) infinite}
+html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sent]:disabled{background:#1b7958!important;border-color:#1b7958!important;color:#fff!important;animation:none}
+html[data-theme=dark]:root body .contact-send[data-state=sent],html[data-theme=dark]:root body .contact-send[data-state=sent]:disabled{background:#2fb583!important;border-color:#2fb583!important;color:#06231a!important}
+html:root:root:root body .contact-send[data-state=error]{background:var(--btnbg)!important;border-color:var(--btnbg)!important;color:var(--btnfg)!important}
+@keyframes send-ell{to{width:1.1em}}
+@media(prefers-reduced-motion:reduce){.contact-send .send-fill{transition:none!important}.contact-send[data-state=sending] .send-label::after{animation:none;width:1.1em}}

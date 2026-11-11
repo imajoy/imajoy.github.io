@@ -17,7 +17,8 @@ if(form){
  const setArt=(state,text)=>{art.dataset.state=state;if(text)caption.textContent=text;};
  /* Send button states (idle, sending, sent, error) and the animated receipt card. */
  const sendLabel=submit.querySelector('.send-label');let resetTimer;
- const setSend=(state,text)=>{clearTimeout(resetTimer);submit.dataset.state=state;if(sendLabel&&text&&sendLabel.textContent!==text){sendLabel.textContent=text;sendLabel.classList.remove('is-new');void sendLabel.offsetWidth;sendLabel.classList.add('is-new');}};
+ const setPct=n=>{submit.style.setProperty('--p',String(n/100));const el=submit.querySelector('.send-pct');if(el)el.textContent=Math.round(n)+'%';};
+ const setSend=(state,text)=>{clearTimeout(resetTimer);if(state!=='sending'){delete submit.dataset.wait;submit.style.removeProperty('--p');const pc=submit.querySelector('.send-pct');if(pc)pc.textContent='';}submit.dataset.state=state;if(sendLabel&&text&&sendLabel.textContent!==text){sendLabel.textContent=text;sendLabel.classList.remove('is-new');void sendLabel.offsetWidth;sendLabel.classList.add('is-new');}};
  const clearReceipt=()=>{const card=status.querySelector('.contact-receipt');if(!card)return;card.classList.add('is-leaving');setTimeout(()=>{if(card.isConnected){card.remove();}},360);};
  const showReceipt=(reference,email)=>{
   const svg='http://www.w3.org/2000/svg',el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};
@@ -119,16 +120,16 @@ if(form){
   if(payload.message.length<10){announce('Please write at least 10 characters so we can help.',true);form.elements.message.focus();return;}
   const endpoint=window.AJOY_CONFIG?.sheetUrl;if(!endpoint){announce('The contact service is unavailable. Please try again later.',true);return;}
   const controls=[...form.elements].filter(el=>el!==submit),disabled=controls.map(el=>el.disabled);
-  busy=true;submit.disabled=true;controls.forEach(el=>el.disabled=true);form.setAttribute('aria-busy','true');clearReceipt();setSend('sending',files.length?'Uploading your files':'Sending your message');art.removeAttribute('data-typing');form.removeAttribute('data-typing');clearTimeout(typingTimer);announce('Preparing your message…');
+  busy=true;submit.disabled=true;controls.forEach(el=>el.disabled=true);form.setAttribute('aria-busy','true');clearReceipt();setSend('sending',files.length?'Uploading your files':'Sending your message');if(!files.length)submit.dataset.wait='';else setPct(0);art.removeAttribute('data-typing');form.removeAttribute('data-typing');clearTimeout(typingTimer);announce('Preparing your message…');
   try{
    if(files.length){
     transfer.hidden=false;progress.value=0;progressLabel.textContent='Preparing attachments…';
     const all=totalBytes()||1;let done=0;payload.attachments=[];
     for(const {file,info} of files){
-     const base64=await readAttachment(file,fraction=>{progress.value=Math.round((done+fraction*info.size)/all*100);});
+     const base64=await readAttachment(file,fraction=>{progress.value=Math.round((done+fraction*info.size)/all*100);setPct(progress.value);});
      done+=info.size;payload.attachments.push({name:info.name,type:info.type,size:info.size,base64});
     }
-    progress.removeAttribute('value');progressLabel.textContent='Uploading privately and saving your message…';
+    progress.removeAttribute('value');progressLabel.textContent='Uploading privately and saving your message…';setPct(100);
    }
    const serialized=JSON.stringify(payload);if(lastPayload&&lastPayload!==serialized)requestId=crypto.randomUUID();lastPayload=serialized;
    setArt('sending','Sending your message to Ajoy…');announce(files.length?'Uploading your attachments and sending your message…':'Sending your message…');

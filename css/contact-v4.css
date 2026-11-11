@@ -61,50 +61,47 @@ html .contact-copy>p:not(.s-eyebrow){margin:0!important}
 html .contact-copy>.contact-assurance{position:absolute!important;width:auto!important;height:auto!important;overflow:visible!important;clip-path:none!important;white-space:normal!important;left:44px;right:44px;bottom:40px;padding:14px 0 0!important}
 @media(max-width:900px){html .contact-copy>.contact-assurance{position:static!important}}
 @media(max-width:900px){html .contact-copy>.contact-assurance,html .contact-copy>p.s-eyebrow{display:none!important}.contact-copy{align-items:center;text-align:center}}
-/* Send button: flat ink, no gradient or glow. Quiet outline until the form is ready.
-   Sending: the arrow lifts off, the button draws in to a circle and arrows keep passing through it.
-   Sent: the circle turns green, a tick is drawn, then the button opens out again and the tick settles at the right. */
-html:root:root:root body .contact-send{--r:14px;position:relative;overflow:hidden;justify-content:space-between;gap:16px;height:56px;min-height:56px;padding:0 22px;border:1px solid var(--btnbg)!important;border-radius:var(--r)!important;background:var(--btnbg)!important;color:var(--btnfg)!important;box-shadow:none!important;filter:none!important;opacity:1!important;font-weight:600;letter-spacing:-.01em;transition:background-color .35s,border-color .35s,color .35s,translate .35s var(--out)!important}
+/* Send button: a pill, like the other main actions on the site, with the arrow in a round badge at its end.
+   Sending: the label draws back into the badge, where arrows keep passing through. Sent: the pill opens out again in green and a tick is drawn in the badge. */
+html:root:root:root body .contact-send{position:relative;overflow:hidden;display:inline-flex;align-items:center;justify-content:space-between;gap:18px;width:auto;min-width:232px;height:56px;min-height:56px;padding:0 8px 0 26px;border:1px solid var(--btnbg)!important;border-radius:999px!important;background:var(--btnbg)!important;color:var(--btnfg)!important;box-shadow:0 10px 24px -14px color-mix(in srgb,var(--btnbg) 70%,transparent)!important;filter:none!important;opacity:1!important;font-weight:600;letter-spacing:-.01em;transition:background-color .35s,border-color .35s,color .35s,translate .35s var(--out),box-shadow .35s!important}
 html:root:root:root body .contact-send::before,html:root:root:root body .contact-send::after{content:none!important;animation:none!important}
-html:root:root:root body .contact-send:not(:disabled):hover{background:var(--btnhov)!important;translate:0 -1px}
+html:root:root:root body .contact-send:not(:disabled):hover{background:var(--btnhov)!important;translate:0 -2px}
 html:root:root:root body .contact-send:not(:disabled):active{translate:0 0;transition-duration:.1s!important}
-html:root:root:root body .contact-send:disabled{background:transparent!important;border-color:var(--line)!important;color:var(--mute)!important;cursor:not-allowed}
-html:root:root:root body .contact-send .send-label,html:root:root:root body .contact-send .send-icon{position:relative;z-index:1;transition:opacity .22s,transform .45s var(--out)}
-html:root:root:root body .contact-send .send-icon{margin-left:auto}
-.contact-send .send-icon svg{transition:transform .4s var(--out),opacity .25s}
+html:root:root:root body .contact-send:disabled{background:transparent!important;border-color:var(--line)!important;color:var(--mute)!important;box-shadow:none!important;cursor:not-allowed}
+html:root:root:root body .contact-send .send-label{position:relative;z-index:1;transition:opacity .22s,transform .45s var(--out)}
+html:root:root:root body .contact-send .send-icon{position:relative;z-index:1;flex:none;display:grid;place-items:center;width:40px;height:40px;margin-left:auto;border-radius:50%;background:var(--btnfg);color:var(--btnbg);overflow:hidden;transition:background-color .35s,color .35s,transform .45s var(--out)}
+html:root:root:root body .contact-send:disabled:not([data-state=sending]):not([data-state=sent]) .send-icon{background:var(--t07);color:var(--mute)}
+.contact-send .send-icon>*{grid-area:1/1}
+.contact-send .send-icon svg{width:18px;height:18px;transition:transform .45s var(--out),opacity .25s}
+.contact-send:not(:disabled):hover .send-icon{transform:scale(1.06)}
 .contact-send:not(:disabled):hover .send-plane{transform:translate(2px,-2px)}
-.contact-send .send-bar,.contact-send .send-dots,.contact-send .send-ripple,.contact-send .send-icon .send-check{display:none!important}
-.contact-send .send-orb{position:absolute;left:50%;top:50%;width:22px;height:22px;margin:-11px 0 0 -11px;display:grid;place-items:center;opacity:0;pointer-events:none;z-index:1}
-.contact-send .send-orb svg{grid-area:1/1;width:20px;height:20px;opacity:0}
-.contact-send .orb-check path{stroke-dasharray:22;stroke-dashoffset:22}
+.contact-send .send-bar,.contact-send .send-dots,.contact-send .send-ripple,.contact-send .send-orb{display:none!important}
+.contact-send .send-icon .send-check{opacity:0;transform:scale(.6)}
+.contact-send .send-icon .send-check path{stroke-dasharray:22;stroke-dashoffset:22}
 /* sending */
 html:root:root:root body .contact-send[data-state=sending],html:root:root:root body .contact-send[data-state=sending]:disabled{background:var(--btnbg)!important;border-color:var(--btnbg)!important;color:var(--btnfg)!important;cursor:progress;animation:send-close .55s cubic-bezier(.7,0,.2,1) both}
-html:root:root:root body .contact-send[data-state=sending] .send-label{opacity:0;transform:translateX(-14px);animation:none}
-html:root:root:root body .contact-send[data-state=sending] .send-icon{opacity:0;transform:translate(26px,-26px);transition:opacity .3s .12s,transform .5s cubic-bezier(.5,0,.9,.4)}
-.contact-send[data-state=sending] .send-plane{animation:none!important;opacity:1!important}
-.contact-send[data-state=sending] .send-orb{opacity:1;transition:opacity .2s .45s}
-.contact-send[data-state=sending] .orb-arrow{animation:send-pass 1.05s .5s cubic-bezier(.6,0,.3,1) infinite}
+html:root:root:root body .contact-send[data-state=sending] .send-label{opacity:0;transform:translateX(18px);animation:none}
+.contact-send[data-state=sending] .send-plane{animation:send-pass 1.05s .35s cubic-bezier(.6,0,.3,1) infinite!important;opacity:1}
 /* sent */
-html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sent]:disabled{background:#1b7958!important;border-color:#1b7958!important;color:#fff!important;animation:send-open .6s .75s cubic-bezier(.3,1.2,.4,1) both}
+html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sent]:disabled{background:#1b7958!important;border-color:#1b7958!important;color:#fff!important;box-shadow:none!important;animation:send-open .6s .7s cubic-bezier(.3,1.15,.4,1) both}
 html[data-theme=dark]:root:root:root body .contact-send[data-state=sent],html[data-theme=dark]:root:root:root body .contact-send[data-state=sent]:disabled{background:#2fb583!important;border-color:#2fb583!important;color:#06231a!important}
-html:root:root:root body .contact-send[data-state=sent] .send-icon{opacity:0}
-html:root:root:root body .contact-send[data-state=sent] .send-label,html:root:root:root body .contact-send[data-state=sent] .send-label.is-new{animation:send-word .5s 1s var(--out) both}
-.contact-send[data-state=sent] .send-orb{opacity:1;animation:send-settle .6s .75s cubic-bezier(.3,1,.4,1) both}
-.contact-send[data-state=sent] .orb-check{opacity:1}
-.contact-send[data-state=sent] .orb-check path{animation:send-tick .4s .12s var(--out) forwards}
+html:root:root:root body .contact-send[data-state=sent] .send-icon{background:#fff;color:#1b7958}
+html:root:root:root body .contact-send[data-state=sent] .send-label,html:root:root:root body .contact-send[data-state=sent] .send-label.is-new{animation:send-word .5s .95s var(--out) both}
+.contact-send[data-state=sent] .send-plane{opacity:0;animation:none!important}
+.contact-send[data-state=sent] .send-icon .send-check{opacity:1;transform:none}
+.contact-send[data-state=sent] .send-icon .send-check path{animation:send-tick .4s .15s var(--out) forwards}
 /* error: opens straight back out, ready to retry */
 html:root:root:root body .contact-send[data-state=error]{background:var(--btnbg)!important;border-color:var(--btnbg)!important;color:var(--btnfg)!important;animation:send-open .5s cubic-bezier(.3,1,.4,1) both}
-@keyframes send-close{from{clip-path:inset(0 0 round var(--r))}to{clip-path:inset(0 calc(50% - 28px) round 28px)}}
-@keyframes send-open{from{clip-path:inset(0 calc(50% - 28px) round 28px)}to{clip-path:inset(0 0 round var(--r))}}
-@keyframes send-pass{0%{opacity:0;transform:translate(-13px,13px) scale(.7)}35%{opacity:1;transform:none}60%{opacity:1;transform:none}100%{opacity:0;transform:translate(13px,-13px) scale(.7)}}
+@keyframes send-close{from{clip-path:inset(0 0 0 0 round 28px)}to{clip-path:inset(0 0 0 calc(100% - 56px) round 28px)}}
+@keyframes send-open{from{clip-path:inset(0 0 0 calc(100% - 56px) round 28px)}to{clip-path:inset(0 0 0 0 round 28px)}}
+@keyframes send-pass{0%{opacity:0;transform:translate(-14px,14px)}35%{opacity:1;transform:none}60%{opacity:1;transform:none}100%{opacity:0;transform:translate(14px,-14px)}}
 @keyframes send-tick{to{stroke-dashoffset:0}}
-@keyframes send-settle{from{left:50%}to{left:calc(100% - 33px)}}
-@keyframes send-word{from{opacity:0;transform:translateX(-12px)}to{opacity:1;transform:none}}
+@keyframes send-word{from{opacity:0;transform:translateX(14px)}to{opacity:1;transform:none}}
+@media(max-width:560px){html:root:root:root body .contact-send{display:flex;width:100%}}
 @media(prefers-reduced-motion:reduce){
  html:root:root:root body .contact-send,html:root:root:root body .contact-send[data-state]{animation:none!important;clip-path:none!important}
  html:root:root:root body .contact-send[data-state] .send-label{opacity:1!important;transform:none!important;animation:none!important}
- .contact-send .send-orb{display:none}
- html:root:root:root body .contact-send[data-state=sent] .send-icon{opacity:1}.contact-send[data-state=sent] .send-icon .send-check{display:block!important;opacity:1;transform:none}.contact-send[data-state=sent] .send-icon .send-check path{stroke-dashoffset:0}.contact-send[data-state=sent] .send-plane{display:none}
+ .contact-send[data-state=sending] .send-plane{animation:none!important}.contact-send[data-state=sent] .send-icon .send-check path{stroke-dashoffset:0;animation:none}
 }
 /* Attached files: each one uploads as soon as it is added. A slim bar fills under the name with the figure riding its tip; when the file is saved the bar draws away and a tick is drawn in its place. */
 html .attachment-list{display:grid;gap:8px;margin-top:12px}

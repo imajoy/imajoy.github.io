@@ -911,7 +911,8 @@ function handleContact_(data) {
     }
     var ss=SpreadsheetApp.getActiveSpreadsheet(),sheet=ss.getSheetByName('Contacts');
     if (!sheet) {sheet=ss.insertSheet('Contacts');sheet.appendRow(['Received at','Reference','Name','Email','Topic','Message','Status','Privacy consent']);sheet.setFrozenRows(1);}
-    sheet.getRange(1,9,1,4).setValues([['Private attachment','Attachment name','Attachment type','Attachment bytes']]);
+    // Written once, not on every message (each sheet call costs time while the visitor waits).
+    if(sheet.getLastColumn()<12)sheet.getRange(1,9,1,4).setValues([['Private attachment','Attachment name','Attachment type','Attachment bytes']]);
     var reference='AJ-'+Utilities.getUuid();
     // Strip leading whitespace before formula escaping, including tabs and newlines.
     sheet.appendRow([new Date(),reference,name,email,topic,message,'New',true,attachmentURLs.join('\n'),attachments.map(function(a){return a.name;}).join(', '),attachments.map(function(a){return a.type;}).join(', '),hasFiles?attachments.reduce(function(n,a){return n+a.bytes.length;},0):''].map(safeSheetCell_));

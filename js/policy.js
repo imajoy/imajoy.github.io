@@ -35,6 +35,12 @@ function trackReading() {
     if (new URL(link.href).hash === '#' + current?.id) link.setAttribute('aria-current', 'location');
     else link.removeAttribute('aria-current');
   }
+  // phones/tablets: keep the active chip visible inside the horizontal chip bar (the page itself never moves)
+  const active = links.find(l => l.hasAttribute('aria-current')), bar = active?.parentElement;
+  if (bar && bar.scrollWidth > bar.clientWidth + 2) {
+    const want = active.offsetLeft - (bar.clientWidth - active.offsetWidth) / 2;
+    if (Math.abs(bar.scrollLeft - want) > 8) bar.scrollTo({ left: want, behavior: motion.matches ? 'auto' : 'smooth' });
+  }
 }
 window.addEventListener('scroll', () => {
   if (!frame) frame = requestAnimationFrame(trackReading);

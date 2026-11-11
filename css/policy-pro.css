@@ -62,3 +62,39 @@
  .policy-section p,.policy-section li,.policy-data dd{font-size:1rem;line-height:1.75}
  .policy-end{flex-direction:column;align-items:flex-start;padding:28px 24px}
 }
+
+/* ---- phones and tablets: sticky section bar, compact summary, comfortable text ---- */
+@media(max-width:980px){
+ .policy-index{position:sticky;top:0;z-index:40;margin-inline:calc(50% - 50vw);padding:calc(env(safe-area-inset-top,0px) + 10px) calc(50vw - 50%) 10px;background:var(--bg);border-bottom:1px solid var(--line);max-height:none;overflow:visible}
+ .policy-index>p,.policy-index .policy-help{display:none!important}
+ .policy-layout>.policy-index{max-width:none;width:auto}
+ .policy-index nav a{min-height:0!important}
+ .policy-index nav{flex-wrap:nowrap;overflow-x:auto;gap:8px;scrollbar-width:none;-webkit-overflow-scrolling:touch;scroll-snap-type:none;padding:0;margin:0;position:relative}
+ .policy-index nav::-webkit-scrollbar{display:none}
+ .policy-index nav a{flex:none;padding:8px 14px;font-size:.8125rem;white-space:nowrap;background:var(--card)}
+ .policy-layout>.policy-index+.policy-body{margin-top:6px}
+ .policy-section{scroll-margin-top:72px}
+}
+@media(max-width:680px){
+ .policy-eyebrow{font-size:.625rem;letter-spacing:.09em;margin-bottom:18px}
+ .policy-hero h1{font-size:clamp(2.2rem,9.4vw,3rem)}
+ .policy-intro{font-size:1rem;line-height:1.7;margin-top:18px}
+ .policy-meta{font-size:.75rem;margin-top:18px}
+ .policy-switch{display:flex;width:100%;margin-top:22px}
+ .policy-switch a{flex:1;text-align:center;padding:11px 8px}
+ .policy-highlights{margin-bottom:26px}
+ .policy-highlights article{padding:16px 18px}
+ .policy-highlights h2{font-size:.9375rem;margin-bottom:5px}
+ .policy-highlights p{font-size:.8125rem;line-height:1.6}
+ .policy-section{padding:26px 0 28px}
+ .policy-section h2{font-size:1.35rem;margin-bottom:14px}
+ .policy-section p,.policy-section li,.policy-data dd{font-size:.9375rem;line-height:1.7}
+ .policy-section ul{padding-left:18px;margin-block:14px}
+ .policy-section li{margin-bottom:10px}
+ .policy-data>div{padding:15px 0;gap:4px}
+ .policy-data dt{font-size:.8125rem;letter-spacing:.01em;color:var(--ink)}
+ .policy-note{padding:16px 18px}
+ .policy-plan-grid{grid-template-columns:1fr;gap:12px}
+ .policy-end{margin-top:40px}
+ .policy-end .btn{width:100%;text-align:center;justify-content:center}
+}

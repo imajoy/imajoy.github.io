@@ -8,7 +8,7 @@
 .ai-photo-row{display:flex;align-items:center;gap:24px;padding:24px}
 .ai-av{flex:none;width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:linear-gradient(135deg,#639cff,#2a64e8);color:#fff;font:600 2.25rem/1 var(--sans,inherit);background-size:cover;background-position:center;box-shadow:0 0 0 4px var(--card),0 0 0 5px var(--line),0 14px 30px -14px rgba(42,100,232,.55);transition:transform .45s var(--out,cubic-bezier(.22,1,.36,1)),opacity .3s}
 .ai-av[data-photo]{color:transparent}
-.ai-av[data-busy]{opacity:.55;transform:scale(.96)}
+.ai-av[data-busy]{transform:scale(.97)}
 .ai-photo-t b{display:block;font-weight:600}
 .ai-photo-t p{margin:4px 0 0;color:var(--mute);font-size:.875rem;line-height:1.55;max-width:46ch}
 .ai-photo-actions{display:flex;align-items:center;flex-wrap:wrap;gap:6px 18px;margin-top:14px}
@@ -63,3 +63,16 @@
 html body .ai-photo .ai-upload[data-has]{background:transparent!important;color:var(--ink)!important;border:1px solid var(--line)!important;box-shadow:none!important;gap:8px;transition:border-color .25s,background-color .25s}
 html body .ai-photo .ai-upload[data-has]::before{content:"";width:15px;height:15px;flex:none;background:currentColor;-webkit-mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l1.6-2h6.8L17 8h3v11H4z'/%3E%3Ccircle cx='12' cy='13' r='3.2'/%3E%3C/svg%3E") center/contain no-repeat;mask:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 8h3l1.6-2h6.8L17 8h3v11H4z'/%3E%3Ccircle cx='12' cy='13' r='3.2'/%3E%3C/svg%3E") center/contain no-repeat}
 html body .ai-photo .ai-upload[data-has]:hover{border-color:color-mix(in srgb,var(--ink) 45%,var(--line))!important;background:var(--t07,rgba(0,0,0,.04))!important;translate:0 0}
+
+/* Photo upload: a two-tone ring runs round the circle while the picture is saved, then a green tick pops in and settles. */
+.ai-av{position:relative}
+.ai-av[data-busy]::before{content:"";position:absolute;inset:-9px;border-radius:50%;border:3px solid transparent;border-top-color:#F2B64F;border-right-color:color-mix(in srgb,#FF7A5C 55%,transparent);pointer-events:none;animation:ai-ring 1.1s cubic-bezier(.5,.1,.35,.95) infinite,ai-ring-in .35s ease-out both}
+.ai-av[data-busy]{filter:brightness(.92) saturate(.9)}
+@keyframes ai-ring{to{transform:rotate(360deg)}}
+@keyframes ai-ring-in{from{opacity:0}to{opacity:1}}
+.ai-av[data-done]::after{content:"";position:absolute;right:-4px;bottom:-4px;width:30px;height:30px;border-radius:50%;background:#1b7958 url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m5 12.5 4.5 4.5L19 7.5'/%3E%3C/svg%3E") center/16px no-repeat;box-shadow:0 0 0 3px var(--card);animation:ai-pop .5s cubic-bezier(.34,1.5,.5,1) both,ai-pop-out .4s 1.25s ease-in forwards;pointer-events:none}
+@keyframes ai-pop{from{transform:scale(.3);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes ai-pop-out{to{transform:scale(.7);opacity:0}}
+.ai-photo-row[data-saving] .ai-upload{pointer-events:none;opacity:.7}
+.ai-photo-row[data-saving] #ai-remove{pointer-events:none;opacity:.5}
+@media(prefers-reduced-motion:reduce){.ai-av[data-busy]::before{animation:none;border-color:#F2B64F}.ai-av[data-done]::after{animation:none}}

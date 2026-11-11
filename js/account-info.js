@@ -54,21 +54,31 @@ async function shrink(f){
  for(const q of [.86,.78,.7,.6,.5]){const u=c.toDataURL('image/jpeg',q);if(u.length<=30000)return u;}
  throw new Error('That picture is too detailed. Try a simpler one.');
 }
+/* Upload feel: the chosen picture shows in the circle straight away, a ring runs around it while it is saved, then a tick pops in on the circle. */
+const photoRow=document.querySelector('.ai-photo-row'),upLabel=document.querySelector('.ai-upload span');
+let doneTimer;
+function working(on,label){
+ clearTimeout(doneTimer);delete av.dataset.done;
+ if(photoRow){on?photoRow.setAttribute('data-saving',''):photoRow.removeAttribute('data-saving');}
+ if(on){av.dataset.busy='';if(label&&upLabel)upLabel.textContent=label;}else{delete av.dataset.busy;}
+}
+function finished(){av.dataset.done='';void av.offsetWidth;doneTimer=setTimeout(()=>{delete av.dataset.done;},1700);}
 file.addEventListener('change',async()=>{
  const f=file.files&&file.files[0];file.value='';if(!f)return;
  if(!/^image\/(png|jpe?g|webp)$/.test(f.type)){say(pmsg,'Please choose a PNG, JPG or WebP picture.','error');return;}
  if(f.size>12*1024*1024){say(pmsg,'That file is too large. Choose one under 12 MB.','error');return;}
- say(pmsg,'Saving…');av.dataset.busy='';
+ say(pmsg,'Saving…');working(true,'Saving…');
  try{
-  const photo=await shrink(f),saved=await saveProfile({photo});
+  const photo=await shrink(f);
+  paintAvatar(av,{photo},initial());av.dataset.busy='';
+  const saved=await saveProfile({photo});
   if(!saved.photo)throw new Error('Pictures are not enabled on the server yet. Please try again soon.');
-  profile=saved;paint();say(pmsg,'Picture updated.','ok');syncPhoto();
- }catch(err){say(pmsg,err.message||'Could not use that picture.','error');}
- finally{delete av.dataset.busy;}
+  profile=saved;working(false);paint();finished();say(pmsg,'Picture updated.','ok');syncPhoto();
+ }catch(err){working(false);paint();say(pmsg,err.message||'Could not use that picture.','error');}
 });
 $('#ai-remove').addEventListener('click',async()=>{
- say(pmsg,'Removing…');
- try{profile=await saveProfile({photo:''});paint();say(pmsg,'Picture removed.','ok');syncPhoto();}catch{say(pmsg,'Could not remove. Please try again.','error');}
+ say(pmsg,'Removing…');working(true);
+ try{profile=await saveProfile({photo:''});working(false);paint();say(pmsg,'Picture removed.','ok');syncPhoto();}catch{working(false);paint();say(pmsg,'Could not remove. Please try again.','error');}
 });
 
 /* delete: opens the same emailed-code flow the sign-in window already has */

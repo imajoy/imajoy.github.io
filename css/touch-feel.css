@@ -1,0 +1,8 @@
+/* Phones and tablets only (the <link> carries media="(hover:none) and (pointer:coarse)"): the scroll-linked part of the
+   touch feel. Images settle into place as they travel up the screen, driven by the scroll itself, so it stays smooth
+   even when the page is busy. Laptops and desktops never load this. js/touch-feel.js adds the class. */
+@supports (animation-timeline:view()){
+ .tf-drift{animation:tf-drift cubic-bezier(.22,1,.36,1) both;animation-timeline:view();animation-range:entry 0% cover 45%}
+ @keyframes tf-drift{from{translate:0 34px;scale:1.045;opacity:.25}to{translate:0 0;scale:1;opacity:1}}
+}
+@media(prefers-reduced-motion:reduce){.tf-drift{animation:none!important}}

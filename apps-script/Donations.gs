@@ -111,7 +111,7 @@ function donationRecord_(r) {
     if (last >= 2 && sheet.getRange(2, 9, last - 1, 1).getValues().some(function (x) { return String(x[0]) === String(r.paymentId); })) return false;
     sheet.appendRow([new Date(), r.provider, r.mode, r.amount, r.currency, r.name, r.message, r.email, r.paymentId, r.orderId].map(safeSheetCell_));
     try {
-      MailApp.sendEmail({ to: ownerEmail_(), name: 'Wrapline Pro donations', subject: 'A coffee for you: ' + r.currency + ' ' + r.amount.toFixed(2) + (r.name ? ' from ' + r.name : ''),
+      ownerMail_({ to: ownerEmail_(), name: 'Wrapline Pro donations', subject: 'A coffee for you: ' + r.currency + ' ' + r.amount.toFixed(2) + (r.name ? ' from ' + r.name : ''),
         body: (r.mode === 'Test' ? '(Test payment)\n\n' : '') + (r.name || 'Someone') + ' bought you a coffee.\n\nAmount: ' + r.currency + ' ' + r.amount.toFixed(2) + ' via ' + r.provider + '\nMessage: ' + (r.message || '-') + '\nEmail: ' + (r.email || '-') + '\n\nIt is also in the Donations tab of your sheet.' });
     } catch (err) { /* the row is saved even if the email cannot be sent */ }
     return true;

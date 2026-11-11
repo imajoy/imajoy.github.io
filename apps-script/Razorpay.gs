@@ -177,7 +177,7 @@ function razorpayVerify_(record){
 function razorpayNotify_(record){
   var trial=record.price.offer==='trial'&&!record.convertedAt;
   var text='Wrapline Pro '+planLabel_(record.price.plan)+(trial?' (4-day FREE TRIAL)':'')+' · '+record.price.billing+' · '+record.price.seats+' license(s)\nSubscription: '+record.subscriptionId+'\nVerified account: '+record.email+'\n'+(trial?'Trial ends (first charge): ':'Paid through: ')+new Date(record.paidThrough*1000).toISOString();
-  if(!record.ownerNotified){MailApp.sendEmail({to:ownerEmail_(),subject:(record.mode==='test'?'[TEST] ':'')+'Wrapline Pro Razorpay: send the license',body:text+'\n\nVerify this order and send the matching access code to the buyer.'});record.ownerNotified=true;razorpayWrite_(record);}
+  if(!record.ownerNotified){ownerMail_({to:ownerEmail_(),subject:(record.mode==='test'?'[TEST] ':'')+'Wrapline Pro Razorpay: send the license',body:text+'\n\nVerify this order and send the matching access code to the buyer.'});record.ownerNotified=true;razorpayWrite_(record);}
   if(!record.buyerNotified){MailApp.sendEmail({to:record.email,subject:(record.mode==='test'?'[TEST] ':'')+'Your Wrapline Pro subscription is confirmed',body:text+'\n\nYour access code is sent within 12 hours. Manage future payments with Razorpay or contact support at https://wrapline.in/contact.html'});record.buyerNotified=true;razorpayWrite_(record);}
 }
 function razorpayConfirm_(id,who){
@@ -209,7 +209,7 @@ function razorpayConfirm_(id,who){
     current.accepted=true;current.state='accepted';current.accessRevoked=false;current.providerStatus=subscription.status;current.paidThrough=periodEnd;current.paymentId=payment.id;current.invoiceId=invoice.id;
     if(current.price.offer==='trial'&&!current.convertedAt)current.convertedAt=Date.now();
     razorpayWrite_(current);
-    if(converted)try{MailApp.sendEmail({to:ownerEmail_(),subject:(current.mode==='test'?'[TEST] ':'')+'Wrapline Pro trial converted to paid: '+current.subscriptionId,body:current.email+' was charged after the 4-day trial. Paid through: '+new Date(current.paidThrough*1000).toISOString()});}catch(e){}
+    if(converted)try{ownerMail_({to:ownerEmail_(),subject:(current.mode==='test'?'[TEST] ':'')+'Wrapline Pro trial converted to paid: '+current.subscriptionId,body:current.email+' was charged after the 4-day trial. Paid through: '+new Date(current.paidThrough*1000).toISOString()});}catch(e){}
     var sheet=SpreadsheetApp.getActiveSpreadsheet().getSheetByName(ORDERS_SHEET);
     if(!sheet){sheet=SpreadsheetApp.getActiveSpreadsheet().insertSheet(ORDERS_SHEET);sheet.appendRow(['Time','Subscription ID','Status','Mode','Buyer email','Name','Country','Plan','Billing','Licenses','Company','Plan ID']);}
     var rows=sheet.getLastRow()>1?sheet.getRange(2,1,sheet.getLastRow()-1,2).getValues():[];
@@ -426,7 +426,7 @@ function razorpayStopRenewal_(id,who){
   if(s.status==='active'&&!record.stopRequested)razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:1});
   else if(s.status==='authenticated'&&!record.stopRequested)razorpayApi_('/subscriptions/'+encodeURIComponent(record.subscriptionId)+'/cancel','post',{cancel_at_cycle_end:0});
   commerceLock_(function(){var r=razorpayFind_(id);r.stopRequested=true;razorpayWrite_(r);});
-  try{MailApp.sendEmail({to:ownerEmail_(),name:'Wrapline Pro orders',subject:'Renewal stopped: '+record.subscriptionId,body:who.email+' stopped renewal of their Wrapline Pro '+record.price.plan+' '+record.price.billing+' subscription ('+record.subscriptionId+'). Access continues until '+(record.paidThrough?new Date(record.paidThrough*1000).toDateString():'the end of the paid period')+'.'});}catch(e){}
+  try{ownerMail_({to:ownerEmail_(),name:'Wrapline Pro orders',subject:'Renewal stopped: '+record.subscriptionId,body:who.email+' stopped renewal of their Wrapline Pro '+record.price.plan+' '+record.price.billing+' subscription ('+record.subscriptionId+'). Access continues until '+(record.paidThrough?new Date(record.paidThrough*1000).toDateString():'the end of the paid period')+'.'});}catch(e){}
   return {ok:true,stopped:true,endsAt:record.paidThrough?new Date(record.paidThrough*1000).toISOString():''};
 }
 

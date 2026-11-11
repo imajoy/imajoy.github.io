@@ -18,7 +18,7 @@ if(form){
  /* Send button states (idle, sending, sent, error) and the animated receipt card. */
  const sendLabel=submit.querySelector('.send-label');let resetTimer;
  const setPct=n=>{submit.style.setProperty('--p',String(n/100));const el=submit.querySelector('.send-pct');if(el)el.textContent=Math.round(n)+'%';};
- const setSend=(state,text)=>{clearTimeout(resetTimer);if(state!=='idle'){delete submit.dataset.up;submit.style.removeProperty('--up');}if(state!=='sending'){delete submit.dataset.wait;submit.style.removeProperty('--p');const pc=submit.querySelector('.send-pct');if(pc)pc.textContent='';}submit.dataset.state=state;if(sendLabel&&text&&sendLabel.textContent!==text){sendLabel.textContent=text;sendLabel.classList.remove('is-new');void sendLabel.offsetWidth;sendLabel.classList.add('is-new');}};
+ const setSend=(state,text)=>{clearTimeout(resetTimer);if(state==='sending')submit.style.setProperty('--w',submit.offsetWidth+'px');if(state!=='idle'){delete submit.dataset.up;submit.style.removeProperty('--up');}if(state!=='sending'){delete submit.dataset.wait;submit.style.removeProperty('--p');const pc=submit.querySelector('.send-pct');if(pc)pc.textContent='';}submit.dataset.state=state;if(sendLabel&&text&&sendLabel.textContent!==text){sendLabel.textContent=text;sendLabel.classList.remove('is-new');void sendLabel.offsetWidth;sendLabel.classList.add('is-new');}};
  const clearReceipt=()=>{const card=status.querySelector('.contact-receipt');if(!card)return;card.classList.add('is-leaving');setTimeout(()=>{if(card.isConnected){card.remove();}},360);};
  const showReceipt=(reference,email)=>{
   const svg='http://www.w3.org/2000/svg',el=(tag,cls,text)=>{const n=document.createElement(tag);if(cls)n.className=cls;if(text)n.textContent=text;return n;};

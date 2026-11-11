@@ -143,15 +143,34 @@ html:root:root:root body .contact-send[data-up]:disabled .send-plane{animation:s
 html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sending]{animation-name:vt-rise;animation-duration:.7s;animation-timing-function:cubic-bezier(.16,1,.3,1);animation-fill-mode:both;transform:none!important;translate:0 0!important}
 html:root:root:root body .contact-send:hover,html:root:root:root body .contact-send:active{transform:none!important}
 
-/* Sending → sent, rebuilt. The arrow launches out of the badge and keeps flying through while the message travels; a bar of light runs along the base of the pill.
-   When the service confirms, green opens from the badge like a ripple across the whole pill, the badge pulses once and the tick is drawn. All of it eases; nothing resizes. */
-html:root:root:root body .contact-send::before{content:""!important;position:absolute;inset:0;border-radius:inherit;background:#1b7958;translate:0 0!important;opacity:1!important;clip-path:circle(0 at calc(100% - 28px) 50%);transition:clip-path .8s cubic-bezier(.65,0,.2,1);pointer-events:none;z-index:0}
+/* Sending → sent (own take on a "button folds into a dot" send): the pill folds in to its middle, the label leaves, the arrow circles the dot while the message travels,
+   then green opens from the centre, a tick is drawn and the pill opens back out with "Message sent". Pure clip-path/transform, so nothing in the page ever shifts. */
+html:root:root:root body .contact-send{--sc:cubic-bezier(.65,0,.2,1);clip-path:inset(-8px -8px -8px -8px round 36px);transition:background-color .35s,border-color .35s,color .35s,translate .35s var(--out),box-shadow .35s,clip-path .62s var(--sc)!important}
+html:root:root:root body .contact-send[data-state=sending],html:root:root:root body .contact-send[data-state=sending]:disabled{clip-path:inset(0 calc(50% - 28px) 0 calc(50% - 28px) round 28px)}
+html:root:root:root body .contact-send[data-state=sending] .send-label{opacity:0;transform:scale(.9);animation:none!important;transition:opacity .22s,transform .3s var(--out)}
+html:root:root:root body .contact-send[data-state=sending] .send-icon{background:transparent;color:var(--btnfg);translate:calc(var(--w,540px)/-2 + 28px) 0;transition:translate .62s var(--sc),background-color .3s,color .3s}
+html:root:root:root body .contact-send .send-icon{transition:translate .62s var(--sc),background-color .35s,color .35s,transform .45s var(--out)}
+.contact-send[data-state=sending] .send-plane{animation:send-launch 1.25s .55s cubic-bezier(.55,0,.25,1) infinite!important;opacity:1}
+@keyframes send-launch{0%{transform:none;opacity:1}38%{transform:translate(17px,-17px);opacity:0}39%{transform:translate(-17px,17px);opacity:0}80%{transform:none;opacity:1}100%{transform:none;opacity:1}}
+html:root:root:root body .contact-send[data-state=sending]::after{content:""!important;position:absolute;left:calc(50% - 24px);top:4px;right:auto;bottom:auto;width:48px;height:48px;border-radius:50%;border:2px solid transparent;border-top-color:var(--btnfg);border-right-color:color-mix(in srgb,var(--btnfg) 30%,transparent);background:none;transform:none;pointer-events:none;animation:send-orbit 1.2s cubic-bezier(.45,.1,.3,.95) infinite,send-orbit-in .3s .45s both!important}
+@keyframes send-orbit{to{transform:rotate(360deg)}}
+@keyframes send-orbit-in{from{opacity:0}to{opacity:1}}
+/* green opens from the centre of the dot, then the pill opens back out */
+html:root:root:root body .contact-send::before{content:""!important;position:absolute;inset:0;border-radius:inherit;background:#1b7958;translate:0 0!important;opacity:1!important;clip-path:circle(0 at 50% 50%);transition:clip-path .6s var(--sc);pointer-events:none;z-index:0}
 html[data-theme=dark]:root:root:root body .contact-send::before{background:#2fb583}
-html:root:root:root body .contact-send[data-state=sent]::before{clip-path:circle(160% at calc(100% - 28px) 50%)}
-html:root:root:root body .contact-send[data-state=sending]::after{content:""!important;position:absolute;inset:auto 0 0 0;height:3px;border-radius:0;background:linear-gradient(90deg,transparent,color-mix(in srgb,var(--btnfg) 70%,transparent),transparent);transform:translateX(-100%);animation:send-run 1.35s cubic-bezier(.5,0,.2,1) infinite!important}
-@keyframes send-run{to{transform:translateX(100%)}}
-.contact-send[data-state=sending] .send-plane{animation:send-launch 1.2s cubic-bezier(.55,0,.25,1) infinite!important;opacity:1}
-@keyframes send-launch{0%{transform:none;opacity:1}38%{transform:translate(18px,-18px);opacity:0}39%{transform:translate(-18px,18px);opacity:0}78%{transform:none;opacity:1}100%{transform:none;opacity:1}}
-html:root:root:root body .contact-send[data-state=sent] .send-icon{animation:send-badge .7s .3s cubic-bezier(.34,1.4,.5,1) both}
-@keyframes send-badge{0%{transform:scale(1)}45%{transform:scale(1.16)}100%{transform:scale(1)}}
-@media(prefers-reduced-motion:reduce){html:root:root:root body .contact-send::before{transition:none}html:root:root:root body .contact-send[data-state=sent] .send-icon{animation:none}}
+html:root:root:root body .contact-send[data-state=sent]::before{clip-path:circle(160% at 50% 50%);transition:clip-path .42s var(--sc)}
+html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sent]:disabled{transition:background-color .35s,border-color .5s .5s,color .35s .5s,clip-path .62s .5s var(--sc)!important}
+html:root:root:root body .contact-send[data-state=sent] .send-icon{transition:translate .62s .5s var(--sc),background-color .3s .1s,color .3s .1s;animation:send-badge .6s .12s cubic-bezier(.34,1.4,.5,1) both}
+html:root:root:root body .contact-send[data-state=sent] .send-label,html:root:root:root body .contact-send[data-state=sent] .send-label.is-new{animation:send-word .5s .95s var(--out) both}
+@keyframes send-badge{0%{transform:scale(1)}45%{transform:scale(1.18)}100%{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){
+ html:root:root:root body .contact-send[data-state=sending],html:root:root:root body .contact-send[data-state=sending]:disabled{clip-path:inset(-8px -8px -8px -8px round 36px)}
+ html:root:root:root body .contact-send[data-state=sending] .send-label{opacity:1;transform:none}
+ html:root:root:root body .contact-send[data-state=sending] .send-icon{translate:0 0;background:var(--btnfg);color:var(--btnbg)}
+ html:root:root:root body .contact-send[data-state=sending]::after{display:none}
+ html:root:root:root body .contact-send::before,html:root:root:root body .contact-send[data-state=sent]::before{transition:none}
+ html:root:root:root body .contact-send[data-state=sent] .send-icon{animation:none}
+}
+/* Sent/sending never move or pop the button. */
+html:root:root:root body .contact-send[data-state=sent],html:root:root:root body .contact-send[data-state=sending]{animation-name:vt-rise;animation-duration:.7s;animation-timing-function:cubic-bezier(.16,1,.3,1);animation-fill-mode:both;transform:none!important}
+html:root:root:root body .contact-send:hover,html:root:root:root body .contact-send:active{transform:none!important}

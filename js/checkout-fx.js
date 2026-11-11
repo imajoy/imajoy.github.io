@@ -26,7 +26,7 @@ if (total) {
   }).observe(total, { childList: true, characterData: true, subtree: true });
 }
 /* Phone: follow the selected provider and hide while its payment controls are visible. */
-if (matchMedia('(max-width: 800px)').matches) {
+if (matchMedia('(max-width: 800px)').matches && document.body.dataset.payView !== 'options') {
   const totalEl = document.querySelector('#summary-total');
   const bar = document.createElement('div');
   bar.className = 'm-total';
@@ -38,12 +38,14 @@ if (matchMedia('(max-width: 800px)').matches) {
   sync();
   let target = null, shown = false, atBottom = false;
   const apply = () => bar.classList.toggle('on', document.documentElement.dataset.billingBlocked!=='true' && shown && !atBottom && !document.querySelector('.pay-done,[data-payment-complete]'));
-  const paymentTarget = () => !paymentStep?document.querySelector('.checkout-continue'):document.documentElement.dataset.paymentProvider==='review'?document.querySelector('.billing-review'):document.documentElement.dataset.paymentProvider==='razorpay'?document.querySelector('.razorpay-panel'):document.querySelector('.paypal-box');
+  const reviewing = () => document.body.classList.contains('pay-review');
+  const paymentTarget = () => reviewing()?document.querySelector('[data-pay-next]'):!paymentStep?document.querySelector('.checkout-continue'):document.documentElement.dataset.paymentProvider==='review'?document.querySelector('.billing-review'):document.documentElement.dataset.paymentProvider==='razorpay'?document.querySelector('.razorpay-panel'):document.querySelector('.paypal-box');
   bar.querySelector('button').addEventListener('click', () => {
+    if (reviewing()) { location.assign('pay.html'); return; }
     (paymentTarget() || document.querySelector('.checkout-form')).scrollIntoView({ behavior: paused() ? 'auto' : 'smooth', block: 'center' });
   });
   const io = new IntersectionObserver(es => { for (const e of es) if(e.target===target)atBottom = e.isIntersecting; apply(); }, { threshold: 0.2 });
-  const watch = () => {io.disconnect();target=paymentTarget();bar.querySelector('button').textContent=!paymentStep?'Continue to checkout':document.documentElement.dataset.paymentProvider==='review'?'Review billing':'Continue to pay';atBottom=false;if(target)io.observe(target);apply();};
+  const watch = () => {io.disconnect();target=paymentTarget();bar.querySelector('button').textContent=reviewing()?'Continue to payment':!paymentStep?'Continue to checkout':document.documentElement.dataset.paymentProvider==='review'?'Review billing':'Continue to pay';atBottom=false;if(target)io.observe(target);apply();};
   document.addEventListener('ajoy:provider-change',watch);
   document.addEventListener('ajoy:billing-network',apply);
   document.addEventListener('ajoy:payment-complete',apply);

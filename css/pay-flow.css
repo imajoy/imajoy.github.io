@@ -1,0 +1,25 @@
+/* Payment, step by step: the order summary page leads on to a clean page with only the payment methods. */
+.pay-next-wrap{display:grid;gap:10px;margin:6px 0 0}
+.pay-next{display:flex;align-items:center;justify-content:center;gap:10px;text-decoration:none}
+.pay-next svg,.pay-back svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .45s cubic-bezier(.22,1,.36,1)}
+@media(hover:hover) and (pointer:fine){.pay-next:hover svg{transform:translateX(4px)}.pay-back:hover svg{transform:translateX(-4px)}}
+.pay-next-note{margin:0;text-align:center;font-size:13px;color:var(--mute)}
+html[data-billing-blocked=true] .pay-next-wrap{display:none}
+/* summary page: the methods live on the next page */
+body.pay-review .payment-picker,body.pay-review .pay-skel{display:none!important}
+/* payment methods page: only the methods (plus the total) */
+body.pay-only .commerce-intro,body.pay-only .checkout-progress,body.pay-only .payment-billing-summary,body.pay-only .order-summary,body.pay-only .checkout-side,body.pay-only .offer-checkout,body.pay-only #yearly-upsell,body.pay-only #customer-verification,body.pay-only .m-total{display:none!important}
+body.pay-only .checkout-grid{display:block;max-width:640px;margin-inline:auto}
+body.pay-only .checkout-form{display:grid;gap:14px}
+body.pay-only main h1{margin-bottom:14px}
+.pay-back{display:inline-flex;align-items:center;gap:8px;margin:0 0 14px;font-size:14px;font-weight:600;color:var(--mute);text-decoration:none;transition:color .25s}
+.pay-back:hover{color:var(--ink)}
+.pay-total{order:-3;display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:14px 18px;border:1px solid color-mix(in srgb,var(--gold,#F2B64F) 32%,var(--line));border-radius:18px;background:linear-gradient(135deg,color-mix(in srgb,var(--gold,#F2B64F) 12%,var(--card)),var(--card) 70%)}
+.pay-total span{font-size:13px;font-weight:600;letter-spacing:.02em;color:var(--mute)}
+.pay-total strong{font-size:clamp(22px,6vw,28px);letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+body.pay-only #availability:empty{display:none}
+@media(prefers-reduced-motion:no-preference){body.pay-only .pay-total{animation:pay-total-in .7s cubic-bezier(.22,1,.36,1) both}@keyframes pay-total-in{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}}
+body.pay-only #availability{display:none}
+html[data-billing-blocked=true] body.pay-only #availability{display:block}
+body.pay-only main .wrap>:is(.pay-back,.eyebrow,h1){max-width:640px;margin-inline:auto}
+body.pay-only main .wrap>.pay-back{display:flex;width:fit-content;max-width:640px;margin-left:max(0px,calc(50% - 320px))}

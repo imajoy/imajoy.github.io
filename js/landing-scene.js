@@ -84,17 +84,28 @@ export function start(canvas){
  read();p=target;addEventListener('scroll',read,{passive:true});
  if(!coarse)addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;},{passive:true});
  const look=new THREE.Vector3(),aim=new THREE.Vector3(),tmp=new THREE.Vector3();
+ const near=new THREE.Vector3(),goal=new THREE.Vector3();let first=true;
+ /* where the curve is at a given depth (the curve only ever travels away from the viewer, so depth picks one point) */
+ const LUT=curve.getSpacedPoints(400);
+ function at(z,out){let lo=0,hi=LUT.length-1;if(z>=LUT[0].z)return out.copy(LUT[0]);if(z<=LUT[hi].z)return out.copy(LUT[hi]);while(hi-lo>1){const m=(lo+hi)>>1;if(LUT[m].z>z)lo=m;else hi=m;}const a=LUT[lo],b=LUT[hi],t=(a.z-z)/((a.z-b.z)||1);return out.lerpVectors(a,b,t);}
  const ease=t=>1-Math.pow(1-t,3);
  function frame(now){
   raf=requestAnimationFrame(frame);if(!alive)return;
   if(!born)born=now;const t=(now-born)/1000;
   p+=(target-p)*.065;const deep=scrollY>innerHeight*.55;if(deep!==wasDeep){wasDeep=deep;root.classList.toggle('lx-deep',deep);}cx+=(mx-cx)*.04;cy+=(my-cy)*.04;
   const d=Math.round(total*ease(Math.min(1,t/2.2))/3)*3;tube.geometry.setDrawRange(0,d);halo.geometry.setDrawRange(0,d);
-  /* camera: travels down the scene with a slow sway; in the hero the scene sits to the right of the headline */
-  const side=(1-Math.min(1,p*5))*(W>H?-2.6:-2.1);
-  camera.position.set(Math.sin(p*Math.PI*2.2)*2.2+side+cx*.9,1.1+Math.sin(p*Math.PI*3)*.5-cy*.6,10-p*44);
-  curve.getPointAt(Math.min(1,.1+p*.82),aim);aim.x+=side*.55;aim.y*=.6;aim.z-=3;/* upright screens: the scene sits above the headline */if(W<=H)aim.y-=(1-Math.min(1,p*5))*3.3;
-  look.lerp(aim,born===now?1:.08);camera.lookAt(look);
+  /* camera: flies beside the curve, always on its left and a little above it. The curve therefore stays on the right of the view and never
+     sweeps across the middle of the screen, where the words are. */
+  const cz=10-p*44;at(cz,near);
+  const off=W>H?3.9:3.1;
+  goal.set(near.x-off+cx*.9,near.y*.45+1.25-cy*.6,cz);
+  if(first)camera.position.copy(goal);else camera.position.lerp(goal,.09);
+  at(cz-11,aim);aim.x-=off*.42;aim.y=aim.y*.55+.2;
+  /* upright screens: in the hero the scene sits above the headline */
+  if(W<=H)aim.y-=(1-Math.min(1,p*5))*4.4;
+  look.lerp(aim,first?1:.08);camera.lookAt(look);first=false;
+  /* anything that drifts too close to the lens shrinks away instead of filling the screen */
+  for(const k of keys){const d=camera.position.distanceTo(k.g.position);k.g.scale.setScalar(Math.min(1,Math.max(0,(d-2.2)/3)));}
   const u=Math.min(.995,.115+p*.82+Math.sin(t*.6)*.004);
   curve.getPointAt(u,tmp);head.position.copy(tmp);ring.lookAt(camera.position);ring.scale.setScalar(1+Math.sin(t*2.4)*.12);
   for(const k of keys){k.body.rotation.y=t*.5+k.u*6;k.body.rotation.x=Math.sin(t*.7+k.u*9)*.25;const near=1-Math.min(1,Math.abs(k.u-u)*9);k.body.scale.setScalar(1+near*.5);}

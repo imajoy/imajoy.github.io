@@ -1,43 +1,47 @@
 /* Wrapline landing page. One idea runs through it: the line in the logo, an animation curve between two keys. It draws the intro, flies through the 3D scene, and ties the sections together. */
 .lx-page{--lx-blue:#3D8BFF;--lx-gold:#F2B64F;--lx-gold-hi:#FFE2A0;--lx-e:cubic-bezier(.22,1,.36,1);--lx-e2:cubic-bezier(.65,0,.35,1);overflow-x:clip}
-.lx{position:relative;isolation:isolate}
+.lx{position:relative;isolation:isolate;overflow-x:clip}
 .lx-wrap{width:min(1240px,100% - clamp(32px,6vw,96px));margin-inline:auto;position:relative}
 .lx em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
 
 /* ---------- 3D scene (fixed behind everything) ---------- */
 .lx-scene{position:fixed;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none;opacity:0;transition:opacity 1.4s var(--lx-e)}
 .lx-3d .lx-scene{opacity:1}
-.lx-3d.lx-deep .lx-scene{opacity:.42;transition-duration:1s}
+.lx-3d.lx-deep .lx-scene{opacity:.78;transition-duration:1s}
 .lx-flat{position:fixed;inset:0;width:100%;height:100%;z-index:-2;pointer-events:none;opacity:.5;transition:opacity .8s}
 .lx-3d .lx-flat{opacity:0}
 .lx-flat path{fill:none;stroke:var(--lx-blue);stroke-width:2.5;stroke-linecap:round}
 .lx-flat .k{fill:var(--lx-blue);stroke:none}
 
-/* ---------- intro: the curve draws, the name turns into place, the curtain lifts ---------- */
-.lx-intro{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:var(--bg);color:var(--ink);--t:1;animation:lxFailsafe .01s linear 9s forwards}
-.lx-seen .lx-intro{--t:.55}
+/* ---------- intro: the curve draws, the name rises out of it, then the whole sheet dissolves into the page ----------
+   Nothing moves until the brand font is in (html.lx-play), so the letters never swap shape mid-animation. */
+.lx-intro{position:fixed;inset:0;z-index:2147483000;display:grid;place-items:center;background:var(--bg);color:var(--ink);--t:1;animation:lxFailsafe .01s linear 10s forwards}
+.lx-seen .lx-intro{--t:.62}
 html:not(.lx-on) .lx-intro{display:none}
 .lx-intro-on,.lx-intro-on body{overflow:hidden}
-.lx-intro-in{position:relative;display:grid;justify-items:center;width:min(92vw,900px)}
+.lx-intro-in{position:relative;display:grid;justify-items:center;width:min(92vw,900px);will-change:transform,opacity}
 .lx-intro-curve{position:absolute;left:50%;top:50%;width:min(96vw,1100px);height:auto;transform:translate(-50%,-50%);overflow:visible}
-.lx-ic-line{fill:none;stroke:var(--lx-blue);stroke-width:3;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1;animation:lxDraw calc(1.15s*var(--t)) calc(.1s*var(--t)) var(--lx-e2) forwards}
-.lx-ic-k{fill:var(--lx-blue);transform-box:fill-box;transform-origin:center;transform:scale(0) rotate(-90deg);animation:lxKey calc(.7s*var(--t)) var(--lx-e) forwards}
-.lx-ic-k.k1{animation-delay:0s}.lx-ic-k.k2{animation-delay:calc(1.05s*var(--t))}
-.lx-intro-word{position:relative;display:flex;font:600 clamp(3.2rem,15.5vw,11rem)/1 var(--sans);letter-spacing:-.045em;perspective:900px;padding-block:.08em}
-.lx-intro-word span{display:block;overflow:hidden;padding:.06em .012em .12em;margin-block:-.06em -.12em}
-.lx-intro-word b{display:block;font-weight:inherit;transform-origin:50% 100%;transform:translateY(112%) rotateX(-88deg);opacity:0;animation:lxLetter calc(.95s*var(--t)) calc((.42s + var(--n)*.062s)*var(--t)) var(--lx-e) forwards}
-.lx-intro-tag{margin-top:clamp(10px,2vw,22px);font:500 clamp(.72rem,1.5vw,.95rem)/1 var(--sans);letter-spacing:.26em;text-transform:uppercase;color:var(--mute);opacity:0;animation:lxTag calc(.8s*var(--t)) calc(1.25s*var(--t)) var(--lx-e) forwards;white-space:nowrap}
+.lx-ic-line{fill:none;stroke:var(--lx-blue);stroke-width:3;stroke-linecap:round;stroke-dasharray:1;stroke-dashoffset:1}
+.lx-ic-k{fill:var(--lx-blue);transform-box:fill-box;transform-origin:center;transform:scale(0) rotate(-90deg)}
+.lx-intro-word{position:relative;display:flex;font:600 clamp(3.2rem,15.5vw,11rem)/1 var(--sans);letter-spacing:-.045em;padding-block:.08em}
+.lx-intro-word span{display:block;overflow:hidden;padding:.08em .014em .14em;margin-block:-.08em -.14em}
+.lx-intro-word b{display:block;font-weight:inherit;transform:translate3d(0,118%,0);will-change:transform}
+.lx-intro-tag{margin-top:clamp(10px,2vw,22px);font:500 clamp(.72rem,1.5vw,.95rem)/1 var(--sans);letter-spacing:.26em;text-transform:uppercase;color:var(--mute);opacity:0;white-space:nowrap}
+.lx-play .lx-ic-line{animation:lxDraw calc(1.7s*var(--t)) calc(.15s*var(--t)) cubic-bezier(.6,0,.2,1) forwards}
+.lx-play .lx-ic-k{animation:lxKey calc(.9s*var(--t)) var(--lx-e) forwards}
+.lx-play .lx-ic-k.k2{animation-delay:calc(1.6s*var(--t))}
+.lx-play .lx-intro-word b{animation:lxLetter calc(1.35s*var(--t)) calc((.55s + var(--n)*.075s)*var(--t)) cubic-bezier(.16,1,.3,1) forwards}
+.lx-play .lx-intro-tag{animation:lxTag calc(1.1s*var(--t)) calc(1.7s*var(--t)) var(--lx-e) forwards}
 @keyframes lxDraw{to{stroke-dashoffset:0}}
 @keyframes lxKey{to{transform:none}}
-@keyframes lxLetter{to{transform:none;opacity:1}}
-@keyframes lxTag{from{opacity:0;transform:translateY(10px);letter-spacing:.5em}to{opacity:1;transform:none;letter-spacing:.26em}}
+@keyframes lxLetter{to{transform:none}}
+@keyframes lxTag{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:none}}
 @keyframes lxFailsafe{to{opacity:0;visibility:hidden}}
-/* leaving: letters lift out one by one, the curtain rises with a curved edge */
-.lx-intro.out{animation:none;pointer-events:none;clip-path:ellipse(140% 100% at 50% 0%);animation:lxCurtain 1.05s .12s var(--lx-e2) forwards}
-.lx-intro.out .lx-intro-word b{animation:lxLetterOut .6s calc(var(--n)*.03s) var(--lx-e2) forwards}
-.lx-intro.out .lx-intro-tag,.lx-intro.out .lx-intro-curve{transition:opacity .4s;opacity:0!important}
-@keyframes lxLetterOut{from{transform:none;opacity:1}to{transform:translateY(-112%) rotateX(70deg);opacity:0}}
-@keyframes lxCurtain{0%{clip-path:ellipse(140% 100% at 50% 0%)}100%{clip-path:ellipse(140% 0% at 50% 0%);visibility:hidden}}
+/* leaving: the name drifts up and thins out while the sheet itself fades, so the page arrives underneath without a cut */
+.lx-intro.out{pointer-events:none;animation:lxSheet 1.25s .15s cubic-bezier(.4,0,.2,1) forwards}
+.lx-intro.out .lx-intro-in{animation:lxLift 1.2s cubic-bezier(.5,0,.2,1) forwards}
+@keyframes lxSheet{to{opacity:0;visibility:hidden}}
+@keyframes lxLift{to{transform:translate3d(0,-7vh,0) scale(1.035);opacity:0}}
 .lx-calm .lx-intro *{animation-duration:.01s!important;animation-delay:0s!important}
 
 /* ---------- hero ---------- */
@@ -57,10 +61,6 @@ html:not(.lx-on) .lx-intro{display:none}
 .lx-facts{display:flex;align-items:flex-end;gap:clamp(22px,5vw,64px);padding-top:clamp(16px,2.4vh,24px);border-top:1px solid color-mix(in srgb,var(--ink) 14%,transparent)}
 .lx-facts dt{font:600 clamp(1.3rem,2.6vw,2rem)/1 var(--sans);letter-spacing:-.03em;color:var(--ink);white-space:nowrap}
 .lx-facts dd{margin-top:6px;font:400 clamp(.72rem,1.1vw,.86rem)/1.2 var(--sans);color:var(--mute);white-space:nowrap}
-.lx-scrollcue{margin-left:auto;display:flex;align-items:center;gap:10px;font:500 .74rem/1 var(--sans);letter-spacing:.2em;text-transform:uppercase;color:var(--mute)}
-.lx-scrollcue span{position:relative;width:1px;height:38px;background:color-mix(in srgb,var(--ink) 16%,transparent);overflow:hidden}
-.lx-scrollcue span::after{content:"";position:absolute;left:0;top:0;width:1px;height:14px;background:var(--lx-blue);animation:lxCue 2s var(--lx-e2) infinite}
-@keyframes lxCue{from{transform:translateY(-16px)}to{transform:translateY(40px)}}
 
 /* hero entrance (waits for the curtain) */
 .lx-on .lx-line>span{transform:translateY(108%) rotate(4deg);transform-origin:0 100%}
@@ -83,7 +83,7 @@ html:not(.lx-on) .lx-intro{display:none}
  .lx-btn-line:hover em{background:color-mix(in srgb,var(--btnfg) 18%,transparent);color:var(--btnfg)}
  .lx-btn:hover svg{transform:translateX(4px)}
 }
-.lx-btn:active{transform:scale(.97);transition-duration:.15s}
+.lx-btn:active{transform:scale(.975);transition:background-size .7s var(--lx-e),color .45s var(--lx-e),border-color .45s var(--lx-e),transform .12s ease-out,box-shadow .6s var(--lx-e)}
 .lx-btn:focus-visible,.lx-link:focus-visible,.lx-tool:focus-visible{outline:2px solid var(--lx-blue);outline-offset:3px}
 .lx-link{display:inline-flex;align-items:center;gap:8px;font:600 .95rem/1 var(--sans);color:var(--ink);text-decoration:none;padding-bottom:5px;background:linear-gradient(currentColor,currentColor) 0 100%/100% 1px no-repeat;transition:background-size .6s var(--lx-e),color .3s}
 .lx-link svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .6s var(--lx-e)}
@@ -155,20 +155,24 @@ html:not(.lx-on) .lx-intro{display:none}
 .lx-blender b{color:var(--ink);font-weight:600}
 .lx-blender i{width:8px;height:8px;border-radius:50%;background:var(--coral,#FF7A5C)}
 
-/* setup: the curve is drawn by scrolling; each step sits on a key */
-.lx-path{--p:0;position:relative}
-.lx-path-svg{display:block;width:100%;height:clamp(90px,12vw,160px);overflow:visible}
-.lx-path-svg path{fill:none;stroke-width:2.5;stroke-linecap:round;vector-effect:non-scaling-stroke}
-.lx-path-bg{stroke:color-mix(in srgb,var(--ink) 12%,transparent);stroke-dasharray:2 8}
-.lx-path-fg{stroke:var(--lx-blue);stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p))}
-.lx-steps{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(16px,3vw,40px);margin-top:-8px}
-.lx-steps li{display:grid;gap:8px;justify-items:start;align-content:start}
-.lx-steps li:nth-child(2){justify-items:center;text-align:center}
-.lx-steps li:nth-child(3){justify-items:end;text-align:right}
-.lx-step-ico{display:grid;place-items:center;width:52px;height:52px;border-radius:16px;background:var(--card);border:1px solid var(--line);color:var(--lx-blue);transform:rotate(45deg);margin:6px 8px 12px}
-.lx-step-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transform:rotate(-45deg)}
-.lx-steps h3{font:600 clamp(1.05rem,1.8vw,1.3rem)/1.2 var(--sans);letter-spacing:-.02em;color:var(--ink)}
-.lx-steps p{font:400 .94rem/1.55 var(--sans);color:var(--t62);max-width:19rem}
+/* setup: a timeline. Scrolling moves the playhead; each step lights up as the playhead reaches its key */
+.lx-time{--p:0;position:relative;padding-top:34px}
+.lx-track{position:absolute;left:0;right:0;top:0;height:22px;background:repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 26%,transparent) 0 1px,transparent 1px 12px) 0 100%/100% 8px no-repeat,repeating-linear-gradient(90deg,color-mix(in srgb,var(--ink) 40%,transparent) 0 1px,transparent 1px 60px) 0 100%/100% 16px no-repeat;border-bottom:1px solid color-mix(in srgb,var(--ink) 22%,transparent)}
+.lx-track-fill{position:absolute;left:0;bottom:-1px;height:2px;width:100%;background:linear-gradient(90deg,var(--lx-blue),var(--lx-gold));transform-origin:0 50%;transform:scaleX(var(--p))}
+.lx-track-head{position:absolute;left:calc(var(--p)*100%);top:-6px;bottom:-9px;width:2px;margin-left:-1px;background:var(--lx-gold);border-radius:2px}
+.lx-track-head::before{content:"";position:absolute;left:50%;top:-4px;width:12px;height:12px;margin-left:-6px;background:var(--lx-gold);border-radius:3px 3px 6px 6px}
+.lx-steps{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,2vw,22px)}
+.lx-step{position:relative;display:grid}
+.lx-step-key{position:absolute;left:28px;top:-19px;width:12px;height:12px;border-radius:2px;transform:rotate(45deg) scale(.8);background:var(--bg);border:2px solid color-mix(in srgb,var(--ink) 35%,transparent);transition:transform .6s var(--lx-e),background-color .5s,border-color .5s,box-shadow .6s}
+.lx-step-card{display:grid;gap:8px;align-content:start;padding:clamp(20px,2.4vw,30px);border-radius:22px;background:color-mix(in srgb,var(--card) 62%,transparent);border:1px solid var(--line);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2);transition:transform .8s var(--lx-e),border-color .6s,background-color .6s,box-shadow .8s var(--lx-e)}
+.lx-step-ico{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;margin-bottom:10px;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--mute);transition:background-color .6s,color .6s,transform .8s var(--lx-e)}
+.lx-step-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
+.lx-steps h3{font:600 clamp(1.1rem,1.8vw,1.35rem)/1.2 var(--sans);letter-spacing:-.02em;color:var(--ink)}
+.lx-steps p{font:400 .95rem/1.55 var(--sans);color:var(--t62)}
+.lx-step.is-on .lx-step-key{transform:rotate(45deg) scale(1.15);background:var(--lx-gold);border-color:var(--lx-gold);box-shadow:0 0 0 6px color-mix(in srgb,var(--lx-gold) 22%,transparent)}
+.lx-step.is-on .lx-step-card{transform:translate3d(0,-6px,0);border-color:color-mix(in srgb,var(--lx-blue) 55%,var(--line));background:color-mix(in srgb,var(--card) 82%,transparent);box-shadow:0 26px 50px -30px color-mix(in srgb,var(--lx-blue) 70%,transparent)}
+.lx-step.is-on .lx-step-ico{background:var(--lx-blue);color:#fff;transform:rotate(-6deg) scale(1.04)}
+@media(hover:hover){.lx-step-card:hover{transform:translate3d(0,-8px,0);border-color:color-mix(in srgb,var(--lx-blue) 55%,var(--line))}.lx-step-card:hover .lx-step-ico{background:var(--lx-blue);color:#fff}}
 .lx-more{margin-top:clamp(26px,4vh,40px)}
 
 /* about */
@@ -186,22 +190,103 @@ html:not(.lx-on) .lx-intro{display:none}
 .lx-about-list dt{font:500 .76rem/1.2 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--mute)}
 .lx-about-list dd{font:500 clamp(1.02rem,1.7vw,1.3rem)/1.35 var(--sans);letter-spacing:-.015em;color:var(--ink)}
 
-/* the wrap */
+/* the wrap: framed like a shot, with ways to get in touch */
 .lx-end{padding-bottom:clamp(60px,10vh,120px)}
-.lx-end-card{--p:1;position:relative;display:grid;justify-items:center;text-align:center;gap:16px;padding:clamp(48px,9vw,120px) clamp(20px,5vw,60px);border-radius:clamp(26px,3.4vw,44px);background:linear-gradient(160deg,#141A2E,#0A0F20);color:#EEF2FF;overflow:hidden;isolation:isolate}
-.lx-on .lx-end-card{transform:perspective(1600px) rotateX(calc((1 - var(--p))*16deg)) scale(calc(.93 + var(--p)*.07));transform-origin:50% 0}
+.lx-end-card{--p:1;position:relative;display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,.9fr);gap:clamp(24px,4vw,60px);align-items:end;padding:clamp(34px,5.5vw,76px);border-radius:clamp(24px,3vw,40px);color:#EEF2FF;overflow:hidden;isolation:isolate;background:radial-gradient(120% 90% at 100% 0%,rgba(61,139,255,.28),transparent 55%),radial-gradient(90% 80% at 0% 100%,rgba(242,182,79,.16),transparent 55%),linear-gradient(160deg,#131A30,#080C1A);border:1px solid rgba(255,255,255,.1);box-shadow:0 50px 90px -50px rgba(8,12,26,.75)}
+.lx-end-card::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(rgba(255,255,255,.055) 1px,transparent 1px) 0 0/100% 44px,linear-gradient(90deg,rgba(255,255,255,.055) 1px,transparent 1px) 0 0/44px 100%;-webkit-mask-image:linear-gradient(180deg,transparent,#000 70%);mask-image:linear-gradient(180deg,transparent,#000 70%);transform:perspective(700px) rotateX(58deg) scale(1.9);transform-origin:50% 100%}
+.lx-on .lx-end-card{transform:perspective(1600px) rotateX(calc((1 - var(--p))*14deg)) scale(calc(.94 + var(--p)*.06));transform-origin:50% 0}
 .lx-on .lx-end-card[data-lx-r]{opacity:0}.lx-on .lx-end-card[data-lx-r].in{opacity:1;transition:opacity 1s var(--lx-e)}
+.lx-frame{position:absolute;inset:0;pointer-events:none}
+.lx-frame i{position:absolute;width:22px;height:22px;border:solid rgba(255,255,255,.45);border-width:0}
+.lx-frame i:nth-child(1){left:18px;top:18px;border-left-width:2px;border-top-width:2px}
+.lx-frame i:nth-child(2){right:18px;top:18px;border-right-width:2px;border-top-width:2px}
+.lx-frame i:nth-child(3){left:18px;bottom:18px;border-left-width:2px;border-bottom-width:2px}
+.lx-frame i:nth-child(4){right:18px;bottom:18px;border-right-width:2px;border-bottom-width:2px}
 .lx-end-curve{position:absolute;inset:0;width:100%;height:100%;z-index:-1}
-.lx-end-curve path{fill:none;stroke:var(--lx-blue);stroke-width:2.5;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p));opacity:.85}
+.lx-end-curve path{fill:none;stroke:var(--lx-blue);stroke-width:2.5;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:calc(1 - var(--p));opacity:.7}
+.lx-end-copy{display:grid;gap:16px;justify-items:start}
 .lx-end-card .lx-kicker{color:var(--lx-gold-hi)}
-.lx-end-card h2{font-size:clamp(2.6rem,11vw,8rem);line-height:.95;color:#fff;white-space:nowrap}
+.lx-end-card h2{font-size:clamp(2.5rem,6vw,5.2rem);line-height:.95;color:#fff;white-space:nowrap}
 .lx-end-card h2 em{color:var(--lx-gold)}
-.lx-end-card>p:not(.lx-kicker){font:400 clamp(1rem,1.5vw,1.2rem)/1.5 var(--sans);color:rgba(238,242,255,.72)}
-.lx-end-card .lx-actions{justify-content:center;margin-top:12px}
-.lx-end-card .lx-btn-ink{background-color:#fff;color:#0E1220}
-.lx-end-card .lx-btn-ink:hover{color:#fff}
-.lx-end-card .lx-btn-line{background-color:rgba(255,255,255,.06);color:#fff;border-color:rgba(255,255,255,.22);background-image:linear-gradient(#fff,#fff)}
+.lx-end-copy>p:not(.lx-kicker){max-width:30rem;font:400 clamp(1rem,1.4vw,1.14rem)/1.6 var(--sans);color:rgba(238,242,255,.74)}
+.lx-end-card .lx-actions{margin-top:10px}
+.lx-end-card .lx-btn-line{background-color:rgba(255,255,255,.07);color:#fff;border-color:rgba(255,255,255,.24);background-image:linear-gradient(#fff,#fff)}
 @media(hover:hover){.lx-end-card .lx-btn-line:hover{color:#0E1220;border-color:#fff}}
+.lx-end-list{list-style:none;display:grid;border-top:1px solid rgba(255,255,255,.14)}
+.lx-end-list a{position:relative;display:grid;grid-template-columns:1fr auto;column-gap:14px;align-items:center;padding:18px 6px 18px 0;border-bottom:1px solid rgba(255,255,255,.14);color:#fff;text-decoration:none;transition:padding .6s var(--lx-e),border-color .4s}
+.lx-end-list span{font:600 clamp(1.02rem,1.5vw,1.2rem)/1.25 var(--sans);letter-spacing:-.015em}
+.lx-end-list small{grid-column:1;font:400 .88rem/1.4 var(--sans);color:rgba(238,242,255,.62)}
+.lx-end-list svg{grid-column:2;grid-row:1/3;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;color:var(--lx-gold-hi);transition:transform .6s var(--lx-e)}
+@media(hover:hover){.lx-end-list a:hover{padding-left:14px;border-color:var(--lx-gold)}.lx-end-list a:hover svg{transform:translateX(6px)}}
+.lx-end-list a:focus-visible{outline:2px solid var(--lx-gold);outline-offset:2px}
+
+/* ---------- showcase: real recordings on a tilted monitor ---------- */
+.lx-stage{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:clamp(22px,4vw,56px);align-items:center}
+.lx-monitor{--p:1;border-radius:clamp(14px,1.6vw,22px);background:#0B0F1C;border:1px solid color-mix(in srgb,var(--ink) 18%,transparent);overflow:hidden;transform-origin:0 50%;transform:perspective(1500px) rotateY(calc((1 - var(--p))*-16deg)) rotateX(calc((1 - var(--p))*8deg)) scale(calc(.92 + var(--p)*.08));box-shadow:0 50px 90px -46px color-mix(in srgb,var(--lx-blue) 55%,rgba(8,12,26,.9)),0 0 0 1px rgba(255,255,255,.04) inset;will-change:transform}
+.lx-mon-bar{display:flex;align-items:center;gap:7px;height:38px;padding:0 14px;background:#131829;border-bottom:1px solid rgba(255,255,255,.07)}
+.lx-mon-bar i{width:9px;height:9px;border-radius:50%;background:rgba(255,255,255,.2)}
+.lx-mon-bar i:first-child{background:#FF7A5C}
+.lx-mon-bar span{margin-left:10px;font:500 .76rem/1 var(--sans);letter-spacing:.06em;color:rgba(238,242,255,.7)}
+.lx-mon-screen{position:relative;aspect-ratio:720/450;background:#0B0F1C}
+.lx-mon-screen video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.03);transition:opacity .8s var(--lx-e),transform 1.2s var(--lx-e)}
+.lx-mon-screen video.is-on{opacity:1;transform:none}
+.lx-show-side{display:grid;gap:22px;justify-items:start}
+.lx-tabs{display:grid;gap:12px;width:100%}
+.lx-tab{position:relative;display:grid;gap:6px;text-align:left;padding:18px 20px 20px;border-radius:18px;background:color-mix(in srgb,var(--card) 55%,transparent);border:1px solid var(--line);color:var(--ink);cursor:pointer;font:inherit;overflow:hidden;-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);-webkit-tap-highlight-color:transparent;transition:background-color .5s,border-color .5s,transform .7s var(--lx-e)}
+.lx-tab-k{font:500 .68rem/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--mute)}
+.lx-tab b{font:600 1.08rem/1.2 var(--sans);letter-spacing:-.015em}
+.lx-tab-d{font:400 .9rem/1.5 var(--sans);color:var(--t62);display:grid;grid-template-rows:0fr;opacity:0;transition:grid-template-rows .7s var(--lx-e),opacity .5s}
+.lx-tab-d{overflow:hidden;max-height:0;transition:max-height .7s var(--lx-e),opacity .5s}
+.lx-tab.is-on .lx-tab-d{max-height:7em;opacity:1}
+.lx-tab-bar{position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--lx-blue);transform:scaleX(0);transform-origin:0 50%}
+.lx-tab.is-on{background:color-mix(in srgb,var(--card) 88%,transparent);border-color:color-mix(in srgb,var(--lx-blue) 50%,var(--line))}
+.lx-tab.is-on .lx-tab-bar{animation:lxTabBar 8s linear forwards}
+@keyframes lxTabBar{to{transform:scaleX(1)}}
+@media(hover:hover){.lx-tab:not(.is-on):hover{transform:translate3d(6px,0,0);border-color:color-mix(in srgb,var(--ink) 30%,var(--line))}}
+.lx-tab:focus-visible{outline:2px solid var(--lx-blue);outline-offset:3px}
+
+/* ---------- words stay readable over the scene: a soft pool of the page colour sits behind each block of text (the scene itself is untouched) ---------- */
+.lx-hero-in,.lx-head,.lx-about-copy{position:relative}
+.lx-hero-in::before,.lx-head::before,.lx-about-copy::before{content:"";position:absolute;z-index:-1;inset:-9% -12% -12% -14%;background:radial-gradient(closest-side,color-mix(in srgb,var(--bg) 90%,transparent) 0%,color-mix(in srgb,var(--bg) 72%,transparent) 55%,transparent 100%);pointer-events:none}
+.lx-head-c::before{inset:-14% -10%}
+
+/* ---------- headings wipe up into place as they are scrolled to ---------- */
+.lx-on [data-lx-t]{clip-path:inset(0 -4% 108% -4%);transform:translate3d(0,.42em,0)}
+.lx-on .in [data-lx-t],.lx-on [data-lx-t].in{clip-path:inset(-12% -4% -22% -4%);transform:none;transition:clip-path 1.25s .05s var(--lx-e),transform 1.25s .05s var(--lx-e)}
+.lx-on [data-lx-r] .lx-kicker{letter-spacing:.42em;transition:letter-spacing 1.3s var(--lx-e)}
+.lx-on [data-lx-r].in .lx-kicker{letter-spacing:.2em}
+.lx-on .lx-head[data-lx-r]>p:last-child{opacity:0;transform:translate3d(0,18px,0)}
+.lx-on .lx-head[data-lx-r].in>p:last-child{opacity:1;transform:none;transition:opacity 1s .28s var(--lx-e),transform 1.1s .28s var(--lx-e)}
+.lx-on .lx-head[data-lx-r]{opacity:1;transform:none}
+
+/* ---------- hover (no glow, nothing follows the cursor) ---------- */
+.lx-plan{transition:transform .8s var(--lx-e),border-color .5s,box-shadow .8s var(--lx-e)}
+.lx-plan::after{content:"";position:absolute;left:24px;right:24px;top:0;height:2px;border-radius:2px;background:var(--lx-blue);transform:scaleX(0);transform-origin:0 50%;transition:transform .8s var(--lx-e)}
+.lx-plan.is-top::after{background:var(--lx-gold)}
+.lx-about-list>div{position:relative;transition:padding .7s var(--lx-e),border-color .5s}
+.lx-about-list>div::before{content:"";position:absolute;left:0;top:50%;width:8px;height:8px;margin-top:-4px;background:var(--lx-blue);border-radius:1.5px;transform:rotate(45deg) scale(0);transition:transform .6s var(--lx-e)}
+.lx-facts>div{transition:transform .7s var(--lx-e)}
+@media(hover:hover){
+ .lx-plan.in:hover{transform:translate3d(0,-8px,0);border-color:color-mix(in srgb,var(--lx-blue) 50%,var(--line));box-shadow:0 34px 60px -38px color-mix(in srgb,var(--lx-blue) 75%,transparent)}
+ .lx-plan.is-top.in:hover{border-color:var(--lx-gold);box-shadow:0 34px 70px -36px rgba(242,182,79,.7)}
+ .lx-plan:hover::after{transform:none}
+ .lx-about-list>div:hover{padding-left:22px;border-color:color-mix(in srgb,var(--lx-blue) 60%,transparent)}
+ .lx-about-list>div:hover::before{transform:rotate(45deg) scale(1)}
+ .lx-facts>div:hover{transform:translate3d(0,-4px,0)}
+ .lx-av{transition:transform .7s var(--lx-e)}.lx-sign:hover .lx-av{transform:rotate(-8deg) scale(1.06)}
+}
+
+/* ---------- dark mode ---------- */
+html[data-theme=dark] .lx-tool,html[data-theme=dark] .lx-plan:not(.is-top){background:color-mix(in srgb,#141A2B 88%,transparent);border-color:rgba(255,255,255,.11)}
+html[data-theme=dark] .lx-tool-desc,html[data-theme=dark] .lx-tool-cat,html[data-theme=dark] .lx-kit-name small,html[data-theme=dark] .lx-facts dd,html[data-theme=dark] .lx-eyebrow{color:rgba(226,232,248,.66)}
+html[data-theme=dark] .lx-lead,html[data-theme=dark] .lx-head>p:last-child,html[data-theme=dark] .lx-plan-s,html[data-theme=dark] .lx-steps p,html[data-theme=dark] .lx-about-lead,html[data-theme=dark] .lx-tab-d{color:rgba(226,232,248,.78)}
+html[data-theme=dark] .lx-plan.is-top{background:linear-gradient(160deg,#1B2440,#10162B);border-color:color-mix(in srgb,var(--lx-gold) 60%,transparent)}
+html[data-theme=dark] .lx-step-card,html[data-theme=dark] .lx-tab{background:rgba(20,26,43,.6);border-color:rgba(255,255,255,.11)}
+html[data-theme=dark] .lx-step.is-on .lx-step-card,html[data-theme=dark] .lx-tab.is-on{background:rgba(24,31,52,.86)}
+html[data-theme=dark] .lx-end-card{border-color:rgba(255,255,255,.16);box-shadow:0 0 0 1px rgba(61,139,255,.18),0 50px 90px -50px rgba(61,139,255,.45)}
+html[data-theme=dark] .lx-facts,html[data-theme=dark] .lx-about-list>div{border-color:rgba(255,255,255,.16)}
+html[data-theme=dark] .lx-btn-line{border-color:rgba(255,255,255,.26);background-color:rgba(255,255,255,.05)}
+html[data-theme=dark] .lx-monitor{border-color:rgba(255,255,255,.14)}
 
 /* ---------- tablet ---------- */
 @media(max-width:1080px){
@@ -211,17 +296,18 @@ html:not(.lx-on) .lx-intro{display:none}
  .lx-plan.is-top{grid-column:1/-1}
  .lx-on .lx-plan[data-lx-r]:not(.in){transform:translateY(40px)}
  .lx-about-grid{grid-template-columns:1fr}
+ .lx-stage{grid-template-columns:1fr}
+ .lx-end-card{grid-template-columns:1fr;align-items:start}
  .lx-about-copy{position:static}
 }
 /* ---------- phone ---------- */
 @media(max-width:680px){
  .lx-hero{padding-top:104px;gap:22px}
- .lx-3d .lx-scene{opacity:.8}.lx-3d.lx-deep .lx-scene{opacity:.3}
- .lx-eyebrow{font-size:min(.74rem,2.85vw);letter-spacing:.1em;gap:8px}
+ .lx-3d .lx-scene{opacity:.9}.lx-3d.lx-deep .lx-scene{opacity:.6}
+ .lx-eyebrow{font-size:min(.72rem,2.6vw);letter-spacing:.06em;gap:7px}
  .lx-actions{width:100%}
  .lx-hero .lx-btn{flex:1 1 100%}
  .lx-facts{gap:0;justify-content:space-between}
- .lx-scrollcue{display:none}
  .lx-grid-5,.lx-grid-4{grid-template-columns:1fr 1fr;gap:10px}
  .lx-tool{min-height:0;padding:14px 12px 14px;border-radius:16px}
  .lx-tool-cat{display:none}
@@ -231,19 +317,28 @@ html:not(.lx-on) .lx-intro{display:none}
  .lx-kit-name{flex-wrap:wrap;row-gap:8px}
  .lx-plane{transform:none}
  .lx-plan-grid{grid-template-columns:1fr}
- .lx-path-svg{display:none}
- .lx-steps{grid-template-columns:1fr;gap:0;margin-top:0;position:relative}
- .lx-steps::before{content:"";position:absolute;left:25px;top:20px;bottom:40px;width:2px;background:linear-gradient(var(--lx-blue),var(--lx-blue)) 0 0/100% calc(var(--p)*100%) no-repeat,color-mix(in srgb,var(--ink) 12%,transparent)}
- .lx-steps li,.lx-steps li:nth-child(2),.lx-steps li:nth-child(3){grid-template-columns:52px 1fr;column-gap:18px;row-gap:4px;justify-items:start;text-align:left;padding-bottom:26px;position:relative}
- .lx-step-ico{grid-row:1/3;margin:0;width:44px;height:44px;border-radius:13px;justify-self:center}
- .lx-steps h3{align-self:end}
- .lx-steps p{grid-column:2}
+ .lx-time{padding-top:0;padding-left:30px}
+ .lx-track{left:6px;right:auto;top:6px;bottom:6px;width:2px;height:auto;background:color-mix(in srgb,var(--ink) 16%,transparent);border:0}
+ .lx-track-fill{left:0;top:0;bottom:auto;width:2px;height:100%;transform-origin:50% 0;transform:scaleY(var(--p));background:linear-gradient(180deg,var(--lx-blue),var(--lx-gold))}
+ .lx-track-head{left:-5px;top:calc(var(--p)*100%);bottom:auto;width:12px;height:12px;margin:-6px 0 0;border-radius:3px;transform:rotate(45deg)}
+ .lx-track-head::before{display:none}
+ .lx-steps{grid-template-columns:1fr;gap:12px}
+ .lx-step-key{display:none}
+ .lx-step.is-on .lx-step-card{transform:none}
+ .lx-stage{grid-template-columns:1fr}
+ .lx-monitor{transform:none}
+ .lx-end-card{grid-template-columns:1fr;padding:44px 22px 30px}
+ .lx-end-card h2{font-size:clamp(2.4rem,13.5vw,4rem)}
+ .lx-frame i{width:16px;height:16px}.lx-frame i:nth-child(1),.lx-frame i:nth-child(2){top:12px}.lx-frame i:nth-child(3),.lx-frame i:nth-child(4){bottom:12px}.lx-frame i:nth-child(odd){left:12px}.lx-frame i:nth-child(even){right:12px}
+ .lx-hero-in::before,.lx-head::before,.lx-about-copy::before{inset:-6% -6% -8% -6%}
  .lx-about-list>div{grid-template-columns:1fr;gap:6px}
  .lx-sign .lx-link{margin-left:0;flex-basis:100%}
  .lx-end-card .lx-btn{flex:1 1 100%}
 }
 @media(prefers-reduced-motion:reduce){
  .lx-on [data-lx-r],.lx-on [data-lx-h],.lx-on .lx-line>span,.lx-on .lx-kit[data-lx-r] li,.lx-on .lx-plan[data-lx-r]{opacity:1!important;transform:none!important;transition:none!important}
- .lx-plane,.lx-about-list,.lx-on .lx-end-card{transform:none!important}
+ .lx-plane,.lx-about-list,.lx-on .lx-end-card,.lx-monitor{transform:none!important}
+ .lx-on [data-lx-t]{clip-path:none!important;transform:none!important}.lx-on .lx-head[data-lx-r]>p:last-child{opacity:1!important;transform:none!important}
  .lx-rec,.lx-scrollcue span::after{animation:none}
 }
+.lx-stage:hover .lx-tab-bar{animation-play-state:paused}

@@ -85,7 +85,8 @@ html[data-checkout-step=billing] .pay-skel{display:none}
 /* Payment page: a Wrapline loader that stays up until the whole page is ready */
 .pg-skel[data-hold]{opacity:1;animation:sk-failsafe .01s linear 11s forwards}
 .pg-skel[data-hold].done{animation:none;opacity:0!important}
-.pg-skel .pl{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:18px}
+.pg-skel .pl,.pg-ring .pl{position:absolute;inset:0;display:grid;place-content:center;justify-items:center;gap:18px}
+.pg-ring{color:var(--ink,#0E1220)}
 .pl-mark{overflow:visible}
 .pl-tile{transform-box:fill-box;transform-origin:center;animation:plTile .9s cubic-bezier(.22,1,.36,1) both}
 .pl-line{stroke-dasharray:40;stroke-dashoffset:40;animation:plDraw 1.5s .35s cubic-bezier(.45,0,.2,1) infinite}

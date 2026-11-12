@@ -1,4 +1,4 @@
-/* One press feel for every button on the site: ink spreads from the exact point touched, then the button springs back.
+/* One press feel for every button on the site: ink spreads from the exact point touched, then the button eases back.
    Keyboard presses spread from the centre. Nothing here follows the pointer around, and reduced-motion turns it off. */
 (()=>{
 const calm=matchMedia('(prefers-reduced-motion: reduce)');
@@ -17,8 +17,9 @@ function ink(b,x,y){
  const end=()=>{i.remove();if(!b.querySelector('.bm-ink'))b.classList.remove('bm-host','bm-rel');};
  i.animate([{transform:'translate(-50%,-50%) scale(0)',opacity:.9},{transform:'translate(-50%,-50%) scale(1)',opacity:0}],{duration:760,easing:EASE}).finished.then(end,end);
 }
-const spring=b=>b.animate?.([{transform:'scale(.962)'},{transform:'scale(1.02)',offset:.5},{transform:'scale(.996)',offset:.78},{transform:'scale(1)'}],{duration:620,easing:EASE});
+/* the button dips a little while held and eases straight back: it never grows past its size, so labels stay crisp */
+const dip=b=>{if(!b.animate||b.matches('.lx-btn'))return;b.animate([{transform:'scale(.975)'},{transform:'scale(1)'}],{duration:520,easing:EASE});};
 addEventListener('pointerdown',e=>{if(calm.matches||e.button>0)return;const b=pick(e.target);if(b)ink(b,e.clientX,e.clientY);},{passive:true});
-addEventListener('pointerup',e=>{if(calm.matches)return;const b=pick(e.target);if(b)spring(b);},{passive:true});
-addEventListener('keydown',e=>{if(calm.matches||e.repeat||(e.key!=='Enter'&&e.key!==' '))return;const b=pick(e.target);if(!b)return;const r=b.getBoundingClientRect();ink(b,r.left+r.width/2,r.top+r.height/2);spring(b);});
+addEventListener('pointerup',e=>{if(calm.matches)return;const b=pick(e.target);if(b)dip(b);},{passive:true});
+addEventListener('keydown',e=>{if(calm.matches||e.repeat||(e.key!=='Enter'&&e.key!==' '))return;const b=pick(e.target);if(!b)return;const r=b.getBoundingClientRect();ink(b,r.left+r.width/2,r.top+r.height/2);dip(b);});
 })();

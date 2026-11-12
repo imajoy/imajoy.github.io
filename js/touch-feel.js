@@ -25,7 +25,7 @@
     if (!press) return;
     var el = press; press = null;
     if (hold) { hold.cancel(); hold = null; }
-    var btn = el.matches('.btn,button,[role=button],[class*=btn]'); el.animate(btn ? [{ scale: .94, filter: 'brightness(.9)' }, { scale: 1.025, filter: 'brightness(1)', offset: .55 }, { scale: 1, filter: 'brightness(1)' }] : [{ scale: .975 }, { scale: 1.01, offset: .55 }, { scale: 1 }], { duration: 520, easing: EASE });
+    var btn = el.matches('.btn,button,[role=button],[class*=btn]'); /* eases straight back to size: no overshoot, so a tapped button never looks bigger than it is */ el.animate(btn ? [{ scale: .95, filter: 'brightness(.92)' }, { scale: 1, filter: 'brightness(1)' }] : [{ scale: .98 }, { scale: 1 }], { duration: 460, easing: EASE });
   }
   document.addEventListener('pointerdown', function (e) {
     if (e.pointerType !== 'touch') return;
@@ -33,7 +33,7 @@
     var el = target(e.target); if (!el) return;
     /* a short pause so a finger that is only starting to scroll does not make everything flinch */
     timer = setTimeout(function () {
-      press = el; var btn = el.matches('.btn,button,[role=button],[class*=btn]'); hold = el.animate(btn ? [{ scale: 1, filter: 'brightness(1)' }, { scale: .94, filter: 'brightness(.9)' }] : [{ scale: 1 }, { scale: .975 }], { duration: 140, easing: EASE, fill: 'forwards' });
+      press = el; var btn = el.matches('.btn,button,[role=button],[class*=btn]'); hold = el.animate(btn ? [{ scale: 1, filter: 'brightness(1)' }, { scale: .95, filter: 'brightness(.92)' }] : [{ scale: 1 }, { scale: .975 }], { duration: 140, easing: EASE, fill: 'forwards' });
     }, 40);
   }, { passive: true });
   ['pointerup', 'pointercancel', 'pointerleave'].forEach(function (t) { document.addEventListener(t, release, { passive: true, capture: true }); });

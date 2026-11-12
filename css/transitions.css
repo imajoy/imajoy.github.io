@@ -3,7 +3,7 @@
    The top pill stays put so the page feels like one app. Direction flips on Back (html[data-vt=back]). */
 @media (prefers-reduced-motion:no-preference){
  ::view-transition{background:var(--bg)}
- ::view-transition-group(root){animation-duration:.52s}
+ ::view-transition-group(root){animation-duration:.62s}
  ::view-transition-image-pair(root){isolation:auto}
  ::view-transition-old(root),::view-transition-new(root){mix-blend-mode:normal;animation-duration:.7s;animation-timing-function:cubic-bezier(.22,1,.36,1);animation-fill-mode:both}
  ::view-transition-old(root){animation-duration:.34s;animation-timing-function:cubic-bezier(.4,0,1,1)}
@@ -18,10 +18,14 @@
     so the browser can run it entirely on the GPU while the new page is still starting up (no clip-path, no filters). */
  ::view-transition-old(root){animation-duration:.16s;animation-timing-function:cubic-bezier(.4,0,1,1)}
  ::view-transition-new(root){animation-delay:.1s;animation-duration:.42s;animation-timing-function:cubic-bezier(.22,1,.36,1)}
- @keyframes vt-away{to{opacity:0}}
- @keyframes vt-toward{from{opacity:0;transform:translate3d(0,10px,0)}}
- @keyframes vt-away-b{to{opacity:0}}
- @keyframes vt-toward-b{from{opacity:0;transform:translate3d(0,-10px,0)}}
+ /* Curtain: the next page rises over the old one, which sinks back and dims; Back plays it downwards. Every page opens on its solid
+    Wrapline loader, so what rises is a clean sheet that then lifts to show the page. Transform and opacity only. */
+ ::view-transition-old(root){animation-duration:.62s;animation-timing-function:cubic-bezier(.65,0,.35,1)}
+ ::view-transition-new(root){animation-delay:0s;animation-duration:.62s;animation-timing-function:cubic-bezier(.65,0,.35,1)}
+ @keyframes vt-away{to{opacity:.35;transform:translate3d(0,-7%,0) scale(.97)}}
+ @keyframes vt-toward{from{transform:translate3d(0,100%,0)}}
+ @keyframes vt-away-b{to{opacity:.35;transform:translate3d(0,7%,0) scale(.97)}}
+ @keyframes vt-toward-b{from{transform:translate3d(0,-100%,0)}}
 }
 /* Content on plain pages rises in, one block after another, as the circle opens. */
 @media (prefers-reduced-motion:no-preference){

@@ -29,7 +29,8 @@ export function policyFor(html){
     "img-src 'self' data: blob: https:",
     "font-src 'self' data:",
     "connect-src 'self' https://wsadhewcmpdhojgqzstw.supabase.co https://script.google.com https://script.googleusercontent.com https://open.er-api.com https://api.country.is https://get.geojs.io https://api.postalpincode.in https://api.zippopotam.us https://translate.googleapis.com https://translate-pa.googleapis.com "+PAYPAL+' '+RAZORPAY,
-    "frame-src "+PAYPAL+' '+RAZORPAY+' https://translate.google.com',
+    /* 'self': Google's page translator opens an empty same-page frame; without it the translator stops and no language can load */
+    "frame-src 'self' "+PAYPAL+' '+RAZORPAY+' https://translate.google.com',
     "media-src 'self' blob:","worker-src 'self' blob:","manifest-src 'self'",
     "object-src 'none'","base-uri 'self'","form-action 'self'",
   ].join('; ');

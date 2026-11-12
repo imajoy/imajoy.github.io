@@ -100,7 +100,8 @@ html:not(.lx-on) .lx-intro{display:none}
 .lx-head>p:last-child{font:400 clamp(.98rem,1.3vw,1.1rem)/1.6 var(--sans);color:var(--t62);max-width:36rem}
 
 /* scroll reveals */
-.lx-on [data-lx-r]{opacity:0;transform:translateY(34px)}
+.lx-on [data-lx-r]{opacity:0;transform:perspective(1300px) translate3d(0,54px,0) rotateX(9deg);transform-origin:50% 0}
+.lx-on [data-lx-r][data-from=above]:not(.in){transform:perspective(1300px) translate3d(0,-54px,0) rotateX(-9deg);transform-origin:50% 100%}
 .lx-on [data-lx-r].in{opacity:1;transform:none;transition:opacity .95s calc(var(--i,0)*.07s) var(--lx-e),transform 1.15s calc(var(--i,0)*.07s) var(--lx-e)}
 
 /* the shelf: a plane that tilts up into place as it is scrolled to */
@@ -385,3 +386,9 @@ html[data-theme=dark] .lx-card3d{border-color:rgba(255,255,255,.14)}
 }
 @media(prefers-reduced-motion:reduce){.lx-card3d{transition:opacity .3s!important}.lx-band-row{transform:translate3d(-22%,0,0)!important}[data-lx-words] .lx-w{opacity:1!important}}
 .lx-card3d .xp-steps{display:none}.lx-card3d .xp{align-self:center}
+
+/* depth layers (see landing.js) */
+[data-lx-depth]{translate:0 calc(var(--dy,0)*1px);will-change:translate}
+@media(max-width:899px),(prefers-reduced-motion:reduce){[data-lx-depth]{translate:none}}
+.lx-on .lx-plan[data-lx-r][data-from=above]:not(.in){transform:translateY(-46px) rotateY(calc(var(--ry)*16deg)) rotateX(-8deg)}
+.lx-on .lx-kit[data-lx-r][data-from=above] li{transform:translateY(-26px) rotateX(24deg);transform-origin:50% 100%}

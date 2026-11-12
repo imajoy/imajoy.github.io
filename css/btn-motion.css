@@ -7,9 +7,11 @@
 
 /* the label: two copies in one slot; one leaves as the other arrives */
 .bm-t{display:inline-grid!important;overflow:hidden;vertical-align:top;padding-block:.2em;margin-block:-.2em;perspective:300px}
-.bm-t>.bm-l,.bm-t::after{grid-area:1/1;display:block;white-space:nowrap;transition:transform .62s cubic-bezier(.65,0,.25,1),opacity .5s cubic-bezier(.65,0,.25,1);will-change:transform}
-.bm-t::after{content:attr(data-t);transform:translate3d(0,135%,0)}
-[data-bm=get] .bm-t::after{transform:translate3d(0,-135%,0)}
+.bm-t>.bm-l,.bm-t::after{grid-area:1/1;display:block!important;white-space:nowrap;transition:transform .78s cubic-bezier(.7,0,.2,1),opacity .6s cubic-bezier(.7,0,.2,1);will-change:transform}
+/* the arriving copy trails the leaving one a little, so the hand-over is easy to see */
+.bm-t::after{transition-delay:.07s}
+.bm-t::after{content:attr(data-t);transform:translate3d(0,135%,0) skewY(7deg)}
+[data-bm=get] .bm-t::after{transform:translate3d(0,-135%,0) skewY(-7deg)}
 [data-bm=pay] .bm-t>.bm-l,[data-bm=pay] .bm-t::after{transition-duration:.8s}
 [data-bm=send] .bm-t::after{transform:translate3d(-112%,0,0)}
 [data-bm=key] .bm-t>.bm-l{transform-origin:50% 0}
@@ -28,9 +30,9 @@
 
 /* the moving state: pointer over (mouse), or one play after a tap */
 @media(hover:hover){
- [data-bm]:hover .bm-t>.bm-l{transform:translate3d(0,-135%,0)}
+ [data-bm]:hover .bm-t>.bm-l{transform:translate3d(0,-135%,0) skewY(-7deg)}
  [data-bm]:hover .bm-t::after{transform:none}
- [data-bm=get]:hover .bm-t>.bm-l{transform:translate3d(0,135%,0)}
+ [data-bm=get]:hover .bm-t>.bm-l{transform:translate3d(0,135%,0) skewY(7deg)}
  [data-bm=send]:hover .bm-t>.bm-l{transform:translate3d(112%,0,0)}
  [data-bm=key]:hover .bm-t>.bm-l{transform:rotateX(88deg);opacity:0}
  [data-bm=key]:hover .bm-t::after{transform:none;opacity:1}

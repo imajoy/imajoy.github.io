@@ -31,7 +31,12 @@ Promise.all([loaded,fonts,Promise.race([sceneReady,wait(2600)])]).then(()=>{cons
 setTimeout(leave,8500);
 addEventListener('pageshow',e=>{if(e.persisted)leave();});
 /* ---- reveals ---- */
-const io='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es)if(e.isIntersecting){const n=e.target;n.classList.add('in');io.unobserve(n);setTimeout(()=>n.classList.add('lx-done'),1700);}},{rootMargin:'0px 0px -4% 0px',threshold:.04}):null;
+/* A block animates in each time it comes onto the screen, from whichever side it arrives: from below when scrolling down, from above
+   when scrolling back up. It is only reset once it has left the screen completely, so nothing ever disappears while visible. */
+const io='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es){const n=e.target;
+ if(e.isIntersecting&&(e.intersectionRatio>=.1||e.intersectionRect.height>innerHeight*.25)){if(!n.classList.contains('in')){/* which side is it arriving from? set that first, so it starts from the right place */const from=e.boundingClientRect.top<0?'above':'below';if(n.dataset.from!==from){n.dataset.from=from;void n.offsetWidth;}n.classList.add('in');clearTimeout(n._d);n._d=setTimeout(()=>n.classList.add('lx-done'),1700);}}
+ else if(!e.isIntersecting){clearTimeout(n._d);n.classList.remove('in','lx-done');n.dataset.from=e.boundingClientRect.top<0?'above':'below';}
+}},{threshold:[0,.1,.25]}):null;
 for(const n of document.querySelectorAll('[data-lx-r]')){if(io&&!calm)io.observe(n);else n.classList.add('in');}
 /* ---- scroll-linked planes and drawn curves: each gets --p from 0 (entering) to 1 (in place) ---- */
 const linked=[...document.querySelectorAll('[data-lx-tilt],[data-lx-draw]')].map(n=>({n,draw:n.hasAttribute('data-lx-draw'),last:-1,steps:n.classList.contains('lx-time')?[...n.querySelectorAll('.lx-step')].map(el=>({el,at:parseFloat(el.style.getPropertyValue('--at'))||0})):null}));
@@ -52,7 +57,10 @@ function splitWords(){if(!wordsEl||words||calm)return;if(/translated-/.test(root
 function joinWords(){if(!words)return;wordsEl.textContent=wordsRaw;words=null;}
 if(wordsEl){splitWords();new MutationObserver(()=>{if(/translated-/.test(root.className))joinWords();}).observe(root,{attributes:true,attributeFilter:['class','lang']});}
 let deckSee=null,deckEl=null;
+/* depth: chosen blocks drift a little faster or slower than the page, so layers separate as you scroll (wide screens with a mouse only) */
+const deep=(!calm&&matchMedia('(min-width:900px) and (hover:hover)').matches)?[...document.querySelectorAll('[data-lx-depth]')].map(n=>({n,k:parseFloat(n.dataset.lxDepth)||0,last:null})):[];
 function extras(vh){
+ for(const d of deep){const r=d.n.getBoundingClientRect();if(r.bottom<-150||r.top>vh+150)continue;const y=Math.round(((r.top+r.height/2-(d.last||0))-vh/2)*d.k);if(y!==d.last){d.n.style.setProperty('--dy',y);d.last=y;}}
  if(deckSee){const r=deckEl.getBoundingClientRect();deckSee(r.bottom>vh*.2&&r.top<vh*.8,r.top<vh+700&&r.bottom>-700);}
  if(band){const r=band.getBoundingClientRect();if(r.bottom>-100&&r.top<vh+100){const x=Math.round((vh/2-(r.top+r.height/2))*.42);if(x!==bandX){bandX=x;band.style.setProperty('--x',x);}}}
  if(words){const r=wordsEl.getBoundingClientRect();if(r.bottom>-50&&r.top<vh+50){const t=Math.max(0,Math.min(1,(vh*.86-r.top)/(vh*.42)))*(words.length+3);for(let i=0;i<words.length;i++){const o=Math.max(0,Math.min(1,(t-i)/3)).toFixed(2);if(words[i]._o!==o){words[i]._o=o;words[i].style.setProperty('--o',o);}}}}

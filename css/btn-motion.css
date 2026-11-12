@@ -1,11 +1,55 @@
-/* Site-wide button press (see js/btn-motion.js) */
-.bm-host{overflow:hidden!important;-webkit-tap-highlight-color:transparent}
+/* Site-wide button motion (see js/btn-motion.js). Helper elements are laid over the button: they can never change its size. */
 .bm-rel{position:relative}
-.bm-ink{position:absolute;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,transparent 36%,color-mix(in srgb,currentColor 30%,transparent) 50%,color-mix(in srgb,currentColor 12%,transparent) 60%,transparent 70%)}
-.bm-ink.bm-gold{background:radial-gradient(circle,rgba(255,226,160,0) 36%,rgba(242,182,79,.6) 50%,rgba(255,226,160,.28) 60%,rgba(242,182,79,0) 70%)}
-/* arrows inside buttons and links lean forward on hover, with the same easing everywhere */
+[data-bm]{-webkit-tap-highlight-color:transparent}
+.bm-box,.bm-fx{position:absolute!important;inset:0!important;margin:0!important;padding:0!important;border:0!important;width:auto!important;height:auto!important;min-width:0!important;flex:none!important;border-radius:inherit;overflow:hidden;pointer-events:none;z-index:0!important;background:none;transform:none!important;opacity:1!important}
+.bm-ink{position:absolute!important;margin:0!important;border-radius:50%;pointer-events:none;background:radial-gradient(circle,transparent 34%,color-mix(in srgb,currentColor 28%,transparent) 50%,color-mix(in srgb,currentColor 10%,transparent) 62%,transparent 72%)}
+.bm-ink.bm-gold{background:radial-gradient(circle,rgba(255,226,160,0) 34%,rgba(242,182,79,.6) 50%,rgba(255,226,160,.26) 62%,rgba(242,182,79,0) 72%)}
+
+/* the label: two copies in one slot; one leaves as the other arrives */
+.bm-t{display:inline-grid!important;overflow:hidden;vertical-align:top;padding-block:.2em;margin-block:-.2em;perspective:300px}
+.bm-t>.bm-l,.bm-t::after{grid-area:1/1;display:block;white-space:nowrap;transition:transform .62s cubic-bezier(.65,0,.25,1),opacity .5s cubic-bezier(.65,0,.25,1);will-change:transform}
+.bm-t::after{content:attr(data-t);transform:translate3d(0,135%,0)}
+[data-bm=get] .bm-t::after{transform:translate3d(0,-135%,0)}
+[data-bm=pay] .bm-t>.bm-l,[data-bm=pay] .bm-t::after{transition-duration:.8s}
+[data-bm=send] .bm-t::after{transform:translate3d(-112%,0,0)}
+[data-bm=key] .bm-t>.bm-l{transform-origin:50% 0}
+[data-bm=key] .bm-t::after{transform:rotateX(-88deg);transform-origin:50% 100%;opacity:0}
+
+/* pay: a band of light; get: a progress line */
+[data-bm=pay]>.bm-fx::before{content:"";position:absolute;top:-20%;bottom:-20%;left:0;width:38%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:translate3d(-130%,0,0) skewX(-18deg)}
+[data-bm=get]>.bm-fx::before{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:currentColor;opacity:.55;transform:scaleX(0);transform-origin:0 50%}
+
+@keyframes bmShoot{0%{transform:none;opacity:1}45%{transform:translate3d(150%,0,0);opacity:0}46%{transform:translate3d(-150%,0,0);opacity:0}100%{transform:none;opacity:1}}
+@keyframes bmDrop{0%{transform:none}35%{transform:translate3d(0,70%,0);opacity:0}36%{transform:translate3d(0,-90%,0);opacity:0}70%{transform:translate3d(0,12%,0);opacity:1}100%{transform:none}}
+@keyframes bmFly{0%{transform:none;opacity:1}45%{transform:translate3d(130%,-130%,0) rotate(-12deg);opacity:0}46%{transform:translate3d(-130%,130%,0) rotate(-12deg);opacity:0}100%{transform:none;opacity:1}}
+@keyframes bmSheen{to{transform:translate3d(380%,0,0) skewX(-18deg)}}
+@keyframes bmLine{0%{transform:scaleX(0);transform-origin:0 50%}60%{transform:scaleX(1);transform-origin:0 50%}61%{transform:scaleX(1);transform-origin:100% 50%}100%{transform:scaleX(0);transform-origin:100% 50%}}
+@keyframes bmNod{0%,100%{transform:none}40%{transform:rotate(-14deg) scale(1.12)}70%{transform:rotate(6deg)}}
+
+/* the moving state: pointer over (mouse), or one play after a tap */
 @media(hover:hover){
- :is(.btn,.lx-btn,.o-ae-go) > :is(svg,span[aria-hidden=true]):last-child{transition:transform .5s cubic-bezier(.22,1,.36,1)}
- :is(.btn,.lx-btn,.o-ae-go):hover > :is(svg,span[aria-hidden=true]):last-child{transform:translateX(4px)}
+ [data-bm]:hover .bm-t>.bm-l{transform:translate3d(0,-135%,0)}
+ [data-bm]:hover .bm-t::after{transform:none}
+ [data-bm=get]:hover .bm-t>.bm-l{transform:translate3d(0,135%,0)}
+ [data-bm=send]:hover .bm-t>.bm-l{transform:translate3d(112%,0,0)}
+ [data-bm=key]:hover .bm-t>.bm-l{transform:rotateX(88deg);opacity:0}
+ [data-bm=key]:hover .bm-t::after{transform:none;opacity:1}
+ [data-bm=go]:hover>svg,[data-bm=go]:hover>span[aria-hidden=true]{animation:bmShoot .7s cubic-bezier(.65,0,.25,1)}
+ [data-bm=get]:hover>svg{animation:bmDrop .8s cubic-bezier(.5,0,.2,1)}
+ [data-bm=send]:hover>svg{animation:bmFly .75s cubic-bezier(.65,0,.25,1)}
+ [data-bm=pay]:hover>svg,[data-bm=key]:hover>svg{animation:bmNod .7s cubic-bezier(.22,1,.36,1)}
+ [data-bm=pay]:hover>.bm-fx::before{animation:bmSheen .95s cubic-bezier(.5,0,.2,1)}
+ [data-bm=get]:hover>.bm-fx::before{animation:bmLine 1.1s cubic-bezier(.65,0,.25,1)}
 }
-@media(prefers-reduced-motion:reduce){.bm-ink{display:none}}
+[data-bm].bm-run .bm-t>.bm-l{animation:bmRollOut .7s cubic-bezier(.65,0,.25,1)}
+[data-bm].bm-run .bm-t::after{animation:bmRollIn .7s cubic-bezier(.65,0,.25,1)}
+@keyframes bmRollOut{0%{transform:none}50%{transform:translate3d(0,-135%,0)}51%{transform:translate3d(0,135%,0)}100%{transform:none}}
+@keyframes bmRollIn{0%,100%{opacity:0}}
+[data-bm=go].bm-run>svg,[data-bm=go].bm-run>span[aria-hidden=true]{animation:bmShoot .7s cubic-bezier(.65,0,.25,1)}
+[data-bm=get].bm-run>svg{animation:bmDrop .8s cubic-bezier(.5,0,.2,1)}
+[data-bm=send].bm-run>svg{animation:bmFly .75s cubic-bezier(.65,0,.25,1)}
+[data-bm=pay].bm-run>.bm-fx::before{animation:bmSheen .95s cubic-bezier(.5,0,.2,1)}
+[data-bm=get].bm-run>.bm-fx::before{animation:bmLine 1.1s cubic-bezier(.65,0,.25,1)}
+/* a held press dips slightly; nothing ever grows past its own size */
+[data-bm]:not([data-bm=own]):active{scale:.975}
+@media(prefers-reduced-motion:reduce){.bm-ink,.bm-fx{display:none!important}.bm-t::after{display:none}.bm-t>.bm-l{transform:none!important;opacity:1!important}[data-bm] svg{animation:none!important}}

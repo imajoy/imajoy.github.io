@@ -75,12 +75,14 @@ export function start(canvas){
  function paint(){P=pal();scene.fog.color.setHex(P.bg);for(const m of [ink,boneMat,gridMat,dustMat,dotMat])m.color.setHex(P.ink);gridMat.opacity=P.grid;dustMat.opacity=P.dust;face.color.setHex(P.face);halo.material.opacity=theme()?.16:.1;}
  paint();new MutationObserver(paint).observe(root,{attributes:true,attributeFilter:['data-theme']});
  /* sizing */
- let W=0,H=0;
- function size(){const w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight;if(w===W&&h===H)return;W=w;H=h;renderer.setPixelRatio(Math.min(devicePixelRatio||1,coarse?1.5:2));renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w<h?56:42;camera.updateProjectionMatrix();}
+ let W=0,H=0,cap=coarse?1.25:1.5,slow=0,frames=0,lastT=0;
+ function size(){const w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight;if(w===W&&h===H)return;W=w;H=h;renderer.setPixelRatio(Math.min(devicePixelRatio||1,cap));renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w<h?56:42;camera.updateProjectionMatrix();}
  size();addEventListener('resize',size,{passive:true});
  /* motion */
  let wasDeep=false,target=0,p=0,mx=0,my=0,cx=0,cy=0,born=0,alive=true,raf=0;
- const read=()=>{const max=document.documentElement.scrollHeight-innerHeight;target=max>0?Math.min(1,Math.max(0,scrollY/max)):0;};
+ /* the page length is measured rarely (never during a scroll), so scrolling itself does no layout work */
+ let max=1;const span=()=>{max=Math.max(1,document.documentElement.scrollHeight-innerHeight);};span();addEventListener('resize',span,{passive:true});addEventListener('load',span,{once:true});setInterval(span,2500);
+ const read=()=>{target=Math.min(1,Math.max(0,scrollY/max));};
  read();p=target;addEventListener('scroll',read,{passive:true});
  if(!coarse)addEventListener('pointermove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5;},{passive:true});
  const look=new THREE.Vector3(),aim=new THREE.Vector3(),tmp=new THREE.Vector3();
@@ -92,6 +94,8 @@ export function start(canvas){
  function frame(now){
   raf=requestAnimationFrame(frame);if(!alive)return;
   if(!born)born=now;const t=(now-born)/1000;
+  /* if this device cannot keep up, the scene drops to a lighter resolution instead of making the page stutter */
+  if(lastT&&cap>1){const dt=now-lastT;if(dt<200){frames++;if(dt>24)slow++;if(frames>=90){if(slow>30){cap=1;W=0;size();}frames=0;slow=0;}}}lastT=now;
   p+=(target-p)*.065;const deep=scrollY>innerHeight*.55;if(deep!==wasDeep){wasDeep=deep;root.classList.toggle('lx-deep',deep);}cx+=(mx-cx)*.04;cy+=(my-cy)*.04;
   const d=Math.round(total*ease(Math.min(1,t/2.2))/3)*3;tube.geometry.setDrawRange(0,d);halo.geometry.setDrawRange(0,d);
   /* camera: flies beside the curve, always on its left and a little above it. The curve therefore stays on the right of the view and never

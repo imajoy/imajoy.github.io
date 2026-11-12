@@ -9,5 +9,7 @@ window.WraplineLoader={
  hide
 };
 if(el){const start=performance.now(),wait=()=>setTimeout(hide,Math.max(0,700-(performance.now()-start)));
- if(document.readyState==='complete')wait();else addEventListener('load',wait,{once:true});setTimeout(hide,8000);}
+ /* a page whose loader is marked data-hold keeps it up until its own data is in (ajoy:page-ready), so it never shows placeholder rows */
+ if(el.hasAttribute('data-hold')){const ready=()=>{const go=()=>requestAnimationFrame(()=>requestAnimationFrame(wait));if(document.readyState==='complete')go();else addEventListener('load',go,{once:true});};if(document.documentElement.dataset.pageReady)ready();else document.addEventListener('ajoy:page-ready',ready,{once:true});setTimeout(hide,12000);}
+ else{if(document.readyState==='complete')wait();else addEventListener('load',wait,{once:true});setTimeout(hide,8000);}}
 })();

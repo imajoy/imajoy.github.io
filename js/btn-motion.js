@@ -59,7 +59,7 @@ function ink(b,x,y){
 }
 /* touch screens have no hover: the button's motion plays once when it is tapped */
 const run=b=>{if(!b.dataset.bm||b.dataset.bm==='own')return;b.classList.remove('bm-run');void b.offsetWidth;b.classList.add('bm-run');clearTimeout(b._bm);b._bm=setTimeout(()=>b.classList.remove('bm-run'),900);};
-addEventListener('pointerdown',e=>{if(calm.matches||e.button>0)return;const b=pick(e.target);if(!b)return;dress(b);ink(b,e.clientX,e.clientY);if(e.pointerType!=='mouse'){sync(b);run(b);}},{passive:true});
+addEventListener('pointerdown',e=>{if(calm.matches||e.button>0)return;const b=pick(e.target);if(!b)return;dress(b);ink(b,e.clientX,e.clientY);if(e.pointerType!=='mouse'){sync(b);run(b);try{navigator.vibrate?.(6);}catch{}}},{passive:true});
 addEventListener('pointerover',e=>{const b=pick(e.target);if(b&&!b.contains(e.relatedTarget)){dress(b);sync(b);}},{passive:true});
 addEventListener('keydown',e=>{if(calm.matches||e.repeat||(e.key!=='Enter'&&e.key!==' '))return;const b=pick(e.target);if(!b)return;const r=b.getBoundingClientRect();ink(b,r.left+r.width/2,r.top+r.height/2);run(b);});
 const start=()=>{dressAll();let q=0;new MutationObserver(()=>{if(q)return;q=setTimeout(()=>{q=0;dressAll();},300);}).observe(document.body,{childList:true,subtree:true});};

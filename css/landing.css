@@ -1,5 +1,5 @@
 /* Wrapline landing page. One idea runs through it: the line in the logo, an animation curve between two keys. It draws the intro, flies through the 3D scene, and ties the sections together. */
-.lx-page{--lx-blue:#3D8BFF;--lx-gold:#F2B64F;--lx-gold-hi:#FFE2A0;--lx-e:cubic-bezier(.22,1,.36,1);--lx-e2:cubic-bezier(.65,0,.35,1);overflow-x:clip}
+.lx-page{--lx-blue:#2563EB;--lx-gold:#F2B64F;--lx-gold-hi:#FFE2A0;--lx-e:cubic-bezier(.22,1,.36,1);--lx-e2:cubic-bezier(.65,0,.35,1);overflow-x:clip}
 .lx{position:relative;isolation:isolate;overflow-x:clip}
 .lx-wrap{width:min(1240px,100% - clamp(32px,6vw,96px));margin-inline:auto;position:relative}
 .lx em{font-family:var(--serif);font-style:italic;font-weight:400;letter-spacing:-.01em}
@@ -405,3 +405,6 @@ html[data-theme=dark] .lx-card3d{border-color:rgba(255,255,255,.14)}
 @media(max-width:899px),(prefers-reduced-motion:reduce){[data-lx-depth]{translate:none}}
 .lx-on .lx-plan[data-lx-r][data-from=above]:not(.in){transform:translateY(-46px) rotateY(calc(var(--ry)*16deg)) rotateX(-8deg)}
 .lx-on .lx-kit[data-lx-r][data-from=above] li{transform:translateY(-26px) rotateX(24deg);transform-origin:50% 100%}
+
+/* text-safe blue: #2563EB passes AA on the light page; dark mode keeps a lighter blue */
+html[data-theme=dark] .lx-page{--lx-blue:#5B9BFF}

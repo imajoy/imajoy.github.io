@@ -242,7 +242,9 @@ $('#sub-search').addEventListener('input',e=>{query.subscriptions=e.target.value
 $('#his-search').addEventListener('input',e=>{query.history=e.target.value;renderHistory();});
 
 /* ---------- loading ---------- */
-function setState(s){shell.dataset.state=s;}
+let firstDone=false;
+/* the first answer (or a sign-in prompt, or an error) lets the Wrapline loader lift: the page appears complete, never as grey rows */
+function setState(s){shell.dataset.state=s;if(!firstDone&&s!=='loading'){firstDone=true;document.documentElement.dataset.pageReady='1';document.dispatchEvent(new Event('ajoy:page-ready'));}}
 async function load(){
   const session=getAccountSession();
   if(!session){data=null;setState('out');return;}

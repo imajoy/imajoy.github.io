@@ -55,3 +55,13 @@
 /* a held press dips slightly; nothing ever grows past its own size */
 [data-bm]:not([data-bm=own]):active{scale:.975}
 @media(prefers-reduced-motion:reduce){.bm-ink,.bm-fx{display:none!important}.bm-t::after{display:none}.bm-t>.bm-l{transform:none!important;opacity:1!important}[data-bm] svg{animation:none!important}}
+
+/* ---- Accessibility (whole site) ---- */
+/* one clear keyboard focus ring, wherever a component has not drawn its own */
+:where(a[href],button,summary,[tabindex]:not([tabindex="-1"]),input,select,textarea):focus-visible{outline:2px solid #2563EB;outline-offset:3px}
+html[data-theme=dark] :where(a[href],button,summary,[tabindex]:not([tabindex="-1"]),input,select,textarea):focus-visible{outline-color:#7FB0FF}
+/* gold and light-blue text read too faint on white: the same hues, deep enough for AA */
+html:not([data-theme=dark]) :is(.nav-pro,.sum-coupon-t,.order-summary .text-link,.cat-pill){color:#8A5A00!important}
+html:not([data-theme=dark]) body.bill-v2 .reward-steps li:nth-child(n) .rs-pct{color:#664000!important}
+html:not([data-theme=dark]) .lx-kicker:not(:is(.lx-end-card,.fp-pro) .lx-kicker){color:#1D4ED8}
+html:not([data-theme=dark]) .s-eyebrow{color:#2563EB!important}

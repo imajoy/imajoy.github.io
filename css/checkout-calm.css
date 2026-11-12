@@ -76,3 +76,10 @@ html body #yearly-upsell{display:none!important}
  body.bill-v2:not(.pay-single) .order-summary .summary-list,body.bill-v2:not(.pay-single) .order-summary a.text-link[href*="pricing"]{display:none}
  body.bill-v2:not(.pay-single) .checkout-progress{margin-bottom:14px}
 }
+/* a way to pay that cannot be used for this order */
+html body.bill-v2 .payment-picker .pay-item.is-off{opacity:1;background:color-mix(in srgb,var(--card) 70%,transparent)!important;border-style:dashed!important}
+html body.bill-v2 .payment-picker .pay-item.is-off>label{cursor:not-allowed}
+html body.bill-v2 .payment-picker .pay-item.is-off>label::before{opacity:.35}
+html body.bill-v2 .payment-picker .pay-item.is-off .pk-t>b,html body.bill-v2 .payment-picker .pay-item.is-off .pk-t>small,html body.bill-v2 .payment-picker .pay-item.is-off .nets,html body.bill-v2 .payment-picker .pay-item.is-off .acc-chev{opacity:.45}
+.pk-off{display:inline-flex;align-items:center;gap:6px;margin-top:8px;padding:5px 10px;border-radius:999px;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--ink);font-size:.78rem;font-weight:600;line-height:1.2;width:max-content;max-width:100%}
+.pk-off::before{content:"";width:6px;height:6px;border-radius:50%;background:#C2353A;flex:none}

@@ -52,7 +52,9 @@ if(form&&paypal&&url){
  const showAmount=(id,value)=>setMoney(document.getElementById(id),value,rzpCurrency(),choice().country);
  /* The page is shown only once everything the Pay button needs is in hand: the price, and Razorpay's own checkout (fetched here, ahead of the press, so the window opens without a download). */
  let rzpReady=null,releasing=false;
- const release=()=>{if(!hold||releasing)return;const fin=()=>{if(!hold)return;hold=false;skel.remove();sync();document.dispatchEvent(new Event('ajoy:page-ready'));};
+ const release=()=>{if(!hold||releasing)return;const fin0=()=>{if(!hold)return;hold=false;skel.remove();sync();document.dispatchEvent(new Event('ajoy:page-ready'));};
+  /* the page also waits for the connection check, so the customer never sees it running */
+  const fin=()=>{if(document.documentElement.dataset.billingPending!=='true'){fin0();return;}let t=0;const go=e=>{if(e&&e.detail?.pending)return;document.removeEventListener('ajoy:billing-network',go);clearTimeout(t);fin0();};document.addEventListener('ajoy:billing-network',go);t=setTimeout(go,25000);};
   if(document.documentElement.dataset.checkoutStep==='payment'&&provider==='razorpay'&&config?.keyId&&getAccountSession()){releasing=true;rzpReady=rzpReady||loadCheckout().catch(()=>{});Promise.race([rzpReady,new Promise(r=>setTimeout(r,3500))]).then(fin);}else fin();};
  const say=(text,kind='')=>{if(/^Price confirmed/.test(text))text='';status.textContent=text;status.dataset.kind=kind;};
  /* Confirmed quotes are remembered for 10 minutes so the next step shows the price at once.
@@ -112,7 +114,10 @@ if(form&&paypal&&url){
   const c=choice(),country=c.country,canRazorpay=razorpayAvailable(config,country),canPaypal=!!paypalConfig?.clientId&&/^[A-Z]{2}$/.test(country)&&availability(country,paypalConfig.closedCountries||[]).open&&(document.documentElement.dataset.billingTester==='true'||countryCheck(country,paypalConfig.mode==='live'?paypalConfig.country:'').ok)&&!!paypalConfig.plans?.tiers?.[tierFor(country)]?.[c.plan]?.[c.billing];
   if(!restoredProvider&&(canRazorpay||canPaypal)){restoredProvider=true;if(draft?.provider==='razorpay'&&canRazorpay)selected('razorpay');}
   if(!prefApplied&&(canRazorpay||canPaypal)&&cachedProfile()!==undefined){prefApplied=true;const want=savedPref();if(!userPicked&&!draft?.provider&&want){if(want==='razorpay'&&canRazorpay)selected('razorpay');else if(want==='paypal'&&canPaypal)selected('paypal');}}
-  pickLabels();picker.hidden=hold||(!canRazorpay&&!canPaypal);if(c.country!=='IN'&&rzpMethod!=='card'){rzpMethod='card';if(provider==='razorpay')syncAcc();}for(const r of picker.querySelectorAll('[value="razorpay"]'))r.parentElement.hidden=!canRazorpay||(r.dataset.m!=='card'&&c.country!=='IN');picker.querySelector('[value="paypal"]').parentElement.hidden=!canPaypal;
+  pickLabels();picker.hidden=hold||(!canRazorpay&&!canPaypal);if(c.country!=='IN'&&rzpMethod!=='card'){rzpMethod='card';if(provider==='razorpay')syncAcc();}/* Every way to pay stays listed. One that cannot be used for this order is shown greyed with the reason, and cannot be chosen. */
+  const allowed=Array.isArray(config?.methods)?config.methods:['card','upi','netbanking'];
+  for(const r of picker.querySelectorAll('[value="razorpay"]')){const m=r.dataset.m||'card';const why=!config?.enabled&&!canRazorpay?'Not available right now':!canRazorpay?'Not available for this billing country':m!=='card'&&c.country!=='IN'?'Only for billing addresses in India':!allowed.includes(m)?'Not available yet':'';offRow(r,why);}
+  offRow(picker.querySelector('[value="paypal"]'),canPaypal?'':!paypalConfig?.clientId?'Not available right now':'Not available for this billing country');
   if(!canRazorpay&&!canPaypal&&provider!=='review')selected('review');
   else if(canRazorpay&&!canPaypal&&provider!=='razorpay')selected('razorpay');
   else if(canPaypal&&(provider==='review'||provider==='razorpay'&&!canRazorpay))selected('paypal');
@@ -188,6 +193,8 @@ if(form&&paypal&&url){
  document.addEventListener('ajoy:checkout-draft',event=>{if(provider==='razorpay'){event.detail.coupon=coupon;if(offerTouched)event.detail.rzpOffer=offer;}});
  for(const radio of offerBox.querySelectorAll('input'))radio.addEventListener('change',()=>{offerTouched=true;offer=radio.value;clubNote=offer==='trial'&&coupon?'The free trial can\u2019t be combined with a coupon, so '+coupon+' is not applied. Choose Pay now to use your coupon instead.':'';if(offer==='trial'&&coupon)couponNote('Coupons apply to paid subscriptions, not the free trial. Choose "Pay now" to use '+coupon+'.');refresh();});
  /* Method names, currency and card networks follow the billing country (also while PayPal is the open method). */
+ /* a method that cannot be used: greyed, labelled with why, skipped by the keyboard */
+ function offRow(input,why){if(!input)return;const label=input.parentElement;label.hidden=false;const off=!!why;input.disabled=off;label.classList.toggle('is-off',off);label.closest('.pay-item')?.classList.toggle('is-off',off);let tag=label.querySelector('.pk-off');if(off){if(!tag){tag=document.createElement('span');tag.className='pk-off';label.querySelector('.pk-t')?.append(tag);}tag.textContent=why;}else tag?.remove();}
  function pickLabels(){
   const local=choice().country==='IN',cur=rzpCurrency(),t=picker.querySelector('[data-rzp-title]'),sm=picker.querySelector('[data-rzp-pick]'),n=picker.querySelector('[data-rzp-nets]');
   if(t)t.textContent=local?'Card':'International cards';
@@ -297,7 +304,9 @@ if(form&&paypal&&url){
    let paid=false,failure='';
    const rzp=new window.Razorpay({key:config.keyId,subscription_id:result.subscriptionId,name:'Wrapline Pro',
     description:(trialing?'4-day free trial · then ':'')+'Wrapline Pro '+(sel.plan==='offline'?'Premium':'Basic')+' · '+sel.billing+' · '+sel.seats+' license(s)',
-    prefill:{email:getAccountSession().email,name:form.elements.name.value,method:rzpMethod},theme:{color:'#2A64E8'},remember_customer:cachedProfile()?.saveCard===true,
+    prefill:{email:getAccountSession().email,name:form.elements.name.value,method:rzpMethod},
+    /* the window opens straight on the method chosen on this page: the card form, or UPI (QR code on a computer, UPI apps on a phone) */
+    config:{display:{blocks:{chosen:{name:rzpMethod==='upi'?'Pay with UPI':rzpMethod==='netbanking'?'Pay with net banking':'Pay with card',instruments:[{method:rzpMethod}]}},sequence:['block.chosen'],preferences:{show_default_blocks:false}}},theme:{color:'#2A64E8'},remember_customer:cachedProfile()?.saveCard===true,
     handler:()=>{paid=true;goThankYou(result.checkoutId,sel);},
     modal:{escape:true,confirm_close:true,ondismiss:()=>{if(!paid)abandon(result.checkoutId,failure);}}});
    rzp.on('payment.failed',event=>{failure=(event?.error?.description||'The bank declined the payment.').replace(/\.?$/,'.');say('Payment failed: '+failure+' Try another card or method in the Razorpay window, or close it to cancel.','error');});

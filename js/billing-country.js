@@ -26,11 +26,15 @@ export function initializeBillingCountry(form){
  function announce(blocked,reason='',pending=false){
   gate.dataset.state=pending?'checking':blocked?'error':'ready';gate.setAttribute('aria-busy',String(pending));
   root.dataset.billingBlocked=blocked?'true':'false';root.dataset.billingTester=String(tester);
-  grid.hidden=blocked;gate.hidden=!blocked;
+  /* The check runs behind the Wrapline loader: the "checking" card itself is never shown. It appears only when the check needs the customer (VPN, no country, retry). */
+  root.dataset.billingPending=pending?'true':'false';
+  grid.hidden=blocked;gate.hidden=!blocked||pending;
+  const shown=!document.getElementById('pg-skel');
+  if(pending&&shown)window.WraplineLoader?.show();else if(!pending)window.WraplineLoader?.hide();
   if(blocked){gate.querySelector('h2').textContent=pending?'Checking your connection':reason==='vpn_detected'?'Turn off your VPN to continue':'Connection check needed';gate.querySelector('[data-network-message]').textContent=pending?'Detecting your billing country securely…':reasons[reason]||reasons.network_unavailable;}
   retry.disabled=pending;
   hint.textContent=tester?'Verified testing account: you can choose a country. Provider restrictions and payment verification still apply.':country?'Detected by the server from your connection. This field cannot be edited.':'Waiting for the server to confirm your billing country.';
-  document.dispatchEvent(new CustomEvent('ajoy:billing-network',{detail:{blocked,country,canEdit:tester}}));
+  document.dispatchEvent(new CustomEvent('ajoy:billing-network',{detail:{blocked,country,canEdit:tester,pending}}));
  }
  async function refresh(){
   const operation=++revision,session=getAccountSession(),previousTester=tester,previousCountry=field.value;

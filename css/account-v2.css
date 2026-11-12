@@ -115,3 +115,34 @@ html[data-theme=dark] .acct-step{color:#8DB4FF;background:rgba(109,160,255,.14)}
 .ez>*{animation:ez-rise .7s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(.35s + var(--n,0) * .18s)}
 .ez>:nth-child(1){--n:-1;animation-delay:0s}.ez>:nth-child(2){--n:0}.ez>:nth-child(3){--n:1}.ez>:nth-child(4){--n:2}.ez>:nth-child(5){--n:3}.ez>:nth-child(6){--n:4}
 @keyframes ez-rise{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+
+/* ---- Account panel motion: it unfolds out of the account button (its corner grows from there) and folds back into it.
+   The content arrives a beat later, line by line. Phones get a bottom sheet that rises and settles. Transform, opacity and clip only. ---- */
+.acct-footer-solo{justify-content:flex-end}
+@media(prefers-reduced-motion:no-preference){
+ .acct-dlg{opacity:0;transform:translate3d(var(--ax,0px),var(--ay,-30vh),0) scale(.12);border-radius:30px;transition:transform .62s cubic-bezier(.2,.9,.25,1),opacity .28s cubic-bezier(.22,1,.36,1),display .62s allow-discrete,overlay .62s allow-discrete}
+ .acct-dlg[open]:not([data-closing]){opacity:1;transform:none}
+ .acct-dlg[data-closing]{transition:transform .44s cubic-bezier(.6,0,.4,1),opacity .3s .12s ease,display .44s allow-discrete,overlay .44s allow-discrete}
+ @starting-style{.acct-dlg[open]:not([data-closing]){opacity:0;transform:translate3d(var(--ax,0px),var(--ay,-30vh),0) scale(.12)}}
+ .acct-dlg[open]:not([data-closing]) .acct-body>*{animation:acctRise .6s cubic-bezier(.22,1,.36,1) backwards}
+ .acct-dlg[open]:not([data-closing]) .acct-body>:nth-child(1){animation-delay:.16s}
+ .acct-dlg[open]:not([data-closing]) .acct-body>:nth-child(2){animation-delay:.21s}
+ .acct-dlg[open]:not([data-closing]) .acct-body>:nth-child(3){animation-delay:.26s}
+ .acct-dlg[open]:not([data-closing]) .acct-body>:nth-child(4){animation-delay:.31s}
+ .acct-dlg[open]:not([data-closing]) .acct-body>:nth-child(5){animation-delay:.36s}
+ .acct-dlg[open]:not([data-closing]) .acct-body>:nth-child(n+6){animation-delay:.41s}
+ .acct-dlg .acct-close{transition:transform .5s cubic-bezier(.22,1,.36,1),background-color .3s}
+ .acct-dlg[open]:not([data-closing]) .acct-close{animation:acctX .7s .2s cubic-bezier(.22,1,.36,1) backwards}
+ @media(hover:hover){.acct-dlg .acct-close:hover{transform:rotate(90deg)}}
+ .acct-dlg .acct-close:active{transform:scale(.88)}
+}
+@keyframes acctRise{from{opacity:0;transform:translate3d(0,16px,0)}}
+@keyframes acctX{from{opacity:0;transform:rotate(-90deg) scale(.6)}}
+@media(max-width:680px){
+ .acct-dlg{inset:auto 0 0 0;margin:0 auto;width:100%;max-width:100%;max-height:min(88dvh,calc(100dvh - 24px));border-radius:28px 28px 0 0;border-bottom:0}
+ @media(prefers-reduced-motion:no-preference){
+  .acct-dlg{transform:translate3d(0,105%,0);opacity:1;border-radius:28px 28px 0 0;transition:transform .55s cubic-bezier(.2,.9,.25,1),display .55s allow-discrete,overlay .55s allow-discrete}
+  .acct-dlg[data-closing]{transition:transform .38s cubic-bezier(.6,0,.4,1),display .38s allow-discrete,overlay .38s allow-discrete}
+  @starting-style{.acct-dlg[open]:not([data-closing]){opacity:1;transform:translate3d(0,105%,0)}}
+ }
+}

@@ -65,14 +65,17 @@ function init() {
   const accountIcon='<span class="acct-icon" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 11l9 7 9-7M8 8h16a3 3 0 0 1 3 3v12a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V11a3 3 0 0 1 3-3Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg></span>';
   async function close() {
     if(closing||!dlg.open)return;
-    closing=true;dlg.dataset.closing='';
+    closing=true;origin();dlg.dataset.closing='';
     if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
       await new Promise(requestAnimationFrame);
-      await Promise.race([Promise.allSettled(dlg.getAnimations().map(a=>a.finished)),new Promise(r=>setTimeout(r,380))]);
+      await Promise.race([Promise.allSettled(dlg.getAnimations().map(a=>a.finished)),new Promise(r=>setTimeout(r,460))]);
     }
     clearInterval(countdownTimer);dlg.close();delete dlg.dataset.closing;closing=false;
   }
-  function open() { if(closing)return;render();if(!dlg.open)dlg.showModal();if(step==='code'&&!getAccountSession()){clearInterval(countdownTimer);syncCountdown();countdownTimer=setInterval(syncCountdown,1000);}focusStep(); }
+  /* the panel unfolds from the button that opened it (and folds back into it); Android phones get a short buzz */
+  function origin(){const b=document.querySelector('.pmx-btn,[data-account-button]');if(!b||!b.getBoundingClientRect)return;const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;dlg.style.setProperty('--ax',Math.round(cx-innerWidth/2)+'px');dlg.style.setProperty('--ay',Math.round(cy-innerHeight/2)+'px');}
+  const buzz=ms=>{try{if(matchMedia('(pointer:coarse)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches)navigator.vibrate?.(ms);}catch{}};
+  function open() { if(closing)return;render();if(!dlg.open){origin();buzz(8);dlg.showModal();}if(step==='code'&&!getAccountSession()){clearInterval(countdownTimer);syncCountdown();countdownTimer=setInterval(syncCountdown,1000);}focusStep(); }
   function focusStep(){if(dlg.open)(body.querySelector('input')||body.querySelector('#acct-title'))?.focus({preventScroll:true});}
   dlg.querySelector('.acct-close').addEventListener('click',close);
   dlg.addEventListener('cancel',e=>{e.preventDefault();close();});
@@ -140,7 +143,7 @@ function init() {
         (subs===null?'<div class="acct-skeleton" aria-hidden="true"><i></i><i></i></div>':subs.length?subs.map(subscriptionCard).join(''):'<p class="acct-note">Your email is registered. <a href="wrapline.html#pricing">Explore subscriptions and trial availability</a>.</p>')+
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
 
-        (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<div class="acct-footer"><p class="acct-note">Switching accounts?<br>Sign out to use another email.</p><button class="acct-link" type="button" data-out>Sign out <span aria-hidden="true">→</span></button></div>';
+        (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<div class="acct-footer acct-footer-solo"><button class="acct-link" type="button" data-out>Sign out <span aria-hidden="true">→</span></button></div>';
       body.querySelector('[data-out]').onclick=async()=>{if(!(await confirmLeave('switch')))return;const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
       body.querySelector('[data-retry]')?.addEventListener('click',status);
       for(const stop of body.querySelectorAll('[data-cancel-index]'))stop.addEventListener('click',async()=>{

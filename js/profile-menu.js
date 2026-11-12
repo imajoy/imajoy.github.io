@@ -7,7 +7,7 @@ const cfg=window.AJOY_CONFIG||{};
 if(cfg.accountOpen&&cfg.sheetUrl)setTimeout(setup,0);
 function setup(){
  const anchor=document.querySelector('.acct-btn');if(!anchor||!anchor.parentElement)return;
- const link=document.createElement('link');link.rel='stylesheet';link.href='css/profile.css?v=pm6';document.head.append(link);
+ const link=document.createElement('link');link.rel='stylesheet';link.href='css/profile.css?v=pf9x';document.head.append(link);
  document.documentElement.dataset.profileReady='';
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const calm=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -29,7 +29,9 @@ function setup(){
  let profile=cachedProfile();if(profile===undefined)profile=null;
  const initial=()=>{const s=getAccountSession();return ((profile?.name||s?.email||'?').trim()[0]||'?').toUpperCase();};
  const summary=p=>{if(!hasBilling(p))return 'Not saved yet';const bits=[p.name,[p.postal].filter(Boolean).join(' ')].filter(Boolean);return bits.join(' · ')||'Saved';};
- function themeMode(){return window.AjoyTheme?.mode?.()||'auto';}
+ function themeMode(){return window.AjoyTheme?.mode?.()||'light';}
+ /* Auto (follow the clock) is switched off in js/theme-boot.js; its option stays in the markup, hidden */
+ const autoOn=window.AjoyTheme?.auto===true;
  function build(){
   const s=getAccountSession();if(!s)return;
   const mode=themeMode(),idx={light:0,dark:1,auto:2}[mode];
@@ -38,6 +40,8 @@ function setup(){
    '<button class="pmx-item" type="button" role="menuitem" data-go="plan" style="--i:2">'+ic.plan+'<span><b>Subscriptions &amp; invoices</b><small>Plans, renewals and payment history</small></span></button>'+
    '<button class="pmx-item" type="button" role="menuitem" data-go="billing" style="--i:3">'+ic.bill+'<span><b>Payment &amp; billing</b><small>'+esc(summary(profile))+'</small></span></button>'+
    (window.AjoyLang?.enabled?'<button class="pmx-item" type="button" role="menuitem" data-go="lang" style="--i:4">'+ic.globe+'<span><b>Language</b><small class="notranslate" translate="no">'+esc(window.AjoyLang.entry()[1])+'</small></span></button>':'')+
+   '<div class="pmx-theme" style="--i:5"><span class="pmx-label">Appearance</span><div class="pmx-seg'+(autoOn?'':' pmx-seg-2')+'" role="radiogroup" aria-label="Appearance" style="--at:'+idx+'"><i aria-hidden="true"></i>'+
+    [['light','Light',ic.sun],['dark','Dark',ic.moon],['auto','Auto',ic.auto]].map(([v,t,i])=>'<button type="button" role="radio" aria-checked="'+(mode===v)+'" data-theme-set="'+v+'"'+(v==='auto'&&!autoOn?' hidden disabled':'')+'>'+i+'<span>'+t+'</span></button>').join('')+'</div></div>'+
    '<button class="pmx-item pmx-out" type="button" role="menuitem" data-go="out" style="--i:6">'+ic.out+'<span><b>Sign out</b></span></button>';
   paintAv(menu.querySelector('.pmx-av-lg'));
  }
@@ -66,6 +70,8 @@ function setup(){
  addEventListener('resize',()=>{if(!menu.hidden)place();});
  addEventListener('scroll',()=>{if(!menu.hidden)close();},{passive:true});
  menu.addEventListener('click',e=>{
+  const t=e.target.closest('[data-theme-set]');
+  if(t){const v=t.dataset.themeSet;if(v==='auto'&&!autoOn)return;window.AjoyTheme?.pin?.(v);const seg=menu.querySelector('.pmx-seg');seg.style.setProperty('--at',{light:0,dark:1,auto:2}[v]);seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',String(b===t)));return;}
   const g=e.target.closest('[data-go]');if(!g)return;
   const go=g.dataset.go;
   if(go==='plan'){close();location.href='account.html#subscriptions';}

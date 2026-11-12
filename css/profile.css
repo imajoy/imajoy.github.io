@@ -86,3 +86,8 @@ html[data-theme=dark] .pmx-field input,html[data-theme=dark] .pmx-field textarea
 .pmx.pmx-in{animation:pmx-pop .6s cubic-bezier(.22,1,.36,1) both}
 @keyframes pmx-pop{0%{opacity:0;transform:scale(.4) rotate(-24deg)}60%{opacity:1;transform:scale(1.1) rotate(4deg)}100%{opacity:1;transform:none}}
 @media(prefers-reduced-motion:reduce){.pmx.pmx-in{animation:none}}
+
+/* Appearance with two choices (Auto hidden) */
+.pmx-seg.pmx-seg-2{grid-template-columns:repeat(2,1fr)}
+.pmx-seg.pmx-seg-2>i{width:calc((100% - 8px)/2)}
+.pmx-seg button[hidden]{display:none}

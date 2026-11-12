@@ -164,16 +164,30 @@ html:not(.lx-on) .lx-intro{display:none}
 .lx-steps{list-style:none;display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(12px,2vw,22px)}
 .lx-step{position:relative;display:grid}
 .lx-step-key{position:absolute;left:28px;top:-19px;width:12px;height:12px;border-radius:2px;transform:rotate(45deg) scale(.8);background:var(--bg);border:2px solid color-mix(in srgb,var(--ink) 35%,transparent);transition:transform .6s var(--lx-e),background-color .5s,border-color .5s,box-shadow .6s}
-.lx-step-card{display:grid;gap:8px;align-content:start;padding:clamp(20px,2.4vw,30px);border-radius:22px;background:color-mix(in srgb,var(--card) 84%,transparent);border:1px solid var(--line);transition:transform .8s var(--lx-e),border-color .6s,background-color .6s,box-shadow .8s var(--lx-e)}
-.lx-step-ico{display:grid;place-items:center;width:46px;height:46px;border-radius:14px;margin-bottom:10px;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--mute);transition:background-color .6s,color .6s,transform .8s var(--lx-e)}
-.lx-step-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round}
-.lx-steps h3{font:600 clamp(1.1rem,1.8vw,1.35rem)/1.2 var(--sans);letter-spacing:-.02em;color:var(--ink)}
-.lx-steps p{font:400 .95rem/1.55 var(--sans);color:var(--t62)}
+.lx-step-card{position:relative;display:grid;gap:8px;align-content:start;padding:clamp(22px,2.4vw,32px);border-radius:24px;background:color-mix(in srgb,var(--card) 86%,transparent);border:1px solid var(--line);overflow:hidden;isolation:isolate;transition:transform .7s var(--lx-e),border-color .5s,box-shadow .7s var(--lx-e)}
+/* a wash of blue grows from the icon's corner, and a line runs along the bottom: both are transforms, so the hover is fluid */
+.lx-step-card::before{content:"";position:absolute;z-index:-1;left:-30%;top:-60%;width:120%;aspect-ratio:1;border-radius:50%;background:radial-gradient(closest-side,color-mix(in srgb,var(--lx-blue) 16%,transparent),transparent);transform:scale(.2);opacity:0;transition:transform .9s var(--lx-e),opacity .6s}
+.lx-step-card::after{content:"";position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,var(--lx-blue),var(--lx-gold));transform:scaleX(0);transform-origin:0 50%;transition:transform .8s var(--lx-e)}
+.lx-step-ico{display:grid;place-items:center;width:50px;height:50px;border-radius:16px;margin-bottom:12px;background:color-mix(in srgb,var(--ink) 7%,transparent);color:var(--mute);transition:background-color .5s,color .5s,transform .7s var(--lx-e),border-radius .7s var(--lx-e)}
+.lx-step-ico svg{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:transform .7s var(--lx-e)}
+.lx-steps h3{font:600 clamp(1.1rem,1.8vw,1.35rem)/1.2 var(--sans);letter-spacing:-.02em;color:var(--ink);transition:transform .7s var(--lx-e)}
+.lx-steps p{font:400 .95rem/1.55 var(--sans);color:var(--t62);transition:transform .7s .04s var(--lx-e)}
 .lx-step.is-on .lx-step-key{transform:rotate(45deg) scale(1.15);background:var(--lx-gold);border-color:var(--lx-gold);box-shadow:0 0 0 6px color-mix(in srgb,var(--lx-gold) 22%,transparent)}
-.lx-step.is-on .lx-step-card{transform:translate3d(0,-6px,0);border-color:color-mix(in srgb,var(--lx-blue) 55%,var(--line));background:color-mix(in srgb,var(--card) 82%,transparent);box-shadow:0 26px 50px -30px color-mix(in srgb,var(--lx-blue) 70%,transparent)}
-.lx-step.is-on .lx-step-ico{background:var(--lx-blue);color:#fff;transform:rotate(-6deg) scale(1.04)}
-@media(hover:hover){.lx-step-card:hover{transform:translate3d(0,-8px,0);border-color:color-mix(in srgb,var(--lx-blue) 55%,var(--line))}.lx-step-card:hover .lx-step-ico{background:var(--lx-blue);color:#fff}}
-.lx-more{margin-top:clamp(26px,4vh,40px)}
+.lx-step.is-on .lx-step-card{border-color:color-mix(in srgb,var(--lx-blue) 45%,var(--line));box-shadow:0 26px 50px -32px color-mix(in srgb,var(--lx-blue) 70%,transparent)}
+.lx-step.is-on .lx-step-card::after{transform:none}
+.lx-step.is-on .lx-step-ico{background:var(--lx-blue);color:#fff}
+@media(hover:hover){
+ .lx-step-card:hover{transform:translate3d(0,-10px,0);border-color:var(--lx-blue);box-shadow:0 36px 60px -34px color-mix(in srgb,var(--lx-blue) 85%,transparent)}
+ .lx-step-card:hover::before{transform:scale(1);opacity:1}
+ .lx-step-card:hover::after{transform:none}
+ .lx-step-card:hover .lx-step-ico{background:var(--lx-blue);color:#fff;transform:rotate(-8deg) scale(1.08);border-radius:50%}
+ .lx-step-card:hover .lx-step-ico svg{transform:scale(1.1)}
+ .lx-step-card:hover h3,.lx-step-card:hover p{transform:translate3d(6px,0,0)}
+}
+.lx-more{margin-top:clamp(26px,4vh,44px);display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+.lx-more p{font:400 .9rem/1.4 var(--sans);color:var(--mute)}
+.lx-btn-dl{height:56px;padding:0 28px 0 22px;border-radius:16px}
+.lx-btn-dl svg{width:20px;height:20px}
 
 /* about */
 .lx-about-grid{display:grid;grid-template-columns:1fr 1fr;gap:clamp(30px,6vw,90px);align-items:start}
@@ -349,7 +363,6 @@ html[data-theme=dark] .lx-btn-line{border-color:rgba(255,255,255,.26);background
  .lx-track-head::before{display:none}
  .lx-steps{grid-template-columns:1fr;gap:12px}
  .lx-step-key{display:none}
- .lx-step.is-on .lx-step-card{transform:none}
  .lx-stage{grid-template-columns:1fr}
  .lx-end-card{grid-template-columns:1fr;padding:44px 22px 30px}
  .lx-end-card h2{font-size:clamp(2.4rem,13.5vw,4rem)}

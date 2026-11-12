@@ -1,8 +1,10 @@
 /* Landing page: runs the Wrapline intro until the page is truly ready, then hands over to the hero, the scroll reveals and the 3D scene (js/landing-scene.js). The page reads fine without this file. */
 (()=>{
 const root=document.documentElement,cl=root.classList,intro=document.getElementById('lx-intro');
+/* pages that reuse this file without the home intro (Wrapline Free): the Wrapline loader covers them instead */
+if(!cl.contains('lx-on')){cl.add('lx-on');if(matchMedia('(prefers-reduced-motion: reduce)').matches)cl.add('lx-calm');}
 const calm=cl.contains('lx-calm'),seen=cl.contains('lx-seen');
-let t0=performance.now();const MIN=calm?0:seen?2150:3350;
+let t0=performance.now();const MIN=!intro||calm?0:seen?2150:3350;
 let sceneReady=Promise.resolve();
 /* ---- 3D scene: loaded while the intro plays, so it is already drawn when the curtain lifts ---- */
 const canvas=document.getElementById('lx-scene');
@@ -14,9 +16,9 @@ if(canvas&&!calm&&!lite){
 let left=false;
 function leave(){
  if(left)return;left=true;
- try{sessionStorage.setItem('lx.seen','1');}catch{}
+ if(intro)try{sessionStorage.setItem('lx.seen','1');}catch{}
  cl.remove('lx-intro-on');
- if(!intro){cl.add('lx-go');return;}
+ if(!intro){const sk=document.getElementById('pg-skel');if(sk&&!sk.classList.contains('done'))document.addEventListener('ajoy:page-shown',()=>setTimeout(()=>cl.add('lx-go'),120),{once:true});else cl.add('lx-go');setTimeout(()=>cl.add('lx-go'),9500);return;}
  intro.classList.add('out');
  setTimeout(()=>cl.add('lx-go'),calm?0:420);
  setTimeout(()=>intro.remove(),1600);
@@ -26,8 +28,8 @@ const fonts=document.fonts?.ready||Promise.resolve();
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 /* the intro only starts once the brand font is in, so the letters never change shape while they move */
 const face=document.fonts?.load?document.fonts.load('600 96px Geist','Wrapline').catch(()=>{}):Promise.resolve();
-Promise.race([face,wait(1600)]).then(()=>requestAnimationFrame(()=>{t0=performance.now();cl.add('lx-play');}));
-Promise.all([loaded,fonts,Promise.race([sceneReady,wait(2600)])]).then(()=>{const go=()=>{if(!cl.contains('lx-play')){setTimeout(go,60);return;}setTimeout(leave,Math.max(0,MIN-(performance.now()-t0)));};go();});
+if(intro)Promise.race([face,wait(1600)]).then(()=>requestAnimationFrame(()=>{t0=performance.now();cl.add('lx-play');}));else cl.add('lx-play');
+Promise.all(intro?[loaded,fonts,Promise.race([sceneReady,wait(2600)])]:[]).then(()=>{const go=()=>{if(!cl.contains('lx-play')){setTimeout(go,60);return;}setTimeout(leave,Math.max(0,MIN-(performance.now()-t0)));};go();});
 setTimeout(leave,8500);
 addEventListener('pageshow',e=>{if(e.persisted)leave();});
 /* ---- reveals ---- */
@@ -86,7 +88,8 @@ if(stage){
  /* order: the first stays first, the rest are shuffled */
  const order=[0,...cards.slice(1).map((_,i)=>i+1).sort(()=>Math.random()-.5)];
  let at=0,visible=false,timer=0,xpAsked=false,prev=-1;
- const loadVid=v=>{if(v.dataset.ready)return;v.dataset.ready='1';for(const [k,t] of [['webm','video/webm'],['mp4','video/mp4']]){if(!v.dataset[k])continue;const so=document.createElement('source');so.src=v.dataset[k];so.type=t;v.append(so);}v.load();};
+ /* each recording starts from a different moment on every visit */
+ const loadVid=v=>{if(v.dataset.ready)return;v.dataset.ready='1';v.addEventListener('loadedmetadata',()=>{const d=v.duration;if(isFinite(d)&&d>4){try{v.currentTime=Math.random()*(d-3);}catch{}}},{once:true});for(const [k,t] of [['webm','video/webm'],['mp4','video/mp4']]){if(!v.dataset[k])continue;const so=document.createElement('source');so.src=v.dataset[k];so.type=t;v.append(so);}v.load();};
  /* the walkthrough players are only fetched when the deck is close to the screen */
  const loadXp=()=>{if(xpAsked)return;xpAsked=true;for(const f of stage.querySelectorAll('[data-lx-explainer]'))f.setAttribute('data-explainer',f.dataset.lxExplainer);import('./tool-explainer.js?v=xp9').then(()=>setTimeout(media,60)).catch(()=>{});};
  function media(){const cur=order[at];cards.forEach((c,i)=>{const on=i===cur&&visible&&!calm;const v=c.querySelector('video');if(v){if(on){loadVid(v);const pr=v.play();if(pr)pr.catch(()=>{});}else v.pause();}const pl=c.querySelector('.lx-xp')?.__player;if(pl){pl.visible=on;pl.sync?.();}});}

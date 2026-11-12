@@ -268,8 +268,8 @@ html:not(.lx-on) .lx-intro{display:none}
 [data-lx-words] .lx-w{opacity:calc(.22 + var(--o,1)*.78);transition:opacity .35s linear}
 
 /* ---------- words stay readable over the scene: a soft pool of the page colour sits behind each block of text (the scene itself is untouched) ---------- */
-.lx-hero-in,.lx-head,.lx-about-copy{position:relative}
-.lx-hero-in::before,.lx-head::before,.lx-about-copy::before{content:"";position:absolute;z-index:-1;inset:-9% -12% -12% -14%;background:radial-gradient(closest-side,color-mix(in srgb,var(--bg) 90%,transparent) 0%,color-mix(in srgb,var(--bg) 72%,transparent) 55%,transparent 100%);pointer-events:none}
+.lx-hero-in,.lx-head,.lx-about-copy,.lx-now{position:relative}
+.lx-hero-in::before,.lx-head::before,.lx-about-copy::before,.lx-now::before{content:"";position:absolute;z-index:-1;inset:-9% -12% -12% -14%;background:radial-gradient(closest-side,color-mix(in srgb,var(--bg) 90%,transparent) 0%,color-mix(in srgb,var(--bg) 72%,transparent) 55%,transparent 100%);pointer-events:none}
 .lx-head-c::before{inset:-14% -10%}
 
 /* ---------- headings wipe up into place as they are scrolled to ---------- */

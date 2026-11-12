@@ -51,7 +51,9 @@ const wordsEl=document.querySelector('[data-lx-words]');let words=null,wordsRaw=
 function splitWords(){if(!wordsEl||words||calm)return;if(/translated-/.test(root.className)||(root.lang&&!/^en/i.test(root.lang)))return;wordsRaw=wordsEl.textContent;wordsEl.textContent='';words=wordsRaw.trim().split(/\s+/).map((w,i,all)=>{const sp=document.createElement('span');sp.className='lx-w';sp.textContent=w;sp.style.setProperty('--o','0');wordsEl.append(sp);if(i<all.length-1)wordsEl.append(' ');return sp;});}
 function joinWords(){if(!words)return;wordsEl.textContent=wordsRaw;words=null;}
 if(wordsEl){splitWords();new MutationObserver(()=>{if(/translated-/.test(root.className))joinWords();}).observe(root,{attributes:true,attributeFilter:['class','lang']});}
+let deckSee=null,deckEl=null;
 function extras(vh){
+ if(deckSee){const r=deckEl.getBoundingClientRect();deckSee(r.bottom>vh*.2&&r.top<vh*.8,r.top<vh+700&&r.bottom>-700);}
  if(band){const r=band.getBoundingClientRect();if(r.bottom>-100&&r.top<vh+100){const x=Math.round((vh/2-(r.top+r.height/2))*.42);if(x!==bandX){bandX=x;band.style.setProperty('--x',x);}}}
  if(words){const r=wordsEl.getBoundingClientRect();if(r.bottom>-50&&r.top<vh+50){const t=Math.max(0,Math.min(1,(vh*.86-r.top)/(vh*.42)))*(words.length+3);for(let i=0;i<words.length;i++){const o=Math.max(0,Math.min(1,(t-i)/3)).toFixed(2);if(words[i]._o!==o){words[i]._o=o;words[i].style.setProperty('--o',o);}}}}
 }
@@ -89,10 +91,14 @@ if(stage){
  cards.forEach((c,i)=>c.addEventListener('click',()=>{if(c.dataset.pos!=='0')go(order.indexOf(i));}));
  place();
  if('IntersectionObserver' in window){
-  new IntersectionObserver(es=>{if(es[0].isIntersecting)loadXp();},{rootMargin:'700px 0px'}).observe(stage);
-  new IntersectionObserver(es=>{visible=es[0].isIntersecting;place();media();arm();setTimeout(media,350);},{threshold:.2}).observe(stage);
+  /* several notices can arrive together (a tab opened in the background): the newest one is the truth */
+  new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))loadXp();},{rootMargin:'700px 0px'}).observe(stage);
+  new IntersectionObserver(es=>{visible=es[es.length-1].isIntersecting;place();media();arm();setTimeout(media,350);},{threshold:[0,.2]}).observe(stage);
  }else{visible=true;loadXp();media();arm();}
  document.addEventListener('visibilitychange',()=>{if(document.hidden){clearTimeout(timer);cards.forEach(c=>c.querySelector('video')?.pause());}else{media();arm();}});
+ /* the scroll itself also reports where the deck is, so it starts even if the browser's own notice is late or missing */
+ deckEl=stage;deckSee=(vis,near)=>{if(near)loadXp();if(vis!==visible){visible=vis;place();media();arm();setTimeout(media,350);}};
+ setTimeout(measure,1200);setInterval(()=>{if(!document.hidden)measure();},2000);
 }
 const y=document.getElementById('year');if(y)y.textContent=new Date().getFullYear();
 })();

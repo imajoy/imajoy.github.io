@@ -38,25 +38,32 @@ html body.pay-single .payment-picker .pay-item:nth-child(2){animation-delay:.05s
 html body.pay-single .order-summary{animation:cbRise .6s .12s cubic-bezier(.22,1,.36,1) both}
 @media(prefers-reduced-motion:reduce){html body.bill-v2 .payment-picker .pay-item>label::before,html body.bill-v2 .payment-picker .pay-item{transition:none!important}html body.pay-single .payment-picker .pay-item,html body.pay-single .order-summary{animation:none!important}}
 
-/* Continue to payment: the arrow keeps travelling, a gold line sweeps the edge, and the button fills gold when pressed */
-html body.bill-v2 [data-continue-payment]{position:relative;overflow:hidden;height:56px;border-radius:14px!important;gap:12px!important}
-.cp-label{position:relative;z-index:1;transition:opacity .3s}
-.cp-arrow{position:relative;z-index:1;width:22px;height:22px;overflow:hidden;display:block;flex:none}
-.cp-arrow svg{position:absolute;inset:0;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .6s cubic-bezier(.22,1,.36,1)}
-.cp-arrow svg+svg{transform:translateX(-170%)}
-.cp-line{position:absolute;left:0;right:0;bottom:0;height:3px;background:linear-gradient(90deg,transparent,var(--gold,#F2B64F) 35%,var(--gold-hi,#FFE2A0) 50%,var(--gold,#F2B64F) 65%,transparent);transform:translateX(-101%);transition:transform 1s cubic-bezier(.22,1,.36,1)}
+/* Continue to payment: a gold coin carries the arrow. Pointing at the button lets the gold pour out of the coin until it fills the whole button; pressing it locks the fill and the coin turns into a progress ring. */
+html body.bill-v2 [data-continue-payment]{position:relative;overflow:hidden;isolation:isolate;height:58px;border-radius:16px!important;padding:0 62px!important;justify-content:center;-webkit-tap-highlight-color:transparent}
+.cp-label{position:relative;z-index:2;display:inline-block;transition:color .4s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.cp-line{position:absolute;inset:0;z-index:1;background:linear-gradient(120deg,var(--gold-hi,#FFE2A0),var(--gold,#F2B64F) 55%,#E9A535);clip-path:circle(20px at calc(100% - 29px) 50%);transition:clip-path .8s cubic-bezier(.22,1,.36,1);pointer-events:none}
+.cp-arrow{position:absolute;right:9px;top:50%;z-index:2;width:40px;height:40px;margin-top:-20px;border-radius:50%;overflow:hidden;display:block;color:#1A1204;transition:background-color .45s cubic-bezier(.22,1,.36,1),color .45s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.cp-arrow svg{position:absolute;left:9px;top:9px;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;transition:transform .7s cubic-bezier(.22,1,.36,1)}
+.cp-arrow svg+svg{transform:translateX(-190%)}
+.cp-arrow::after{content:"";position:absolute;inset:9px;border-radius:50%;border:2.2px solid color-mix(in srgb,currentColor 25%,transparent);border-top-color:currentColor;opacity:0;transition:opacity .3s}
+@keyframes cpBreath{0%,100%{clip-path:circle(20px at calc(100% - 29px) 50%)}50%{clip-path:circle(24px at calc(100% - 29px) 50%)}}
+[data-continue-payment]:not(:disabled):not(.is-go) .cp-line{animation:cpBreath 2.8s cubic-bezier(.45,0,.2,1) infinite}
 @media(hover:hover){
- [data-continue-payment]:not(:disabled):hover .cp-arrow svg:first-child{transform:translateX(170%)}
+ [data-continue-payment]:not(:disabled):hover .cp-line{clip-path:circle(160% at calc(100% - 29px) 50%);animation:none}
+ [data-continue-payment]:not(:disabled):hover .cp-label{color:#1A1204;transform:translateX(-6px)}
+ [data-continue-payment]:not(:disabled):hover .cp-arrow{background:#1A1204;color:var(--gold-hi,#FFE2A0)}
+ [data-continue-payment]:not(:disabled):hover .cp-arrow svg:first-child{transform:translateX(190%)}
  [data-continue-payment]:not(:disabled):hover .cp-arrow svg+svg{transform:none}
- [data-continue-payment]:not(:disabled):hover .cp-line{transform:translateX(101%)}
 }
-[data-continue-payment]:focus-visible .cp-line{transform:none}
+[data-continue-payment]:not(:disabled):is(:focus-visible,:active) .cp-line,[data-continue-payment].is-go .cp-line{clip-path:circle(160% at calc(100% - 29px) 50%);animation:none}
+[data-continue-payment]:not(:disabled):is(:focus-visible,:active) .cp-label,[data-continue-payment].is-go .cp-label{color:#1A1204}
+[data-continue-payment]:not(:disabled):is(:focus-visible,:active) .cp-arrow,[data-continue-payment].is-go .cp-arrow{background:#1A1204;color:var(--gold-hi,#FFE2A0)}
 html body.bill-v2 [data-continue-payment].is-go{pointer-events:none}
-[data-continue-payment].is-go .cp-line{height:100%;background:linear-gradient(135deg,var(--gold-hi,#FFE2A0),var(--gold,#F2B64F));transform:none;transition:height .55s cubic-bezier(.22,1,.36,1)}
-[data-continue-payment].is-go .cp-label,[data-continue-payment].is-go .cp-arrow{color:#1A1204}
-@keyframes cpArm{0%{transform:translateX(-101%)}100%{transform:translateX(101%)}}
-[data-continue-payment]:not(:disabled):not(.is-go) .cp-line{animation:cpArm 1.6s .4s cubic-bezier(.22,1,.36,1) 1 both}
-@media(prefers-reduced-motion:reduce){.cp-line,.cp-arrow svg{transition:none!important;animation:none!important}}
+[data-continue-payment].is-go .cp-arrow svg{opacity:0;transition:opacity .2s}
+[data-continue-payment].is-go .cp-arrow::after{opacity:1;animation:cpSpin .8s linear infinite}
+@keyframes cpSpin{to{transform:rotate(360deg)}}
+html body.bill-v2 [data-continue-payment]:disabled .cp-line{animation:none}
+@media(prefers-reduced-motion:reduce){.cp-line,.cp-arrow,.cp-arrow svg,.cp-label{transition:none!important;animation:none!important}}
 
 /* The yearly upsell card repeated the "Choose yearly" offer above the form, so it stays out of the page */
 html body #yearly-upsell{display:none!important}

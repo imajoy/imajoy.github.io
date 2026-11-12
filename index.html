@@ -100,10 +100,8 @@
 </script>
 <link rel="stylesheet" href="css/site-interactions.css?v=20261019-complete1">
 <link rel="stylesheet" href="css/mobile.css?v=20261108-ft1">
-
-<link rel="stylesheet" href="css/hover-fx.css?v=hv3"><link rel="stylesheet" href="css/tool-explainer.css?v=xp6"><link rel="stylesheet" href="css/home.css?v=h3"><link rel="stylesheet" href="css/home3d.css?v=h19"><link rel="stylesheet" href="css/home-v6.css?v=hv9"><link rel="stylesheet" href="css/transitions.css?v=vt11"><script src="js/header-scroll.js?v=hs2" defer></script><link rel="stylesheet" href="css/skeleton.css?v=sk7"><script defer src="js/skeleton.js?v=sk1"></script><link rel="stylesheet" href="css/pill-home.css?v=ph3"><link rel="stylesheet" href="css/premium.css?v=px5"><link rel="stylesheet" href="css/home-v7.css?v=h73"><link rel="stylesheet" href="css/no-numbers.css?v=nn2"><link rel="stylesheet" href="css/touch-feel.css?v=tf6" media="(hover:none) and (pointer:coarse)"><script src="js/touch-feel.js?v=tf5" defer></script><link rel="stylesheet" href="css/popup-blur.css?v=pb1"></head>
-<script>(function(){var d=document.documentElement;if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;d.classList.add("n-pre");function go(){if(!d.classList.contains("n-pre"))return;requestAnimationFrame(function(){requestAnimationFrame(function(){d.classList.remove("n-pre");d.classList.add("n-go")})})}var f=document.fonts&&document.fonts.ready?document.fonts.ready:Promise.resolve();var l=new Promise(function(r){if(document.readyState==="complete")r();else addEventListener("load",r)});Promise.all([f,l]).then(go);setTimeout(go,2200)})()</script>
-<body class="studio-page" ><div class="pg-skel" id="pg-skel" aria-hidden="true" data-t="hero"><div class="sk-nav"><span class="sk-bar" style="--w:36px;--h:36px;--r:50%"></span><span class="sk-bar" style="--w:118px;--h:16px"></span><span class="sk-links"><span class="sk-bar" style="--w:44px;--h:12px"></span><span class="sk-bar" style="--w:44px;--h:12px"></span><span class="sk-bar" style="--w:44px;--h:12px"></span><span class="sk-bar" style="--w:44px;--h:12px"></span></span><span class="sk-bar" style="--w:108px;--h:38px;--r:999px"></span></div><div class="sk-wrap sk-hero"><span class="sk-bar" style="--w:min(280px,70vw);--h:30px;--r:999px"></span><span class="sk-bar" style="--w:min(780px,88vw);--h:clamp(40px,7.5vw,92px);--r:18px"></span><span class="sk-bar" style="--w:min(600px,72vw);--h:clamp(40px,7.5vw,92px);--r:18px"></span><span class="sk-bar" style="--w:min(520px,82vw);--h:16px"></span><span class="sk-bar" style="--w:min(400px,64vw);--h:16px"></span><span class="sk-row" style="margin-top:10px"><span class="sk-bar" style="--w:min(176px,40vw);--h:48px;--r:999px"></span><span class="sk-bar" style="--w:min(196px,44vw);--h:48px;--r:999px"></span></span><span class="sk-bar" style="--w:min(960px,92vw);--h:340px;--r:26px;margin-top:34px"></span></div></div>
+<link rel="stylesheet" href="css/hover-fx.css?v=hv3"><link rel="stylesheet" href="css/transitions.css?v=vt11"><script src="js/header-scroll.js?v=hs2" defer></script><link rel="stylesheet" href="css/pill-home.css?v=ph3"><link rel="stylesheet" href="css/premium.css?v=px5"><link rel="stylesheet" href="css/no-numbers.css?v=nn2"><link rel="stylesheet" href="css/touch-feel.css?v=tf6" media="(hover:none) and (pointer:coarse)"><script src="js/touch-feel.js?v=tf5" defer></script><link rel="stylesheet" href="css/popup-blur.css?v=pb1"><link rel="stylesheet" href="css/btn-motion.css?v=bm1"><link rel="stylesheet" href="css/landing.css?v=lx1"><script src="js/landing-boot.js?v=lx1"></script></head>
+<body class="studio-page lx-page"><div class="lx-intro" id="lx-intro" role="status" aria-label="Wrapline is loading"><div class="lx-intro-in" aria-hidden="true"><svg class="lx-intro-curve" viewBox="0 0 640 200" preserveAspectRatio="xMidYMid meet"><path class="lx-ic-line" pathLength="1" d="M60 150C300 150 340 50 580 50"/><path class="lx-ic-k k1" d="M60 136l14 14-14 14-14-14z"/><path class="lx-ic-k k2" d="M580 36l14 14-14 14-14-14z"/></svg><p class="lx-intro-word"><span style="--n:0"><b>W</b></span><span style="--n:1"><b>r</b></span><span style="--n:2"><b>a</b></span><span style="--n:3"><b>p</b></span><span style="--n:4"><b>l</b></span><span style="--n:5"><b>i</b></span><span style="--n:6"><b>n</b></span><span style="--n:7"><b>e</b></span></p><p class="lx-intro-tag">Production tools for 3D artists</p></div></div>
 <a class="skip" href="#main">Skip to content</a>
 
 <header class="site-header">
@@ -124,148 +122,105 @@
   </div>
 </header>
 
-<main id="main" class="home">
+<main id="main" class="home lx">
+<canvas class="lx-scene" id="lx-scene" aria-hidden="true"></canvas>
+<svg class="lx-flat" aria-hidden="true" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice"><path pathLength="1" d="M-40 760C420 760 520 520 860 430S1320 150 1660 120"/><path class="k" d="M860 412l18 18-18 18-18-18z"/><path class="k" d="M1320 190l14 14-14 14-14-14z"/></svg>
 
-  <!-- 01 · THE SHOT: the hero is a Maya viewport; the headline sits in the camera gate -->
-  <section class="h-hero" aria-labelledby="h-title">
-    <div class="h-gate" aria-hidden="true">
-      <i class="h-orb o1"></i><i class="h-orb o2"></i><i class="h-orb o3"></i>
-      <div class="h3-scene"><div class="h3-floor"><svg viewBox="0 0 1600 600" preserveAspectRatio="none"><defs><linearGradient id="h3g" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="600"><stop offset="0" stop-color="currentColor" stop-opacity="0"/><stop offset=".55" stop-color="currentColor" stop-opacity=".8"/><stop offset="1" stop-color="currentColor"/></linearGradient></defs><path stroke="url(#h3g)" stroke-width="2" fill="none" d="M0 0V600M160 0V600M320 0V600M480 0V600M640 0V600M800 0V600M960 0V600M1120 0V600M1280 0V600M1440 0V600M1600 0V600"/></svg><div class="h3-hl"><i style="--n:0"></i><i style="--n:1"></i><i style="--n:2"></i><i style="--n:3"></i><i style="--n:4"></i><i style="--n:5"></i><i style="--n:6"></i><i style="--n:7"></i></div></div><div class="h3-horizon"></div>
-        <div class="h3-cube c1"><b></b><b></b><b></b><b></b><b></b><b></b></div>
-        <div class="h3-cube c2"><b></b><b></b><b></b><b></b><b></b><b></b></div>
-        <div class="h3-cube c3"><b></b><b></b><b></b><b></b><b></b><b></b></div>
+  <section class="lx-hero" aria-labelledby="h-title">
+    <div class="lx-wrap lx-hero-in">
+      <p class="lx-eyebrow" data-lx-h style="--i:0"><span class="lx-rec" aria-hidden="true"></span>Tools for Autodesk Maya <i aria-hidden="true">/</i> Blender next</p>
+      <h1 id="h-title"><span class="lx-line" style="--i:1"><span>Tools that keep</span></span><span class="lx-line" style="--i:2"><span>artists <em>in the shot.</em></span></span></h1>
+      <p class="lx-lead" data-lx-h style="--i:3">Wrapline makes small, focused tools for animators and studios. Start with <b>Wrapline Free</b>, free for everyone, and move to <b>Wrapline Pro</b> when you want the full pipeline.</p>
+      <div class="lx-actions" data-lx-h style="--i:4">
+        <a class="lx-btn lx-btn-ink" href="wrapline.html"><span>Explore Wrapline Pro</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg></a>
+        <a class="lx-btn lx-btn-line" href="wrapline-free.html"><span>Get Wrapline free</span><em>Free</em></a>
       </div>
     </div>
-    <div class="wrap h-hero-grid">
-      <div class="h-copy">
-        <p class="h-eyebrow"><span class="h-rec" aria-hidden="true"></span>Tools for Autodesk Maya · Blender next</p>
-        <h1 id="h-title"><span class="h-line"><span>Tools that keep</span></span> <span class="h-line"><span>artists <em class="h-sel">in the shot.<i class="h-handle" aria-hidden="true"></i><i class="h-handle" aria-hidden="true"></i><i class="h-handle" aria-hidden="true"></i><i class="h-handle" aria-hidden="true"></i></em></span></span></h1>
-        <p class="h-lead">Wrapline makes small, focused tools for animators and studios. Start with <b>Wrapline Free</b>, free for everyone, and move to <b>Wrapline Pro</b> when you want the full pipeline. Blender tools are coming next.</p>
-        <div class="h-actions">
-          <a class="btn btn-dark" href="wrapline.html">Explore Wrapline Pro</a>
-          <a class="btn btn-light h-free" href="wrapline-free.html"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg>Get Wrapline free<em>Free</em></a>
-        </div>
-        <dl class="h-facts" data-count><div><dt>14</dt><dd>Maya tools</dd></div><div><dt>4</dt><dd>free for everyone</dd></div><div><dt>2023–26</dt><dd>Maya versions</dd></div></dl>
-      </div>
-      <div class="h-stage" data-stage><figure class="tool-visual h-demo" data-explainer="advanced-ik-fk-switch,rebake-ik-space,playblast,fbx-exporter,rivet,drag-drop" data-label="LIVE IN MAYA" data-keep-caption>
-        <div class="visual-heading"><span>LIVE IN MAYA · DRAG &amp; DROP</span><span class="visual-dot" aria-hidden="true"></span></div>
-        <ol class="xp-fallback"><li><b>Drag &amp; Drop:</b> drop files, choose an action for each, confirm.</li><li><b>FBX Exporter:</b> set the shot, pick rigs, export named FBX files.</li><li><b>Rivet:</b> select two edges, click Rivet, parent your object.</li></ol>
-        <figcaption>Tools take turns here, one after another · <a href="wrapline.html#tools">See them all</a></figcaption>
-      </figure></div>
+    <div class="lx-wrap">
+      <dl class="lx-facts" data-lx-h style="--i:5"><div><dt>14</dt><dd>Maya tools</dd></div><div><dt>4</dt><dd>free for everyone</dd></div><div><dt>2023–26</dt><dd>Maya versions</dd></div><div class="lx-scrollcue" aria-hidden="true"><span></span>Scroll</div></dl>
     </div>
   </section>
 
-  <!-- 02 · THE SHELF: the toolkits shown as Maya's Outliner + Attribute Editor -->
-  <section class="h-shelf" id="tools" aria-labelledby="tools-title">
-    <div class="wrap">
-      
-      <div class="h-head" data-r>
-        <p class="h-kicker"><span>02</span>The shelf</p>
+  <section class="lx-sec lx-tools" id="tools" aria-labelledby="tools-title">
+    <div class="lx-wrap">
+      <header class="lx-head" data-lx-r>
+        <p class="lx-kicker">The shelf</p>
         <h2 id="tools-title">Fourteen tools. <em>One shelf.</em></h2>
-        <p>Both toolkits, laid out the way Maya would show them. Point at a tool to inspect it, click to open its guide.</p>
-      </div>
-      <div class="o-app" data-r data-s3d>
-        <div class="o-bar" aria-hidden="true"><i></i><i></i><i></i><b>Outliner</b><span>Display &nbsp; Show &nbsp; Help</span></div>
-        <div class="o-body">
-          <div class="o-tree">
-            <div class="o-group"><p class="o-gname"><span class="o-tri" aria-hidden="true"></span><span class="o-gico" aria-hidden="true"></span>Wrapline Free <small>4 tools</small></p>
-              <ul class="o-list"><li><a class="o-row" href="tool-ik-fk-snap.html" style="--h:210" data-cat="Animation" data-kit="Wrapline Free" data-plan="Free for everyone"><span class="o-ico" aria-hidden="true">SN</span><span class="o-name">IK / FK Snap</span><span class="o-cat">Animation</span><span class="o-desc">Match IK and FK poses on a limb without the arm jumping.</span></a></li><li><a class="o-row" href="tool-multi-swapper.html" style="--h:280" data-cat="Animation" data-kit="Wrapline Free" data-plan="Free for everyone"><span class="o-ico" aria-hidden="true">MS</span><span class="o-name">Multi Swapper</span><span class="o-cat">Animation</span><span class="o-desc">Move animation onto locators, edit it in world space, then send it back.</span></a></li><li><a class="o-row" href="tool-udim-preview.html" style="--h:38" data-cat="Scene" data-kit="Wrapline Free" data-plan="Free for everyone"><span class="o-ico" aria-hidden="true">UV</span><span class="o-name">UDIM Preview</span><span class="o-cat">Scene</span><span class="o-desc">Preview UDIM textures in the viewport at the quality you choose.</span></a></li><li><a class="o-row" href="tool-layer-prefix-remover.html" style="--h:150" data-cat="Scene" data-kit="Wrapline Free" data-plan="Free for everyone"><span class="o-ico" aria-hidden="true">LP</span><span class="o-name">Layer Prefix Remover</span><span class="o-cat">Scene</span><span class="o-desc">Strip or replace a prefix on display and render layers in one go.</span></a></li></ul></div>
-            <div class="o-group"><p class="o-gname"><span class="o-tri" aria-hidden="true"></span><span class="o-gico is-pro" aria-hidden="true"></span>Wrapline_Pro <small>Pro · 10 tools</small></p>
-              <ul class="o-list"><li><a class="o-row" href="tool-advanced-ik-fk-switch.html" style="--h:200" data-cat="Rigging" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">IK</span><span class="o-name">Advanced IK FK Switch</span><span class="o-cat">Rigging</span><span class="o-desc">Switch Advanced Skeleton limbs over a frame, a range or the whole timeline.</span></a></li><li><a class="o-row" href="tool-alembic-exporter.html" style="--h:150" data-cat="Export" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">AB</span><span class="o-name">Alembic Exporter</span><span class="o-cat">Export</span><span class="o-desc">Cache characters and cameras with checked options and versioned names.</span></a></li><li><a class="o-row" href="tool-audio-exporter.html" style="--h:320" data-cat="Export" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">AU</span><span class="o-name">Audio Exporter</span><span class="o-cat">Export</span><span class="o-desc">Pull 48 kHz stereo WAV audio out of a batch of video shots.</span></a></li><li><a class="o-row" href="tool-drag-drop.html" style="--h:48" data-cat="Scene" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">DD</span><span class="o-name">Drag &amp; Drop</span><span class="o-cat">Scene</span><span class="o-desc">Drop many files into Maya and pick Import, Reference or Bucket for each.</span></a></li><li><a class="o-row" href="tool-fbx-exporter.html" style="--h:25" data-cat="Export" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">FB</span><span class="o-name">FBX Exporter</span><span class="o-cat">Export</span><span class="o-desc">Export rigs and cameras as named FBX files for every shot.</span></a></li><li><a class="o-row" href="tool-hotkey-manager.html" style="--h:270" data-cat="Scene" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">HK</span><span class="o-name">Hotkey Manager</span><span class="o-cat">Scene</span><span class="o-desc">Back up, preview and apply hotkey sets, with one-click revert.</span></a></li><li><a class="o-row" href="tool-playblast.html" style="--h:0" data-cat="Animation" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">PB</span><span class="o-name">Playblast</span><span class="o-cat">Animation</span><span class="o-desc">Camera playblasts with presets, audio and the exact size you need.</span></a></li><li><a class="o-row" href="tool-rebake-ik-space.html" style="--h:175" data-cat="Rigging" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">RB</span><span class="o-name">Rebake IK Space</span><span class="o-cat">Rigging</span><span class="o-desc">Move IK controls to a new parent or world space and keep the motion.</span></a></li><li><a class="o-row" href="tool-revert-to-last-saved.html" style="--h:240" data-cat="Scene" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">RV</span><span class="o-name">Revert to Last Saved</span><span class="o-cat">Scene</span><span class="o-desc">Reopen the last saved scene in one click, with a backup made first.</span></a></li><li><a class="o-row" href="tool-rivet.html" style="--h:340" data-cat="Rigging" data-kit="Wrapline Pro" data-plan="Basic and Premium"><span class="o-ico" aria-hidden="true">RI</span><span class="o-name">Rivet</span><span class="o-cat">Rigging</span><span class="o-desc">Pin a locator to two edges or a point so objects ride the surface.</span></a></li></ul></div>
-          </div>
-          <aside class="o-ae" aria-live="polite">
-            <p class="o-ae-tab" aria-hidden="true"><span>Attribute Editor</span><span class="o-ae-node"></span></p>
-            <div class="o-ae-in">
-              <div class="o-ae-head"><span class="o-ae-ico" aria-hidden="true"></span><div><p class="o-ae-kit"></p><h3 class="o-ae-name"></h3></div></div>
-              <div class="o-xp" data-shelf aria-hidden="true"></div>
-              <dl class="o-ae-attrs"><div><dt>Toolkit</dt><dd class="a-kit"></dd></div><div><dt>Category</dt><dd class="a-cat"></dd></div><div><dt>Plan</dt><dd class="a-plan"></dd></div></dl>
-              <p class="o-ae-desc"></p>
-              <a class="o-ae-go" href="wrapline.html">Open the guide <span aria-hidden="true">→</span></a>
-            </div>
-          </aside>
+        <p>Every tool removes one slow job from a real shot. Open any of them to see its guide.</p>
+      </header>
+      <div class="lx-plane" data-lx-tilt>
+        <div class="lx-kit" data-lx-r>
+          <p class="lx-kit-name"><i class="is-free" aria-hidden="true"></i>Wrapline Free <small>4 tools · free for everyone</small></p>
+          <ul class="lx-grid lx-grid-4"><li style="--i:0"><a class="lx-tool" href="tool-ik-fk-snap.html" style="--h:210"><span class="lx-tool-ico" aria-hidden="true">SN</span><span class="lx-tool-cat">Animation</span><b class="lx-tool-name">IK / FK Snap</b><span class="lx-tool-desc">Match IK and FK poses on a limb without the arm jumping.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:1"><a class="lx-tool" href="tool-multi-swapper.html" style="--h:280"><span class="lx-tool-ico" aria-hidden="true">MS</span><span class="lx-tool-cat">Animation</span><b class="lx-tool-name">Multi Swapper</b><span class="lx-tool-desc">Move animation onto locators, edit it in world space, then send it back.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:2"><a class="lx-tool" href="tool-udim-preview.html" style="--h:38"><span class="lx-tool-ico" aria-hidden="true">UV</span><span class="lx-tool-cat">Scene</span><b class="lx-tool-name">UDIM Preview</b><span class="lx-tool-desc">Preview UDIM textures in the viewport at the quality you choose.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:3"><a class="lx-tool" href="tool-layer-prefix-remover.html" style="--h:150"><span class="lx-tool-ico" aria-hidden="true">LP</span><span class="lx-tool-cat">Scene</span><b class="lx-tool-name">Layer Prefix Remover</b><span class="lx-tool-desc">Strip or replace a prefix on display and render layers in one go.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li></ul>
+        </div>
+        <div class="lx-kit" data-lx-r>
+          <p class="lx-kit-name"><i class="is-pro" aria-hidden="true"></i>Wrapline Pro <small>10 tools · Basic and Premium</small></p>
+          <ul class="lx-grid lx-grid-5"><li style="--i:0"><a class="lx-tool" href="tool-advanced-ik-fk-switch.html" style="--h:200"><span class="lx-tool-ico" aria-hidden="true">IK</span><span class="lx-tool-cat">Rigging</span><b class="lx-tool-name">Advanced IK FK Switch</b><span class="lx-tool-desc">Switch Advanced Skeleton limbs over a frame, a range or the whole timeline.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:1"><a class="lx-tool" href="tool-alembic-exporter.html" style="--h:150"><span class="lx-tool-ico" aria-hidden="true">AB</span><span class="lx-tool-cat">Export</span><b class="lx-tool-name">Alembic Exporter</b><span class="lx-tool-desc">Cache characters and cameras with checked options and versioned names.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:2"><a class="lx-tool" href="tool-audio-exporter.html" style="--h:320"><span class="lx-tool-ico" aria-hidden="true">AU</span><span class="lx-tool-cat">Export</span><b class="lx-tool-name">Audio Exporter</b><span class="lx-tool-desc">Pull 48 kHz stereo WAV audio out of a batch of video shots.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:3"><a class="lx-tool" href="tool-drag-drop.html" style="--h:48"><span class="lx-tool-ico" aria-hidden="true">DD</span><span class="lx-tool-cat">Scene</span><b class="lx-tool-name">Drag &amp; Drop</b><span class="lx-tool-desc">Drop many files into Maya and pick Import, Reference or Bucket for each.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:4"><a class="lx-tool" href="tool-fbx-exporter.html" style="--h:25"><span class="lx-tool-ico" aria-hidden="true">FB</span><span class="lx-tool-cat">Export</span><b class="lx-tool-name">FBX Exporter</b><span class="lx-tool-desc">Export rigs and cameras as named FBX files for every shot.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:5"><a class="lx-tool" href="tool-hotkey-manager.html" style="--h:270"><span class="lx-tool-ico" aria-hidden="true">HK</span><span class="lx-tool-cat">Scene</span><b class="lx-tool-name">Hotkey Manager</b><span class="lx-tool-desc">Back up, preview and apply hotkey sets, with one-click revert.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:6"><a class="lx-tool" href="tool-playblast.html" style="--h:0"><span class="lx-tool-ico" aria-hidden="true">PB</span><span class="lx-tool-cat">Animation</span><b class="lx-tool-name">Playblast</b><span class="lx-tool-desc">Camera playblasts with presets, audio and the exact size you need.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:7"><a class="lx-tool" href="tool-rebake-ik-space.html" style="--h:175"><span class="lx-tool-ico" aria-hidden="true">RB</span><span class="lx-tool-cat">Rigging</span><b class="lx-tool-name">Rebake IK Space</b><span class="lx-tool-desc">Move IK controls to a new parent or world space and keep the motion.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:8"><a class="lx-tool" href="tool-revert-to-last-saved.html" style="--h:240"><span class="lx-tool-ico" aria-hidden="true">RV</span><span class="lx-tool-cat">Scene</span><b class="lx-tool-name">Revert to Last Saved</b><span class="lx-tool-desc">Reopen the last saved scene in one click, with a backup made first.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li><li style="--i:9"><a class="lx-tool" href="tool-rivet.html" style="--h:340"><span class="lx-tool-ico" aria-hidden="true">RI</span><span class="lx-tool-cat">Rigging</span><b class="lx-tool-name">Rivet</b><span class="lx-tool-desc">Pin a locator to two edges or a point so objects ride the surface.</span><span class="lx-tool-go" aria-hidden="true"><svg viewBox="0 0 20 20"><path d="M4 10h11M11 5l5 5-5 5"/></svg></span></a></li></ul>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- 03 · PLANS -->
-  <section class="h-plans" id="compare" aria-labelledby="compare-title">
-    <div class="wrap">
-      <div class="h-head h-head-c" data-r>
-        <p class="h-kicker"><span>03</span>Free or Pro</p>
+  <section class="lx-sec lx-plans" id="compare" aria-labelledby="compare-title">
+    <div class="lx-wrap">
+      <header class="lx-head lx-head-c" data-lx-r>
+        <p class="lx-kicker">Free or Pro</p>
         <h2 id="compare-title">Start free. <em>Grow into Pro.</em></h2>
         <p>Wrapline Free costs nothing. When you need exporters, playblasts and rig tools, Wrapline Pro adds them to the same shelf.</p>
+      </header>
+      <div class="lx-plan-grid" data-lx-fan>
+        <article class="lx-plan" data-lx-r style="--i:0;--ry:1"><p class="lx-plan-k">Wrapline Free</p><p class="lx-num">4<span>tools</span></p><p class="lx-plan-s">Free for everyone. No account needed.</p><ul><li>IK / FK Snap, Multi Swapper</li><li>UDIM Preview, Layer Prefix Remover</li><li>Works offline</li></ul><a class="lx-btn lx-btn-line" href="wrapline-free.html"><span>Get Wrapline free</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg></a></article>
+        <article class="lx-plan" data-lx-r style="--i:1;--ry:0"><p class="lx-plan-k">Wrapline Pro Basic</p><p class="lx-num">10<span>tools</span></p><p class="lx-plan-s">Online and always up to date. 4-day free trial.</p><ul><li>All 10 Pro tools</li><li>Always the newest version</li><li>Sign in with your email</li></ul><a class="lx-btn lx-btn-ink" href="wrapline.html#pricing"><span>See Basic</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg></a></article>
+        <article class="lx-plan is-top" data-lx-r style="--i:2;--ry:-1"><p class="lx-plan-k">Wrapline Pro Premium <span>Every tool</span></p><p class="lx-num">14<span>tools</span></p><p class="lx-plan-s">Offline with a license key. Built for studios.</p><ul><li>All 10 Pro tools + the 4 free tools</li><li>Works offline after install</li><li>You decide when to update</li></ul><a class="lx-btn lx-btn-gold" href="wrapline.html#pricing"><span>See Premium</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg></a></article>
       </div>
-      <div class="h-plan-grid" data-s3d>
-        <article data-tilt class="h-plan" data-r style="--d:0"><p class="h-plan-k">Wrapline Free</p><p class="h-num">4<span>tools</span></p><p class="h-plan-s">Free for everyone. No account needed.</p><ul><li>IK / FK Snap, Multi Swapper</li><li>UDIM Preview, Layer Prefix Remover</li><li>Works offline</li></ul><a class="btn btn-light" href="wrapline-free.html">Get Wrapline free</a></article>
-        <article data-tilt class="h-plan" data-r style="--d:1"><p class="h-plan-k">Wrapline Pro Basic</p><p class="h-num">10<span>tools</span></p><p class="h-plan-s">Online and always up to date. 4-day free trial.</p><ul><li>All 10 Pro tools</li><li>Always the newest version</li><li>Sign in with your email</li></ul><a class="btn btn-dark" href="wrapline.html#pricing">See Basic</a></article>
-        <article data-tilt class="h-plan is-top" data-r style="--d:2"><i class="h-plan-bg" aria-hidden="true"></i><p class="h-plan-k">Wrapline Pro Premium <span>Every tool</span></p><p class="h-num">14<span>tools</span></p><p class="h-plan-s">Offline with a license key. Built for studios.</p><ul><li>All 10 Pro tools + the 4 free tools</li><li>Works offline after install</li><li>You decide when to update</li></ul><a class="btn btn-gold" href="wrapline.html#pricing">See Premium</a></article>
-      </div>
-      <p class="h-blender" data-r><i aria-hidden="true"></i><b>Next up: Wrapline for Blender.</b> Tools for Blender artists are coming soon.</p>
+      <p class="lx-blender" data-lx-r><i aria-hidden="true"></i><b>Next up: Wrapline for Blender.</b> Tools for Blender artists are coming soon.</p>
     </div>
   </section>
 
-  <!-- 04 · SETUP: a time slider; the playhead keys each step -->
-  <section class="h-setup" aria-labelledby="steps-title">
-    <div class="wrap">
-      <div class="h-head" data-r>
-        <p class="h-kicker"><span>04</span>Setup</p>
+  <section class="lx-sec lx-setup" aria-labelledby="steps-title">
+    <div class="lx-wrap">
+      <header class="lx-head" data-lx-r>
+        <p class="lx-kicker">Setup</p>
         <h2 id="steps-title">On your shelf in <em>under a minute.</em></h2>
+      </header>
+      <div class="lx-path" data-lx-draw>
+        <svg class="lx-path-svg" viewBox="0 0 1200 160" preserveAspectRatio="none" aria-hidden="true"><path class="lx-path-bg" d="M40 120C260 120 340 40 600 40S940 120 1160 120"/><path class="lx-path-fg" pathLength="1" d="M40 120C260 120 340 40 600 40S940 120 1160 120"/></svg>
+        <ol class="lx-steps">
+          <li data-lx-r style="--i:0"><span class="lx-step-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/></svg></span><h3>Download</h3><p>Get the installer from the download page. One small file.</p></li>
+          <li data-lx-r style="--i:1"><span class="lx-step-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 6h16v12H4zM9 13l3-3 3 3M12 10v6"/></svg></span><h3>Drag into Maya</h3><p>Drop the file into the viewport and click Install. No folders to copy.</p></li>
+          <li data-lx-r style="--i:2"><span class="lx-step-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span><h3>Start working</h3><p>Your tools appear on the shelf and in the Wrapline menu.</p></li>
+        </ol>
       </div>
-      <div class="t-slider" data-r aria-hidden="true">
-        <div class="t-ruler"><span>1</span><span>12</span><span>24</span><span>36</span><span>48</span><span>60</span></div>
-        <i class="t-key k1"></i><i class="t-key k2"></i><i class="t-key k3"></i><span class="t-run"><i class="t-head"><b>f</b></i></span>
-      </div>
-      <ol class="t-steps" data-s3d>
-        <li data-tilt data-r style="--d:0"><span class="t-n">f 01</span><h3>Download</h3><p>Get the installer from the download page. One small file.</p></li>
-        <li data-tilt data-r style="--d:1"><span class="t-n">f 24</span><h3>Drag into Maya</h3><p>Drop the file into the viewport and click Install. No folders to copy.</p></li>
-        <li data-tilt data-r style="--d:2"><span class="t-n">f 48</span><h3>Start working</h3><p>Your tools appear on the shelf and in the Wrapline menu.</p></li>
-      </ol>
-      <p class="t-more" data-r><a class="o-ae-go" href="download.html">Go to downloads <span aria-hidden="true">→</span></a></p>
+      <p class="lx-more" data-lx-r><a class="lx-link" href="download.html">Go to downloads <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg></a></p>
     </div>
   </section>
 
-  <!-- 05 · CREDITS -->
-  <section class="h-credits" id="about" aria-labelledby="about-title">
-    <div class="wrap h-credits-grid">
-      <div class="ab-copy" data-r>
-        <p class="h-kicker"><span>05</span>About</p>
+  <section class="lx-sec lx-about" id="about" aria-labelledby="about-title">
+    <div class="lx-wrap lx-about-grid">
+      <div class="lx-about-copy" data-lx-r>
+        <p class="lx-kicker">About</p>
         <h2 id="about-title">Made by an animator, <em>for artists.</em></h2>
-        <p class="h-credits-lead">Every tool starts with a task that slowed down a real shot, and turns it into one click or one window.</p>
-        <div class="ab-sign">
-          <span class="ab-av" aria-hidden="true">A</span>
-          <span><b>Ajoy</b><small>3D animator · Maker of Wrapline</small></span>
-          <a class="ab-hi" href="#contact">Say hello <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg></a>
-        </div>
+        <p class="lx-about-lead">Every tool starts with a task that slowed down a real shot, and turns it into one click or one window.</p>
+        <div class="lx-sign"><span class="lx-av" aria-hidden="true">A</span><span><b>Ajoy</b><small>3D animator · Maker of Wrapline</small></span><a class="lx-link" href="#contact">Say hello <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg></a></div>
       </div>
-      <dl class="ab-grid">
-        <div class="ab-card ab-wide" data-r data-s3d style="--d:0"><i class="ab-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4zM8 5v14M16 5v14M4 9.5h4M4 14.5h4M16 9.5h4M16 14.5h4"/></svg></i><dt>Built from</dt><dd>Real production work and real deadlines</dd></div>
-        <div class="ab-card " data-r data-s3d style="--d:1"><i class="ab-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="9" cy="8.5" r="3"/><path d="M3.5 19c.6-3.3 2.8-5 5.5-5s4.9 1.7 5.5 5"/><circle cx="17" cy="9.5" r="2.3"/><path d="M16.5 14.2c2.4.1 3.9 1.6 4.3 4.3"/></svg></i><dt>Made for</dt><dd>Animators, riggers and studio pipelines</dd></div>
-        <div class="ab-card " data-r data-s3d style="--d:2"><i class="ab-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 3l8 4.5v9L12 21l-8-4.5v-9zM4 7.5l8 4.5 8-4.5M12 12v9"/></svg></i><dt>Runs in</dt><dd>Autodesk Maya 2023 to 2026 on Windows</dd><span class="ab-chips" aria-hidden="true"><b>2023</b><b>2024</b><b>2025</b><b>2026</b></span></div>
-        <div class="ab-card " data-r data-s3d style="--d:3"><i class="ab-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M3.5 12.5V4.5h8l9 9-8 8zM8 8.5h.01"/></svg></i><dt>Pricing</dt><dd>Wrapline Free · Wrapline Pro per computer</dd></div>
-        <div class="ab-card" data-r data-s3d style="--d:4"><i class="ab-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 5.5h16v10H10l-4.5 4v-4H4z"/></svg></i><dt>Support</dt><dd>Straight from the person who wrote the tool</dd></div>
+      <dl class="lx-about-list" data-lx-tilt>
+        <div data-lx-r style="--i:0"><dt>Built from</dt><dd>Real production work and real deadlines</dd></div>
+        <div data-lx-r style="--i:1"><dt>Made for</dt><dd>Animators, riggers and studio pipelines</dd></div>
+        <div data-lx-r style="--i:2"><dt>Runs in</dt><dd>Autodesk Maya 2023 to 2026 on Windows</dd></div>
+        <div data-lx-r style="--i:3"><dt>Pricing</dt><dd>Wrapline Free · Wrapline Pro per computer</dd></div>
+        <div data-lx-r style="--i:4"><dt>Support</dt><dd>Straight from the person who wrote the tool</dd></div>
       </dl>
     </div>
   </section>
 
-  <!-- 06 · THAT'S A WRAP: a slate claps shut when it comes into view -->
-  <section class="h-wrap" id="contact" aria-labelledby="contact-title">
-    <div class="wrap">
-      <div class="w-card" data-r data-s3d>
-        <div class="w-copy">
-          <p class="h-kicker"><span>06</span>Contact</p>
-          <h2 id="contact-title">That's a <em>wrap.</em></h2>
-          <p>Licences, questions, ideas. Say hello.</p>
-          <div class="h-actions"><a class="btn btn-dark" href="contact.html">Send a message</a><a class="btn btn-light" href="wrapline-free.html">Get Wrapline free</a></div>
-        </div>
-        <div class="slate" aria-hidden="true">
-          <div class="slate-stick"><i></i></div>
-          <div class="slate-board">
-            <p class="sl-top"><span>Prod.</span><b>Wrapline</b></p>
-            <div class="sl-row"><p><span>Roll</span><b>W-01</b></p><p><span>Scene</span><b>14</b></p><p><span>Take</span><b class="sl-take">1</b></p></div>
-            <p class="sl-bot"><span>Director</span><b>You</b><span>Camera</span><b>persp</b></p>
-          </div>
-        </div>
+  <section class="lx-sec lx-end" id="contact" aria-labelledby="contact-title">
+    <div class="lx-wrap">
+      <div class="lx-end-card" data-lx-r data-lx-tilt>
+        <svg class="lx-end-curve" viewBox="0 0 1200 400" preserveAspectRatio="none" aria-hidden="true"><path pathLength="1" d="M-20 340C380 340 420 60 820 60S1100 300 1220 220"/></svg>
+        <p class="lx-kicker">Contact</p>
+        <h2 id="contact-title">That's a <em>wrap.</em></h2>
+        <p>Licences, questions, ideas. Say hello.</p>
+        <div class="lx-actions"><a class="lx-btn lx-btn-ink" href="contact.html"><span>Send a message</span><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 10h11M11 5l5 5-5 5"/></svg></a><a class="lx-btn lx-btn-line" href="wrapline-free.html"><span>Get Wrapline free</span></a></div>
       </div>
     </div>
   </section>
@@ -284,7 +239,8 @@
   </div>
 </footer>
 
-<script src="js/studio.js?v=20261019-complete1"></script><script src="js/site-config.js?v=20261111-gs2"></script><script type="module" src="js/account.js?v=20261111-a29"></script><script type="module" src="js/guest-prompt.js?v=20261019-account2"></script>
-<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script src="js/home.js?v=hj7" defer></script><script src="js/home3d.js?v=h5" defer></script><script type="module" src="js/tool-explainer.js?v=xp9"></script><script src="js/smooth-scroll.js?v=sm5" defer></script><script src="js/transitions.js?v=vt8"></script><script src="js/media-guard.js?v=mg1" defer></script><script src="js/lang-boot.js?v=lg7" defer></script>
-<script src="js/fit-text.js?v=ft2" defer></script><script src="js/theme-switch.js?v=ts4" defer></script><script src="js/home-v7.js?v=h71" defer></script><script src="js/no-numbers.js?v=nn1" defer></script><script src="js/clean-url.js?v=cu3" defer></script></body>
+
+<script src="js/studio.js?v=20261019-complete1"></script><script src="js/site-config.js?v=20261111-gs2"></script><script type="module" src="js/account.js?v=20261111-a29"></script><script type="module" src="js/guest-prompt.js?v=20261112-gp1"></script>
+<script type="module" src="js/site-interactions.js?v=20261019-complete1"></script><script src="js/landing.js?v=lx1" defer></script><script src="js/transitions.js?v=vt8"></script><script src="js/media-guard.js?v=mg1" defer></script><script src="js/lang-boot.js?v=lg7" defer></script>
+<script src="js/theme-switch.js?v=ts4" defer></script><script src="js/no-numbers.js?v=nn1" defer></script><script src="js/clean-url.js?v=cu3" defer></script><script src="js/btn-motion.js?v=bm1" defer></script><script src="js/fresh-forms.js?v=ff1" defer></script></body>
 </html>

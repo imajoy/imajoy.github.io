@@ -101,3 +101,12 @@ html[data-theme=dark] .pg-skel[data-t=pay]{color:#F1F2F4}html:not([data-theme=da
 @keyframes plFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @keyframes plBar{0%{transform:translateX(-100%)}100%{transform:translateX(230%)}}
 @media(prefers-reduced-motion:reduce){.pl-tile,.pl-line,.pl-d1,.pl-d2,.pl-word,.pl-bar i{animation:none}.pl-line{stroke-dashoffset:0}}
+
+/* Every page: the cover is solid from the first paint (nothing shows half built); the logo itself arrives a beat later, so a fast page simply fades in. */
+.pg-skel[data-logo]{opacity:1;animation:sk-failsafe .01s linear 10s forwards;transition:opacity .45s cubic-bezier(.22,1,.36,1),visibility 0s .45s}
+.pg-skel[data-logo].done{animation:none;opacity:0!important}
+.pg-skel[data-logo] .pl{opacity:0;animation:plShow .45s .28s cubic-bezier(.22,1,.36,1) forwards}
+.pg-skel.done .pl{transform:scale(1.04);transition:transform .5s cubic-bezier(.22,1,.36,1)}
+@keyframes plShow{to{opacity:1}}
+@media(prefers-reduced-motion:reduce){.pg-skel[data-logo] .pl{animation:none;opacity:1}}
+.pg-skel[data-logo]{color:var(--ink,#0E1220)}

@@ -1,0 +1,11 @@
+/* Site-wide button press (see js/btn-motion.js) */
+.bm-host{overflow:hidden!important;-webkit-tap-highlight-color:transparent}
+.bm-rel{position:relative}
+.bm-ink{position:absolute;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,transparent 36%,color-mix(in srgb,currentColor 30%,transparent) 50%,color-mix(in srgb,currentColor 12%,transparent) 60%,transparent 70%)}
+.bm-ink.bm-gold{background:radial-gradient(circle,rgba(255,226,160,0) 36%,rgba(242,182,79,.6) 50%,rgba(255,226,160,.28) 60%,rgba(242,182,79,0) 70%)}
+/* arrows inside buttons and links lean forward on hover, with the same easing everywhere */
+@media(hover:hover){
+ :is(.btn,.lx-btn,.o-ae-go) > :is(svg,span[aria-hidden=true]):last-child{transition:transform .5s cubic-bezier(.22,1,.36,1)}
+ :is(.btn,.lx-btn,.o-ae-go):hover > :is(svg,span[aria-hidden=true]):last-child{transform:translateX(4px)}
+}
+@media(prefers-reduced-motion:reduce){.bm-ink{display:none}}

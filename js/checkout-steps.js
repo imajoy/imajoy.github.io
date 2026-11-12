@@ -36,6 +36,9 @@ function writeBillingDraft(form){
  document.dispatchEvent(new CustomEvent('ajoy:checkout-draft',{detail:value}));sessionStorage.setItem(key,JSON.stringify(value));
 }
 export function initializeCheckoutSteps(form){
+ /* A refresh of the billing page starts clean: anything typed but not saved to the account is dropped. */
+ let reloaded=false;try{reloaded=performance.getEntriesByType('navigation')[0]?.type==='reload';}catch{}
+ if(!paymentStep&&reloaded)clearBillingDraft();
  const params=new URLSearchParams(location.search),draft=readBillingDraft(),returning=/^[-a-f0-9]{36}$/i.test(params.get('checkout')||'');
  if(!paymentStep&&returning){location.replace('payment.html?'+new URLSearchParams({checkout:params.get('checkout')}).toString());return;}
  if(paymentStep&&!returning&&(!draft||(!draft.tester&&(!draft.name.trim()||!draft.address.trim()))||!draft.terms)){
@@ -50,7 +53,7 @@ export function initializeCheckoutSteps(form){
    E.companyOn.checked=draft.companyOn;
   }
   for(const name of ['plan','billing'])if(!params.has(name))form.elements[name].value=draft[name];
-  if(!params.has('seats'))form.elements.seats.value=String(draft.seats);form.elements.terms.checked=draft.terms;
+  if(!params.has('seats'))form.elements.seats.value=String(draft.seats);/* The agreement box is ticked by the customer each time; it is never ticked for them on the billing page. */form.elements.terms.checked=paymentStep&&draft.terms;
  }
  let restoredCountry=false;
  document.addEventListener('ajoy:billing-network',event=>{

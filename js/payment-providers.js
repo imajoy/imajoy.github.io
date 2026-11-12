@@ -1,6 +1,6 @@
 import {billingParts} from './receipt-billing.js?v=rb1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261112-sd2';
+import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261112-cs3';
 /* Hosted payment selection: provider visibility is configuration, never payment authorization. */
 import {availability,countryCheck,tierFor,razorpayEstimate} from './regions.js?v=20261023-p7';
 import {getAccountSession,onAccountChange,openAccount} from './account-session.js?v=20261023-p7';
@@ -50,7 +50,10 @@ if(form&&paypal&&url){
  const rzpCurrency=()=>quote?.currency||(choice().country!=='IN'&&config?.intlCurrency==='USD'?'USD':'INR');
  const money=value=>displayMoney(value,rzpCurrency(),choice().country);
  const showAmount=(id,value)=>setMoney(document.getElementById(id),value,rzpCurrency(),choice().country);
- const release=()=>{if(!hold)return;hold=false;skel.remove();sync();document.dispatchEvent(new Event('ajoy:page-ready'));};
+ /* The page is shown only once everything the Pay button needs is in hand: the price, and Razorpay's own checkout (fetched here, ahead of the press, so the window opens without a download). */
+ let rzpReady=null,releasing=false;
+ const release=()=>{if(!hold||releasing)return;const fin=()=>{if(!hold)return;hold=false;skel.remove();sync();document.dispatchEvent(new Event('ajoy:page-ready'));};
+  if(document.documentElement.dataset.checkoutStep==='payment'&&provider==='razorpay'&&config?.keyId&&getAccountSession()){releasing=true;rzpReady=rzpReady||loadCheckout().catch(()=>{});Promise.race([rzpReady,new Promise(r=>setTimeout(r,3500))]).then(fin);}else fin();};
  const say=(text,kind='')=>{if(/^Price confirmed/.test(text))text='';status.textContent=text;status.dataset.kind=kind;};
  /* Confirmed quotes are remembered for 10 minutes so the next step shows the price at once.
     Display only: checkout re-sends the expected total and the server refuses any changed price. */
@@ -278,7 +281,8 @@ if(form&&paypal&&url){
   const popup=usingPopup?window.open('about:blank','_blank'):null;if(popup){popup.opener=null;popup.document.body.textContent='Preparing secure Razorpay checkout…';}
   busy=true;creating=true;say('Opening secure Razorpay checkout…');paint();
   try{
-   if(!usingPopup)await loadCheckout();
+   /* Razorpay's checkout and the order are prepared side by side, not one after the other. */
+   const ready=usingPopup?null:loadCheckout();ready?.catch(()=>{});
    const trialing=trialOn();const result=await api('checkout',{...sel,offer:trialing?'trial':'standard',...(coupon&&!trialing?{coupon}:{}),...(trialing?{deviceId:browserDeviceId()}:{}),requestId,expectedTotal:price.total,name:form.elements.name.value,company:form.elements.company.value,...billingParts(form)});
    if(getAccountSession()?.token!==token||key()!==selection){popup?.close();throw Error('Your account or selection changed. Review checkout before continuing.');}
    pending={id:result.checkoutId,email:getAccountSession().email};try{sessionStorage.setItem('ajoy.razorpay.pending',JSON.stringify(pending));}catch{}
@@ -289,6 +293,7 @@ if(form&&paypal&&url){
     return;
    }
    if(!/^sub_[A-Za-z0-9]+$/.test(result.subscriptionId||''))throw Error('Razorpay did not return a subscription.');
+   await ready;
    let paid=false,failure='';
    const rzp=new window.Razorpay({key:config.keyId,subscription_id:result.subscriptionId,name:'Wrapline Pro',
     description:(trialing?'4-day free trial · then ':'')+'Wrapline Pro '+(sel.plan==='offline'?'Premium':'Basic')+' · '+sel.billing+' · '+sel.seats+' license(s)',

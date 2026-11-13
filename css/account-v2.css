@@ -249,3 +249,5 @@ html[data-theme=dark] .sg-steps i:first-child,html[data-theme=dark] .sg-steps[da
 @keyframes sgFill{to{transform:none}}
 html[data-theme=dark] .sg-ok{color:#4ADE80;background:rgba(74,222,128,.12)}
 @media(prefers-reduced-motion:reduce){.sg-ok-ring,.sg-ok-tick{animation:none;stroke-dashoffset:0}.sg-prog i{animation:none;transform:none}}
+
+.sg-sub b{display:block;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;word-break:normal;overflow-wrap:normal;font-size:1rem}

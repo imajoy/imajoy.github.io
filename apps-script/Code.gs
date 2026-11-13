@@ -620,13 +620,13 @@ function handleAccount_(d) {
       }
       var intent = !registered && ['register','auto'].indexOf(d.intent)>=0 ? 'register' : 'signin';
       if (!registered && intent !== 'register') return { ok: false, error: 'not_registered', registrationAvailable: true };
-      cache.put('intent:' + email, intent, 120);
+      cache.put('intent:' + email, intent, 300);
       var code = secureCode_();
-      var expiresAt=Date.now()+120000;
-      cache.put('code:' + email, JSON.stringify({hash:hashCode_(email,code),expiresAt:expiresAt}), 120); cache.remove('tries:' + email);
+      var expiresAt=Date.now()+300000;
+      cache.put('code:' + email, JSON.stringify({hash:hashCode_(email,code),expiresAt:expiresAt}), 300); cache.remove('tries:' + email);
       try { sendNoReply_({ to: email, name: 'Wrapline (no-reply)', subject: 'Your Wrapline sign-in code: ' + code,
-        htmlBody: codeEmailHtml_(code, 2, replyTo_()),
-        body: 'Your sign-in code is ' + code + '\n\nIt expires in 2 minutes. If you did not ask for it, you can ignore this email.\n\nThis is an automatic message from Wrapline. Please do not reply to it. For help, write to ' + replyTo_() + '.' }); }
+        htmlBody: codeEmailHtml_(code, 5, replyTo_()),
+        body: 'Your sign-in code is ' + code + '\n\nIt expires in 5 minutes. If you did not ask for it, you can ignore this email.\n\nThis is an automatic message from Wrapline. Please do not reply to it. For help, write to ' + replyTo_() + '.' }); }
       catch (err) { cache.remove('code:' + email); return { ok: false, error: 'mail' }; }
       return { ok: true, registered: registered, intent: intent, expiresAt:expiresAt, expiresIn:Math.max(0,Math.ceil((expiresAt-Date.now())/1000)) };
     }

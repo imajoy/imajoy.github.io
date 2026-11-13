@@ -7,7 +7,7 @@ test('Unregistered email is rejected before a code is generated or sent',()=>{
  assert.equal(app.mails.length,0);assert.equal(app.cache.has('code:new@gmail.com'),false);
 });
 test('Registered email -> emailed code -> signed session; code cannot be reused',()=>{
- const app=service(),sent=app.call({step:'code',email:' BUYER@EXAMPLE.COM '});assert.equal(sent.ok,true);assert.equal(sent.registered,true);assert.equal(sent.intent,'signin');assert(sent.expiresIn>0&&sent.expiresIn<=120);
+ const app=service(),sent=app.call({step:'code',email:' BUYER@EXAMPLE.COM '});assert.equal(sent.ok,true);assert.equal(sent.registered,true);assert.equal(sent.intent,'signin');assert(sent.expiresIn>0&&sent.expiresIn<=300);
  const code=app.mails[0].subject.match(/\d{6}/)[0];
  assert.equal(app.call({step:'verify',email:'buyer@example.com',code:'000000'}).error,'code');
  const result=app.call({step:'verify',email:'buyer@example.com',code});
@@ -72,7 +72,7 @@ test('unified email detection never creates a session before verifying either ex
  for(const [email,registered] of [['buyer@example.com',true],['new@gmail.com',false]]){
   const app=service(),sent=app.call({step:'code',email,intent:'auto'});
   assert.equal(sent.ok,true);assert.equal(sent.registered,registered);assert.equal(sent.intent,registered?'signin':'register');assert.equal(sent.token,undefined);assert(!app.sheets.has('Accounts'));
-  const code=app.mails[0].subject.match(/\d{6}/)[0];assert.match(app.mails[0].body,/2 minutes/);
+  const code=app.mails[0].subject.match(/\d{6}/)[0];assert.match(app.mails[0].body,/5 minutes/);
   assert.equal(app.call({step:'verify',email,code}).ok,true);
  }
 });
@@ -80,7 +80,7 @@ test('the server enforces the two-minute deadline even if a cached code survives
  const app=service(),email='new@gmail.com',sent=app.call({step:'code',email,intent:'auto'}),old=app.mails[0].subject.match(/\d{6}/)[0];
  let time=sent.expiresAt;app.ctx.Date=class extends Date{static now(){return time;}};
  assert.equal(app.call({step:'verify',email,code:old}).error,'code_expired');assert(!app.sheets.has('Accounts'));
- const resent=app.call({step:'code',email,intent:'auto'});assert.equal(resent.expiresAt,time+120000);
+ const resent=app.call({step:'code',email,intent:'auto'});assert.equal(resent.expiresAt,time+300000);
  const current=app.mails.at(-1).subject.match(/\d{6}/)[0];
  if(current!==old)assert.equal(app.call({step:'verify',email,code:old}).error,'code');
  assert.equal(app.call({step:'verify',email,code:current}).ok,true);

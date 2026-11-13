@@ -200,22 +200,6 @@ function init() {
       if(code&&field.value.length===6&&!busy&&Date.now()<codeDeadline)form.requestSubmit();
     });
     if(code)paint();
-    /* phones and tablets: one tap reads only the 6-digit code from what you copied from your email (the browser may ask once);
-       nothing is stored or sent anywhere else, and the code is then sent automatically like a typed one */
-    if(code&&touch()&&navigator.clipboard&&navigator.clipboard.readText){
-      const bar=body.querySelector('.acct-code-status'),rs=bar&&bar.querySelector('[data-resend]');
-      if(bar&&rs){
-        const pb=document.createElement('button');pb.type='button';pb.className='acct-link acct-paste';pb.textContent='Paste code';
-        bar.insertBefore(pb,rs);
-        pb.addEventListener('click',async()=>{
-          try{
-            const m=String(await navigator.clipboard.readText()).match(/(?<!\d)\d{6}(?!\d)/);
-            if(m){field.value=m[0];field.dispatchEvent(new Event('input',{bubbles:true}));}
-            else announce('No 6-digit code found. Copy the code from your email first, or type it.',true);
-          }catch(e){announce('Pasting was not allowed. You can type the code instead.',true);}
-        });
-      }
-    }
     if(!code){
       /* no button to press: the code is sent on Enter, on paste/autofill, or when you leave a valid address */
       const ok=()=>field.value.trim()&&field.checkValidity()&&!busy&&!field.readOnly;
@@ -252,7 +236,7 @@ function init() {
       if(!result.ok){announce(result.error==='limit'?'Too many requests. Please wait an hour before requesting another code.':result.error==='email'?'Enter a valid email address.':result.error==='email_domain'?EMAIL_POLICY_TEXT:'Could not send your code. Please try again.',true);return;}
       registration=result.registered===false;
       // Old deployments send ten-minute codes without expiry metadata. Show their real lifetime until redeployed.
-      const lifetime=result.expiresIn===undefined?600:Math.min(120,Math.max(0,Number(result.expiresIn)||0));
+      const lifetime=result.expiresIn===undefined?600:Math.min(300,Math.max(0,Number(result.expiresIn)||0));
       codeDeadline=Date.now()+lifetime*1000;
       step='code';msg='';render();focusStep();
     }catch(error){if(operation===generation)announce(error.message||'Could not send your code. Please try again.',true);}

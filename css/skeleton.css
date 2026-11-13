@@ -127,3 +127,6 @@ html[data-theme=dark] .pg-skel[data-t=pay]{color:#F1F2F4}html:not([data-theme=da
 .pg-ph .ph-v .c{background:var(--sk-card);box-shadow:0 0 0 1px color-mix(in srgb,var(--sk-a) 70%,transparent)}
 .pg-ph .ph-v .b{background:linear-gradient(100deg,var(--sk-a) 30%,var(--sk-b) 50%,var(--sk-a) 70%);background-size:220% 100%;animation:sk-move 1.5s linear infinite}
 @media(prefers-reduced-motion:reduce){.pg-ph .ph-v .b{animation:none}}
+
+/* the page's own entrance animations wait behind the loader and start the moment the outline lifts */
+html.pg-wait body>:not(.pg-skel),html.pg-wait body>:not(.pg-skel) *,html.pg-wait body>:not(.pg-skel) *::before,html.pg-wait body>:not(.pg-skel) *::after,html:has(#pg-skel:not(.done)) body>:not(.pg-skel),html:has(#pg-skel:not(.done)) body>:not(.pg-skel) *,html:has(#pg-skel:not(.done)) body>:not(.pg-skel) *::before,html:has(#pg-skel:not(.done)) body>:not(.pg-skel) *::after,html:has(#pg-ph:not(.done)) body>:not(.pg-skel),html:has(#pg-ph:not(.done)) body>:not(.pg-skel) *,html:has(#pg-ph:not(.done)) body>:not(.pg-skel) *::before,html:has(#pg-ph:not(.done)) body>:not(.pg-skel) *::after{animation-play-state:paused!important}

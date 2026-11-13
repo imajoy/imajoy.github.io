@@ -1,6 +1,6 @@
 /* Profile menu for signed-in visitors: my plan, saved billing details, appearance (light / dark / auto), sign out.
    Loaded by account.js, so every page with the account button gets it. Signed-out visitors see nothing here. */
-import {confirmLeave} from './confirm-leave.js?v=cl2';
+import {confirmLeave} from './confirm-leave.js?v=cl3';
 import {getAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
 import {loadProfile,cachedProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm3';
 const cfg=window.AJOY_CONFIG||{};

@@ -2,7 +2,7 @@
    Card details are only ever typed into Razorpay's own window. This page just asks the server for a Rs 1 card check, opens Razorpay,
    then shows the safe facts Razorpay returns (card type, last 4 digits, expiry). The Rs 1 is refunded by the server straight away. */
 import {getAccountSession,clearAccountSession,onAccountChange} from './account-session.js?v=20261023-p7';
-import {confirmLeave} from './confirm-leave.js?v=cl2';
+import {confirmLeave} from './confirm-leave.js?v=cl3';
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const list=$('#sc-list');if(!list)throw new Error('no saved-cards panel');
 const count=$('#sc-count'),msg=$('#sc-msg'),dlg=$('#sc-dlg'),dmsg=$('#sc-dmsg'),go=$('#sc-go'),addBtn=$('#sc-add');

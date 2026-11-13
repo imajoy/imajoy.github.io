@@ -1,5 +1,5 @@
 /* Loading skeletons: page-level overlay (shown only if a page is slow) and payment-method placeholders */
-:root{--sk-a:#ececec;--sk-b:#f8f8f8;--sk-bg:#f4f4f4}
+:root{--sk-a:#dfe3ea;--sk-b:#eef1f6;--sk-bg:#f3f5f9}
 html[data-theme=dark]{--sk-a:#1a2340;--sk-b:#2a3760;--sk-bg:#070b16}
 @keyframes sk-move{from{background-position:120% 0}to{background-position:-120% 0}}
 @keyframes sk-in{to{opacity:1}}
@@ -7,7 +7,7 @@ html[data-theme=dark]{--sk-a:#1a2340;--sk-b:#2a3760;--sk-bg:#070b16}
 .sk-bar,.sk-block{display:block;border-radius:14px;background:linear-gradient(100deg,var(--sk-a) 30%,var(--sk-b) 50%,var(--sk-a) 70%);background-size:220% 100%;animation:sk-move 1.5s linear infinite}
 .pg-skel{position:fixed;inset:0;z-index:2147483000;overflow:hidden;background:var(--sk-bg);opacity:0;pointer-events:none;animation:sk-in .3s ease .3s forwards,sk-failsafe .01s linear 12s forwards;transition:opacity .3s ease}
 .pg-skel.done{animation:none;opacity:0!important;visibility:hidden;transition:opacity .3s ease,visibility 0s .3s}
-:root{--sk-card:#fbfbfb}html[data-theme=dark]{--sk-card:#0c1326}
+:root{--sk-card:#ffffff}html[data-theme=dark]{--sk-card:#0c1326}
 .pg-skel .sk-bar{width:var(--w,100%);height:var(--h,14px);border-radius:var(--r,12px);max-width:100%}
 .pg-skel .sk-card{background:var(--sk-card);border-radius:var(--r,24px);height:var(--h,200px);width:var(--w,100%);max-width:100%;padding:var(--p,22px);display:flex;flex-direction:column;gap:14px;box-shadow:0 0 0 1px color-mix(in srgb,var(--sk-a) 70%,transparent) inset}
 .pg-skel .sk-card .sk-bar{background-color:transparent}
@@ -111,3 +111,9 @@ html[data-theme=dark] .pg-skel[data-t=pay]{color:#F1F2F4}html:not([data-theme=da
 @keyframes plShow{to{opacity:1}}
 @media(prefers-reduced-motion:reduce){.pg-skel[data-logo] .pl{animation:none;opacity:1}}
 .pg-skel[data-logo]{color:var(--ink,#0E1220)}
+
+/* the grey outline that shows once the logo has lifted: always visible, sits just under the logo layer, fades out when the page is real */
+.pg-skel.pg-ph{z-index:2147482900;opacity:1;animation:sk-failsafe .01s linear 12s forwards;transition:opacity .35s cubic-bezier(.22,1,.36,1),visibility 0s .35s}
+.pg-skel.pg-ph.done{animation:none;opacity:0!important;visibility:hidden}
+.pg-skel .sk-card[data-m]{margin-top:24px}
+.pg-skel[data-t=account]{color:var(--ink,#0E1220)}

@@ -1,6 +1,6 @@
 /* Account information tab: profile picture, name, email, billing-address summary and account deletion.
    The name is the same one used on invoices; the picture is a small square JPEG saved with the account. */
-import {confirmLeave} from './confirm-leave.js?v=cl2';
+import {confirmLeave} from './confirm-leave.js?v=cl3';
 import {getAccountSession,clearAccountSession,accountRequest,onAccountChange} from './account-session.js?v=20261023-p7';
 import {loadProfile,saveProfile,hasBilling} from './profile-store.js?v=pm3';
 const $=s=>document.querySelector(s);
@@ -87,4 +87,3 @@ $('#ai-delete').addEventListener('click',()=>window.dispatchEvent(new CustomEven
 /* sign out / switch account: end this session on the server, then (for switch) open the sign-in window for another email */
 function leave(){const t=getAccountSession()?.token;if(t)accountRequest({step:'logout',token:t},8000).catch(()=>{});clearAccountSession();}
 $('#ai-out').addEventListener('click',async()=>{if(await confirmLeave('out'))leave();});
-$('#ai-switch').addEventListener('click',async()=>{if(!(await confirmLeave('switch')))return;leave();setTimeout(()=>window.dispatchEvent(new CustomEvent('ajoy-account-open',{detail:{}})),60);});

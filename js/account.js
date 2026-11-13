@@ -1,9 +1,9 @@
 /* Email-code sign-in with an immediate cached summary and live subscription refresh. */
 import {orb} from './mood-orb.js?v=mo1';
 import {isDisposableEmail,EMAIL_POLICY_TEXT,EMAIL_TEMP_TEXT} from './email-policy.js?v=ep1';
-import {confirmLeave} from './confirm-leave.js?v=cl2';
+import {confirmLeave} from './confirm-leave.js?v=cl3';
 import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
-import './profile-menu.js?v=20261112-pm16';
+import './profile-menu.js?v=20261113-pm17';
 const cfg = window.AJOY_CONFIG || {};
 if (cfg.accountOpen && cfg.sheetUrl) init();
 function init() {
@@ -147,7 +147,7 @@ function init() {
         (session.limited?'<p class="acct-note">Only your latest subscription is shown. Sign out and verify your email to see every subscription.</p>':'')+
 
         (offline?'<button class="acct-link" type="button" data-retry>Try updating again</button>':'')+'<div class="acct-footer acct-footer-solo"><button class="acct-link ax-out" type="button" data-out><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4M9 16l-4-4 4-4M5 12h11"/></svg>Sign out</button></div>';
-      body.querySelector('[data-out]').onclick=async()=>{if(!(await confirmLeave('switch')))return;const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
+      body.querySelector('[data-out]').onclick=async()=>{if(!(await confirmLeave('out')))return;const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});generation++;registration=false;step='email';email='';msg='';busy=false;clearAccountSession();};
       body.querySelector('[data-retry]')?.addEventListener('click',status);
       for(const stop of body.querySelectorAll('[data-cancel-index]'))stop.addEventListener('click',async()=>{
         const sub=subs[Number(stop.dataset.cancelIndex)];if(!sub)return;

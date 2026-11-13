@@ -101,6 +101,8 @@ if(stage){
  chips.forEach(ch=>ch.addEventListener('click',()=>go(order.indexOf(+ch.dataset.lxGo))));
  cards.forEach((c,i)=>c.addEventListener('click',()=>{if(c.dataset.pos!=='0')go(order.indexOf(i));}));
  place();
+ /* the side text starts on whichever tool leads this visit */
+ if(now){const c=cards[order[0]];field('cat').textContent=c.dataset.cat;field('name').textContent=c.dataset.name;field('desc').textContent=c.dataset.desc;field('link').setAttribute('href',c.dataset.href);}
  if('IntersectionObserver' in window){
   /* several notices can arrive together (a tab opened in the background): the newest one is the truth */
   new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting))loadXp();},{rootMargin:'700px 0px'}).observe(stage);

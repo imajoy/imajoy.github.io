@@ -211,3 +211,4 @@ html[data-theme=dark] .acct-body .ax-out{color:#E7ECFA;border-color:rgba(255,255
 @media(max-width:420px){.ax-ring{width:84px;height:84px}.ax-ring b{font-size:1.4rem}.ax-pass-mid{gap:14px}.ax-head{gap:12px}.ax-av{width:50px;height:50px;border-radius:17px;font-size:1.3rem}}
 .acct-dlg:has(.acct-body[data-stage=account]) .acct-close{background:color-mix(in srgb,var(--ink,#0E1220) 6%,transparent);color:var(--ink,#0E1220);border-color:color-mix(in srgb,var(--ink,#0E1220) 12%,transparent)}
 html[data-theme=dark] .acct-dlg:has(.acct-body[data-stage=account]) .acct-close{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.16)}
+.acct-body .ax-head h2{font-size:clamp(1rem,4vw,1.15rem);overflow-wrap:break-word;word-break:normal}

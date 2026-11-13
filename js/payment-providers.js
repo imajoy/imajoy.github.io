@@ -304,9 +304,10 @@ if(form&&paypal&&url){
    let paid=false,failure='';
    const rzp=new window.Razorpay({key:config.keyId,subscription_id:result.subscriptionId,name:'Wrapline Pro',
     description:(trialing?'4-day free trial · then ':'')+'Wrapline Pro '+(sel.plan==='offline'?'Premium':'Basic')+' · '+sel.billing+' · '+sel.seats+' license(s)',
-    prefill:{email:getAccountSession().email,name:form.elements.name.value,method:rzpMethod},
+    prefill:{email:getAccountSession().email,name:form.elements.name.value,method:rzpMethod==='netbanking'?'emandate':rzpMethod},
     /* the window opens straight on the method chosen on this page: the card form, or UPI (QR code on a computer, UPI apps on a phone) */
-    config:{display:{blocks:{chosen:{name:rzpMethod==='upi'?'Pay with UPI':rzpMethod==='netbanking'?'Pay with net banking':'Pay with card',instruments:[{method:rzpMethod}]}},sequence:['block.chosen'],preferences:{show_default_blocks:false}}},theme:{color:'#2A64E8'},remember_customer:cachedProfile()?.saveCard===true,
+    /* A subscription pays by net banking through a bank e-mandate, which Razorpay calls "emandate", not "netbanking". Asking for "netbanking" alone leaves the window with nothing to show. Net banking therefore asks for the e-mandate first and keeps Razorpay's own method list below it, so the customer can always pick. */
+    config:{display:{blocks:{chosen:{name:rzpMethod==='upi'?'Pay with UPI':rzpMethod==='netbanking'?'Pay with net banking':'Pay with card',instruments:rzpMethod==='netbanking'?[{method:'emandate'},{method:'netbanking'}]:[{method:rzpMethod}]}},sequence:['block.chosen'],preferences:{show_default_blocks:rzpMethod==='netbanking'}}},theme:{color:'#2A64E8'},remember_customer:cachedProfile()?.saveCard===true,
     handler:()=>{paid=true;goThankYou(result.checkoutId,sel);},
     modal:{escape:true,confirm_close:true,ondismiss:()=>{if(!paid)abandon(result.checkoutId,failure);}}});
    rzp.on('payment.failed',event=>{failure=(event?.error?.description||'The bank declined the payment.').replace(/\.?$/,'.');say('Payment failed: '+failure+' Try another card or method in the Razorpay window, or close it to cancel.','error');});

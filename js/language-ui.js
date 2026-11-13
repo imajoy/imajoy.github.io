@@ -10,7 +10,7 @@ function ensureCss(){
  let l=document.querySelector('link[data-lang-css]');
  cssReady=new Promise(res=>{
   const done=()=>res();
-  if(!l){l=document.createElement('link');l.rel='stylesheet';l.href='css/language.css?v=lg6';l.dataset.langCss='';l.addEventListener('load',done,{once:true});l.addEventListener('error',done,{once:true});document.head.append(l);}
+  if(!l){l=document.createElement('link');l.rel='stylesheet';l.href='/css/language.css?v=lg6';l.dataset.langCss='';l.addEventListener('load',done,{once:true});l.addEventListener('error',done,{once:true});document.head.append(l);}
   else if(l.sheet)done();else{l.addEventListener('load',done,{once:true});l.addEventListener('error',done,{once:true});}
   setTimeout(done,2500);
  });
@@ -21,7 +21,7 @@ function draw(){
  dlg.innerHTML='<div class="lng-box"><button class="lng-x" type="button" aria-label="Close" data-x>×</button><h2 id="lng-title">Select a language</h2>'+
   '<p class="lng-note">Wrapline will be shown in this language on this device.</p>'+
   '<label class="lng-search"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 4.5 4.5"/></svg><input type="search" placeholder="Search for a language" aria-label="Search for a language" autocomplete="off" spellcheck="false"></label>'+
-  '<ul class="lng-list notranslate" translate="no" role="listbox" aria-label="Languages">'+api.list.map((l,i)=>'<li role="option" aria-selected="'+(l[0]===cur)+'" data-code="'+esc(l[0])+'" data-q="'+esc((l[1]+' '+l[2]+' '+l[0]).toLowerCase())+'" style="--i:'+Math.min(i,14)+'" tabindex="-1"><span class="lng-badge"><img src="img/flags/'+esc(l[3])+'.png" alt="" width="36" height="36" decoding="async" draggable="false"></span><span class="lng-name"><b>'+esc(l[1])+'</b><small>'+esc(l[2])+'</small></span><svg class="lng-tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></li>').join('')+'</ul>'+
+  '<ul class="lng-list notranslate" translate="no" role="listbox" aria-label="Languages">'+api.list.map((l,i)=>'<li role="option" aria-selected="'+(l[0]===cur)+'" data-code="'+esc(l[0])+'" data-q="'+esc((l[1]+' '+l[2]+' '+l[0]).toLowerCase())+'" style="--i:'+Math.min(i,14)+'" tabindex="-1"><span class="lng-badge"><img src="/img/flags/'+esc(l[3])+'.png" alt="" width="36" height="36" decoding="async" draggable="false"></span><span class="lng-name"><b>'+esc(l[1])+'</b><small>'+esc(l[2])+'</small></span><svg class="lng-tick" viewBox="0 0 24 24" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></li>').join('')+'</ul>'+
   '<p class="lng-empty" hidden>No language found.</p><p class="lng-msg" role="status" aria-live="polite"></p></div>';
  const list=dlg.querySelector('.lng-list'),input=dlg.querySelector('input'),empty=dlg.querySelector('.lng-empty'),msg=dlg.querySelector('.lng-msg');
  const rows=()=>[...list.children];

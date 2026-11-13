@@ -132,7 +132,7 @@ function go(){
   }
   close();return;
  }
- location.assign('checkout.html?'+new URLSearchParams({plan,billing,seats:String(seats),v:'20261112-drawer1'}));
+ location.assign('/checkout.html?'+new URLSearchParams({plan,billing,seats:String(seats),v:'20261112-drawer1'}));
 }
 export function openPlanDrawer(opts={}){
  if(!dlg)build();

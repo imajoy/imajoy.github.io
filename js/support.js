@@ -205,7 +205,7 @@ function thank(res){
  const amt=document.createElement('b');amt.textContent=money(res.amount,res.currency);
  meta.append(amt,res.currency==='INR'?' received through Razorpay. Your receipt is in your email.':' received through PayPal. Your receipt is in your email.');
  const actions=document.createElement('div');actions.className='th-actions';
- const home=document.createElement('a');home.className='btn btn-dark';home.href='wrapline.html';home.textContent='Back to Wrapline Pro';
+ const home=document.createElement('a');home.className='btn btn-dark';home.href='/wrapline.html';home.textContent='Back to Wrapline Pro';
  const more=document.createElement('button');more.type='button';more.className='btn btn-light';more.textContent='Close';
  actions.append(home,more);
  box.append(mug,burst,eyebrow,title,line,meta,actions);root.append(box);

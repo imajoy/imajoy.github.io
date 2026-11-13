@@ -6,7 +6,7 @@ import {readReceiptBilling,billingLines} from './receipt-billing.js?v=rb1';
 import {mountSetupProgress} from './setup-progress.js?v=20261110-sm1';
 let progress=null;
 /* A real confirmation always arrives with details in the address. Opened bare, it would wrongly say "Payment confirmed", so send the visitor to the toolkit page instead. */
-if(!location.search)location.replace('wrapline.html');
+if(!location.search)location.replace('/wrapline.html');
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
 const plan=q.get('plan')==='offline'?'Premium':'Basic',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
 let seats=parseInt(q.get('seats'),10);seats=seats>0&&seats<=100?seats:1;
@@ -170,7 +170,7 @@ if(provider==='Razorpay'&&q.get('verify')==='1'&&/^[-a-f0-9]{36}$/i.test(checkou
  const box=$('ty-order');
  if(orderRef){
   box.hidden=false;$('ty-order-id').textContent='ORD-'+orderRef;
-  const mail=box.querySelector('a');mail.href='contact.html?topic=billing&ref='+encodeURIComponent('ORD-'+orderRef);
+  const mail=box.querySelector('a');mail.href='/contact.html?topic=billing&ref='+encodeURIComponent('ORD-'+orderRef);
   const copy=box.querySelector('button');
   copy.addEventListener('click',async()=>{let ok=false;try{await navigator.clipboard.writeText('ORD-'+orderRef);ok=true;}catch{}copy.textContent=ok?'Copied ✓':'Select and copy';setTimeout(()=>{copy.textContent='Copy';},1800);});
  }

@@ -4,7 +4,7 @@ import {getAccountSession,accountRequest,onAccountChange,openAccount} from './ac
 import {loadProfile,saveProfile,clearProfile,emptyProfile,hasBilling} from './profile-store.js?v=pm3';
 import {bindPostal} from './billing-postal.js?v=bp3';
 import {buildInvoiceDoc,printDoc,printDocs,invoicePeriod} from './ty-invoice.js?v=iv13';
-import {downloadInvoices} from './invoice-pdf.js?v=pdf3';
+import {downloadInvoices} from './invoice-pdf.js?v=pdf3r1';
 
 const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
 const el=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!=null)e.textContent=text;return e;};

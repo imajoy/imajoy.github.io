@@ -23,7 +23,7 @@ const ph=document.createElement('div');ph.className='pg-skel pg-ph';ph.id='pg-ph
 /* the real outline of this page (drawn from the page itself by scripts/build-outlines.mjs); the kind-of-page outline above shows until it arrives */
 let logoGone=false,over=false,tLogo=0;
 const PHV='ph1',nm=s.dataset.p;
-if(nm){window.__phLoad=(n,h)=>{if(n===nm&&!over)ph.innerHTML=h;};const sc=document.createElement('script');sc.src='js/ph/'+nm+'.js?v='+PHV;sc.async=true;document.head.append(sc);}
+if(nm){window.__phLoad=(n,h)=>{if(n===nm&&!over)ph.innerHTML=h;};const sc=document.createElement('script');sc.src='/js/ph/'+nm+'.js?v='+PHV;sc.async=true;document.head.append(sc);}
 /* step 1 ends: the logo fades out and the grey outline is what shows */
 const lift=()=>{if(logoGone)return;logoGone=true;tLogo=performance.now();s.classList.add('done');setTimeout(()=>s.remove(),600);};
 /* step 2 ends: the real page appears (the outline always shows for a moment so the change never flashes) */

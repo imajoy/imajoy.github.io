@@ -3,7 +3,7 @@
 let lib;
 function load(){
   if(window.PDFLib)return Promise.resolve(window.PDFLib);
-  return lib||(lib=new Promise((res,rej)=>{const s=document.createElement('script');s.src='js/vendor/pdf-lib.min.js?v=1';s.onload=()=>res(window.PDFLib);s.onerror=()=>{lib=null;rej(new Error('pdf'));};document.head.append(s);}));
+  return lib||(lib=new Promise((res,rej)=>{const s=document.createElement('script');s.src='/js/vendor/pdf-lib.min.js?v=1';s.onload=()=>res(window.PDFLib);s.onerror=()=>{lib=null;rej(new Error('pdf'));};document.head.append(s);}));
 }
 const T=n=>(n?.textContent||'').replace(/\s+/g,' ').trim();
 /* the standard PDF fonts cannot draw the rupee sign, so it is drawn by hand; anything else outside Latin-1 becomes a plain look-alike */

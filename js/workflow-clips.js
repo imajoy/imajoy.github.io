@@ -34,7 +34,7 @@ if(showcase){
  document.addEventListener('visibilitychange',sync);
  reduce.addEventListener('change',sync);
  /* diagram panels: use a real recording when one has been added */
- fetch('assets/demos/index.json',{cache:'no-cache'}).then(r=>r.ok?r.json():[]).catch(()=>[]).then(list=>{
+ fetch('/assets/demos/index.json',{cache:'no-cache'}).then(r=>r.ok?r.json():[]).catch(()=>[]).then(list=>{
   if(!Array.isArray(list))return;
   const have=new Set(list.filter(d=>d&&/^[a-z0-9-]+$/.test(d.slug)).map(d=>d.slug));
   showcase.querySelectorAll('.workflow-panel:not(.workflow-clip)').forEach(panel=>{
@@ -42,7 +42,7 @@ if(showcase){
    const fig=panel.querySelector('.tool-visual');if(!fig)return;
    const frame=document.createElement('div');frame.className='clip-frame';
    const v=document.createElement('video');
-   v.setAttribute('data-clip','');v.dataset.mp4='assets/demos/'+slug+'.mp4';
+   v.setAttribute('data-clip','');v.dataset.mp4='/assets/demos/'+slug+'.mp4';
    v.muted=true;v.loop=true;v.playsInline=true;v.preload='none';v.width=960;v.height=540;v.setAttribute('aria-hidden','true');v.tabIndex=-1;
    frame.appendChild(v);
    fig.querySelector('.tool-diagram')?.replaceWith(frame);

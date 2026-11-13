@@ -3,7 +3,7 @@ import {orb} from './mood-orb.js?v=mo1';
 import {isDisposableEmail,EMAIL_POLICY_TEXT,EMAIL_TEMP_TEXT} from './email-policy.js?v=ep1';
 import {confirmLeave} from './confirm-leave.js?v=cl3';
 import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
-import './profile-menu.js?v=20261113-pm17';
+import './profile-menu.js?v=20261113-pm17r1';
 const cfg = window.AJOY_CONFIG || {};
 if (cfg.accountOpen && cfg.sheetUrl) init();
 function init() {

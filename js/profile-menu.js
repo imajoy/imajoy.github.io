@@ -7,7 +7,7 @@ const cfg=window.AJOY_CONFIG||{};
 if(cfg.accountOpen&&cfg.sheetUrl)setTimeout(setup,0);
 function setup(){
  const anchor=document.querySelector('.acct-btn');if(!anchor||!anchor.parentElement)return;
- const link=document.createElement('link');link.rel='stylesheet';link.href='css/profile.css?v=pf9x';document.head.append(link);
+ const link=document.createElement('link');link.rel='stylesheet';link.href='/css/profile.css?v=pf9x';document.head.append(link);
  document.documentElement.dataset.profileReady='';
  const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const calm=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -74,10 +74,10 @@ function setup(){
   if(t){const v=t.dataset.themeSet;if(v==='auto'&&!autoOn)return;window.AjoyTheme?.pin?.(v);const seg=menu.querySelector('.pmx-seg');seg.style.setProperty('--at',{light:0,dark:1,auto:2}[v]);seg.querySelectorAll('button').forEach(b=>b.setAttribute('aria-checked',String(b===t)));return;}
   const g=e.target.closest('[data-go]');if(!g)return;
   const go=g.dataset.go;
-  if(go==='plan'){close();location.href='account.html#subscriptions';}
-  else if(go==='info'){close();location.href='account.html#account';}
-  else if(go==='billing'){close();location.href='account.html#methods';}
-  else if(go==='lang'){close();import('./language-ui.js?v=lg6').then(m=>m.openLanguage());}
+  if(go==='plan'){close();location.href='/account.html#subscriptions';}
+  else if(go==='info'){close();location.href='/account.html#account';}
+  else if(go==='billing'){close();location.href='/account.html#methods';}
+  else if(go==='lang'){close();import('./language-ui.js?v=lg6r1').then(m=>m.openLanguage());}
   else if(go==='out'){close();confirmLeave('out').then(ok=>{if(!ok)return;const leaving=getAccountSession()?.token;if(leaving)accountRequest({step:'logout',token:leaving},8000).catch(()=>{});clearAccountSession();});}
  });
  /* ---- billing details editor ---- */

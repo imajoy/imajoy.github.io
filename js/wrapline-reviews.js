@@ -69,7 +69,7 @@ function render(data){
  const list=section.querySelector('.wlr-tools');list.replaceChildren();
  const order=[...(data.tools||[])].filter(t=>NAMES[t.tool]).sort((a,b)=>(b.count>0)-(a.count>0)||b.average-a.average||b.count-a.count||NAMES[a.tool].localeCompare(NAMES[b.tool]));
  order.forEach((t,i)=>{const li=el('li','wlr-tool');li.style.setProperty('--i',i);
-  const a=el('a','wlr-tool-link');a.href=`tool-${t.tool}.html#reviews`;a.append(el('b','',NAMES[t.tool]));
+  const a=el('a','wlr-tool-link');a.href=`/tool-${t.tool}.html#reviews`;a.append(el('b','',NAMES[t.tool]));
   if(t.count){const score=el('span','wlr-tool-score');score.append(starRow(t.average,'rv-stars rv-stars-sm'),el('strong','',t.average.toFixed(1)),el('span','',`(${t.count})`));a.append(score);
    a.setAttribute('aria-label',`${NAMES[t.tool]}: ${t.average.toFixed(1)} out of 5 from ${plural(t.count,'review')}`);}
   else{a.append(el('span','wlr-tool-none','Be the first to rate'));}
@@ -79,7 +79,7 @@ function render(data){
   const card=el('article','rv-card');card.style.setProperty('--i',i);
   const head=el('header','rv-card-head'),avatar=el('span','rv-avatar',initials(r.name));avatar.style.setProperty('--h',hue(r.name||''));avatar.setAttribute('aria-hidden','true');
   const who=el('div','rv-who');who.append(el('b','',r.name));const meta=el('span','rv-meta');meta.append(starRow(r.rating,'rv-stars rv-stars-sm'),el('time','',ago(r.date)));meta.querySelector('time').dateTime=r.date;who.append(meta);
-  head.append(avatar,who);if(NAMES[r.tool]){const tag=el('a','wlr-tag',NAMES[r.tool]);tag.href=`tool-${r.tool}.html#reviews`;head.append(tag);}
+  head.append(avatar,who);if(NAMES[r.tool]){const tag=el('a','wlr-tag',NAMES[r.tool]);tag.href=`/tool-${r.tool}.html#reviews`;head.append(tag);}
   card.append(head,el('p','rv-text',r.text));cards.append(card);});
  quotes.hidden=!cards.children.length;
  section.dataset.state='ready';section.hidden=false;

@@ -1,12 +1,13 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFileSync,existsSync} from 'node:fs';
-import {PAGES,SECTIONS} from '../scripts/make-aliases.mjs';
+import {PAGES,SECTIONS,PAGE_SECTIONS} from '../scripts/make-aliases.mjs';
 const js=readFileSync(new URL('../js/clean-url.js',import.meta.url),'utf8');
 const mapOf=name=>Function('return '+new RegExp('var '+name+'=(\\{[^}]*\\});').exec(js)[1])();
 test('clean-url.js and make-aliases.mjs list the same short addresses',()=>{
  assert.deepEqual(mapOf('PAGES'),PAGES);
  assert.deepEqual(Object.keys(mapOf('SECTIONS')).sort(),Object.keys(SECTIONS).sort());
+ assert.deepEqual(mapOf('SEC'),PAGE_SECTIONS);
 });
 test('every short address has a forwarder page and a real target',()=>{
  for(const [real,alias] of Object.entries(PAGES)){
@@ -21,4 +22,15 @@ test('short addresses never collide with a real page',()=>{
  const names=[...Object.values(PAGES),...Object.keys(SECTIONS)];
  assert.equal(new Set(names).size,names.length);
  for(const n of names)assert.ok(!(n in PAGES),n+' must not also be a real page name');
+});
+test('every section of the Pro and Free pages has its own short address under the page name',()=>{
+ for(const [real,list] of Object.entries(PAGE_SECTIONS)){
+  const page=readFileSync(new URL('../'+real+'.html',import.meta.url),'utf8');
+  for(const sec of list){
+   assert.match(page,new RegExp('id="'+sec+'"'),real+' has a #'+sec+' section');
+   const stub=readFileSync(new URL('../'+PAGES[real]+'/'+sec+'.html',import.meta.url),'utf8');
+   assert.match(stub,new RegExp('url=/'+real+'#'+sec+'"'));
+   assert.match(stub,/noindex/);
+  }
+ }
 });

@@ -40,9 +40,9 @@ export function initializeCheckoutSteps(form){
  let reloaded=false;try{reloaded=performance.getEntriesByType('navigation')[0]?.type==='reload';}catch{}
  if(!paymentStep&&reloaded)clearBillingDraft();
  const params=new URLSearchParams(location.search),draft=readBillingDraft(),returning=/^[-a-f0-9]{36}$/i.test(params.get('checkout')||'');
- if(!paymentStep&&returning){location.replace('payment.html?'+new URLSearchParams({checkout:params.get('checkout')}).toString());return;}
+ if(!paymentStep&&returning){location.replace('/payment.html?'+new URLSearchParams({checkout:params.get('checkout')}).toString());return;}
  if(paymentStep&&!returning&&(!draft||(!draft.tester&&(!draft.name.trim()||!draft.address.trim()))||!draft.terms)){
-  document.documentElement.dataset.checkoutReady='false';location.replace('checkout.html');return;
+  document.documentElement.dataset.checkoutReady='false';location.replace('/checkout.html');return;
  }
  if(draft){
   for(const name of Object.keys(fields))if(form.elements[name])form.elements[name].value=draft[name];
@@ -69,7 +69,7 @@ export function initializeCheckoutSteps(form){
   const heading=document.createElement('h2');heading.textContent='Your billing details';review.append(heading);
   const text=document.createElement('p');text.textContent=draft?[draft.name,draft.email,draft.address,[draft.city,draft.region,draft.postal].filter(Boolean).join(', ')].filter(Boolean).join(' · '):'Confirming your existing subscription…';review.append(text);
   const countryLabel=document.createElement('p');countryLabel.dataset.paymentCountry='';review.append(countryLabel);
-  const edit=document.createElement('a');edit.className='text-link';edit.href='checkout.html';edit.textContent='Edit billing details';review.append(edit);form.prepend(review);
+  const edit=document.createElement('a');edit.className='text-link';edit.href='/checkout.html';edit.textContent='Edit billing details';review.append(edit);form.prepend(review);
   for(const link of document.querySelectorAll('a[href="checkout.html"]'))link.addEventListener('click',()=>{try{writeBillingDraft(form);}catch{}});
  }else{
   const next=document.createElement('section');next.className='checkout-continue';
@@ -82,13 +82,13 @@ export function initializeCheckoutSteps(form){
    if(!form.reportValidity())return;
    try{writeBillingDraft(form);}catch{notice.textContent='Allow storage for this tab so your billing details can continue securely.';return;}
    const goBtn=next.querySelector('button');goBtn.classList.add('is-go');goBtn.querySelector('.cp-label').textContent='Opening payment…';
-   location.assign('payment.html');
+   location.assign('/payment.html');
   }
   next.querySelector('button').onclick=continueToPayment;
   addEventListener('pageshow',e=>{if(e.persisted){const b=next.querySelector('button');b.classList.remove('is-go');b.querySelector('.cp-label').textContent='Continue to payment';}});
   form.addEventListener('submit',event=>{event.preventDefault();event.stopImmediatePropagation();continueToPayment();},true);
  }
  let accountEmail=getAccountSession()?.email;
- onAccountChange(()=>{const next=getAccountSession()?.email;if(next===accountEmail)return;accountEmail=next;clearBillingDraft();if(paymentStep)location.replace('checkout.html');});
+ onAccountChange(()=>{const next=getAccountSession()?.email;if(next===accountEmail)return;accountEmail=next;clearBillingDraft();if(paymentStep)location.replace('/checkout.html');});
  document.addEventListener('ajoy:payment-complete',clearBillingDraft);
 }

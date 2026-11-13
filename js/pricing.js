@@ -27,7 +27,7 @@ async function render(){
  document.querySelector('.plan-trial-kicker').hidden=subscriptionPromotion(getAccountSession()).kind!=='new'||inIndia&&!rzpTrial;
  await Promise.all(['online','offline'].map(async plan=>{
   const amount=document.querySelector(`[data-amt="${plan}"]`),buy=document.querySelector(`[data-buy="${plan}"]`),note=document.querySelector(`[data-note="${plan}"]`),offer=document.querySelector(`[data-annual="${plan}"]`),comparison=document.querySelector(`[data-compare="${plan}"]`);
-  buy.href=`checkout.html?${new URLSearchParams({plan,billing,v:'20261020-billing1'})}`;if(!amount.textContent.trim())amount.textContent='—';offer.hidden=true;comparison.hidden=true;
+  buy.href=`/checkout.html?${new URLSearchParams({plan,billing,v:'20261020-billing1'})}`;if(!amount.textContent.trim())amount.textContent='—';offer.hidden=true;comparison.hidden=true;
   try{
    const quote=apiBase?await getQuote(plan,billing):previewPrice(plan,billing);
    if(current!==revision)return;

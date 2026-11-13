@@ -1,7 +1,7 @@
 /* Billing step: fill the form from the saved account details (empty boxes only).
    Payment step: save what was entered on the billing step to the account, once, so next time it is already there. */
 import {getAccountSession,onAccountChange} from './account-session.js?v=20261023-p7';
-import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261113-cs4';
+import {readBillingDraft,paymentStep} from './checkout-steps.js?v=20261113-cs4r1';
 import {loadProfile,cachedProfile,saveProfile,hasBilling} from './profile-store.js?v=pm3';
 const form=document.querySelector('#billing-form');
 if(form){

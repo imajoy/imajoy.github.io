@@ -15,7 +15,7 @@ document.querySelectorAll('[data-trial-days]').forEach(n => { n.textContent = St
   const slot = document.querySelector('[data-demo]');
   const home = document.querySelector('#demos');
   if (!slot && !home) return;
-  const list = await getJson('assets/demos/index.json');
+  const list = await getJson('/assets/demos/index.json');
   if (!Array.isArray(list)) return;
   const clips = list.filter(d => d && slugOk(d.slug));
   if (!clips.length) return;
@@ -41,7 +41,7 @@ document.querySelectorAll('[data-trial-days]').forEach(n => { n.textContent = St
     v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'none'; v.setAttribute('aria-label', (d.title || 'Tool') + ' demonstration');
     v.width = 960; v.height = 540; v.setAttribute('loading', 'lazy');
     v.style.aspectRatio = '16 / 9'; v.style.objectFit = 'contain';
-    v.dataset.src = 'assets/demos/' + d.slug + '.mp4';
+    v.dataset.src = '/assets/demos/' + d.slug + '.mp4';
     if (reduce) v.controls = true;
     fig.appendChild(v);
     const cap = el('figcaption'); cap.appendChild(el('b', '', d.title || ''));
@@ -66,7 +66,7 @@ document.querySelectorAll('[data-trial-days]').forEach(n => { n.textContent = St
 (async () => {
   const box = document.querySelector('#voices');
   if (!box) return;
-  const list = await getJson('data/testimonials.json');
+  const list = await getJson('/data/testimonials.json');
   if (!Array.isArray(list) || !list.length) return;
   const grid = box.querySelector('.voices-grid');
   list.filter(q => q && q.approved === true && q.quote && q.name).slice(0, 6).forEach(q => {

@@ -1,6 +1,6 @@
 import {billingParts} from './receipt-billing.js?v=rb1';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261113-cs4';
+import {paymentStep,readBillingDraft,clearBillingDraft} from './checkout-steps.js?v=20261113-cs4r1';
 /* Verified account -> server eligibility -> server-created PayPal subscription -> verified confirmation. */
 import {tierFor,availability,closedMessage,countryCheck,usdUnit} from './regions.js?v=20261023-p7';
 import {trialPlanId,TRIAL_DAYS,addDays,fmtDay} from './trial.js?v=20261023-p5';
@@ -205,7 +205,7 @@ if(form&&pay){
   clearBillingDraft();document.dispatchEvent(new Event('ajoy:payment-complete'));
   const c={...checkout?.selection,plan:result.plan||checkout?.selection.plan,billing:result.billing||checkout?.selection.billing,seats:result.seats||checkout?.selection.seats};
   say('Payment confirmed. Taking you to your confirmation page…');
-  window.WraplineLoader?.show();location.href='thank-you.html?'+new URLSearchParams({provider:'paypal',plan:c.plan==='offline'?'offline':'online',billing:c.billing==='yearly'?'yearly':'monthly',seats:String(c.seats||1),...(checkout?.id?{order:checkout.id}:{}),...(result.offer==='trial'?{offer:'trial'}:{})}).toString();
+  window.WraplineLoader?.show();location.href='/thank-you.html?'+new URLSearchParams({provider:'paypal',plan:c.plan==='offline'?'offline':'online',billing:c.billing==='yearly'?'yearly':'monthly',seats:String(c.seats||1),...(checkout?.id?{order:checkout.id}:{}),...(result.offer==='trial'?{offer:'trial'}:{})}).toString();
  }
  function loadSdk(){
   if(!sdkPromise)sdkPromise=new Promise((resolve,reject)=>{const script=document.createElement('script');script.src='https://www.paypal.com/sdk/js?client-id='+encodeURIComponent(cfg.clientId)+'&vault=true&intent=subscription&currency=USD';script.onload=()=>window.paypal?.Buttons?resolve():reject(new Error('PayPal could not start.'));script.onerror=()=>reject(new Error('PayPal could not load. Check your connection.'));document.head.append(script);});

@@ -93,6 +93,12 @@
 
   function ready() {
     var main = document.querySelector('main'); if (!main) return;
+    /* the download page reveals its blocks with the scroll itself (css/transitions.css), both directions */
+    if (document.body.classList.contains('dl-page') && CSS.supports && CSS.supports('animation-timeline: view()')) {
+      [].slice.call(main.querySelectorAll('h1,h2,h3,[class*=card]:not([class*=cards]),[class*=tile],figure,details,aside,.dl-journey > *'))
+        .forEach(function (el) { if (!el.closest('.rv,.fs,dialog,.coffee,.tf-scrub') && el.getBoundingClientRect().top > innerHeight * .92 && getComputedStyle(el).animationName === 'none') el.classList.add('tf-scrub'); });
+      return;
+    }
     var below = function (el) { return el.getBoundingClientRect().top > innerHeight * .92; };
     var ok = function (el) { return !el.closest(SKIP) && getComputedStyle(el).animationName === 'none'; };
 

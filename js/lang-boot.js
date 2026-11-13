@@ -52,6 +52,9 @@
         var t = n.nodeValue, frag = document.createDocumentFragment(), last = 0; BRAND.lastIndex = 0; var m;
         while ((m = BRAND.exec(t))) { if (m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index))); var sp = document.createElement('span'); sp.className = 'notranslate'; sp.setAttribute('translate', 'no'); sp.textContent = m[0]; frag.appendChild(sp); last = m.index + m[0].length; }
         if (last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+        /* inside a flex or grid box every loose piece becomes its own column, so the whole sentence goes into one wrapper to stay together */
+        var pd = ''; try { pd = getComputedStyle(n.parentNode).display; } catch (e) {}
+        if (/flex|grid/.test(pd)) { var wrap = document.createElement('span'); wrap.appendChild(frag); frag = wrap; }
         n.parentNode.replaceChild(frag, n);
       });
     } catch (e) {}

@@ -130,3 +130,6 @@ html[data-theme=dark] .pg-skel[data-t=pay]{color:#F1F2F4}html:not([data-theme=da
 
 /* the page's own entrance animations wait behind the loader and start the moment the outline lifts */
 html.pg-wait body>:not(.pg-skel),html.pg-wait body>:not(.pg-skel) *,html.pg-wait body>:not(.pg-skel) *::before,html.pg-wait body>:not(.pg-skel) *::after,html:has(#pg-skel:not(.done)) body>:not(.pg-skel),html:has(#pg-skel:not(.done)) body>:not(.pg-skel) *,html:has(#pg-skel:not(.done)) body>:not(.pg-skel) *::before,html:has(#pg-skel:not(.done)) body>:not(.pg-skel) *::after,html:has(#pg-ph:not(.done)) body>:not(.pg-skel),html:has(#pg-ph:not(.done)) body>:not(.pg-skel) *,html:has(#pg-ph:not(.done)) body>:not(.pg-skel) *::before,html:has(#pg-ph:not(.done)) body>:not(.pg-skel) *::after{animation-play-state:paused!important}
+
+/* Pages whose real pill bar drops in by itself: the grey stand-in bar is not drawn, so the bar is never seen vanishing and then dropping in again. */
+html.pill-pending .pg-skel .sk-nav,html.pill-entering .pg-skel .sk-nav,html.pill-pending .pg-ph .ph-nav,html.pill-entering .pg-ph .ph-nav{visibility:hidden}

@@ -19,11 +19,13 @@ const LAYOUT={
  notfound:()=>nav+W('<div class="sk-col sk-center">'+B('min(300px,70%)','110px','20px')+B('min(420px,80%)','18px')+B('170px','52px','999px')+'</div>'),
  account:()=>nav+W('<div class="sk-support"><div class="sk-row" style="gap:16px">'+B('56px','56px','18px')+'<div class="sk-col">'+B('240px','22px')+B('160px','12px')+'</div></div><div class="sk-col" style="margin-top:26px;gap:20px">'+C('230px','100%','24px','<div class="sk-col">'+B('180px','18px')+B('100%','44px','12px')+B('100%','44px','12px')+B('100%','44px','12px')+'</div>')+C('260px','100%','24px','<div class="sk-col">'+B('150px','18px')+B('100%','44px','12px')+B('100%','44px','12px')+B('100%','44px','12px')+'</div>')+'</div></div>')
 };
-const ph=document.createElement('div');ph.className='pg-skel pg-ph';ph.id='pg-ph';ph.setAttribute('aria-hidden','true');ph.dataset.t=s.dataset.t||'hero';ph.innerHTML=(LAYOUT[s.dataset.t]||LAYOUT.hero)();s.after(ph);
+/* the outline's top bar: tagged so it can stay hidden while the real pill bar is still waiting to drop in (otherwise a grey bar shows, vanishes, then the real one drops: a flicker) */
+const tagNav=root=>{try{const px=(st,k)=>{const m=new RegExp('(?:^|;)'+k+':(-?[\\d.]+)px').exec(st);return m?+m[1]:null};const bar=[...root.querySelectorAll('.ph-v i.c')].find(e=>{const st=e.getAttribute('style')||'',t=px(st,'top'),h=px(st,'height');return t!==null&&h!==null&&t<=40&&h>=44&&h<=90});if(!bar)return;const st0=bar.getAttribute('style'),t0=px(st0,'top'),b0=t0+px(st0,'height');root.querySelectorAll('.ph-v i').forEach(e=>{const st=e.getAttribute('style')||'',t=px(st,'top'),h=px(st,'height');if(t!==null&&h!==null&&t>=t0&&t+h<=b0+1)e.classList.add('ph-nav')});}catch(e){}};
+const ph=document.createElement('div');ph.className='pg-skel pg-ph';ph.id='pg-ph';ph.setAttribute('aria-hidden','true');ph.dataset.t=s.dataset.t||'hero';ph.innerHTML=(LAYOUT[s.dataset.t]||LAYOUT.hero)();tagNav(ph);s.after(ph);
 /* the real outline of this page (drawn from the page itself by scripts/build-outlines.mjs); the kind-of-page outline above shows until it arrives */
 let logoGone=false,over=false,tLogo=0;
 const PHV='ph2',nm=s.dataset.p;
-if(nm){window.__phLoad=(n,h)=>{if(n===nm&&!over)ph.innerHTML=h;};const sc=document.createElement('script');sc.src='/js/ph/'+nm+'.js?v='+PHV;sc.async=true;document.head.append(sc);}
+if(nm){window.__phLoad=(n,h)=>{if(n===nm&&!over){ph.innerHTML=h;tagNav(ph);}};const sc=document.createElement('script');sc.src='/js/ph/'+nm+'.js?v='+PHV;sc.async=true;document.head.append(sc);}
 /* step 1 ends: the logo fades out and the grey outline is what shows */
 const lift=()=>{if(logoGone)return;logoGone=true;tLogo=performance.now();s.classList.add('done');setTimeout(()=>s.remove(),600);};
 /* step 2 ends: the real page appears (the outline always shows for a moment so the change never flashes) */

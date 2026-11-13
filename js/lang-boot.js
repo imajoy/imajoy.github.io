@@ -174,13 +174,27 @@
     }
     [].forEach.call(document.querySelectorAll(WORDQ), function (h) {
       if (h.__flat || !h.querySelector('.pw,.tx-w,.w')) return;
-      h.__flat = h.innerHTML; flats.push(h); flat(h);
+      h.__flat = h.innerHTML; h.__en = h.textContent.replace(/\s+/g, ' ').trim(); flats.push(h); flat(h);
     });
   }
   function unflatten() {
     flats.forEach(function (h) { if (h.isConnected && h.__flat) h.innerHTML = h.__flat; h.__flat = null; }); flats = [];
   }
-  function tidy() { mend(); sizeHeads(); fit(); }
+  /* The translator sometimes translates a heading's aria-label but skips its visible words. The translated label is then
+     used for the visible heading, so no heading is left half in English. */
+  function rescue() {
+    if (cur === 'en') return;
+    flats.forEach(function (h) {
+      var lab = h.getAttribute('aria-label'), now = h.textContent.replace(/\s+/g, ' ').trim(), first, inner, i, k;
+      if (!h.isConnected || !lab || !h.__en || now !== h.__en || lab.replace(/\s+/g, ' ').trim() === h.__en || h.querySelector('font')) return;
+      first = h.querySelector('.pw,.tx-w,.w'); if (!first) return;
+      inner = first; while (inner.firstElementChild) inner = inner.firstElementChild;
+      k = first; while (k.parentNode && k.parentNode !== h) k = k.parentNode;
+      while (k.nextSibling) h.removeChild(k.nextSibling);
+      inner.textContent = lab;
+    });
+  }
+  function tidy() { rescue(); mend(); sizeHeads(); fit(); }
   function later() { clearTimeout(mendTimer); mendTimer = setTimeout(tidy, 300); }
   function undo() {
     spaced.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); }); spaced = [];

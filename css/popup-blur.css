@@ -7,3 +7,7 @@ dialog[open]:not([data-closing]):not(#bc-invoice):not(#sc-dlg):not(.qp-dlg):not(
 dialog[data-closing]:not(#bc-invoice):not(#sc-dlg):not(.qp-dlg):not(.cl-dlg)::backdrop{animation:pb-out .22s ease both}
 dialog:is(.guest-prompt,.trial-nudge)::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}
 @media(prefers-reduced-motion:reduce){dialog::backdrop{animation:none!important}}
+/* a pop-up that is already closed never shows blur or tint, even while the page still holds it for its exit transition */
+dialog:not([open])::backdrop{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:transparent!important;animation:none!important}
+/* the blur fades out in step with the sign-in window folding away */
+dialog.acct-dlg[data-closing]::backdrop{animation-duration:.42s!important;animation-timing-function:cubic-bezier(.4,0,.2,1)!important}

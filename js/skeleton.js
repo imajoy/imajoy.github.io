@@ -1,7 +1,7 @@
 /* Loading, in two short steps. 1) the Wrapline logo while the page's files arrive. 2) a grey outline of the page while its content settles. Then the real page. */
 (()=>{const s=document.getElementById('pg-skel');if(!s)return;
 document.documentElement.classList.add('pg-wait');
-const LOGO_MIN=450,PH_MIN=350,t0=performance.now(),hold=s.hasAttribute('data-hold');
+const t0=performance.now(),hold=s.hasAttribute('data-hold');
 /* the grey outline, drawn per kind of page and kept under the logo until the logo lifts */
 const B=(w,h,r,x)=>'<span class="sk-bar'+(x?' '+x:'')+'" style="--w:'+w+';--h:'+h+(r?';--r:'+r:'')+'"></span>';
 const C=(h,w,r,inner,p)=>'<div class="sk-card" style="--h:'+h+(w?';--w:'+w:'')+(r?';--r:'+r:'')+(p?';--p:'+p:'')+'">'+(inner||'')+'</div>';
@@ -28,11 +28,12 @@ if(nm){window.__phLoad=(n,h)=>{if(n===nm&&!over)ph.innerHTML=h;};const sc=docume
 const lift=()=>{if(logoGone)return;logoGone=true;tLogo=performance.now();s.classList.add('done');setTimeout(()=>s.remove(),600);};
 /* step 2 ends: the real page appears (the outline always shows for a moment so the change never flashes) */
 const reveal=()=>{if(over)return;over=true;ph.classList.add('done');document.documentElement.classList.remove('pg-wait');document.documentElement.classList.add('pg-ready');document.dispatchEvent(new Event('ajoy:page-shown'));setTimeout(()=>ph.remove(),600);};
-const finish=()=>{if(over)return;lift();setTimeout(()=>requestAnimationFrame(reveal),Math.max(0,PH_MIN-(performance.now()-tLogo)));};
+/* the page's real load time is shared between the two steps: about 70% logo, 30% outline. Nothing is added: the page appears the moment it is ready.
+   How long this page took last time is remembered, so the logo knows when to hand over to the outline. */
+const KEY='ajoy.ld.'+(s.dataset.p||location.pathname);let est=900;try{est=Math.min(4000,Math.max(300,+localStorage.getItem(KEY)||900));}catch(e){}
+const liftTimer=setTimeout(lift,est*.7);
+const finish=()=>{if(over)return;clearTimeout(liftTimer);try{localStorage.setItem(KEY,String(Math.round(est*.5+Math.min(performance.now()-t0,4000)*.5)));}catch(e){}lift();requestAnimationFrame(reveal);};
 const fonts=()=>document.fonts?.ready||Promise.resolve();
-/* the logo lifts as soon as the files and fonts are in (never sooner than a short minimum so the mark is seen) */
-const filesIn=()=>fonts().then(()=>setTimeout(lift,Math.max(0,LOGO_MIN-(performance.now()-t0))));
-if(document.readyState==='complete')filesIn();else addEventListener('load',filesIn,{once:true});
 /* wait until the page stops changing (nothing added or rewritten for a moment), so it is never shown half built */
 const settle=(quiet,cap)=>{let t;const mo=new MutationObserver(l=>{if(!l.some(m=>!(m.target.closest&&m.target.closest('.xp-fill,.xp-cur,.xp-canvas'))))return;clearTimeout(t);t=setTimeout(fin,quiet);});const fin=()=>{mo.disconnect();clearTimeout(t);clearTimeout(c);finish();};const c=setTimeout(fin,cap);mo.observe(document.body,{childList:true,subtree:true,characterData:true,attributes:true});t=setTimeout(fin,quiet);};
 if(hold){

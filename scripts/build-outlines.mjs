@@ -8,7 +8,7 @@ const root=path.resolve(path.dirname(new URL(import.meta.url).pathname),'..');
 const only=process.argv.slice(2);
 const tools=fs.readdirSync(root).filter(f=>/^tool-.*\.html$/.test(f)).map(f=>f.replace(/\.html$/,''));
 const PAGES=[
- ['contact','contact.html'],['download','download.html'],['support','support.html'],['license','license.html'],['privacy','privacy.html'],['404','404.html'],
+ ['index','index.html'],['contact','contact.html'],['download','download.html'],['support','support.html'],['license','license.html'],['privacy','privacy.html'],['404','404.html'],
  ['wrapline','wrapline.html'],['wrapline-free','wrapline-free.html'],['account','account.html'],['checkout','checkout.html?plan=online&billing=monthly'],
  ['payment','payment.html?plan=online&billing=monthly'],['thank-you','thank-you.html?plan=online&billing=monthly&seats=1&provider=razorpay'],
  ...tools.map(t=>[t,t+'.html'])
@@ -24,7 +24,7 @@ const collect=()=>{
  const num=v=>parseFloat(v)||0;
  const alpha=c=>{const m=c.match(/rgba?\(([^)]+)\)/);if(!m)return c==='transparent'?0:1;const p=m[1].split(/[ ,/]+/).filter(Boolean);return p.length>3?num(p[3]):1;};
  const ok=el=>{try{return el.checkVisibility({opacityProperty:true,visibilityProperty:true});}catch{return true;}};
- const skipArea='script,style,noscript,#pg-skel,#pg-ph,.pg-ring,dialog:not([open]),[hidden],.cl-dlg,[class*="toast"],[class*="cookie"],[class*="coffee"],.sr-only,[class*="visually-hidden"]';
+ const skipArea='script,style,noscript,#pg-skel,#pg-ph,#lx-ph,#lx-intro,#lx-scene,.lx-scene,.pg-ring,dialog:not([open]),[hidden],.cl-dlg,[class*="toast"],[class*="cookie"],[class*="coffee"],.sr-only,[class*="visually-hidden"]';
  const isPill=el=>el.matches('button,input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea')||(el.tagName==='A'&&(alpha(getComputedStyle(el).backgroundColor)>.15||(num(getComputedStyle(el).borderTopWidth)>0&&alpha(getComputedStyle(el).borderTopColor)>.15)));
  const R=r=>({x:r.left,y:r.top,w:r.width,h:r.height});
  const inView=r=>r.w>=4&&r.h>=4&&r.y<vh-2&&r.x<vw-2&&r.x+r.w>2&&r.y+r.h>2;
@@ -81,9 +81,9 @@ for(const [name,url] of PAGES){
    if(/fonts|gstatic|googleapis\.com\/css/.test(u))return r.fulfill({status:200,contentType:'text/css',body:''});
    return r.fulfill(J({ok:false}));});
   await p.goto('http://localhost:8172/'+url,{waitUntil:'load'}).catch(()=>{});
-  await p.waitForFunction(()=>document.documentElement.classList.contains('pg-ready')||!document.getElementById('pg-skel'),null,{timeout:16000}).catch(()=>{});
+  await p.waitForFunction(()=>document.documentElement.classList.contains('pg-ready')||(!document.getElementById('pg-skel')&&!document.getElementById('lx-intro')),null,{timeout:16000}).catch(()=>{});
   await p.waitForTimeout(2600);
-  await p.evaluate(()=>{document.querySelectorAll('#pg-skel,#pg-ph,.pg-ring').forEach(e=>e.remove());scrollTo(0,0);});
+  await p.evaluate(()=>{document.querySelectorAll('#pg-skel,#pg-ph,#lx-ph,#lx-intro,#lx-scene,.lx-scene,.pg-ring').forEach(e=>e.remove());scrollTo(0,0);});
   await p.waitForTimeout(400);
   const items=await p.evaluate(collect);
   groups.push(`<div class="ph-v ph-${mode}">${html(items,w,mode)}</div>`);

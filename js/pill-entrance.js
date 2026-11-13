@@ -26,7 +26,7 @@
         (function wait() {
           if (finished) return;
           /* never play behind the Wrapline loader or the home-page intro: the drop starts once the page itself is on screen */
-          var cover = document.getElementById('pg-ph') || document.getElementById('pg-skel') || document.getElementById('lx-intro') || document.getElementById('pg-ring');
+          var cover = document.getElementById('pg-ph') || document.getElementById('lx-ph') || document.getElementById('pg-skel') || document.getElementById('lx-intro') || document.getElementById('pg-ring');
           var lifting = cover && (cover.classList.contains('done') || cover.classList.contains('out'));
           var covered = (cover && !lifting) || (!cover && root.classList.contains('lx-intro-on'));
           if (covered && Date.now() - t0 < 12000) { setTimeout(wait, 30); return; }

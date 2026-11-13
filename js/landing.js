@@ -12,12 +12,18 @@ const lite=navigator.connection?.saveData===true;
 if(canvas&&!calm&&!lite){
  sceneReady=import('./landing-scene.js?v=lx3').then(m=>m.start(canvas)).then(ok=>{if(ok)cl.add('lx-3d');}).catch(()=>{});
 }
+/* ---- grey outline of the page: shown under the intro curtain for its last ~30%, so it never adds waiting time ---- */
+let phEl=null;
+if(intro&&!calm){phEl=document.createElement('div');phEl.className='pg-skel pg-ph';phEl.id='lx-ph';phEl.setAttribute('aria-hidden','true');phEl.dataset.t='hero';
+ window.__phLoad=(n,h)=>{if(n==='index'&&phEl)phEl.innerHTML=h;};
+ const sc=document.createElement('script');sc.src='js/ph/index.js?v=ph1';sc.async=true;sc.onerror=()=>{if(phEl&&!left){phEl.remove();phEl=null;}};document.head.append(sc);document.body.append(phEl);}
 /* ---- intro ---- */
 let left=false;
 function leave(){
  if(left)return;left=true;
  if(intro)try{sessionStorage.setItem('lx.seen','1');}catch{}
  cl.remove('lx-intro-on');
+ if(phEl){phEl.remove();phEl=null;}
  if(!intro){const sk=document.getElementById('pg-skel');if(sk&&!sk.classList.contains('done'))document.addEventListener('ajoy:page-shown',()=>setTimeout(()=>cl.add('lx-go'),120),{once:true});else cl.add('lx-go');setTimeout(()=>cl.add('lx-go'),9500);return;}
  intro.classList.add('out');
  setTimeout(()=>cl.add('lx-go'),calm?0:420);
@@ -29,7 +35,11 @@ const wait=ms=>new Promise(r=>setTimeout(r,ms));
 /* the intro only starts once the brand font is in, so the letters never change shape while they move */
 const face=document.fonts?.load?document.fonts.load('600 96px Geist','Wrapline').catch(()=>{}):Promise.resolve();
 if(intro)Promise.race([face,wait(1600)]).then(()=>requestAnimationFrame(()=>{t0=performance.now();cl.add('lx-play');}));else cl.add('lx-play');
-Promise.all(intro?[loaded,fonts,Promise.race([sceneReady,wait(2600)])]:[]).then(()=>{const go=()=>{if(!cl.contains('lx-play')){setTimeout(go,60);return;}setTimeout(leave,Math.max(0,MIN-(performance.now()-t0)));};go();});
+Promise.all(intro?[loaded,fonts,Promise.race([sceneReady,wait(2600)])]:[]).then(()=>{const go=()=>{if(!cl.contains('lx-play')){setTimeout(go,60);return;}const e=performance.now()-t0,t1=Math.max(0,MIN*.7-e),t2=Math.max(0,MIN-e);
+  if(!phEl||!phEl.firstChild||t2-t1<120){setTimeout(leave,t2);return;}
+  /* step 1: the curtain lifts and the outline shows. step 2: the real page replaces the outline. */
+  setTimeout(()=>{if(left)return;left=true;try{sessionStorage.setItem('lx.seen','1');}catch{}cl.remove('lx-intro-on');intro.classList.add('out');setTimeout(()=>intro.remove(),1600);},t1);
+  setTimeout(()=>{const o=phEl;phEl=null;if(o){o.classList.add('done');setTimeout(()=>o.remove(),600);}cl.add('lx-go');},t2);};go();});
 setTimeout(leave,8500);
 addEventListener('pageshow',e=>{if(e.persisted)leave();});
 /* ---- reveals ---- */

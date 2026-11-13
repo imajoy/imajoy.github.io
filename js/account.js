@@ -236,7 +236,7 @@ function init() {
       if(!result.ok){announce(result.error==='limit'?'Too many requests. Please wait an hour before requesting another code.':result.error==='email'?'Enter a valid email address.':result.error==='email_domain'?EMAIL_POLICY_TEXT:'Could not send your code. Please try again.',true);return;}
       registration=result.registered===false;
       // Old deployments send ten-minute codes without expiry metadata. Show their real lifetime until redeployed.
-      const lifetime=result.expiresIn===undefined?600:Math.min(300,Math.max(0,Number(result.expiresIn)||0));
+      const lifetime=result.expiresIn===undefined?600:Math.min(180,Math.max(0,Number(result.expiresIn)||0));
       codeDeadline=Date.now()+lifetime*1000;
       step='code';msg='';render();focusStep();
     }catch(error){if(operation===generation)announce(error.message||'Could not send your code. Please try again.',true);}

@@ -14,7 +14,7 @@ for(const depth of document.querySelectorAll('[data-playblast-depth]')){
   if(active&&!entered){entered=true;figure.dataset.previewEntered='true';entering=getComputedStyle(depth.querySelector('.playblast-arrival')).animationName==='playblast-unfold';}
   if(preference.matches){entering=false;delete figure.dataset.previewEntered;}
   // Load the video only after the entrance settles, so the fade never competes with the download.
-  if(active&&!failed&&!entering&&!video.getAttribute('src')){video.muted=true;video.preload='auto';video.src=video.dataset.webm&&video.canPlayType('video/webm; codecs="vp9"')?video.dataset.webm:video.dataset.src;}
+  if(active&&!failed&&!entering&&!video.getAttribute('src')){video.muted=true;video.preload='auto';video.src=matchMedia('(hover:none) and (pointer:coarse)').matches&&/-loop\.mp4/.test(video.dataset.src||'')?video.dataset.src.replace('-loop.mp4','-loop-m.mp4'):video.dataset.webm&&video.canPlayType('video/webm; codecs="vp9"')?video.dataset.webm:video.dataset.src;}
   const play=active&&!failed&&!entering,token=++generation;
   if(!play){video.pause();depth.dataset.playing='false';resetTilt();return;}
   video.play().then(()=>{if(token===generation&&visible&&!document.hidden&&!preference.matches&&!failed){depth.dataset.playing='true';showStep();}else if(token===generation){video.pause();}}).catch(()=>{if(token===generation)depth.dataset.playing='false';});

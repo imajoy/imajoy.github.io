@@ -6,6 +6,7 @@ const showcase=document.querySelector('#workflows');
 if(showcase){
  const reduce=matchMedia('(prefers-reduced-motion: reduce)');
  const videos=new Set();
+ const touch=matchMedia('(hover:none) and (pointer:coarse)').matches;
  const canWebm=document.createElement('video').canPlayType('video/webm; codecs="vp9"')!=='';
  const update=v=>{
   const panel=v.closest('.workflow-panel');
@@ -15,7 +16,9 @@ if(showcase){
  const load=v=>{
   if(v.dataset.ready)return;v.dataset.ready='1';
   const src=document.createElement('source');
-  const first=canWebm&&v.dataset.webm?[v.dataset.webm,'video/webm']:[v.dataset.mp4,'video/mp4'];
+  /* phones and tablets: a lighter 30 fps H.264 file that the device decodes in hardware (the 60 fps VP9 one made scrolling stutter) */
+  const lite=touch&&/-loop\.mp4/.test(v.dataset.mp4||'');
+  const first=lite?[v.dataset.mp4.replace('-loop.mp4','-loop-m.mp4'),'video/mp4']:canWebm&&v.dataset.webm?[v.dataset.webm,'video/webm']:[v.dataset.mp4,'video/mp4'];
   src.src=first[0];src.type=first[1];v.appendChild(src);
   if(first[1]==='video/webm'&&v.dataset.mp4){const alt=document.createElement('source');alt.src=v.dataset.mp4;alt.type='video/mp4';v.appendChild(alt);}
   v.addEventListener('playing',()=>v.closest('.clip-frame')?.classList.add('is-playing'),{once:true});

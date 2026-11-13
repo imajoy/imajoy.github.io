@@ -164,3 +164,10 @@ html[data-theme=dark] .dl2 .dl-card,html[data-theme=dark] .dl2 .requirements,htm
 
 /* phones: leave room under the orbiting tool icons so they never sit on the heading */
 @media(max-width:520px){.dl-stage{margin-bottom:58px}}
+/* out of view: the endless loops inside rest (see js/ambient-rest.js) */
+[data-away],[data-away] *,[data-away]::before,[data-away]::after,[data-away] *::before,[data-away] *::after{animation-play-state:paused!important}
+/* Lazy render: the "Five steps" section is skipped by the browser until it is near the viewport. */
+.dl-journey{content-visibility:auto;contain-intrinsic-size:auto 720px}
+.fs.fs-pro .fs-orb{will-change:transform}
+@media(max-width:700px){.fs-pro .fs-card{backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(21,24,48,.97)}.fs-pro .fs-orb{filter:blur(26px)}}
+@media(max-width:700px){.dl-bg i:nth-of-type(n+7){display:none}.dl-bg .b{filter:blur(56px)}}

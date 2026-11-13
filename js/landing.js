@@ -16,7 +16,7 @@ if(canvas&&!calm&&!lite){
 let phEl=null;
 if(intro&&!calm){phEl=document.createElement('div');phEl.className='pg-skel pg-ph';phEl.id='lx-ph';phEl.setAttribute('aria-hidden','true');phEl.dataset.t='hero';
  window.__phLoad=(n,h)=>{if(n==='index'&&phEl)phEl.innerHTML=h;};
- const sc=document.createElement('script');sc.src='/js/ph/index.js?v=ph1';sc.async=true;sc.onerror=()=>{if(phEl&&!left){phEl.remove();phEl=null;}};document.head.append(sc);document.body.append(phEl);}
+ const sc=document.createElement('script');sc.src='/js/ph/index.js?v=ph2';sc.async=true;sc.onerror=()=>{if(phEl&&!left){phEl.remove();phEl=null;}};document.head.append(sc);document.body.append(phEl);}
 /* ---- intro ---- */
 let left=false;
 function leave(){

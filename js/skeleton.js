@@ -22,7 +22,7 @@ const LAYOUT={
 const ph=document.createElement('div');ph.className='pg-skel pg-ph';ph.id='pg-ph';ph.setAttribute('aria-hidden','true');ph.dataset.t=s.dataset.t||'hero';ph.innerHTML=(LAYOUT[s.dataset.t]||LAYOUT.hero)();s.after(ph);
 /* the real outline of this page (drawn from the page itself by scripts/build-outlines.mjs); the kind-of-page outline above shows until it arrives */
 let logoGone=false,over=false,tLogo=0;
-const PHV='ph1',nm=s.dataset.p;
+const PHV='ph2',nm=s.dataset.p;
 if(nm){window.__phLoad=(n,h)=>{if(n===nm&&!over)ph.innerHTML=h;};const sc=document.createElement('script');sc.src='/js/ph/'+nm+'.js?v='+PHV;sc.async=true;document.head.append(sc);}
 /* step 1 ends: the logo fades out and the grey outline is what shows */
 const lift=()=>{if(logoGone)return;logoGone=true;tLogo=performance.now();s.classList.add('done');setTimeout(()=>s.remove(),600);};

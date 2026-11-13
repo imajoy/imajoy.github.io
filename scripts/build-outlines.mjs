@@ -27,40 +27,58 @@ const collect=()=>{
  const skipArea='script,style,noscript,#pg-skel,#pg-ph,#lx-ph,#lx-intro,#lx-scene,.lx-scene,.pg-ring,dialog:not([open]),[hidden],.cl-dlg,[class*="toast"],[class*="cookie"],[class*="coffee"],.sr-only,[class*="visually-hidden"]';
  const isPill=el=>el.matches('button,input:not([type=checkbox]):not([type=radio]):not([type=hidden]),select,textarea')||(el.tagName==='A'&&(alpha(getComputedStyle(el).backgroundColor)>.15||(num(getComputedStyle(el).borderTopWidth)>0&&alpha(getComputedStyle(el).borderTopColor)>.15)));
  const R=r=>({x:r.left,y:r.top,w:r.width,h:r.height});
+ const rgb=c=>{const m=c.match(/rgba?\(([^)]+)\)/);if(!m)return null;const p=m[1].split(/[ ,/]+/).filter(Boolean).map(parseFloat);return {r:p[0],g:p[1],b:p[2],a:p.length>3?p[3]:1};};
+ const lum=c=>{const f=v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);};return .2126*f(c.r)+.7152*f(c.g)+.0722*f(c.b);};
+ /* can the text be read at all? colour against the first solid background behind it */
+ const readable=el=>{const tc=rgb(getComputedStyle(el).color);if(!tc||tc.a<.15)return false;let bg=null;for(let n=el;n;n=n.parentElement){const c=rgb(getComputedStyle(n).backgroundColor);if(c&&c.a>.5){bg=c;break;}}if(!bg)return true;const a=lum(tc)+.05,b=lum(bg)+.05;return Math.max(a,b)/Math.min(a,b)>=1.35;};
+ let seq=0;const zOf=el=>{let z=0;for(let n=el;n&&n!==document.body;n=n.parentElement){const c=getComputedStyle(n);if(c.position!=='static'&&c.zIndex!=='auto')z=Math.max(z,+c.zIndex||0);}return z;};
+ /* a piece also remembers where it sits in the page, so it is drawn above or below its neighbours exactly like the real page */
+ const push=(a,el)=>{a.seq=seq;a.z=zOf(el);out.push(a);};
  const inView=r=>r.w>=4&&r.h>=4&&r.y<vh-2&&r.x<vw-2&&r.x+r.w>2&&r.y+r.h>2;
  const radius=(cs,h,w)=>Math.min(Math.max(num(cs.borderTopLeftRadius),num(cs.borderTopRightRadius)),h/2,w/2);
  for(const el of document.body.querySelectorAll('*')){
+  seq++;
   if(el.closest(skipArea)||!ok(el))continue;
   const cs=getComputedStyle(el),r=R(el.getBoundingClientRect());
-  if(el.tagName==='SVG'||el.tagName==='svg'){if(inView(r)&&r.w>=36&&r.h>=36&&!el.closest('button,a,.pillbar,[class*=btn]'))out.push(['m',r.x,r.y,r.w,r.h,Math.min(14,r.h/2)]);continue;}
+  const clipText=(cs.webkitBackgroundClip||cs.backgroundClip)==='text';
+  if(el.tagName==='SVG'||el.tagName==='svg'){if(inView(r)&&r.w>=36&&r.h>=36&&!el.closest('button,a,.pillbar,[class*=btn]'))push(['m',r.x,r.y,r.w,r.h,Math.min(14,r.h/2)],el);continue;}
   if(el.closest('svg'))continue;
-  if(/^(IMG|VIDEO|CANVAS|IFRAME|PICTURE)$/.test(el.tagName)){if(inView(r)&&r.w>=24&&r.h>=24)out.push(['m',r.x,r.y,r.w,r.h,radius(cs,r.h,r.w)||10]);continue;}
+  if(/^(IMG|VIDEO|CANVAS|IFRAME|PICTURE)$/.test(el.tagName)){if(inView(r)&&r.w>=24&&r.h>=24)push(['m',r.x,r.y,r.w,r.h,radius(cs,r.h,r.w)||10],el);continue;}
   if(!inView(r))continue;
-  if(el.tagName==='FIGURE'&&r.w>=120&&r.h>=100&&!(r.w>=vw*.97)){out.push(['m',r.x,r.y,r.w,r.h,radius(cs,r.h,r.w)||16]);continue;}
-  if(isPill(el)){if(r.w>=28&&r.h>=18&&!(el.tagName==='INPUT'&&el.type==='file'))out.push(['p',r.x,r.y,r.w,r.h,Math.max(radius(cs,r.h,r.w),el.matches('input,select,textarea')?10:0)||8]);continue;}
+  if(el.tagName==='FIGURE'&&r.w>=120&&r.h>=100&&!(r.w>=vw*.97)){push(['m',r.x,r.y,r.w,r.h,radius(cs,r.h,r.w)||16],el);continue;}
+  if(isPill(el)){if(r.w>=28&&r.h>=18&&!(el.tagName==='INPUT'&&el.type==='file'))push(['p',r.x,r.y,r.w,r.h,Math.max(radius(cs,r.h,r.w),el.matches('input,select,textarea')?10:0)||8],el);continue;}
   /* a panel: a visible fill, border or shadow around other things */
-  const bg=alpha(cs.backgroundColor),bimg=cs.backgroundImage!=='none',bord=num(cs.borderTopWidth)>0&&alpha(cs.borderTopColor)>.12,shad=cs.boxShadow!=='none';
+  const bg=alpha(cs.backgroundColor),bimg=cs.backgroundImage!=='none'&&!clipText,bord=num(cs.borderTopWidth)>0&&alpha(cs.borderTopColor)>.12,shad=cs.boxShadow!=='none';
   if((bg>.5||bimg||bord||shad)&&r.w>=72&&r.h>=34&&!(r.w>=vw*.97&&r.h>=vh*.45)&&el.children.length+el.childNodes.length>0&&!el.matches('body,html,main,section,article')){
-   if(bimg&&!el.children.length)out.push(['m',r.x,r.y,r.w,r.h,radius(cs,r.h,r.w)]);
-   else if(bg>.5||bord||shad)out.push(['c',r.x,r.y,r.w,r.h,radius(cs,r.h,r.w)]);
+   const rr=radius(cs,r.h,r.w),edge=r.w>=vw*.97,soft=edge?rr:Math.max(rr,Math.min(12,r.h/2));
+   if(bimg&&!el.children.length)push(['m',r.x,r.y,r.w,r.h,soft],el);
+   else if(bg>.5||bord||shad)push(['c',r.x,r.y,r.w,r.h,soft],el);
   }
   /* text: one bar per line */
   if(el.closest('button,select,textarea,label:has(input[type=checkbox]),label:has(input[type=radio]),[class*=btn]'))continue;
+  if(!clipText&&!readable(el))continue;
   const own=[...el.childNodes].filter(n=>n.nodeType===3&&n.nodeValue.trim());
   if(!own.length)continue;
   const fs=num(cs.fontSize),rg=document.createRange(),lines=[];
   for(const n of own){rg.selectNodeContents(n);for(const q of rg.getClientRects()){if(q.width<4||q.height<4)continue;const L=lines.find(l=>Math.abs(l.cy-(q.top+q.height/2))<fs*.4&&q.left<=l.x+l.w+fs*1.2&&q.left+q.width>=l.x-fs*1.2);if(L){const nx=Math.min(L.x,q.left),ex=Math.max(L.x+L.w,q.left+q.width);L.x=nx;L.w=ex-nx;}else lines.push({x:q.left,w:q.width,cy:q.top+q.height/2});}}
   const bh=Math.max(6,Math.min(fs*.62,34));
-  for(const l of lines){const t=l.cy-bh/2;if(t<vh-2&&t+bh>2&&l.x<vw-2&&l.w>=8)out.push(['t',l.x,t,l.w,bh,bh/2]);}
+  /* a line is only drawn where it is really visible: inside the screen and inside any clipping box around it (a scrolling strip of text, a carousel) */
+  let cl=0,cr=vw;for(let n=el.parentElement;n&&n!==document.body;n=n.parentElement){const o=getComputedStyle(n);if(/hidden|clip|auto|scroll/.test(o.overflowX)){const q=n.getBoundingClientRect();cl=Math.max(cl,q.left);cr=Math.min(cr,q.right);}}
+  for(const l of lines){const x1=Math.max(l.x,cl),x2=Math.min(l.x+l.w,cr),t=l.cy-bh/2;if(!(t<vh-2&&t+bh>2&&x1<vw-2&&x2-x1>=8))continue;
+   /* text that sits behind a picture, video, canvas or solid panel is not seen on the real page, so it gets no bar */
+   const top=document.elementFromPoint(Math.min(vw-1,Math.max(1,(x1+x2)/2)),Math.min(vh-1,Math.max(1,t+bh/2)));
+   if(top&&top!==el&&!el.contains(top)&&!top.contains(el)){const covers=n=>n.closest('img,video,canvas,iframe,picture,svg')||alpha(getComputedStyle(n).backgroundColor)>.8||getComputedStyle(n).backgroundImage!=='none';let c=false;for(let n=top;n&&n!==document.body;n=n.parentElement){if(n.contains(el))break;if(covers(n)){c=true;break;}}if(c)continue;}
+   push(['t',x1,t,x2-x1,bh,bh/2],el);}
  }
  /* join neighbouring pieces of one line (a word in italics next to plain text) */
- const texts=out.filter(o=>o[0]==='t').sort((a,b)=>a[2]-b[2]||a[1]-b[1]);const merged=[];
- for(const t of texts){const m=merged.find(q=>Math.abs((q[2]+q[4]/2)-(t[2]+t[4]/2))<4&&t[1]-(q[1]+q[3])<14&&t[1]>=q[1]-2);if(m){m[3]=Math.max(m[3],t[1]+t[3]-m[1]);m[4]=Math.max(m[4],t[4]);}else merged.push(t.slice());}
+ const texts=out.filter(o=>o[0]==='t').sort((a,b)=>a[2]-b[2]||a[1]-b[1]);const merged=[];const cp=(t)=>{const c=t.slice();c.seq=t.seq;c.z=t.z;return c;};
+ for(const t of texts){const m=merged.find(q=>Math.abs((q[2]+q[4]/2)-(t[2]+t[4]/2))<4&&t[1]-(q[1]+q[3])<14&&t[1]>=q[1]-2);if(m){m[3]=Math.max(m[3],t[1]+t[3]-m[1]);m[4]=Math.max(m[4],t[4]);m.seq=Math.min(m.seq,t.seq);}else merged.push(cp(t));}
  const rest=out.filter(o=>o[0]!=='t');
  /* the same box found twice, or a box that is only a thin rule */
  const keep=[];for(const o of rest){if(o[0]==='c'&&(o[4]<34))continue;if(keep.some(k=>k[0]===o[0]&&Math.abs(k[1]-o[1])<3&&Math.abs(k[2]-o[2])<3&&Math.abs(k[3]-o[3])<6&&Math.abs(k[4]-o[4])<6))continue;keep.push(o);}
- const order={c:0,m:1,p:2};keep.sort((a,b)=>order[a[0]]-order[b[0]]||(b[3]*b[4]-a[3]*a[4]));
- return [...keep,...merged].map(o=>[o[0],...o.slice(1).map(v=>Math.round(v*10)/10)]);
+ /* drawn in the same stacking order as the real page: higher z-index on top, then later in the page on top */
+ const all=[...keep,...merged].sort((a,b)=>(a.z||0)-(b.z||0)||a.seq-b.seq);
+ return all.map(o=>[o[0],...o.slice(1).map(v=>Math.round(v*10)/10)]);
 };
 const html=(items,vw,mode)=>items.map(([k,x,y,w,h,r])=>{
  const left=mode==='a'?(d=>`calc(50% ${d<0?'-':'+'} ${Math.abs(d)}px)`)(Math.round(x-vw/2)):(Math.round(x/vw*10000)/100)+'%',width=mode==='a'?Math.round(w)+'px':(Math.round(w/vw*10000)/100)+'%';

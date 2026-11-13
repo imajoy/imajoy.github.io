@@ -237,3 +237,15 @@ html[data-theme=dark] .sg-steps i{background:rgba(255,255,255,.14)}
 .acct-dlg:has(.sg-top) .acct-bar{margin:6px 0 0}
 .acct-dlg:has(.sg-top) .acct-privacy{margin-top:10px}
 html[data-theme=dark] .sg-steps i:first-child,html[data-theme=dark] .sg-steps[data-s="2"] i{background:#5B8DFF}
+
+/* ---- signed in just now: same sheet as the sign-in, a drawn check mark and a thin progress line ---- */
+.sg-ok{display:grid;place-items:center;width:84px;height:84px;margin:0 0 20px;border-radius:50%;background:color-mix(in srgb,#16A34A 10%,transparent);color:#16A34A}
+.sg-ok svg{width:64px;height:64px;fill:none;stroke:currentColor;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+.sg-ok-ring{stroke-dasharray:176;stroke-dashoffset:176;animation:sgDraw .6s cubic-bezier(.22,1,.36,1) forwards}
+.sg-ok-tick{stroke-dasharray:44;stroke-dashoffset:44;animation:sgDraw .4s .42s cubic-bezier(.22,1,.36,1) forwards}
+@keyframes sgDraw{to{stroke-dashoffset:0}}
+.sg-prog{height:3px;margin-top:8px;border-radius:3px;background:var(--line,#d3d9e4);overflow:hidden}
+.sg-prog i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--ac1,#2A64E8),#16A34A);transform:scaleX(0);transform-origin:0 50%;animation:sgFill 1.05s .05s cubic-bezier(.4,0,.2,1) forwards}
+@keyframes sgFill{to{transform:none}}
+html[data-theme=dark] .sg-ok{color:#4ADE80;background:rgba(74,222,128,.12)}
+@media(prefers-reduced-motion:reduce){.sg-ok-ring,.sg-ok-tick{animation:none;stroke-dashoffset:0}.sg-prog i{animation:none;transform:none}}

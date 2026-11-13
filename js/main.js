@@ -37,6 +37,7 @@
       e.preventDefault();
       window.scrollTo({ top: target.getBoundingClientRect().top + window.scrollY - 20, behavior: reduce ? 'auto' : 'smooth' });
       history.replaceState(null, '', id);
+      if (window.__cleanUrl) window.__cleanUrl();
     });
   });
 

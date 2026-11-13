@@ -25,6 +25,7 @@
   // On arrival at a section (/pricing), let the browser scroll there first; changing the address earlier would cancel that scroll.
   var first=real==='wrapline'&&SECTIONS[location.hash.replace(/^#/,'')],waited=0;
   (function start(){if(first&&!scrollY&&++waited<50){setTimeout(start,100);return;}if(n!==p||PAGES[real]||real==='wrapline')update();})();
+  window.__cleanUrl=function(){try{update();}catch(e){}};
   addEventListener('hashchange',function(){try{if(real==='wrapline')update();}catch(e){}});
  }catch(e){}
 })();

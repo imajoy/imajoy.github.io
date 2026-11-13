@@ -212,3 +212,28 @@ html[data-theme=dark] .acct-body .ax-out{color:#E7ECFA;border-color:rgba(255,255
 .acct-dlg:has(.acct-body[data-stage=account]) .acct-close{background:color-mix(in srgb,var(--ink,#0E1220) 6%,transparent);color:var(--ink,#0E1220);border-color:color-mix(in srgb,var(--ink,#0E1220) 12%,transparent)}
 html[data-theme=dark] .acct-dlg:has(.acct-body[data-stage=account]) .acct-close{background:rgba(255,255,255,.08);color:#fff;border-color:rgba(255,255,255,.16)}
 .acct-body .ax-head h2{font-size:clamp(1rem,4vw,1.15rem);overflow-wrap:break-word;word-break:normal}
+
+/* ---- sign-in / register: a clean sheet instead of the banner, mark and chip ---- */
+.acct-dlg:has(.sg-top)::before{display:none}
+.acct-dlg:has(.sg-top){border-radius:28px;background:var(--bg2,#fff)}
+.acct-dlg:has(.sg-top) .acct-body{margin-top:0;padding:26px 30px 28px}
+.acct-dlg:has(.sg-top) .acct-close{top:18px;right:18px;width:34px;height:34px;background:color-mix(in srgb,var(--ink,#0E1220) 6%,transparent);border:0;color:var(--ink,#0E1220)}
+.acct-dlg:has(.sg-top) .acct-close:hover{background:color-mix(in srgb,var(--ink,#0E1220) 12%,transparent)}
+.sg-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin:0 0 30px;padding-right:46px}
+.sg-brand{display:inline-flex;align-items:center;gap:9px;font:650 .95rem/1 var(--sans,inherit);letter-spacing:-.01em;color:var(--ink,#0E1220)}
+.sg-mark{display:grid;place-items:center;width:30px;height:30px;border-radius:10px;background:linear-gradient(150deg,#4C8DFF,#2563EB);color:#fff;box-shadow:0 8px 16px -8px rgba(37,99,235,.7)}
+.sg-mark svg{width:19px;height:19px}
+.sg-steps{display:inline-flex;gap:5px}
+.sg-steps i{display:block;width:26px;height:4px;border-radius:4px;background:var(--line,#d3d9e4);transition:background-color .5s cubic-bezier(.22,1,.36,1)}
+.sg-steps i:first-child,.sg-steps[data-s="2"] i{background:var(--ac1,#2A64E8)}
+.acct-dlg:has(.sg-top) h2{font:650 clamp(1.6rem,6.4vw,2rem)/1.1 var(--sans,inherit);letter-spacing:-.035em;margin:0 0 10px;color:var(--ink,#0E1220)}
+.sg-sub{margin:0 0 24px;font-size:.95rem;line-height:1.55;color:var(--mute,#5A6380)}
+.sg-sub b{color:var(--ink,#0E1220);font-weight:600;word-break:break-all}
+.acct-dlg:has(.sg-top) .acct-form input:not([autocomplete=one-time-code]){min-height:58px;border-radius:16px;background-color:color-mix(in srgb,var(--ink,#0E1220) 3%,var(--card,#fff))}
+.acct-dlg:has(.sg-top) .acct-privacy{margin-top:22px;text-align:left}
+html[data-theme=dark] .sg-steps i{background:rgba(255,255,255,.14)}
+@media(prefers-reduced-motion:reduce){.sg-steps i{transition:none}}
+.acct-dlg:has(.sg-top) .acct-msg{min-height:1.4em;margin:8px 0 0}
+.acct-dlg:has(.sg-top) .acct-bar{margin:6px 0 0}
+.acct-dlg:has(.sg-top) .acct-privacy{margin-top:10px}
+html[data-theme=dark] .sg-steps i:first-child,html[data-theme=dark] .sg-steps[data-s="2"] i{background:#5B8DFF}

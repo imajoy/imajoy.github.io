@@ -55,7 +55,7 @@ const linked=[...document.querySelectorAll('[data-lx-tilt],[data-lx-draw]')].map
 /* ---- setup: the little Maya window plays on its own while it is on screen (download, drag in, install, ready), then starts over; the steps can also be clicked ---- */
 const inst=document.querySelector('.lx-inst');
 if(inst){
- const items=[...inst.querySelectorAll('.lx-is')],T=[250,1000,1000,1100];let k=0,timer=0,vis=false;
+ const items=[...inst.querySelectorAll('.lx-is')],T=[300,1500,1500,1600];let k=0,timer=0,vis=false;
  const set=n=>{k=n;inst.dataset.step=String(n);items.forEach((el,i)=>{el.classList.toggle('is-on',i<n);el.classList.toggle('is-now',i===n-1);});};
  const arm=()=>{clearTimeout(timer);if(vis&&!document.hidden&&!calm)timer=setTimeout(()=>{set((k+1)%4);arm();},T[k]);};
  items.forEach((el,i)=>{el.style.cursor='pointer';el.addEventListener('click',()=>{set(i+1);arm();});});

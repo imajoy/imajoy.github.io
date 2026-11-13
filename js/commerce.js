@@ -1,7 +1,7 @@
 import {regionalPrice} from './regions.js?v=20261023-p7';
 import {cachedGeo} from './geo.js?v=20261019-geo1';
 export const apiBase = (window.AJOY_CONFIG?.apiBase || '').replace(/\/$/, '');
-export const money = (amount,currency) => new Intl.NumberFormat(navigator.language || 'en', {style:'currency',currency,minimumFractionDigits:Number.isInteger(amount/100)?0:2,maximumFractionDigits:2}).format(amount/100);
+export const money = (amount,currency) => new Intl.NumberFormat(((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((navigator.language||'en').split('@')[0])).split('@')[0]), {style:'currency',currency,minimumFractionDigits:Number.isInteger(amount/100)?0:2,maximumFractionDigits:2}).format(amount/100);
 export async function api(path, options = {}) {
   if (!apiBase) throw new Error('Checkout is not open yet. Please contact Ajoy for subscription availability.');
   const response = await fetch(apiBase+path, { ...options, headers:{...(options.body?{'Content-Type':'application/json'}:{}),...options.headers},signal:AbortSignal.timeout(15000)});

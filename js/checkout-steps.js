@@ -60,7 +60,7 @@ export function initializeCheckoutSteps(form){
   if(event.detail.blocked)return;
   if(draft&&!restoredCountry){restoredCountry=true;
    // Only the server-verified testing role can restore a chosen country.
-   if(event.detail.canEdit&&draft.country){const sel=form.elements.country;if(![...sel.options].some(o=>o.value===draft.country)){try{sel.add(new Option(new Intl.DisplayNames([navigator.language||'en'],{type:'region'}).of(draft.country)||draft.country,draft.country));}catch{sel.add(new Option(draft.country,draft.country));}}sel.value=draft.country;form.elements.country.dispatchEvent(new Event('change',{bubbles:true}));}
+   if(event.detail.canEdit&&draft.country){const sel=form.elements.country;if(![...sel.options].some(o=>o.value===draft.country)){try{sel.add(new Option(new Intl.DisplayNames([((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((navigator.language||'en').split('@')[0])).split('@')[0])],{type:'region'}).of(draft.country)||draft.country,draft.country));}catch{sel.add(new Option(draft.country,draft.country));}}sel.value=draft.country;form.elements.country.dispatchEvent(new Event('change',{bubbles:true}));}
   }
   const label=document.querySelector('[data-payment-country]');if(label)label.textContent='Billing country: '+(form.elements.country.selectedOptions[0]?.textContent||'');
  });

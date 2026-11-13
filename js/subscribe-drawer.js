@@ -1,6 +1,6 @@
 /* Plan drawer: pressing Subscribe slides a panel in from the right where the buyer picks the license, the billing period and the number of licenses.
    On the billing page the same panel is opened with "Change" and updates the order in place. Prices come from the same quote service as the pricing section. */
-import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261020-prices1';
+import {getQuote,previewPrice,money,apiBase} from './commerce.js?v=20261113-cm1';
 import {localFormatter} from './fx.js?v=20261020-local1';
 import {cachedGeo} from './geo.js?v=20261019-geo1';
 import {getAccountSession} from './account-session.js';

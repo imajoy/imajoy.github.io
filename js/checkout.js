@@ -1,8 +1,8 @@
-import {initializeCheckoutSteps} from './checkout-steps.js?v=20261112-cs3';
+import {initializeCheckoutSteps} from './checkout-steps.js?v=20261113-cs4';
 import {displayMoney,setMoney} from './currency-display.js?v=20261020-local1';
-import {initializeBillingCountry} from './billing-country.js?v=20261112-bc2';
+import {initializeBillingCountry} from './billing-country.js?v=20261113-bc3';
 import {YEARLY_PERCENT,yearlyOfferUsed} from './regions.js?v=20261023-p7';
-import {api,apiBase,getQuote,getCouponQuote,previewPrice} from './commerce.js?v=20261020-prices1';
+import {api,apiBase,getQuote,getCouponQuote,previewPrice} from './commerce.js?v=20261113-cm1';
 import {initializeCustomerVerification,customerHeaders,customerVerified,customerVersion,clearCustomer,showCustomerReward,showCustomerError} from './customer-verification.js?v=20261020-prices1';
 const form=document.querySelector('#billing-form'),status=document.querySelector('#checkout-status'),pay=document.querySelector('#pay');
 const params=new URLSearchParams(location.search);
@@ -10,7 +10,7 @@ form.elements.plan.value=['online','offline'].includes(params.get('plan'))?param
 form.elements.billing.value=params.get('billing')==='yearly'?'yearly':'monthly';
 {const n=Math.round(Number(params.get('seats')));if(params.has('seats')&&n>=1&&n<=100)form.elements.seats.value=String(n);}
 const codes='AF AL DZ AD AO AG AR AM AU AT AZ BS BH BD BB BY BE BZ BJ BT BO BA BW BR BN BG BF BI CV KH CM CA CF TD CL CN CO KM CG CD CR CI HR CU CY CZ DK DJ DM DO EC EG SV GQ ER EE SZ ET FJ FI FR GA GM GE DE GH GR GD GT GN GW GY HT HN HU IS IN ID IR IQ IE IL IT JM JP JO KZ KE KI KP KR KW KG LA LV LB LS LR LY LI LT LU MG MW MY MV ML MT MH MR MU MX FM MD MC MN ME MA MZ MM NA NR NP NL NZ NI NE NG MK NO OM PK PW PS PA PG PY PE PH PL PT QA RO RU RW KN LC VC WS SM ST SA SN RS SC SL SG SK SI SB SO ZA SS ES LK SD SR SE CH SY TW TJ TZ TH TL TG TO TT TN TR TM TV UG UA AE GB US UY UZ VU VA VE VN YE ZM ZW'.split(' ');
-const names=new Intl.DisplayNames([navigator.language||'en'],{type:'region'});
+const names=new Intl.DisplayNames([((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((navigator.language||'en').split('@')[0])).split('@')[0])],{type:'region'});
 const countries=codes.map(code=>[code,names.of(code)]).sort((a,b)=>a[1].localeCompare(b[1]));
 for(const [code,name] of countries){const o=new Option(name,code);form.elements.country.add(o);}
 initializeCheckoutSteps(form);

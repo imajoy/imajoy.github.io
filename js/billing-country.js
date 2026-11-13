@@ -40,7 +40,7 @@ export function initializeBillingCountry(form){
   const operation=++revision,session=getAccountSession(),previousTester=tester,previousCountry=field.value;
   // A connection check that passed in the last 10 minutes opens the form at once while a fresh check runs.
   // Display only: every quote and payment is checked again on the server.
-  if(!country){try{const v=JSON.parse(sessionStorage.getItem(CHECK_KEY)||'null');if(v&&Date.now()-v.at<600000&&v.email===(session?.email||'')&&valid(v.country)){country=v.country;tester=v.tester===true;if(![...field.options].some(o=>o.value===country))field.add(new Option(new Intl.DisplayNames([navigator.language||'en'],{type:'region'}).of(country),country));field.value=country;announce(false);field.dispatchEvent(new Event('change',{bubbles:true}));}}catch{}}
+  if(!country){try{const v=JSON.parse(sessionStorage.getItem(CHECK_KEY)||'null');if(v&&Date.now()-v.at<600000&&v.email===(session?.email||'')&&valid(v.country)){country=v.country;tester=v.tester===true;if(![...field.options].some(o=>o.value===country))field.add(new Option(new Intl.DisplayNames([((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((navigator.language||'en').split('@')[0])).split('@')[0])],{type:'region'}).of(country),country));field.value=country;announce(false);field.dispatchEvent(new Event('change',{bubbles:true}));}}catch{}}
   tester=false;field.disabled=true;retry.disabled=true;if(country)field.value=country;
   if(!country)announce(true,'',true);
   else{root.dataset.billingTester='false';hint.textContent='Confirming account permissions…';}
@@ -54,7 +54,7 @@ export function initializeBillingCountry(form){
    if(operation!==revision||getAccountSession()?.token!==session?.token)return;
    country=valid(context.country)?context.country:'';tester=context.canEditCountry===true;
    const chosen=tester&&previousTester&&valid(previousCountry)?previousCountry:country;
-   if(chosen&&![...field.options].some(o=>o.value===chosen))field.add(new Option(new Intl.DisplayNames([navigator.language||'en'],{type:'region'}).of(chosen),chosen));
+   if(chosen&&![...field.options].some(o=>o.value===chosen))field.add(new Option(new Intl.DisplayNames([((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((((l)=>{try{return Intl.getCanonicalLocales(l)[0]}catch{return 'en'}})((navigator.language||'en').split('@')[0])).split('@')[0])],{type:'region'}).of(chosen),chosen));
    field.value=chosen;field.disabled=!tester;
    const blocked=context.blocked===true||(!country&&!tester);
    try{if(blocked)sessionStorage.removeItem(CHECK_KEY);else sessionStorage.setItem(CHECK_KEY,JSON.stringify({at:Date.now(),email:session?.email||'',country,tester}));}catch{}

@@ -1,6 +1,6 @@
 import {availability,yearlyOfferUsed,YEARLY_PERCENT} from './regions.js?v=20261023-p7';
 import {getAccountSession,onAccountChange} from './account-session.js?v=20261023-p7';
-import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261020-prices1';
+import {getQuote,previewPrice,money,apiBase,suggestedCountry} from './commerce.js?v=20261113-cm1';
 import {detectGeo,cachedGeo} from './geo.js?v=20261019-geo1';
 import {loadTrialConfig,trialPlanId,TRIAL_DAYS} from './trial.js?v=20261023-p5';
 import {localFormatter} from './fx.js?v=20261020-local1';

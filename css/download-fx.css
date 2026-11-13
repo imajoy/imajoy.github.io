@@ -6,7 +6,7 @@
 .dl2>.dl-card,.dl2>.requirements,.dl2>.download-fine,.dl2>.offer-inline{max-width:600px;margin-inline:auto}
 
 /* entrance: everything rises in turn (individual `translate` so it never fights other transforms) */
-:where(.dl2)>*{animation:dlrise .9s both cubic-bezier(.16,1,.3,1)}
+:where(.dl2)>*{animation:dlrise .9s backwards cubic-bezier(.16,1,.3,1)}
 :where(.dl2)>:nth-child(3){animation-delay:.05s}:where(.dl2)>:nth-child(4){animation-delay:.12s}:where(.dl2)>:nth-child(5){animation-delay:.2s}
 :where(.dl2)>:nth-child(6){animation-delay:.28s}:where(.dl2)>:nth-child(7){animation-delay:.36s}:where(.dl2)>:nth-child(n+8){animation-delay:.44s}
 @keyframes dlrise{from{opacity:0;translate:0 26px;filter:blur(6px)}}
@@ -39,7 +39,7 @@
 /* button: shine sweep + magnetic pull (vars set by js/download-fx.js) */
 .dl-panel .btn-blue{position:relative;overflow:hidden;translate:var(--mx,0) var(--my,0);transition:translate .2s ease-out,box-shadow .25s}
 .p-idle .btn-blue::after{content:"";position:absolute;top:0;bottom:0;left:-40%;width:30%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);skew:-18deg;animation:dlshine2 3.6s ease-in-out 1s infinite;pointer-events:none}
-@keyframes dlshine2{0%{left:-40%}45%,100%{left:140%}}
+@keyframes dlshine2{0%{translate:0 0}45%,100%{translate:600% 0}}
 
 /* card: a colour sweep runs round the edge while working */
 .dl-card{position:relative}
@@ -96,8 +96,9 @@
 .dl-bg .b3{--c:var(--dl-d);--t:21s;width:38vmax;height:38vmax;left:30vw;bottom:-22vmax;opacity:.28;animation-delay:-9s}
 .dl-bg .b4{--c:var(--dl-c);--t:19s;width:26vmax;height:26vmax;right:6vw;bottom:-8vmax;opacity:.2;animation-delay:-3s}
 @keyframes dlaur{to{translate:6vmax 4vmax;scale:1.15}}
-.dl-bg .dots{position:absolute;inset:0;background:radial-gradient(circle,color-mix(in srgb,var(--ink) 22%,transparent) 1.2px,transparent 1.6px) 0 0/28px 28px;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000,transparent 78%);mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000,transparent 78%);opacity:.55;animation:dldots 40s linear infinite}
-@keyframes dldots{to{background-position:28px 56px}}
+.dl-bg .dots{position:absolute;inset:0;-webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000,transparent 78%);mask-image:radial-gradient(ellipse 70% 60% at 50% 30%,#000,transparent 78%);opacity:.55;}
+.dl-bg .dots::before{content:"";position:absolute;inset:-56px 0 0 -28px;background:radial-gradient(circle,color-mix(in srgb,var(--ink) 22%,transparent) 1.2px,transparent 1.6px) 0 0/28px 28px;animation:dldots 40s linear infinite;will-change:translate}
+@keyframes dldots{to{translate:28px 56px}}
 .dl-bg i{position:absolute;left:var(--x);bottom:-20px;width:var(--z);height:var(--z);border-radius:50%;background:#fff;box-shadow:0 0 12px 3px color-mix(in srgb,var(--dl-a) 55%,transparent);opacity:0;animation:dlspark var(--t) var(--d) linear infinite}
 html[data-theme=light] .dl-bg i{background:var(--dl-a);box-shadow:0 0 10px 2px color-mix(in srgb,var(--dl-b) 45%,transparent)}
 @keyframes dlspark{0%{opacity:0;translate:0 0}10%{opacity:.9}90%{opacity:.6}100%{opacity:0;translate:30px -110vh}}

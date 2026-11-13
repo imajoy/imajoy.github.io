@@ -10,7 +10,7 @@ let sceneReady=Promise.resolve();
 const canvas=document.getElementById('lx-scene');
 const lite=navigator.connection?.saveData===true;
 if(canvas&&!calm&&!lite){
- sceneReady=import('./landing-scene.js?v=lx3').then(m=>m.start(canvas)).then(ok=>{if(ok)cl.add('lx-3d');}).catch(()=>{});
+ sceneReady=import('./landing-scene.js?v=lx4').then(m=>m.start(canvas)).then(ok=>{if(ok)cl.add('lx-3d');}).catch(()=>{});
 }
 /* ---- grey outline of the page: shown under the intro curtain for its last ~30%, so it never adds waiting time ---- */
 let phEl=null;
@@ -66,9 +66,13 @@ if(inst){
 }
 let queued=false;
 function measure(){
- queued=false;const vh=innerHeight;extras(vh);
- for(const it of linked){
-  const r=it.n.getBoundingClientRect();if(r.bottom<-200||r.top>vh+200)continue;
+ queued=false;const vh=innerHeight;
+ /* all the reads first, then all the writes: reading a position after changing a style forces the browser to lay the page out again, once per item, on every scroll frame */
+ const seen=extrasRead(vh),rects=new Array(linked.length);
+ for(let i=0;i<linked.length;i++)rects[i]=linked[i].n.getBoundingClientRect();
+ extrasWrite(vh,seen);
+ for(let i=0;i<linked.length;i++){
+  const it=linked[i],r=rects[i];if(r.bottom<-200||r.top>vh+200)continue;
   let p=it.draw?(vh*.82-r.top)/(vh*.5):(vh-r.top)/(vh*.7);
   p=Math.max(0,Math.min(1,p));p=Math.round(p*1000)/1000;
   if(p!==it.last){it.last=p;it.n.style.setProperty('--p',p);if(it.steps){let on=0;for(const st of it.steps){const k=p>=st.at;st.el.classList.toggle('is-on',k);if(k)on++;}const cur=it.n.dataset.step;if(cur!==String(on))it.n.dataset.step=on;it.steps.forEach((st,i)=>st.el.classList.toggle('is-now',i===on-1));}}
@@ -83,11 +87,14 @@ if(wordsEl){splitWords();new MutationObserver(()=>{if(/translated-/.test(root.cl
 let deckSee=null,deckEl=null;
 /* depth: chosen blocks drift a little faster or slower than the page, so layers separate as you scroll (wide screens with a mouse only) */
 const deep=(!calm&&matchMedia('(min-width:900px) and (hover:hover)').matches)?[...document.querySelectorAll('[data-lx-depth]')].map(n=>({n,k:parseFloat(n.dataset.lxDepth)||0,last:null})):[];
-function extras(vh){
- for(const d of deep){const r=d.n.getBoundingClientRect();if(r.bottom<-150||r.top>vh+150)continue;const y=Math.round(((r.top+r.height/2-(d.last||0))-vh/2)*d.k);if(y!==d.last){d.n.style.setProperty('--dy',y);d.last=y;}}
- if(deckSee){const r=deckEl.getBoundingClientRect();deckSee(r.bottom>vh*.2&&r.top<vh*.8,r.top<vh+700&&r.bottom>-700);}
- if(band){const r=band.getBoundingClientRect();if(r.bottom>-100&&r.top<vh+100){const x=Math.round((vh/2-(r.top+r.height/2))*.42);if(x!==bandX){bandX=x;band.style.setProperty('--x',x);}}}
- if(words){const r=wordsEl.getBoundingClientRect();if(r.bottom>-50&&r.top<vh+50){const t=Math.max(0,Math.min(1,(vh*.86-r.top)/(vh*.42)))*(words.length+3);for(let i=0;i<words.length;i++){const o=Math.max(0,Math.min(1,(t-i)/3)).toFixed(2);if(words[i]._o!==o){words[i]._o=o;words[i].style.setProperty('--o',o);}}}}
+function extrasRead(vh){
+ return{deep:deep.map(d=>d.n.getBoundingClientRect()),deck:deckSee?deckEl.getBoundingClientRect():null,band:band?band.getBoundingClientRect():null,words:words?wordsEl.getBoundingClientRect():null};
+}
+function extrasWrite(vh,seen){
+ deep.forEach((d,i)=>{const r=seen.deep[i];if(r.bottom<-150||r.top>vh+150)return;const y=Math.round(((r.top+r.height/2-(d.last||0))-vh/2)*d.k);if(y!==d.last){d.n.style.setProperty('--dy',y);d.last=y;}});
+ if(seen.deck){const r=seen.deck;deckSee(r.bottom>vh*.2&&r.top<vh*.8,r.top<vh+700&&r.bottom>-700);}
+ if(seen.band){const r=seen.band;if(r.bottom>-100&&r.top<vh+100){const x=Math.round((vh/2-(r.top+r.height/2))*.42);if(x!==bandX){bandX=x;band.style.setProperty('--x',x);}}}
+ if(seen.words){const r=seen.words;if(r.bottom>-50&&r.top<vh+50){const t=Math.max(0,Math.min(1,(vh*.86-r.top)/(vh*.42)))*(words.length+3);for(let i=0;i<words.length;i++){const o=Math.max(0,Math.min(1,(t-i)/3)).toFixed(2);if(words[i]._o!==o){words[i]._o=o;words[i].style.setProperty('--o',o);}}}}
 }
 const ask=()=>{if(!queued){queued=true;requestAnimationFrame(measure);}};
 if(!calm){addEventListener('scroll',ask,{passive:true});addEventListener('resize',ask,{passive:true});measure();}
@@ -100,7 +107,7 @@ if(!calm&&matchMedia('(hover:hover) and (pointer:fine)').matches){
 }
 /* ---- hero drifts up and thins out as it is scrolled away (scrubbed by the scroll itself) ---- */
 const heroIn=document.querySelector('.lx-hero-in');
-if(heroIn&&!calm){let hq=false,hl=-1;const hs=()=>{hq=false;const v=Math.max(0,Math.min(1,scrollY/(innerHeight*.75)));if(v===hl)return;hl=v;heroIn.style.transform=v?'translate3d(0,'+(-v*70).toFixed(1)+'px,0)':'';heroIn.style.opacity=v?(1-v*.9).toFixed(3):'';};addEventListener('scroll',()=>{if(!hq){hq=true;requestAnimationFrame(hs);}},{passive:true});}
+if(heroIn&&!calm){let hq=false,hl=-1,sy=0;/* the scroll position is taken in the scroll event itself (the page is laid out then); reading it later in the frame, after other styles changed, would force a second layout */const hs=()=>{hq=false;const v=Math.max(0,Math.min(1,sy/(innerHeight*.75)));if(v===hl)return;hl=v;heroIn.style.transform=v?'translate3d(0,'+(-v*70).toFixed(1)+'px,0)':'';heroIn.style.opacity=v?(1-v*.9).toFixed(3):'';};addEventListener('scroll',()=>{sy=scrollY;if(!hq){hq=true;requestAnimationFrame(hs);}},{passive:true});}
 /* ---- showcase: a 3D deck of screens. The front one plays; a new one swings forward every few seconds, in a fresh order each visit ---- */
 const stage=document.querySelector('.lx-stage');
 if(stage){

@@ -95,7 +95,7 @@ export function start(canvas){
   raf=requestAnimationFrame(frame);if(!alive)return;
   if(!born)born=now;const t=(now-born)/1000;
   /* if this device cannot keep up, the scene drops to a lighter resolution instead of making the page stutter */
-  if(lastT&&cap>1){const dt=now-lastT;if(dt<200){frames++;if(dt>24)slow++;if(frames>=90){if(slow>30){cap=1;W=0;size();}frames=0;slow=0;}}}lastT=now;
+  if(lastT&&cap>.75){const dt=now-lastT;if(dt<200){frames++;if(dt>24)slow++;if(frames>=90){if(slow>30){cap=cap>1?1:.75;W=0;size();}frames=0;slow=0;}}}lastT=now;
   p+=(target-p)*.065;const deep=scrollY>innerHeight*.55;if(deep!==wasDeep){wasDeep=deep;root.classList.toggle('lx-deep',deep);}cx+=(mx-cx)*.04;cy+=(my-cy)*.04;
   const d=Math.round(total*ease(Math.min(1,t/2.2))/3)*3;tube.geometry.setDrawRange(0,d);halo.geometry.setDrawRange(0,d);
   /* camera: flies beside the curve, always on its left and a little above it. The curve therefore stays on the right of the view and never

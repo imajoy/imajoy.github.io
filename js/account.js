@@ -200,7 +200,23 @@ function init() {
       if(code&&field.value.length===6&&!busy&&Date.now()<codeDeadline)form.requestSubmit();
     });
     if(code)paint();
-    else{
+    /* phones and tablets: one tap reads only the 6-digit code from what you copied from your email (the browser may ask once);
+       nothing is stored or sent anywhere else, and the code is then sent automatically like a typed one */
+    if(code&&touch()&&navigator.clipboard&&navigator.clipboard.readText){
+      const bar=body.querySelector('.acct-code-status'),rs=bar&&bar.querySelector('[data-resend]');
+      if(bar&&rs){
+        const pb=document.createElement('button');pb.type='button';pb.className='acct-link acct-paste';pb.textContent='Paste code';
+        bar.insertBefore(pb,rs);
+        pb.addEventListener('click',async()=>{
+          try{
+            const m=String(await navigator.clipboard.readText()).match(/(?<!\d)\d{6}(?!\d)/);
+            if(m){field.value=m[0];field.dispatchEvent(new Event('input',{bubbles:true}));}
+            else announce('No 6-digit code found. Copy the code from your email first, or type it.',true);
+          }catch(e){announce('Pasting was not allowed. You can type the code instead.',true);}
+        });
+      }
+    }
+    if(!code){
       /* no button to press: the code is sent on Enter, on paste/autofill, or when you leave a valid address */
       const ok=()=>field.value.trim()&&field.checkValidity()&&!busy&&!field.readOnly;
       field.addEventListener('paste',()=>setTimeout(()=>{if(ok())form.requestSubmit();},60));

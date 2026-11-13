@@ -75,6 +75,7 @@
       'html[data-script=complex] h1{line-height:1.32!important}' +
       'html[data-script=complex] h2{line-height:1.35!important}' +
       'html[data-script=complex] .lang-big{font-size:var(--lfs)!important}' +
+      'html[data-script] .lang-fit{font-size:var(--lff)!important}' +
       'html[data-script=complex] h3,html[data-script=complex] h4{line-height:1.4!important}' +
       'html[data-script=complex] p,html[data-script=complex] li,html[data-script=complex] .sub{line-height:1.75!important}' +
       'html[data-script=complex] .ln,html[data-script=complex] .h-line,html[data-script=complex] .lx-line,html[data-script=complex] .pp-words .pw,html[data-script=complex] .tx-h .tx-w{overflow:visible!important;padding:0!important;margin:0!important}' +
@@ -119,11 +120,42 @@
     for (i = 0; i < hs.length; i++) { h = hs[i]; if (!h.offsetWidth) continue; fs = parseFloat(getComputedStyle(h).fontSize); if (fs > 40) list.push([h, fs]); }
     list.forEach(function (r) { r[0].style.setProperty('--lfs', Math.max(24, Math.round(r[1] * .8)) + 'px'); r[0].classList.add('lang-big'); });
   }
-  function tidy() { mend(); sizeHeads(); }
+  /* One line in English stays one line in every language: remember which headings and lead lines are a single line before
+     translating, then shrink the translated text (never below 58%) until it fits on one line again. */
+  var en1 = [], FITQ = 'h1,h2,h3,h4,.sub,.lead,.lx-lead';
+  function linesOf(el) {
+    var r = document.createRange(), rs, tops = [], i, j, t, ok, fs = parseFloat(getComputedStyle(el).fontSize) || 16;
+    r.selectNodeContents(el); rs = r.getClientRects();
+    for (i = 0; i < rs.length; i++) { if (rs[i].width < 2) continue; t = rs[i].top; ok = true; for (j = 0; j < tops.length; j++) if (Math.abs(tops[j] - t) < fs * .45) { ok = false; break; } if (ok) tops.push(t); }
+    return tops.length;
+  }
+  function mark() {
+    if (/translated-(ltr|rtl)/.test(root.className) || !document.body) return;
+    var all = document.querySelectorAll(FITQ), i, e;
+    en1.forEach(function (h) { h.removeAttribute('data-en1'); }); en1 = [];
+    for (i = 0; i < all.length; i++) {
+      e = all[i]; if (!e.offsetWidth || e.closest('#gt-host,.lng-list,.lng-dlg') || (e.textContent || '').trim().length < 4) continue;
+      if (linesOf(e) === 1) { e.setAttribute('data-en1', ''); en1.push(e); }
+    }
+  }
+  function fit() {
+    var i, e, f, fs, lo, n;
+    en1.forEach(function (h) { h.classList.remove('lang-fit'); h.style.removeProperty('--lff'); });
+    if (cur === 'en') return;
+    for (i = 0; i < en1.length; i++) {
+      e = en1[i]; if (!e.isConnected || !e.offsetWidth) continue;
+      if (linesOf(e) < 2) continue;
+      fs = parseFloat(getComputedStyle(e).fontSize); f = fs; lo = fs * .58; n = 0;
+      e.classList.add('lang-fit');
+      while (f > lo && n++ < 24) { f = f * .95; e.style.setProperty('--lff', f.toFixed(1) + 'px'); if (linesOf(e) < 2) break; }
+    }
+  }
+  function tidy() { mend(); sizeHeads(); fit(); }
   function later() { clearTimeout(mendTimer); mendTimer = setTimeout(tidy, 300); }
   function undo() {
     spaced.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); }); spaced = [];
     [].forEach.call(document.querySelectorAll('.lang-big'), function (h) { h.classList.remove('lang-big'); h.style.removeProperty('--lfs'); });
+    [].forEach.call(document.querySelectorAll('.lang-fit'), function (h) { h.classList.remove('lang-fit'); h.style.removeProperty('--lff'); });
   }
   function watch() {
     if (watching || !window.MutationObserver) return; watching = true;
@@ -177,7 +209,7 @@
     /* English with nothing translated yet: nothing to do */
     if (code === 'en' && !/translated-(ltr|rtl)/.test(root.className) && !loading) { listeners.forEach(function (f) { f(code); }); return Promise.resolve(true); }
     if (!document.getElementById('lang-style') && code !== 'en') style();
-    busy(true); listeners.forEach(function (f) { f(code); });
+    mark(); busy(true); listeners.forEach(function (f) { f(code); });
     return apply(code).then(function () { busy(false); if (code === 'en') undo(); else { watch(); later(); } return true; }, function () {
       /* translator could not load (offline, blocked): go back to English quietly */
       cur = prev; script(prev); root.lang = prev; try { localStorage.setItem(KEY, prev); } catch (e) {} cookie(prev); busy(false); listeners.forEach(function (f) { f(prev); }); return false;
@@ -190,7 +222,7 @@
     set: set, onChange: function (f) { listeners.push(f); }
   };
   function boot() {
-    protect();
+    protect(); mark(); if (document.fonts && document.fonts.ready) document.fonts.ready.then(mark); window.addEventListener('load', function () { setTimeout(mark, 900); });
     if (CAN && cur !== 'en') { cookie(cur); root.lang = cur; script(cur); style(); busy(true); apply(cur).then(function () { busy(false); watch(); later(); }, function () { busy(false); cur = 'en'; try { localStorage.setItem(KEY, 'en'); } catch (e) {} cookie('en'); }); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();

@@ -150,6 +150,36 @@
       while (f > lo && n++ < 24) { f = f * .95; e.style.setProperty('--lff', f.toFixed(1) + 'px'); if (linesOf(e) < 2) break; }
     }
   }
+  /* Headings that animate word by word are one span per word; the translator then translates every word alone and the
+     sentence comes out broken. While a language is active each run of word spans is merged into a single span. */
+  var WORDQ = '.pp-words,.tx-h', flats = [];
+  function flatten() {
+    if (cur === 'en') return;
+    function flat(node) {
+      var kids = [].slice.call(node.childNodes), run = [];
+      function flush() {
+        while (run.length && run[run.length - 1].nodeType === 3) run.pop();
+        if (run.length > 1) {
+          var inner = run[0]; while (inner.firstElementChild) inner = inner.firstElementChild;
+          if (inner !== run[0]) { inner.textContent = run.map(function (n) { return n.textContent; }).join(''); run.slice(1).forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); }); }
+        }
+        run = [];
+      }
+      kids.forEach(function (c) {
+        if (c.nodeType === 1 && c.tagName === 'SPAN' && /(^|\s)(pw|tx-w|w)(\s|$)/.test(c.className) && !c.querySelector('.notranslate') && !/\s/.test(c.textContent.trim())) run.push(c);
+        else if (c.nodeType === 3 && !c.nodeValue.trim() && run.length) run.push(c);
+        else { flush(); if (c.nodeType === 1) flat(c); }
+      });
+      flush();
+    }
+    [].forEach.call(document.querySelectorAll(WORDQ), function (h) {
+      if (h.__flat || !h.querySelector('.pw,.tx-w,.w')) return;
+      h.__flat = h.innerHTML; flats.push(h); flat(h);
+    });
+  }
+  function unflatten() {
+    flats.forEach(function (h) { if (h.isConnected && h.__flat) h.innerHTML = h.__flat; h.__flat = null; }); flats = [];
+  }
   function tidy() { mend(); sizeHeads(); fit(); }
   function later() { clearTimeout(mendTimer); mendTimer = setTimeout(tidy, 300); }
   function undo() {
@@ -183,7 +213,9 @@
     return loading;
   }
   function apply(code) {
+    if (code !== 'en') flatten();
     return engine().then(function (combo) {
+      if (code !== 'en') flatten();
       var opt = [].some.call(combo.options, function (o) { return o.value === code; });
       if (!opt) throw new Error('unsupported');
       combo.value = code; combo.dispatchEvent(new Event('change'));
@@ -210,7 +242,7 @@
     if (code === 'en' && !/translated-(ltr|rtl)/.test(root.className) && !loading) { listeners.forEach(function (f) { f(code); }); return Promise.resolve(true); }
     if (!document.getElementById('lang-style') && code !== 'en') style();
     mark(); busy(true); listeners.forEach(function (f) { f(code); });
-    return apply(code).then(function () { busy(false); if (code === 'en') undo(); else { watch(); later(); } return true; }, function () {
+    return apply(code).then(function () { busy(false); if (code === 'en') { undo(); unflatten(); } else { watch(); later(); } return true; }, function () {
       /* translator could not load (offline, blocked): go back to English quietly */
       cur = prev; script(prev); root.lang = prev; try { localStorage.setItem(KEY, prev); } catch (e) {} cookie(prev); busy(false); listeners.forEach(function (f) { f(prev); }); return false;
     });

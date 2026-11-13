@@ -87,7 +87,7 @@ html[data-theme=dark] .contact-send{background:linear-gradient(95deg,#3E7BFF,#8A
 .attachment-status[data-error=true]:not(:empty)::before{content:'!';position:absolute;left:13px;top:12px;display:grid;place-items:center;width:20px;height:20px;border-radius:50%;background:#c2412f;color:#fff;font:700 .72rem/1 var(--sans)}
 html[data-theme=dark] .attachment-status[data-error=true]:not(:empty){border-color:#5a2a25;background:#2a1311;color:#ffc2b8}
 .attachment-picker[data-state=error]{border-color:#c2412f!important;background:color-mix(in srgb,#c2412f 6%,transparent)!important;animation:ct-shake .45s cubic-bezier(.36,.07,.19,.97)}
-#attachment-help{position:static!important;width:auto!important;height:auto!important;clip-path:none!important;overflow:visible!important;margin:2px 0 10px;font-size:.78rem;color:var(--mute)}
+#attachment-help{position:static!important;width:auto!important;height:auto!important;clip-path:none!important;overflow:visible!important;white-space:normal!important;overflow-wrap:anywhere;margin:2px 0 10px;font-size:.78rem;color:var(--mute)}
 @keyframes ct-shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(5px)}60%{transform:translateX(-3px)}80%{transform:translateX(2px)}}
 
 /* ---- progress: four segments that light up as each required detail is done ---- */

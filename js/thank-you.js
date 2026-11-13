@@ -43,7 +43,7 @@ function renderPlan(basic){
  progress=mountSetupProgress(true);
 }
 renderPlan(plan==='Basic');
-try{sessionStorage.removeItem('ajoy.acct.open');}catch{}
+try{sessionStorage.removeItem('ajoy.acct.open');sessionStorage.removeItem('ajoy.offer-seen');sessionStorage.removeItem('ajoy.offer-dismissed');sessionStorage.removeItem('ajoy.coupon-pending');}catch{}
 /* Basic: tick every step as soon as Wrapline Pro is active in Maya with this email. Asked live from the
    server (only about the signed-in account), every few seconds while this page is open, so it turns green by itself. */
 if(plan==='Basic'&&getAccountSession()?.token){

@@ -79,7 +79,9 @@ function init() {
   function origin(){const b=document.querySelector('.pmx-btn,[data-account-button]');if(!b||!b.getBoundingClientRect)return;const r=b.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;dlg.style.setProperty('--ax',Math.round(cx-innerWidth/2)+'px');dlg.style.setProperty('--ay',Math.round(cy-innerHeight/2)+'px');}
   const buzz=ms=>{try{if(matchMedia('(pointer:coarse)').matches&&!matchMedia('(prefers-reduced-motion: reduce)').matches)navigator.vibrate?.(ms);}catch{}};
   function open() { if(closing)return;render();if(!dlg.open){origin();buzz(8);dlg.showModal();}if(step==='code'&&!getAccountSession()){clearInterval(countdownTimer);syncCountdown();countdownTimer=setInterval(syncCountdown,1000);}focusStep(); }
-  function focusStep(){if(dlg.open)(body.querySelector('input')||body.querySelector('#acct-title'))?.focus({preventScroll:true});}
+  /* phones and tablets: the keyboard opens only when the field is tapped, never by itself */
+  const touch=()=>matchMedia('(pointer:coarse)').matches;
+  function focusStep(){if(dlg.open)(touch()?body.querySelector('#acct-title'):(body.querySelector('input')||body.querySelector('#acct-title')))?.focus({preventScroll:true});}
   dlg.querySelector('.acct-close').addEventListener('click',close);
   dlg.addEventListener('cancel',e=>{e.preventDefault();close();});
   dlg.addEventListener('click',e=>{const r=dlg.getBoundingClientRect();if(e.target===dlg&&(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom))close();});
@@ -112,7 +114,7 @@ function init() {
       return;
     }
     body.innerHTML='<div class="ez">'+buddy('listen')+'<h2 id="acct-title" tabindex="-1">Enter the code.</h2><p class="acct-note">Sent to <b>'+esc(session.email)+'</b>. It deletes your account right away.</p><input class="acct-input" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]*" aria-label="6-digit code" data-code><div class="eb-dots" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>'+(st.msg?'<p class="acct-note acct-error" role="alert">'+esc(st.msg)+'</p>':'')+'<button class="acct-link" type="button" data-back>Cancel</button></div>';
-    const input=body.querySelector('[data-code]');input.focus();
+    const input=body.querySelector('[data-code]');if(!touch())input.focus();
     body.querySelector('[data-back]').onclick=()=>{erasePanel=null;render();};
     input.addEventListener('input',async()=>{
       input.value=input.value.replace(/\D/g,'').slice(0,6);

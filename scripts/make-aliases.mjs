@@ -7,15 +7,26 @@ import {readFileSync,writeFileSync,readdirSync,existsSync,mkdirSync} from 'node:
 const root=new URL('../',import.meta.url);
 export const PAGES={wrapline:'pro','wrapline-free':'free'};
 for(const f of readdirSync(root))if(/^tool-.+\.html$/.test(f))PAGES[f.slice(0,-5)]=f.slice(5,-5);
-/* sections of the two product pages get their own address under the page's short name: /pro/tools, /free/get … */
-export const PAGE_SECTIONS={wrapline:['pricing','tools','install','faq','trial','workflows','reviews'],'wrapline-free':['tools','get','faq','reviews']};
+/* every in-page section of the landing, Pro and Free pages gets its own address under a short page name: /home/tools, /pro/pricing, /free/coffee …
+   (hash id on the page -> name in the address; an empty name means the page itself) */
+export const SECTION_PREFIX={index:'home',wrapline:'pro','wrapline-free':'free'};
+export const PAGE_SECTIONS={
+ index:{main:'',tools:'tools',compare:'pricing',about:'about',contact:'contact'},
+ wrapline:{top:'',pricing:'pricing',tools:'tools',install:'install',faq:'faq',trial:'trial',workflows:'workflows',reviews:'reviews'},
+ 'wrapline-free':{tools:'tools',get:'get',faq:'faq',reviews:'reviews',coffee:'coffee'}
+};
+PAGE_SECTIONS.license={'policy-content':'',...Object.fromEntries(["agreement", "free-wrapline", "permission", "plans", "payments", "restrictions", "support", "privacy", "ending", "warranty", "liability", "law", "contact"].map(x=>[x,x]))};
+PAGE_SECTIONS.privacy={'policy-content':'',...Object.fromEntries(["scope", "free-wrapline", "information", "purposes", "billing", "verification", "providers", "retention", "choices", "changes"].map(x=>[x,x]))};
+for(const t of Object.keys(PAGES).filter(k=>k.startsWith('tool-')))PAGE_SECTIONS[t]=t==='tool-audio-exporter'?{reviews:'reviews','ffmpeg-setup':'ffmpeg-setup'}:{reviews:'reviews'};
+export const sectionPrefix=real=>SECTION_PREFIX[real]||PAGES[real]||real;
 export const SECTIONS={pricing:'pricing',tools:'tools',install:'install',faq:'faq'};
 export const ACCOUNT_TABS={'account-info':'account#account','payment-history':'account#history','payment-methods':'account#methods'};
-const stub=(to,title)=>`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="color-scheme" content="dark light"><title>${title}</title><link rel="canonical" href="https://wrapline.in${to.replace(/#.*/,'')}.html"><meta http-equiv="refresh" content="0;url=${to}"><style>body{visibility:hidden}</style><noscript><style>body{visibility:visible}</style></noscript><script>location.replace("${to}"${to.includes("#")?"":"+location.hash"})</script></head><body><p><a href="${to}">Continue to Wrapline</a></p></body></html>\n`;
+const stub=(to,title)=>`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><meta name="color-scheme" content="dark light"><title>${title}</title><link rel="canonical" href="https://wrapline.in${to.replace(/#.*/,'')==='/'?'/':to.replace(/#.*/,'')+'.html'}"><meta http-equiv="refresh" content="0;url=${to}"><style>body{visibility:hidden}</style><noscript><style>body{visibility:visible}</style></noscript><script>location.replace("${to}"${to.includes("#")?"":"+location.hash"})</script></head><body><p><a href="${to}">Continue to Wrapline</a></p></body></html>\n`;
 const out=new Map();
 for(const [real,alias] of Object.entries(PAGES))out.set(alias+'.html',stub('/'+real,'Wrapline'));
 for(const s of Object.keys(SECTIONS))out.set(s+'.html',stub('/wrapline#'+s,'Wrapline Pro'));
-for(const [real,list] of Object.entries(PAGE_SECTIONS))for(const sec of list)out.set(PAGES[real]+'/'+sec+'.html',stub('/'+real+'#'+sec,real==='wrapline'?'Wrapline Pro':'Wrapline Free'));
+for(const [real,map] of Object.entries(PAGE_SECTIONS))for(const [hash,alias] of Object.entries(map))if(alias)out.set(sectionPrefix(real)+'/'+alias+'.html',stub((real==='index'?'/':'/'+real)+'#'+hash,real==='wrapline'?'Wrapline Pro':real==='wrapline-free'?'Wrapline Free':'Wrapline'));
+out.set('home.html',stub('/','Wrapline'));
 for(const [a,t] of Object.entries(ACCOUNT_TABS))out.set(a+'.html',stub('/'+t,'Wrapline Pro account'));
 const check=process.argv.includes('--check');let bad=0;
 for(const [name,html] of out){

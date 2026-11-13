@@ -105,11 +105,15 @@ document.addEventListener('click', event => {
   const link = event.target.closest('a[href]');
   if (!link || event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.download || (link.target && link.target !== '_self')) return;
   const url = new URL(link.href);
-  if (url.origin !== location.origin || url.pathname !== location.pathname || url.search !== location.search || !url.hash) return;
+  /* the page may be shown at a section address (/license/payments) while its links name the real file (license.html#plans) */
+  const real = String(window.__realPath || location.pathname).replace(/\.html$/, '');
+  const samePage = url.pathname === location.pathname || url.pathname.replace(/\.html$/, '') === real;
+  if (url.origin !== location.origin || !samePage || url.search !== location.search || !url.hash) return;
   const target = hashTarget(url.hash);
   if (!target || !(target.matches('.policy-section') || target.id === 'policy-content')) return;
   event.preventDefault();
   if (location.hash !== url.hash) history.pushState(null, '', url.hash);
+  if (window.__cleanUrl) window.__cleanUrl();
   navigate(target);
 });
 // User navigation always interrupts an in-progress anchor scroll.

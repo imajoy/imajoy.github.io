@@ -1,6 +1,6 @@
 /* Email-code sign-in with an immediate cached summary and live subscription refresh. */
 import {orb} from './mood-orb.js?v=mo1';
-import {isDisposableEmail,EMAIL_POLICY_TEXT,EMAIL_TEMP_TEXT} from './email-policy.js?v=ep1';
+import {isDisposableEmail,EMAIL_POLICY_TEXT,EMAIL_TEMP_TEXT} from './email-policy.js?v=ep1r1';
 import {confirmLeave} from './confirm-leave.js?v=cl3';
 import {getAccountSession,setAccountSession,clearAccountSession,onAccountChange,accountRequest} from './account-session.js?v=20261023-p7';
 import './profile-menu.js?v=20261113-pm17r1';

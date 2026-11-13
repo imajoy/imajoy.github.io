@@ -41,7 +41,19 @@ const io='IntersectionObserver' in window?new IntersectionObserver(es=>{for(cons
 }},{threshold:[0,.1,.25]}):null;
 for(const n of document.querySelectorAll('[data-lx-r]')){if(io&&!calm)io.observe(n);else n.classList.add('in');}
 /* ---- scroll-linked planes and drawn curves: each gets --p from 0 (entering) to 1 (in place) ---- */
-const linked=[...document.querySelectorAll('[data-lx-tilt],[data-lx-draw]')].map(n=>({n,draw:n.hasAttribute('data-lx-draw'),last:-1,steps:n.classList.contains('lx-time')?[...n.querySelectorAll('.lx-step')].map(el=>({el,at:parseFloat(el.style.getPropertyValue('--at'))||0})):null}));
+const linked=[...document.querySelectorAll('[data-lx-tilt],[data-lx-draw]')].map(n=>({n,draw:n.hasAttribute('data-lx-draw'),last:-1,steps:n.classList.contains('lx-time')&&!n.classList.contains('lx-inst')?[...n.querySelectorAll('.lx-step')].map(el=>({el,at:parseFloat(el.style.getPropertyValue('--at'))||0})):null}));
+/* ---- setup: the little Maya window plays on its own while it is on screen (download, drag in, install, ready), then starts over; the steps can also be clicked ---- */
+const inst=document.querySelector('.lx-inst');
+if(inst){
+ const items=[...inst.querySelectorAll('.lx-is')],T=[900,3800,4600,4000];let k=0,timer=0,vis=false;
+ const set=n=>{k=n;inst.dataset.step=String(n);items.forEach((el,i)=>{el.classList.toggle('is-on',i<n);el.classList.toggle('is-now',i===n-1);});};
+ const arm=()=>{clearTimeout(timer);if(vis&&!document.hidden&&!calm)timer=setTimeout(()=>{set((k+1)%4);arm();},T[k]);};
+ items.forEach((el,i)=>{el.style.cursor='pointer';el.addEventListener('click',()=>{set(i+1);arm();});});
+ if(calm)set(3);
+ else if('IntersectionObserver' in window)new IntersectionObserver(es=>{vis=es[es.length-1].isIntersecting;if(vis&&k===0)setTimeout(()=>{if(vis&&k===0){set(1);arm();}},350);arm();},{threshold:.35}).observe(inst);
+ else{vis=true;set(1);arm();}
+ document.addEventListener('visibilitychange',arm);
+}
 let queued=false;
 function measure(){
  queued=false;const vh=innerHeight;extras(vh);

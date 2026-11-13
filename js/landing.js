@@ -49,7 +49,7 @@ function measure(){
   const r=it.n.getBoundingClientRect();if(r.bottom<-200||r.top>vh+200)continue;
   let p=it.draw?(vh*.82-r.top)/(vh*.5):(vh-r.top)/(vh*.7);
   p=Math.max(0,Math.min(1,p));p=Math.round(p*1000)/1000;
-  if(p!==it.last){it.last=p;it.n.style.setProperty('--p',p);if(it.steps)for(const st of it.steps)st.el.classList.toggle('is-on',p>=st.at);}
+  if(p!==it.last){it.last=p;it.n.style.setProperty('--p',p);if(it.steps){let on=0;for(const st of it.steps){const k=p>=st.at;st.el.classList.toggle('is-on',k);if(k)on++;}const cur=it.n.dataset.step;if(cur!==String(on))it.n.dataset.step=on;it.steps.forEach((st,i)=>st.el.classList.toggle('is-now',i===on-1));}}
  }
 }
 const band=document.querySelector('[data-lx-band]');let bandX=null;
@@ -85,13 +85,13 @@ if(stage){
  const cards=[...stage.querySelectorAll('.lx-card3d')],chips=[...stage.querySelectorAll('[data-lx-go]')],now=stage.querySelector('.lx-now');
  const field=k=>stage.querySelector('[data-lx-now="'+k+'"]');
  const DUR=7000,n=cards.length;
- /* order: the first stays first, the rest are shuffled */
- const order=[0,...cards.slice(1).map((_,i)=>i+1).sort(()=>Math.random()-.5)];
+ /* a fresh order on every visit, so a different walkthrough leads each time */
+ const order=cards.map((_,i)=>i);for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]];}
  let at=0,visible=false,timer=0,xpAsked=false,prev=-1;
  /* each recording starts from a different moment on every visit */
  const loadVid=v=>{if(v.dataset.ready)return;v.dataset.ready='1';v.addEventListener('loadedmetadata',()=>{const d=v.duration;if(isFinite(d)&&d>4){try{v.currentTime=Math.random()*(d-3);}catch{}}},{once:true});for(const [k,t] of [['webm','video/webm'],['mp4','video/mp4']]){if(!v.dataset[k])continue;const so=document.createElement('source');so.src=v.dataset[k];so.type=t;v.append(so);}v.load();};
  /* the walkthrough players are only fetched when the deck is close to the screen */
- const loadXp=()=>{if(xpAsked)return;xpAsked=true;for(const f of stage.querySelectorAll('[data-lx-explainer]'))f.setAttribute('data-explainer',f.dataset.lxExplainer);import('./tool-explainer.js?v=xp9').then(()=>setTimeout(media,60)).catch(()=>{});};
+ const loadXp=()=>{if(xpAsked)return;xpAsked=true;for(const f of stage.querySelectorAll('[data-lx-explainer]')){f.setAttribute('data-random-start','');f.setAttribute('data-explainer',f.dataset.lxExplainer);}import('./tool-explainer.js?v=xp10').then(()=>setTimeout(media,60)).catch(()=>{});};
  function media(){const cur=order[at];cards.forEach((c,i)=>{const on=i===cur&&visible&&!calm;const v=c.querySelector('video');if(v){if(on){loadVid(v);const pr=v.play();if(pr)pr.catch(()=>{});}else v.pause();}const pl=c.querySelector('.lx-xp')?.__player;if(pl){pl.visible=on;pl.sync?.();}});}
  function place(){const cur=order[at];order.forEach((ci,k)=>{const c=cards[ci],d=(k-at+n)%n;if(ci===prev&&d!==0){c.dataset.pos='out';c.style.setProperty('--d',0);setTimeout(()=>{if(c.dataset.pos==='out'){c.dataset.pos='far';}},1000);}else if(d<=2){c.dataset.pos=String(d);c.style.setProperty('--d',d);}else c.dataset.pos='far';c.setAttribute('aria-hidden',String(d!==0));});
   chips.forEach(ch=>{const on=+ch.dataset.lxGo===cur;ch.classList.remove('is-on','is-timed');if(on){void ch.offsetWidth;ch.classList.add('is-on');if(visible&&!calm)ch.classList.add('is-timed');ch.style.setProperty('--dur',DUR+'ms');}ch.setAttribute('aria-pressed',String(on));});}

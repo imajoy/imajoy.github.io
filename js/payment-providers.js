@@ -33,7 +33,7 @@ if(form&&paypal&&url){
  picker.dataset.acc='';
  let accClosed=!new URLSearchParams(location.search).has('checkout');
  const syncAcc=()=>{picker.dataset.m=rzpMethod;for(const item of accItems){const open=!accClosed&&item.dataset.key===provider&&(provider!=='razorpay'||item.dataset.m===rzpMethod);item.toggleAttribute('data-open',open);const body=item.querySelector('.acc-body');if(open&&provider==='razorpay'){const inner=body.querySelector('.acc-inner');if(panel.parentElement!==inner)inner.append(panel);}body.inert=!open;item.querySelector('input').setAttribute('aria-expanded',String(open));}};
- const skel=document.createElement('div');skel.className='pay-skel';skel.setAttribute('aria-hidden','true');skel.innerHTML='<span class="sk-bar sk-lg"></span>'+'<div class="sk-card"><i class="sk-chip"></i><span class="sk-t"><span class="sk-bar"></span><span class="sk-bar sk-s"></span></span><span class="sk-bar sk-logo"></span></div>'.repeat(2);picker.before(skel);
+ const skel=document.createElement('div');skel.className='pay-skel';skel.setAttribute('aria-hidden','true');skel.hidden=true;picker.before(skel);
  const status=panel.querySelector('.razorpay-status'),start=panel.querySelector('[data-razorpay-start]'),check=panel.querySelector('[data-razorpay-check]'),link=panel.querySelector('[data-razorpay-open]'),cancelBtn=panel.querySelector('[data-razorpay-cancel]');
  const pageCoupon={input:document.querySelector('#coupon-code'),remove:document.querySelector('#coupon-remove'),status:document.querySelector('#coupon-status')};
  let userPicked=false,prefApplied=false;const savedPref=()=>'';

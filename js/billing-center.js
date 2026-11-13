@@ -66,7 +66,7 @@ function empty(title,text,action){
   if(action){const a=el('a','btn btn-light',action.label);a.href=action.href;box.append(a);}
   return box;
 }
-const skeletonRows=()=>Array.from({length:3},()=>{const tr=el('tr','bc-skel');for(let i=0;i<5;i++){const td=el('td');td.append(el('span','sk-bar'));tr.append(td);}return tr;});
+const skeletonRows=()=>[];
 
 function th(table,key,label,{sortable=true}={}){
   const h=el('th');h.scope='col';

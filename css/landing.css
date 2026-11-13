@@ -408,3 +408,81 @@ html[data-theme=dark] .lx-card3d{border-color:rgba(255,255,255,.14)}
 
 /* text-safe blue: #2563EB passes AA on the light page; dark mode keeps a lighter blue */
 html[data-theme=dark] .lx-page{--lx-blue:#5B9BFF}
+
+/* setup, redesigned: a small Maya window acts the three steps out as you scroll, the steps sit beside it */
+.lx-inst{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:clamp(26px,4.5vw,64px);align-items:center;padding:0}
+.lx-iv{--w:#161A24;position:relative;border-radius:22px;overflow:hidden;background:var(--w);box-shadow:0 40px 80px -42px rgba(14,30,80,.55),0 0 0 1px rgba(255,255,255,.06) inset;color:#DCE3F5;font-family:var(--sans)}
+.lx-iv-top{display:flex;align-items:center;gap:7px;height:38px;padding:0 16px;background:#10131B;font:500 12px/1 var(--sans);color:#8D97B3}
+.lx-iv-top>i{width:10px;height:10px;border-radius:50%;background:#3A4052}.lx-iv-top>i:nth-child(1){background:#FF6159}.lx-iv-top>i:nth-child(2){background:#FFBD2E}.lx-iv-top>i:nth-child(3){background:#28C941}
+.lx-iv-top span{margin-left:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lx-iv-menu{margin-left:auto;padding:5px 9px;border-radius:7px;font-weight:600;color:#8D97B3;transition:background-color .6s var(--lx-e),color .6s var(--lx-e)}
+.lx-iv-shelf{display:flex;align-items:center;gap:7px;height:44px;padding:0 14px;background:#1E2331;border-bottom:1px solid rgba(255,255,255,.06)}
+.lx-iv-shelf em{font:600 10px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;color:#5E6782;font-style:normal;margin-right:6px}
+.lx-iv-shelf span{display:grid;place-items:center;width:28px;height:28px;border-radius:8px;background:linear-gradient(160deg,#4C8DFF,#2563EB);color:#fff;font:700 10px/1 var(--sans);opacity:0;transform:translate3d(0,10px,0) scale(.6);transition:opacity .4s,transform .7s cubic-bezier(.34,1.56,.64,1)}
+.lx-iv-shelf span:nth-of-type(even){background:linear-gradient(160deg,#FFD27A,#F2B64F);color:#2A1C00}
+.lx-iv-vp{position:relative;aspect-ratio:2/1;container-type:size;overflow:hidden;background:radial-gradient(120% 90% at 50% 0%,#232A3C,#161A24)}
+.lx-iv-grid{position:absolute;inset:0;width:100%;height:100%}.lx-iv-grid path{fill:none;stroke:rgba(150,175,255,.15);stroke-width:1;vector-effect:non-scaling-stroke}
+/* the installer file */
+.lx-iv-file{position:absolute;left:50%;top:50%;display:grid;grid-template-columns:auto 1fr;align-items:center;gap:10px;width:min(240px,46cqw);padding:12px 14px 16px;border-radius:14px;background:#F7F9FF;color:#0E1220;box-shadow:0 18px 34px -16px rgba(0,0,0,.6);opacity:0;transform:translate(-50%,-50%) translate(-22cqw,-60cqh) rotate(-6deg);transition:transform 1s var(--lx-e),opacity .5s}
+.lx-iv-fi{display:grid;place-items:center;width:34px;height:34px;border-radius:9px;background:#2563EB;color:#fff}.lx-iv-fi svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linejoin:round}
+.lx-iv-fn{display:grid;gap:3px;min-width:0}.lx-iv-fn b{font:600 13px/1.2 var(--sans);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lx-iv-fn small{grid-area:2/1;font:500 11px/1 var(--sans);color:#5A6380;transition:opacity .3s}.lx-iv-fn small+small{opacity:0;color:#15803D}
+.lx-iv-load{position:absolute;left:14px;right:14px;bottom:8px;height:3px;border-radius:2px;background:#E2E7F3;overflow:hidden}.lx-iv-load i{position:absolute;inset:0;background:linear-gradient(90deg,#2563EB,#F2B64F);transform:scaleX(0);transform-origin:0 50%;transition:transform 1.5s .45s cubic-bezier(.4,0,.2,1)}
+/* drop target, install dialog, finish toast */
+.lx-iv-ring{position:absolute;left:50%;top:50%;width:30cqw;aspect-ratio:1;margin:-15cqw 0 0 -15cqw;border-radius:50%;border:2px dashed rgba(120,165,255,.6);opacity:0;transform:scale(.5);transition:opacity .4s,transform .8s var(--lx-e)}
+.lx-iv-dlg{position:absolute;left:50%;top:50%;width:min(290px,54cqw);padding:16px 16px 14px;border-radius:14px;background:#252B3C;border:1px solid rgba(255,255,255,.1);box-shadow:0 26px 50px -20px rgba(0,0,0,.7);display:grid;gap:6px;opacity:0;transform:translate(-50%,-44%) scale(.94);transition:opacity .45s,transform .7s var(--lx-e)}
+.lx-iv-dlg b{font:600 14px/1.2 var(--sans);color:#fff}.lx-iv-dlg p{font:400 12px/1.45 var(--sans);color:#A9B3CE;margin:0}
+.lx-iv-btn{justify-self:end;margin-top:6px;padding:8px 16px;border-radius:9px;background:#2563EB;color:#fff;font:600 12px/1 var(--sans)}
+.lx-iv-toast{position:absolute;left:50%;bottom:9cqh;display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:999px;background:#F7F9FF;color:#0E1220;font:600 13px/1 var(--sans);white-space:nowrap;opacity:0;transform:translate(-50%,24px);transition:opacity .4s,transform .7s cubic-bezier(.34,1.56,.64,1)}
+.lx-iv-toast svg{width:16px;height:16px;fill:none;stroke:#15803D;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.lx-iv-cur{position:absolute;left:0;top:0;width:22px;height:22px;transform:translate(84cqw,82cqh);transition:transform 1.1s var(--lx-e2);filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))}.lx-iv-cur path{fill:#fff;stroke:#0b0d14;stroke-width:1.4;stroke-linejoin:round}
+/* step 1: the file arrives and downloads */
+.lx-inst[data-step="1"] .lx-iv-file{opacity:1;transform:translate(-50%,-50%) translate(-22cqw,-24cqh)}
+.lx-inst[data-step="1"] .lx-iv-load i{transform:none}
+.lx-inst[data-step="1"] .lx-iv-fn small:first-of-type{opacity:0;transition-delay:1.9s}.lx-inst[data-step="1"] .lx-iv-fn small+small{opacity:1;transition-delay:1.9s}
+.lx-inst[data-step="1"] .lx-iv-cur{transform:translate(32cqw,30cqh)}
+/* step 2: dragged into the viewport, the install window opens and Install is pressed */
+.lx-inst[data-step="2"] .lx-iv-file{opacity:0;transform:translate(-50%,-50%) scale(.55);transition:transform .9s var(--lx-e),opacity .3s .7s}
+.lx-inst[data-step="2"] .lx-iv-load i{transform:none;transition:none}
+.lx-inst[data-step="2"] .lx-iv-ring{opacity:1;transform:scale(1);animation:lxRing 1s .5s var(--lx-e) both}
+.lx-inst[data-step="2"] .lx-iv-dlg{opacity:1;transform:translate(-50%,-50%);transition-delay:.9s}
+.lx-inst[data-step="2"] .lx-iv-btn{animation:lxPress .5s 2.1s ease both}
+.lx-inst[data-step="2"] .lx-iv-cur{transform:translate(64cqw,64cqh);transition:transform 1.6s .2s var(--lx-e2)}
+@keyframes lxRing{to{opacity:0;transform:scale(1.25)}}
+@keyframes lxPress{40%{transform:scale(.9);background:#1D4ED8}100%{transform:none;background:#15803D}}
+/* step 3: the tools land on the shelf */
+.lx-inst[data-step="3"] .lx-iv-shelf span{opacity:1;transform:none;transition-delay:calc(.15s + var(--k)*.09s)}
+.lx-inst[data-step="3"] .lx-iv-menu{background:#2563EB;color:#fff}
+.lx-inst[data-step="3"] .lx-iv-toast{opacity:1;transform:translate(-50%,0);transition-delay:.7s}
+.lx-inst[data-step="3"] .lx-iv-cur{transform:translate(88cqw,-6cqh)}
+/* the three steps */
+.lx-is-list{list-style:none;margin:0;padding:0;display:grid}
+.lx-is{grid-template-columns:46px 1fr;gap:18px;padding:22px 0;position:relative}
+.lx-is+.lx-is{border-top:1px solid var(--line)}
+.lx-is::before{content:"";position:absolute;left:22px;top:68px;bottom:-22px;width:2px;background:var(--line)}.lx-is:last-child::before{display:none}
+.lx-is::after{content:"";position:absolute;left:22px;top:68px;bottom:-22px;width:2px;background:linear-gradient(180deg,var(--lx-blue),var(--lx-gold));transform:scaleY(0);transform-origin:50% 0;transition:transform .8s var(--lx-e)}.lx-is:last-child::after{display:none}
+.lx-is.is-on:not(.is-now)::after{transform:none}
+.lx-is-mark{position:relative;display:grid;place-items:center;width:46px;height:46px;border-radius:50%;border:1.5px solid var(--line);color:var(--mute);background:var(--card,#fff);transition:background-color .5s,border-color .5s,color .5s,transform .7s cubic-bezier(.34,1.56,.64,1)}
+.lx-is-mark svg{position:absolute;width:20px;height:20px;fill:none;stroke:currentColor;stroke-width:1.9;stroke-linecap:round;stroke-linejoin:round;transition:opacity .35s,transform .5s var(--lx-e)}
+.lx-is-mark .lx-is-ok{opacity:0;transform:scale(.4) rotate(-30deg);stroke-width:2.4}
+.lx-is h3{font:600 clamp(1.15rem,1.9vw,1.45rem)/1.2 var(--sans);letter-spacing:-.02em;color:var(--ink);opacity:.42;transition:opacity .5s,transform .7s var(--lx-e)}
+.lx-is p{margin-top:6px;font:400 .95rem/1.55 var(--sans);color:var(--t62);opacity:.42;transition:opacity .5s,transform .7s .04s var(--lx-e)}
+.lx-is.is-on h3,.lx-is.is-on p{opacity:1}
+.lx-is.is-now h3,.lx-is.is-now p{transform:translate3d(6px,0,0)}
+.lx-is.is-now .lx-is-mark{background:var(--lx-blue);border-color:var(--lx-blue);color:#fff;transform:scale(1.08);box-shadow:0 0 0 7px color-mix(in srgb,var(--lx-blue) 16%,transparent)}
+.lx-is.is-on:not(.is-now) .lx-is-mark{background:color-mix(in srgb,#15803D 12%,var(--card,#fff));border-color:#15803D;color:#15803D}
+.lx-is.is-on:not(.is-now) .lx-is-mark svg:first-child{opacity:0;transform:scale(.4)}
+.lx-is.is-on:not(.is-now) .lx-is-mark .lx-is-ok{opacity:1;transform:none}
+html[data-theme=dark] .lx-is-mark{background:#121726}
+html[data-theme=dark] .lx-is.is-on:not(.is-now) .lx-is-mark{background:rgba(34,197,94,.12);border-color:#4ADE80;color:#4ADE80}
+html[data-theme=dark] .lx-iv{box-shadow:0 40px 80px -40px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.08) inset}
+@media(max-width:899px){
+ .lx-inst{grid-template-columns:1fr;gap:18px;padding-left:0}
+ .lx-iv{border-radius:18px}.lx-iv-top span{font-size:11px}.lx-iv-shelf{gap:5px}.lx-iv-shelf span{width:24px;height:24px;font-size:9px}
+ .lx-iv-fn b{font-size:12px}.lx-iv-dlg p{display:none}
+ .lx-is{padding:16px 0;gap:14px}.lx-is::before,.lx-is::after{top:62px;bottom:-16px}
+}
+@media(prefers-reduced-motion:reduce){.lx-iv *{transition:none!important;animation:none!important}}
+.lx-is-list{padding:6px 24px;border-radius:24px;background:color-mix(in srgb,var(--card,#fff) 72%,transparent);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
+html[data-theme=dark] .lx-is-list{background:rgba(18,23,38,.72);border-color:rgba(255,255,255,.08)}
+@media(max-width:899px){.lx-is-list{padding:2px 16px}}

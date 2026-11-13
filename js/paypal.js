@@ -212,7 +212,7 @@ if(form&&pay){
   return sdkPromise;
  }
  const ppLoad=document.createElement('div');ppLoad.className='pp-loading';ppLoad.hidden=true;ppLoad.setAttribute('role','status');ppLoad.setAttribute('aria-live','polite');
- ppLoad.innerHTML='<span class="pp-spin" aria-hidden="true"></span><span class="pp-bar sk-bar" aria-hidden="true"></span><span class="pp-text">Connecting to PayPal…</span><span class="pp-track" aria-hidden="true"><i></i></span><span class="pp-steps" aria-hidden="true"><b></b><b></b><b></b><b></b></span>';buttons.after(ppLoad);
+ ppLoad.innerHTML='<span class="pp-spin" aria-hidden="true"></span><span class="pp-text">Connecting to PayPal…</span><span class="pp-track" aria-hidden="true"><i></i></span><span class="pp-steps" aria-hidden="true"><b></b><b></b><b></b><b></b></span>';buttons.after(ppLoad);
  let ppSlow=setTimeout(()=>{ppLoad.dataset.slow='1';sync();},6000);
  const ppDone=()=>{clearTimeout(ppSlow);ppLoad.hidden=true;};
  async function startButtons(){

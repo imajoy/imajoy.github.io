@@ -64,7 +64,7 @@ class Player {
         <div class="xp-cur">${ARROW}</div>
       </div></div>
       <div class="xp-cap" aria-live="polite"><b></b><p></p></div>
-      <div class="xp-steps" style="--n:${this.steps.length}">${this.steps.map((s, i) => `<button type="button" class="xp-step" data-i="${i}"><small>0${i + 1}</small><span>${s.t}</span><i class="xp-fill"></i></button>`).join('')}</div>`;
+      <div class="xp-steps" style="--n:${this.steps.length}">${this.steps.map((s, i) => `<button type="button" class="xp-step" data-i="${i}"><span>${s.t}</span><i class="xp-fill"></i></button>`).join('')}</div>`;
     this.frame = root.querySelector('.xp-frame'); if (this.announce) { this.announce = false; const st = this.fig.closest('.pro-stage'); if (st) { this.frame.classList.add('ps-in'); st.dispatchEvent(new CustomEvent('xp-tool', { detail: { ix: this.cfg.ix, title: this.cfg.title } })); } } this.canvas = root.querySelector('.xp-canvas'); this.vp = root.querySelector('.xp-vp');
     this.panel = root.querySelector('.xp-panel'); this.pb = root.querySelector('.xp-pb'); this.scene = root.querySelector('.xp-scene'); this.cur = root.querySelector('.xp-cur'); this.toastEl = root.querySelector('.xp-toast');
     this.capB = root.querySelector('.xp-cap b'); this.capP = root.querySelector('.xp-cap p'); this.chips = [...root.querySelectorAll('.xp-step')];
@@ -121,7 +121,7 @@ class Player {
   sync() {
     const want = !reduce && this.visible && !document.hidden && !this.user;
     this.btn && (this.btn.classList.toggle('paused', !want && this.user), this.btn.setAttribute('aria-label', this.user ? 'Play the demo' : 'Pause the demo'));
-    if (want && !this.playing) { this.playing = true; if (this.clock == null) this.seek(0); this.last = performance.now(); requestAnimationFrame(t => this.tick(t)); }
+    if (want && !this.playing) { this.playing = true; if (this.clock == null) this.seek(this.fig.hasAttribute('data-random-start') ? Math.floor(Math.random() * this.steps.length) : 0); this.last = performance.now(); requestAnimationFrame(t => this.tick(t)); }
     else if (!want) this.playing = false;
   }
   tick(now) {

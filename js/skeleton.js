@@ -19,7 +19,10 @@ const LAYOUT={
  account:()=>nav+W('<div class="sk-support"><div class="sk-row" style="gap:16px">'+B('56px','56px','18px')+'<div class="sk-col">'+B('240px','22px')+B('160px','12px')+'</div></div><div class="sk-col" style="margin-top:26px;gap:20px">'+C('230px','100%','24px','<div class="sk-col">'+B('180px','18px')+B('100%','44px','12px')+B('100%','44px','12px')+B('100%','44px','12px')+'</div>')+C('260px','100%','24px','<div class="sk-col">'+B('150px','18px')+B('100%','44px','12px')+B('100%','44px','12px')+B('100%','44px','12px')+'</div>')+'</div></div>')
 };
 const ph=document.createElement('div');ph.className='pg-skel pg-ph';ph.id='pg-ph';ph.setAttribute('aria-hidden','true');ph.dataset.t=s.dataset.t||'hero';ph.innerHTML=(LAYOUT[s.dataset.t]||LAYOUT.hero)();s.after(ph);
+/* the real outline of this page (drawn from the page itself by scripts/build-outlines.mjs); the kind-of-page outline above shows until it arrives */
 let logoGone=false,over=false,tLogo=0;
+const PHV='ph1',nm=s.dataset.p;
+if(nm){window.__phLoad=(n,h)=>{if(n===nm&&!over)ph.innerHTML=h;};const sc=document.createElement('script');sc.src='js/ph/'+nm+'.js?v='+PHV;sc.async=true;document.head.append(sc);}
 /* step 1 ends: the logo fades out and the grey outline is what shows */
 const lift=()=>{if(logoGone)return;logoGone=true;tLogo=performance.now();s.classList.add('done');setTimeout(()=>s.remove(),600);};
 /* step 2 ends: the real page appears (the outline always shows for a moment so the change never flashes) */

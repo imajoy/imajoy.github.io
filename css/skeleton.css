@@ -117,3 +117,13 @@ html[data-theme=dark] .pg-skel[data-t=pay]{color:#F1F2F4}html:not([data-theme=da
 .pg-skel.pg-ph.done{animation:none;opacity:0!important;visibility:hidden}
 .pg-skel .sk-card[data-m]{margin-top:24px}
 .pg-skel[data-t=account]{color:var(--ink,#0E1220)}
+
+/* outlines drawn from each page's real layout: one set per screen size, every piece placed where the real thing sits */
+.pg-ph .ph-v{display:none;position:absolute;inset:0;overflow:hidden}
+@media(min-width:1180px){.pg-ph .ph-a{display:block}}
+@media(min-width:700px) and (max-width:1179px){.pg-ph .ph-b{display:block}}
+@media(max-width:699px){.pg-ph .ph-c{display:block}}
+.pg-ph .ph-v i{position:absolute;display:block}
+.pg-ph .ph-v .c{background:var(--sk-card);box-shadow:0 0 0 1px color-mix(in srgb,var(--sk-a) 70%,transparent)}
+.pg-ph .ph-v .b{background:linear-gradient(100deg,var(--sk-a) 30%,var(--sk-b) 50%,var(--sk-a) 70%);background-size:220% 100%;animation:sk-move 1.5s linear infinite}
+@media(prefers-reduced-motion:reduce){.pg-ph .ph-v .b{animation:none}}

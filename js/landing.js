@@ -45,12 +45,12 @@ const linked=[...document.querySelectorAll('[data-lx-tilt],[data-lx-draw]')].map
 /* ---- setup: the little Maya window plays on its own while it is on screen (download, drag in, install, ready), then starts over; the steps can also be clicked ---- */
 const inst=document.querySelector('.lx-inst');
 if(inst){
- const items=[...inst.querySelectorAll('.lx-is')],T=[900,3800,4600,4000];let k=0,timer=0,vis=false;
+ const items=[...inst.querySelectorAll('.lx-is')],T=[300,2300,2600,2400];let k=0,timer=0,vis=false;
  const set=n=>{k=n;inst.dataset.step=String(n);items.forEach((el,i)=>{el.classList.toggle('is-on',i<n);el.classList.toggle('is-now',i===n-1);});};
  const arm=()=>{clearTimeout(timer);if(vis&&!document.hidden&&!calm)timer=setTimeout(()=>{set((k+1)%4);arm();},T[k]);};
  items.forEach((el,i)=>{el.style.cursor='pointer';el.addEventListener('click',()=>{set(i+1);arm();});});
  if(calm)set(3);
- else if('IntersectionObserver' in window)new IntersectionObserver(es=>{vis=es[es.length-1].isIntersecting;if(vis&&k===0)setTimeout(()=>{if(vis&&k===0){set(1);arm();}},350);arm();},{threshold:.35}).observe(inst);
+ else if('IntersectionObserver' in window)new IntersectionObserver(es=>{vis=es[es.length-1].isIntersecting;if(vis&&k===0)setTimeout(()=>{if(vis&&k===0){set(1);arm();}},150);arm();},{threshold:.35}).observe(inst);
  else{vis=true;set(1);arm();}
  document.addEventListener('visibilitychange',arm);
 }

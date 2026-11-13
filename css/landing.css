@@ -486,3 +486,24 @@ html[data-theme=dark] .lx-iv{box-shadow:0 40px 80px -40px rgba(0,0,0,.8),0 0 0 1
 .lx-is-list{padding:6px 24px;border-radius:24px;background:color-mix(in srgb,var(--card,#fff) 72%,transparent);border:1px solid color-mix(in srgb,var(--line) 70%,transparent);-webkit-backdrop-filter:blur(14px) saturate(1.2);backdrop-filter:blur(14px) saturate(1.2)}
 html[data-theme=dark] .lx-is-list{background:rgba(18,23,38,.72);border-color:rgba(255,255,255,.08)}
 @media(max-width:899px){.lx-is-list{padding:2px 16px}}
+/* setup walkthrough: each step is about one second, everything inside it finishes within that */
+.lx-iv-file{transition:transform .45s var(--lx-e),opacity .25s}
+.lx-iv-load i{transition:transform .5s .15s cubic-bezier(.4,0,.2,1)}
+.lx-iv-fn small{transition:opacity .18s}
+.lx-inst[data-step="1"] .lx-iv-fn small:first-of-type{opacity:0;transition-delay:.55s}.lx-inst[data-step="1"] .lx-iv-fn small+small{opacity:1;transition-delay:.62s}
+.lx-inst[data-step="1"] .lx-iv-cur{transition:transform .65s .05s var(--lx-e2)}
+.lx-iv-ring{transition:opacity .25s,transform .45s var(--lx-e)}
+.lx-iv-dlg{transition:opacity .28s,transform .42s var(--lx-e)}
+.lx-inst[data-step="2"] .lx-iv-file{transition:transform .35s var(--lx-e),opacity .2s .2s}
+.lx-inst[data-step="2"] .lx-iv-ring{animation:lxRing .45s .1s var(--lx-e) both}
+.lx-inst[data-step="2"] .lx-iv-dlg{transition-delay:.22s}
+.lx-inst[data-step="2"] .lx-iv-btn{animation:lxPress .28s .65s ease both}
+.lx-inst[data-step="2"] .lx-iv-cur{transition:transform .6s .05s var(--lx-e2)}
+.lx-iv-shelf span{transition:opacity .25s,transform .4s cubic-bezier(.34,1.56,.64,1)}
+.lx-inst[data-step="3"] .lx-iv-shelf span{transition-delay:calc(.03s + var(--k)*.04s)}
+.lx-iv-toast{transition:opacity .25s,transform .4s cubic-bezier(.34,1.56,.64,1)}
+.lx-inst[data-step="3"] .lx-iv-toast{transition-delay:.3s}
+.lx-inst[data-step="3"] .lx-iv-cur{transition:transform .6s .05s var(--lx-e2)}
+.lx-is::after{transition:transform .5s var(--lx-e)}
+.lx-is-mark{transition:background-color .3s,border-color .3s,color .3s,transform .4s cubic-bezier(.34,1.56,.64,1)}
+.lx-is h3,.lx-is p{transition:opacity .3s,transform .45s var(--lx-e)}

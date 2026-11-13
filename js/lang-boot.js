@@ -71,17 +71,67 @@
 
       /* translated text: the design's tight tracking, low line height and clipped reveal lines are made for English */
       'html[data-script=complex] body *:not(svg):not(svg *){letter-spacing:0!important;word-spacing:normal!important;text-transform:none!important}' +
-      'html[data-script=complex] h1{font-size:clamp(26px,4.6vw,62px)!important;line-height:1.32!important}' +
-      'html[data-script=complex] h2{font-size:clamp(22px,3.1vw,40px)!important;line-height:1.35!important}' +
+      /* only the line height changes for every heading; a heading that is large in the English design is scaled down by the script below (class lang-big), so small card titles keep their designed size */
+      'html[data-script=complex] h1{line-height:1.32!important}' +
+      'html[data-script=complex] h2{line-height:1.35!important}' +
+      'html[data-script=complex] .lang-big{font-size:var(--lfs)!important}' +
       'html[data-script=complex] h3,html[data-script=complex] h4{line-height:1.4!important}' +
       'html[data-script=complex] p,html[data-script=complex] li,html[data-script=complex] .sub{line-height:1.75!important}' +
-      'html[data-script=complex] .ln,html[data-script=complex] .h-line,html[data-script=complex] [class*=reveal]{overflow:visible!important;padding:0!important;margin:0!important}' +
+      'html[data-script=complex] .ln,html[data-script=complex] .h-line,html[data-script=complex] .lx-line,html[data-script=complex] .pp-words .pw,html[data-script=complex] .tx-h .tx-w{overflow:visible!important;padding:0!important;margin:0!important}' +
       'html[data-script=complex] h1 em,html[data-script=complex] h2 em{padding:.08em .04em!important}' +
       'html[data-script=latin] h1{line-height:1.08!important}html[data-script=latin] .ln{padding-bottom:.18em!important}' +
       'html[data-script] h1,html[data-script] h2{overflow-wrap:anywhere}' +
       '@media(prefers-reduced-motion:reduce){html[data-lang-busy] body,body{transition:none}#lang-bar{animation:none!important}}';
     document.head.appendChild(s);
     var b = document.createElement('div'); b.id = 'lang-bar'; b.setAttribute('aria-hidden', 'true'); document.body.appendChild(b);
+  }
+  /* After translation: the translator drops the space beside protected names, dates and links, so a sentence runs together
+     ("...রাখুনWrapline Proআপনার..."). The missing space is put back, and large headings are scaled for the script. */
+  var spaced = [], mendTimer = 0, watching = false, NOSP = /[\u3040-\u30ff\u3400-\u9fff\u0e00-\u0e7f]/;
+  function lastCh(n) { var t = n.textContent || ''; return t.charAt(t.length - 1); }
+  function firstCh(n) { return (n.textContent || '').charAt(0); }
+  function missing(a, b) {
+    var x = lastCh(a), y = firstCh(b);
+    if (!x || !y || /[\s\u00a0([{\u00ab\u201c\u2018'"\/\u2013\u2014-]/.test(x) || /[\s\u00a0)\]}\u00bb\u201d\u2019'".,;:!?%\u0964\u0965\u3001\u3002\uff0c\uff01\uff1f\uff09\u2026\/\u2013\u2014|\u00b7-]/.test(y)) return false;
+    return !(NOSP.test(x) || NOSP.test(y));
+  }
+  function inline(n) {
+    if (n.nodeType === 3) return !!n.nodeValue.trim();
+    if (n.nodeType !== 1 || n.tagName === 'BR' || n.__ls) return false;
+    return /^inline/.test(getComputedStyle(n).display);
+  }
+  function mend() {
+    if (cur === 'en' || !document.body) return;
+    var all = document.body.querySelectorAll('span,a,strong,b,em,i,u,time,code,small,mark,abbr,sup,sub,kbd,label,bdi'), i, e, p, prev, next, s;
+    for (i = 0; i < all.length; i++) {
+      e = all[i]; p = e.parentNode;
+      if (!p || p.nodeType !== 1 || e.closest('#gt-host,script,style,svg,textarea,select,.lng-list')) continue;
+      if (!e.classList.contains('notranslate') && !e.querySelector('font') && !p.querySelector(':scope>font')) continue;
+      prev = e.previousSibling; next = e.nextSibling;
+      if (prev && !prev.__ls && missing(prev, e) && inline(prev) && inline(e) && !/flex|grid/.test(getComputedStyle(p).display)) { s = document.createTextNode(' '); s.__ls = 1; spaced.push(s); p.insertBefore(s, e); }
+      if (next && !next.__ls && missing(e, next) && inline(next) && inline(e) && !/flex|grid/.test(getComputedStyle(p).display)) { s = document.createTextNode(' '); s.__ls = 1; spaced.push(s); p.insertBefore(s, next); }
+    }
+  }
+  function sizeHeads() {
+    var hs = document.querySelectorAll('h1,h2,h3'), i, h, fs, list = [], on = cur !== 'en' && root.getAttribute('data-script') === 'complex';
+    for (i = 0; i < hs.length; i++) { hs[i].classList.remove('lang-big'); hs[i].style.removeProperty('--lfs'); }
+    if (!on) return;
+    for (i = 0; i < hs.length; i++) { h = hs[i]; if (!h.offsetWidth) continue; fs = parseFloat(getComputedStyle(h).fontSize); if (fs > 40) list.push([h, fs]); }
+    list.forEach(function (r) { r[0].style.setProperty('--lfs', Math.max(24, Math.round(r[1] * .8)) + 'px'); r[0].classList.add('lang-big'); });
+  }
+  function tidy() { mend(); sizeHeads(); }
+  function later() { clearTimeout(mendTimer); mendTimer = setTimeout(tidy, 300); }
+  function undo() {
+    spaced.forEach(function (n) { if (n.parentNode) n.parentNode.removeChild(n); }); spaced = [];
+    [].forEach.call(document.querySelectorAll('.lang-big'), function (h) { h.classList.remove('lang-big'); h.style.removeProperty('--lfs'); });
+  }
+  function watch() {
+    if (watching || !window.MutationObserver) return; watching = true;
+    new MutationObserver(function (list) {
+      if (cur === 'en') return;
+      for (var i = 0; i < list.length; i++) { var a = list[i].addedNodes; for (var j = 0; j < a.length; j++) if (!a[j].__ls) return later(); }
+    }).observe(document.body, { childList: true, subtree: true });
+    window.addEventListener('resize', function () { if (cur !== 'en') later(); });
   }
   function busy(on) { if (on) root.setAttribute('data-lang-busy', ''); else root.removeAttribute('data-lang-busy'); }
   function engine() {
@@ -128,7 +178,7 @@
     if (code === 'en' && !/translated-(ltr|rtl)/.test(root.className) && !loading) { listeners.forEach(function (f) { f(code); }); return Promise.resolve(true); }
     if (!document.getElementById('lang-style') && code !== 'en') style();
     busy(true); listeners.forEach(function (f) { f(code); });
-    return apply(code).then(function () { busy(false); return true; }, function () {
+    return apply(code).then(function () { busy(false); if (code === 'en') undo(); else { watch(); later(); } return true; }, function () {
       /* translator could not load (offline, blocked): go back to English quietly */
       cur = prev; script(prev); root.lang = prev; try { localStorage.setItem(KEY, prev); } catch (e) {} cookie(prev); busy(false); listeners.forEach(function (f) { f(prev); }); return false;
     });
@@ -141,7 +191,7 @@
   };
   function boot() {
     protect();
-    if (CAN && cur !== 'en') { cookie(cur); root.lang = cur; script(cur); style(); busy(true); apply(cur).then(function () { busy(false); }, function () { busy(false); cur = 'en'; try { localStorage.setItem(KEY, 'en'); } catch (e) {} cookie('en'); }); }
+    if (CAN && cur !== 'en') { cookie(cur); root.lang = cur; script(cur); style(); busy(true); apply(cur).then(function () { busy(false); watch(); later(); }, function () { busy(false); cur = 'en'; try { localStorage.setItem(KEY, 'en'); } catch (e) {} cookie('en'); }); }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })();

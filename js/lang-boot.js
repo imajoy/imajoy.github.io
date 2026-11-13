@@ -35,7 +35,26 @@
   }
   /* things that must stay exactly as written, in every language */
   function protect() {
-    try { document.querySelectorAll('code,pre,kbd,samp,select,option,textarea,.notranslate,#iv-print,.iv-paper,[data-price],.brand,.logo,.wordmark').forEach(function (e) { e.setAttribute('translate', 'no'); e.classList.add('notranslate'); }); } catch (e) {}
+    try { document.querySelectorAll('code,pre,kbd,samp,select,option,textarea,.notranslate,#iv-print,.iv-paper,[data-price],.brand,.logo,.wordmark,.fp-word').forEach(function (e) { e.setAttribute('translate', 'no'); e.classList.add('notranslate'); }); } catch (e) {}
+    brandNames(document.body);
+  }
+  /* product names stay in English in every language ("Wrapline Free" must never become "free wrap line") */
+  var BRAND = /\bWrapline(?:\s+(?:Free|Pro)(?:\s+(?:Basic|Premium))?)?\b/g;
+  function brandNames(root) {
+    if (!root || !document.createTreeWalker) return;
+    try {
+      var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function (n) {
+        var p = n.parentElement; if (!p || !/Wrapline/.test(n.nodeValue)) return NodeFilter.FILTER_REJECT;
+        if (p.closest('script,style,textarea,select,option,title,button,.btn,.lx-btn,[data-bm],.fp-stub,.notranslate,[translate=no]')) return NodeFilter.FILTER_REJECT;
+        return NodeFilter.FILTER_ACCEPT; } });
+      var list = []; while (w.nextNode()) list.push(w.currentNode);
+      list.forEach(function (n) {
+        var t = n.nodeValue, frag = document.createDocumentFragment(), last = 0; BRAND.lastIndex = 0; var m;
+        while ((m = BRAND.exec(t))) { if (m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index))); var sp = document.createElement('span'); sp.className = 'notranslate'; sp.setAttribute('translate', 'no'); sp.textContent = m[0]; frag.appendChild(sp); last = m.index + m[0].length; }
+        if (last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
+        n.parentNode.replaceChild(frag, n);
+      });
+    } catch (e) {}
   }
   function style() {
     if (document.getElementById('lang-style')) return;

@@ -5,8 +5,14 @@ const tick=()=>new Promise(r=>setTimeout(r,0));
 export async function start(canvas){
  const root=document.documentElement;
  const phone=matchMedia('(max-width:680px)').matches,coarse=matchMedia('(pointer:coarse)').matches;
+ /* a browser that draws with the processor instead of a graphics chip (a virtual machine, a speed test, some old PCs) gets a lighter picture:
+    lower resolution, no edge smoothing, about 30 frames a second. Anything with a graphics chip is unchanged. */
+ let soft=false;
+ try{const g=document.createElement('canvas').getContext('webgl'),x=g&&g.getExtension('WEBGL_debug_renderer_info');
+  soft=!!x&&/swiftshader|llvmpipe|softpipe|software|basic render|microsoft basic/i.test(String(g.getParameter(x.UNMASKED_RENDERER_WEBGL)));
+  g&&g.getExtension('WEBGL_lose_context')&&g.getExtension('WEBGL_lose_context').loseContext();}catch{}
  let renderer;
- try{renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:!coarse,powerPreference:'high-performance'});}catch{return false;}
+ try{renderer=new THREE.WebGLRenderer({canvas,alpha:true,antialias:!coarse&&!soft,powerPreference:'high-performance'});}catch{return false;}
  if(!renderer.getContext())return false;
  renderer.setClearColor(0x000000,0);
  const scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(42,1,.1,120);
@@ -77,7 +83,7 @@ export async function start(canvas){
  function paint(){P=pal();scene.fog.color.setHex(P.bg);for(const m of [ink,boneMat,gridMat,dustMat,dotMat])m.color.setHex(P.ink);gridMat.opacity=P.grid;dustMat.opacity=P.dust;face.color.setHex(P.face);halo.material.opacity=theme()?.16:.1;}
  paint();new MutationObserver(paint).observe(root,{attributes:true,attributeFilter:['data-theme']});
  /* sizing */
- let W=0,H=0,cap=coarse?1.25:1.5,slow=0,frames=0,lastT=0;
+ let W=0,H=0,cap=soft?.6:coarse?1.25:1.5,slow=0,lastDraw=0,frames=0,lastT=0;
  function size(){const w=canvas.clientWidth||innerWidth,h=canvas.clientHeight||innerHeight;if(w===W&&h===H)return;W=w;H=h;renderer.setPixelRatio(Math.min(devicePixelRatio||1,cap));renderer.setSize(w,h,false);camera.aspect=w/h;camera.fov=w<h?56:42;camera.updateProjectionMatrix();}
  size();addEventListener('resize',size,{passive:true});
  /* motion */
@@ -95,6 +101,7 @@ export async function start(canvas){
  const ease=t=>1-Math.pow(1-t,3);
  function frame(now){
   raf=requestAnimationFrame(frame);if(!alive)return;
+  if(soft){if(now-lastDraw<30)return;lastDraw=now;}
   if(!born)born=now;const t=(now-born)/1000;
   /* if this device cannot keep up, the scene drops to a lighter resolution instead of making the page stutter */
   if(lastT&&cap>.75){const dt=now-lastT;if(dt<200){frames++;if(dt>24)slow++;if(frames>=90){if(slow>30){cap=cap>1?1:.75;W=0;size();}frames=0;slow=0;}}}lastT=now;

@@ -10,7 +10,7 @@ let sceneReady=Promise.resolve();
 const canvas=document.getElementById('lx-scene');
 const lite=navigator.connection?.saveData===true;
 if(canvas&&!calm&&!lite){
- sceneReady=import('./landing-scene.js?v=lx5').then(m=>m.start(canvas)).then(ok=>{if(ok)cl.add('lx-3d');}).catch(()=>{});
+ sceneReady=import('./landing-scene.js?v=lx6').then(m=>m.start(canvas)).then(ok=>{if(ok)cl.add('lx-3d');}).catch(()=>{});
 }
 /* ---- grey outline of the page: shown under the intro curtain for its last ~30%, so it never adds waiting time ---- */
 let phEl=null;

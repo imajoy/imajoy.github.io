@@ -1,6 +1,8 @@
 /* Landing page 3D scene: a Maya-style graph space. The Wrapline curve runs through it between keys; scrolling flies the camera along the curve while a playhead travels it. */
 import * as THREE from './vendor/three.module.min.js';
-export function start(canvas){
+/* the set-up runs in short pieces with a breath between them, so the page can keep painting and responding while the scene is built */
+const tick=()=>new Promise(r=>setTimeout(r,0));
+export async function start(canvas){
  const root=document.documentElement;
  const phone=matchMedia('(max-width:680px)').matches,coarse=matchMedia('(pointer:coarse)').matches;
  let renderer;
@@ -20,7 +22,7 @@ export function start(canvas){
  const tube=new THREE.Mesh(new THREE.TubeGeometry(curve,SEG,.045,8,false),new THREE.MeshBasicMaterial({color:BLUE}));
  const halo=new THREE.Mesh(new THREE.TubeGeometry(curve,SEG,.16,8,false),new THREE.MeshBasicMaterial({color:BLUE,transparent:true,opacity:.1,depthWrite:false}));
  const total=tube.geometry.index.count;tube.geometry.setDrawRange(0,0);halo.geometry.setDrawRange(0,0);
- scene.add(halo,tube);
+ scene.add(halo,tube); await tick();
  /* keys with their tangent handles, as in the graph editor */
  const ink=new THREE.LineBasicMaterial({color:P.ink,transparent:true,opacity:.42});
  const face=new THREE.MeshBasicMaterial({color:P.face});
@@ -36,14 +38,14 @@ export function start(canvas){
   g.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([b,a]),ink));
   for(const v of [a,b]){const d=new THREE.Mesh(dotGeo,dotMat);d.position.copy(v);g.add(d);}
   scene.add(g);keys.push({g,body,u});
- }
+ } await tick();
  /* floor grid */
  const gv=[];const GX=34,Z0=14,Z1=-64,STEP=2;
  for(let x=-GX;x<=GX;x+=STEP)gv.push(x,0,Z0,x,0,Z1);
  for(let z=Z0;z>=Z1;z-=STEP)gv.push(-GX,0,z,GX,0,z);
  const gridGeo=new THREE.BufferGeometry();gridGeo.setAttribute('position',new THREE.Float32BufferAttribute(gv,3));
  const gridMat=new THREE.LineBasicMaterial({color:P.ink,transparent:true,opacity:P.grid});
- const grid=new THREE.LineSegments(gridGeo,gridMat);grid.position.y=-2.6;scene.add(grid);
+ const grid=new THREE.LineSegments(gridGeo,gridMat);grid.position.y=-2.6;scene.add(grid); await tick();
  /* joint chains: the way Maya draws bones, swaying as if keyed */
  const boneMat=new THREE.LineBasicMaterial({color:P.ink,transparent:true,opacity:.5});
  const jointGeo=new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(.2,0));
@@ -60,13 +62,13 @@ export function start(canvas){
   const tip=new THREE.LineSegments(jointGeo,edge);tip.position.y=lens[lens.length-1];parent.add(tip);
   scene.add(base);chains.push({joints,seed:chains.length*1.7});
  }
- chain(7.6,-2.4,-6,[2.1,1.7,1.1],.5);chain(-8.6,-2.4,-21,[1.9,1.6,1],-.45);chain(7,-2.4,-31,[2.2,1.6,1.1],.4);
+ chain(7.6,-2.4,-6,[2.1,1.7,1.1],.5);chain(-8.6,-2.4,-21,[1.9,1.6,1],-.45);chain(7,-2.4,-31,[2.2,1.6,1.1],.4); await tick();
  /* dust for depth */
  const N=phone?140:320,dp=new Float32Array(N*3);
  for(let i=0;i<N;i++){dp[i*3]=(Math.random()-.5)*36;dp[i*3+1]=Math.random()*9-2.4;dp[i*3+2]=10-Math.random()*62;}
  const dustGeo=new THREE.BufferGeometry();dustGeo.setAttribute('position',new THREE.BufferAttribute(dp,3));
  const dustMat=new THREE.PointsMaterial({color:P.ink,size:.055,transparent:true,opacity:P.dust,sizeAttenuation:true,depthWrite:false});
- scene.add(new THREE.Points(dustGeo,dustMat));
+ scene.add(new THREE.Points(dustGeo,dustMat)); await tick();
  /* playhead that rides the curve */
  const head=new THREE.Group();
  head.add(new THREE.Mesh(new THREE.SphereGeometry(.13,16,16),new THREE.MeshBasicMaterial({color:GOLD})));

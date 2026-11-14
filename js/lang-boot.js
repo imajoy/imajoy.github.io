@@ -48,12 +48,14 @@
         if (p.closest('script,style,textarea,select,option,title,button,.btn,.lx-btn,[data-bm],.fp-stub,.notranslate,[translate=no]')) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT; } });
       var list = []; while (w.nextNode()) list.push(w.currentNode);
-      list.forEach(function (n) {
+      /* read every parent's display first, then change the page, so the browser lays the page out once instead of once per text node */
+      var pds = list.map(function (n) { try { return getComputedStyle(n.parentNode).display; } catch (e) { return ''; } });
+      list.forEach(function (n, ix) {
         var t = n.nodeValue, frag = document.createDocumentFragment(), last = 0; BRAND.lastIndex = 0; var m;
         while ((m = BRAND.exec(t))) { if (m.index > last) frag.appendChild(document.createTextNode(t.slice(last, m.index))); var sp = document.createElement('span'); sp.className = 'notranslate'; sp.setAttribute('translate', 'no'); sp.textContent = m[0]; frag.appendChild(sp); last = m.index + m[0].length; }
         if (last < t.length) frag.appendChild(document.createTextNode(t.slice(last)));
         /* inside a flex or grid box every loose piece becomes its own column, so the whole sentence goes into one wrapper to stay together */
-        var pd = ''; try { pd = getComputedStyle(n.parentNode).display; } catch (e) {}
+        var pd = pds[ix];
         if (/flex|grid/.test(pd)) { var wrap = document.createElement('span'); wrap.appendChild(frag); frag = wrap; }
         n.parentNode.replaceChild(frag, n);
       });
@@ -104,13 +106,14 @@
   function mend() {
     if (cur === 'en' || !document.body) return;
     var all = document.body.querySelectorAll('span,a,strong,b,em,i,u,time,code,small,mark,abbr,sup,sub,kbd,label,bdi'), i, e, p, prev, next, s;
+    var flexOf = new Map(), isFlex = function (el) { var v = flexOf.get(el); if (v === undefined) { v = /flex|grid/.test(getComputedStyle(el).display); flexOf.set(el, v); } return v; };
     for (i = 0; i < all.length; i++) {
       e = all[i]; p = e.parentNode;
       if (!p || p.nodeType !== 1 || e.closest('#gt-host,script,style,svg,textarea,select,.lng-list')) continue;
       if (!e.classList.contains('notranslate') && !e.querySelector('font') && !p.querySelector(':scope>font')) continue;
       prev = e.previousSibling; next = e.nextSibling;
-      if (prev && !prev.__ls && missing(prev, e) && inline(prev) && inline(e) && !/flex|grid/.test(getComputedStyle(p).display)) { s = document.createTextNode(' '); s.__ls = 1; spaced.push(s); p.insertBefore(s, e); }
-      if (next && !next.__ls && missing(e, next) && inline(next) && inline(e) && !/flex|grid/.test(getComputedStyle(p).display)) { s = document.createTextNode(' '); s.__ls = 1; spaced.push(s); p.insertBefore(s, next); }
+      if (prev && !prev.__ls && missing(prev, e) && inline(prev) && inline(e) && !isFlex(p)) { s = document.createTextNode(' '); s.__ls = 1; spaced.push(s); p.insertBefore(s, e); }
+      if (next && !next.__ls && missing(e, next) && inline(next) && inline(e) && !isFlex(p)) { s = document.createTextNode(' '); s.__ls = 1; spaced.push(s); p.insertBefore(s, next); }
     }
   }
   function sizeHeads() {

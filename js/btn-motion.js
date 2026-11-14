@@ -30,11 +30,11 @@ function roll(node,b){
  host.classList.add('bm-t');host.dataset.t=text.trim();
  const l=document.createElement('span');l.className='bm-l';l.textContent=node.nodeType===3?text.trim():text;host.append(l);
 }
-function dress(b){
+function dress(b,pos){
  if(b.dataset.bm)return;
  if(b.matches(OWN)){b.dataset.bm='own';return;}
  b.dataset.bm=kindOf(b);
- if(getComputedStyle(b).position==='static')b.classList.add('bm-rel');
+ if((pos===undefined?getComputedStyle(b).position:pos)==='static')b.classList.add('bm-rel');
  if(b.querySelector('.bm-t,input,select,textarea,img'))return;
  for(const n of [...b.childNodes]){
   if(n.nodeType===3&&n.textContent.trim().length>1){roll(n,b);break;}
@@ -42,7 +42,8 @@ function dress(b){
  }
  if(b.dataset.bm==='pay'||b.dataset.bm==='get'){const fx=document.createElement('i');fx.className='bm-fx';fx.setAttribute('aria-hidden','true');b.append(fx);}
 }
-const dressAll=r=>{for(const b of (r||document).querySelectorAll(BTN))dress(b);};
+/* read every button's position first, then dress them, so the page is laid out once instead of once per button */
+const dressAll=r=>{const all=[...(r||document).querySelectorAll(BTN)],todo=all.filter(b=>!b.dataset.bm&&!b.matches(OWN)),pos=todo.map(b=>getComputedStyle(b).position);let k=0;for(const b of all){if(todo[k]===b){dress(b,pos[k]);k++;}else dress(b);}};
 /* the rolling copy always shows the label as it reads now (after a language change or a script update) */
 const sync=b=>{const t=b.querySelector('.bm-t');if(t){const l=t.querySelector('.bm-l');if(l)t.dataset.t=l.textContent.trim();else{t.classList.remove('bm-t');}}};
 function ink(b,x,y){

@@ -10,7 +10,7 @@ let sceneReady=Promise.resolve();
 const canvas=document.getElementById('lx-scene');
 const lite=navigator.connection?.saveData===true;
 if(canvas&&!calm&&!lite){
- sceneReady=import('./landing-scene.js?v=lx4').then(m=>m.start(canvas)).then(ok=>{if(ok)cl.add('lx-3d');}).catch(()=>{});
+ sceneReady=import('./landing-scene.js?v=lx5').then(m=>m.start(canvas)).then(ok=>{if(ok)cl.add('lx-3d');}).catch(()=>{});
 }
 /* ---- grey outline of the page: shown under the intro curtain for its last ~30%, so it never adds waiting time ---- */
 let phEl=null;
@@ -45,10 +45,14 @@ addEventListener('pageshow',e=>{if(e.persisted)leave();});
 /* ---- reveals ---- */
 /* A block animates in each time it comes onto the screen, from whichever side it arrives: from below when scrolling down, from above
    when scrolling back up. It is only reset once it has left the screen completely, so nothing ever disappears while visible. */
-const io='IntersectionObserver' in window?new IntersectionObserver(es=>{for(const e of es){const n=e.target;
- if(e.isIntersecting&&(e.intersectionRatio>=.1||e.intersectionRect.height>innerHeight*.25)){if(!n.classList.contains('in')){/* which side is it arriving from? set that first, so it starts from the right place */const from=e.boundingClientRect.top<0?'above':'below';if(n.dataset.from!==from){n.dataset.from=from;void n.offsetWidth;}n.classList.add('in');clearTimeout(n._d);n._d=setTimeout(()=>n.classList.add('lx-done'),1700);}}
+const io='IntersectionObserver' in window?new IntersectionObserver(es=>{const go=[];
+ /* pass 1: set which side each block arrives from; pass 2 (after one style flush for all of them) starts the animation */
+ for(const e of es){const n=e.target;
+ if(e.isIntersecting&&(e.intersectionRatio>=.1||e.intersectionRect.height>innerHeight*.25)){if(!n.classList.contains('in')){const from=e.boundingClientRect.top<0?'above':'below';if(n.dataset.from!==from)n.dataset.from=from;go.push(n);}}
  else if(!e.isIntersecting){clearTimeout(n._d);n.classList.remove('in','lx-done');n.dataset.from=e.boundingClientRect.top<0?'above':'below';}
-}},{threshold:[0,.1,.25]}):null;
+ }
+ if(go.length){void go[0].offsetWidth;for(const n of go){n.classList.add('in');clearTimeout(n._d);n._d=setTimeout(()=>n.classList.add('lx-done'),1700);}}
+},{threshold:[0,.1,.25]}):null;
 for(const n of document.querySelectorAll('[data-lx-r]')){if(io&&!calm)io.observe(n);else n.classList.add('in');}
 /* ---- scroll-linked planes and drawn curves: each gets --p from 0 (entering) to 1 (in place) ---- */
 const linked=[...document.querySelectorAll('[data-lx-tilt],[data-lx-draw]')].map(n=>({n,draw:n.hasAttribute('data-lx-draw'),last:-1,steps:n.classList.contains('lx-time')&&!n.classList.contains('lx-inst')?[...n.querySelectorAll('.lx-step')].map(el=>({el,at:parseFloat(el.style.getPropertyValue('--at'))||0})):null}));

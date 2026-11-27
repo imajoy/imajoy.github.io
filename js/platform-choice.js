@@ -27,11 +27,12 @@
       b.addEventListener('click', function () { set(k, true); });
       bar.appendChild(b);
     });
-    soon.setAttribute('role', 'status'); soon.hidden = true;
+    soon.setAttribute('role', 'status');
     soon.innerHTML = '<span class="pc-soon-ico" aria-hidden="true">' + SVG.mac + '</span><div><b>' + product + ' for Mac is in beta</b>' +
       '<p>It is new and still being tested on real Macs. If anything does not work, please tell us on the Support page.</p></div>';
-    wrap.append(bar, soon);
-    var g = { wrap: wrap, bar: bar, soon: soon, product: product };
+    var drop = el('div', 'pc-drop'), dropIn = el('div', 'pc-drop-in');
+    drop.setAttribute('aria-hidden', 'true'); dropIn.appendChild(soon); drop.appendChild(dropIn); wrap.append(bar, drop);
+    var g = { wrap: wrap, bar: bar, soon: soon, drop: drop, product: product };
     groups.push(g); return g;
   }
 
@@ -39,8 +40,7 @@
     groups.forEach(function (g) {
       g.bar.dataset.os = os;
       [].forEach.call(g.bar.querySelectorAll('.pc-opt'), function (b) { b.setAttribute('aria-checked', String(b.dataset.os === os)); b.tabIndex = b.dataset.os === os ? 0 : -1; });
-      var was = g.soon.hidden; g.soon.hidden = os !== 'mac';
-      if (was && os === 'mac') { g.soon.classList.remove('is-in'); void g.soon.offsetWidth; g.soon.classList.add('is-in'); }
+      g.drop.classList.toggle('is-open', os === 'mac'); g.drop.setAttribute('aria-hidden', String(os !== 'mac'));
     });
     document.documentElement.dataset.os = os;
     var tag = document.querySelector('.download-file small');

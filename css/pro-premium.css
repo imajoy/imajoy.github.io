@@ -261,3 +261,4 @@ html.is-scrolling body.pro-page .trial-stage::before,html.is-scrolling body.pro-
 @media(prefers-reduced-motion:reduce){body.pro-page .trial-stage::before,body.pro-page .plan.plan-lead::after,body.pro-page .frame::before{animation:none!important;opacity:.8}}
 /* the panel's own entrance: rise only (no scaling, which re-rasterises the text while it moves) */
 @keyframes pp-stage-in{from{transform:translate3d(0,40px,0)}to{transform:none}}
+body.pro-page .closing{overflow-x:clip}

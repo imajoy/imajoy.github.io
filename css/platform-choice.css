@@ -9,7 +9,7 @@
 .pc-opt:focus-visible{outline:2px solid var(--blue,#3D8BFF);outline-offset:2px}
 .pc-opt em{font-family:inherit;font-weight:600;font-size:.6875rem;line-height:1;font-style:normal;letter-spacing:.02em;padding:4px 7px;border-radius:99px;background:rgba(255,122,92,.16);color:#C2452A}
 html[data-theme=dark] .pc-opt em{background:rgba(255,122,92,.2);color:#FF9A82}
-.pc-soon{display:flex;gap:14px;align-items:flex-start;margin-top:12px;padding:16px;border-radius:14px;background:var(--t05,rgba(14,18,32,.05));box-shadow:inset 0 0 0 1px var(--line,#D3D9E4)}
+.pc-soon{width:0;min-width:100%;box-sizing:border-box;display:flex;gap:14px;align-items:flex-start;margin-top:12px;padding:16px;border-radius:14px;background:var(--t05,rgba(14,18,32,.05));box-shadow:inset 0 0 0 1px var(--line,#D3D9E4)}
 .pc-soon[hidden]{display:none}
 .pc-soon.is-in{animation:pcin .5s cubic-bezier(.16,1,.3,1)}
 @keyframes pcin{from{opacity:0;translate:0 8px}to{opacity:1;translate:0 0}}

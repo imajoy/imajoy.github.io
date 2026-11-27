@@ -15,6 +15,24 @@
 
   window.wlOS = function () { return os; };
 
+  /* Text change: the old words ease out, the new words are set at that exact moment and ease in (opacity and a few
+     pixels of travel only, so it runs on the compositor). The first paint is instant; quick switching just retargets. */
+  function swapText(node, text) {
+    node._want = text;
+    if (!node.dataset.ready || !node.animate || matchMedia('(prefers-reduced-motion: reduce)').matches) { node.textContent = text; node.dataset.ready = '1'; return; }
+    if (node.textContent === text && !node._out) return;
+    if (node._out) return;
+    if (node._in) { node._in.cancel(); node._in = null; }
+    var out = node.animate([{ opacity: 1, transform: 'translateY(0)' }, { opacity: 0, transform: 'translateY(-4px)' }], { duration: 160, easing: 'cubic-bezier(.4,0,1,1)', fill: 'forwards' });
+    node._out = out;
+    out.onfinish = function () {
+      node._out = null; node.textContent = node._want;
+      var back = node.animate([{ opacity: 0, transform: 'translateY(5px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 300, easing: 'cubic-bezier(.16,1,.3,1)' });
+      back.onfinish = function () { out.cancel(); };
+      node._in = back;
+    };
+  }
+
   function el(tag, cls, html) { var n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; }
 
   function build(product) {
@@ -46,20 +64,12 @@
     var tag = document.querySelector('.download-file small');
     if (tag) {
       var line = (os === 'mac' ? 'macOS (beta)' : 'Windows') + ' · Autodesk Maya 2023–2026 · Wrapline Pro';
-      if (tag.textContent !== line) {
-        if (tag.dataset.ready && tag.animate) { tag.animate([{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease' }); setTimeout(function () { tag.textContent = line; }, 160); }
-        else tag.textContent = line;
-      }
-      tag.dataset.ready = '1';
+      swapText(tag, line);
     }
     var plat = document.getElementById('dl-platform');
     if (plat) {
       var ptxt = 'Autodesk Maya 2023, 2024, 2025 and 2026 on ' + (os === 'mac' ? 'macOS (macOS is in beta)' : 'Windows');
-      if (plat.textContent !== ptxt) {
-        if (plat.dataset.ready && plat.animate) { plat.animate([{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease' }); setTimeout(function () { plat.textContent = ptxt; }, 160); }
-        else plat.textContent = ptxt;
-      }
-      plat.dataset.ready = '1';
+      swapText(plat, ptxt);
     }
     document.dispatchEvent(new CustomEvent('wl:os', { detail: os }));
   }

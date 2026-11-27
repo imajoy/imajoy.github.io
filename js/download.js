@@ -20,7 +20,7 @@ async function download(){
  if(busy)return;if(!getAccountSession()){pending=true;openAccount({purpose:'download'});return;}
  busy=true;state('working');title.textContent='Preparing your installer.';sub.textContent='Verifying your registered account…';status.textContent='Checking your account…';
  try{
-  const result=await secureCommerce('download');
+  const result=await secureCommerce('download',{system:window.wlOS&&window.wlOS()==='mac'?'mac':'win'});
   const parsed=new URL(result.url);const configured=new URL(window.AJOY_CONFIG.commerceUrl);
   if(parsed.protocol!=='https:'||parsed.origin!==configured.origin)throw new Error('The installer link could not be verified.');
   const link=document.createElement('a');link.href=parsed.href;link.download=result.name||'Wrapline_Pro_Setup.py';link.rel='noopener';document.body.append(link);link.click();link.remove();

@@ -61,7 +61,7 @@ async function go(button){
  if(url){location.href=url;return;}
  if(busy)return;busy=true;setBusy(button,true);progress(button);
  try{
-  const result=await secureCommerce('download',{product:'free'});
+  const result=await secureCommerce('download',{product:'free',system:window.wlOS&&window.wlOS()==='mac'?'mac':'win'});
   const parsed=new URL(result.url),configured=new URL(window.AJOY_CONFIG.commerceUrl);
   if(parsed.protocol!=='https:'||parsed.origin!==configured.origin)throw new Error('The download link could not be verified.');
   const link=document.createElement('a');link.href=parsed.href;link.download='Wrapline_Setup.py';link.rel='noopener';document.body.append(link);link.click();link.remove();

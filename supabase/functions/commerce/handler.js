@@ -70,7 +70,10 @@ export async function handleCommerceRequest(req,env,request=fetch,networkOf=crea
    if(!base||!key||!bucket)throw fail('The registered download is not connected yet.',503);
    // The free Setup is Wrapline_Setup.py in the bucket (the older Wrapline_Free_Setup.py name is still tried second).
    // The paid Setup is always Wrapline_Pro_Setup.py, so the two can never be mixed up.
-   const objects=free?['Wrapline_Setup.py','Wrapline_Free_Setup.py']:['Wrapline_Pro_Setup.py',...(legacy&&legacy!=='Wrapline_Setup.py'&&legacy!=='Wrapline_Free_Setup.py'?[legacy]:[])];
+   // A Mac visitor (system "mac") gets the Mac free Setup and nothing else: never the Windows file as a fallback.
+   // The paid Setup works out the system itself when it signs in, so Mac uses Wrapline_Pro_Setup_Mac.py when that exists, else the shared one.
+   const mac=data.system==='mac';
+   const objects=free&&mac?['Wrapline_Free_Setup_Mac.py']:mac?['Wrapline_Pro_Setup_Mac.py','Wrapline_Pro_Setup.py']:free?['Wrapline_Setup.py','Wrapline_Free_Setup.py']:['Wrapline_Pro_Setup.py',...(legacy&&legacy!=='Wrapline_Setup.py'&&legacy!=='Wrapline_Free_Setup.py'?[legacy]:[])];
    let signedPath='';
    for(const object of objects){
     const encoded=[bucket,...object.split('/')].map(encodeURIComponent).join('/');
@@ -78,7 +81,7 @@ export async function handleCommerceRequest(req,env,request=fetch,networkOf=crea
     const file=await signed.json().catch(()=>({}));
     if(signed.ok&&typeof file.signedURL==='string'){signedPath=file.signedURL.startsWith('/object/sign/')?'/storage/v1'+file.signedURL:file.signedURL;break;}
    }
-   if(!signedPath)return json({ok:false,error:free?'free_not_ready':'unavailable',message:free?'The free Wrapline download opens very soon.':'The installer is temporarily unavailable.'},503);
+   if(!signedPath)return json({ok:false,error:free?'free_not_ready':'unavailable',message:free?(mac?'The free Wrapline for Mac is being prepared. Please try again shortly.':'The free Wrapline download opens very soon.'):'The installer is temporarily unavailable.'},503);
    if(!signedPath.startsWith('/storage/v1/object/sign/'))throw fail('Invalid installer response.',503);
    const parsed=new URL(signedPath,base);if(parsed.origin!==new URL(base).origin)throw fail('Invalid installer response.',503);
    const name=free?'Wrapline_Setup.py':'Wrapline_Pro_Setup.py';

@@ -40,7 +40,7 @@ for(const filename of publicPages){
  }else if(filename==='wrapline-free.html'){
   const app=nodes.find(node=>node['@type']==='SoftwareApplication');assert.equal(app.name,'Wrapline');assert.equal(app.isAccessibleForFree,true);assert.equal(app.featureList.length,freeTools.length);
  }else if(filename==='wrapline.html'){
-  const app=nodes.find(node=>node['@type']==='SoftwareApplication');assert(app,'SoftwareApplication missing');assert.equal(app.name,'Wrapline Pro');assert.equal(app.operatingSystem,'Windows');assert.match(app.softwareRequirements,/Maya 2023/);assert.equal(app.featureList.length,tools.length);
+  const app=nodes.find(node=>node['@type']==='SoftwareApplication');assert(app,'SoftwareApplication missing');assert.equal(app.name,'Wrapline Pro');assert.equal(app.operatingSystem,'Windows, macOS');assert.match(app.softwareRequirements,/Maya 2023/);assert.equal(app.featureList.length,tools.length);
   const list=nodes.find(node=>node['@type']==='ItemList');assert.equal(list.numberOfItems,tools.length);assert.deepEqual(new Set(list.itemListElement.map(item=>item.url)),new Set(tools.map(name=>base+name)));
  }else{
   const breadcrumb=nodes.find(node=>node['@type']==='BreadcrumbList');assert(breadcrumb&&[base,base+'wrapline.html',base+'wrapline-free.html'].includes(breadcrumb.itemListElement[0].item),`${filename}: breadcrumb must start at a home page`);assert.equal(breadcrumb.itemListElement.at(-1).item,expected);

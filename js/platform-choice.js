@@ -44,7 +44,14 @@
     });
     document.documentElement.dataset.os = os;
     var tag = document.querySelector('.download-file small');
-    if (tag) { if (!tag.dataset.win) tag.dataset.win = tag.textContent; tag.textContent = os === 'mac' ? tag.dataset.win.replace(/Windows/g, 'Mac') : tag.dataset.win; }
+    if (tag) {
+      var line = (os === 'mac' ? 'macOS (beta)' : 'Windows') + ' · Autodesk Maya 2023–2026 · Wrapline Pro';
+      if (tag.textContent !== line) {
+        if (tag.dataset.ready && tag.animate) { tag.animate([{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease' }); setTimeout(function () { tag.textContent = line; }, 160); }
+        else tag.textContent = line;
+      }
+      tag.dataset.ready = '1';
+    }
     document.dispatchEvent(new CustomEvent('wl:os', { detail: os }));
   }
   function set(k, remember) {

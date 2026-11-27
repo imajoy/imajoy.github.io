@@ -17,6 +17,7 @@ body{background-image:radial-gradient(ellipse at 0% 35%,#b7cfff12,transparent 45
   .pillbar .nav a:nth-child(2){--pill-delay:.94s}
   .pillbar .nav a:nth-child(3){--pill-delay:1s}
   .pillbar .nav a:nth-child(4){--pill-delay:1.06s}
+  .pillbar .nav a:nth-child(5){--pill-delay:1.1s}
   .pillbar>.theme{--pill-delay:1.12s}
   .pillbar>.acct-btn{--pill-delay:1.16s}
   .pillbar>.btn{--pill-delay:1.18s}

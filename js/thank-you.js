@@ -8,6 +8,17 @@ let progress=null;
 /* A real confirmation always arrives with details in the address. Opened bare, it would wrongly say "Payment confirmed", so send the visitor to the toolkit page instead. */
 if(!location.search)location.replace('/wrapline.html');
 const q=new URLSearchParams(location.search),$=id=>document.getElementById(id),main=document.querySelector('.ty-main');
+/* A saved confirmation is opened with ?subscription=<reference>. That reference is kept for this tab only and taken out of the
+   address bar, so the address stays short (wrapline.in/thank-you). A reload in the same tab still shows the same confirmation. */
+const SUBKEY='wl-ty-sub';
+let subRef='';
+try{
+ const given=q.get('subscription');
+ if(given&&/^[-A-Za-z0-9]{6,64}$/.test(given)){subRef=given;sessionStorage.setItem(SUBKEY,given);}
+ else if(q.has('provider')){sessionStorage.removeItem(SUBKEY);}
+ else if(!q.has('history')){subRef=sessionStorage.getItem(SUBKEY)||'';}
+ if(q.has('subscription')){q.delete('subscription');const rest=q.toString();history.replaceState(history.state,'',location.pathname+(rest?'?'+rest:'')+location.hash);}
+}catch{subRef=q.get('subscription')||'';}
 const plan=q.get('plan')==='offline'?'Premium':'Basic',billing=q.get('billing')==='yearly'?'Yearly':'Monthly';
 let seats=parseInt(q.get('seats'),10);seats=seats>0&&seats<=100?seats:1;
 const provider=q.get('provider')==='razorpay'?'Razorpay':q.get('provider')==='paypal'?'PayPal':'',trial=q.get('offer')==='trial';
@@ -70,7 +81,7 @@ const MOODS={confirmed:'joy',verifying:'listen',delayed:'worry',problem:'sad'};
 const orbBox=$('ty-orb');orbBox.innerHTML=orb('listen');
 const syncOrb=()=>{const e=orbBox.firstElementChild;if(e)e.dataset.mood=MOODS[main.dataset.tyState]||'joy';};
 new MutationObserver(syncOrb).observe(main,{attributes:true,attributeFilter:['data-ty-state']});
-const archiveMode=q.has('history')||q.has('subscription');
+const archiveMode=q.has('history')||!!subRef;
 if(!archiveMode)state('confirmed');
 let archiveLoading=false;
 function loadArchive(){
@@ -87,7 +98,7 @@ function loadArchive(){
  accountRequest({step:'history',token:session.token},45000).then(async data=>{
   if(!data.ok&&['step','email'].includes(data.error)){const legacy=await accountRequest({step:'status',token:session.token},45000);data={...legacy,invoices:[],archivePending:true};}
   if(!data.ok||data.email!==session.email||!Array.isArray(data.subscriptions)||!Array.isArray(data.invoices))throw Error('history');
-  const selected=(q.get('subscription')?data.subscriptions.find(s=>s.ref===q.get('subscription')):data.subscriptions.find(s=>Date.parse(s.endsAt)>Date.now()&&s.status!=='UNKNOWN'));
+  const selected=(subRef?data.subscriptions.find(s=>s.ref===subRef):data.subscriptions.find(s=>Date.parse(s.endsAt)>Date.now()&&s.status!=='UNKNOWN'));
   const active=selected&&Number.isFinite(Date.parse(selected.endsAt))&&Date.parse(selected.endsAt)>Date.now()&&selected.status!=='UNKNOWN';
   if(active&&archiveMode){
    state('confirmed',selected.trial?'Free trial started':'Subscription confirmed','Welcome back. Your subscription is active through '+new Date(selected.endsAt).toLocaleDateString()+'.');

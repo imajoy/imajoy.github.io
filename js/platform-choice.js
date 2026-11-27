@@ -52,6 +52,15 @@
       }
       tag.dataset.ready = '1';
     }
+    var plat = document.getElementById('dl-platform');
+    if (plat) {
+      var ptxt = 'Autodesk Maya 2023, 2024, 2025 and 2026 on ' + (os === 'mac' ? 'macOS (macOS is in beta)' : 'Windows');
+      if (plat.textContent !== ptxt) {
+        if (plat.dataset.ready && plat.animate) { plat.animate([{ opacity: 1 }, { opacity: 0 }, { opacity: 1 }], { duration: 320, easing: 'ease' }); setTimeout(function () { plat.textContent = ptxt; }, 160); }
+        else plat.textContent = ptxt;
+      }
+      plat.dataset.ready = '1';
+    }
     document.dispatchEvent(new CustomEvent('wl:os', { detail: os }));
   }
   function set(k, remember) {

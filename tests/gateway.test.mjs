@@ -108,3 +108,14 @@ test('Reward quotes and discounted checkout use the same signed gateway, identit
  assert.equal(created.status,200);const data=await created.json();assert.equal(data.pricing.total,5698);assert.equal(s.app.subscriptions.get(data.subscriptionId).plan_id,[...s.app.plans.values()][0].id);
  const rejected=await handleCommerceRequest(s.req('rewards',{...selection,accountToken:'not-a-valid-session-token'}),s.env,s.upstream);assert.equal(rejected.status,401);
 });
+test('The free Setup follows the visitor\'s system: Mac gets only the Mac file, Windows never gets it, Pro is one file',async()=>{
+ const s=setup();s.values.STORED=['Wrapline_Pro_Setup.py','Wrapline_Setup.py','Wrapline_Free_Setup_Mac.py'];
+ const url=async body=>(await (await handleCommerceRequest(s.req('download',body),s.env,s.upstream)).json());
+ const mac=await url({product:'free',system:'mac'});
+ assert.equal(mac.url,'https://project.supabase.co/storage/v1/object/sign/installers/Wrapline_Free_Setup_Mac.py?token=SIGNED&download=Wrapline_Setup_Mac.py');assert.equal(mac.name,'Wrapline_Setup_Mac.py');
+ for(const body of [{product:'free'},{product:'free',system:'win'},{product:'free',system:'../mac'}]){const got=await url(body);assert(got.url.includes('/Wrapline_Setup.py?'),JSON.stringify(body));assert.equal(got.name,'Wrapline_Setup.py');}
+ const pro=await url({system:'mac'});assert(pro.url.includes('/Wrapline_Pro_Setup.py?'));assert.equal(pro.name,'Wrapline_Pro_Setup.py');
+ s.values.STORED=['Wrapline_Pro_Setup.py','Wrapline_Setup.py'];
+ const none=await handleCommerceRequest(s.req('download',{product:'free',system:'mac'}),s.env,s.upstream);
+ assert.equal(none.status,503);const body=await none.json();assert.equal(body.error,'free_not_ready');assert(/macOS/.test(body.message));
+});

@@ -18,17 +18,20 @@
   function el(tag, cls, html) { var n = document.createElement(tag); if (cls) n.className = cls; if (html != null) n.innerHTML = html; return n; }
 
   function build(product) {
-    var wrap = el('div', 'pc-wrap'), bar = el('div', 'pc');
+    var wrap = el('div', 'pc-wrap'), bar = el('div', 'pc'), soon = el('div', 'pc-soon');
     bar.setAttribute('role', 'radiogroup'); bar.setAttribute('aria-label', 'Choose your computer');
     var thumb = el('i', 'pc-thumb'); thumb.setAttribute('aria-hidden', 'true'); bar.appendChild(thumb);
     ['win', 'mac'].forEach(function (k) {
-      var b = el('button', 'pc-opt', SVG[k] + '<span>' + (k === 'win' ? 'Windows' : 'Mac') + '</span>' );
+      var b = el('button', 'pc-opt', SVG[k] + '<span>' + (k === 'win' ? 'Windows' : 'Mac') + '</span>' + (k === 'mac' ? '<em>Beta</em>' : '') );
       b.type = 'button'; b.setAttribute('role', 'radio'); b.dataset.os = k;
       b.addEventListener('click', function () { set(k, true); });
       bar.appendChild(b);
     });
-    wrap.append(bar);
-    var g = { wrap: wrap, bar: bar, product: product };
+    soon.setAttribute('role', 'status'); soon.hidden = true;
+    soon.innerHTML = '<span class="pc-soon-ico" aria-hidden="true">' + SVG.mac + '</span><div><b>' + product + ' for Mac is in beta</b>' +
+      '<p>It is new and still being tested on real Macs. If anything does not work, please tell us on the Support page.</p></div>';
+    wrap.append(bar, soon);
+    var g = { wrap: wrap, bar: bar, soon: soon, product: product };
     groups.push(g); return g;
   }
 
@@ -36,6 +39,8 @@
     groups.forEach(function (g) {
       g.bar.dataset.os = os;
       [].forEach.call(g.bar.querySelectorAll('.pc-opt'), function (b) { b.setAttribute('aria-checked', String(b.dataset.os === os)); b.tabIndex = b.dataset.os === os ? 0 : -1; });
+      var was = g.soon.hidden; g.soon.hidden = os !== 'mac';
+      if (was && os === 'mac') { g.soon.classList.remove('is-in'); void g.soon.offsetWidth; g.soon.classList.add('is-in'); }
     });
     document.documentElement.dataset.os = os;
     var tag = document.querySelector('.download-file small');
